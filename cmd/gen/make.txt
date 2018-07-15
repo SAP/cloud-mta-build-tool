@@ -1,0 +1,41 @@
+# Create folder for build artifacts
+MTR_DIR := $(shell mit execute prepare)
+# Determine OS cores
+{{- range OsCore }}
+{{ .NPROCS  }}
+{{ .MAKEFLAGS  }}
+{{- end}}
+all: gmake cores {{- range .File.Modules}} {{.Name}}{{end}} meta mtar cleanup
+# All modules execution
+modules = {{- range .File.Modules}} {{.Name}}{{end}}
+# Set the current project repository path for general mta process
+  PROJ_DIR := $(CURDIR)
+# Verfiy the makefile
+gmake: mta.yaml
+	mit init > $@
+# Execute all the modules
+{{- range .File.Modules}}
+.PHONY: {{.Name}}
+{{.Name}}:
+{{"\t"}}cd $(PROJ_DIR)/{{.Path}} {{- range ExeCommand .}} && {{ .Command }}
+               {{- end}}
+# Pack module after build for deployment
+{{"\t"}}@mit execute pack $(MTR_DIR) {{.Path}} {{.Name}}
+{{end}}
+# Create META-INF folder with MANIFEST.MF & mtad.yaml
+.PHONY:
+meta:
+# Create META-INF folder with MANIFEST.MF & mtad.yaml
+{{"\t"}}@mit execute meta $(MTR_DIR)
+# Pack as MTAR artifact
+.PHONY:
+mtar: $(modules) meta
+{{"\t"}}@mit execute mtar $(MTR_DIR) $(PROJ_DIR)
+.PHONY:
+cleanup: mtar
+# Remove tmp folder
+{{"\t"}}@mit execute cleanup $(MTR_DIR)
+# Print available cores for parallel execution
+.PHONY:
+cores:
+{{"\t"}}@echo $(NPROCS)

@@ -1,0 +1,25 @@
+# VsCode files
+.vscode
+#Goland files
+.idea
+.idea/inspectionProfiles/
+cmd/internal/
+
+# Binaries for programs and plugins
+*.so
+*.dylib
+
+# Test binary, build with `go test -c`
+*.test
+
+
+*.out
+.editorconfig
+
+.history
+build
+fmt
+docker*
+
+
+
