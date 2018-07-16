@@ -4,6 +4,7 @@
 .idea
 .idea/inspectionProfiles/
 cmd/internal/
+vendor
 
 # Binaries for programs and plugins
 *.so
