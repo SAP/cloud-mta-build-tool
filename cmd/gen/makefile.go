@@ -12,12 +12,14 @@ import (
 	"runtime"
 	"text/template"
 	"mbtv2/cmd/logs"
+	"os"
 )
 
 //Make - Generate the makefile
 func Make() {
 
-	var makefile = "gmake"
+	var genFileName = "Makefile"
+	var makeFile *os.File
 	// Using the module context for the template creation
 	mta := models.MTA{}
 	type API map[string]string
@@ -29,11 +31,17 @@ func Make() {
 	projPath := fs.GetPath()
 	// Create the init script file
 
-	bashFile := fs.CreateFile(projPath + constants.PathSep + makefile)
+	if _, err := os.Stat(projPath + constants.PathSep + genFileName); err == nil {
+		// path/to/whatever exists
+		makeFile = fs.CreateFile(projPath + constants.PathSep + genFileName + ".mta")
+	} else {
+		makeFile = fs.CreateFile(projPath + constants.PathSep + genFileName)
+	}
+
 	// Read the MTA
 	yamlFile, err := ioutil.ReadFile(projPath + "/mta.yaml")
 	if err != nil {
-		log.Printf("Not able to reay the mta.yaml file: #%v ", err)
+		log.Printf("Not able to read the mta.yaml file: #%v ", err)
 	}
 	// Parse mta
 	err = yaml.Unmarshal([]byte(yamlFile), &mta)
@@ -56,7 +64,7 @@ func Make() {
 		panic(err)
 	}
 	// Execute the template
-	if err = t.Execute(bashFile, data); err != nil {
+	if err = t.Execute(makeFile, data); err != nil {
 		logs.Logger.Error(err)
 	}
 	//logs.Logger.Info("MTA build script was generated successfully: " + projPath + constants.PathSep + makefile)
@@ -74,7 +82,7 @@ func OsCore() []Proc {
 	case "linux":
 		return []Proc{{`NPROCS = $(shell grep -c 'processor' /proc/cpuinfo)`, `MAKEFLAGS += -j$(NPROCS)`}}
 	case "darwin":
-		return []Proc{{`NPROCS = $(shell sysctl hw.ncpu  | grep -o '[0-9]\+')`, `MAKEFLAGS += -j$(NPROCS)`}}
+		return []Proc{{`NPROCS = $(sysctl -n hw.ncpu')`, `MAKEFLAGS += -j$(NPROCS)`}}
 	case "windows":
 		return []Proc{}
 	default:
