@@ -15,7 +15,7 @@ func OsCore() []Proc {
 	case "darwin":
 		return []Proc{{`NPROCS = $(sysctl -n hw.ncpu')`, `MAKEFLAGS += -j$(NPROCS)`}}
 	case "windows":
-		return []Proc{}
+		return []Proc{{`NPROCS = $(shell echo %NUMBER_OF_PROCESSORS%)`, `MAKEFLAGS += -j$(NPROCS)`}}
 	default:
 		return []Proc{}
 	}

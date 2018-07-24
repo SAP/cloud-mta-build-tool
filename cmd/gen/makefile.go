@@ -4,15 +4,15 @@ import (
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"log"
+	"path/filepath"
+	"runtime"
+	"text/template"
+	"os"
 
 	"mbtv2/cmd/constants"
 	fs "mbtv2/cmd/fsys"
 	"mbtv2/cmd/mta/models"
-	"path/filepath"
-	"runtime"
-	"text/template"
 	"mbtv2/cmd/logs"
-	"os"
 	"mbtv2/cmd/proc"
 )
 
