@@ -7,7 +7,7 @@ type Proc struct {
 	MAKEFLAGS string
 }
 
-// OsCore - Get the build operation's
+// OsCore - Get available cores according to the running OS
 func OsCore() []Proc {
 	switch runtime.GOOS {
 	case "linux":
