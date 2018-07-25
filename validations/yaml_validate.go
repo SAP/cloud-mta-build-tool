@@ -1,3 +1,10 @@
+// TODO: Implement additional validations
+// 1. Unique:
+// 2. TypeIsBool
+// 3. TypeIsEnum
+// 4. Allowed Properties.
+// 5. TypeIsNotMapOrSet
+
 package mta_validate
 
 import (
@@ -77,7 +84,6 @@ func ForEach(checks ...YamlCheck) YamlCheck {
 
 		var issues []YamlValidationIssue
 
-		// TODO: should we fail fast here?!
 		validation := Sequence(checks...)
 
 		for i := 0; i < arrSize; i++ {
@@ -177,12 +183,6 @@ func MatchesRegExp(pattern string) YamlCheck {
 		return []YamlValidationIssue{}
 	}
 }
-
-// TODO: Implement additional validations
-// 1. Unique: https://github.wdf.sap.corp/mta/spec/blob/948bef86b816429b800455291f7a818ecd479886/schemas/v3/v3.1/mta-schema.yaml#L55
-// 2. TypeIsBool https://github.wdf.sap.corp/mta/spec/blob/948bef86b816429b800455291f7a818ecd479886/schemas/v3/v3.1/mta-schema.yaml#L74
-// 3. TypeIsEnum (can be implemented using MatchesRegExp).
-// 4. Allowed Properties.
 
 func prettifyPath(path string) string {
 	wrongIdxSyntax, _ := regexp.Compile("\\.\\[")

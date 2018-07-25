@@ -5,10 +5,6 @@
 // 4. regExp patterns also implicitly require a NotMapSequence validation
 // 5. TypeValidations (Bool / Enum)
 
-// TODO: Shahar
-// 1. Comments
-// 2. extract error prefix
-
 package mta_validate
 
 import (
@@ -17,6 +13,8 @@ import (
 	"strings"
 )
 
+// Entry point that accepts a Yaml Schema as text and produces YAML validation functions
+// and the schema issues detected.
 func BuildValidationsFromSchemaText(yaml []byte) ([]YamlCheck, []string) {
 	var validations []YamlCheck
 	var schemaIssues []string
@@ -27,10 +25,12 @@ func BuildValidationsFromSchemaText(yaml []byte) ([]YamlCheck, []string) {
 		return validations, schemaIssues
 	}
 
-	return BuildValidationsFromSchema(y)
+	return buildValidationsFromSchema(y)
 }
 
-func BuildValidationsFromSchema(schema *simpleyaml.Yaml) ([]YamlCheck, []string) {
+// Internal YAML validation builder
+// Will be called recursively and traverse the schema structure.
+func buildValidationsFromSchema(schema *simpleyaml.Yaml) ([]YamlCheck, []string) {
 	var validations []YamlCheck
 	var schemaIssues []string
 
@@ -38,15 +38,25 @@ func BuildValidationsFromSchema(schema *simpleyaml.Yaml) ([]YamlCheck, []string)
 	typeNodeValue, _ := typeNode.String()
 	if typeNode.IsFound() && (typeNodeValue == "map" || typeNodeValue == "seq") {
 		switch typeNodeValue {
+		// type: map
+		// mapping:
+		//   firstName:  {required: true}
+		//   ...
 		case "map":
 			mappingNode := schema.Get("mapping")
 			if !mappingNode.IsMap() {
 				schemaIssues = append(schemaIssues, "YAML Schema Error: <mapping> node must be a map")
 				return validations, schemaIssues
 			}
-			newValidations, newSchemaIssues := BuildValidationsFromMap(mappingNode)
+			newValidations, newSchemaIssues := buildValidationsFromMap(mappingNode)
 			schemaIssues = append(schemaIssues, newSchemaIssues...)
 			validations = append(validations, newValidations...)
+		// type: seq
+		// sequence:
+		//  - type: map
+		//  mapping:
+		//    name: {required: true}
+		//    ...
 		case "seq":
 			sequenceNode := schema.Get("sequence")
 			if !sequenceNode.IsArray() {
@@ -60,11 +70,13 @@ func BuildValidationsFromSchema(schema *simpleyaml.Yaml) ([]YamlCheck, []string)
 				return validations, schemaIssues
 			}
 
+			// A sequence schema node has exactly only 1 element
 			sequenceItemNode := sequenceNode.GetIndex(0)
-			sequenceValidations, newSchemaIssues := BuildValidationsFromSequence(sequenceItemNode)
+			sequenceValidations, newSchemaIssues := buildValidationsFromSequence(sequenceItemNode)
 			schemaIssues = append(schemaIssues, newSchemaIssues...)
 			validations = append(validations, sequenceValidations...)
 		}
+		// {required: true, pattern: /^[a-z]+$/}
 	} else {
 		return buildLeafValidations(schema)
 	}
@@ -72,7 +84,9 @@ func BuildValidationsFromSchema(schema *simpleyaml.Yaml) ([]YamlCheck, []string)
 	return validations, schemaIssues
 }
 
-func BuildValidationsFromMap(y *simpleyaml.Yaml) ([]YamlCheck, []string) {
+// Create Validations for a mapping
+// each key's inner validations will be wrapping in a "Property" validation
+func buildValidationsFromMap(y *simpleyaml.Yaml) ([]YamlCheck, []string) {
 	var validations []YamlCheck
 	var schemaIssues []string
 
@@ -81,7 +95,7 @@ func BuildValidationsFromMap(y *simpleyaml.Yaml) ([]YamlCheck, []string) {
 	keys, _ := y.GetMapKeys()
 	for _, key := range keys {
 		value := y.Get(key)
-		propInnerValidations, newSchemaIssues := BuildValidationsFromSchema(value)
+		propInnerValidations, newSchemaIssues := buildValidationsFromSchema(value)
 		schemaIssues = append(schemaIssues, newSchemaIssues...)
 		propWrapperValidation := Property(key, propInnerValidations...)
 		validations = append(validations, propWrapperValidation)
@@ -89,17 +103,24 @@ func BuildValidationsFromMap(y *simpleyaml.Yaml) ([]YamlCheck, []string) {
 	return validations, schemaIssues
 }
 
-func BuildValidationsFromSequence(y *simpleyaml.Yaml) ([]YamlCheck, []string) {
+// Creates validations for a Sequence
+// Will wrap the nested checks with a "TypeIsArray" check and iterate over the elements
+// using "ForEach"
+func buildValidationsFromSequence(y *simpleyaml.Yaml) ([]YamlCheck, []string) {
 	var validations []YamlCheck
 	var schemaIssues []string
 
-	sequenceInnerValidations, newIssues := BuildValidationsFromSchema(y)
-	validations = append(validations, SequenceFailFast(TypeIsArray(), ForEach(sequenceInnerValidations...)))
+	sequenceInnerValidations, newIssues := buildValidationsFromSchema(y)
+	seqChecksWrapper := SequenceFailFast(TypeIsArray(), ForEach(sequenceInnerValidations...))
+	validations = append(validations, seqChecksWrapper)
 	schemaIssues = append(schemaIssues, newIssues...)
 
 	return validations, newIssues
 }
 
+// Will create the "edge" nodes validations, these are specific checks
+// for a specific path at the end of the YAML Schema
+// e.g: {required: true, pattern: /^[a-zA-Z]$/}
 func buildLeafValidations(y *simpleyaml.Yaml) ([]YamlCheck, []string) {
 	var validations []YamlCheck
 	var schemaIssues []string
@@ -109,7 +130,7 @@ func buildLeafValidations(y *simpleyaml.Yaml) ([]YamlCheck, []string) {
 	validations, schemaIssues = invokeLeafValidation(y, validations, schemaIssues, buildPatternValidation)
 
 	// Special handling is needed for "Optional" and "Required" Validations, must be invoked last
-	// and receive all previous built validations as wrapping will be done here.
+	// and receive all previous built validations as extra wrapping will be done here.
 	return buildOptionalOrRequiredValidation(y, validations, schemaIssues)
 
 }
@@ -124,10 +145,14 @@ func buildOptionalOrRequiredValidation(y *simpleyaml.Yaml, validations []YamlChe
 			return validations, schemaIssues
 		}
 
+		// When a "required" check is needed there is no need to perform additional validations
+		// if the property is missing, thus we use "SequenceFailFast"
 		if requiredValue == "true" {
 			// The required check must be performed first in the sequence.
 			validationsWithRequiredFirst := append([]YamlCheck{Required()}, validations...)
 			validations = []YamlCheck{SequenceFailFast(validationsWithRequiredFirst...)}
+			// When "required" is false, we must only perform additional validations
+			// if the property actually exists, thus we use "Optional"
 		} else {
 			// An Optional wraps all our other validations.
 			validations = []YamlCheck{Optional(validations...)}
@@ -175,6 +200,7 @@ func buildPatternValidation(y *simpleyaml.Yaml) ([]YamlCheck, []string) {
 	return validations, schemaIssues
 }
 
+// Utility to reduce verbosity
 func invokeLeafValidation(y *simpleyaml.Yaml, validations []YamlCheck, schemaIsssues []string, leafBuilder func(y *simpleyaml.Yaml) ([]YamlCheck, []string)) ([]YamlCheck, []string) {
 	newValidations, newSchemaIssues := leafBuilder(y)
 	validations = append(validations, newValidations...)
