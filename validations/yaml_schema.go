@@ -173,7 +173,7 @@ func buildTypeValidation(y *simpleyaml.Yaml) ([]YamlCheck, []string) {
 			return validations, schemaIssues
 		}
 		if typeValue == "bool" {
-			// TODO: TBD
+			validations = append(validations, TypeIsBoolean())
 		} else if typeValue == "enum" {
 			// TODO: TBD
 		}

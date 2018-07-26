@@ -96,6 +96,32 @@ lastName: duck
 		t)
 }
 
+func TestTypeIsBoolValid(t *testing.T) {
+	data := []byte(`
+name: bisli
+registered: false
+`)
+	validateIssues, parseErr := ValidateYaml(data, Property("registered",
+		TypeIsBoolean()))
+
+	assertNoParsingErrors(parseErr, t)
+	assertNoValidationErrors(validateIssues, t)
+}
+
+func TestTypeIsBoolInvalid(t *testing.T) {
+	data := []byte(`
+name: bamba
+registered: 123
+`)
+	validateIssues, parseErr := ValidateYaml(data, Property("registered",
+		TypeIsBoolean()))
+
+	assertNoParsingErrors(parseErr, t)
+	expectSingleValidationError(validateIssues,
+		`Property <root.registered> must be of type <Boolean>`,
+		t)
+}
+
 func TestTypeIsArrayValid(t *testing.T) {
 	data := []byte(`
 firstName: 

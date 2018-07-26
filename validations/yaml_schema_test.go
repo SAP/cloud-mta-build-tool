@@ -259,3 +259,43 @@ lastName: duck
 		`Property <root.firstName> with value: <Donald123> must match pattern: <^[a-zA-Z]+$>`,
 		t)
 }
+
+func TestSchemaTypeIsBoolValid(t *testing.T) {
+	var schema = []byte(`
+type: map
+mapping:
+   isHappy:  {type: bool}
+`)
+
+	schemaValidations, schemaIssues := BuildValidationsFromSchemaText(schema)
+	assertNoSchemaIssues(schemaIssues, t)
+
+	input := []byte(`
+firstName: Tim
+isHappy: false
+`)
+	validateIssues, parseErr := ValidateYaml(input, schemaValidations...)
+	assertNoParsingErrors(parseErr, t)
+	assertNoValidationErrors(validateIssues, t)
+}
+
+func TestSchemaTypeIsBoolInvalid(t *testing.T) {
+	var schema = []byte(`
+type: map
+mapping:
+   isHappy:  {type: bool}
+`)
+
+	schemaValidations, schemaIssues := BuildValidationsFromSchemaText(schema)
+	assertNoSchemaIssues(schemaIssues, t)
+
+	input := []byte(`
+firstName: John
+isHappy: 123
+`)
+	validateIssues, parseErr := ValidateYaml(input, schemaValidations...)
+	assertNoParsingErrors(parseErr, t)
+	expectSingleValidationError(validateIssues,
+		`Property <root.isHappy> must be of type <Boolean>`,
+		t)
+}

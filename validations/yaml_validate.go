@@ -1,6 +1,5 @@
 // TODO: Implement additional validations
 // 1. Unique:
-// 2. TypeIsBool
 // 3. TypeIsEnum
 // 4. Allowed Properties.
 // 5. TypeIsNotMapOrSet
@@ -163,6 +162,18 @@ func TypeIsMap() YamlCheck {
 
 		if err != nil {
 			return []YamlValidationIssue{{msg: fmt.Sprintf("Property <%s> must be of type <Map>", buildPathString(path))}}
+		}
+
+		return []YamlValidationIssue{}
+	}
+}
+
+func TypeIsBoolean() YamlCheck {
+	return func(yProp *simpleyaml.Yaml, path []string) []YamlValidationIssue {
+		_, err := yProp.Bool()
+
+		if err != nil {
+			return []YamlValidationIssue{{msg: fmt.Sprintf("Property <%s> must be of type <Boolean>", buildPathString(path))}}
 		}
 
 		return []YamlValidationIssue{}
