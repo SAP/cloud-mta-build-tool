@@ -10,6 +10,8 @@ import (
 	"mbtv2/cmd/constants"
 	"mbtv2/cmd/fsys"
 	"mbtv2/cmd/mta"
+	"io"
+	"fmt"
 )
 
 // The deployment descriptor shall be located within the META-INF folder of the JAR.
@@ -31,23 +33,25 @@ const (
 	MANIFEST_VER  = "Manifest-Version: 1.0 \n"
 )
 
-func setManifetDesc(file *os.File, mtaStr models.MTA) {
-	// TODO create it dynamically
-	file.WriteString(MANIFEST_VER)
+
+func setManifetDesc(file io.Writer, mtaStr models.MTA) {
+	// TODO create dynamically
+	fmt.Fprint(file,MANIFEST_VER)
 	// TODO set the version from external config for automatic version bump during release
-	file.WriteString("Created-By: SAP MIT Application Archive Builder 0.0.1")
+	fmt.Fprint(file,"Created-By: SAP Application Archive Builder 0.0.1")
 	for _, mod := range mtaStr.Modules {
 
-		file.WriteString(NEW_LINE)
-		file.WriteString(NEW_LINE)
-		file.WriteString(MOD_NAME + mod.Name + constants.DataZip)
-		file.WriteString(NEW_LINE)
-		file.WriteString(MTA_PRE + mod.Name)
-		file.WriteString(NEW_LINE)
-		file.WriteString(CONT_TYPE_APP)
+		fmt.Fprint(file,NEW_LINE)
+		fmt.Fprint(file,NEW_LINE)
+		fmt.Fprint(file,MOD_NAME + mod.Name + constants.DataZip)
+		fmt.Fprint(file,NEW_LINE)
+		fmt.Fprint(file,MTA_PRE + mod.Name)
+		fmt.Fprint(file,NEW_LINE)
+		fmt.Fprint(file,CONT_TYPE_APP)
 
 	}
 }
+
 
 func GenMetaInf(tmpDir string, mtaStr models.MTA) {
 	// Create META-INF folder under the mtar folder

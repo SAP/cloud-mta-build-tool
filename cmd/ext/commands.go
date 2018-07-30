@@ -7,8 +7,8 @@ type Cmd struct {
 	Command []string
 }
 
-//Todo - get from external resources
 // ExeCmd - Get the build operation's
+//Todo - get from external resources
 func ExeCmd(m models.Modules) []Cmd {
 
 	switch m.Type {

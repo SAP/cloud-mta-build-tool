@@ -9,11 +9,11 @@ import (
 
 	"mbtv2/cmd/mta/models"
 )
-
+// Table driven test
 // Unit test for parsing mta files to working object
 func Test_ParseFile(t *testing.T) {
 
-	yamlfile, _ := ioutil.ReadFile("./testdata/mta.yaml")
+	mtaFile, _ := ioutil.ReadFile("./testdata/mta.yaml")
 
 	tests := []struct {
 		n       int
@@ -98,7 +98,7 @@ func Test_ParseFile(t *testing.T) {
 	// First Module test as atomic building blocks
 
 	var idx int
-	actual, err := Parse(yamlfile)
+	actual, err := Parse(mtaFile)
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 

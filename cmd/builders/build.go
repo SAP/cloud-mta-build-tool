@@ -6,7 +6,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	"mbtv2/cmd/builders/metainfo"
+	"mbtv2/cmd/mta/metainfo"
 	"mbtv2/cmd/constants"
 	fs "mbtv2/cmd/fsys"
 	"mbtv2/cmd/logs"
