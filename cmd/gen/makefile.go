@@ -14,6 +14,7 @@ import (
 	"mbtv2/cmd/mta/models"
 	"mbtv2/cmd/logs"
 	"mbtv2/cmd/proc"
+	"mbtv2/cmd/ext"
 )
 
 //Make - Generate the makefile
@@ -53,8 +54,8 @@ func Make() {
 	data.File = mta
 	//// Create maps of the template method's
 	funcMap := template.FuncMap{
-		"ExeCommand": ExeCommand,
-		"OsCore":     proc.OsCore,
+		"ExeCmd": ext.ExeCmd,
+		"OsCore": proc.OsCore,
 	}
 	// Get the path of the template source code
 	_, file, _, _ := runtime.Caller(0)

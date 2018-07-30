@@ -1,17 +1,20 @@
 package gen
 
 import (
-	"gopkg.in/yaml.v2"
+
 	"io/ioutil"
 	"log"
+
+	"gopkg.in/yaml.v2"
+	"path/filepath"
+	"runtime"
+	"text/template"
+
 	"mbtv2/cmd/constants"
 	fs "mbtv2/cmd/fsys"
 	"mbtv2/cmd/logs"
 	"mbtv2/cmd/mta/models"
-
-	"path/filepath"
-	"runtime"
-	"text/template"
+	"mbtv2/cmd/ext"
 )
 
 // Generate - Generate mta build file
@@ -27,7 +30,7 @@ func Generate(path string) {
 	}
 	// Get working directory
 	projPath := fs.GetPath()
-	// Create the init script file
+	// Create the init script filem
 
 	bashFile := fs.CreateFile(projPath + constants.PathSep + mtaScript)
 	// Read the MTA
@@ -41,7 +44,7 @@ func Generate(path string) {
 
 	// Create maps of the template method's
 	funcMap := template.FuncMap{
-		"ExeCommand": ExeCommand,
+		"ExeCommand": ext.ExeCmd,
 	}
 	// Get the path of the template source code
 	_, file, _, _ := runtime.Caller(0)
@@ -59,25 +62,4 @@ func Generate(path string) {
 
 }
 
-type Cmd struct {
-	Info    string
-	Command string
-}
 
-// ExeCommand - Get the build operation's
-func ExeCommand(m models.Modules) []Cmd {
-
-	switch m.Type {
-	case "html5":
-		// TODO get the maps from external source
-		return []Cmd{
-			{"# installing module dependencies & execute grunt & remove dev dependencies",
-				"npm install && grunt && npm prune production "},
-		}
-	case "hdb":
-		return []Cmd{{"#test 2", "this module/command is not supported yet !!!!"}}
-	default:
-		return []Cmd{{"#command_baz", "this module/command is not supported yet !!!!"}}
-	}
-
-}

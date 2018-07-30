@@ -135,6 +135,12 @@
   version = "v1.0.5"
 
 [[projects]]
+  branch = "master"
+  name = "github.com/smallfish/simpleyaml"
+  packages = ["."]
+  revision = "a32031077861b1fbdf988d2c0865e98ec832dd4c"
+
+[[projects]]
   name = "github.com/spf13/afero"
   packages = [
     ".",
@@ -249,6 +255,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "775d689f8e00c56fd80a3e8e01c167c25b836ec05c71cdf7b2ffb5d7f82d2f2b"
+  inputs-digest = "df5a972ff1674f33f2dc0b6c633d5d37f3254ff2c994d8ce0f6887bc5f9f9839"
   solver-name = "gps-cdcl"
   solver-version = 1
