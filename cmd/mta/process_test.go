@@ -13,7 +13,7 @@ import (
 // Unit test for parsing mta files to working object
 func Test_ParseFile(t *testing.T) {
 
-	mtaFile, _ := ioutil.ReadFile("./testdata/mta.yaml")
+
 
 	tests := []struct {
 		n       int
@@ -97,6 +97,7 @@ func Test_ParseFile(t *testing.T) {
 
 	// First Module test as atomic building blocks
 
+	mtaFile, _ := ioutil.ReadFile("./testdata/mta.yaml")
 	var idx int
 	actual, err := Parse(mtaFile)
 	for _, tt := range tests {

@@ -19,7 +19,7 @@ import (
 
 //Make - Generate the makefile
 func Make() {
-
+	const MakeTmpl = "make.txt"
 	var genFileName = "Makefile"
 	var makeFile *os.File
 	// Using the module context for the template creation
@@ -59,9 +59,10 @@ func Make() {
 	}
 	// Get the path of the template source code
 	_, file, _, _ := runtime.Caller(0)
-	container := filepath.Join(filepath.Dir(file), "make.txt")
+
+	container := filepath.Join(filepath.Dir(file), MakeTmpl)
 	// parse the template txt file
-	t, err := template.New("make.txt").Funcs(funcMap).ParseFiles(container)
+	t, err := template.New(MakeTmpl).Funcs(funcMap).ParseFiles(container)
 	if err != nil {
 		panic(err)
 	}

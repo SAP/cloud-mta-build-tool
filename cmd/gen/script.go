@@ -48,7 +48,7 @@ func Generate(path string) {
 	}
 	// Get the path of the template source code
 	_, file, _, _ := runtime.Caller(0)
-	container := filepath.Join(filepath.Dir(file), "script.txt")
+	container := filepath.Join(filepath.Dir(file), "script.gotmpl")
 	// parse the template txt file
 	t, err := template.New("script.txt").Funcs(funcMap).ParseFiles(container)
 	if err != nil {
