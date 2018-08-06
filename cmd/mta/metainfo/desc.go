@@ -33,25 +33,23 @@ const (
 	MANIFEST_VER  = "Manifest-Version: 1.0 \n"
 )
 
-
-func setManifetDesc(file io.Writer, mtaStr models.MTA) {
+func setManifetDesc(file io.Writer, mtaStr []*models.Modules) {
 	// TODO create dynamically
-	fmt.Fprint(file,MANIFEST_VER)
+	fmt.Fprint(file, MANIFEST_VER)
 	// TODO set the version from external config for automatic version bump during release
-	fmt.Fprint(file,"Created-By: SAP Application Archive Builder 0.0.1")
-	for _, mod := range mtaStr.Modules {
+	fmt.Fprint(file, "Created-By: SAP Application Archive Builder 0.0.1")
+	for _, mod := range mtaStr {
 
-		fmt.Fprint(file,NEW_LINE)
-		fmt.Fprint(file,NEW_LINE)
-		fmt.Fprint(file,MOD_NAME + mod.Name + constants.DataZip)
-		fmt.Fprint(file,NEW_LINE)
-		fmt.Fprint(file,MTA_PRE + mod.Name)
-		fmt.Fprint(file,NEW_LINE)
-		fmt.Fprint(file,CONT_TYPE_APP)
+		fmt.Fprint(file, NEW_LINE)
+		fmt.Fprint(file, NEW_LINE)
+		fmt.Fprint(file, MOD_NAME+mod.Name+constants.DataZip)
+		fmt.Fprint(file, NEW_LINE)
+		fmt.Fprint(file, MTA_PRE+mod.Name)
+		fmt.Fprint(file, NEW_LINE)
+		fmt.Fprint(file, CONT_TYPE_APP)
 
 	}
 }
-
 
 func GenMetaInf(tmpDir string, mtaStr models.MTA) {
 	// Create META-INF folder under the mtar folder
@@ -68,5 +66,5 @@ func GenMetaInf(tmpDir string, mtaStr models.MTA) {
 	// Create MANIFEST.MF file
 	file := dir.CreateFile(tmpDir + META_INF + constants.PathSep + MANIFEST)
 	// Set the MANIFEST.MF file
-	setManifetDesc(file, mtaStr)
+	setManifetDesc(file, mtaStr.Modules)
 }

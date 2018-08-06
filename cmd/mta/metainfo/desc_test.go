@@ -1,12 +1,13 @@
 package metainfo
 
 import (
-	"mbtv2/cmd/mta/models"
 	//"os"
 	"bytes"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+
+	"mbtv2/cmd/mta/models"
 )
 
 func Test_setManifetDesc(t *testing.T) {
@@ -14,14 +15,26 @@ func Test_setManifetDesc(t *testing.T) {
 	tests := []struct {
 		n        int
 		name     string
-		args     models.MTA
+		args     []*models.Modules
 		expected []byte
 	}{
 		{
+			n:    0,
 			name: "name",
+			args: []*models.Modules{
 
-			//	TODO - read the version via semver
-			expected: []byte("Manifest-Version: 1.0 \nCreated-By: SAP Application Archive Builder 0.0.1"),
+				{
+					Name:        "ui5",
+					Type:        "html5",
+					Path:        "ui5",
+					Requires:    nil,
+					Provides:    nil,
+					Parameters:  nil,
+					BuildParams: nil,
+					Properties:  nil,
+				},
+			},
+			expected: []byte("Manifest-Version: 1.0 \nCreated-By: SAP Application Archive Builder 0.0.1\n\nName: ui5/data.zip\nMTA-Module: ui5\nContent-Type: application/zip"),
 		},
 	}
 
@@ -31,8 +44,6 @@ func Test_setManifetDesc(t *testing.T) {
 			setManifetDesc(b, tt.args)
 			if !bytes.Equal(b.Bytes(), tt.expected) {
 				assert.Equal(t, string(tt.expected), b.String())
-
-				//fmt.Printf("expect:\n%v\nactual:%v\n\n", b.String(), string(tt.expected))
 				t.Error("Fail")
 			}
 

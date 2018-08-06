@@ -2,6 +2,17 @@
 
 
 [[projects]]
+  digest = "1:e32c32f83bb3e53fc6bd15a1f4beb34823d07c0568eb61cf7be242b72b8d81a4"
+  name = "github.com/bxcodec/faker"
+  packages = [
+    ".",
+    "support/slice",
+  ]
+  pruneopts = "UT"
+  revision = "1e3dfd53d826aa0d096d235cf8525149287a2834"
+  version = "v1.4.3"
+
+[[projects]]
   digest = "1:a2c1d0e43bd3baaa071d1b9ed72c27d78169b2b269f71c105ac4ba34b1be4a39"
   name = "github.com/davecgh/go-spew"
   packages = ["spew"]
@@ -343,6 +354,7 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
+    "github.com/bxcodec/faker",
     "github.com/mitchellh/go-homedir",
     "github.com/onsi/ginkgo",
     "github.com/onsi/gomega",

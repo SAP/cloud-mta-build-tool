@@ -1,0 +1,2 @@
+nodejs:
+	"npm install --production"

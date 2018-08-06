@@ -52,7 +52,7 @@ func Make() {
 	}
 
 	data.File = mta
-	//// Create maps of the template method's
+	// Create maps of the template method's
 	funcMap := template.FuncMap{
 		"ExeCmd": ext.ExeCmd,
 		"OsCore": proc.OsCore,
