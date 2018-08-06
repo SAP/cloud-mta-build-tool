@@ -27,9 +27,10 @@ const (
 	Manifest        = "MANIFEST.MF"
 	Mtad            = "mtad.yaml"
 	NewLine         = "\n"
-	ContentType     = "Content-Type: application/zip"
+	ContentType     = "Content-Type: "
 	MtaModule       = "MTA-Module: "
 	ModuleName      = "Name: "
+	ApplicationZip  = "application/zip"
 	ManifestVersion = "Manifest-Version: 1.0 \n"
 )
 
@@ -46,7 +47,7 @@ func setManifetDesc(file io.Writer, mtaStr []*models.Modules) {
 		fmt.Fprint(file, NewLine)
 		fmt.Fprint(file, MtaModule+mod.Name)
 		fmt.Fprint(file, NewLine)
-		fmt.Fprint(file, ContentType)
+		fmt.Fprint(file, ContentType+ApplicationZip)
 
 	}
 }
