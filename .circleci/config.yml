@@ -1,0 +1,17 @@
+# Golang CircleCI 2.0 configuration file
+version: 2
+jobs:
+  build:
+    docker:
+    # specify the version
+    - image: circleci/golang:1.10
+    environment:
+     - DEP_VERSION: 0.5.0
+    working_directory: /go/src/github.com/sap/cloud-mta-build-tool
+    steps:
+    - checkout
+    - run: go version
+    - run: go env
+    - run: go get -v -t -d ./...
+    - run: go test -v ./...
+
