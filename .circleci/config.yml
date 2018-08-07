@@ -7,7 +7,7 @@ jobs:
     - image: circleci/golang:1.10
     environment:
      - DEP_VERSION: 0.5.0
-    working_directory: /go/src/github.com/sap/cloud-mta-build-tool
+    working_directory: /go/src/cloud-mta-build-tool
     steps:
     - checkout
     - run: go version
