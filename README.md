@@ -1,36 +1,40 @@
 # MTA Build Tool (UNDER DEVELOPMENT!)
 
 
-- The mta command-line tool provides a convenient way to build an MTA project into an MTAR (MTA Archive). 
+The MTA command-line tool provides a convenient way to build an MTA project into an MTAR (MTA Archive). 
+ 
 
-This includes:
-- Generate a Makefile as manifest that describe the build process.
-- Building each of the modules in the MTA project.
+#### MBT tool
+
+- The MBT tool is responsible to analyze the `mta.yaml` file and generate a `Makefile` as manifest that describe the build process 
+- Provide atomic command's that can be executed as isolated process
 - Build META-INF folder with the following content:
   - Translating the mta.yaml source file into the mtad.yaml deployment descriptor.
   - Create META-INFO file which describe the build artifacts structure.
-- Provide atomic command's that can be executed as isolated process
-- Packaging the results into an MTAR file
+ 
+  
+#### Makefile  
 
+The generated `Makefile` is the actual project "builder" which provide verbose build manifest that can be changed according to the project needs and responsible to:
+- Building each of the modules in the MTA project.
+- invoking the MBT commands in the right order
 
-
-
-### Commands
+### Commands <a id='commands'></a>
 
 Following is the command which the MBT support:
 
 
 | Command | usage      | description                                            |
 | ------  | ------     |  ----------                                            |
-| version | mbt -v     | Prints the MBT version                                 |
-| help    | mbt -h     | Prints all the available commands                      | 
-| init    | mbt init   | Generate Makefile according to the mta.yaml            |
-| TBD     | TBD        | Additional commands
+| `version` | `mbt -v`     | Prints the MBT version                                 |
+| `help`    | `mbt -h`     | Prints all the available commands                      | 
+| `init`    | `mbt init`   | Generate Makefile according to the mta.yaml            |
+| `TBD `    | `TBD`        | Additional commands
 
 
 ## MTA Project
 
-An MTA project is defined by a project file in the root folder called `mta.yaml` that contains three different sections:
+An MTA(Multi-target-application) project is defined by a project file in the root folder called `mta.yaml` that contains three different sections:
 
    * [General information section](#general) - including the MTA ID and version
    * [Modules section](#modules) - describing the content that is actually delivered within the MTA
@@ -85,8 +89,8 @@ The _requires_ section allows a module to define which configuration sets it nee
 
 #### Todos
 
- - Support MVP scenario 
-    - partial build
+ - Support first MVP scenario such as:
+    - Partial build
     - Feature build
  - Add comprehensive tests
  - Release process
