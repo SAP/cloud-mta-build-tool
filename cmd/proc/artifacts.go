@@ -2,7 +2,7 @@ package proc
 
 import (
 	"fmt"
-	"mbtv2/cmd/fsys"
+	"cloud-mta-build-tool/cmd/fsys"
 	"path/filepath"
 )
 

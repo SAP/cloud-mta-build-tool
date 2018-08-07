@@ -2,7 +2,7 @@ package commands
 
 import (
 	"github.com/spf13/cobra"
-	"mbtv2/cmd/gen"
+	"cloud-mta-build-tool/cmd/gen"
 )
 
 var initProcess = &cobra.Command{

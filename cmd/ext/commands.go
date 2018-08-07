@@ -1,6 +1,6 @@
 package ext
 
-import "mbtv2/cmd/mta/models"
+import "cloud-mta-build-tool/cmd/mta/models"
 
 type Cmd struct {
 	Info    string

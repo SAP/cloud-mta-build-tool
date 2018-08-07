@@ -3,9 +3,9 @@ package commands
 import (
 	"github.com/spf13/cobra"
 
-	"mbtv2/cmd/builders"
-	fs "mbtv2/cmd/fsys"
-	"mbtv2/cmd/proc"
+	"cloud-mta-build-tool/cmd/builders"
+	fs "cloud-mta-build-tool/cmd/fsys"
+	"cloud-mta-build-tool/cmd/proc"
 )
 
 // TODO - inject from outside

@@ -6,11 +6,11 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	"mbtv2/cmd/mta/metainfo"
-	"mbtv2/cmd/constants"
-	fs "mbtv2/cmd/fsys"
-	"mbtv2/cmd/logs"
-	"mbtv2/cmd/proc"
+	"cloud-mta-build-tool/cmd/mta/metainfo"
+	"cloud-mta-build-tool/cmd/constants"
+	fs "cloud-mta-build-tool/cmd/fsys"
+	"cloud-mta-build-tool/cmd/logs"
+	"cloud-mta-build-tool/cmd/proc"
 )
 
 var (

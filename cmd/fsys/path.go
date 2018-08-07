@@ -2,7 +2,7 @@ package dir
 
 import (
 	"os"
-	"mbtv2/cmd/logs"
+	"cloud-mta-build-tool/cmd/logs"
 	"path/filepath"
 )
 

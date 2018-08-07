@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"time"
 
-	"mbtv2/cmd/logs"
+	"cloud-mta-build-tool/cmd/logs"
 )
 
 func Execute(cmdParams [][]string) error {

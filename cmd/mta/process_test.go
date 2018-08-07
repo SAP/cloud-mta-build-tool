@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"mbtv2/cmd/mta/models"
+	"cloud-mta-build-tool/cmd/mta/models"
 )
 // Table driven test
 // Unit test for parsing mta files to working object

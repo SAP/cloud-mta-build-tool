@@ -5,10 +5,10 @@ import (
 	"os"
 	"path/filepath"
 
-	"mbtv2/cmd/constants"
-	"mbtv2/cmd/exec"
-	"mbtv2/cmd/fsys"
-	"mbtv2/cmd/logs"
+	"cloud-mta-build-tool/cmd/constants"
+	"cloud-mta-build-tool/cmd/exec"
+	"cloud-mta-build-tool/cmd/fsys"
+	"cloud-mta-build-tool/cmd/logs"
 )
 
 type NpmBuilder struct {

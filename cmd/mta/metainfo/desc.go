@@ -3,13 +3,13 @@ package metainfo
 import (
 	"io/ioutil"
 	"log"
-	"mbtv2/cmd/mta/converter"
-	"mbtv2/cmd/mta/models"
+	"cloud-mta-build-tool/cmd/mta/converter"
+	"cloud-mta-build-tool/cmd/mta/models"
 	"os"
 
-	"mbtv2/cmd/constants"
-	"mbtv2/cmd/fsys"
-	"mbtv2/cmd/mta"
+	"cloud-mta-build-tool/cmd/constants"
+	"cloud-mta-build-tool/cmd/fsys"
+	"cloud-mta-build-tool/cmd/mta"
 	"io"
 	"fmt"
 )

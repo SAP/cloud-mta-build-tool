@@ -9,12 +9,12 @@ import (
 	"text/template"
 	"os"
 
-	"mbtv2/cmd/constants"
-	fs "mbtv2/cmd/fsys"
-	"mbtv2/cmd/mta/models"
-	"mbtv2/cmd/logs"
-	"mbtv2/cmd/proc"
-	"mbtv2/cmd/ext"
+	"cloud-mta-build-tool/cmd/constants"
+	fs "cloud-mta-build-tool/cmd/fsys"
+	"cloud-mta-build-tool/cmd/mta/models"
+	"cloud-mta-build-tool/cmd/logs"
+	"cloud-mta-build-tool/cmd/proc"
+	"cloud-mta-build-tool/cmd/ext"
 )
 
 //Make - Generate the makefile

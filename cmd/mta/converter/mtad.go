@@ -1,6 +1,6 @@
 package converter
 
-import "mbtv2/cmd/mta/models"
+import "cloud-mta-build-tool/cmd/mta/models"
 
 // ModifyMtad file according to the deployed env
 func ModifyMtad(mta models.MTA) {

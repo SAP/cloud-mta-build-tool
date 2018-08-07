@@ -3,7 +3,7 @@ package commands
 import (
 	"github.com/spf13/cobra"
 
-	"mbtv2/cmd/builders"
+	"cloud-mta-build-tool/cmd/builders"
 )
 
 // Build the whole MTA project as monolith

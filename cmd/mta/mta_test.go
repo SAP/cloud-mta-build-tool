@@ -1,7 +1,7 @@
 package mta
 
 import (
-	"mbtv2/cmd/mta/models"
+	"cloud-mta-build-tool/cmd/mta/models"
 	"testing"
 )
 

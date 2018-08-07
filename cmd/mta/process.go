@@ -7,8 +7,8 @@ import (
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 
-	"mbtv2/cmd/logs"
-	"mbtv2/cmd/mta/models"
+	"cloud-mta-build-tool/cmd/logs"
+	"cloud-mta-build-tool/cmd/mta/models"
 )
 
 // Parse MTA file

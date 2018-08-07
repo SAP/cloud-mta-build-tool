@@ -7,7 +7,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"mbtv2/cmd/mta/models"
+	"cloud-mta-build-tool/cmd/mta/models"
 )
 
 func Test_setManifetDesc(t *testing.T) {

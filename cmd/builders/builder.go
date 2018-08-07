@@ -1,9 +1,9 @@
 package builders
 
 import (
-	"mbtv2/cmd/constants"
-	"mbtv2/cmd/fsys"
-	"mbtv2/cmd/logs"
+	"cloud-mta-build-tool/cmd/constants"
+	"cloud-mta-build-tool/cmd/fsys"
+	"cloud-mta-build-tool/cmd/logs"
 )
 
 // Builder - A builder is what used to build the language. It should be able to change working dir.

@@ -7,11 +7,11 @@ import (
 	"github.com/mitchellh/go-homedir"
 	"encoding/json"
 
-	"mbtv2/cmd/constants"
-	"mbtv2/cmd/fsys"
-	"mbtv2/cmd/logs"
-	"mbtv2/cmd/mta"
-	"mbtv2/cmd/mta/models"
+	"cloud-mta-build-tool/cmd/constants"
+	"cloud-mta-build-tool/cmd/fsys"
+	"cloud-mta-build-tool/cmd/logs"
+	"cloud-mta-build-tool/cmd/mta"
+	"cloud-mta-build-tool/cmd/mta/models"
 
 
 

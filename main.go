@@ -1,7 +1,7 @@
 package main
 
 import (
-	"mbtv2/cmd/commands"
+	"cloud-mta-build-tool/cmd/commands"
 )
 
 func main() {
