@@ -1,14 +1,12 @@
-# Make for build locally
-# Create build with OS artifact's which need to put under the bin file as executable bin
+# Make build for local usage
+# The artifact is bin for each OS and copied to the go/bin dir
 
 GOCMD=go
 GOBUILD=$(GOCMD) build
-GOCLEAN=$(GOCMD) clean
-GOTEST=$(GOCMD) test
 
 
 # Binary names
-BINARY_NAME=mit
+BINARY_NAME=mbt
 BUILD  = $(CURDIR)/release
 
 

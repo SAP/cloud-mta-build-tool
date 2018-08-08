@@ -1,14 +1,14 @@
-project_name: mit
+project_name: mbt
 release:
   github:
     owner: ShimiT
-    name: mit
+    name: mbt
   name_template: '{{.Tag}}'
 brew:
   commit_author:
     name: ShimiT
     email: shimon.tal@sap.com
-  install: bin.install "mit"
+  install: bin.install "mbt"
 builds:
 - main: main.go
 - goos:
@@ -21,7 +21,7 @@ builds:
   - "6"
   main: .
   ldflags: -s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{.Date}}
-  binary: mit
+  binary: mbt
 archive:
   format: tar.gz
   name_template: '{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ if .Arm

@@ -11,12 +11,12 @@ mkdir -p -- "$basedir/"build  || exit
 build() (GOOS=$1 GOARCH=$2 exec go build -o "$basedir/build/$3")
 
 ## build for specified OS
-build darwin  amd64 mit             || exit
-build linux   amd64 mit_linux       || exit
-build windows amd64 mit_win64       || exit
+build darwin  amd64 mbt             || exit
+build linux   amd64 mbt_linux       || exit
+build windows amd64 mbt_win64       || exit
 
 # copy the new artifacts to the bin folder to save time
-cp "$basedir/"build/mit $GOPATH/bin/
+cp "$basedir/"build/mbt $GOPATH/bin/
 
 
 

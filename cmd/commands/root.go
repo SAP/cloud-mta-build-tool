@@ -13,7 +13,7 @@ var cfgFile string
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "mit",
+	Use:   "mbt",
 	Short: "MTA orchestration build tool",
 	Long:  "MTA orchestration build tool V2",
 }
@@ -44,9 +44,9 @@ func initConfig() {
 			os.Exit(1)
 		}
 
-		// Search config in home directory with name ".mit" (without extension).
+		// Search config in home directory with name ".mbt" (without extension).
 		viper.AddConfigPath(home)
-		viper.SetConfigName(".mit")
+		viper.SetConfigName(".mbt")
 	}
 
 	viper.AutomaticEnv() // read in environment variables that match
