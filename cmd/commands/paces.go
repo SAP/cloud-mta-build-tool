@@ -6,10 +6,10 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"cloud-mta-build-tool/cmd/mta/metainfo"
 	"cloud-mta-build-tool/cmd/constants"
 	fs "cloud-mta-build-tool/cmd/fsys"
 	"cloud-mta-build-tool/cmd/logs"
+	"cloud-mta-build-tool/cmd/mta/metainfo"
 	"cloud-mta-build-tool/cmd/proc"
 )
 
@@ -69,8 +69,9 @@ var genMeta = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		logs.Logger.Info("Starting execute metadata creation")
 		mtaStruct := proc.GetMta(fs.GetPath())
+		mtarDir := args[0]
 		// Generate meta info dir with required content
-		metainfo.GenMetaInf(args[0], mtaStruct)
+		metainfo.GenMetaInf(mtarDir, mtaStruct, args[1:])
 		logs.Logger.Info("Metadata creation finish successfully")
 
 	},
@@ -87,7 +88,7 @@ var genMtar = &cobra.Command{
 		tDir := args[0]
 		pDir := args[1]
 		// Create MTAR from the building artifacts
-		fs.Archive(tDir, pDir+constants.PathSep+mtaStruct.Id+constants.MtarSuffix,tDir)
+		fs.Archive(tDir, pDir+constants.PathSep+mtaStruct.Id+constants.MtarSuffix, tDir)
 		//logs.Logger.Infof("Build of mtar finished successfully, mtar location:  ", pDir+constants.PathSep+mtaStruct.Id+constants.MtarSuffix,tDir)
 	},
 }

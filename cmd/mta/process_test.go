@@ -9,11 +9,10 @@ import (
 
 	"cloud-mta-build-tool/cmd/mta/models"
 )
+
 // Table driven test
 // Unit test for parsing mta files to working object
 func Test_ParseFile(t *testing.T) {
-
-
 
 	tests := []struct {
 		n       int
@@ -98,13 +97,13 @@ func Test_ParseFile(t *testing.T) {
 	// First Module test as atomic building blocks
 
 	mtaFile, _ := ioutil.ReadFile("./testdata/mta.yaml")
-	var idx int
+
 	actual, err := Parse(mtaFile)
-	for _, tt := range tests {
+	for i, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 
 			// Switch was added to handle different type of slices
-			switch idx {
+			switch i {
 			// Run Service module
 			case 0:
 				require.NoError(t, err)
@@ -121,16 +120,14 @@ func Test_ParseFile(t *testing.T) {
 				// Run UI module
 			case 1:
 
-				assert.Equal(t, tt.wantOut.Name, actual.Modules[idx].Name)
-				assert.Equal(t, tt.wantOut.Type, actual.Modules[idx].Type)
-				assert.Equal(t, tt.wantOut.Path, actual.Modules[idx].Path)
-				assert.Equal(t, tt.wantOut.Requires, actual.Modules[idx].Requires)
-				assert.Equal(t, tt.wantOut.Parameters, actual.Modules[idx].Parameters)
-				assert.Equal(t, tt.wantOut.BuildParams, actual.Modules[idx].BuildParams)
+				assert.Equal(t, tt.wantOut.Name, actual.Modules[i].Name)
+				assert.Equal(t, tt.wantOut.Type, actual.Modules[i].Type)
+				assert.Equal(t, tt.wantOut.Path, actual.Modules[i].Path)
+				assert.Equal(t, tt.wantOut.Requires, actual.Modules[i].Requires)
+				assert.Equal(t, tt.wantOut.Parameters, actual.Modules[i].Parameters)
+				assert.Equal(t, tt.wantOut.BuildParams, actual.Modules[i].BuildParams)
 
 			}
-
-			idx = idx + 1
 
 		})
 

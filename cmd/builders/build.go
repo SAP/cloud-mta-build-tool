@@ -6,10 +6,10 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	"cloud-mta-build-tool/cmd/mta/metainfo"
 	"cloud-mta-build-tool/cmd/constants"
 	fs "cloud-mta-build-tool/cmd/fsys"
 	"cloud-mta-build-tool/cmd/logs"
+	"cloud-mta-build-tool/cmd/mta/metainfo"
 	"cloud-mta-build-tool/cmd/proc"
 )
 
@@ -61,6 +61,7 @@ type BuildCfg struct {
 // BuildProcess manage the build process
 func BuildProcess(options ...func(*BuildCfg)) (buildcfg *BuildCfg, err error) {
 
+	var module []string
 	// Todo - support functional options
 	for _, option := range options {
 		logs.Logger.Info(&option)
@@ -97,7 +98,8 @@ func BuildProcess(options ...func(*BuildCfg)) (buildcfg *BuildCfg, err error) {
 
 	}
 	// Generate meta info dir with required content
-	metainfo.GenMetaInf(tmpDir, mtaStruct)
+
+	metainfo.GenMetaInf(tmpDir, mtaStruct,module)
 	// Create mtar from the building artifacts
 	fs.Archive(tmpDir, projdir+constants.PathSep+mtaStruct.Id+constants.MtarSuffix, tmpDir)
 

@@ -4,20 +4,14 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/mitchellh/go-homedir"
 	"encoding/json"
+	"github.com/mitchellh/go-homedir"
 
 	"cloud-mta-build-tool/cmd/constants"
 	"cloud-mta-build-tool/cmd/fsys"
 	"cloud-mta-build-tool/cmd/logs"
 	"cloud-mta-build-tool/cmd/mta"
 	"cloud-mta-build-tool/cmd/mta/models"
-
-
-
-
-
-
 )
 
 type CfgEnv struct {
@@ -72,8 +66,6 @@ func GetMta(wd string) models.MTA {
 
 	return mtaStruct
 }
-
-
 
 func cfgdir() (dir string) {
 	hdir, _ := homedir.Dir()

@@ -1,8 +1,8 @@
 package dir
 
 import (
-	"os"
 	"cloud-mta-build-tool/cmd/logs"
+	"os"
 	"path/filepath"
 )
 

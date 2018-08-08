@@ -4,17 +4,17 @@ import (
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"log"
+	"os"
 	"path/filepath"
 	"runtime"
 	"text/template"
-	"os"
 
 	"cloud-mta-build-tool/cmd/constants"
-	fs "cloud-mta-build-tool/cmd/fsys"
-	"cloud-mta-build-tool/cmd/mta/models"
-	"cloud-mta-build-tool/cmd/logs"
-	"cloud-mta-build-tool/cmd/proc"
 	"cloud-mta-build-tool/cmd/ext"
+	fs "cloud-mta-build-tool/cmd/fsys"
+	"cloud-mta-build-tool/cmd/logs"
+	"cloud-mta-build-tool/cmd/mta/models"
+	"cloud-mta-build-tool/cmd/proc"
 )
 
 //Make - Generate the makefile

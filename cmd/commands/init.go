@@ -1,8 +1,8 @@
 package commands
 
 import (
-	"github.com/spf13/cobra"
 	"cloud-mta-build-tool/cmd/gen"
+	"github.com/spf13/cobra"
 )
 
 var initProcess = &cobra.Command{

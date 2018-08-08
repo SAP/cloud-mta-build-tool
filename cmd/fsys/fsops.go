@@ -8,8 +8,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"cloud-mta-build-tool/cmd/logs"
 	"cloud-mta-build-tool/cmd/constants"
+	"cloud-mta-build-tool/cmd/logs"
 )
 
 // CreateDirIfNotExist - Create new dir

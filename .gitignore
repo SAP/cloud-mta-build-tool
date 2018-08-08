@@ -24,4 +24,4 @@ docker*
 .dockerignore
 .DS_Store
 
-
+release

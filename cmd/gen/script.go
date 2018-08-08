@@ -1,7 +1,6 @@
 package gen
 
 import (
-
 	"io/ioutil"
 	"log"
 
@@ -11,10 +10,10 @@ import (
 	"text/template"
 
 	"cloud-mta-build-tool/cmd/constants"
+	"cloud-mta-build-tool/cmd/ext"
 	fs "cloud-mta-build-tool/cmd/fsys"
 	"cloud-mta-build-tool/cmd/logs"
 	"cloud-mta-build-tool/cmd/mta/models"
-	"cloud-mta-build-tool/cmd/ext"
 )
 
 // Generate - Generate mta build file
@@ -61,5 +60,3 @@ func Generate(path string) {
 	logs.Logger.Info("MTA build script was generated successfully: " + projPath + constants.PathSep + mtaScript)
 
 }
-
-
