@@ -16,8 +16,8 @@ import (
 // Prepare the process for execution
 var prepare = &cobra.Command{
 	Use:   "prepare",
-	Short: "Prepare The environment For Build Process",
-	Long:  "Prepare The environment For Build Process",
+	Short: "prepare for build",
+	Long:  "prepare The project generation environment For build process",
 	Run: func(cmd *cobra.Command, args []string) {
 		proc.Prepare()
 	},
@@ -37,8 +37,8 @@ var copyModule = &cobra.Command{
 // Zip specific module
 var pack = &cobra.Command{
 	Use:   "pack",
-	Short: "Pack the module to zip format",
-	Long:  "Pack the module to zip format",
+	Short: "pack module artifacts",
+	Long:  "pack the module artifacts after the build process",
 	Run: func(cmd *cobra.Command, args []string) {
 		// Define arguments variables
 		if len(args) > 0 {
@@ -64,26 +64,25 @@ var pack = &cobra.Command{
 // Generate metadata info from deployment
 var genMeta = &cobra.Command{
 	Use:   "meta",
-	Short: "Generate meta folder",
-	Long:  "Generate meta folder",
+	Short: "generate meta folder",
+	Long:  "generate META-INF folder with all the required data",
 	Run: func(cmd *cobra.Command, args []string) {
 		logs.Logger.Info("Starting execute metadata creation")
 		mtaStruct := proc.GetMta(fs.GetPath())
 		mtarDir := args[0]
 		// Generate meta info dir with required content
 		metainfo.GenMetaInf(mtarDir, mtaStruct, args[1:])
-		logs.Logger.Info("Metadata creation finish successfully")
-
+		logs.Logger.Info("Metadata creation finish successfully ")
 	},
 }
 
 // Generate mtar from build artifacts
 var genMtar = &cobra.Command{
 	Use:   "mtar",
-	Short: "Generate mtar",
-	Long:  "Generate mtar",
+	Short: "generate MTAR",
+	Long:  "generate MTAR from the project build artifacts",
 	Run: func(cmd *cobra.Command, args []string) {
-		logs.Logger.Info("Starting execute Build of mtar")
+		logs.Logger.Info("Starting execute Build of MTAR")
 		mtaStruct := proc.GetMta(fs.GetPath())
 		tDir := args[0]
 		pDir := args[1]
@@ -96,8 +95,8 @@ var genMtar = &cobra.Command{
 // Cleanup temp artifacts
 var cleanup = &cobra.Command{
 	Use:   "cleanup",
-	Short: "Remove build temporary folder",
-	Long:  "Remove build temporary folder",
+	Short: "Remove process artifacts",
+	Long:  "Remove process artifacts",
 	Run: func(cmd *cobra.Command, args []string) {
 		logs.Logger.Info("Starting Cleanup process")
 		// Remove temp folder

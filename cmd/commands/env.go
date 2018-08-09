@@ -6,6 +6,7 @@ import (
 	"cloud-mta-build-tool/cmd/builders"
 )
 
+//Todo for testing purpose
 // Build the whole MTA project as monolith
 var cfBuild = &cobra.Command{
 	Use:   "cf",

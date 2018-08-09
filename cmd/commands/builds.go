@@ -8,7 +8,7 @@ import (
 	"cloud-mta-build-tool/cmd/proc"
 )
 
-// TODO - inject from outside
+// TODO - Only for testing, will be removed
 // Build for UI5 application
 var html5 = &cobra.Command{
 	Use:   "html5",

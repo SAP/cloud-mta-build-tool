@@ -11,15 +11,16 @@ import (
 
 var cfgFile string
 
-// rootCmd represents the base command when called without any subcommands
+// rootCmd represents the base command
 var rootCmd = &cobra.Command{
 	Use:   "mbt",
-	Short: "MTA orchestration build tool",
-	Long:  "MTA orchestration build tool V2",
+	Short: "MTA Build tool",
+	Long:  "MTA Build tool V2",
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
-// This is called by main.main(). It only needs to happen once to the rootCmd.
+// This is called by main().
+// It only needs to happen once to the rootCmd.
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)

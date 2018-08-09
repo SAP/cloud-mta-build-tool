@@ -7,8 +7,8 @@ import (
 
 var initProcess = &cobra.Command{
 	Use:   "init",
-	Short: "Provide Build Script",
-	Long:  "Provide Build Script",
+	Short: "Generate Makefile",
+	Long:  "Generate Makefile as manifest which describe's the build process",
 	Run: func(cmd *cobra.Command, args []string) {
 		//Todo - remove the script option
 		if (len(args) > 0) && (stringInSlice("script", args)) {
@@ -17,6 +17,7 @@ var initProcess = &cobra.Command{
 				gen.Generate("test")
 			}
 		} else {
+			//Generate make
 			gen.Make()
 		}
 	},

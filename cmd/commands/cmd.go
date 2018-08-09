@@ -4,6 +4,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// Parent commands
 var build = &cobra.Command{
 	Use:   "build",
 	Short: "Build Project",
