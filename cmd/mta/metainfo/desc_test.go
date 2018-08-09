@@ -22,7 +22,7 @@ func Test_setManifetDesc(t *testing.T) {
 	}{
 		{
 			n:    0,
-			name: "name",
+			name: "MANIFEST.MF: One module",
 			args: []*models.Modules{
 
 				{
@@ -36,11 +36,12 @@ func Test_setManifetDesc(t *testing.T) {
 					Properties:  nil,
 				},
 			},
-			expected: []byte("Manifest-Version: 1.0\nCreated-By: SAP Application Archive Builder 0.0.1\n\nName: ui5/data.zip\nMTA-Module: ui5\nContent-Type: application/zip"),
+			expected: []byte("Manifest-Version: 1.0\nCreated-By: SAP Application Archive Builder 0.0.1\n\n" +
+				"Name: ui5/data.zip\nMTA-Module: ui5\nContent-Type: application/zip"),
 		},
 		{
 			n:    0,
-			name: "name",
+			name: "MANIFEST.MF: Two modules",
 			args: []*models.Modules{
 
 				{
@@ -53,8 +54,53 @@ func Test_setManifetDesc(t *testing.T) {
 					BuildParams: nil,
 					Properties:  nil,
 				},
+
+				{
+					Name:        "ui4",
+					Type:        "html5",
+					Path:        "ui5",
+					Requires:    nil,
+					Provides:    nil,
+					Parameters:  nil,
+					BuildParams: nil,
+					Properties:  nil,
+				},
 			},
-			expected: []byte("Manifest-Version: 1.0\nCreated-By: SAP Application Archive Builder 0.0.1\n\nName: ui6/data.zip\nMTA-Module: ui6\nContent-Type: application/zip"),
+			expected: []byte("Manifest-Version: 1.0\nCreated-By: SAP Application Archive Builder 0.0.1\n\n" +
+				"Name: ui6/data.zip\nMTA-Module: ui6\nContent-Type: application/zip\n\n" +
+				"Name: ui4/data.zip\nMTA-Module: ui4\nContent-Type: application/zip"),
+		},
+		{
+			n:    0,
+			name: "MANIFEST.MF: multi module with filter of one",
+			args: []*models.Modules{
+
+				{
+					Name:        "ui6",
+					Type:        "html5",
+					Path:        "ui5",
+					Requires:    nil,
+					Provides:    nil,
+					Parameters:  nil,
+					BuildParams: nil,
+
+
+					Properties:  nil,
+				},
+
+				{
+					Name:        "ui4",
+					Type:        "html5",
+					Path:        "ui5",
+					Requires:    nil,
+					Provides:    nil,
+					Parameters:  nil,
+					BuildParams: nil,
+					Properties:  nil,
+				},
+			},
+			expected: []byte("Manifest-Version: 1.0\nCreated-By: SAP Application Archive Builder 0.0.1\n\n" +
+				"Name: ui6/data.zip\nMTA-Module: ui6\nContent-Type: application/zip"),
 		},
 	}
 
@@ -64,20 +110,30 @@ func Test_setManifetDesc(t *testing.T) {
 
 			// Switch was added to handle different type of slices
 			switch i {
-			// Run Service module
+			// one module
 			case 0:
 				setManifetDesc(b, tt.args, module)
 				if !bytes.Equal(b.Bytes(), tt.expected) {
 					assert.Equal(t, string(tt.expected), b.String())
-					t.Error("Fail")
+					t.Error("Test was failed")
 				}
 			case 1:
+				//two modules
+				setManifetDesc(b, tt.args, module)
+				if !bytes.Equal(b.Bytes(), tt.expected) {
+					assert.Equal(t, string(tt.expected), b.String())
+					t.Error("Test was failed")
+				}
+
+			case 2:
+				// get list of module and filter according to the name
 				module = append(module, "ui6")
 				setManifetDesc(b, tt.args, module)
 				if !bytes.Equal(b.Bytes(), tt.expected) {
 					assert.Equal(t, string(tt.expected), b.String())
-					t.Error("Fail")
+					t.Error("Test was failed")
 				}
+
 			}
 		})
 	}

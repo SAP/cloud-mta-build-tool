@@ -38,21 +38,32 @@ const (
 //Set the MANIFEST.MF file
 func setManifetDesc(file io.Writer, mtaStr []*models.Modules, modules []string) {
 	// TODO create dynamically
-	fmt.Fprint(file, ManifestVersion + NewLine)
+	fmt.Fprint(file, ManifestVersion+NewLine)
 	// TODO set the version from external config for automatic version bump during release
 	fmt.Fprint(file, "Created-By: SAP Application Archive Builder 0.0.1")
-	for i, mod := range mtaStr {
+	for _, mod := range mtaStr {
 		//Print only the required module to support the partial build
-		if i >= len(modules) || mod.Name == modules[i] {
-			fmt.Fprint(file, NewLine)
-			fmt.Fprint(file, NewLine)
-			fmt.Fprint(file, ModuleName+mod.Name+constants.DataZip)
-			fmt.Fprint(file, NewLine)
-			fmt.Fprint(file, MtaModule+mod.Name)
-			fmt.Fprint(file, NewLine)
-			fmt.Fprint(file, ContentType+ApplicationZip)
+		if len(modules) > 0 {
+			if mod.Name == modules[0] {
+				printToFile(file, mod)
+				break
+			}
+			//Print all the modules
+		} else if len(modules) == 0 {
+			printToFile(file, mod)
 		}
 	}
+}
+
+func printToFile(file io.Writer, mtaStr *models.Modules) {
+	fmt.Fprint(file, NewLine)
+	fmt.Fprint(file, NewLine)
+	fmt.Fprint(file, ModuleName+mtaStr.Name+constants.DataZip)
+	fmt.Fprint(file, NewLine)
+	fmt.Fprint(file, MtaModule+mtaStr.Name)
+	fmt.Fprint(file, NewLine)
+	fmt.Fprint(file, ContentType+ApplicationZip)
+
 }
 
 func GenMetaInf(tmpDir string, mtaStr models.MTA, modules []string) {
