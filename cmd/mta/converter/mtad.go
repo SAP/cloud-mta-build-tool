@@ -1,20 +1,24 @@
 package converter
 
-import "cloud-mta-build-tool/cmd/mta/models"
+import (
+	"cloud-mta-build-tool/cmd/mta/models"
+	"cloud-mta-build-tool/cmd/fsys"
+	"cloud-mta-build-tool/cmd/constants"
+	"cloud-mta-build-tool/cmd/platform"
+)
 
-// ModifyMtad file according to the deployed env
-func ModifyMtad(mta models.MTA) {
-
+// ConvertTypes file according to the deployed env
+func ConvertTypes(mta models.MTA) {
 	const (
 		SCHEMA_VERSION = "3.1"
 	)
+	platformFile := dir.Load(dir.GetPath() + constants.PathSep + "platform_cfg.yaml")
+	platform.Parse(platformFile)
 
 	// Modify schema version
 	*mta.SchemaVersion = SCHEMA_VERSION
-
 	// Modify Types
 	for i, element := range mta.Modules {
-
 		element.Path = ""
 		element.BuildParams = nil
 		switch element.Type {

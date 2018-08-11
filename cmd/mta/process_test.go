@@ -98,7 +98,7 @@ func Test_ParseFile(t *testing.T) {
 
 	mtaFile, _ := ioutil.ReadFile("./testdata/mta.yaml")
 
-	actual, err := Parse(mtaFile)
+	actual := Parse(mtaFile)
 	for i, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 
@@ -106,7 +106,7 @@ func Test_ParseFile(t *testing.T) {
 			switch i {
 			// Run Service module
 			case 0:
-				require.NoError(t, err)
+				
 				require.NotNil(t, actual)
 				require.Len(t, actual.Modules, 2)
 				assert.Equal(t, tt.wantOut.Name, actual.Modules[tt.n].Name)

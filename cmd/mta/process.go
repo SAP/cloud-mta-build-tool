@@ -5,23 +5,20 @@ import (
 	"os"
 
 	"gopkg.in/yaml.v2"
-	"io/ioutil"
-
-	"cloud-mta-build-tool/cmd/logs"
 	"cloud-mta-build-tool/cmd/mta/models"
 )
 
 // Parse MTA file
-func Parse(yamlContent []byte) (out models.MTA, err error) {
+func Parse(yamlContent []byte) (out models.MTA) {
 	mta := models.MTA{}
 	// Format the YAML to struct's
-	err = yaml.Unmarshal([]byte(yamlContent), &mta)
+	err := yaml.Unmarshal([]byte(yamlContent), &mta)
 	if err != nil {
 		log.Printf("Yaml file is not valid, Error: " + err.Error())
 
 		os.Exit(-1)
 	}
-	return mta, err
+	return mta
 }
 
 // Marshal - edit the file
@@ -34,15 +31,4 @@ func Marshal(in models.MTA) []byte {
 	return mtads
 }
 
-// Load - load the mta.yaml file
-func Load(path string) []byte {
 
-	yamlFile, err := ioutil.ReadFile(path)
-	if err != nil {
-		logs.Logger.Errorf("mta.yaml not found for path %s, error is: #%v ", path, err)
-		// YAML descriptor file not found abort the process
-		os.Exit(1)
-	}
-	logs.Logger.Debugf("The file loaded successfully:" + string(yamlFile))
-	return yamlFile
-}

@@ -43,13 +43,11 @@ func setManifetDesc(file io.Writer, mtaStr []*models.Modules, modules []string) 
 	fmt.Fprint(file, "Created-By: SAP Application Archive Builder 0.0.1")
 	for _, mod := range mtaStr {
 		//Print only the required module to support the partial build
-		if len(modules) > 0 {
-			if mod.Name == modules[0] {
-				printToFile(file, mod)
-				break
-			}
-			//Print all the modules
+		if len(modules) > 0 && mod.Name == modules[0] {
+			printToFile(file, mod)
+			break
 		} else if len(modules) == 0 {
+			//Print all the modules
 			printToFile(file, mod)
 		}
 	}
@@ -70,7 +68,7 @@ func GenMetaInf(tmpDir string, mtaStr models.MTA, modules []string) {
 	// Create META-INF folder under the mtar folder
 	dir.CreateDirIfNotExist(tmpDir + MetaInf)
 	// Modify MTAD object
-	converter.ModifyMtad(mtaStr)
+	converter.ConvertTypes(mtaStr)
 	// Create readable Yaml before writing to file
 	mtad := mta.Marshal(mtaStr)
 	// Write back the mtad to the META-INF folder
