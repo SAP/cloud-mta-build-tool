@@ -1,7 +1,6 @@
 package metainfo
 
 import (
-	//"os"
 	"bytes"
 	"testing"
 

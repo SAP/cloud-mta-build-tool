@@ -1,7 +1,15 @@
-# MTA Build Tool (UNDER DEVELOPMENT!)
+# MTA Build Tool
 
 
 The MTA command-line tool provides a convenient way to build an MTA project into an MTAR (MTA Archive). 
+
+
+# Multi-Target Applications
+
+A Multi-Target Application (MTA) is a package comprised of multiple application and resource modules, 
+which have been created using different technologies and deployed to different runtimes, but have a common lifecycle. 
+You bundle the modules together, describe them along with their inter-dependencies to other modules, 
+services, and interfaces, and package them in an MTA.
  
 
 #### MBT tool
@@ -92,6 +100,7 @@ The _requires_ section allows a module to define which configuration sets it nee
  - Support first MVP scenario such as:
     - Partial build
     - Feature build
+    - XMake integration 
  - Add comprehensive tests
  - Release process
  - Usage

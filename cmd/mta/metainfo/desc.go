@@ -1,17 +1,18 @@
 package metainfo
 
 import (
-	"cloud-mta-build-tool/cmd/mta/converter"
-	"cloud-mta-build-tool/cmd/mta/models"
-	"io/ioutil"
+	"fmt"
+	"io"
 	"log"
 	"os"
+	"io/ioutil"
 
+	"cloud-mta-build-tool/cmd/mta/converter"
+	"cloud-mta-build-tool/cmd/mta/models"
 	"cloud-mta-build-tool/cmd/constants"
 	"cloud-mta-build-tool/cmd/fsys"
 	"cloud-mta-build-tool/cmd/mta"
-	"fmt"
-	"io"
+	"cloud-mta-build-tool/cmd/platform"
 )
 
 // The deployment descriptor shall be located within the META-INF folder of the JAR.
@@ -67,8 +68,12 @@ func printToFile(file io.Writer, mtaStr *models.Modules) {
 func GenMetaInf(tmpDir string, mtaStr models.MTA, modules []string) {
 	// Create META-INF folder under the mtar folder
 	dir.CreateDirIfNotExist(tmpDir + MetaInf)
-	// Modify MTAD object
-	converter.ConvertTypes(mtaStr)
+	//Load platform configuration file
+	platformFile := dir.Load(dir.GetPath() + constants.PathSep + "platform_cfg.yaml")
+	platformCfg := platform.Parse(platformFile)
+	// Modify MTAD object according to platform types
+	//Todo platform should provided as command parameter
+	converter.ConvertTypes(mtaStr, platformCfg, "cf")
 	// Create readable Yaml before writing to file
 	mtad := mta.Marshal(mtaStr)
 	// Write back the mtad to the META-INF folder

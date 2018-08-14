@@ -1,7 +1,7 @@
 #Types for cloudfoundry platform
 platform:
-   cf:
-    modoules:
+  - name: cf
+    modules:
     - native-type: html5
       platform-type: "javascript.nodejs"
 
@@ -25,8 +25,8 @@ platform:
 
 
   # Types for Neo platform
-  neo:
-    modoules:
+  - name: neo
+    modules:
     - native-type: html5
       platform-type: "com.sap.hcp.html5"
     #java.tomcat by default or if TARGET_RUNTIME property set to tomcat
@@ -35,25 +35,25 @@ platform:
       platform-type: "java.tomcat"
 
   # Type for XSA platform
-  xsa:
-    modoules:
-    - native-type: html5
-      platform-type: "javascript.nodejs"
+  - name: xsa
+    modules:
+     - native-type: html5
+       platform-type: "javascript.nodejs"
 
-    - native-type: nodejs
-      platform-type: "javascript.nodejs"
+     - native-type: nodejs
+       platform-type: "javascript.nodejs"
 
-    - native-type: sitecontent
-      platform-type: "javascript.nodejs"
+     - native-type: sitecontent
+       platform-type: "javascript.nodejs"
 
-    - native-type: hdb
-      platform-type: "com.sap.xs.hdi"
+     - native-type: hdb
+       platform-type: "com.sap.xs.hdi"
 
-    - native-type: java
-      platform-type: "java.tomcat"
+     - native-type: java
+       platform-type: "java.tomcat"
 
-    - native-type: dwf
-      platform-type: "com.sap.xs.dwf"
+     - native-type: dwf
+       platform-type: "com.sap.xs.dwf"
 
-    - native-type: cds
-      platform-type: "cds"
+     - native-type: cds
+       platform-type: "cds"
