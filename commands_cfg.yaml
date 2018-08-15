@@ -1,0 +1,15 @@
+Commands:
+  builders:
+  - type: html5
+    - command: npm install
+    - command: grunt
+    - command: npm prune --producation
+
+  - type: nodejs
+    - command: npm install
+
+  - type: java
+    - command: mvn clean install
+
+  - type: golang
+    command: go build *.go
