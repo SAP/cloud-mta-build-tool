@@ -1,15 +1,16 @@
-Commands:
-  builders:
-  - type: html5
+version: 1
+builders:
+ - name: html5
+   type:
     - command: npm install
     - command: grunt
-    - command: npm prune --producation
-
-  - type: nodejs
-    - command: npm install
-
-  - type: java
-    - command: mvn clean install
-
-  - type: golang
-    command: go build *.go
+    - command: npm prune --production
+ - name: java
+    type:
+     - command: mvn clean install
+ - name: nodejs
+   type:
+     - command: npm install
+ - name: golang
+   type:
+     - command: go build *.go

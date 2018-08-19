@@ -1,10 +1,9 @@
 package platform
 
 import (
-	"log"
-	"os"
-
 	"gopkg.in/yaml.v2"
+
+	"cloud-mta-build-tool/cmd/logs"
 )
 
 func Parse(data []byte) (Platforms) {
@@ -12,14 +11,7 @@ func Parse(data []byte) (Platforms) {
 	platforms := Platforms{}
 	err := yaml.Unmarshal(data, &platforms)
 	if err != nil {
-		log.Printf("Yaml file is not valid, Error: " + err.Error())
-		os.Exit(-1)
+		logs.Logger.Error("Yaml file is not valid, Error: " + err.Error())
 	}
 	return platforms
 }
-
-
-
-
-
-
