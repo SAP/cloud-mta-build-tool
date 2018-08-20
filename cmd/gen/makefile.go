@@ -10,7 +10,7 @@ import (
 	"text/template"
 
 	"cloud-mta-build-tool/cmd/constants"
-	"cloud-mta-build-tool/cmd/build"
+	"cloud-mta-build-tool/cmd/builders"
 	fs "cloud-mta-build-tool/cmd/fsys"
 	"cloud-mta-build-tool/cmd/logs"
 	"cloud-mta-build-tool/cmd/mta/models"
@@ -54,7 +54,7 @@ func Make() {
 	data.File = mta
 	// Create maps of the template method's
 	funcMap := template.FuncMap{
-		"ExeCmd":  build.ExeCmd,
+		"ExeCmd": builders.ExeCmd,
 		"OsCore": proc.OsCore,
 	}
 	// Get the path of the template source code

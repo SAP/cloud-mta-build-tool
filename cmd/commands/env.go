@@ -3,7 +3,7 @@ package commands
 import (
 	"github.com/spf13/cobra"
 
-	"cloud-mta-build-tool/cmd/builders"
+	"cloud-mta-build-tool/cmd/build-executers"
 )
 
 //Todo for testing purpose
