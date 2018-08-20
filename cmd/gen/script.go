@@ -29,7 +29,7 @@ func Generate(path string) {
 	}
 	// Get working directory
 	projPath := fs.GetPath()
-	// Create the init script filem
+	// Create the init script file
 
 	bashFile := fs.CreateFile(projPath + constants.PathSep + mtaScript)
 	// Read the MTA
