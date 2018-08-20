@@ -10,7 +10,7 @@ import (
 	"text/template"
 
 	"cloud-mta-build-tool/cmd/constants"
-	"cloud-mta-build-tool/cmd/ext"
+	"cloud-mta-build-tool/cmd/build"
 	fs "cloud-mta-build-tool/cmd/fsys"
 	"cloud-mta-build-tool/cmd/logs"
 	"cloud-mta-build-tool/cmd/mta/models"
@@ -43,7 +43,7 @@ func Generate(path string) {
 
 	// Create maps of the template method's
 	funcMap := template.FuncMap{
-		"ExeCommand": ext.ExeCmd,
+		"ExeCommand": build.ExeCmd,
 	}
 	// Get the path of the template source code
 	_, file, _, _ := runtime.Caller(0)

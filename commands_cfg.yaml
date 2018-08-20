@@ -1,16 +1,21 @@
+#Builders execution commands - default
 version: 1
 builders:
  - name: html5
+   info: "installing module dependencies & execute grunt & remove dev dependencies"
    type:
     - command: npm install
     - command: grunt
     - command: npm prune --production
  - name: java
-    type:
+   info: "build java application"
+   type:
      - command: mvn clean install
  - name: nodejs
+   info: "build nodejs application"
    type:
      - command: npm install
  - name: golang
+   info: "build golang application"
    type:
      - command: go build *.go

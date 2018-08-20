@@ -10,7 +10,7 @@ import (
 	"text/template"
 
 	"cloud-mta-build-tool/cmd/constants"
-	"cloud-mta-build-tool/cmd/ext"
+	"cloud-mta-build-tool/cmd/build"
 	fs "cloud-mta-build-tool/cmd/fsys"
 	"cloud-mta-build-tool/cmd/logs"
 	"cloud-mta-build-tool/cmd/mta/models"
@@ -31,8 +31,8 @@ func Make() {
 	}
 	// Get working directory
 	projPath := fs.GetPath()
-	// Create the init script file
 
+	// Create the init script file
 	if _, err := os.Stat(projPath + constants.PathSep + genFileName); err == nil {
 		// path/to/whatever exists
 		makeFile = fs.CreateFile(projPath + constants.PathSep + genFileName + ".mta")
@@ -54,7 +54,7 @@ func Make() {
 	data.File = mta
 	// Create maps of the template method's
 	funcMap := template.FuncMap{
-		"ExeCmd": ext.ExeCmd,
+		"ExeCmd":  build.ExeCmd,
 		"OsCore": proc.OsCore,
 	}
 	// Get the path of the template source code

@@ -7,6 +7,7 @@ import (
 	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"cloud-mta-build-tool/cmd/logs"
 )
 
 var cfgFile string
@@ -41,10 +42,8 @@ func initConfig() {
 		// Find home directory.
 		home, err := homedir.Dir()
 		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
+			logs.Logger.Error(err)
 		}
-
 		// Search config in home directory with name ".mbt" (without extension).
 		viper.AddConfigPath(home)
 		viper.SetConfigName(".mbt")

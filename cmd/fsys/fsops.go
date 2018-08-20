@@ -212,10 +212,9 @@ func DefaultTempDirFunc(path string) string {
 
 // Load - load the mta.yaml file
 func Load(path string) []byte {
-
 	yamlFile, err := ioutil.ReadFile(path)
 	if err != nil {
-		logs.Logger.Errorf("mta.yaml not found for path %s, error is: #%v ", path, err)
+		logs.Logger.Errorf("File not found for path %s, error is: #%v ", path, err)
 		// YAML descriptor file not found abort the process
 		os.Exit(1)
 	}

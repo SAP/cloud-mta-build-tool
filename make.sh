@@ -10,6 +10,8 @@ mkdir -p -- "$basedir/"build  || exit
 
 build() (GOOS=$1 GOARCH=$2 exec go build -o "$basedir/build/$3")
 
+
+go generate
 ## build for specified OS
 build darwin  amd64 mbt             || exit
 build linux   amd64 mbt_linux       || exit

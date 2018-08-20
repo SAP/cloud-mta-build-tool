@@ -10,7 +10,7 @@ BINARY_NAME=mbt
 BUILD  = $(CURDIR)/release
 
 
-all:clean dir build-linux build-darwin build-windows copy
+all:clean dir gen build-linux build-darwin build-windows copy
 .PHONY: build-darwin build-linux build-windows
 
 clean:
@@ -18,6 +18,9 @@ clean:
 
 dir:
 	mkdir $(BUILD)
+
+gen:
+	go generate
 
 build-linux:
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 $(GOBUILD) -o release/$(BINARY_NAME)_linux -v
