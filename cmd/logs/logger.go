@@ -8,8 +8,8 @@ import (
 
 const (
 	MbtLogLevel = "MBT_LOG_LEVEL"
-	DEF_LVL       = "info"
-)   
+	DefLvl      = "info"
+)
 
 // Logger - logrus variable
 var Logger *logrus.Logger
@@ -42,7 +42,7 @@ func getLogLevel() string {
 	if lvl != "" {
 		return lvl
 	}
-	return DEF_LVL
+	return DefLvl
 }
 
 func logLevel(lvl string, level logrus.Level) logrus.Level {

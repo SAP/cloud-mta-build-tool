@@ -1,17 +1,17 @@
 package builders
 
-//ExeCommands list of commands to execute
-type ExeCommands struct {
-	Version  string     `yaml:"version"`
-	Builders []builders `yaml:"builders"`
+//Builders list of commands to execute
+type Builders struct {
+	Version  string    `yaml:"version"`
+	Builders []builder `yaml:"builders"`
 }
 
-type builders struct {
-	Name string    `yaml:"name"`
-	Type []command `yaml:"type"`
-	Info string    `yaml:"info"`
+type builder struct {
+	Name string     `yaml:"name"`
+	Type []Commands `yaml:"type"`
+	Info string     `yaml:"info"`
 }
 
-type command struct {
+type Commands struct {
 	Command string `yaml:"command"`
 }

@@ -4,29 +4,30 @@ import (
 	"cloud-mta-build-tool/cmd/mta/models"
 )
 
-type Cmd struct {
+type CommandList struct {
 	Info    string
 	Command []string
 }
 
-// ExeCmd - Get the build operation's
-//Todo - get from external resources
-func ExeCmd(modules models.Modules) []Cmd {
+// CommandProvider - Get build command's to execute
+func CommandProvider(modules models.Modules) []CommandList {
+	//Get config from ./commands_cfg.yaml as generated artifacts from source
+	commands := Parse(CommandsConfig)
+	return mesh(modules, commands)
+}
 
-	switch modules.Type {
-	case "html5":
-		// TODO get the maps from external source
-		return []Cmd{
-			{"# installing module dependencies & execute grunt & remove dev dependencies",
-				[]string{"npm install", "grunt", "npm prune --production"}},
+// Match the object according to type and provide the respective command
+func mesh(modules models.Modules, commands Builders) []CommandList {
+	//The object support deep struct for future use, can be simplified to flat object
+	cmds := make([]CommandList, 1)
+	for i, b := range commands.Builders {
+		//Return only matching types
+		if modules.Type == b.Name {
+			cmds[i].Info = b.Info
+			for _, cmd := range b.Type {
+				cmds[i].Command = append(cmds[i].Command, cmd.Command)
+			}
 		}
-	case "nodejs":
-		return []Cmd{{"# TODO build for node.js",
-			[]string{"Not supported yet"}},
-		}
-	default:
-		return []Cmd{{"# New module type",
-			[]string{"Not supported yet, see commands_cfg.yaml file"}}}
 	}
-
+	return cmds
 }

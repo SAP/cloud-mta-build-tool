@@ -58,7 +58,7 @@ builders:
 `)
 
 	//Get parsed yaml content
-	commands := ExeCommands{}
+	commands := Builders{}
 	err := yaml.Unmarshal(wantOut, &commands)
 	if err != nil {
 		logs.Logger.Error("Error: " + err.Error())
@@ -67,7 +67,7 @@ builders:
 	tests := []struct {
 		name     string
 		args     []byte
-		expected ExeCommands
+		expected Builders
 	}{
 		{
 			name:     "Parse builders configuration files",

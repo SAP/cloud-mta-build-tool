@@ -7,8 +7,8 @@ import (
 )
 
 //Parse the builders command list
-func Parse(data []byte) ExeCommands {
-	commands := ExeCommands{}
+func Parse(data []byte) Builders {
+	commands := Builders{}
 	err := yaml.Unmarshal(data, &commands)
 	if err != nil {
 		logs.Logger.Error("Yaml file is not valid, Error: " + err.Error())

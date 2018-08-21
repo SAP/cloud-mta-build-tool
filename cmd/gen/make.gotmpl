@@ -22,7 +22,7 @@ Makefile: mta.yaml
 {{- range .File.Modules}}
 # build module {{.Name}}
 {{.Name}}:
-{{"\t"}}cd $(PROJ_DIR)/{{.Path}} && {{ range ExeCmd .}}{{range $i,$a := .Command}}{{if gt $i 0 }} && {{end}}{{.}}{{end}}{{end}}
+{{"\t"}}cd $(PROJ_DIR)/{{.Path}} && {{ range CommandProvider .}}{{range $i,$a := .Command}}{{if gt $i 0 }} && {{end}}{{.}}{{end}}{{end}}
 # Pack module build artifacts
 {{"\t"}}@mbt execute pack $(MTR_DIR) {{.Path}} {{.Name}}
 {{end}}

@@ -42,9 +42,10 @@ build-darwin:
 build-windows:
 	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 $(GOBUILD) -o release/$(BINARY_NAME)_windows -v
 
-# Use for local - > copy the bin to go/bin and use new compiled version
+# Use for local development - > copy the new bin to go/bin path to use new compiled version
 copy:
 	cp $(CURDIR)/release/$(BINARY_NAME) $(GOPATH)/bin/
+	@echo "done"
 
 
 

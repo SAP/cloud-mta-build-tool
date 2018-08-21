@@ -54,8 +54,8 @@ func Make() {
 	data.File = mta
 	// Create maps of the template method's
 	funcMap := template.FuncMap{
-		"ExeCmd": builders.ExeCmd,
-		"OsCore": proc.OsCore,
+		"CommandProvider": builders.CommandProvider,
+		"OsCore":          proc.OsCore,
 	}
 	// Get the path of the template source code
 	_, file, _, _ := runtime.Caller(0)

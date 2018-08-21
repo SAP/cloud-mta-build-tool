@@ -43,7 +43,7 @@ func Generate(path string) {
 
 	// Create maps of the template method's
 	funcMap := template.FuncMap{
-		"ExeCommand": builders.ExeCmd,
+		"CommandProvider": builders.CommandProvider,
 	}
 	// Get the path of the template source code
 	_, file, _, _ := runtime.Caller(0)
