@@ -22,7 +22,7 @@ func ConvertTypes(mta models.MTA, platforms platform.Platforms, platform string)
 			for i, value := range module.Models {
 				//Check for types
 				if len(mta.Modules) > i {
-					if strings.Compare(value.NativeType, mta.Modules[i].Type)  == 0 {
+					if strings.Compare(value.NativeType, mta.Modules[i].Type) == 0 {
 						//Modify the module type according the platform config
 						mta.Modules[i].Type = value.PlatformType
 					}

@@ -6,7 +6,7 @@ import (
 	"cloud-mta-build-tool/cmd/logs"
 )
 
-func Parse(data []byte) (Platforms) {
+func Parse(data []byte) Platforms {
 
 	platforms := Platforms{}
 	err := yaml.Unmarshal(data, &platforms)

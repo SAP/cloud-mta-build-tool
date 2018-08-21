@@ -65,21 +65,20 @@ builders:
 	}
 
 	tests := []struct {
-		name string
-		args []byte
+		name     string
+		args     []byte
 		expected ExeCommands
 	}{
 		{
-			name: "Parse builders configuration files",
-			args: buildCfg,
+			name:     "Parse builders configuration files",
+			args:     buildCfg,
 			expected: commands,
 		},
 	}
 	//Todo - basic parse test, need types test
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := Parse(tt.args);
-				!reflect.DeepEqual(got, tt.expected) {
+			if got := Parse(tt.args); !reflect.DeepEqual(got, tt.expected) {
 				t.Errorf("Parse() = %v, \n expected %v", got, tt.expected)
 			}
 		})

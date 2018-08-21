@@ -7,7 +7,7 @@ import (
 )
 
 //Parse the builders command list
-func Parse(data []byte) (ExeCommands) {
+func Parse(data []byte) ExeCommands {
 	commands := ExeCommands{}
 	err := yaml.Unmarshal(data, &commands)
 	if err != nil {

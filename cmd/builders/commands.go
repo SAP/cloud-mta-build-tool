@@ -11,10 +11,7 @@ type Cmd struct {
 
 // ExeCmd - Get the build operation's
 //Todo - get from external resources
-func ExeCmd(modules models.Modules ) []Cmd {
-
-
-	
+func ExeCmd(modules models.Modules) []Cmd {
 
 	switch modules.Type {
 	case "html5":

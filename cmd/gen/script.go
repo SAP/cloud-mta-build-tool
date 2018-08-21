@@ -9,8 +9,8 @@ import (
 	"runtime"
 	"text/template"
 
-	"cloud-mta-build-tool/cmd/constants"
 	"cloud-mta-build-tool/cmd/builders"
+	"cloud-mta-build-tool/cmd/constants"
 	fs "cloud-mta-build-tool/cmd/fsys"
 	"cloud-mta-build-tool/cmd/logs"
 	"cloud-mta-build-tool/cmd/mta/models"

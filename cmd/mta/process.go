@@ -4,8 +4,8 @@ import (
 	"log"
 	"os"
 
-	"gopkg.in/yaml.v2"
 	"cloud-mta-build-tool/cmd/mta/models"
+	"gopkg.in/yaml.v2"
 )
 
 // Parse MTA file
@@ -30,5 +30,3 @@ func Marshal(in models.MTA) []byte {
 
 	return mtads
 }
-
-

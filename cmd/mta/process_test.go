@@ -106,7 +106,7 @@ func Test_ParseFile(t *testing.T) {
 			switch i {
 			// Run Service module
 			case 0:
-				
+
 				require.NotNil(t, actual)
 				require.Len(t, actual.Modules, 2)
 				assert.Equal(t, tt.wantOut.Name, actual.Modules[tt.n].Name)

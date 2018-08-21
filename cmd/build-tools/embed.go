@@ -1,9 +1,9 @@
 package main
 
 import (
-	"io/ioutil"
 	"flag"
 	"fmt"
+	"io/ioutil"
 )
 
 func main() {

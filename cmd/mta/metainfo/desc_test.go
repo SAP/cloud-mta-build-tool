@@ -83,8 +83,7 @@ func Test_setManifetDesc(t *testing.T) {
 					Parameters:  nil,
 					BuildParams: nil,
 
-
-					Properties:  nil,
+					Properties: nil,
 				},
 
 				{

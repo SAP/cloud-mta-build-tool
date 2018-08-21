@@ -22,6 +22,12 @@ clean:
 dir:
 	mkdir $(BUILD)
 
+lint :
+	@echo "style linting files:" # this list will grow as we cleanup all the code
+	@bash -c "go run bin/style/main.go api util/{configv3,manifest,randomword,sorting,ui}"
+	@echo "No lint errors!"
+	@echo
+
 gen:
 	go generate
 
@@ -37,6 +43,8 @@ build-windows:
 # Use for local - > copy the bin to go/bin
 copy:
 	cp $(CURDIR)/release/$(BINARY_NAME) $(GOPATH)/bin/
+
+
 
 
 

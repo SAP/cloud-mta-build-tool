@@ -1,17 +1,17 @@
 package metainfo
 
 import (
-	"fmt"
-	"io"
-	"log"
-	"os"
-	"io/ioutil"
-	"cloud-mta-build-tool/cmd/mta/models"
 	"cloud-mta-build-tool/cmd/constants"
 	"cloud-mta-build-tool/cmd/fsys"
 	"cloud-mta-build-tool/cmd/mta"
-	"cloud-mta-build-tool/cmd/platform"
 	"cloud-mta-build-tool/cmd/mta/converter"
+	"cloud-mta-build-tool/cmd/mta/models"
+	"cloud-mta-build-tool/cmd/platform"
+	"fmt"
+	"io"
+	"io/ioutil"
+	"log"
+	"os"
 )
 
 // The deployment descriptor shall be located within the META-INF folder of the JAR.

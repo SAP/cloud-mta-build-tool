@@ -7,8 +7,8 @@ import (
 	"cloud-mta-build-tool/cmd/mta/models"
 	"cloud-mta-build-tool/cmd/platform"
 
-	"gopkg.in/yaml.v2"
 	"github.com/stretchr/testify/assert"
+	"gopkg.in/yaml.v2"
 )
 
 func TestConvertTypes(t *testing.T) {
@@ -73,15 +73,13 @@ modules:
     path: app
 `)
 
-
 	expected := models.MTA{}
 	// parse mta yaml
-	err = yaml.Unmarshal(expectedMta1Modules , &expected)
+	err = yaml.Unmarshal(expectedMta1Modules, &expected)
 	if err != nil {
 		log.Fatalf("Error to parse platform yaml: %v", err)
 
 	}
-
 
 	//expected for 1 module
 	var expectedMtaMultiModules = []byte(`
@@ -99,15 +97,13 @@ modules:
     path: app
 `)
 
-
 	expectedMultiModules := models.MTA{}
 	// parse mta yaml
-	err = yaml.Unmarshal(expectedMtaMultiModules , &expectedMultiModules)
+	err = yaml.Unmarshal(expectedMtaMultiModules, &expectedMultiModules)
 	if err != nil {
 		log.Fatalf("Error to parse platform yaml: %v", err)
 
 	}
-
 
 	// MTA content
 	var mtaNeo = []byte(`
@@ -125,20 +121,19 @@ modules:
     path: app
 `)
 
-	mtaNeoMulti  := models.MTA{}
+	mtaNeoMulti := models.MTA{}
 	// parse mta yaml
 	err = yaml.Unmarshal(mtaNeo, &mtaNeoMulti)
 	if err != nil {
 		log.Fatalf("Error to parse mta yaml: %v", err)
 	}
 
-
 	tests := []struct {
-		name      string
-		mta       models.MTA
-		platforms platform.Platforms
-		platform  string
-		expected  string
+		name          string
+		mta           models.MTA
+		platforms     platform.Platforms
+		platform      string
+		expected      string
 		expectedMulti models.MTA
 	}{
 		{
@@ -150,11 +145,11 @@ modules:
 			expected:  expected.Modules[0].Type,
 		},
 		{
-			name:      "Multi modules multi platforms config",
-			mta:       mtaNeoMulti,
-			platforms: platformType,
-			platform:  "neo",
-			expectedMulti:  expectedMultiModules,
+			name:          "Multi modules multi platforms config",
+			mta:           mtaNeoMulti,
+			platforms:     platformType,
+			platform:      "neo",
+			expectedMulti: expectedMultiModules,
 		},
 	}
 	for i, tt := range tests {
