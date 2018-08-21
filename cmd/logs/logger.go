@@ -7,9 +7,9 @@ import (
 )
 
 const (
-	MBT_LOG_LEVEL = "MBT_LOG_LEVEL"
+	MbtLogLevel = "MBT_LOG_LEVEL"
 	DEF_LVL       = "info"
-)
+)   
 
 // Logger - logrus variable
 var Logger *logrus.Logger
@@ -38,7 +38,7 @@ func NewLogger() *logrus.Logger {
 // GetLogLevel - Get level from env
 func getLogLevel() string {
 	// TODO Check env if coming from external config or local
-	lvl, _ := os.LookupEnv(MBT_LOG_LEVEL)
+	lvl, _ := os.LookupEnv(MbtLogLevel)
 	if lvl != "" {
 		return lvl
 	}

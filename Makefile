@@ -13,8 +13,15 @@ BINARY_NAME=mbt
 BUILD  = $(CURDIR)/release
 
 
-all:clean dir gen build-linux build-darwin build-windows copy
+all:format clean dir gen build-linux build-darwin build-windows copy
 .PHONY: build-darwin build-linux build-windows
+
+format :
+	go fmt ./...
+
+lint:
+	go get -u golang.org/x/lint/golint
+	golint ./...
 
 clean:
 	rm -rf $(BUILD)
@@ -22,15 +29,10 @@ clean:
 dir:
 	mkdir $(BUILD)
 
-lint :
-	@echo "style linting files:" # this list will grow as we cleanup all the code
-	@bash -c "go run bin/style/main.go api util/{configv3,manifest,randomword,sorting,ui}"
-	@echo "No lint errors!"
-	@echo
-
 gen:
 	go generate
 
+# Build for each platform
 build-linux:
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 $(GOBUILD) -o release/$(BINARY_NAME)_linux -v
 
@@ -40,7 +42,7 @@ build-darwin:
 build-windows:
 	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 $(GOBUILD) -o release/$(BINARY_NAME)_windows -v
 
-# Use for local - > copy the bin to go/bin
+# Use for local - > copy the bin to go/bin and use new compiled version
 copy:
 	cp $(CURDIR)/release/$(BINARY_NAME) $(GOPATH)/bin/
 
