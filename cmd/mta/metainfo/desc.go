@@ -68,7 +68,7 @@ func GenMetaInf(tmpDir string, mtaStr models.MTA, modules []string) {
 	dir.CreateDirIfNotExist(tmpDir + MetaInf)
 	//Load platform configuration file
 
-	platformCfg := platform.Parse(PlatformConfig)
+	platformCfg := platform.Parse(platform.PlatformConfig)
 	// Modify MTAD object according to platform types
 	//Todo platform should provided as command parameter
 	converter.ConvertTypes(mtaStr, platformCfg, "cf")

@@ -1,5 +1,8 @@
 # Make build for local usage
 # The artifact is bin for each OS and copied to the go/bin dir
+# Execute go generate to generate files to *.go to inclue as binary
+# Execute go build
+# Copy files to machine go/bin folder (temp target to avoid manual steps when developing locally)
 
 GOCMD=go
 GOBUILD=$(GOCMD) build
