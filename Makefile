@@ -46,6 +46,13 @@ build-windows:
 copy:
 	cp $(CURDIR)/release/$(BINARY_NAME) $(GOPATH)/bin/
 	@echo "done"
+# check code covrage
+cover:
+	go test -v -coverprofile cover.out ./...
+	go tool cover -html=cover.out -o cover.html
+	open cover.html
+
+
 
 
 

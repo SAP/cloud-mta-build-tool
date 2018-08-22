@@ -1,31 +1,41 @@
+<b>Disclaimer</b>: This repository is under development  
 # MTA Build Tool
 
 
-The MTA command-line tool provides a convenient way to build an MTA project into an MTAR (MTA Archive). 
+ The MTA command-line tool provides a convenient way to bundle an MTA project into an MTAR (MTA Archive). 
 
 
-# Multi-Target Applications
+### Multi-Target Applications
 
-A Multi-Target Application (MTA) is a package comprised of multiple application and resource modules, 
-which have been created using different technologies and deployed to different runtimes, but have a common lifecycle. 
-You bundle the modules together, describe them along with their inter-dependencies to other modules, 
+A Multi-Target Application is a package comprised of multiple application and resource modules, 
+which have been created using different technologies and deployed to different runtime, however, have a common life-cycle. 
+user bundle the modules together, describe (via mta.yaml) them along with their inter-dependencies to other modules, 
 services, and interfaces, and package them in an MTA.
  
 
-#### MBT tool
+#### MTA Build Tool 
 
-- The MBT tool is responsible to analyze the `mta.yaml` file and generate a `Makefile` as manifest that describe the build process 
+The MTA build tool will provide a clear separation between the generation process and the build process as follows:
+
+##### CLI 
+
+- The CLI tool will parse and analyze the development descriptor a.k.a mta.yaml file and generate a Makefile accordingly 
 - Provide atomic command's that can be executed as isolated process
 - Build META-INF folder with the following content:
   - Translating the mta.yaml source file into the mtad.yaml deployment descriptor.
   - Create META-INFO file which describe the build artifacts structure.
- 
   
-#### Makefile  
+  
+##### [Makefile](https://www.gnu.org/software/make/)
 
-The generated `Makefile` is the actual project "builder" which provide verbose build manifest that can be changed according to the project needs and responsible to:
-- Building each of the modules in the MTA project.
-- invoking the MBT commands in the right order
+The generated `Makefile` (GNU Make) will describe and execute the build process with two flavors:
+- default - provide a generic build process that can be modified according to the project needs
+- verbose - provide verbose build file as manifest which describe each step in separate target (experimental)
+
+During the build process the generated Makefile is responsible on the following:
+- building each of the modules in the MTA project.
+- invoking the CLI commands in the right order 
+- provide mta archive a.k.a mtar
 
 ### Commands <a id='commands'></a>
 
@@ -34,13 +44,14 @@ Following is the command which the MBT support:
 
 | Command | usage      | description                                            |
 | ------  | ------     |  ----------                                            |
-| `version` | `mbt -v`     | Prints the MBT version                                 |
-| `help`    | `mbt -h`     | Prints all the available commands                      | 
-| `init`    | `mbt init`   | Generate Makefile according to the mta.yaml            |
-| `TBD `    | `TBD`        | Additional commands
+| version | `mbt -v`    | Prints the MBT version                                 |
+| help    | `mbt -h`     | Prints all the available commands                      | 
+| init    | `mbt init`   | Generate Makefile according to the mta.yaml            |
+| TBD     | `TBD`       | Additional commands when available to use 
 
 
-## MTA Project
+
+## What is an MTA Project, in a nutshell
 
 An MTA(Multi-target-application) project is defined by a project file in the root folder called `mta.yaml` that contains three different sections:
 
@@ -75,9 +86,9 @@ how to build the module and what to package into the application.
 
 |*key*|*mandatory*|*constraints*|*description*|
 | --- | --- | --- | --- |
-|name|[x]|Must conform to this regexp: `/\A[A-Za-z0-9_\-\.]+\z/` and be unique in the `mta.yaml`|An MTA internaly unique name.|
-|type|[x]|[Supported Values](#module-types)|The expected runtime type of the module.|
-|path|[x]|Path expression|The path to the module being built. Must be contained inside the MTA project folder. Use Unix-style path separators ('/').|
+|name| [x] |Must conform to this regexp: `/\A[A-Za-z0-9_\-\.]+\z/` and be unique in the `mta.yaml`|An MTA internally unique name.|
+|type| [x] |[Supported Values](#module-types)|The expected runtime type of the module.|
+|path| [x] |Path expression|The path to the module being built. Must be contained inside the MTA project folder. Use Unix-style path separators ('/').|
 |description|[ ]|Free text|A description of the module.|
 |provides|[ ]|[Map Element](#provides)|A specification of sets of name-value pairs of configuration data that is provided by this module.|
 |requires|[ ]|[Map Element](#requires)|A specification of required configuration that is required by this the module.|
@@ -88,25 +99,24 @@ how to build the module and what to package into the application.
 
 #### _Provides_ Section <a id='provides'></a>
 
-The _provides_ section allows a module to define sets of name-value pairs as configurations that are made available to other modules in the same MTAR or different MTARs.
+The _provides_ section allows a module to define sets of name-value pairs as configurations that are made available to other modules in the same MTAR or different MTAR's.
 
 #### _Requires_ Section <a id='requires'></a>
 
 The _requires_ section allows a module to define which configuration sets it needs to receive at deployment time. Dependencies can be provided to an application either via a resource in the _resources_ section or via a _provides_ section from a different module.
 
 
-#### Todos
+#### Todo's
 
- - Support first MVP scenario such as:
-    - Partial build
-    - Feature build
-    - XMake integration 
- - Add comprehensive tests
- - Release process
- - Usage
- - Add concrete limitations
- - Cleanup
+ - [ ] Support first MVP scenarios such as:
  
+   - [ ] Partial build
+   - [ ] Feature build
+   - [ ] XMake integration 
+ - [ ] Release process
+ - [ ] Usage
+ - [ ] Add concrete limitations per release
+
  
  #### Limitations
  
