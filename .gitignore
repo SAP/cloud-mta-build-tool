@@ -25,3 +25,5 @@ docker*
 .DS_Store
 
 release
+cover.html
+cover.out

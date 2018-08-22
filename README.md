@@ -35,7 +35,7 @@ The generated `Makefile` (GNU Make) will describe and execute the build process 
 During the build process the generated Makefile is responsible on the following:
 - building each of the modules in the MTA project.
 - invoking the CLI commands in the right order 
-- provide mta archive a.k.a mtar
+- provide mta archive ready for deployment
 
 ### Commands <a id='commands'></a>
 
@@ -92,7 +92,7 @@ how to build the module and what to package into the application.
 |description|[ ]|Free text|A description of the module.|
 |provides|[ ]|[Map Element](#provides)|A specification of sets of name-value pairs of configuration data that is provided by this module.|
 |requires|[ ]|[Map Element](#requires)|A specification of required configuration that is required by this the module.|
-|properties|[ ]|Map element|Properties that will be provided to the deployed application at runtime. Each platform may provide them using a different method. For example, XSA uses environment variables. Valid content depends on the module itself. |
+|properties|[ ]|Map element|Properties that will be provided to the deployed application at runtime. Each platform may provide them using a different method. For example, cloud foundry uses environment variables. Valid content depends on the module itself. |
 |parameters|[ ]|Map element|Deployment parameters that will be used during the deployment of the module in the target platform. Valid content depends on the targeted platform.|
 |build-parameters|[ ]|[Map element](#builders)|Build time information used by the various build tools.|
 
@@ -113,6 +113,7 @@ The _requires_ section allows a module to define which configuration sets it nee
    - [ ] Partial build
    - [ ] Feature build
    - [ ] XMake integration 
+   
  - [ ] Release process
  - [ ] Usage
  - [ ] Add concrete limitations per release
