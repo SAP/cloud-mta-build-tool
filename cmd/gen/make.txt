@@ -13,9 +13,6 @@ all: cores {{- range .File.Modules}} {{.Name}}{{end}} meta mtar cleanup
 modules = {{- range .File.Modules}} {{.Name}}{{end}}
 # Set the current project repository path for general mta process
   PROJ_DIR := $(CURDIR)
-# Check if the makefile is up to date
-Makefile: mta.yaml
-	mbt init > $@
 
 # Execute all modules builds
 

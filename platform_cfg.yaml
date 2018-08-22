@@ -1,59 +1,66 @@
-#Types for cloudfoundry platform
+#              Platform types mapping
+# This file contains maps between platform types to native types
+# it is bundled with the tool delivery as default to provide ease of use and quick start
+# However, To create a clear separation between the build tool and platform types
+# the build tool will support a path for platform config file via CLI flags
+# path to file which provide the following config wins over the following config
+
+# Types for cloudfoundry platform
 platform:
-  - name: cf
-    modules:
-    - native-type: html5
-      platform-type: "javascript.nodejs"
+- name: cf
+  modules:
+  - native-type: html5
+    platform-type: "javascript.nodejs"
 
-    - native-type: nodejs
-      platform-type: "javascript.nodejs"
+  - native-type: nodejs
+    platform-type: "javascript.nodejs"
 
-    - native-type: sitecontent
-      platform-type: "javascript.nodejs"
+  - native-type: sitecontent
+    platform-type: "javascript.nodejs"
 
-    - native-type: hdb
-      platform-type: "com.sap.xs.hdi"
+  - native-type: hdb
+    platform-type: "com.sap.xs.hdi"
 
-    - native-type: java
-      platform-type: "java.tomcat"
+  - native-type: java
+    platform-type: "java.tomcat"
 
-    - native-type: dwf
-      platform-type: "com.sap.xs.dwf"
+  - native-type: dwf
+    platform-type: "com.sap.xs.dwf"
 
-    - native-type: cds
-      platform-type: "cds"
+  - native-type: cds
+    platform-type: "cds"
 
 
-  # Types for Neo platform
-  - name: neo
-    modules:
-    - native-type: html5
-      platform-type: "com.sap.hcp.html5"
-    #java.tomcat by default or if TARGET_RUNTIME property set to tomcat
-    #com.sap.java if TARGET_RUNTIME property set to neo-java-web or neo-javaee6-wp
-    - native-type: java
-      platform-type: "java.tomcat"
+# Types for Neo platform
+- name: neo
+  modules:
+  - native-type: html5
+    platform-type: "com.sap.hcp.html5"
+  #java.tomcat by default or if TARGET_RUNTIME property set to tomcat
+  #com.sap.java if TARGET_RUNTIME property set to neo-java-web or neo-javaee6-wp
+  - native-type: java
+    platform-type: "java.tomcat"
 
-  # Type for XSA platform
-  - name: xsa
-    modules:
-     - native-type: html5
-       platform-type: "javascript.nodejs"
+# Type for XSA platform
+- name: xsa
+  modules:
+  - native-type: html5
+    platform-type: "javascript.nodejs"
 
-     - native-type: nodejs
-       platform-type: "javascript.nodejs"
+  - native-type: nodejs
+    platform-type: "javascript.nodejs"
 
-     - native-type: sitecontent
-       platform-type: "javascript.nodejs"
+  - native-type: sitecontent
+    platform-type: "javascript.nodejs"
 
-     - native-type: hdb
-       platform-type: "com.sap.xs.hdi"
+  - native-type: hdb
+    platform-type: "com.sap.xs.hdi"
 
-     - native-type: java
-       platform-type: "java.tomcat"
+  - native-type: java
+    platform-type: "java.tomcat"
 
-     - native-type: dwf
-       platform-type: "com.sap.xs.dwf"
+  - native-type: dwf
+    platform-type: "com.sap.xs.dwf"
 
-     - native-type: cds
-       platform-type: "cds"
+  - native-type: cds
+    platform-type: "cds"

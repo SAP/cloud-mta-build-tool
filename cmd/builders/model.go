@@ -8,8 +8,9 @@ type Builders struct {
 
 type builder struct {
 	Name string     `yaml:"name"`
-	Type []Commands `yaml:"type"`
 	Info string     `yaml:"info"`
+	Path string     `yaml:"path"`
+	Type []Commands `yaml:"type"`
 }
 
 type Commands struct {

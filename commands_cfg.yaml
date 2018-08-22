@@ -1,21 +1,30 @@
-#Builders execution commands - default
-version: 1
+#             Builders Execution Commands
+# the following configuration commands will be self-contained in the tool
+# to provide some known defaults for ease of use and quick start
+# However, to create a clear separation between the builder's and the build tool
+# the tool will support adding a path to the configuration file
+# path property wins respective build commands
+
 builders:
- - name: html5
-   info: "installing module dependencies & execute grunt & remove dev dependencies"
-   type:
-    - command: npm install
-    - command: grunt
-    - command: npm prune --production
- - name: java
-   info: "build java application"
-   type:
-     - command: mvn clean install
- - name: nodejs
-   info: "build nodejs application"
-   type:
-     - command: npm install
- - name: golang
-   info: "build golang application"
-   type:
-     - command: go build *.go
+- name: html5
+  info: "installing module dependencies & execute grunt & remove dev dependencies"
+  path: "path to config file which override the following default commands"
+  type:
+  - command: npm install
+  - command: grunt
+  - command: npm prune --production
+- name: java
+  info: "build java application"
+  path: "path to config file which override the following default commands"
+  type:
+  - command: mvn clean install
+- name: nodejs
+  info: "build nodejs application"
+  path: "path to config file which override the following default commands"
+  type:
+  - command: npm install
+- name: golang
+  info: "build golang application"
+  path: "path to config file which override the following default commands"
+  type:
+  - command: go build *.go
