@@ -13,7 +13,7 @@ BINARY_NAME=mbt
 BUILD  = $(CURDIR)/release
 
 
-all:format clean dir gen build-linux build-darwin build-windows copy
+all:format clean dir gen build-linux build-darwin build-windows copy test
 .PHONY: build-darwin build-linux build-windows
 
 format :
@@ -22,6 +22,15 @@ format :
 lint:
 	go get -u golang.org/x/lint/golint
 	golint ./...
+
+# execute general tests
+test:
+	 go test -v ./...
+# check code covrage
+cover:
+	go test -v -coverprofile cover.out ./...
+	go tool cover -html=cover.out -o cover.html
+	open cover.html
 
 clean:
 	rm -rf $(BUILD)
@@ -32,7 +41,7 @@ dir:
 gen:
 	go generate
 
-# Build for each platform
+# build for each platform
 build-linux:
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 $(GOBUILD) -o release/$(BINARY_NAME)_linux -v
 
@@ -42,15 +51,11 @@ build-darwin:
 build-windows:
 	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 $(GOBUILD) -o release/$(BINARY_NAME)_windows -v
 
-# Use for local development - > copy the new bin to go/bin path to use new compiled version
+# use for local development - > copy the new bin to go/bin path to use new compiled version
 copy:
 	cp $(CURDIR)/release/$(BINARY_NAME) $(GOPATH)/bin/
 	@echo "done"
-# check code covrage
-cover:
-	go test -v -coverprofile cover.out ./...
-	go tool cover -html=cover.out -o cover.html
-	open cover.html
+
 
 
 
