@@ -22,7 +22,7 @@ builders:
   info: "build nodejs application"
   path: "path to config file which override the following default commands"
   type:
-  - command: npm install
+  - command: npm install --production
 - name: golang
   info: "build golang application"
   path: "path to config file which override the following default commands"

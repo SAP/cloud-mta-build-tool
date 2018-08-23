@@ -1,3 +1,6 @@
+[![CircleCI](https://circleci.com/gh/SAP/cloud-mta-build-tool.svg?style=svg&circle-token=ecedd1dce3592adcd72ee4c61481972c32dcfad7)](https://circleci.com/gh/SAP/cloud-mta-build-tool)
+![GitHub license](https://img.shields.io/badge/license-Apache_2.0-blue.svg)
+
 <b>Disclaimer</b>: This repository is under development  
 # MTA Build Tool
 
@@ -42,12 +45,12 @@ During the build process the generated Makefile is responsible on the following:
 Following is the command which the MBT support:
 
 
-| Command | usage      | description                                            |
-| ------  | ------     |  ----------                                            |
-| version | `mbt -v`    | Prints the MBT version                                 |
+| Command | usage        | description                                            |
+| ------  | ------       |  ----------                                            |
+| version | `mbt -v`     | Prints the MBT version                                 |
 | help    | `mbt -h`     | Prints all the available commands                      | 
 | init    | `mbt init`   | Generate Makefile according to the mta.yaml            |
-| TBD     | `TBD`       | Additional commands when available to use 
+| TBD     |              | Additional commands when available to use 
 
 
 
@@ -67,7 +70,7 @@ that maps to a _Service Instance_.
 This section contains information that is relevant for the entire multi-targeted-application. It is used by the MTA deployer
 in order to identify the MTA being deployed.
 
-|*key*|*mandatory*|*constraints*|*description*|
+|key|mandatory|constraints|description|
 | --- | --- | --- | --- |
 |`_schema_version`|[x]|must be a supported by the target deployer|Specifies the version of the MTA spec that is being targeted|
 |`ID`|[x]|Must conform to this regexp: `/\A[A-Za-z0-9_\-\.]+\z/`|Identifies the MTA application to the MTA deployer|
@@ -105,14 +108,25 @@ The _provides_ section allows a module to define sets of name-value pairs as con
 
 The _requires_ section allows a module to define which configuration sets it needs to receive at deployment time. Dependencies can be provided to an application either via a resource in the _resources_ section or via a _provides_ section from a different module.
 
+### The Resources Section <a id='resources'></a>
+
+This section contains an entry for each resource that must be setup by the MTA deployer for consumption by one of the modules contained in the MTA archive.
+
+
+|*key*|*mandatory*|*constraints*|*description*|
+| --- | --- | --- | --- |
+|name|[x]|Must conform to this regexp: `/\A[A-Za-z0-9\_\-\.]+\z/ ` and be unique in the `mta.yaml`|An MTA internaly unique name.|
+|type|[ ]|
+|parameters|[ ]| |
+|properties|[ ]| |
 
 #### Todo's
 
  - [ ] Support first MVP scenarios such as:
  
-   - [ ] Partial build
    - [ ] Feature build
    - [ ] XMake integration 
+   - [ ] Partial build
    
  - [ ] Release process
  - [ ] Usage
@@ -124,3 +138,6 @@ The _requires_ section allows a module to define which configuration sets it nee
    - TBD
  
  
+ ### License
+ 
+ MTA Build Tool is [Apache License 2.0 licensed](./LICENSE).

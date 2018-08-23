@@ -5,6 +5,7 @@
 .idea/inspectionProfiles/
 cmd/internal/
 vendor
+release
 
 # Binaries for programs and plugins
 *.so
@@ -24,6 +25,7 @@ docker*
 .dockerignore
 .DS_Store
 
-release
+
 cover.html
 cover.out
+coverage.txt

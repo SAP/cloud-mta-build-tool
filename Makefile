@@ -26,7 +26,7 @@ lint:
 # execute general tests
 test:
 	 go test -v ./...
-# check code covrage
+# check code coverage
 cover:
 	go test -v -coverprofile cover.out ./...
 	go tool cover -html=cover.out -o cover.html
