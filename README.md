@@ -56,7 +56,7 @@ The MBT supports the following commands:
 
 ## What is an MTA Project
 
-For background and detailed information, see The Multi-Target Application ModelInformation published on SAP site [guide](http://help.sap.com/disclaimer?site=http://www.sap.com/documents/2016/06/e2f618e4-757c-0010-82c7-eda71af511fa.html).
+For background and detailed information, see The [Multi-Target Application Model](http://help.sap.com/disclaimer?site=http://www.sap.com/documents/2016/06/e2f618e4-757c-0010-82c7-eda71af511fa.html) Information published on SAP site.
 
 #### Todo's
 
