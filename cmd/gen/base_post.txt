@@ -1,0 +1,18 @@
+{{define "base_post"}}
+# Create META-INF folder with MANIFEST.MF & mtad.yaml
+meta:
+{{"\t"}}@mbt execute meta $(MTR_DIR)
+
+# Pack as MTAR artifact
+mtar: $(modules) meta
+{{"\t"}}@mbt execute mtar $(MTR_DIR) $(PROJ_DIR)
+
+cleanup: mtar
+# Remove tmp folder
+{{"\t"}}@mbt execute cleanup $(MTR_DIR)
+
+# Print available cores for parallel execution
+cores:
+{{"\t"}}@echo $(NPROCS)
+
+{{end}}

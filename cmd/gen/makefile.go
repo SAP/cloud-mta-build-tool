@@ -19,7 +19,9 @@ import (
 
 //Make - Generate the makefile
 func Make() {
-	const MakeTmpl = "make.txt"
+	const MakeVerbTmpl = "make_verbose.txt"
+	const BasePre = "base_pre.txt"
+	const BasePost = "base_post.txt"
 	var genFileName = "Makefile"
 	var makeFile *os.File
 	// Using the module context for the template creation
@@ -60,9 +62,11 @@ func Make() {
 	// Get the path of the template source code
 	_, file, _, _ := runtime.Caller(0)
 
-	container := filepath.Join(filepath.Dir(file), MakeTmpl)
+	makeVerbPath := filepath.Join(filepath.Dir(file), MakeVerbTmpl)
+	preVerbPath := filepath.Join(filepath.Dir(file), BasePre)
+	postVerbPath := filepath.Join(filepath.Dir(file), BasePost)
 	// parse the template txt file
-	t, err := template.New(MakeTmpl).Funcs(funcMap).ParseFiles(container)
+	t, err := template.New(MakeVerbTmpl).Funcs(funcMap).ParseFiles(makeVerbPath, preVerbPath, postVerbPath)
 	if err != nil {
 		panic(err)
 	}

@@ -1,0 +1,14 @@
+{{template "base_pre"}}
+# Execute all modules builds
+
+{{- range .File.Modules}}
+# build module {{.Name}}
+{{.Name}}:
+{{"\t"}}cd $(PROJ_DIR)/{{.Path}} && {{ range CommandProvider .}}{{range $i,$a := .Command}}{{if gt $i 0 }} && {{end}}{{.}}{{end}}{{end}}
+# Pack module build artifacts
+{{"\t"}}@mbt execute pack $(MTR_DIR) {{.Path}} {{.Name}}
+{{end}}
+# Create META-INF folder with MANIFEST.MF & mtad.yaml
+meta:
+{{"\t"}}@mbt execute meta $(MTR_DIR)
+{{template "base_post"}}
