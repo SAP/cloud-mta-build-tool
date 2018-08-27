@@ -7,3 +7,8 @@ type Requires struct {
 	Type       string     `yaml:"type,omitempty"`
 	Properties Properties `yaml:"properties,omitempty"`
 }
+
+type BuildRequires struct {
+	Name       string     `yaml:"name,omitempty"`
+	TargetPath string     `yaml:"target-path,omitempty"`
+}

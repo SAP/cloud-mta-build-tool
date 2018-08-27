@@ -16,7 +16,10 @@ var html5 = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 
 		// Get MTA structure
-		mtaStruct := proc.GetMta(fs.GetPath())
+		mtaStruct, err := proc.GetMta(fs.GetPath())
+		if err != nil {
+			//TODO error handling
+		}
 		// Read json configuration file
 		cfg := proc.ReadConfig()
 		// TODO - fetch the specific module

@@ -58,13 +58,13 @@ func savecfg(c CfgEnv, home string) {
 	ioutil.WriteFile(home, jsonC, os.ModeAppend)
 }
 
-func GetMta(wd string) models.MTA {
+func GetMta(wd string) (mtaStruct models.MTA, err error){
 	// Load mta descriptor
 	mtaYmlCnt := dir.Load(wd + constants.PathSep + constants.MtaYaml)
 	// parse MTA
-	mtaStruct := mta.Parse(mtaYmlCnt)
+	mtaStruct, err = mta.Parse(mtaYmlCnt)
 
-	return mtaStruct
+	return mtaStruct, err
 }
 
 func cfgdir() (dir string) {

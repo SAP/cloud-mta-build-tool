@@ -82,7 +82,10 @@ func BuildProcess(options ...func(*BuildCfg)) (buildcfg *BuildCfg, err error) {
 	// Load and parse yml & create temp dir
 	tmpDir := proc.PreProcess()
 
-	mtaStruct := proc.GetMta(projdir)
+	mtaStruct, err := proc.GetMta(projdir)
+	if err != nil {
+		//TODO error handling
+	}
 	// Build Module types according to the manifest descriptor
 	for _, mod := range mtaStruct.Modules {
 		switch mod.Type {
