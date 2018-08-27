@@ -10,8 +10,8 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"log"
 	"os"
+	"cloud-mta-build-tool/cmd/logs"
 )
 
 // The deployment descriptor shall be located within the META-INF folder of the JAR.
@@ -79,7 +79,7 @@ func GenMetaInf(tmpDir string, mtaStr models.MTA, modules []string) {
 		err = ioutil.WriteFile(tmpDir+MetaInf+constants.PathSep+Mtad, mtad, os.ModePerm)
 	}
 	if err != nil {
-		log.Println(err)
+		logs.Logger.Errorln(err)
 	}
 	// Create MANIFEST.MF file
 	file := dir.CreateFile(tmpDir + MetaInf + constants.PathSep + Manifest)
