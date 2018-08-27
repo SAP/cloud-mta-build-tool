@@ -58,7 +58,6 @@ builders:
 					Requires:    nil,
 					Provides:    nil,
 					Parameters:  nil,
-					BuildParams: nil,
 					Properties:  nil,
 				},
 			},

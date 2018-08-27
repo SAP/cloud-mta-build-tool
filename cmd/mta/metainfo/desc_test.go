@@ -31,7 +31,6 @@ func Test_setManifetDesc(t *testing.T) {
 					Requires:    nil,
 					Provides:    nil,
 					Parameters:  nil,
-					BuildParams: nil,
 					Properties:  nil,
 				},
 			},
@@ -50,7 +49,6 @@ func Test_setManifetDesc(t *testing.T) {
 					Requires:    nil,
 					Provides:    nil,
 					Parameters:  nil,
-					BuildParams: nil,
 					Properties:  nil,
 				},
 
@@ -61,7 +59,6 @@ func Test_setManifetDesc(t *testing.T) {
 					Requires:    nil,
 					Provides:    nil,
 					Parameters:  nil,
-					BuildParams: nil,
 					Properties:  nil,
 				},
 			},
@@ -81,8 +78,6 @@ func Test_setManifetDesc(t *testing.T) {
 					Requires:    nil,
 					Provides:    nil,
 					Parameters:  nil,
-					BuildParams: nil,
-
 					Properties: nil,
 				},
 
@@ -93,7 +88,6 @@ func Test_setManifetDesc(t *testing.T) {
 					Requires:    nil,
 					Provides:    nil,
 					Parameters:  nil,
-					BuildParams: nil,
 					Properties:  nil,
 				},
 			},

@@ -7,4 +7,5 @@ type MTA struct {
 	Version       string       `yaml:"version,omitempty"`
 	Modules       []*Modules   `yaml:"modules,omitempty"`
 	Resources     []*Resources `yaml:"resources,omitempty"`
+	Parameters    Parameters   `yaml:"parameters,omitempty"`
 }

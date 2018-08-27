@@ -73,9 +73,11 @@ func GenMetaInf(tmpDir string, mtaStr models.MTA, modules []string) {
 	//Todo platform should provided as command parameter
 	converter.ConvertTypes(mtaStr, platformCfg, "cf")
 	// Create readable Yaml before writing to file
-	mtad := mta.Marshal(mtaStr)
+	mtad, err := mta.Marshal(mtaStr)
 	// Write back the MTAD to the META-INF folder
-	err := ioutil.WriteFile(tmpDir+MetaInf+constants.PathSep+Mtad, mtad, os.ModePerm)
+	if err==nil {
+		err = ioutil.WriteFile(tmpDir+MetaInf+constants.PathSep+Mtad, mtad, os.ModePerm)
+	}
 	if err != nil {
 		log.Println(err)
 	}

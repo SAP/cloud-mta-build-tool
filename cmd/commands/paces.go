@@ -68,7 +68,10 @@ var genMeta = &cobra.Command{
 	Long:  "generate META-INF folder with all the required data",
 	Run: func(cmd *cobra.Command, args []string) {
 		logs.Logger.Info("Starting execute metadata creation")
-		mtaStruct := proc.GetMta(fs.GetPath())
+		mtaStruct, err := proc.GetMta(fs.GetPath())
+		if err != nil {
+			//TODO error handling
+		}
 		mtarDir := args[0]
 		// Generate meta info dir with required content
 		metainfo.GenMetaInf(mtarDir, mtaStruct, args[1:])
@@ -83,7 +86,10 @@ var genMtar = &cobra.Command{
 	Long:  "generate MTAR from the project build artifacts",
 	Run: func(cmd *cobra.Command, args []string) {
 		logs.Logger.Info("Starting execute Build of MTAR")
-		mtaStruct := proc.GetMta(fs.GetPath())
+		mtaStruct, err := proc.GetMta(fs.GetPath())
+		if err != nil {
+			//TODO error handling
+		}
 		tDir := args[0]
 		pDir := args[1]
 		// Create MTAR from the building artifacts

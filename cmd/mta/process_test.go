@@ -4,24 +4,44 @@ import (
 	"io/ioutil"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
 	"cloud-mta-build-tool/cmd/mta/models"
+	"github.com/stretchr/testify/assert"
 )
+
+type validator = func(t *testing.T, actual, expected models.Modules)
+
+type testInfo struct {
+	name     string
+	expected models.Modules
+}
+
+func doTest(t *testing.T, expected []testInfo, validators []validator, filename string) {
+	mtaFile, _ := ioutil.ReadFile(filename)
+
+	actual, _ := Parse(mtaFile)
+	for i, tt := range expected {
+		t.Run(tt.name, func(t *testing.T) {
+			require.NotNil(t, actual)
+			require.Len(t, actual.Modules, len(expected))
+			validators[i](t, *actual.Modules[i], tt.expected)
+		})
+	}
+	mtaContent, err := Marshal(actual)
+	assert.Nil(t, err)
+	newActual, newErr := Parse(mtaContent)
+	assert.Nil(t, newErr)
+	assert.Equal(t, actual, newActual)
+}
 
 // Table driven test
 // Unit test for parsing mta files to working object
-func Test_ParseFile(t *testing.T) {
-
-	tests := []struct {
-		n       int
-		name    string
-		wantOut models.Modules
-	}{
+func Test_ModulesParsing(t *testing.T) {
+	tests := []testInfo{
 		{
 			name: "Parse service(srv) Module section",
-			wantOut: models.Modules{
+			expected: models.Modules{
 				Name: "srv",
 				Type: "java",
 				Path: "srv",
@@ -35,7 +55,6 @@ func Test_ParseFile(t *testing.T) {
 				},
 				Provides: []models.Provides{
 					{
-
 						Name: "srv_api",
 						Properties: models.Properties{
 							"url": "${default-url}",
@@ -45,7 +64,6 @@ func Test_ParseFile(t *testing.T) {
 				Parameters: models.Parameters{
 					"memory": "512M",
 				},
-				// BuildParams: nil,
 				Properties: models.Properties{
 					"APPC_LOG_LEVEL":              "info",
 					"VSCODE_JAVA_DEBUG_LOG_LEVEL": "ALL",
@@ -56,7 +74,7 @@ func Test_ParseFile(t *testing.T) {
 		// ------------------------Second module test------------------------------
 		{
 			name: "Parse UI(HTML5) Module section",
-			wantOut: models.Modules{
+			expected: models.Modules{
 				Name: "ui",
 				Type: "html5",
 				Path: "ui",
@@ -74,7 +92,6 @@ func Test_ParseFile(t *testing.T) {
 				},
 				Provides: []models.Provides{
 					{
-
 						Name: "srv_api",
 						Properties: models.Properties{
 							"url": "${default-url}",
@@ -82,8 +99,7 @@ func Test_ParseFile(t *testing.T) {
 					},
 				},
 				BuildParams: models.BuildParameters{
-
-					"builder": "grunt",
+					Builder: "grunt",
 				},
 
 				Parameters: models.Parameters{
@@ -94,43 +110,222 @@ func Test_ParseFile(t *testing.T) {
 		},
 	}
 
-	// First Module test as atomic building blocks
-
-	mtaFile, _ := ioutil.ReadFile("./testdata/mta.yaml")
-
-	actual := Parse(mtaFile)
-	for i, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-
-			// Switch was added to handle different type of slices
-			switch i {
-			// Run Service module
-			case 0:
-
-				require.NotNil(t, actual)
-				require.Len(t, actual.Modules, 2)
-				assert.Equal(t, tt.wantOut.Name, actual.Modules[tt.n].Name)
-				assert.Equal(t, tt.wantOut.Type, actual.Modules[tt.n].Type)
-				assert.Equal(t, tt.wantOut.Path, actual.Modules[tt.n].Path)
-				assert.Equal(t, tt.wantOut.Parameters, actual.Modules[tt.n].Parameters)
-				assert.Equal(t, tt.wantOut.Properties, actual.Modules[tt.n].Properties)
-				assert.Equal(t, tt.wantOut.Requires, actual.Modules[tt.n].Requires)
-				assert.Equal(t, tt.wantOut.Provides, actual.Modules[tt.n].Provides)
-
-				// Run UI module
-			case 1:
-
-				assert.Equal(t, tt.wantOut.Name, actual.Modules[i].Name)
-				assert.Equal(t, tt.wantOut.Type, actual.Modules[i].Type)
-				assert.Equal(t, tt.wantOut.Path, actual.Modules[i].Path)
-				assert.Equal(t, tt.wantOut.Requires, actual.Modules[i].Requires)
-				assert.Equal(t, tt.wantOut.Parameters, actual.Modules[i].Parameters)
-				assert.Equal(t, tt.wantOut.BuildParams, actual.Modules[i].BuildParams)
-
-			}
-
-		})
-
+	validators := [2]validator{
+		func(t *testing.T, actual, expected models.Modules) {
+			assert.Equal(t, expected.Name, actual.Name)
+			assert.Equal(t, expected.Type, actual.Type)
+			assert.Equal(t, expected.Path, actual.Path)
+			assert.Equal(t, expected.Parameters, actual.Parameters)
+			assert.Equal(t, expected.Properties, actual.Properties)
+			assert.Equal(t, expected.Requires, actual.Requires)
+			assert.Equal(t, expected.Provides, actual.Provides)
+		},
+		func(t *testing.T, actual, expected models.Modules) {
+			assert.Equal(t, expected.Name, actual.Name)
+			assert.Equal(t, expected.Type, actual.Type)
+			assert.Equal(t, expected.Path, actual.Path)
+			assert.Equal(t, expected.Requires, actual.Requires)
+			assert.Equal(t, expected.Parameters, actual.Parameters)
+			assert.Equal(t, expected.BuildParams, actual.BuildParams)
+		},
 	}
+
+	doTest(t, tests, validators[:], "./testdata/mta.yaml")
+
+}
+
+func Test_BrokenMta(t *testing.T){
+	mtaContent, _ := ioutil.ReadFile("./testdata/mtaWithBrokenProperties.yaml")
+
+	mta, err := Parse(mtaContent)
+	require.NotNil(t, err)
+	require.NotNil(t, mta)
+}
+
+func Test_FullMta(t *testing.T) {
+	schemaVersion := "2.0.0"
+
+	expected := models.MTA{
+		SchemaVersion: &schemaVersion,
+		Id:            "cloud.samples.someproj",
+		Version:       "1.0.0",
+		Parameters: models.Parameters{
+			"deploy_mode": "html5-repo",
+		},
+		Modules: []*models.Modules{
+			{
+				Name: "someproj-db",
+				Type: "hdb",
+				Path: "db",
+				Requires: []models.Requires{
+					{
+						Name: "someproj-hdi-container",
+					},
+					{
+						Name: "someproj-logging",
+					},
+				},
+				Parameters: models.Parameters{
+					"disk-quota": "256M",
+					"memory":     "256M",
+				},
+			},
+			{
+				Name: "someproj-java",
+				Type: "java",
+				Path: "srv",
+				Parameters: models.Parameters{
+					"memory":     "512M",
+					"disk-quota": "256M",
+				},
+				Provides: []models.Provides{
+					{
+						Name: "java",
+						Properties: models.Properties{
+							"url": "${default-url}",
+						},
+					},
+				},
+				Requires: []models.Requires{
+					{
+						Name: "someproj-hdi-container",
+						Properties: models.Properties{
+							"JBP_CONFIG_RESOURCE_CONFIGURATION":
+							"[tomcat/webapps/ROOT/META-INF/context.xml: " +
+								"{\"service_name_for_DefaultDB\" : \"~{hdi-container-name}\"}]",
+						},
+					},
+					{
+						Name: "someproj-logging",
+					},
+				},
+				BuildParams: models.BuildParameters{
+					Requires: []models.BuildRequires{
+						{
+							Name:       "someproj-db",
+							TargetPath: "",
+						},
+					},
+				},
+			},
+			{
+				Name: "someproj-catalog-ui",
+				Type: "html5",
+				Path: "someproj-someprojCatalog",
+				Parameters: models.Parameters{
+					"memory":     "256M",
+					"disk-quota": "256M",
+				},
+				Requires: []models.Requires{
+					{
+						Name:  "java",
+						Group: "destinations",
+						Properties: models.Properties{
+							"name": "someproj-backend",
+							"url":  "~{url}",
+						},
+					},
+					{
+						Name: "someproj-logging",
+					},
+				},
+				BuildParams: models.BuildParameters{
+					Builder: "grunt",
+					Requires: []models.BuildRequires{
+						{
+							Name:       "someproj-java",
+							TargetPath: "",
+						},
+					},
+				},
+			},
+			{
+				Name: "someproj-uideployer",
+				Type: "com.sap.html5.application-content",
+				Parameters: models.Parameters{
+					"memory":     "256M",
+					"disk-quota": "256M",
+				},
+				Requires: []models.Requires{
+					{
+						Name: "someproj-apprepo-dt",
+					},
+				},
+				BuildParams: models.BuildParameters{
+					Builder: "grunt",
+					Type:    "com.sap.html5.application-content",
+					Requires: []models.BuildRequires{
+						{
+							Name: "someproj-catalog-ui",
+						},
+					},
+				},
+			},
+			{
+				Name: "someproj",
+				Type: "approuter.nodejs",
+				Path: "approuter",
+				Parameters: models.Parameters{
+					"memory":     "256M",
+					"disk-quota": "256M",
+				},
+				Requires: []models.Requires{
+					{
+						Name:  "java",
+						Group: "destinations",
+						Properties: models.Properties{
+							"name": "someproj-backend",
+							"url":  "~{url}",
+						},
+					},
+					{
+						Name: "someproj-apprepo-rt",
+					},
+					{
+						Name: "someproj-logging",
+					},
+				},
+			},
+		},
+		Resources: []*models.Resources{
+			{
+				Name: "someproj-hdi-container",
+				Properties: models.Properties{
+					"hdi-container-name": "${service-name}",
+				},
+				Type: "com.sap.xs.hdi-container",
+			},
+			{
+				Name: "someproj-apprepo-rt",
+				Type: "org.cloudfoundry.managed-service",
+				Parameters: models.Parameters{
+					"service":      "html5-apps-repo",
+					"service-plan": "app-runtime",
+				},
+			},
+			{
+				Name: "someproj-apprepo-dt",
+				Type: "org.cloudfoundry.managed-service",
+				Parameters: models.Parameters{
+					"service":      "html5-apps-repo",
+					"service-plan": "app-host",
+				},
+			},
+			{
+				Name: "someproj-logging",
+				Type: "org.cloudfoundry.managed-service",
+				Parameters: models.Parameters{
+					"service":      "application-logs",
+					"service-plan": "lite",
+				},
+			},
+		},
+	}
+
+	mtaContent, _ := ioutil.ReadFile("./testdata/mta2.yaml")
+
+	actual, err := Parse(mtaContent)
+	assert.Nil(t, err)
+	assert.Equal(t, expected, actual)
 
 }
