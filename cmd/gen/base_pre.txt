@@ -2,10 +2,10 @@
 # Create folder for build artifacts
 MTR_DIR := $(shell mbt execute prepare)
 # Determine OS cores
-# {{- range OsCore }}
-# {{ .NPROCS  }}
-# {{ .MAKEFLAGS  }}
-# {{- end}}
+{{- range OsCore }}
+{{ .NPROCS  }}
+{{ .MAKEFLAGS  }}
+{{- end}}
 # List of all the recipes to be executed
 .PHONY: cores {{- range .File.Modules}} {{.Name}}{{end}} meta mtar cleanup
 # Default target compile all
