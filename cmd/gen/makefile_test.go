@@ -8,9 +8,10 @@ import (
 	"github.com/stretchr/testify/assert"
 	"cloud-mta-build-tool/cmd/logs"
 	"cloud-mta-build-tool/cmd/constants"
+	"runtime"
 )
 
-func basicMakeAndValidate(t *testing.T, path, yamlFilename, makeFilename, expectedMakeFileExtension string) {
+func basicMakeAndValidate(t *testing.T, path, yamlFilename, makeFilename, expectedMakeFilename, expectedMakeFileExtension string) {
 	err := makeFile(path, yamlFilename, path, makeFilename, "make_verbose.txt")
 	makeFullName := path + constants.PathSep + makeFilename
 	if err != nil {
@@ -19,7 +20,7 @@ func basicMakeAndValidate(t *testing.T, path, yamlFilename, makeFilename, expect
 	}
 	actual, err := ioutil.ReadFile(makeFullName + expectedMakeFileExtension)
 	assert.Nil(t, err)
-	expected, _ := ioutil.ReadFile(path + constants.PathSep + "ExpectedMakeFile")
+	expected, _ := ioutil.ReadFile(path + constants.PathSep + expectedMakeFilename)
 	assert.Equal(t, expected, actual)
 }
 
@@ -32,6 +33,15 @@ func TestMake(t *testing.T) {
 
 	path := fs.GetPath() + constants.PathSep + "testdata"
 	makeFilename := "MakeFileTest"
+	var expectedMakeFilename string
+	switch runtime.GOOS {
+	case "linux":
+		expectedMakeFilename = "ExpectedMakeFileLinux"
+	case "darwin":
+		expectedMakeFilename = "ExpectedMakeFileMac"
+	case "windows":
+		expectedMakeFilename = "ExpectedMakeFileWindows"
+	}
 
 	logs.Logger = logs.NewLogger()
 
@@ -44,7 +54,7 @@ func TestMake(t *testing.T) {
 	for _, testInfo := range []testInfo{
 		{"SanityTest", "mta.yaml",
 			func(t *testing.T, path, yamlFilename, makeFilename string) {
-				basicMakeAndValidate(t, path, yamlFilename, makeFilename, "")
+				basicMakeAndValidate(t, path, yamlFilename, makeFilename, expectedMakeFilename, "")
 				removeMakefile(t, path, makeFilename)
 			}},
 		{"Yaml file not exists", "YamlNotExists",
@@ -52,15 +62,15 @@ func TestMake(t *testing.T) {
 				err := makeFile(path, yamlFilename, path, makeFilename, "make.txt")
 				assert.NotNil(t, err)
 			}},
-		{"Yaml file exists but not answers YAML format", "ExpectedMakeFile",
+		{"Yaml file exists but not answers YAML format", expectedMakeFilename,
 			func(t *testing.T, path, yamlFilename, makeFilename string) {
 				err := makeFile(path, yamlFilename, path, makeFilename, "make.txt")
 				assert.NotNil(t, err)
 			}},
 		{"Make runs twice, 2 files created - with and without extension", "mta.yaml",
 			func(t *testing.T, path, yamlFilename, makeFilename string) {
-				basicMakeAndValidate(t, path, yamlFilename, makeFilename, "")
-				basicMakeAndValidate(t, path, yamlFilename, makeFilename, ".mta")
+				basicMakeAndValidate(t, path, yamlFilename, makeFilename, expectedMakeFilename, "")
+				basicMakeAndValidate(t, path, yamlFilename, makeFilename, expectedMakeFilename, ".mta")
 				removeMakefile(t, path, makeFilename)
 				removeMakefile(t, path, makeFilename+".mta")
 			}},

@@ -12,7 +12,7 @@ cleanup: mtar
 {{"\t"}}@mbt execute cleanup $(MTR_DIR)
 
 # Print available cores for parallel execution
-cores:
-{{"\t"}}@echo $(NPROCS)
+# cores:
+# {{"\t"}}@echo $(NPROCS)
 
 {{end}}
