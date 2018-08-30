@@ -1,0 +1,39 @@
+
+# Create folder for build artifacts
+MTR_DIR := $(shell mbt execute prepare)
+# Determine OS cores
+NPROCS = $(shell echo %NUMBER_OF_PROCESSORS%)
+MAKEFLAGS += -j$(NPROCS)
+# List of all the recipes to be executed
+.PHONY: cores meta mtar cleanup
+# Default target compile all
+all: cores meta mtar cleanup
+# All modules execution
+modules =
+# Set the current project repository path for general mta process
+  PROJ_DIR := $(CURDIR)
+
+# Execute all modules builds
+# build module ui
+ui:
+	cd $(PROJ_DIR)/ui && npm install && grunt && npm prune --production
+# Pack module build artifacts
+	@mbt execute pack $(MTR_DIR) ui ui
+
+
+# Create META-INF folder with MANIFEST.MF & mtad.yaml
+meta:
+	@mbt execute meta $(MTR_DIR)
+
+# Pack as MTAR artifact
+mtar: $(modules) meta
+	@mbt execute mtar $(MTR_DIR) $(PROJ_DIR)
+
+cleanup: mtar
+# Remove tmp folder
+	@mbt execute cleanup $(MTR_DIR)
+
+# Print available cores for parallel execution
+cores:
+	@echo $(NPROCS)
+

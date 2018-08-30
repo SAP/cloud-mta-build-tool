@@ -1,9 +1,9 @@
 package mta
 
 import (
-	"log"
 	"cloud-mta-build-tool/cmd/mta/models"
 	"gopkg.in/yaml.v2"
+	"cloud-mta-build-tool/cmd/logs"
 )
 
 // Parse MTA file
@@ -12,7 +12,7 @@ func Parse(yamlContent []byte) (out models.MTA, err error) {
 	// Format the YAML to struct's
 	err = yaml.Unmarshal([]byte(yamlContent), &mta)
 	if err != nil {
-		log.Printf("Yaml file is not valid, Error: " + err.Error())
+		logs.Logger.Error("Yaml file is not valid, Error: " + err.Error())
 	}
 	return mta, err
 }
@@ -21,7 +21,7 @@ func Parse(yamlContent []byte) (out models.MTA, err error) {
 func Marshal(in models.MTA) (mtads []byte, err error) {
 	mtads, err = yaml.Marshal(&in)
 	if err != nil {
-		log.Printf(err.Error())
+		logs.Logger.Error(err.Error())
 	}
 
 	return mtads, err

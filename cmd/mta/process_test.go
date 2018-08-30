@@ -8,16 +8,17 @@ import (
 
 	"cloud-mta-build-tool/cmd/mta/models"
 	"github.com/stretchr/testify/assert"
+	"cloud-mta-build-tool/cmd/logs"
 )
-
-type validator = func(t *testing.T, actual, expected models.Modules)
 
 type testInfo struct {
 	name     string
 	expected models.Modules
+	validator func(t *testing.T, actual, expected models.Modules)
 }
 
-func doTest(t *testing.T, expected []testInfo, validators []validator, filename string) {
+func doTest(t *testing.T, expected []testInfo, filename string) {
+	logs.NewLogger()
 	mtaFile, _ := ioutil.ReadFile(filename)
 
 	actual, _ := Parse(mtaFile)
@@ -25,7 +26,7 @@ func doTest(t *testing.T, expected []testInfo, validators []validator, filename 
 		t.Run(tt.name, func(t *testing.T) {
 			require.NotNil(t, actual)
 			require.Len(t, actual.Modules, len(expected))
-			validators[i](t, *actual.Modules[i], tt.expected)
+			tt.validator(t, *actual.Modules[i], tt.expected)
 		})
 	}
 	mtaContent, err := Marshal(actual)
@@ -69,7 +70,15 @@ func Test_ModulesParsing(t *testing.T) {
 					"VSCODE_JAVA_DEBUG_LOG_LEVEL": "ALL",
 				},
 			},
-		},
+			validator: func(t *testing.T, actual, expected models.Modules) {
+				assert.Equal(t, expected.Name, actual.Name)
+				assert.Equal(t, expected.Type, actual.Type)
+				assert.Equal(t, expected.Path, actual.Path)
+				assert.Equal(t, expected.Parameters, actual.Parameters)
+				assert.Equal(t, expected.Properties, actual.Properties)
+				assert.Equal(t, expected.Requires, actual.Requires)
+				assert.Equal(t, expected.Provides, actual.Provides)
+			}},
 
 		// ------------------------Second module test------------------------------
 		{
@@ -107,30 +116,17 @@ func Test_ModulesParsing(t *testing.T) {
 					"memory":     "256M",
 				},
 			},
-		},
+			validator: func(t *testing.T, actual, expected models.Modules) {
+				assert.Equal(t, expected.Name, actual.Name)
+				assert.Equal(t, expected.Type, actual.Type)
+				assert.Equal(t, expected.Path, actual.Path)
+				assert.Equal(t, expected.Requires, actual.Requires)
+				assert.Equal(t, expected.Parameters, actual.Parameters)
+				assert.Equal(t, expected.BuildParams, actual.BuildParams)
+			}},
 	}
 
-	validators := [2]validator{
-		func(t *testing.T, actual, expected models.Modules) {
-			assert.Equal(t, expected.Name, actual.Name)
-			assert.Equal(t, expected.Type, actual.Type)
-			assert.Equal(t, expected.Path, actual.Path)
-			assert.Equal(t, expected.Parameters, actual.Parameters)
-			assert.Equal(t, expected.Properties, actual.Properties)
-			assert.Equal(t, expected.Requires, actual.Requires)
-			assert.Equal(t, expected.Provides, actual.Provides)
-		},
-		func(t *testing.T, actual, expected models.Modules) {
-			assert.Equal(t, expected.Name, actual.Name)
-			assert.Equal(t, expected.Type, actual.Type)
-			assert.Equal(t, expected.Path, actual.Path)
-			assert.Equal(t, expected.Requires, actual.Requires)
-			assert.Equal(t, expected.Parameters, actual.Parameters)
-			assert.Equal(t, expected.BuildParams, actual.BuildParams)
-		},
-	}
-
-	doTest(t, tests, validators[:], "./testdata/mta.yaml")
+	doTest(t, tests, "./testdata/mta.yaml")
 
 }
 

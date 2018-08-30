@@ -44,33 +44,32 @@ builders:
 		modules models.Modules
 	}
 	tests := []struct {
-		name string
-		args args
-		want []CommandList
+		name     string
+		args     args
+		expected CommandList
 	}{
 		{
 			name: "Command for required module type",
 			args: args{
 				modules: models.Modules{
-					Name:        "uiapp",
-					Type:        "html5",
-					Path:        "./",
-					Requires:    nil,
-					Provides:    nil,
-					Parameters:  nil,
-					Properties:  nil,
+					Name:       "uiapp",
+					Type:       "html5",
+					Path:       "./",
+					Requires:   nil,
+					Provides:   nil,
+					Parameters: nil,
+					Properties: nil,
 				},
 			},
-			want: []CommandList{
-				{"build UI application",
-					[]string{"npm install", "grunt", "npm prune --production"},
-				},
+			expected: CommandList{
+				Info:    "build UI application",
+				Command: []string{"npm install", "grunt", "npm prune --production"},
 			},
 		}}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := mesh(tt.args.modules, commands); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("CommandProvider() = \n got \t\n %v, \n want \t\n %v", got, tt.want)
+			if got := mesh(tt.args.modules, commands); !reflect.DeepEqual(got, tt.expected) {
+				t.Errorf("CommandProvider() = \n got \t\n %v, \n expected \t\n %v", got, tt.expected)
 			}
 		})
 	}
