@@ -7,29 +7,30 @@ import (
 	"io/ioutil"
 	"github.com/stretchr/testify/assert"
 	"cloud-mta-build-tool/cmd/logs"
+	"cloud-mta-build-tool/cmd/constants"
 )
 
 func basicMakeAndValidate(t *testing.T, path, yamlFilename, makeFilename, expectedMakeFileExtension string) {
 	err := makeFile(path, yamlFilename, path, makeFilename, "make_verbose.txt")
-	makeFullName := path + "\\" + makeFilename
+	makeFullName := path + constants.PathSep + makeFilename
 	if err != nil {
 		os.Remove(makeFullName)
 		t.Error(err)
 	}
 	actual, err := ioutil.ReadFile(makeFullName + expectedMakeFileExtension)
 	assert.Nil(t, err)
-	expected, _ := ioutil.ReadFile(path + "\\ExpectedMakeFile")
+	expected, _ := ioutil.ReadFile(path + constants.PathSep + "ExpectedMakeFile")
 	assert.Equal(t, expected, actual)
 }
 
 func removeMakefile(t *testing.T, path, makeFilename string) {
-	err := os.Remove(path + "\\" + makeFilename)
+	err := os.Remove(path + constants.PathSep + makeFilename)
 	assert.Nil(t, err)
 }
 
 func TestMake(t *testing.T) {
 
-	path := fs.GetPath() + "\\testdata"
+	path := fs.GetPath() + constants.PathSep + "testdata"
 	makeFilename := "MakeFileTest"
 
 	logs.Logger = logs.NewLogger()
@@ -70,12 +71,12 @@ func TestMake(t *testing.T) {
 			}},
 		{"Template is wrong", "mta.yaml",
 			func(t *testing.T, path, yamlFilename, makeFilename string) {
-				err := makeFile(path, yamlFilename, path, makeFilename, "testdata\\WrongMakeTmpl.txt")
+				err := makeFile(path, yamlFilename, path, makeFilename, "testdata"+constants.PathSep+"WrongMakeTmpl.txt")
 				assert.NotNil(t, err)
 			}},
 		{"Template is empty", "mta.yaml",
 			func(t *testing.T, path, yamlFilename, makeFilename string) {
-				err := makeFile(path, yamlFilename, path, makeFilename, "testdata\\emptyMakeTmpl.txt")
+				err := makeFile(path, yamlFilename, path, makeFilename, "testdata"+constants.PathSep+"emptyMakeTmpl.txt")
 				removeMakefile(t, path, makeFilename)
 				assert.NotNil(t, err)
 			}},
