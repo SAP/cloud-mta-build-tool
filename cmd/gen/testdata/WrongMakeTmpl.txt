@@ -19,7 +19,7 @@ modules = {{- range .File.Modules}} {{.Name}}{{end}}
 {{- range .File.Modules}}
 # build module {{.Name}}
 {{.Name}}:
-{{"\t"}}cd $(PROJ_DIR)/{{.Path}} && {{with $cmds := CommandProvider .}}{{range $i, $cmd:=$cmds.Command}}{{if gt $i 0 }} && {{end}}{{.}}{{end}}{{end}}
+{{"\t"}}cd $(PROJ_DIR)/{{.Path}} && {{with $cmds := CommandProvider1 .}}{{range $i, $cmd:=$cmds.Command}}{{if gt $i 0 }} && {{end}}{{.}}{{end}}{{end}}
 # Pack module build artifacts
 {{"\t"}}@mbt execute pack $(MTR_DIR) {{.Path}} {{.Name}}
 {{end}}
