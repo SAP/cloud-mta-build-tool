@@ -9,6 +9,6 @@ type Requires struct {
 }
 
 type BuildRequires struct {
-	Name       string     `yaml:"name,omitempty"`
-	TargetPath string     `yaml:"target-path,omitempty"`
+	Name       string `yaml:"name,omitempty"`
+	TargetPath string `yaml:"target-path,omitempty"`
 }

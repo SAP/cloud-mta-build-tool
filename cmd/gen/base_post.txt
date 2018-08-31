@@ -10,9 +10,4 @@ mtar: $(modules) meta
 cleanup: mtar
 # Remove tmp folder
 {{"\t"}}@mbt execute cleanup $(MTR_DIR)
-
-# Print available cores for parallel execution
-cores:
-{{"\t"}}@echo $(NPROCS)
-
 {{end}}

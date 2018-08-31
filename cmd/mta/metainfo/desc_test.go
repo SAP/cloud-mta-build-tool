@@ -25,13 +25,13 @@ func Test_setManifetDesc(t *testing.T) {
 			args: []*models.Modules{
 
 				{
-					Name:        "ui5",
-					Type:        "html5",
-					Path:        "ui5",
-					Requires:    nil,
-					Provides:    nil,
-					Parameters:  nil,
-					Properties:  nil,
+					Name:       "ui5",
+					Type:       "html5",
+					Path:       "ui5",
+					Requires:   nil,
+					Provides:   nil,
+					Parameters: nil,
+					Properties: nil,
 				},
 			},
 			expected: []byte("Manifest-Version: 1.0\nCreated-By: SAP Application Archive Builder 0.0.1\n\n" +
@@ -43,23 +43,23 @@ func Test_setManifetDesc(t *testing.T) {
 			args: []*models.Modules{
 
 				{
-					Name:        "ui6",
-					Type:        "html5",
-					Path:        "ui5",
-					Requires:    nil,
-					Provides:    nil,
-					Parameters:  nil,
-					Properties:  nil,
+					Name:       "ui6",
+					Type:       "html5",
+					Path:       "ui5",
+					Requires:   nil,
+					Provides:   nil,
+					Parameters: nil,
+					Properties: nil,
 				},
 
 				{
-					Name:        "ui4",
-					Type:        "html5",
-					Path:        "ui5",
-					Requires:    nil,
-					Provides:    nil,
-					Parameters:  nil,
-					Properties:  nil,
+					Name:       "ui4",
+					Type:       "html5",
+					Path:       "ui5",
+					Requires:   nil,
+					Provides:   nil,
+					Parameters: nil,
+					Properties: nil,
 				},
 			},
 			expected: []byte("Manifest-Version: 1.0\nCreated-By: SAP Application Archive Builder 0.0.1\n\n" +
@@ -72,23 +72,23 @@ func Test_setManifetDesc(t *testing.T) {
 			args: []*models.Modules{
 
 				{
-					Name:        "ui6",
-					Type:        "html5",
-					Path:        "ui5",
-					Requires:    nil,
-					Provides:    nil,
-					Parameters:  nil,
+					Name:       "ui6",
+					Type:       "html5",
+					Path:       "ui5",
+					Requires:   nil,
+					Provides:   nil,
+					Parameters: nil,
 					Properties: nil,
 				},
 
 				{
-					Name:        "ui4",
-					Type:        "html5",
-					Path:        "ui5",
-					Requires:    nil,
-					Provides:    nil,
-					Parameters:  nil,
-					Properties:  nil,
+					Name:       "ui4",
+					Type:       "html5",
+					Path:       "ui5",
+					Requires:   nil,
+					Provides:   nil,
+					Parameters: nil,
+					Properties: nil,
 				},
 			},
 			expected: []byte("Manifest-Version: 1.0\nCreated-By: SAP Application Archive Builder 0.0.1\n\n" +
