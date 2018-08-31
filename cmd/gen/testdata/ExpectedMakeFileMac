@@ -1,11 +1,6 @@
 
 # Create folder for build artifacts
 MTR_DIR := $(shell mbt execute prepare)
-# Determine OS cores
-#
-# NPROCS = $(shell echo %NUMBER_OF_PROCESSORS%)
-# MAKEFLAGS += -j$(NPROCS)
-#
 # List of all the recipes to be executed
 .PHONY: cores meta mtar cleanup
 # Default target compile all
@@ -34,8 +29,3 @@ mtar: $(modules) meta
 cleanup: mtar
 # Remove tmp folder
 	@mbt execute cleanup $(MTR_DIR)
-
-# Print available cores for parallel execution
-# cores:
-# 	@echo $(NPROCS)
-

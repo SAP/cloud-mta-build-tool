@@ -14,4 +14,3 @@ const (
 	// TempFolder - prefix
 	TempFolder = "BUILD_MTAR_TEMP"
 )
-

@@ -58,7 +58,7 @@ func savecfg(c CfgEnv, home string) {
 	ioutil.WriteFile(home, jsonC, os.ModeAppend)
 }
 
-func GetMta(wd string) (mtaStruct models.MTA, err error){
+func GetMta(wd string) (mtaStruct models.MTA, err error) {
 	// Load mta descriptor
 	mtaYmlCnt := dir.Load(wd + constants.PathSep + constants.MtaYaml)
 	// parse MTA

@@ -96,6 +96,6 @@ func Make() error {
 	// Get working directory
 	projPath := fs.GetPath()
 
-	return makeFile(projPath,"mta.yaml", projPath, genFileName, MakeVerbTmpl)
+	return makeFile(projPath, "mta.yaml", projPath, genFileName, MakeVerbTmpl)
 
 }

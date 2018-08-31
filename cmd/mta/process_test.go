@@ -6,14 +6,14 @@ import (
 
 	"github.com/stretchr/testify/require"
 
+	"cloud-mta-build-tool/cmd/logs"
 	"cloud-mta-build-tool/cmd/mta/models"
 	"github.com/stretchr/testify/assert"
-	"cloud-mta-build-tool/cmd/logs"
 )
 
 type testInfo struct {
-	name     string
-	expected models.Modules
+	name      string
+	expected  models.Modules
 	validator func(t *testing.T, actual, expected models.Modules)
 }
 
@@ -130,7 +130,7 @@ func Test_ModulesParsing(t *testing.T) {
 
 }
 
-func Test_BrokenMta(t *testing.T){
+func Test_BrokenMta(t *testing.T) {
 	mtaContent, _ := ioutil.ReadFile("./testdata/mtaWithBrokenProperties.yaml")
 
 	mta, err := Parse(mtaContent)
@@ -186,8 +186,7 @@ func Test_FullMta(t *testing.T) {
 					{
 						Name: "someproj-hdi-container",
 						Properties: models.Properties{
-							"JBP_CONFIG_RESOURCE_CONFIGURATION":
-							"[tomcat/webapps/ROOT/META-INF/context.xml: " +
+							"JBP_CONFIG_RESOURCE_CONFIGURATION": "[tomcat/webapps/ROOT/META-INF/context.xml: " +
 								"{\"service_name_for_DefaultDB\" : \"~{hdi-container-name}\"}]",
 						},
 					},

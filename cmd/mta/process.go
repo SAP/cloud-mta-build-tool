@@ -1,9 +1,9 @@
 package mta
 
 import (
+	"cloud-mta-build-tool/cmd/logs"
 	"cloud-mta-build-tool/cmd/mta/models"
 	"gopkg.in/yaml.v2"
-	"cloud-mta-build-tool/cmd/logs"
 )
 
 // Parse MTA file

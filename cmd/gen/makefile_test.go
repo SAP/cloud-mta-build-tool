@@ -1,14 +1,14 @@
 package gen
 
 import (
-	"testing"
-	fs "cloud-mta-build-tool/cmd/fsys"
-	"os"
-	"io/ioutil"
-	"github.com/stretchr/testify/assert"
-	"cloud-mta-build-tool/cmd/logs"
 	"cloud-mta-build-tool/cmd/constants"
+	fs "cloud-mta-build-tool/cmd/fsys"
+	"cloud-mta-build-tool/cmd/logs"
+	"github.com/stretchr/testify/assert"
+	"io/ioutil"
+	"os"
 	"runtime"
+	"testing"
 )
 
 func basicMakeAndValidate(t *testing.T, path, yamlFilename, makeFilename, expectedMakeFilename, expectedMakeFileExtension string) {
