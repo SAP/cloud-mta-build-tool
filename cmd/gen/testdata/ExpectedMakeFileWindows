@@ -26,7 +26,6 @@ meta:
 mtar: $(modules) meta
 	@mbt execute mtar $(MTR_DIR) $(PROJ_DIR)
 
-
 cleanup: mtar
 # Remove tmp folder
 	@mbt execute cleanup $(MTR_DIR)
