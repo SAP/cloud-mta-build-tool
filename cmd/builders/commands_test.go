@@ -45,9 +45,9 @@ builders:
 		modules models.Modules
 	}
 	tests := []struct {
-		name string
-		args args
-		want []CommandList
+		name     string
+		args     args
+		expected CommandList
 	}{
 		{
 			name: "Command for required module type",
@@ -62,17 +62,16 @@ builders:
 					Properties: nil,
 				},
 			},
-			want: []CommandList{
-				{"build UI application",
-					[]string{"npm install", "grunt", "npm prune --production"},
-				},
+			expected: CommandList{
+				Info:    "build UI application",
+				Command: []string{"npm install", "grunt", "npm prune --production"},
 			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := mesh(tt.args.modules, commands); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("CommandProvider() = \n got \t\n %v, \n want \t\n %v", got, tt.want)
+			if got := mesh(tt.args.modules, commands); !reflect.DeepEqual(got, tt.expected) {
+				t.Errorf("CommandProvider() = \n got \t\n %v, \n expected \t\n %v", got, tt.expected)
 			}
 		})
 	}
@@ -85,7 +84,7 @@ func TestCommandProvider(t *testing.T) {
 	tests := []struct {
 		name string
 		args args
-		want []CommandList
+		want CommandList
 	}{
 		{
 			name: "Command for required module type",
@@ -94,14 +93,14 @@ func TestCommandProvider(t *testing.T) {
 					Type: "html5",
 				},
 			},
-			want: []CommandList{
-				{
-					"installing module dependencies & execute grunt & remove dev dependencies",
-					[]string{"npm install", "grunt", "npm prune --production"},
-				},
+			want: struct {
+				Info    string
+				Command []string
+			}{
+				Info: "installing module dependencies & execute grunt & remove dev dependencies",
+				Command: []string{"npm install", "grunt", "npm prune --production"},
 			},
-		},
-	}
+		}}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := CommandProvider(tt.args.modules); !reflect.DeepEqual(got, tt.want) {
@@ -110,3 +109,4 @@ func TestCommandProvider(t *testing.T) {
 		})
 	}
 }
+
