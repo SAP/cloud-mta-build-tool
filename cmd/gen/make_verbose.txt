@@ -1,4 +1,4 @@
-{{template "base_pre"}}
+{{template "base_pre" .}}
 # Execute all modules builds
 
 {{- range .File.Modules}}
@@ -8,4 +8,4 @@
 # Pack module build artifacts
 {{"\t"}}@mbt execute pack $(MTR_DIR) {{.Path}} {{.Name}}
 {{end}}
-{{template "base_post"}}
+{{template "base_post" .}}

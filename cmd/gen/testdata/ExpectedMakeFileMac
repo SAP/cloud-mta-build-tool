@@ -2,11 +2,11 @@
 # Create folder for build artifacts
 MTR_DIR := $(shell mbt execute prepare)
 # List of all the recipes to be executed
-.PHONY: cores meta mtar cleanup
+.PHONY: cores ui meta mtar cleanup
 # Default target compile all
-all: cores meta mtar cleanup
+all: cores ui meta mtar cleanup
 # All modules execution
-modules =
+modules = ui
 # Set the current project repository path for general mta process
   PROJ_DIR := $(CURDIR)
 
