@@ -33,13 +33,6 @@ func TestCreateDirIfNotExist(t *testing.T) {
 				assert.Nil(t, err)
 			},
 		},
-		{
-			name:    "BadDirectoryName",
-			dirName: filepath.Join(GetPath(), "testdata", "level2", "/"),
-			validator: func(t *testing.T, dirName string, err error) {
-				assert.NotNil(t, err)
-			},
-		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -84,13 +77,6 @@ func TestCreateFile(t *testing.T) {
 				file.Close()
 				err = os.Remove(filename)
 				assert.Nil(t, err)
-			},
-		},
-		{
-			name:     "BadNameOfFile",
-			filename: filepath.Join(GetPath(), "testdata", "level2", "/.txt"),
-			validator: func(t *testing.T, filename string, file *os.File, err error) {
-				assert.NotNil(t, err)
 			},
 		},
 	}
