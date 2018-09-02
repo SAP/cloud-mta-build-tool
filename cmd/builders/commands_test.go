@@ -3,9 +3,10 @@ package builders
 import (
 	"cloud-mta-build-tool/cmd/logs"
 	"cloud-mta-build-tool/cmd/mta/models"
-	"gopkg.in/yaml.v2"
 	"reflect"
 	"testing"
+
+	"gopkg.in/yaml.v2"
 )
 
 func TestExeCmd(t *testing.T) {
@@ -65,7 +66,8 @@ builders:
 				Info:    "build UI application",
 				Command: []string{"npm install", "grunt", "npm prune --production"},
 			},
-		}}
+		},
+	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := mesh(tt.args.modules, commands); !reflect.DeepEqual(got, tt.expected) {
@@ -74,3 +76,37 @@ builders:
 		})
 	}
 }
+
+func TestCommandProvider(t *testing.T) {
+	type args struct {
+		modules models.Modules
+	}
+	tests := []struct {
+		name string
+		args args
+		want CommandList
+	}{
+		{
+			name: "Command for required module type",
+			args: args{
+				modules: models.Modules{
+					Type: "html5",
+				},
+			},
+			want: struct {
+				Info    string
+				Command []string
+			}{
+				Info: "installing module dependencies & execute grunt & remove dev dependencies",
+				Command: []string{"npm install", "grunt", "npm prune --production"},
+			},
+		}}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := CommandProvider(tt.args.modules); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("CommandProvider() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
