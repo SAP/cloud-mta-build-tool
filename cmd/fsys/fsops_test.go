@@ -150,7 +150,7 @@ func TestCopyDir(t *testing.T) {
 		},
 		{
 			name:         "DstDirectoryNotValid",
-			args:         args{filepath.Join(GetPath(), "testdata", "level2"), "?"},
+			args:         args{filepath.Join(GetPath(), "testdata", "level2"), "/"},
 			preprocessor: func(t *testing.T, args args) {},
 			validator: func(t *testing.T, args args, err error) {
 				assert.NotNil(t, err)
@@ -213,8 +213,8 @@ func Test_copyEntries(t *testing.T) {
 	assert.Equal(t, countFilesInDir(srcPath)-1, countFilesInDir(dstPath))
 	os.RemoveAll(dstPath)
 
-	dstPath = filepath.Join(GetPath(), "testdata", "?")
-	err := copyEntries(filesWrapped[:], srcPath, dstPath)
+	dstPath = filepath.Join(GetPath(), "testdata", "//")
+	err := copyEntries(filesWrapped[:], filepath.Join(GetPath(), "testdata", "level2", "levelx"), dstPath)
 	assert.NotNil(t, err)
 }
 
@@ -245,7 +245,7 @@ func Test_copyFile(t *testing.T) {
 		},
 		{
 			name: "WrongDestinationName",
-			args: args{filepath.Join(GetPath(), "testdata", "level2", "level2_one.txt"), filepath.Join(GetPath(), "testdata", "level2", "?")},
+			args: args{filepath.Join(GetPath(), "testdata", "level2", "level2_one.txt"), filepath.Join(GetPath(), "testdata", "level2", "/")},
 			validator: func(t *testing.T, args args, err error) {
 				assert.NotNil(t, err)
 			},
