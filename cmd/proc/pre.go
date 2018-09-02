@@ -60,7 +60,11 @@ func savecfg(c CfgEnv, home string) {
 
 func GetMta(wd string) (mtaStruct models.MTA, err error) {
 	// Load mta descriptor
-	mtaYmlCnt := dir.Load(wd + constants.PathSep + constants.MtaYaml)
+	mtaYmlCnt, err := dir.Load(wd + constants.PathSep + constants.MtaYaml)
+
+	if err != nil {
+		return mtaStruct, err
+	}
 	// parse MTA
 	mtaStruct, err = mta.Parse(mtaYmlCnt)
 
