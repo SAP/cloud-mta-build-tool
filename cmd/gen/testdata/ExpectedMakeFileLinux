@@ -2,7 +2,7 @@
 # Create folder for build artifacts
 MTR_DIR := $(shell mbt execute prepare)
 # Determine OS cores
-NPROCS = $(sysctl -n hw.ncpu')
+NPROCS = $(shell grep -c 'processor' /proc/cpuinfo)
 MAKEFLAGS += -j$(NPROCS)
 # List of all the recipes to be executed
 .PHONY: cores ui meta mtar cleanup
