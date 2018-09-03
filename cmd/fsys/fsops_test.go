@@ -44,20 +44,72 @@ func TestCreateDirIfNotExist(t *testing.T) {
 
 func TestArchive(t *testing.T) {
 	type args struct {
-		params []string
+		srcFolderName  string
+		archFilename   string
+		archFoldername string
 	}
 	tests := []struct {
-		name    string
-		args    args
-		wantErr bool
+		name      string
+		args      args
+		validator func(t *testing.T, args args, err error)
 	}{
-		// TODO: Add test cases.
+		{
+			name: "SanityTest",
+			args: args{
+				srcFolderName:  filepath.Join(GetPath(), "testdata", "mtahtml5"),
+				archFilename:   filepath.Join(GetPath(), "testdata", "arch.mbt"),
+				archFoldername: filepath.Join(GetPath(), "testdata", "mtahtml5"),
+			},
+			validator: func(t *testing.T, args args, err error) {
+				assert.Nil(t, err)
+				os.RemoveAll(args.archFilename)
+			},
+		},
+		{
+			name: "TestWithEmptyTargetFolder",
+			args: args{
+				srcFolderName:  filepath.Join(GetPath(), "testdata", "mtahtml5"),
+				archFilename:   filepath.Join(GetPath(), "testdata", "arch.mbt"),
+				archFoldername: "",
+			},
+			validator: func(t *testing.T, args args, err error) {
+				assert.Nil(t, err)
+				os.RemoveAll(args.archFilename)
+			},
+		},
+		{
+			name: "TargetIsNotFolder",
+			args: args{
+				srcFolderName:  filepath.Join(GetPath(), "testdata", "level2", "level2_one.txt"),
+				archFilename:   filepath.Join(GetPath(), "testdata", "arch.mbt"),
+				archFoldername: "",
+			},
+			validator: func(t *testing.T, args args, err error) {
+				assert.Nil(t, err)
+				os.RemoveAll(args.archFilename)
+			},
+		},
+		{
+			name: "TargetIsNotExists",
+			args: args{
+				srcFolderName:  filepath.Join(GetPath(), "testdata", "level3"),
+				archFilename:   filepath.Join(GetPath(), "testdata", "arch.mbt"),
+				archFoldername: "",
+			},
+			validator: func(t *testing.T, args args, err error) {
+				assert.NotNil(t, err)
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if err := Archive(tt.args.params...); (err != nil) != tt.wantErr {
-				t.Errorf("Archive() error = %v, wantErr %v", err, tt.wantErr)
+			var err error
+			if tt.args.archFoldername != "" {
+				err = Archive(tt.args.srcFolderName, tt.args.archFilename, tt.args.archFoldername)
+			} else {
+				err = Archive(tt.args.srcFolderName, tt.args.archFilename)
 			}
+			tt.validator(t, tt.args, err)
 		})
 	}
 }
@@ -70,7 +122,7 @@ func TestCreateFile(t *testing.T) {
 	}{
 		{
 			name:     "SanityTest",
-			filename: filepath.Join(GetPath(), "testdata", "level2", "newFile"),
+			filename: "level2",
 			validator: func(t *testing.T, filename string, file *os.File, err error) {
 				assert.Nil(t, err)
 				assert.NotNil(t, file)
@@ -284,4 +336,10 @@ func TestLoad(t *testing.T) {
 
 		})
 	}
+}
+
+func TestDefaultTempDirFunc(t *testing.T){
+   tempDir := DefaultTempDirFunc(filepath.Join(GetPath(),"testdata"))
+   assert.NotEmpty(t, tempDir)
+   os.RemoveAll(tempDir)
 }

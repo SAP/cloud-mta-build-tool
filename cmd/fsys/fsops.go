@@ -33,6 +33,11 @@ func CreateDirIfNotExist(dir string) error {
 // Target path to zip -> params[2])
 func Archive(params ...string) error {
 
+	info, err := os.Stat(params[0])
+	if err != nil {
+		return err
+	}
+
 	zipfile, err := os.Create(params[1])
 	if err != nil {
 		return err
@@ -41,11 +46,6 @@ func Archive(params ...string) error {
 
 	archive := zip.NewWriter(zipfile)
 	defer archive.Close()
-
-	info, err := os.Stat(params[0])
-	if err != nil {
-		return err
-	}
 
 	// Skip headers to support jar archive structure
 	var baseDir string
@@ -56,7 +56,7 @@ func Archive(params ...string) error {
 	}
 
 	if baseDir != "" {
-		baseDir += "/"
+		baseDir += constants.PathSep
 	}
 
 	filepath.Walk(params[0], func(path string, info os.FileInfo, err error) error {
