@@ -97,7 +97,7 @@ func TestCommandProvider(t *testing.T) {
 				Info    string
 				Command []string
 			}{
-				Info: "installing module dependencies & execute grunt & remove dev dependencies",
+				Info:    "installing module dependencies & execute grunt & remove dev dependencies",
 				Command: []string{"npm install", "grunt", "npm prune --production"},
 			},
 		}}
@@ -109,4 +109,3 @@ func TestCommandProvider(t *testing.T) {
 		})
 	}
 }
-

@@ -14,7 +14,7 @@ release
 # Test binary, build with `go test -c`
 *.test
 
-
+testdata
 *.out
 .editorconfig
 

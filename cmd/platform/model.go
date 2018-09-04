@@ -5,8 +5,8 @@ type Platforms struct {
 	Platforms []Modules `yaml:"platform"`
 }
 type Modules struct {
-	Name   string       `yaml:"name"`
-	Models []Properties `yaml:"modules"`
+	Name    string       `yaml:"name"`
+	Modules []Properties `yaml:"modules"`
 }
 
 type Properties struct {

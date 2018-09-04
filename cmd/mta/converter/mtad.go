@@ -1,33 +1,33 @@
 package converter
 
 import (
-	"strings"
-
 	"cloud-mta-build-tool/cmd/mta/models"
 	"cloud-mta-build-tool/cmd/platform"
 )
 
-// ConvertTypes file according to the deployed env
-func ConvertTypes(mta models.MTA, platforms platform.Platforms, platform string) {
+func ConvertTypes(iCfg models.MTA, eCfg platform.Platforms, targetPlatform string) {
 	//todo get from config
 	const (
-		SCHEMA_VERSION = "3.1"
+		SchemaVersion = "3.1"
 	)
-	for _, module := range platforms.Platforms {
-
-		if module.Name == platform {
-			// Modify schema version
-			*mta.SchemaVersion = SCHEMA_VERSION
-			// Modify Types
-			for i, value := range module.Models {
-				//Check for types
-				if len(mta.Modules) > i {
-					if strings.Compare(value.NativeType, mta.Modules[i].Type) == 0 {
-						//Modify the module type according the platform config
-						mta.Modules[i].Type = value.PlatformType
-					}
-				}
+	tpl := PlatformConfig(eCfg, targetPlatform)
+	for i, v := range iCfg.Modules {
+		*iCfg.SchemaVersion = SchemaVersion
+		for _, em := range tpl.Modules {
+			if v.Type == em.NativeType {
+				iCfg.Modules[i].Type = em.PlatformType
 			}
 		}
 	}
+}
+
+func PlatformConfig(eCfg platform.Platforms, targetPlatform string) platform.Modules {
+	var tpl platform.Modules
+	for _, tp := range eCfg.Platforms {
+		if tp.Name == targetPlatform {
+			tpl.Name = tp.Name
+			tpl.Modules = tp.Modules
+		}
+	}
+	return tpl
 }
