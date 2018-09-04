@@ -16,18 +16,18 @@ import (
 	"cloud-mta-build-tool/cmd/proc"
 )
 
-func createMakeFile(path, filename string) *os.File {
+func createMakeFile(path, filename string) (file *os.File, err error) {
 
 	fullFilename := path + constants.PathSep + filename
 
 	var makeFile *os.File
 	if _, err := os.Stat(fullFilename); err == nil {
 		// path/to/whatever exists
-		makeFile = fs.CreateFile(fullFilename + ".mta")
+		makeFile, err = fs.CreateFile(fullFilename + ".mta")
 	} else {
-		makeFile = fs.CreateFile(fullFilename)
+		makeFile, err = fs.CreateFile(fullFilename)
 	}
-	return makeFile
+	return makeFile, err
 }
 
 func makeFile(yamlPath, yamlName, makeFilePath, makeFilename, verbTemplateName string) error {
@@ -74,7 +74,11 @@ func makeFile(yamlPath, yamlName, makeFilePath, makeFilename, verbTemplateName s
 		logs.Logger.Error(err)
 		return err
 	}
-	makeFile := createMakeFile(makeFilePath, makeFilename)
+	makeFile, err := createMakeFile(makeFilePath, makeFilename)
+	if err != nil {
+		logs.Logger.Error(err)
+		return err
+	}
 
 	// Execute the template
 	err = t.Execute(makeFile, data)

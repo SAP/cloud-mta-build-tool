@@ -10,17 +10,19 @@ import (
 
 	"cloud-mta-build-tool/cmd/constants"
 	"cloud-mta-build-tool/cmd/logs"
+	"fmt"
 )
 
 // CreateDirIfNotExist - Create new dir
-func CreateDirIfNotExist(dir string) string {
-	if _, err := os.Stat(dir); os.IsNotExist(err) {
-		err := os.MkdirAll(dir, os.ModePerm)
+func CreateDirIfNotExist(dir string) error {
+	var err error
+	if _, err = os.Stat(dir); os.IsNotExist(err) {
+		err = os.MkdirAll(dir, os.ModePerm)
 		if err != nil {
 			logs.Logger.Error(err)
 		}
 	}
-	return dir
+	return err
 }
 
 // Archive module and mtar artifacts,
@@ -31,6 +33,11 @@ func CreateDirIfNotExist(dir string) string {
 // Target path to zip -> params[2])
 func Archive(params ...string) error {
 
+	info, err := os.Stat(params[0])
+	if err != nil {
+		return err
+	}
+
 	zipfile, err := os.Create(params[1])
 	if err != nil {
 		return err
@@ -39,11 +46,6 @@ func Archive(params ...string) error {
 
 	archive := zip.NewWriter(zipfile)
 	defer archive.Close()
-
-	info, err := os.Stat(params[0])
-	if err != nil {
-		return err
-	}
 
 	// Skip headers to support jar archive structure
 	var baseDir string
@@ -54,7 +56,7 @@ func Archive(params ...string) error {
 	}
 
 	if baseDir != "" {
-		baseDir += "/"
+		baseDir += constants.PathSep
 	}
 
 	filepath.Walk(params[0], func(path string, info os.FileInfo, err error) error {
@@ -95,17 +97,18 @@ func Archive(params ...string) error {
 }
 
 // CreateFile - create new file
-func CreateFile(path string) *os.File {
-	file, err := os.Create(path) // Truncates if file already exists
+func CreateFile(path string) (file *os.File, err error) {
+	file, err = os.Create(path) // Truncates if file already exists
 	if err != nil {
-		logs.Logger.Fatalf("Failed to create file: %s , %s", path, err)
+		logs.Logger.Error("Failed to create file: %s , %s", path, err)
 	}
 	// /defer file.Close()
 
-	if err != nil {
-		logs.Logger.Fatalf("Failed to write to file: %s , %s", path, err)
-	}
-	return file
+	//if err != nil {
+	//	logs.Logger.Fatalf("Failed to write to file: %s , %s", path, err)
+	//	return nil, err
+	//}
+	return file, err
 }
 
 // CopyDir - copy directory content
@@ -119,23 +122,30 @@ func CopyDir(src string, dst string) (err error) {
 	}
 	if !si.IsDir() {
 		logs.Logger.Println("The provided source is not a directory")
+		return fmt.Errorf("The provided source %s is not a directory", src)
 	}
 
 	_, err = os.Stat(dst)
 	if err != nil && !os.IsNotExist(err) {
-		return
+		return err
 	}
 
 	err = os.MkdirAll(dst, os.ModePerm)
 	if err != nil {
-		return
+		return err
 	}
 
 	entries, err := ioutil.ReadDir(src)
 	if err != nil {
-		return
+		return err
 	}
 
+	return copyEntries(entries, src, dst)
+}
+
+func copyEntries(entries []os.FileInfo, src, dst string) error{
+
+	var err error
 	for _, entry := range entries {
 		srcPath := filepath.Join(src, entry.Name())
 		dstPath := filepath.Join(dst, entry.Name())
@@ -143,35 +153,31 @@ func CopyDir(src string, dst string) (err error) {
 		if entry.IsDir() {
 			// execute recursively
 			err = CopyDir(srcPath, dstPath)
-			if err != nil {
-				return
-			}
 		} else {
 			if entry.Mode()&os.ModeSymlink != 0 {
 				continue
 			}
 
 			err = copyFile(srcPath, dstPath)
-			if err != nil {
-				return
-			}
+		}
+		if err != nil {
+			break
 		}
 	}
-
-	return
+	return err
 }
 
 // CopyFile - copy file content
 func copyFile(src, dst string) (err error) {
 	in, err := os.Open(src)
 	if err != nil {
-		return
+		return err
 	}
 	defer in.Close()
 
 	out, err := os.Create(dst)
 	if err != nil {
-		return
+		return err
 	}
 	defer func() {
 		if e := out.Close(); e != nil {
@@ -181,24 +187,21 @@ func copyFile(src, dst string) (err error) {
 
 	_, err = io.Copy(out, in)
 	if err != nil {
-		return
+		return err
 	}
 
 	err = out.Sync()
 	if err != nil {
-		return
+		return err
 	}
 
 	si, err := os.Stat(src)
 	if err != nil {
-		return
+		return err
 	}
 	err = os.Chmod(dst, si.Mode())
-	if err != nil {
-		return
-	}
 
-	return
+	return err
 }
 
 // DefaultTempDirFunc - Currently the generated temp dir is one lvl up from the running project
@@ -211,13 +214,13 @@ func DefaultTempDirFunc(path string) string {
 }
 
 // Load - load the mta.yaml file
-func Load(path string) []byte {
+func Load(path string) (content []byte, err error) {
 	yamlFile, err := ioutil.ReadFile(path)
 	if err != nil {
 		logs.Logger.Errorf("File not found for path %s, error is: #%v ", path, err)
 		// YAML descriptor file not found abort the process
-		os.Exit(1)
+		return yamlFile, err
 	}
 	logs.Logger.Debugf("The file loaded successfully:" + string(yamlFile))
-	return yamlFile
+	return yamlFile, err
 }

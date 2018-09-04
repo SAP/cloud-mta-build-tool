@@ -16,7 +16,8 @@ func Prepare() string {
 func mtaDir() string {
 	projPath := dir.ProjectPath()
 	basePath := filepath.Base(projPath)
-	dir := dir.CreateDirIfNotExist(projPath + "/" + basePath)
-	fmt.Print(dir)
-	return dir
+	dirName := projPath + "/" + basePath
+	dir.CreateDirIfNotExist(dirName)
+	fmt.Print(dirName)
+	return dirName
 }

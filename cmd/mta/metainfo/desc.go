@@ -82,7 +82,7 @@ func GenMetaInf(tmpDir string, mtaStr models.MTA, modules []string) {
 		logs.Logger.Errorln(err)
 	}
 	// Create MANIFEST.MF file
-	file := dir.CreateFile(tmpDir + MetaInf + constants.PathSep + Manifest)
+	file,_ := dir.CreateFile(tmpDir + MetaInf + constants.PathSep + Manifest)
 	// Set the MANIFEST.MF file
 	setManifetDesc(file, mtaStr.Modules, modules)
 }

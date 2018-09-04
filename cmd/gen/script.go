@@ -2,7 +2,6 @@ package gen
 
 import (
 	"io/ioutil"
-	"log"
 
 	"gopkg.in/yaml.v2"
 	"path/filepath"
@@ -17,7 +16,7 @@ import (
 )
 
 // Generate - Generate mta build file
-func Generate(path string) {
+func Generate(path string) error {
 
 	const mtaScript = "makefile"
 	// Using the module context for the template creation
@@ -31,11 +30,16 @@ func Generate(path string) {
 	projPath := fs.GetPath()
 	// Create the init script file
 
-	bashFile := fs.CreateFile(projPath + constants.PathSep + mtaScript)
+	bashFile, err := fs.CreateFile(projPath + constants.PathSep + mtaScript)
+	if err != nil {
+		logs.Logger.Error("yamlFile.Get err   #%v ", err)
+		return err
+	}
 	// Read the MTA
 	yamlFile, err := ioutil.ReadFile("mta.yaml")
 	if err != nil {
-		log.Printf("yamlFile.Get err   #%v ", err)
+		logs.Logger.Error("yamlFile.Get err   #%v ", err)
+		return err
 	}
 	// Parse mta
 	err = yaml.Unmarshal([]byte(yamlFile), &mta)
@@ -58,5 +62,6 @@ func Generate(path string) {
 		panic(err)
 	}
 	logs.Logger.Info("MTA build script was generated successfully: " + projPath + constants.PathSep + mtaScript)
+	return err
 
 }
