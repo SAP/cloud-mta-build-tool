@@ -7,7 +7,6 @@ import (
 )
 
 func Parse(data []byte) Platforms {
-
 	platforms := Platforms{}
 	err := yaml.Unmarshal(data, &platforms)
 	if err != nil {
