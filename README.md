@@ -15,11 +15,11 @@ A user can bundle the modules together, describe (using the `mta.yaml` file) the
 services, and interfaces, and package them in an MTA project.
  
 
-#### MTA Archive Builder Tool 
+## MTA Archive Builder Tool 
 
 The MTA archive builder tool will provide a clear separation between the generation process and the build process as follows:
 
-##### CLI 
+### CLI 
 
 The CLI tool will:
 - Parse and analyze the development descriptor a.k.a mta.yaml file and generate a Makefile accordingly. 
@@ -29,7 +29,7 @@ The CLI tool will:
   - `META-INFO` file that describe the build artifact structure.
   
   
-##### [Makefile](https://www.gnu.org/software/make/)
+#### [Makefile](https://www.gnu.org/software/make/)
 
 The generated `Makefile` (GNU Make) will describe and execute the build process with two flavors:
 - default - provide a generic build process that can be modified according to the project needs.
@@ -40,7 +40,7 @@ During the build process the generated `makefile` is responsible for the followi
 - Invoking the CLI commands in the right order. 
 - Providing an MTA archive that is ready for deployment.
 
-### Commands <a id='commands'></a>
+## Commands <a id='commands'></a>
 
 The MBT supports the following commands:
 
@@ -58,7 +58,7 @@ The MBT supports the following commands:
 
 For background and detailed information, see The [Multi-Target Application Model](http://help.sap.com/disclaimer?site=http://www.sap.com/documents/2016/06/e2f618e4-757c-0010-82c7-eda71af511fa.html) Information published on SAP site.
 
-#### Todo's
+## Todo's
 
  - [ ] Support first MVP scenarios such as:
  
@@ -71,11 +71,11 @@ For background and detailed information, see The [Multi-Target Application Model
  - [ ] Add concrete limitations per release
 
  
- #### Limitations
+ ## Limitations
  
    - TBD
  
  
- ### License
+ ## License
  
  MTA Build Tool is [Apache License 2.0 licensed](./LICENSE).
