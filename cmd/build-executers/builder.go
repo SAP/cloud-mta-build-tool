@@ -18,7 +18,7 @@ type Builder interface {
 type TempDirFunc func() string
 
 // Build - Generic Build
-func Build(b Builder, toPath string, mkTempDir string) error {
+func Build(b Builder, toPath string) error {
 
 	logs.Logger.Debugf("Base builder:path: " + toPath)
 	// TODO support build temp target for each module

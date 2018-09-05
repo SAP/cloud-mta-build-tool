@@ -8,9 +8,10 @@ package mta_validate
 
 import (
 	"fmt"
-	"github.com/smallfish/simpleyaml"
 	"regexp"
 	"strings"
+
+	"github.com/smallfish/simpleyaml"
 )
 
 type YamlValidationIssue struct {

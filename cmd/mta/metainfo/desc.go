@@ -1,6 +1,11 @@
 package metainfo
 
 import (
+	"fmt"
+	"io"
+	"io/ioutil"
+	"os"
+
 	"cloud-mta-build-tool/cmd/constants"
 	"cloud-mta-build-tool/cmd/fsys"
 	"cloud-mta-build-tool/cmd/logs"
@@ -8,10 +13,6 @@ import (
 	"cloud-mta-build-tool/cmd/mta/converter"
 	"cloud-mta-build-tool/cmd/mta/models"
 	"cloud-mta-build-tool/cmd/platform"
-	"fmt"
-	"io"
-	"io/ioutil"
-	"os"
 )
 
 // The deployment descriptor shall be located within the META-INF folder of the JAR.
@@ -82,7 +83,7 @@ func GenMetaInf(tmpDir string, mtaStr models.MTA, modules []string) {
 		logs.Logger.Errorln(err)
 	}
 	// Create MANIFEST.MF file
-	file,_ := dir.CreateFile(tmpDir + MetaInf + constants.PathSep + Manifest)
+	file, _ := dir.CreateFile(tmpDir + MetaInf + constants.PathSep + Manifest)
 	// Set the MANIFEST.MF file
 	setManifetDesc(file, mtaStr.Modules, modules)
 }

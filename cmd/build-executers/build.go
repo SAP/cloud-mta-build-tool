@@ -91,9 +91,9 @@ func BuildProcess(options ...func(*BuildCfg)) (buildcfg *BuildCfg, err error) {
 		switch mod.Type {
 		case "html5":
 
-			Build(NewGruntBuilder(mod.Path, mod.Name, tmpDir), projdir, fs.DefaultTempDirFunc(projdir))
+			Build(NewGruntBuilder(mod.Path, mod.Name, tmpDir), projdir)
 		case "nodejs", "sitecontent":
-			Build(NewNPMBuilder(mod.Path, mod.Name, tmpDir), projdir, fs.DefaultTempDirFunc(projdir))
+			Build(NewNPMBuilder(mod.Path, mod.Name, tmpDir), projdir)
 		default:
 			// TODO- Use ZIP builder in this case
 			logger.Info("Unknown Build type")

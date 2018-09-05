@@ -1,14 +1,16 @@
 package gen
 
 import (
-	"cloud-mta-build-tool/cmd/constants"
-	fs "cloud-mta-build-tool/cmd/fsys"
-	"cloud-mta-build-tool/cmd/logs"
-	"github.com/stretchr/testify/assert"
 	"io/ioutil"
 	"os"
 	"runtime"
 	"testing"
+
+	"cloud-mta-build-tool/cmd/constants"
+	fs "cloud-mta-build-tool/cmd/fsys"
+	"cloud-mta-build-tool/cmd/logs"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func basicMakeAndValidate(t *testing.T, path, yamlFilename, makeFilename, expectedMakeFilename, expectedMakeFileExtension string) {
@@ -51,7 +53,7 @@ func TestMake(t *testing.T) {
 		testExecutor func(t *testing.T, path, yamlFilename, makeFilename string)
 	}
 
-	for _, testInfo := range []testInfo{
+	for _, ti := range []testInfo{
 		{"SanityTest", "mta.yaml",
 			func(t *testing.T, path, yamlFilename, makeFilename string) {
 				basicMakeAndValidate(t, path, yamlFilename, makeFilename, expectedMakeFilename, "")
@@ -91,8 +93,8 @@ func TestMake(t *testing.T) {
 				assert.NotNil(t, err)
 			}},
 	} {
-		t.Run(testInfo.name, func(t *testing.T) {
-			testInfo.testExecutor(t, path, testInfo.filename, makeFilename)
+		t.Run(ti.name, func(t *testing.T) {
+			ti.testExecutor(t, path, ti.filename, makeFilename)
 		})
 	}
 }

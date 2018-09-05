@@ -1,10 +1,10 @@
 package proc
 
 import (
+	"encoding/json"
 	"io/ioutil"
 	"os"
 
-	"encoding/json"
 	"github.com/mitchellh/go-homedir"
 
 	"cloud-mta-build-tool/cmd/constants"

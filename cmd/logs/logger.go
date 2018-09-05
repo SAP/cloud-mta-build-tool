@@ -1,9 +1,10 @@
 package logs
 
 import (
+	"os"
+
 	"github.com/sirupsen/logrus"
 	"github.com/x-cray/logrus-prefixed-formatter"
-	"os"
 )
 
 const (

@@ -13,6 +13,7 @@ type builder struct {
 	Type []Commands `yaml:"type"`
 }
 
+//Commands - specific command
 type Commands struct {
 	Command string `yaml:"command"`
 }

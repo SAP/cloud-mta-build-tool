@@ -1,20 +1,19 @@
 package mta
 
 import (
-	"cloud-mta-build-tool/cmd/mta/models"
 	"testing"
+
+	"cloud-mta-build-tool/cmd/mta/models"
 )
 
 func TestSetMtaProp(t *testing.T) {
 	type args struct {
 		mtaStruct models.MTA
 	}
-	tests := []struct {
+	var tests []struct {
 		name string
 		args args
 		want string
-	}{
-		// TODO: Add test cases.
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

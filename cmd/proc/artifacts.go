@@ -14,9 +14,9 @@ func Prepare() string {
 
 //Todo should be part of the MakeFile (mkdir) , will support generic pre build process
 func mtaDir() string {
-	projPath := dir.ProjectPath()
-	basePath := filepath.Base(projPath)
-	dirName := projPath + "/" + basePath
+	pPath := dir.ProjectPath()
+	basePath := filepath.Base(pPath)
+	dirName := pPath + "/" + basePath
 	dir.CreateDirIfNotExist(dirName)
 	fmt.Print(dirName)
 	return dirName

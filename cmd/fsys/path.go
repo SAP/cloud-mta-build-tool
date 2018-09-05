@@ -1,11 +1,13 @@
 package dir
 
 import (
-	"cloud-mta-build-tool/cmd/logs"
 	"os"
 	"path/filepath"
+
+	"cloud-mta-build-tool/cmd/logs"
 )
 
+//GetPath - get current path
 func GetPath() (dir string) {
 	// TODO should get also from user
 	wd, err := os.Getwd()
@@ -15,6 +17,7 @@ func GetPath() (dir string) {
 	return wd
 }
 
+//ProjectPath - provide path for the running project
 func ProjectPath() string {
 
 	projPath, err := filepath.Abs(filepath.Dir(os.Args[0]))

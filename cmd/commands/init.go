@@ -2,6 +2,7 @@ package commands
 
 import (
 	"cloud-mta-build-tool/cmd/gen"
+
 	"github.com/spf13/cobra"
 )
 

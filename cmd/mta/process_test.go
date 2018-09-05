@@ -8,6 +8,7 @@ import (
 
 	"cloud-mta-build-tool/cmd/logs"
 	"cloud-mta-build-tool/cmd/mta/models"
+
 	"github.com/stretchr/testify/assert"
 )
 

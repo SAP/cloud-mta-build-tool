@@ -4,6 +4,7 @@ import (
 	"cloud-mta-build-tool/cmd/mta/models"
 )
 
+//CommandList - list of command to execute
 type CommandList struct {
 	Info    string
 	Command []string

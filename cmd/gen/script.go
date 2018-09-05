@@ -2,11 +2,11 @@ package gen
 
 import (
 	"io/ioutil"
-
-	"gopkg.in/yaml.v2"
 	"path/filepath"
 	"runtime"
 	"text/template"
+
+	"gopkg.in/yaml.v2"
 
 	"cloud-mta-build-tool/cmd/builders"
 	"cloud-mta-build-tool/cmd/constants"

@@ -1,12 +1,13 @@
 package gen
 
 import (
-	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"runtime"
 	"text/template"
+
+	"gopkg.in/yaml.v2"
 
 	"cloud-mta-build-tool/cmd/builders"
 	"cloud-mta-build-tool/cmd/constants"
@@ -20,14 +21,14 @@ func createMakeFile(path, filename string) (file *os.File, err error) {
 
 	fullFilename := path + constants.PathSep + filename
 
-	var makeFile *os.File
-	if _, err := os.Stat(fullFilename); err == nil {
+	var mf *os.File
+	if _, sErr := os.Stat(fullFilename); sErr == nil {
 		// path/to/whatever exists
-		makeFile, err = fs.CreateFile(fullFilename + ".mta")
+		mf, sErr = fs.CreateFile(fullFilename + ".mta")
 	} else {
-		makeFile, err = fs.CreateFile(fullFilename)
+		mf, sErr = fs.CreateFile(fullFilename)
 	}
-	return makeFile, err
+	return mf, err
 }
 
 func makeFile(yamlPath, yamlName, makeFilePath, makeFilename, verbTemplateName string) error {

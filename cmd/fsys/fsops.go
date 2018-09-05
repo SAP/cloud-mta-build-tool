@@ -2,6 +2,7 @@ package dir
 
 import (
 	"archive/zip"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"os"
@@ -10,7 +11,6 @@ import (
 
 	"cloud-mta-build-tool/cmd/constants"
 	"cloud-mta-build-tool/cmd/logs"
-	"fmt"
 )
 
 // CreateDirIfNotExist - Create new dir
@@ -143,7 +143,7 @@ func CopyDir(src string, dst string) (err error) {
 	return copyEntries(entries, src, dst)
 }
 
-func copyEntries(entries []os.FileInfo, src, dst string) error{
+func copyEntries(entries []os.FileInfo, src, dst string) error {
 
 	var err error
 	for _, entry := range entries {

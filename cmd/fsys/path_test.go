@@ -2,6 +2,7 @@ package dir
 
 import (
 	"testing"
+
 	"github.com/stretchr/testify/assert"
 )
 

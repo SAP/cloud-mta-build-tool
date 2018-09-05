@@ -1,14 +1,16 @@
 package dir
 
 import (
-	"os"
-	"testing"
-	"github.com/stretchr/testify/assert"
 	"io/ioutil"
+	"os"
 	"path/filepath"
-	"cloud-mta-build-tool/cmd/logs"
-	"time"
 	"strings"
+	"testing"
+	"time"
+
+	"cloud-mta-build-tool/cmd/logs"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestCreateDirIfNotExist(t *testing.T) {
@@ -36,7 +38,7 @@ func TestCreateDirIfNotExist(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			err := CreateDirIfNotExist(tt.dirName);
+			err := CreateDirIfNotExist(tt.dirName)
 			tt.validator(t, tt.dirName, err)
 		})
 	}
@@ -331,15 +333,15 @@ func TestLoad(t *testing.T) {
 	logs.NewLogger()
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			fileContent, err := Load(tt.filename);
+			fileContent, err := Load(tt.filename)
 			tt.validator(t, tt.filename, fileContent, err)
 
 		})
 	}
 }
 
-func TestDefaultTempDirFunc(t *testing.T){
-   tempDir := DefaultTempDirFunc(filepath.Join(GetPath(),"testdata"))
-   assert.NotEmpty(t, tempDir)
-   os.RemoveAll(tempDir)
+func TestDefaultTempDirFunc(t *testing.T) {
+	tempDir := DefaultTempDirFunc(filepath.Join(GetPath(), "testdata"))
+	assert.NotEmpty(t, tempDir)
+	os.RemoveAll(tempDir)
 }

@@ -1,10 +1,11 @@
 package builders
 
 import (
-	"cloud-mta-build-tool/cmd/logs"
-	"cloud-mta-build-tool/cmd/mta/models"
 	"reflect"
 	"testing"
+
+	"cloud-mta-build-tool/cmd/logs"
+	"cloud-mta-build-tool/cmd/mta/models"
 
 	"gopkg.in/yaml.v2"
 )

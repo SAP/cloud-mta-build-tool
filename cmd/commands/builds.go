@@ -27,7 +27,7 @@ var html5 = &cobra.Command{
 			switch mod.Type {
 			case "html5":
 				builders.Build(builders.NewGruntBuilder(mod.Path, mod.Name, cfg.TmpPath),
-					fs.GetPath(), fs.DefaultTempDirFunc(fs.GetPath()))
+					fs.GetPath())
 
 			}
 		}

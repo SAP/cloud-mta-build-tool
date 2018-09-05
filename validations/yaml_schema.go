@@ -9,11 +9,12 @@ package mta_validate
 
 import (
 	"fmt"
-	"github.com/smallfish/simpleyaml"
 	"strings"
+
+	"github.com/smallfish/simpleyaml"
 )
 
-// Entry point that accepts a Yaml Schema as text and produces YAML validation functions
+// BuildValidationsFromSchemaText Entry point that accepts a Yaml Schema as text and produces YAML validation functions
 // and the schema issues detected.
 func BuildValidationsFromSchemaText(yaml []byte) ([]YamlCheck, []string) {
 	var validations []YamlCheck

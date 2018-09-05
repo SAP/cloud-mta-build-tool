@@ -2,7 +2,6 @@ package builders
 
 import (
 	"os"
-
 	"path/filepath"
 
 	"cloud-mta-build-tool/cmd/constants"
