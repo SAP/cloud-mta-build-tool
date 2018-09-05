@@ -1,9 +1,10 @@
 package commands
 
 import (
-	"cloud-mta-build-tool/cmd/gen"
-
 	"github.com/spf13/cobra"
+
+	"cloud-mta-build-tool/cmd/gen"
+	"cloud-mta-build-tool/cmd/logs"
 )
 
 var initProcess = &cobra.Command{
@@ -11,15 +12,21 @@ var initProcess = &cobra.Command{
 	Short: "Generate Makefile",
 	Long:  "Generate Makefile as manifest which describe's the build process",
 	Run: func(cmd *cobra.Command, args []string) {
-		//Todo - remove the script option
+		// Todo - remove the script option
 		if (len(args) > 0) && (stringInSlice("script", args)) {
 			// Generate build script
 			if args[0] == "script" {
-				gen.Generate("test")
+				err := gen.Generate("test")
+				if err != nil {
+					logs.Logger.Error(err)
+				}
 			}
 		} else {
-			//Generate make
-			gen.Make()
+			// Generate make
+			if err := gen.Make(); err != nil {
+				logs.Logger.Error(err)
+			}
+
 		}
 	},
 }

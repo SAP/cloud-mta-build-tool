@@ -10,10 +10,10 @@ import (
 	"cloud-mta-build-tool/cmd/logs"
 )
 
+// Execute - Execute child process and wait to results
 func Execute(cmdParams [][]string) error {
 
 	for _, cp := range cmdParams {
-
 		logs.Logger.Infof("Executing %s for module %s...", cp[1:], filepath.Base(cp[0]))
 		cmd := exec.Command(cp[1], cp[2:]...)
 
@@ -21,13 +21,13 @@ func Execute(cmdParams [][]string) error {
 		// During the running process get the standard output
 		stdout, err := cmd.StdoutPipe()
 		if err != nil {
-			logs.Logger.Errorf("%s cmd.StdoutPipe() error: %s ", cp[1:], err, "\n")
+			logs.Logger.Errorf("%s cmd.StdoutPipe() error: %s ", cp[1:], err)
 			return err
 		}
 		// During the running process get the standard output
 		stderr, err := cmd.StderrPipe()
 		if err != nil {
-			logs.Logger.Errorf("cmd.StderrPipe() error: ", cp[1:], err, "\n")
+			logs.Logger.Errorf("cmd.StderrPipe() error: %s ", err)
 			return err
 		}
 
@@ -77,6 +77,8 @@ func Execute(cmdParams [][]string) error {
 	return nil
 }
 
+// Show progress when the command is executed
+// and the terminal are not providing any process feedback
 func indicator(shutdownCh <-chan struct{}) {
 	ticker := time.NewTicker(time.Second)
 	defer ticker.Stop()

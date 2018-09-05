@@ -45,14 +45,17 @@ var pack = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		// Define arguments variables
 		if len(args) > 0 {
-			//path of the temp directory to add the build module
+			// path of the temp directory to add the build module
 			td := args[0]
 			mName := args[2]
 			mRelPath := fs.ProjectPath() + "/" + args[1]
 			modRelName := filepath.Join(td, mName)
 			// Create empty folder with name as before the zip process
 			// to put the file such as data.zip inside
-			os.MkdirAll(modRelName, os.ModePerm)
+			err := os.MkdirAll(modRelName, os.ModePerm)
+			if err != nil {
+				logs.Logger.Error(err)
+			}
 			// zipping the build artifacts
 			logs.Logger.Infof("Starting execute zipping module %v ", mName)
 			if err := fs.Archive(mRelPath, td+"/"+args[2]+constants.DataZip, mRelPath); err != nil {
@@ -72,10 +75,13 @@ var genMeta = &cobra.Command{
 	Long:  "generate META-INF folder with all the required data",
 	Run: func(cmd *cobra.Command, args []string) {
 		logs.Logger.Info("Starting execute metadata creation")
-		mtaStruct, _ := proc.GetMta(fs.GetPath())
+		ms, err := proc.GetMta(fs.GetPath())
+		if err != nil {
+			logs.Logger.Error(err)
+		}
 		mtarDir := args[0]
 		// Generate meta info dir with required content
-		metainfo.GenMetaInf(mtarDir, mtaStruct, args[1:])
+		metainfo.GenMetaInf(mtarDir, ms, args[1:])
 		logs.Logger.Info("Metadata creation finish successfully ")
 	},
 }
@@ -87,12 +93,17 @@ var genMtar = &cobra.Command{
 	Long:  "generate MTAR from the project build artifacts",
 	Run: func(cmd *cobra.Command, args []string) {
 		logs.Logger.Info("Starting execute Build of MTAR")
-		mtaStruct, _ := proc.GetMta(fs.GetPath())
+		ms, err := proc.GetMta(fs.GetPath())
+		if err != nil {
+			logs.Logger.Error(err)
+		}
 		tDir := args[0]
 		pDir := args[1]
 		// Create MTAR from the building artifacts
-		fs.Archive(tDir, pDir+constants.PathSep+mtaStruct.Id+constants.MtarSuffix, tDir)
-		//logs.Logger.Infof("Build of mtar finished successfully, mtar location:  ", pDir+constants.PathSep+mtaStruct.Id+constants.MtarSuffix,tDir)
+		err = fs.Archive(tDir, pDir+constants.PathSep+ms.Id+constants.MtarSuffix, tDir)
+		if err != nil {
+			logs.Logger.Error(err)
+		}
 	},
 }
 
@@ -104,7 +115,10 @@ var cleanup = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		logs.Logger.Info("Starting Cleanup process")
 		// Remove temp folder
-		os.RemoveAll(args[0])
+		err := os.RemoveAll(args[0])
+		if err != nil {
+			logs.Logger.Error(err)
+		}
 		logs.Logger.Info("Done")
 	},
 }
