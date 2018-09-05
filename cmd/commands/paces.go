@@ -34,7 +34,10 @@ var copyModule = &cobra.Command{
 	},
 }
 
-// Zip specific module
+// zip specific module and put the artifacts on the temp folder according
+// to the mtar structure, i.e each module have new entry as folder in the mtar folder
+// note - even if the path of the module was changed in the mta.yaml in the mtar the
+// the module folder will get the module name
 var pack = &cobra.Command{
 	Use:   "pack",
 	Short: "pack module artifacts",
@@ -42,16 +45,17 @@ var pack = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		// Define arguments variables
 		if len(args) > 0 {
-			tDir := args[0]
+			//path of the temp directory to add the build module
+			td := args[0]
 			mName := args[2]
-			modRelPath := fs.ProjectPath() + "/" + args[1]
-			modRelName := filepath.Join(tDir, mName)
+			mRelPath := fs.ProjectPath() + "/" + args[1]
+			modRelName := filepath.Join(td, mName)
 			// Create empty folder with name as before the zip process
 			// to put the file such as data.zip inside
 			os.MkdirAll(modRelName, os.ModePerm)
 			// zipping the build artifacts
 			logs.Logger.Infof("Starting execute zipping module %v ", mName)
-			if err := fs.Archive(modRelPath, tDir+"/"+args[1]+constants.DataZip, modRelPath); err != nil {
+			if err := fs.Archive(mRelPath, td+"/"+args[2]+constants.DataZip, mRelPath); err != nil {
 				logs.Logger.Error("Error occurred during ZIP module %v creation, error:   ", args[0], err)
 			}
 			logs.Logger.Infof("Execute zipping module %v finished successfully ", mName)
