@@ -17,7 +17,7 @@ release
 testdata
 *.out
 .editorconfig
-
+.github
 .history
 build
 fmt

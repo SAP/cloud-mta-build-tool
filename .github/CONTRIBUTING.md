@@ -35,9 +35,10 @@ request changes to it, or close it with an explanation.
 1. Fork the repository and create your branch from master.
 2. Run [dep](https://github.com/golang/dep) ensure in the repository root.
 3. If you’ve fixed a bug or added code that should be tested, add tests!
-4. Ensure the test suite passes via `go test -v ./... ` Tip: you can use command `make test`.
-5. Format your code with `go fmt` and run [linter](https://github.com/golang/lint) on your changes.
-6. If you haven’t already, complete the CLA.
+4. See commit prefix section
+5. Ensure the test suite passes via `go test -v ./... ` Tip: you can use command `make test`.
+6. Format your code with `go fmt` and run [linter](https://github.com/golang/lint) on your changes.
+7. If you haven’t already, complete the CLA.
 
 
 ## Contribution Prerequisites
@@ -45,3 +46,14 @@ request changes to it, or close it with an explanation.
 1. You have [go](https://golang.org/dl/) installed at v1.11+
 2. You have [dep](https://github.com/golang/dep) installed at v0.5.0+
 3. You are familiar with [GIT](https://git-scm.com/) 
+
+## Commit Prefix
+
+[feat] (new feature for the user, not a new feature for build script)
+[fix] (bug fix for the user, not a fix to a build script)
+[docs] (changes to the documentation)
+[style] (formatting, missing semi colons, etc; no production code change)
+[refactor] (refactoring production code, eg. renaming a variable)
+[test] (adding missing tests, refactoring tests; no production code change)
+[chore] (updating grunt tasks etc; no production code change)
+
