@@ -1,6 +1,8 @@
 {{define "base_pre"}}
-# Create folder for mta build artifacts
-MTR_DIR =$(shell basename "$(PWD)")
+# Create folder for build artifacts
+DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
+BASE := $(notdir $(patsubst %/,%,$(DIR)))
+MTR_DIR := $(DIR)$(BASE)
 # Determine OS cores
 {{- range OsCore }}
 {{ .NPROCS  }}

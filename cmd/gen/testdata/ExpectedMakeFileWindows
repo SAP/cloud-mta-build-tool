@@ -1,5 +1,8 @@
 
-# Create folder for mta build artifacts
+# Create folder for build artifacts
+DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
+BASE := $(notdir $(patsubst %/,%,$(DIR)))
+MTR_DIR := $(DIR)$(BASE)
 MTR_DIR =$(shell basename "$(PWD)")
 # Determine OS cores
 NPROCS = $(shell echo %NUMBER_OF_PROCESSORS%)
