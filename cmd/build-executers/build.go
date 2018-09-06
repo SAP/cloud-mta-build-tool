@@ -91,9 +91,12 @@ func BuildProcess(options ...func(*BuildCfg)) (buildcfg *BuildCfg, err error) {
 		switch mod.Type {
 		case "html5":
 
-			Build(NewGruntBuilder(mod.Path, mod.Name, tmpDir), projdir)
+			er := Build(NewGruntBuilder(mod.Path, mod.Name, tmpDir), projdir)
+			if er != nil {
+				logs.Logger.Error(er)
+			}
 		case "nodejs", "sitecontent":
-			Build(NewNPMBuilder(mod.Path, mod.Name, tmpDir), projdir)
+			//Build(NewNPMBuilder(mod.Path, mod.Name, tmpDir), projdir)
 		default:
 			// TODO- Use ZIP builder in this case
 			logger.Info("Unknown Build type")
@@ -104,10 +107,16 @@ func BuildProcess(options ...func(*BuildCfg)) (buildcfg *BuildCfg, err error) {
 
 	metainfo.GenMetaInf(tmpDir, mtaStruct, module)
 	// Create mtar from the building artifacts
-	fs.Archive(tmpDir, projdir+constants.PathSep+mtaStruct.Id+constants.MtarSuffix, tmpDir)
+	err = fs.Archive(tmpDir, projdir+constants.PathSep+mtaStruct.Id+constants.MtarSuffix, tmpDir)
+	if err != nil {
+		logs.Logger.Error(err)
+	}
 
 	// Clean up temp folder
-	os.RemoveAll(tmpDir)
+	err = os.RemoveAll(tmpDir)
+	if err != nil {
+		logs.Logger.Error(err)
+	}
 	elapsed := time.Since(start)
 	logger.Debugf("Execution time took %s", elapsed)
 

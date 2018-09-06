@@ -22,9 +22,6 @@ func Build(b Builder, toPath string) error {
 
 	logs.Logger.Debugf("Base builder:path: " + toPath)
 	// TODO support build temp target for each module
-	//if mkTempDir == nil {
-	//	mkTempDir()
-	//}
 
 	// Get module path
 	path := b.Path()
