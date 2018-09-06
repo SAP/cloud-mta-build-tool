@@ -58,21 +58,8 @@ func TestArchive(t *testing.T) {
 		{
 			name: "SanityTest",
 			args: args{
-				srcFolderName:  filepath.Join(GetPath(), "testdata", "mtahtml5"),
-				archFilename:   filepath.Join(GetPath(), "testdata", "arch.mbt"),
-				archFoldername: filepath.Join(GetPath(), "testdata", "mtahtml5"),
-			},
-			validator: func(t *testing.T, args args, err error) {
-				assert.Nil(t, err)
-				os.RemoveAll(args.archFilename)
-			},
-		},
-		{
-			name: "TestWithEmptyTargetFolder",
-			args: args{
-				srcFolderName:  filepath.Join(GetPath(), "testdata", "mtahtml5"),
-				archFilename:   filepath.Join(GetPath(), "testdata", "arch.mbt"),
-				archFoldername: "",
+				srcFolderName: filepath.Join(GetPath(), "testdata", "mtahtml5"),
+				archFilename:  filepath.Join(GetPath(), "testdata", "arch.mbt"),
 			},
 			validator: func(t *testing.T, args args, err error) {
 				assert.Nil(t, err)
@@ -82,9 +69,8 @@ func TestArchive(t *testing.T) {
 		{
 			name: "TargetIsNotFolder",
 			args: args{
-				srcFolderName:  filepath.Join(GetPath(), "testdata", "level2", "level2_one.txt"),
-				archFilename:   filepath.Join(GetPath(), "testdata", "arch.mbt"),
-				archFoldername: "",
+				srcFolderName: filepath.Join(GetPath(), "testdata", "level2", "level2_one.txt"),
+				archFilename:  filepath.Join(GetPath(), "testdata", "arch.mbt"),
 			},
 			validator: func(t *testing.T, args args, err error) {
 				assert.Nil(t, err)
@@ -94,9 +80,8 @@ func TestArchive(t *testing.T) {
 		{
 			name: "TargetIsNotExists",
 			args: args{
-				srcFolderName:  filepath.Join(GetPath(), "testdata", "level3"),
-				archFilename:   filepath.Join(GetPath(), "testdata", "arch.mbt"),
-				archFoldername: "",
+				srcFolderName: filepath.Join(GetPath(), "testdata", "level3"),
+				archFilename:  filepath.Join(GetPath(), "testdata", "arch.mbt"),
 			},
 			validator: func(t *testing.T, args args, err error) {
 				assert.NotNil(t, err)
@@ -105,12 +90,7 @@ func TestArchive(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			var err error
-			if tt.args.archFoldername != "" {
-				err = Archive(tt.args.srcFolderName, tt.args.archFilename, tt.args.archFoldername)
-			} else {
-				err = Archive(tt.args.srcFolderName, tt.args.archFilename)
-			}
+			err := Archive(tt.args.srcFolderName, tt.args.archFilename)
 			tt.validator(t, tt.args, err)
 		})
 	}

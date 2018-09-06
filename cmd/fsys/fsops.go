@@ -30,7 +30,6 @@ func CreateDirIfNotExist(dir string) error {
 // to support the spec requirements
 // Source path to zip -> params[0])
 // Target artifact  -> ,params[1])
-// Target path to zip -> params[2])
 func Archive(params ...string) error {
 
 	info, err := os.Stat(params[0])
@@ -49,8 +48,8 @@ func Archive(params ...string) error {
 
 	// Skip headers to support jar archive structure
 	var baseDir string
-	if info.IsDir(); len(params) > 2 {
-		baseDir = params[2]
+	if info.IsDir() {
+		baseDir = params[0]
 	} else {
 		baseDir = filepath.Base(params[0])
 	}

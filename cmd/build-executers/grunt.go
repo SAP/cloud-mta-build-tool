@@ -43,7 +43,7 @@ func (n *GruntBuilder) Build(tdir string) error {
 	logs.Logger.Infof("Done building module: " + n.name)
 	logs.Logger.Infof("Starting archive module: " + n.name)
 	// archive the module build artifacts
-	err := dir.Archive(modPath, tdir+constants.DataZip, modPath)
+	err := dir.Archive(modPath, tdir+constants.DataZip)
 	if err != nil {
 		logs.Logger.Fatalf("Failed to archive module: " + n.name)
 	}

@@ -53,7 +53,7 @@ func (n *NpmBuilder) Build(pdir string) error {
 	logs.Logger.Println("Done building module: " + n.name)
 	logs.Logger.Info("Starting archive modules: " + n.name)
 	// archive the module build artifacts
-	err := dir.Archive(modPath, pdir+constants.PathSep+constants.DataZip, modPath)
+	err := dir.Archive(modPath, pdir+constants.PathSep+constants.DataZip)
 	if err != nil {
 		logs.Logger.Error("Failed to archive module: " + n.name)
 	}

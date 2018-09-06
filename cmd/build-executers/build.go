@@ -104,7 +104,7 @@ func BuildProcess(options ...func(*BuildCfg)) (buildcfg *BuildCfg, err error) {
 
 	metainfo.GenMetaInf(tmpDir, mtaStruct, module)
 	// Create mtar from the building artifacts
-	fs.Archive(tmpDir, projdir+constants.PathSep+mtaStruct.Id+constants.MtarSuffix, tmpDir)
+	fs.Archive(tmpDir, projdir+constants.PathSep+mtaStruct.Id+constants.MtarSuffix)
 
 	// Clean up temp folder
 	os.RemoveAll(tmpDir)

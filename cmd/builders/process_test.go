@@ -4,9 +4,8 @@ import (
 	"reflect"
 	"testing"
 
-	"gopkg.in/yaml.v2"
-
 	"cloud-mta-build-tool/cmd/logs"
+	"gopkg.in/yaml.v2"
 )
 
 func TestParse(t *testing.T) {
