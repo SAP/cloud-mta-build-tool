@@ -10,7 +10,6 @@ import (
 	"cloud-mta-build-tool/cmd/logs"
 )
 
-// GruntBuilder - dummy grunt builder - for testing purpose only
 type GruntBuilder struct {
 	path string
 	name string

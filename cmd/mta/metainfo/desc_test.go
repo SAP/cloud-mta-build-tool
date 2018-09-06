@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"testing"
 
+	"cloud-mta-build-tool/cmd/constants"
 	"github.com/stretchr/testify/assert"
 
 	"cloud-mta-build-tool/cmd/mta/models"
@@ -35,7 +36,7 @@ func Test_setManifetDesc(t *testing.T) {
 				},
 			},
 			expected: []byte("Manifest-Version: 1.0\nCreated-By: SAP Application Archive Builder 0.0.1\n\n" +
-				"Name: ui5/data.zip\nMTA-Module: ui5\nContent-Type: application/zip"),
+				"Name: ui5" + constants.PathSep + "data.zip\nMTA-Module: ui5\nContent-Type: application/zip"),
 		},
 		{
 			n:    0,
@@ -63,8 +64,8 @@ func Test_setManifetDesc(t *testing.T) {
 				},
 			},
 			expected: []byte("Manifest-Version: 1.0\nCreated-By: SAP Application Archive Builder 0.0.1\n\n" +
-				"Name: ui6/data.zip\nMTA-Module: ui6\nContent-Type: application/zip\n\n" +
-				"Name: ui4/data.zip\nMTA-Module: ui4\nContent-Type: application/zip"),
+				"Name: ui6" + constants.PathSep + "data.zip\nMTA-Module: ui6\nContent-Type: application/zip\n\n" +
+				"Name: ui4" + constants.PathSep + "data.zip\nMTA-Module: ui4\nContent-Type: application/zip"),
 		},
 		{
 			n:    0,
@@ -92,7 +93,7 @@ func Test_setManifetDesc(t *testing.T) {
 				},
 			},
 			expected: []byte("Manifest-Version: 1.0\nCreated-By: SAP Application Archive Builder 0.0.1\n\n" +
-				"Name: ui6/data.zip\nMTA-Module: ui6\nContent-Type: application/zip"),
+				"Name: ui6" + constants.PathSep + "data.zip\nMTA-Module: ui6\nContent-Type: application/zip"),
 		},
 	}
 
