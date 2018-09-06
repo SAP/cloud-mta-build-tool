@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 
 	"cloud-mta-build-tool/cmd/mta/metainfo"
+	"cloud-mta-build-tool/cmd/mta/models"
 	"github.com/spf13/cobra"
 
 	"cloud-mta-build-tool/cmd/constants"
@@ -53,6 +54,7 @@ var pack = &cobra.Command{
 			logs.Logger.Infof("Starting execute zipping module %v ", mName)
 			if err := fs.Archive(modRelPath, modRelName+constants.DataZip); err != nil {
 				logs.Logger.Error("Error occurred during ZIP module %v creation, error:   ", mName, err)
+				os.RemoveAll(tDir)
 			} else {
 				logs.Logger.Infof("Execute zipping module %v finished successfully ", mName)
 			}
@@ -62,19 +64,39 @@ var pack = &cobra.Command{
 	},
 }
 
+func generateMeta(relativePath string, args []string) {
+	processMta(relativePath, "Metadata creation", args, func(mtaStruct models.MTA, args []string) {
+		// Generate meta info dir with required content
+		metainfo.GenMetaInf(args[0], mtaStruct, args[1:])
+	})
+}
+
 // Generate metadata info from deployment
 var genMeta = &cobra.Command{
 	Use:   "meta",
 	Short: "generate meta folder",
 	Long:  "generate META-INF folder with all the required data",
 	Run: func(cmd *cobra.Command, args []string) {
-		logs.Logger.Info("Starting execute metadata creation")
-		mtaStruct, _ := proc.GetMta(fs.GetPath())
-		mtarDir := args[0]
-		// Generate meta info dir with required content
-		metainfo.GenMetaInf(mtarDir, mtaStruct, args[1:])
-		logs.Logger.Info("Metadata creation finish successfully ")
+		generateMeta("", args)
 	},
+}
+
+func processMta(relativePath string, processName string, args []string, process func(mtaStruct models.MTA, args []string)) {
+	logs.Logger.Info("Starting " + processName)
+	mtaStruct, err := proc.GetMta(filepath.Join(fs.GetPath(), relativePath))
+	if err == nil {
+		process(mtaStruct, args)
+		logs.Logger.Info(processName + " finish successfully ")
+	} else {
+		logs.Logger.Error("No MTA structure found")
+	}
+}
+
+func generateMtar(relativePath string, args []string) {
+	processMta(relativePath, "MTAR generation", args, func(mtaStruct models.MTA, args []string) {
+		// Create MTAR from the building artifacts
+		fs.Archive(args[0], args[1]+constants.PathSep+mtaStruct.Id+constants.MtarSuffix)
+	})
 }
 
 // Generate mtar from build artifacts
@@ -83,13 +105,7 @@ var genMtar = &cobra.Command{
 	Short: "generate MTAR",
 	Long:  "generate MTAR from the project build artifacts",
 	Run: func(cmd *cobra.Command, args []string) {
-		logs.Logger.Info("Starting execute Build of MTAR")
-		mtaStruct, _ := proc.GetMta(fs.GetPath())
-		tDir := args[0]
-		pDir := args[1]
-		// Create MTAR from the building artifacts
-		fs.Archive(tDir, pDir+constants.PathSep+mtaStruct.Id+constants.MtarSuffix)
-		//logs.Logger.Infof("Build of mtar finished successfully, mtar location:  ", pDir+constants.PathSep+mtaStruct.Id+constants.MtarSuffix,tDir)
+		generateMtar("", args)
 	},
 }
 
