@@ -1,12 +1,14 @@
 package commands
 
 import (
-	"cloud-mta-build-tool/cmd/fsys"
-	"cloud-mta-build-tool/cmd/logs"
-	"github.com/stretchr/testify/assert"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
+
+	"cloud-mta-build-tool/cmd/fsys"
+	"cloud-mta-build-tool/cmd/logs"
+	"github.com/stretchr/testify/assert"
 )
 
 func Test_copyModuleAndClean(t *testing.T) {
@@ -21,6 +23,40 @@ func Test_copyModuleAndClean(t *testing.T) {
 	fileInfo, _ = os.Stat(resultPath)
 	assert.Nil(t, fileInfo)
 
+}
+
+func Test_genMetaFunction(t *testing.T) {
+	args := []string{filepath.Join("testdata", "result"), "testapp"}
+	generateMeta(filepath.Join("testdata", "mtahtml5"), args)
+	actualContent, _ := ioutil.ReadFile(filepath.Join(dir.GetPath(), "testdata", "result", "META-INF", "mtad.yaml"))
+	expectedContent, _ := ioutil.ReadFile(filepath.Join(dir.GetPath(), "testdata", "golden", "mtad.yaml"))
+	assert.Equal(t, actualContent, expectedContent)
+	os.RemoveAll(filepath.Join(dir.GetPath(), "testdata", "result"))
+}
+
+func Test_genMetaCommand(t *testing.T) {
+	args := []string{filepath.Join("testdata", "result"), "testapp"}
+	genMeta.Run(nil, args)
+	actualContent, _ := ioutil.ReadFile(filepath.Join(dir.GetPath(), "testdata", "result", "META-INF", "mtad.yaml"))
+	assert.Nil(t, actualContent)
+}
+
+func Test_genMtarFunction(t *testing.T) {
+	args := []string{filepath.Join(dir.GetPath(), "testdata", "mtahtml5"), filepath.Join(dir.GetPath(), "testdata")}
+	generateMtar(filepath.Join("testdata", "mtahtml5"), args)
+	_, err := ioutil.ReadFile(filepath.Join(dir.GetPath(), "testdata", "mtahtml5.mtar"))
+	//actualContent, err := ioutil.ReadFile(filepath.Join(dir.GetPath(), "testdata", "mtahtml5.mtar"))
+	assert.Nil(t, err)
+	//expectedContent, _ := ioutil.ReadFile(filepath.Join(dir.GetPath(), "testdata", "golden", "mtahtml5.mtar"))
+	//assert.Equal(t, actualContent, expectedContent)
+	os.RemoveAll(filepath.Join(dir.GetPath(), "testdata", "mtahtml5.mtar"))
+}
+
+func Test_genMtarCommand(t *testing.T) {
+	args := []string{filepath.Join(dir.GetPath(), "testdata", "mtahtml5"), filepath.Join(dir.GetPath(), "testdata")}
+	genMtar.Run(nil, args)
+	actualContent, _ := ioutil.ReadFile(filepath.Join(dir.GetPath(), "testdata", "mtahtml5.mtar"))
+	assert.Nil(t, actualContent)
 }
 
 func Test_pack(t *testing.T) {
@@ -39,7 +75,7 @@ func Test_pack(t *testing.T) {
 				fileInfo, _ := os.Stat(resultPath)
 				assert.NotNil(t, fileInfo)
 				assert.Equal(t, fileInfo.IsDir(), false)
-				os.RemoveAll(resultPath)
+				os.RemoveAll(args[0])
 			},
 		},
 		{
