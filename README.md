@@ -1,7 +1,7 @@
 [![CircleCI](https://circleci.com/gh/SAP/cloud-mta-build-tool.svg?style=svg&circle-token=ecedd1dce3592adcd72ee4c61481972c32dcfad7)](https://circleci.com/gh/SAP/cloud-mta-build-tool)
 ![GitHub license](https://img.shields.io/badge/license-Apache_2.0-blue.svg)
 
-<b>Disclaimer</b>: This repository is under development  
+<b>Disclaimer</b>:  This repository is <b>under development</b> and currently unstable, don't use until there is an official release.  
 # Multi-target Application (MTA) Archive Builder
 
 
