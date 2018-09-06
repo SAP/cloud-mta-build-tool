@@ -7,12 +7,11 @@ import (
 	"cloud-mta-build-tool/cmd/fsys"
 )
 
-// Prepare - prepare the environment for execution
+// Prepare - future use pre-process - prepare the environment for execution
 func Prepare() string {
 	return mtaDir()
 }
 
-//Todo should be part of the MakeFile (mkdir) , will support generic pre build process
 func mtaDir() string {
 	pPath := dir.ProjectPath()
 	basePath := filepath.Base(pPath)

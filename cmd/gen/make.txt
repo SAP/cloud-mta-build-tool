@@ -1,5 +1,6 @@
+MTR_DIR=$(shell basename "$(PWD)")
 # Create folder for build artifacts
-MTR_DIR := $(shell mbt execute prepare)
+mkdir -p "$(PARENT_DIR)"
 # Determine OS cores
 {{- range OsCore }}
 {{ .NPROCS  }}
