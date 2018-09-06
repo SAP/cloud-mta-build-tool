@@ -7,7 +7,7 @@ import (
 	"cloud-mta-build-tool/cmd/fsys"
 )
 
-// Prepare - future use pre-process - prepare the environment for execution
+// Prepare - future use fo pre-process to prepare the environment for execution
 func Prepare() string {
 	return mtaDir()
 }

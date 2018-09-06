@@ -1,6 +1,8 @@
 package commands
 
 import (
+	"cloud-mta-build-tool/cmd/logs"
+
 	"github.com/spf13/cobra"
 
 	"cloud-mta-build-tool/cmd/build-executers"
@@ -16,7 +18,10 @@ var cfBuild = &cobra.Command{
 		target := func(bld *builders.BuildCfg) {
 			bld.Target = "cf"
 		}
-		builders.BuildProcess(target)
+		_, err := builders.BuildProcess(target)
+		if err != nil {
+			logs.Logger.Error(err)
+		}
 	},
 }
 
