@@ -10,6 +10,7 @@ import (
 )
 
 func TestParse(t *testing.T) {
+	// Initialize logger for use in the class under test (process)
 	logs.Logger = logs.NewLogger()
 
 	var buildCfg = []byte(`
