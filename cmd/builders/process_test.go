@@ -5,10 +5,13 @@ import (
 	"testing"
 
 	"cloud-mta-build-tool/cmd/logs"
+
 	"gopkg.in/yaml.v2"
 )
 
 func TestParse(t *testing.T) {
+	// Initialize logger for use in the class under test (process)
+	logs.Logger = logs.NewLogger()
 
 	var buildCfg = []byte(`
 version: 1
@@ -72,6 +75,11 @@ builders:
 			name:     "Parse builders configuration files",
 			args:     buildCfg,
 			expected: commands,
+		},
+		{
+			name:     "A malformed YAML returns an empty list of commands",
+			args:     []byte(`bad:  "YAML" syntax`),
+			expected: Builders{},
 		},
 	}
 	//Todo - basic parse test, need types test
