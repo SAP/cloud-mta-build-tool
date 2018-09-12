@@ -4,6 +4,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"cloud-mta-build-tool/cmd/fsys"
@@ -29,8 +30,14 @@ func Test_genMetaFunction(t *testing.T) {
 	args := []string{filepath.Join("testdata", "result"), "testapp"}
 	generateMeta(filepath.Join("testdata", "mtahtml5"), args)
 	actualContent, _ := ioutil.ReadFile(filepath.Join(dir.GetPath(), "testdata", "result", "META-INF", "mtad.yaml"))
+	actualString := string(actualContent[:])
+	actualString = strings.Replace(actualString, "\n", "", -1)
+	actualString = strings.Replace(actualString, "\r", "", -1)
 	expectedContent, _ := ioutil.ReadFile(filepath.Join(dir.GetPath(), "testdata", "golden", "mtad.yaml"))
-	assert.Equal(t, actualContent, expectedContent)
+	expectedString := string(expectedContent[:])
+	expectedString = strings.Replace(expectedString, "\n", "", -1)
+	expectedString = strings.Replace(expectedString, "\r", "", -1)
+	assert.Equal(t, actualString, expectedString)
 	os.RemoveAll(filepath.Join(dir.GetPath(), "testdata", "result"))
 }
 
