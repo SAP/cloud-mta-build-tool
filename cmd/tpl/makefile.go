@@ -1,4 +1,4 @@
-package gen
+package tpl
 
 import (
 	"io/ioutil"
