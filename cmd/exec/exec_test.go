@@ -1,23 +1,22 @@
 package exec
 
-import "testing"
+import (
+	"testing"
 
-func TestExecute(t *testing.T) {
-	type args struct {
-		cmdParams [][]string
-	}
-	var tests []struct {
-		name    string
-		args    args
-		wantErr bool
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if err := Execute(tt.args.cmdParams); (err != nil) != tt.wantErr {
-				t.Errorf("Execute() error = %v, wantErr %v", err, tt.wantErr)
-			}
-		})
-	}
+	"cloud-mta-build-tool/cmd/logs"
+)
+
+func TestExecute_WithEchoTesting(t *testing.T) {
+	logs.NewLogger()
+
+	cdParams := [][]string{{"", "echo", "-n", `{"Name": "Bob", "Age": 32}`}}
+	Execute(cdParams)
+}
+
+func Test_Execute_WithGoTesting(t *testing.T) {
+	logs.NewLogger()
+	cdParams := [][]string{{"", "go", "test", "exec_dummy_test.go"}}
+	Execute(cdParams)
 }
 
 func Test_indicator(t *testing.T) {

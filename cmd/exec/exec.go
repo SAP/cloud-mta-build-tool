@@ -10,14 +10,28 @@ import (
 	"cloud-mta-build-tool/cmd/logs"
 )
 
+func makeCommand(params []string) *exec.Cmd {
+	if len(params) > 1 {
+		return exec.Command(params[0], params[1:]...)
+	} else {
+		return exec.Command(params[0])
+	}
+}
+
 // Execute - Execute child process and wait to results
 func Execute(cmdParams [][]string) error {
 
 	for _, cp := range cmdParams {
-		logs.Logger.Infof("Executing %s for module %s...", cp[1:], filepath.Base(cp[0]))
-		cmd := exec.Command(cp[1], cp[2:]...)
+		var cmd *exec.Cmd
+		if cp[0] != "" {
+			logs.Logger.Infof("Executing %s for module %s...", cp[1:], filepath.Base(cp[0]))
+			cmd = makeCommand(cp[1:])
+			cmd.Dir = cp[0]
+		} else {
+			logs.Logger.Infof("Executing %s", cp[1:])
+			cmd = makeCommand(cp[1:])
+		}
 
-		cmd.Dir = cp[0]
 		// During the running process get the standard output
 		stdout, err := cmd.StdoutPipe()
 		if err != nil {
