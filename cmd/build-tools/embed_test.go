@@ -3,6 +3,7 @@ package main
 import (
 	"io/ioutil"
 	"os"
+	"strings"
 	"testing"
 
 	"gotest.tools/assert"
@@ -13,7 +14,7 @@ func Test_main(t *testing.T) {
 	main()
 	actualContent, _ := ioutil.ReadFile("./testdata/cfg.go")
 	expectedContent, _ := ioutil.ReadFile("./testdata/goldenCfg.go")
-	assert.Equal(t, string(expectedContent), string(actualContent))
+	assert.Equal(t, strings.Replace(string(expectedContent), "0xd, ", "", -1), strings.Replace(string(actualContent), "0xd, ", "", -1))
 	os.RemoveAll("./testdata/cfg.go")
 }
 
