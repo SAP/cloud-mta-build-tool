@@ -44,10 +44,11 @@ func initConfig() {
 		home, err := homedir.Dir()
 		if err != nil {
 			logs.Logger.Error(err)
+		} else {
+			// Search config in home directory with name ".mbt" (without extension).
+			viper.AddConfigPath(home)
+			viper.SetConfigName(".mbt")
 		}
-		// Search config in home directory with name ".mbt" (without extension).
-		viper.AddConfigPath(home)
-		viper.SetConfigName(".mbt")
 	}
 
 	viper.AutomaticEnv() // read in environment variables that match
