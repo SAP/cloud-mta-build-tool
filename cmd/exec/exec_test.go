@@ -2,13 +2,14 @@ package exec
 
 import (
 	"testing"
+	"time"
 
 	"cloud-mta-build-tool/cmd/logs"
+	"gotest.tools/assert"
 )
 
 func TestExecute_WithEchoTesting(t *testing.T) {
 	logs.NewLogger()
-
 	cdParams := [][]string{{"", "echo", "-n", `{"Name": "Bob", "Age": 32}`}}
 	Execute(cdParams)
 }
@@ -16,20 +17,39 @@ func TestExecute_WithEchoTesting(t *testing.T) {
 func Test_Execute_WithGoTesting(t *testing.T) {
 	logs.NewLogger()
 	cdParams := [][]string{{"", "go", "test", "exec_dummy_test.go"}}
-	Execute(cdParams)
+	err := Execute(cdParams)
+	assert.NilError(t, err)
+}
+
+func Test_Execute_WithGoTestingNegative(t *testing.T) {
+	logs.NewLogger()
+	cdParams := [][]string{{"", "go", "test", "exec_unknown_test.go"}}
+	err := Execute(cdParams)
+	assert.Equal(t, err != nil, true)
+
+	cdParams = [][]string{{"", "dateXXX"}}
+	err = Execute(cdParams)
+	assert.Equal(t, err != nil, true)
 }
 
 func Test_indicator(t *testing.T) {
-	type args struct {
-		shutdownCh <-chan struct{}
+	shutdownCh := make(chan struct{})
+	start := time.Now()
+	go indicator(shutdownCh)
+	time.Sleep(1 * time.Second)
+	close(shutdownCh)
+	sec := time.Since(start).Seconds()
+	switch int(sec) {
+	case 0:
+		// Output:
+	case 1:
+		// Output: .
+	case 2:
+		// Output: ..
+	case 3:
+		// Output: ...
+	default:
+		t.Error("Sleeping time is more than 3 seconds")
 	}
-	var tests []struct {
-		name string
-		args args
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			indicator(tt.args.shutdownCh)
-		})
-	}
+
 }

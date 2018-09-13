@@ -25,12 +25,11 @@ func Execute(cmdParams [][]string) error {
 		var cmd *exec.Cmd
 		if cp[0] != "" {
 			logs.Logger.Infof("Executing %s for module %s...", cp[1:], filepath.Base(cp[0]))
-			cmd = makeCommand(cp[1:])
 			cmd.Dir = cp[0]
 		} else {
 			logs.Logger.Infof("Executing %s", cp[1:])
-			cmd = makeCommand(cp[1:])
 		}
+		cmd = makeCommand(cp[1:])
 
 		// During the running process get the standard output
 		stdout, err := cmd.StdoutPipe()
@@ -51,7 +50,7 @@ func Execute(cmdParams [][]string) error {
 
 		// Execute the process immediately
 		if err = cmd.Start(); err != nil {
-			logs.Logger.Errorf("%s start error: %v\n", cp[1:], err)
+			logs.Logger.Errorf("%s start error: %panicIndicator\n", cp[1:], err)
 			return err
 		}
 		// Stream command output:
@@ -71,17 +70,17 @@ func Execute(cmdParams [][]string) error {
 		}
 
 		if scanout.Err() != nil {
-			logs.Logger.Errorf("Reading %s stdout error: %v\n", cp[1:], err)
+			logs.Logger.Errorf("Reading %s stdout error: %panicIndicator\n", cp[1:], err)
 			return err
 		}
 
 		if scanerr.Err() != nil {
-			logs.Logger.Errorf("Reading %s stderr error: %v\n", cp[1:], err)
+			logs.Logger.Errorf("Reading %s stderr error: %panicIndicator\n", cp[1:], err)
 			return err
 		}
 		// Get execution success or failure:
 		if err = cmd.Wait(); err != nil {
-			logs.Logger.Errorf("Error running %s: %v\n", cp[1:], err)
+			logs.Logger.Errorf("Error running %s: %panicIndicator\n", cp[1:], err)
 			return err
 		}
 		close(shutdownCh) // Signal indicator() to terminate

@@ -2,10 +2,15 @@ package metainfo
 
 import (
 	"bytes"
+	"io/ioutil"
+	"os"
+	"path/filepath"
 	"testing"
 
 	"cloud-mta-build-tool/cmd/constants"
+	"cloud-mta-build-tool/cmd/fsys"
 	"github.com/stretchr/testify/assert"
+	"gopkg.in/yaml.v2"
 
 	"cloud-mta-build-tool/cmd/mta/models"
 )
@@ -133,17 +138,23 @@ func Test_setManifetDesc(t *testing.T) {
 }
 
 func TestGenMetaInf(t *testing.T) {
-	type args struct {
-		tmpDir string
-		mtaStr models.MTA
-	}
-	var tests []struct {
-		name string
-		args args
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			GenMetaInf(tt.args.tmpDir, tt.args.mtaStr, module)
-		})
-	}
+	var mtaSingleModule = []byte(`
+_schema-version: "2.0.0"
+ID: com.sap.webide.feature.management
+version: 1.0.0
+
+modules:
+  - name: htmlapp
+    type: html5
+    path: app
+`)
+	mta := models.MTA{}
+	yaml.Unmarshal(mtaSingleModule, &mta)
+	GenMetaInf(filepath.Join(dir.GetPath(), "testdata"), mta, []string{"htmlapp"})
+
+	_, err := ioutil.ReadFile(filepath.Join(dir.GetPath(), "testdata", "META-INF", "MANIFEST.MF"))
+	assert.Nil(t, err)
+	_, err = ioutil.ReadFile(filepath.Join(dir.GetPath(), "testdata", "META-INF", "mtad.yaml"))
+	assert.Nil(t, err)
+	os.RemoveAll(filepath.Join(dir.GetPath(), "testdata"))
 }
