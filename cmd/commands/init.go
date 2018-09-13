@@ -12,7 +12,6 @@ var initProcess = &cobra.Command{
 	Short: "Generate Makefile",
 	Long:  "Generate Makefile as manifest which describe's the build process",
 	Run: func(cmd *cobra.Command, args []string) {
-		// Todo - remove the script option
 		// Generate build script
 		if err := tpl.Make(); err != nil {
 			logs.Logger.Error(err)
