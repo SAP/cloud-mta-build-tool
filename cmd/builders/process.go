@@ -1,11 +1,12 @@
 package builders
 
 import (
-	"cloud-mta-build-tool/cmd/logs"
 	"gopkg.in/yaml.v2"
+
+	"cloud-mta-build-tool/cmd/logs"
 )
 
-//Parse the builders command list
+// Parse the builders command list
 func Parse(data []byte) Builders {
 	commands := Builders{}
 	err := yaml.Unmarshal(data, &commands)

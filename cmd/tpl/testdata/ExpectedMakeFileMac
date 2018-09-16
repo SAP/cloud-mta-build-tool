@@ -13,10 +13,11 @@ all: tdir ui meta mtar cleanup
 # Create folder for build artifacts
 tdir:
 	@mkdir -p "$(MTR_DIR)"
-# All modules execution
-modules = ui
 # Set the current project repository path for general mta process
   PROJ_DIR := $(CURDIR)
+
+# List of modules
+modules = ui
 
 # Execute all modules builds
 # build module ui
