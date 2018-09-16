@@ -22,12 +22,12 @@ var bm = &cobra.Command{
 		if err != nil {
 			logs.Logger.Errorf("Not able to parse MTA ", err)
 		}
-		module := buildModule(mta, args[0])
+		module := moduleCmd(mta, args[0])
 		logs.Logger.Info(module)
 	},
 }
 
-func buildModule(mta models.MTA, moduleName string) []string {
+func moduleCmd(mta models.MTA, moduleName string) []string {
 	var cmd []string
 	for _, m := range mta.Modules {
 		if m.Name == moduleName {

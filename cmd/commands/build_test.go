@@ -10,7 +10,7 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-func Test_buildModule(t *testing.T) {
+func Test_moduleCmd(t *testing.T) {
 
 	var mtaCF = []byte(`
 _schema-version: "2.0.0"
@@ -58,8 +58,8 @@ modules:
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := buildModule(tt.args.mta, tt.args.moduleName); !reflect.DeepEqual(got, tt.expected) {
-				t.Errorf("buildModule() = %v, want %v", got, tt.expected)
+			if got := moduleCmd(tt.args.mta, tt.args.moduleName); !reflect.DeepEqual(got, tt.expected) {
+				t.Errorf("moduleCmd() = %v, want %v", got, tt.expected)
 			}
 		})
 	}
