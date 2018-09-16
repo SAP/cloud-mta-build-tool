@@ -38,7 +38,3 @@ mtar: $(modules) meta
 cleanup: mtar
 # Remove tmp folder
 	@mbt execute cleanup $(MTR_DIR)
-
-cleanup: mtar
-# Remove tmp folder
-	@mbt execute cleanup $(MTR_DIR)
