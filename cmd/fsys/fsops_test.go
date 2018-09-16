@@ -189,6 +189,17 @@ func TestCopyDir(t *testing.T) {
 	}
 }
 
+func TestCopyDirFileLocked(t *testing.T) {
+	logs.NewLogger()
+	dirName := filepath.Join(GetPath(), "testdata", "temp")
+	f, _ := os.Create(dirName)
+
+	err := CopyDir(filepath.Join(GetPath(), "testdata", "level2"), dirName)
+	assert.NotNil(t, err)
+	f.Close()
+	os.RemoveAll(dirName)
+}
+
 type testFile struct {
 	file os.FileInfo
 }
