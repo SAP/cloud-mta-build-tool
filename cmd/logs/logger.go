@@ -21,7 +21,7 @@ func NewLogger() *logrus.Logger {
 	var level logrus.Level
 	lvl := getLogLevel()
 	// In case level doesn't set will not print any message
-	level = logLevel(lvl, level)
+	level = logLevel(lvl)
 	logger := &logrus.Logger{
 		Out:   os.Stdout,
 		Level: level,
@@ -46,24 +46,23 @@ func getLogLevel() string {
 	return DefLvl
 }
 
-func logLevel(lvl string, level logrus.Level) logrus.Level {
+func logLevel(lvl string) logrus.Level {
 
 	switch lvl {
 	case "debug":
 		// Used for tracing
-		level = logrus.DebugLevel
+		return logrus.DebugLevel
 	case "info":
-		level = logrus.InfoLevel
+		return logrus.InfoLevel
 	case "error":
-		level = logrus.ErrorLevel
+		return logrus.ErrorLevel
 	case "warn":
-		level = logrus.WarnLevel
+		return logrus.WarnLevel
 	case "fatal":
-		level = logrus.FatalLevel
+		return logrus.FatalLevel
 	case "panic":
-		level = logrus.PanicLevel
+		return logrus.PanicLevel
 	default:
 		panic("The specified log level is not supported.")
 	}
-	return level
 }
