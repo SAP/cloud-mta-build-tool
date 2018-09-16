@@ -20,7 +20,7 @@ var prepare = &cobra.Command{
 	Short: "prepare for build",
 	Long:  "prepare The project generation environment For build process",
 	Run: func(cmd *cobra.Command, args []string) {
-		proc.Prepare()
+		// proc.Prepare()
 	},
 }
 

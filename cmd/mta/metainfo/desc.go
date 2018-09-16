@@ -36,19 +36,19 @@ const (
 	ManifestVersion = "Manifest-Version: 1.0"
 )
 
-//Set the MANIFEST.MF file
+// Set the MANIFEST.MF file
 func setManifetDesc(file io.Writer, mtaStr []*models.Modules, modules []string) {
 	// TODO create dynamically
 	fmt.Fprint(file, ManifestVersion+NewLine)
 	// TODO set the version from external config for automatic version bump during release
 	fmt.Fprint(file, "Created-By: SAP Application Archive Builder 0.0.1")
 	for _, mod := range mtaStr {
-		//Print only the required module to support the partial build
+		// Print only the required module to support the partial build
 		if len(modules) > 0 && mod.Name == modules[0] {
 			printToFile(file, mod)
 			break
 		} else if len(modules) == 0 {
-			//Print all the modules
+			// Print all the modules
 			printToFile(file, mod)
 		}
 	}
@@ -67,11 +67,11 @@ func printToFile(file io.Writer, mtaStr *models.Modules) {
 func GenMetaInf(tmpDir string, mtaStr models.MTA, modules []string) {
 	// Create META-INF folder under the mtar folder
 	dir.CreateDirIfNotExist(tmpDir + MetaInf)
-	//Load platform configuration file
+	// Load platform configuration file
 
 	platformCfg := platform.Parse(platform.PlatformConfig)
 	// Modify MTAD object according to platform types
-	//Todo platform should provided as command parameter
+	// Todo platform should provided as command parameter
 	converter.ConvertTypes(mtaStr, platformCfg, "cf")
 	// Create readable Yaml before writing to file
 	mtad, err := mta.Marshal(mtaStr)

@@ -4,7 +4,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// Parent commands
+// Parent command
 var build = &cobra.Command{
 	Use:   "build",
 	Short: "Build Project",
@@ -12,7 +12,7 @@ var build = &cobra.Command{
 	Run:   nil,
 }
 
-// Execute small building blocks
+// Parent command
 var execute = &cobra.Command{
 	Use:   "execute",
 	Short: "Execute step",
@@ -20,8 +20,17 @@ var execute = &cobra.Command{
 	Run:   nil,
 }
 
+// Parent command
+var provides = &cobra.Command{
+	Use:   "provide",
+	Short: "MBT data provider",
+	Long:  "MBT data provider",
+	Run:   nil,
+}
+
 func init() {
-	build.AddCommand(cfBuild, neoBuild, html5)
+	provides.AddCommand(pm)
+	build.AddCommand(cfBuild, neoBuild)
 	execute.AddCommand(prepare, copyModule, pack, genMeta, genMtar, cleanup)
-	rootCmd.AddCommand(build, execute, initProcess)
+	rootCmd.AddCommand(provides, build, execute, initProcess)
 }

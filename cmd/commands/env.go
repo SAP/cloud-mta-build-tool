@@ -1,14 +1,12 @@
 package commands
 
 import (
-	"cloud-mta-build-tool/cmd/logs"
-
 	"github.com/spf13/cobra"
 
 	"cloud-mta-build-tool/cmd/build-executers"
+	"cloud-mta-build-tool/cmd/logs"
 )
 
-// Todo for testing purpose
 // Build the whole MTA project as monolith
 var cfBuild = &cobra.Command{
 	Use:   "cf",
@@ -25,7 +23,6 @@ var cfBuild = &cobra.Command{
 	},
 }
 
-// Todo - check the right structure
 var neoBuild = &cobra.Command{
 	Use:   "neo",
 	Short: "Build to Neo",
