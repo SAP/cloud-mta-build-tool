@@ -24,17 +24,6 @@ func Test_copyModuleAndClean(t *testing.T) {
 	cleanup.Run(nil, []string{filepath.Join("testdata", "result")})
 	fileInfo, _ = os.Stat(resultPath)
 	assert.Nil(t, fileInfo)
-
-	var str bytes.Buffer
-
-	logs.Logger.SetOutput(&str)
-	f, _ := os.Create(filepath.Join("testdata", "temp"))
-
-	cleanup.Run(nil, []string{filepath.Join("testdata", "temp")})
-	assert.Contains(t, str.String(), "ERROR remove")
-
-	f.Close()
-	cleanup.Run(nil, []string{filepath.Join("testdata", "temp")})
 }
 
 func Test_genMetaFunction(t *testing.T) {
