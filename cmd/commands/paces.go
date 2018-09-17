@@ -57,17 +57,18 @@ var pack = &cobra.Command{
 			err := os.MkdirAll(mrp, os.ModePerm)
 			if err != nil {
 				logs.Logger.Error(err)
-			}
-			// zipping the build artifacts
-			logs.Logger.Infof("Starting execute zipping module %v ", mName)
-			if err := fs.Archive(mp, mrp+constants.DataZip); err != nil {
-				logs.Logger.Error("Error occurred during ZIP module %v creation, error:   ", mName, err)
-				err := os.RemoveAll(td)
-				if err != nil {
-					logs.Logger.Error(err)
-				}
 			} else {
-				logs.Logger.Infof("Execute zipping module %v finished successfully ", mName)
+				// zipping the build artifacts
+				logs.Logger.Infof("Starting execute zipping module %v ", mName)
+				if err := fs.Archive(mp, mrp+constants.DataZip); err != nil {
+					logs.Logger.Error("Error occurred during ZIP module %v creation, error:   ", mName, err)
+					err := os.RemoveAll(td)
+					if err != nil {
+						logs.Logger.Error(err)
+					}
+				} else {
+					logs.Logger.Infof("Execute zipping module %v finished successfully ", mName)
+				}
 			}
 		} else {
 			logs.Logger.Errorf("No path's provided to pack the module artifacts")
@@ -134,7 +135,8 @@ var cleanup = &cobra.Command{
 		err := os.RemoveAll(args[0])
 		if err != nil {
 			logs.Logger.Error(err)
+		} else {
+			logs.Logger.Info("Done")
 		}
-		logs.Logger.Info("Done")
 	},
 }

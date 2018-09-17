@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"bytes"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -23,7 +24,6 @@ func Test_copyModuleAndClean(t *testing.T) {
 	cleanup.Run(nil, []string{filepath.Join("testdata", "result")})
 	fileInfo, _ = os.Stat(resultPath)
 	assert.Nil(t, fileInfo)
-
 }
 
 func Test_genMetaFunction(t *testing.T) {
@@ -52,10 +52,7 @@ func Test_genMtarFunction(t *testing.T) {
 	args := []string{filepath.Join(dir.GetPath(), "testdata", "mtahtml5"), filepath.Join(dir.GetPath(), "testdata")}
 	generateMtar(filepath.Join("testdata", "mtahtml5"), args)
 	_, err := ioutil.ReadFile(filepath.Join(dir.GetPath(), "testdata", "mtahtml5.mtar"))
-	//actualContent, err := ioutil.ReadFile(filepath.Join(dir.GetPath(), "testdata", "mtahtml5.mtar"))
 	assert.Nil(t, err)
-	//expectedContent, _ := ioutil.ReadFile(filepath.Join(dir.GetPath(), "testdata", "golden", "mtahtml5.mtar"))
-	//assert.Equal(t, actualContent, expectedContent)
 	os.RemoveAll(filepath.Join(dir.GetPath(), "testdata", "mtahtml5.mtar"))
 }
 
@@ -67,6 +64,7 @@ func Test_genMtarCommand(t *testing.T) {
 }
 
 func Test_pack(t *testing.T) {
+
 	tests := []struct {
 		name      string
 		args      []string
@@ -115,4 +113,20 @@ func Test_pack(t *testing.T) {
 
 		})
 	}
+
+}
+
+func Test_packWithOpenedFile(t *testing.T) {
+	var str bytes.Buffer
+
+	logs.Logger.SetOutput(&str)
+	f, _ := os.Create(filepath.Join("testdata", "temp"))
+
+	args := []string{filepath.Join(dir.GetPath(), "testdata", "temp"), filepath.Join("testdata", "mtahtml5", "testapp"), "ui5app"}
+
+	pack.Run(nil, args)
+	assert.Contains(t, str.String(), "ERROR mkdir")
+
+	f.Close()
+	cleanup.Run(nil, []string{filepath.Join("testdata", "temp")})
 }
