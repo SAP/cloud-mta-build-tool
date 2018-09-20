@@ -7,11 +7,11 @@ import (
 	"path/filepath"
 	"testing"
 
-	"cloud-mta-build-tool/cmd/constants"
-	"cloud-mta-build-tool/cmd/fsys"
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/yaml.v2"
 
+	"cloud-mta-build-tool/cmd/constants"
+	"cloud-mta-build-tool/cmd/fsys"
 	"cloud-mta-build-tool/mta/models"
 )
 
