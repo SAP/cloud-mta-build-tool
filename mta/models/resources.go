@@ -1,5 +1,6 @@
 package models
 
+// Resources - resources section
 type Resources struct {
 	Name       string
 	Type       string
