@@ -4,6 +4,8 @@ import (
 	"os"
 	"path/filepath"
 
+	"cloud-mta-build-tool/cmd/mta/provider"
+
 	"github.com/spf13/cobra"
 
 	"cloud-mta-build-tool/cmd/constants"
@@ -11,7 +13,6 @@ import (
 	"cloud-mta-build-tool/cmd/logs"
 	"cloud-mta-build-tool/cmd/mta/metainfo"
 	"cloud-mta-build-tool/cmd/mta/models"
-	"cloud-mta-build-tool/cmd/proc"
 )
 
 // Prepare the process for execution
@@ -30,8 +31,7 @@ var copyModule = &cobra.Command{
 	Short: "copy module for build process",
 	Long:  "copy module for build process",
 	Run: func(cmd *cobra.Command, args []string) {
-		logs.Logger.Infof("Executing Copy module %v", args[2])
-		proc.CopyModule(args[0], args[1])
+
 	},
 }
 
@@ -94,8 +94,8 @@ var genMeta = &cobra.Command{
 }
 
 func processMta(relativePath string, processName string, args []string, process func(mta models.MTA, args []string)) {
-	logs.Logger.Info("Starting " + processName)
-	mta, err := proc.GetMta(filepath.Join(fs.GetPath(), relativePath))
+	//logs.Logger.Info("Starting " + processName)
+	mta, err := provider.MTA(filepath.Join(fs.GetPath(), relativePath))
 	if err == nil {
 		process(mta, args)
 		logs.Logger.Info(processName + " finish successfully ")

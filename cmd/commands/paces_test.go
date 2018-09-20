@@ -13,20 +13,22 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func Test_copyModuleAndClean(t *testing.T) {
-	srcFilePath := filepath.Join("testdata", "mtahtml5", "testapp", "webapp", "controller")
-	dstFilePath := filepath.Join("testdata", "result")
-	copyModule.Run(nil, []string{srcFilePath, dstFilePath, "controller"})
-	resultPath := filepath.Join(dir.GetPath(), "testdata", "result", "testdata", "mtahtml5", "testapp", "webapp", "controller", "View1.controller.js")
-	fileInfo, _ := os.Stat(resultPath)
-	assert.Equal(t, fileInfo.IsDir(), false)
-
-	cleanup.Run(nil, []string{filepath.Join("testdata", "result")})
-	fileInfo, _ = os.Stat(resultPath)
-	assert.Nil(t, fileInfo)
-}
+// func Test_copyModuleAndClean(t *testing.T) {
+// 	srcFilePath := filepath.Join("testdata", "mtahtml5", "testapp", "webapp", "controller")
+// 	dstFilePath := filepath.Join("testdata", "result")
+// 	copyModule.Run(nil, []string{srcFilePath, dstFilePath, "controller"})
+// 	resultPath := filepath.Join(dir.GetPath(), "testdata", "result", "testdata", "mtahtml5", "testapp", "webapp", "controller", "View1.controller.js")
+// 	fileInfo, _ := os.Stat(resultPath)
+// 	assert.Equal(t, fileInfo.IsDir(), false)
+//
+// 	cleanup.Run(nil, []string{filepath.Join("testdata", "result")})
+// 	fileInfo, _ = os.Stat(resultPath)
+// 	assert.Nil(t, fileInfo)
+// }
 
 func Test_genMetaFunction(t *testing.T) {
+
+	logs.Logger = logs.NewLogger()
 	args := []string{filepath.Join("testdata", "result"), "testapp"}
 	generateMeta(filepath.Join("testdata", "mtahtml5"), args)
 	actualContent, _ := ioutil.ReadFile(filepath.Join(dir.GetPath(), "testdata", "result", "META-INF", "mtad.yaml"))
