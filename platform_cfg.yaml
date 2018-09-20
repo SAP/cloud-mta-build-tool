@@ -5,6 +5,11 @@
 # the build tool will support a path for platform config file via CLI flags
 # path to file which provide the following config wins over the following config
 
+# Note: in the future this file will be removed from the tool
+
+# usage: to add new command to the file, execute command `go:generate`
+# on the root project to regenerate the file binary
+
 # Types for cloudfoundry platform
 platform:
 - name: cf

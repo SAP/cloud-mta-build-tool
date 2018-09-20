@@ -5,6 +5,12 @@
 # the tool will support adding a path to the configuration file
 # path property wins respective build commands
 
+# Note: in the future this file will be removed from the tool
+
+# usage: to add new command to the file, execute command `go:generate`
+# on the root project to regenerate the file binary
+
+
 builders:
 - name: html5
   info: "installing module dependencies & execute grunt & remove dev dependencies"
