@@ -7,7 +7,7 @@ import (
 	"github.com/spf13/cobra"
 
 	fs "cloud-mta-build-tool/cmd/fsys"
-	"cloud-mta-build-tool/cmd/mta/provider"
+	"cloud-mta-build-tool/mta/provider"
 )
 
 // Provide list of modules

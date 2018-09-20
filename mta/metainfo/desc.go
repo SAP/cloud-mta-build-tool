@@ -9,10 +9,10 @@ import (
 	"cloud-mta-build-tool/cmd/constants"
 	"cloud-mta-build-tool/cmd/fsys"
 	"cloud-mta-build-tool/cmd/logs"
-	"cloud-mta-build-tool/cmd/mta"
-	"cloud-mta-build-tool/cmd/mta/converter"
-	"cloud-mta-build-tool/cmd/mta/models"
 	"cloud-mta-build-tool/cmd/platform"
+	"cloud-mta-build-tool/mta"
+	"cloud-mta-build-tool/mta/converter"
+	"cloud-mta-build-tool/mta/models"
 )
 
 // The deployment descriptor shall be located within the META-INF folder of the JAR.

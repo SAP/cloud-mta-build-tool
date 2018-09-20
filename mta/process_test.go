@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"cloud-mta-build-tool/cmd/logs"
-	"cloud-mta-build-tool/cmd/mta/models"
+	"cloud-mta-build-tool/mta/models"
 
 	"github.com/stretchr/testify/assert"
 )

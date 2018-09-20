@@ -3,7 +3,7 @@ package mta
 import (
 	"testing"
 
-	"cloud-mta-build-tool/cmd/mta/models"
+	"cloud-mta-build-tool/mta/models"
 )
 
 func TestSetMtaProp(t *testing.T) {

@@ -1,6 +1,6 @@
 package mta
 
-import "cloud-mta-build-tool/cmd/mta/models"
+import "cloud-mta-build-tool/mta/models"
 
 const (
 	PARENT = "../"

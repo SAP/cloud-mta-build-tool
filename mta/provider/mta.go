@@ -7,7 +7,7 @@ import (
 
 	"cloud-mta-build-tool/cmd/constants"
 	"cloud-mta-build-tool/cmd/logs"
-	"cloud-mta-build-tool/cmd/mta/models"
+	"cloud-mta-build-tool/mta/models"
 )
 
 // MTA - provide full mta object

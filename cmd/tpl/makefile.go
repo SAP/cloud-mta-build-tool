@@ -13,8 +13,8 @@ import (
 	"cloud-mta-build-tool/cmd/constants"
 	fs "cloud-mta-build-tool/cmd/fsys"
 	"cloud-mta-build-tool/cmd/logs"
-	"cloud-mta-build-tool/cmd/mta/models"
 	"cloud-mta-build-tool/cmd/proc"
+	"cloud-mta-build-tool/mta/models"
 )
 
 func createMakeFile(path, filename string) (file *os.File, err error) {

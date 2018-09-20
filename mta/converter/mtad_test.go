@@ -5,8 +5,8 @@ import (
 	"reflect"
 	"testing"
 
-	"cloud-mta-build-tool/cmd/mta/models"
 	"cloud-mta-build-tool/cmd/platform"
+	"cloud-mta-build-tool/mta/models"
 
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/yaml.v2"

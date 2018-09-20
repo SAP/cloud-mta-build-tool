@@ -4,15 +4,15 @@ import (
 	"os"
 	"path/filepath"
 
-	"cloud-mta-build-tool/cmd/mta/provider"
+	"cloud-mta-build-tool/mta/provider"
 
 	"github.com/spf13/cobra"
 
 	"cloud-mta-build-tool/cmd/constants"
 	fs "cloud-mta-build-tool/cmd/fsys"
 	"cloud-mta-build-tool/cmd/logs"
-	"cloud-mta-build-tool/cmd/mta/metainfo"
-	"cloud-mta-build-tool/cmd/mta/models"
+	"cloud-mta-build-tool/mta/metainfo"
+	"cloud-mta-build-tool/mta/models"
 )
 
 // Prepare the process for execution
