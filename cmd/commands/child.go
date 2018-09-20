@@ -94,7 +94,7 @@ var genMeta = &cobra.Command{
 }
 
 func processMta(relativePath string, processName string, args []string, process func(mta models.MTA, args []string)) {
-	//logs.Logger.Info("Starting " + processName)
+	logs.Logger.Info("Starting " + processName)
 	mta, err := provider.MTA(filepath.Join(fs.GetPath(), relativePath))
 	if err == nil {
 		process(mta, args)
