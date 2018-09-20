@@ -4,10 +4,10 @@ import (
 	"reflect"
 	"testing"
 
+	"gopkg.in/yaml.v2"
+
 	"cloud-mta-build-tool/cmd/logs"
 	"cloud-mta-build-tool/mta/models"
-
-	"gopkg.in/yaml.v2"
 )
 
 func TestExeCmd(t *testing.T) {
@@ -35,7 +35,7 @@ builders:
     - command: go build *.go
 `)
 
-	//Get parsed yaml content
+	// Get parsed yaml content
 	commands := Builders{}
 	err := yaml.Unmarshal(buildersCfg, &commands)
 	if err != nil {
