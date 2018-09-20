@@ -8,6 +8,7 @@ type Requires struct {
 	Properties Properties `yaml:"properties,omitempty"`
 }
 
+// BuildRequires - build requires section
 type BuildRequires struct {
 	Name       string `yaml:"name,omitempty"`
 	TargetPath string `yaml:"target-path,omitempty"`
