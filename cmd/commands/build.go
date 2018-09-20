@@ -8,8 +8,8 @@ import (
 	"cloud-mta-build-tool/cmd/builders"
 	fs "cloud-mta-build-tool/cmd/fsys"
 	"cloud-mta-build-tool/cmd/logs"
-	"cloud-mta-build-tool/cmd/mta/models"
-	"cloud-mta-build-tool/cmd/mta/provider"
+	"cloud-mta-build-tool/mta/models"
+	"cloud-mta-build-tool/mta/provider"
 )
 
 // Build module

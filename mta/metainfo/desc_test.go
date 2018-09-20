@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/yaml.v2"
 
-	"cloud-mta-build-tool/cmd/mta/models"
+	"cloud-mta-build-tool/mta/models"
 )
 
 var module []string

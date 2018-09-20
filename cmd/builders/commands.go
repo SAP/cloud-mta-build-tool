@@ -1,7 +1,7 @@
 package builders
 
 import (
-	"cloud-mta-build-tool/cmd/mta/models"
+	"cloud-mta-build-tool/mta/models"
 )
 
 // CommandList - list of command to execute

@@ -1,8 +1,8 @@
 package converter
 
 import (
-	"cloud-mta-build-tool/cmd/mta/models"
 	"cloud-mta-build-tool/cmd/platform"
+	"cloud-mta-build-tool/mta/models"
 )
 
 func ConvertTypes(iCfg models.MTA, eCfg platform.Platforms, targetPlatform string) {
