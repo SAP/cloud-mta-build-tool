@@ -58,8 +58,43 @@ modules:
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := moduleCmd(tt.args.mta, tt.args.moduleName); !reflect.DeepEqual(got, tt.expected) {
+			if _, got := moduleCmd(tt.args.mta, tt.args.moduleName); !reflect.DeepEqual(got, tt.expected) {
 				t.Errorf("moduleCmd() = %v, want %v", got, tt.expected)
+			}
+		})
+	}
+}
+
+func Test_cmdConverter(t *testing.T) {
+
+	cmdParams := [][]string{
+		{"path", "npm", "install"},
+		{"path", "grunt"},
+		{"path", "npm", "prune", "--production"},
+	}
+
+	type args struct {
+		mPath   string
+		cmdList []string
+	}
+	tests := []struct {
+		name string
+		args args
+		want [][]string
+	}{
+		{
+			name: "Command converter",
+			args: struct {
+				mPath   string
+				cmdList []string
+			}{mPath: "path", cmdList: []string{"npm install", "grunt", "npm prune --production"}},
+			want: cmdParams,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := cmdConverter(tt.args.mPath, tt.args.cmdList); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("cmdConverter() = %v,`\n\t` want %v", got, tt.want)
 			}
 		})
 	}
