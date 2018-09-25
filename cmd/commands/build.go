@@ -21,23 +21,25 @@ var bm = &cobra.Command{
 	Long:  "Build module",
 	Run: func(cmd *cobra.Command, args []string) {
 		// Get MTA
-		mta, err := provider.MTA(filepath.Join(fs.GetPath(), ""))
-		if err != nil {
-			logs.Logger.Errorf("Not able to parse MTA ", err)
-		}
-		// Get module respective command's to execute
-		mPathProp, mCmd := moduleCmd(mta, args[0])
-		logs.Logger.Info(mPathProp, mCmd)
-		// Get running project path
-		pPath := fs.ProjectPath()
-		mRelPath := filepath.Join(pPath, mPathProp)
-		// Get module commands and path
-		commands := cmdConverter(mRelPath, mCmd)
-		logs.Logger.Info(commands)
-		// Execute child-process
-		err = exec.Execute(commands)
-		if err != nil {
-			logs.Logger.Error(err)
+		if len(args) > 0 {
+			mta, err := provider.MTA(filepath.Join(fs.GetPath(), ""))
+			if err != nil {
+				logs.Logger.Errorf("Not able to parse MTA ", err)
+			}
+			// Get module respective command's to execute
+			mPathProp, mCmd := moduleCmd(mta, args[0])
+			logs.Logger.Info(mPathProp, mCmd)
+			mRelPath := filepath.Join(fs.GetPath(), mPathProp)
+			// Get module commands and path
+			commands := cmdConverter(mRelPath, mCmd)
+			logs.Logger.Info(commands)
+			// Execute child-process
+			err = exec.Execute(commands)
+			if err != nil {
+				logs.Logger.Error(err)
+			}
+		} else {
+			logs.Logger.Errorf("Build specific module is missing the module name in args")
 		}
 	},
 }

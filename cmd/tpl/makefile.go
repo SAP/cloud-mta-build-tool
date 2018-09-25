@@ -113,7 +113,7 @@ func makeMode(mode []string) (string, error) {
 		if (mode[0] == "--verbose") || (mode[0] == "-v") {
 			tpl = "make_verbose.txt"
 		}
-	} else if mode == nil {
+	} else if len(mode) == 0 {
 		return tpl, nil
 	} else {
 		return "", errors.New("command is not supported")

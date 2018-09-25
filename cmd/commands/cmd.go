@@ -30,7 +30,7 @@ var provides = &cobra.Command{
 
 func init() {
 	provides.AddCommand(pm)
-	build.AddCommand(cfBuild, neoBuild)
+	build.AddCommand(cfBuild, neoBuild, bm)
 	execute.AddCommand(prepare, copyModule, pack, genMeta, genMtar, cleanup)
 	rootCmd.AddCommand(provides, build, execute, initProcess)
 }
