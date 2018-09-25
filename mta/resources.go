@@ -1,4 +1,4 @@
-package models
+package mta
 
 // Resources - resources section
 type Resources struct {

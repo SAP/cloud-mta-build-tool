@@ -7,7 +7,7 @@ import (
 	"gopkg.in/yaml.v2"
 
 	"cloud-mta-build-tool/cmd/logs"
-	"cloud-mta-build-tool/mta/models"
+	"cloud-mta-build-tool/mta"
 )
 
 func TestExeCmd(t *testing.T) {
@@ -43,7 +43,7 @@ builders:
 	}
 
 	type args struct {
-		modules models.Modules
+		modules mta.Modules
 	}
 	tests := []struct {
 		name     string
@@ -53,7 +53,7 @@ builders:
 		{
 			name: "Command for required module type",
 			args: args{
-				modules: models.Modules{
+				modules: mta.Modules{
 					Name:       "uiapp",
 					Type:       "html5",
 					Path:       "./",
@@ -80,7 +80,7 @@ builders:
 
 func TestCommandProvider(t *testing.T) {
 	type args struct {
-		modules models.Modules
+		modules mta.Modules
 	}
 	tests := []struct {
 		name string
@@ -90,7 +90,7 @@ func TestCommandProvider(t *testing.T) {
 		{
 			name: "Command for required module type",
 			args: args{
-				modules: models.Modules{
+				modules: mta.Modules{
 					Type: "html5",
 				},
 			},

@@ -7,30 +7,30 @@ import (
 
 	"cloud-mta-build-tool/cmd/constants"
 	"cloud-mta-build-tool/cmd/logs"
-	"cloud-mta-build-tool/mta/models"
+	"cloud-mta-build-tool/mta"
 )
 
 // MTA - provide full mta object
-func MTA(source string) (models.MTA, error) {
+func MTA(source string) (mta.MTA, error) {
 
 	// Read the MTA
 	yamlFile, err := ioutil.ReadFile(source + constants.PathSep + "mta.yaml")
-	mta := models.MTA{}
+	m := mta.MTA{}
 	if err != nil {
 		logs.Logger.Error("Not able to read the mta file ")
-		return mta, err
+		return m, err
 	}
 	// Parse mta
-	err = yaml.Unmarshal([]byte(yamlFile), &mta)
+	err = yaml.Unmarshal([]byte(yamlFile), &m)
 	if err != nil {
 		logs.Logger.Error("Not able to unmarshal the mta file ")
-		return mta, err
+		return m, err
 	}
-	return mta, err
+	return m, err
 }
 
 // Provide list of modules
-func modules(mta models.MTA) []string {
+func modules(mta mta.MTA) []string {
 	var mNames []string
 	for _, mod := range mta.Modules {
 		mNames = append(mNames, mod.Name)

@@ -11,8 +11,8 @@ import (
 	"cloud-mta-build-tool/cmd/constants"
 	fs "cloud-mta-build-tool/cmd/fsys"
 	"cloud-mta-build-tool/cmd/logs"
+	"cloud-mta-build-tool/mta"
 	"cloud-mta-build-tool/mta/metainfo"
-	"cloud-mta-build-tool/mta/models"
 )
 
 // Prepare the process for execution
@@ -77,7 +77,7 @@ var pack = &cobra.Command{
 }
 
 func generateMeta(relativePath string, args []string) {
-	processMta(relativePath, "Metadata creation", args, func(mtaStruct models.MTA, args []string) {
+	processMta(relativePath, "Metadata creation", args, func(mtaStruct mta.MTA, args []string) {
 		// Generate meta info dir with required content
 		metainfo.GenMetaInf(args[0], mtaStruct, args[1:])
 	})
@@ -93,7 +93,7 @@ var genMeta = &cobra.Command{
 	},
 }
 
-func processMta(relativePath string, processName string, args []string, process func(mta models.MTA, args []string)) {
+func processMta(relativePath string, processName string, args []string, process func(mta mta.MTA, args []string)) {
 	logs.Logger.Info("Starting " + processName)
 	mta, err := provider.MTA(filepath.Join(fs.GetPath(), relativePath))
 	if err == nil {
@@ -105,7 +105,7 @@ func processMta(relativePath string, processName string, args []string, process 
 }
 
 func generateMtar(relativePath string, args []string) {
-	processMta(relativePath, "MTAR generation", args, func(mtaStruct models.MTA, args []string) {
+	processMta(relativePath, "MTAR generation", args, func(mtaStruct mta.MTA, args []string) {
 		// Create MTAR from the building artifacts
 		err := fs.Archive(args[0], args[1]+constants.PathSep+mtaStruct.Id+constants.MtarSuffix)
 		if err != nil {

@@ -4,14 +4,13 @@ import (
 	"path/filepath"
 	"strings"
 
-	"cloud-mta-build-tool/cmd/exec"
-
 	"github.com/spf13/cobra"
 
 	"cloud-mta-build-tool/cmd/builders"
+	"cloud-mta-build-tool/cmd/exec"
 	fs "cloud-mta-build-tool/cmd/fsys"
 	"cloud-mta-build-tool/cmd/logs"
-	"cloud-mta-build-tool/mta/models"
+	"cloud-mta-build-tool/mta"
 	"cloud-mta-build-tool/mta/provider"
 )
 
@@ -44,7 +43,7 @@ var bm = &cobra.Command{
 }
 
 // Get commands for specific module type
-func moduleCmd(mta models.MTA, moduleName string) (string, []string) {
+func moduleCmd(mta mta.MTA, moduleName string) (string, []string) {
 	var cmd []string
 	var mPath string
 	for _, m := range mta.Modules {

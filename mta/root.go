@@ -1,4 +1,4 @@
-package models
+package mta
 
 // MTA - Main mta struct
 type MTA struct {

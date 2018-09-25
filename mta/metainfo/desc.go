@@ -12,7 +12,6 @@ import (
 	"cloud-mta-build-tool/cmd/platform"
 	"cloud-mta-build-tool/mta"
 	"cloud-mta-build-tool/mta/converter"
-	"cloud-mta-build-tool/mta/models"
 )
 
 // The deployment descriptor shall be located within the META-INF folder of the JAR.
@@ -37,7 +36,7 @@ const (
 )
 
 // Set the MANIFEST.MF file
-func setManifetDesc(file io.Writer, mtaStr []*models.Modules, modules []string) {
+func setManifetDesc(file io.Writer, mtaStr []*mta.Modules, modules []string) {
 	// TODO create dynamically
 	fmt.Fprint(file, ManifestVersion+NewLine)
 	// TODO set the version from external config for automatic version bump during release
@@ -54,7 +53,7 @@ func setManifetDesc(file io.Writer, mtaStr []*models.Modules, modules []string) 
 	}
 }
 
-func printToFile(file io.Writer, mtaStr *models.Modules) {
+func printToFile(file io.Writer, mtaStr *mta.Modules) {
 	fmt.Fprint(file, NewLine)
 	fmt.Fprint(file, NewLine)
 	fmt.Fprint(file, ModuleName+mtaStr.Name+constants.DataZip)
@@ -64,7 +63,7 @@ func printToFile(file io.Writer, mtaStr *models.Modules) {
 	fmt.Fprint(file, ContentType+ApplicationZip)
 }
 
-func GenMetaInf(tmpDir string, mtaStr models.MTA, modules []string) {
+func GenMetaInf(tmpDir string, mtaStr mta.MTA, modules []string) {
 	// Create META-INF folder under the mtar folder
 	dir.CreateDirIfNotExist(tmpDir + MetaInf)
 	// Load platform configuration file

@@ -2,11 +2,11 @@ package converter
 
 import (
 	"cloud-mta-build-tool/cmd/platform"
-	"cloud-mta-build-tool/mta/models"
+	"cloud-mta-build-tool/mta"
 )
 
-func ConvertTypes(iCfg models.MTA, eCfg platform.Platforms, targetPlatform string) {
-	//todo get from config
+func ConvertTypes(iCfg mta.MTA, eCfg platform.Platforms, targetPlatform string) {
+	// todo get from config
 	const (
 		SchemaVersion = "3.1"
 	)

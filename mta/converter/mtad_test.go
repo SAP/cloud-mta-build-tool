@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"cloud-mta-build-tool/cmd/platform"
-	"cloud-mta-build-tool/mta/models"
+	"cloud-mta-build-tool/mta"
 
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/yaml.v2"
@@ -43,7 +43,7 @@ platform:
 		log.Fatalf("Error to parse platform yaml: %v", err)
 	}
 
-	//---------------- MTA single module content-------------------------
+	// ---------------- MTA single module content-------------------------
 	var mtaSingleModule = []byte(`
 _schema-version: "2.0.0"
 ID: com.sap.webide.feature.management
@@ -55,14 +55,14 @@ modules:
     path: app
 `)
 
-	mta := models.MTA{}
+	m := mta.MTA{}
 	// parse mta yaml
-	err = yaml.Unmarshal(mtaSingleModule, &mta)
+	err = yaml.Unmarshal(mtaSingleModule, &m)
 	if err != nil {
 		log.Fatalf("Error to parse mta yaml: %v", err)
 	}
 
-	//expected one module
+	// expected one module
 	var expectedMta1Modules = []byte(`
 _schema-version: "2.0.0"
 ID: com.sap.webide.feature.management
@@ -74,7 +74,7 @@ modules:
     path: app
 `)
 
-	expected := models.MTA{}
+	expected := mta.MTA{}
 	// parse mta yaml
 	err = yaml.Unmarshal(expectedMta1Modules, &expected)
 	if err != nil {
@@ -82,7 +82,7 @@ modules:
 
 	}
 
-	//----------------Multi Neo--------------
+	// ----------------Multi Neo--------------
 
 	// MTA content
 	var mtaNeo = []byte(`
@@ -104,15 +104,15 @@ modules:
     path: app
 `)
 
-	//Parse the mta content
-	actualMtaMultiNeo := models.MTA{}
+	// Parse the mta content
+	actualMtaMultiNeo := mta.MTA{}
 	// parse mta yaml
 	err = yaml.Unmarshal(mtaNeo, &actualMtaMultiNeo)
 	if err != nil {
 		log.Fatalf("Error to parse mta yaml: %v", err)
 	}
 
-	//expected for multi Neo
+	// expected for multi Neo
 	var expectedMtaMultiModules = []byte(`
 _schema-version: "2.0.0"
 ID: com.sap.webide.feature.management
@@ -132,8 +132,8 @@ modules:
     path: app
 `)
 
-	//Parse the expected content
-	expectedMultiModulesNeo := models.MTA{}
+	// Parse the expected content
+	expectedMultiModulesNeo := mta.MTA{}
 	// parse mta yaml
 	err = yaml.Unmarshal(expectedMtaMultiModules, &expectedMultiModulesNeo)
 	if err != nil {
@@ -141,7 +141,7 @@ modules:
 
 	}
 
-	//----------------Multi CF----------------------------------
+	// ----------------Multi CF----------------------------------
 	// MTA content
 	var mtaCF = []byte(`
 _schema-version: "2.0.0"
@@ -162,14 +162,14 @@ modules:
     path: app
 `)
 
-	actulMtaCFMulti := models.MTA{}
+	actulMtaCFMulti := mta.MTA{}
 	// parse mta yaml
 	err = yaml.Unmarshal(mtaCF, &actulMtaCFMulti)
 	if err != nil {
 		log.Fatalf("Error to parse mta yaml: %v", err)
 	}
 
-	//expected for multi modules
+	// expected for multi modules
 	var expectedMultiModCF = []byte(`
 _schema-version: "2.0.0"
 ID: com.sap.webide.feature.management
@@ -189,7 +189,7 @@ modules:
     path: app
 `)
 
-	expectedMultiModulesCF := models.MTA{}
+	expectedMultiModulesCF := mta.MTA{}
 	// parse mta yaml
 	err = yaml.Unmarshal(expectedMultiModCF, &expectedMultiModulesCF)
 	if err != nil {
@@ -198,16 +198,16 @@ modules:
 
 	tests := []struct {
 		name          string
-		mta           models.MTA
+		mta           mta.MTA
 		platforms     platform.Platforms
 		platform      string
 		expected      string
-		expectedMulti models.MTA
+		expectedMulti mta.MTA
 	}{
 		{
 
 			name:      "Module with one platform config",
-			mta:       mta,
+			mta:       m,
 			platforms: platformType,
 			platform:  "cf",
 			expected:  expected.Modules[0].Type,
@@ -231,19 +231,19 @@ modules:
 		t.Run(tt.name, func(t *testing.T) {
 			switch i {
 			case 0:
-				//One module convert
+				// One module convert
 				ConvertTypes(tt.mta, tt.platforms, tt.platform)
-				if !assert.Equal(t, mta.Modules[0].Type, tt.expected) {
+				if !assert.Equal(t, m.Modules[0].Type, tt.expected) {
 					t.Error("Test was failed")
 				}
 			case 1:
-				//Multi module convert neo
+				// Multi module convert neo
 				ConvertTypes(tt.mta, tt.platforms, tt.platform)
 				if !assert.Equal(t, actualMtaMultiNeo.Modules, tt.expectedMulti.Modules) {
 					t.Error("Test was failed")
 				}
 			case 2:
-				//Multi module convert cloud foundry
+				// Multi module convert cloud foundry
 				ConvertTypes(tt.mta, tt.platforms, tt.platform)
 				if !assert.Equal(t, actualMtaMultiNeo.Modules, tt.expectedMulti.Modules) {
 					t.Error("Test was failed")

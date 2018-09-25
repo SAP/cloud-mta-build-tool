@@ -1,4 +1,4 @@
-package models
+package mta
 
 // Provides - MTA struct
 type Provides struct {
