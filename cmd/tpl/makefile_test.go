@@ -78,7 +78,8 @@ func TestMake(t *testing.T) {
 			}},
 		{"public Make testing", "mta.yaml",
 			func(t *testing.T, path, yamlFilename, makeFilename string) {
-				err := Make()
+				var args []string
+				err := Make(args)
 				assert.NotNil(t, err)
 			}},
 		{"Template is wrong", "mta.yaml",
@@ -95,6 +96,93 @@ func TestMake(t *testing.T) {
 	} {
 		t.Run(ti.name, func(t *testing.T) {
 			ti.testExecutor(t, path, ti.filename, makeFilename)
+		})
+	}
+}
+
+func Test_makeMode(t *testing.T) {
+
+	type args struct {
+		mode []string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    string
+		wantErr bool
+	}{
+		{
+			name: "Default template - Generate user template according to command params ",
+			args: args{
+				mode: nil,
+			},
+			want:    "make_default.txt",
+			wantErr: false,
+		},
+
+		{
+			name: "Verbose template - Generate user template according to command params ",
+			args: args{
+				mode: []string{"--verbose", "test"},
+			},
+			want:    "make_verbose.txt",
+			wantErr: false,
+		},
+		{
+			name: "Unsupported command - Generate user template according to command params",
+			args: args{
+				mode: []string{"--test", "test"},
+			},
+			want:    "",
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := makeMode(tt.args.mode)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("makeMode() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if got != tt.want {
+				t.Errorf("makeMode() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_stringInSlice(t *testing.T) {
+	type args struct {
+		a    string
+		list []string
+	}
+	tests := []struct {
+		name string
+		args args
+		want bool
+	}{
+		{
+			name: "find string in slice",
+			args: args{
+				a:    "--test1",
+				list: []string{"--test1", "foo"},
+			},
+			want: true,
+		},
+		{
+			name: "find string in slice",
+			args: args{
+				a:    "--test",
+				list: []string{"--test1", "bar"},
+			},
+			want: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := stringInSlice(tt.args.a, tt.args.list); got != tt.want {
+				t.Errorf("stringInSlice() = %v, want %v", got, tt.want)
+			}
 		})
 	}
 }

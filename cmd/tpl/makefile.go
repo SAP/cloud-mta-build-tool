@@ -1,6 +1,7 @@
 package tpl
 
 import (
+	"errors"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -45,7 +46,7 @@ func makeFile(yamlPath, yamlName, makeFilePath, makeFilename, verbTemplateName s
 		API  API
 	}
 	// Read the MTA
-	yamlFile, err := ioutil.ReadFile(yamlPath + "/" + yamlName)
+	yamlFile, err := ioutil.ReadFile(yamlPath + constants.PathSep + yamlName)
 
 	if err != nil {
 		logs.Logger.Error("Not able to read the mta file ")
@@ -90,18 +91,42 @@ func makeFile(yamlPath, yamlName, makeFilePath, makeFilename, verbTemplateName s
 
 	makeFile.Close()
 	return err
-	// logs.Logger.Info("MTA build script was generated successfully: " + projPath + constants.PathSep + makefile)
 }
 
 // Make - Generate the makefile
-func Make() error {
-
-	const MakeVerbTmpl = "make_verbose.txt"
+func Make(mode []string) error {
+	tpl, err := makeMode(mode)
+	if err != nil {
+		logs.Logger.Error(err)
+	}
 	var genFileName = "Makefile"
-
 	// Get working directory
 	projPath := fs.GetPath()
+	return makeFile(projPath, "mta.yaml", projPath, genFileName, tpl)
 
-	return makeFile(projPath, "mta.yaml", projPath, genFileName, MakeVerbTmpl)
+}
 
+// Get template according to the CLI flags
+func makeMode(mode []string) (string, error) {
+	tpl := "make_default.txt"
+	if (len(mode) > 0) && (stringInSlice("--verbose", mode)) {
+		if (mode[0] == "--verbose") || (mode[0] == "-v") {
+			tpl = "make_verbose.txt"
+		}
+	} else if mode == nil {
+		return tpl, nil
+	} else {
+		return "", errors.New("command is not supported")
+	}
+	return tpl, nil
+}
+
+// Find string in arg slice
+func stringInSlice(a string, list []string) bool {
+	for _, b := range list {
+		if b == a {
+			return true
+		}
+	}
+	return false
 }
