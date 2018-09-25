@@ -4,10 +4,10 @@ import (
 	"reflect"
 	"testing"
 
-	"cloud-mta-build-tool/cmd/logs"
-	"cloud-mta-build-tool/mta/models"
-
 	"gopkg.in/yaml.v2"
+
+	"cloud-mta-build-tool/cmd/logs"
+	"cloud-mta-build-tool/mta"
 )
 
 func Test_moduleCmd(t *testing.T) {
@@ -31,15 +31,15 @@ modules:
     path: app
 `)
 
-	mta := models.MTA{}
+	m := mta.MTA{}
 	// parse mta yaml
-	err := yaml.Unmarshal(mtaCF, &mta)
+	err := yaml.Unmarshal(mtaCF, &m)
 	if err != nil {
 		logs.Logger.Error(err)
 	}
 
 	type args struct {
-		mta        models.MTA
+		mta        mta.MTA
 		moduleName string
 	}
 	tests := []struct {
@@ -50,9 +50,9 @@ modules:
 		{
 			name: "build specific module by name",
 			args: struct {
-				mta        models.MTA
+				mta        mta.MTA
 				moduleName string
-			}{mta: mta, moduleName: "htmlapp"},
+			}{mta: m, moduleName: "htmlapp"},
 			expected: []string{"npm install", "grunt", "npm prune --production"},
 		},
 	}

@@ -1,4 +1,4 @@
-package models
+package mta
 
 // BuildParameters - MTA build parameters
 //type BuildParameters map[string]interface{}

@@ -1,7 +1,7 @@
 package builders
 
 import (
-	"cloud-mta-build-tool/mta/models"
+	"cloud-mta-build-tool/mta"
 )
 
 // CommandList - list of command to execute
@@ -11,14 +11,14 @@ type CommandList struct {
 }
 
 // CommandProvider - Get build command's to execute
-func CommandProvider(modules models.Modules) CommandList {
+func CommandProvider(modules mta.Modules) CommandList {
 	// Get config from ./commands_cfg.yaml as generated artifacts from source
 	commands := Parse(CommandsConfig)
 	return mesh(modules, commands)
 }
 
 // Match the object according to type and provide the respective command
-func mesh(modules models.Modules, commands Builders) CommandList {
+func mesh(modules mta.Modules, commands Builders) CommandList {
 	// The object support deep struct for future use, can be simplified to flat object
 	var cmds CommandList
 	for _, b := range commands.Builders {

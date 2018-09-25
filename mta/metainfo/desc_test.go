@@ -12,7 +12,7 @@ import (
 
 	"cloud-mta-build-tool/cmd/constants"
 	"cloud-mta-build-tool/cmd/fsys"
-	"cloud-mta-build-tool/mta/models"
+	"cloud-mta-build-tool/mta"
 )
 
 var module []string
@@ -22,13 +22,13 @@ func Test_setManifetDesc(t *testing.T) {
 	tests := []struct {
 		n        int
 		name     string
-		args     []*models.Modules
+		args     []*mta.Modules
 		expected []byte
 	}{
 		{
 			n:    0,
 			name: "MANIFEST.MF: One module",
-			args: []*models.Modules{
+			args: []*mta.Modules{
 
 				{
 					Name:       "ui5",
@@ -46,7 +46,7 @@ func Test_setManifetDesc(t *testing.T) {
 		{
 			n:    0,
 			name: "MANIFEST.MF: Two modules",
-			args: []*models.Modules{
+			args: []*mta.Modules{
 
 				{
 					Name:       "ui6",
@@ -75,7 +75,7 @@ func Test_setManifetDesc(t *testing.T) {
 		{
 			n:    0,
 			name: "MANIFEST.MF: multi module with filter of one",
-			args: []*models.Modules{
+			args: []*mta.Modules{
 
 				{
 					Name:       "ui6",
@@ -116,7 +116,7 @@ func Test_setManifetDesc(t *testing.T) {
 					t.Error("Test was failed")
 				}
 			case 1:
-				//two modules
+				// two modules
 				setManifetDesc(b, tt.args, module)
 				if !bytes.Equal(b.Bytes(), tt.expected) {
 					assert.Equal(t, string(tt.expected), b.String())
@@ -148,7 +148,7 @@ modules:
     type: html5
     path: app
 `)
-	mta := models.MTA{}
+	mta := mta.MTA{}
 	yaml.Unmarshal(mtaSingleModule, &mta)
 	GenMetaInf(filepath.Join(dir.GetPath(), "testdata"), mta, []string{"htmlapp"})
 

@@ -1,4 +1,4 @@
-package models
+package mta
 
 // Requires / Mta struct
 type Requires struct {

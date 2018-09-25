@@ -8,13 +8,12 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"cloud-mta-build-tool/cmd/logs"
-	"cloud-mta-build-tool/mta/models"
 )
 
 type testInfo struct {
 	name      string
-	expected  models.Modules
-	validator func(t *testing.T, actual, expected models.Modules)
+	expected  Modules
+	validator func(t *testing.T, actual, expected Modules)
 }
 
 func doTest(t *testing.T, expected []testInfo, filename string) {
@@ -42,35 +41,35 @@ func Test_ModulesParsing(t *testing.T) {
 	tests := []testInfo{
 		{
 			name: "Parse service(srv) Module section",
-			expected: models.Modules{
+			expected: Modules{
 				Name: "srv",
 				Type: "java",
 				Path: "srv",
-				Requires: []models.Requires{
+				Requires: []Requires{
 					{
 						Name: "db",
-						Properties: models.Properties{
+						Properties: Properties{
 							"JBP_CONFIG_RESOURCE_CONFIGURATION": `[tomcat/webapps/ROOT/META-INF/context.xml: {"service_name_for_DefaultDB" : "~{hdi-container-name}"}]`,
 						},
 					},
 				},
-				Provides: []models.Provides{
+				Provides: []Provides{
 					{
 						Name: "srv_api",
-						Properties: models.Properties{
+						Properties: Properties{
 							"url": "${default-url}",
 						},
 					},
 				},
-				Parameters: models.Parameters{
+				Parameters: Parameters{
 					"memory": "512M",
 				},
-				Properties: models.Properties{
+				Properties: Properties{
 					"APPC_LOG_LEVEL":              "info",
 					"VSCODE_JAVA_DEBUG_LOG_LEVEL": "ALL",
 				},
 			},
-			validator: func(t *testing.T, actual, expected models.Modules) {
+			validator: func(t *testing.T, actual, expected Modules) {
 				assert.Equal(t, expected.Name, actual.Name)
 				assert.Equal(t, expected.Type, actual.Type)
 				assert.Equal(t, expected.Path, actual.Path)
@@ -83,15 +82,15 @@ func Test_ModulesParsing(t *testing.T) {
 		// ------------------------Second module test------------------------------
 		{
 			name: "Parse UI(HTML5) Module section",
-			expected: models.Modules{
+			expected: Modules{
 				Name: "ui",
 				Type: "html5",
 				Path: "ui",
-				Requires: []models.Requires{
+				Requires: []Requires{
 					{
 						Name:  "srv_api",
 						Group: "destinations",
-						Properties: models.Properties{
+						Properties: Properties{
 							"forwardAuthToken": "true",
 							"strictSSL":        "false",
 							"name":             "srv_api",
@@ -99,24 +98,24 @@ func Test_ModulesParsing(t *testing.T) {
 						},
 					},
 				},
-				Provides: []models.Provides{
+				Provides: []Provides{
 					{
 						Name: "srv_api",
-						Properties: models.Properties{
+						Properties: Properties{
 							"url": "${default-url}",
 						},
 					},
 				},
-				BuildParams: models.BuildParameters{
+				BuildParams: BuildParameters{
 					Builder: "grunt",
 				},
 
-				Parameters: models.Parameters{
+				Parameters: Parameters{
 					"disk-quota": "256M",
 					"memory":     "256M",
 				},
 			},
-			validator: func(t *testing.T, actual, expected models.Modules) {
+			validator: func(t *testing.T, actual, expected Modules) {
 				assert.Equal(t, expected.Name, actual.Name)
 				assert.Equal(t, expected.Type, actual.Type)
 				assert.Equal(t, expected.Path, actual.Path)
@@ -141,19 +140,19 @@ func Test_BrokenMta(t *testing.T) {
 func Test_FullMta(t *testing.T) {
 	schemaVersion := "2.0.0"
 
-	expected := models.MTA{
+	expected := MTA{
 		SchemaVersion: &schemaVersion,
 		Id:            "cloud.samples.someproj",
 		Version:       "1.0.0",
-		Parameters: models.Parameters{
+		Parameters: Parameters{
 			"deploy_mode": "html5-repo",
 		},
-		Modules: []*models.Modules{
+		Modules: []*Modules{
 			{
 				Name: "someproj-db",
 				Type: "hdb",
 				Path: "db",
-				Requires: []models.Requires{
+				Requires: []Requires{
 					{
 						Name: "someproj-hdi-container",
 					},
@@ -161,7 +160,7 @@ func Test_FullMta(t *testing.T) {
 						Name: "someproj-logging",
 					},
 				},
-				Parameters: models.Parameters{
+				Parameters: Parameters{
 					"disk-quota": "256M",
 					"memory":     "256M",
 				},
@@ -170,22 +169,22 @@ func Test_FullMta(t *testing.T) {
 				Name: "someproj-java",
 				Type: "java",
 				Path: "srv",
-				Parameters: models.Parameters{
+				Parameters: Parameters{
 					"memory":     "512M",
 					"disk-quota": "256M",
 				},
-				Provides: []models.Provides{
+				Provides: []Provides{
 					{
 						Name: "java",
-						Properties: models.Properties{
+						Properties: Properties{
 							"url": "${default-url}",
 						},
 					},
 				},
-				Requires: []models.Requires{
+				Requires: []Requires{
 					{
 						Name: "someproj-hdi-container",
-						Properties: models.Properties{
+						Properties: Properties{
 							"JBP_CONFIG_RESOURCE_CONFIGURATION": "[tomcat/webapps/ROOT/META-INF/context.xml: " +
 								"{\"service_name_for_DefaultDB\" : \"~{hdi-container-name}\"}]",
 						},
@@ -194,8 +193,8 @@ func Test_FullMta(t *testing.T) {
 						Name: "someproj-logging",
 					},
 				},
-				BuildParams: models.BuildParameters{
-					Requires: []models.BuildRequires{
+				BuildParams: BuildParameters{
+					Requires: []BuildRequires{
 						{
 							Name:       "someproj-db",
 							TargetPath: "",
@@ -207,15 +206,15 @@ func Test_FullMta(t *testing.T) {
 				Name: "someproj-catalog-ui",
 				Type: "html5",
 				Path: "someproj-someprojCatalog",
-				Parameters: models.Parameters{
+				Parameters: Parameters{
 					"memory":     "256M",
 					"disk-quota": "256M",
 				},
-				Requires: []models.Requires{
+				Requires: []Requires{
 					{
 						Name:  "java",
 						Group: "destinations",
-						Properties: models.Properties{
+						Properties: Properties{
 							"name": "someproj-backend",
 							"url":  "~{url}",
 						},
@@ -224,9 +223,9 @@ func Test_FullMta(t *testing.T) {
 						Name: "someproj-logging",
 					},
 				},
-				BuildParams: models.BuildParameters{
+				BuildParams: BuildParameters{
 					Builder: "grunt",
-					Requires: []models.BuildRequires{
+					Requires: []BuildRequires{
 						{
 							Name:       "someproj-java",
 							TargetPath: "",
@@ -237,19 +236,19 @@ func Test_FullMta(t *testing.T) {
 			{
 				Name: "someproj-uideployer",
 				Type: "com.sap.html5.application-content",
-				Parameters: models.Parameters{
+				Parameters: Parameters{
 					"memory":     "256M",
 					"disk-quota": "256M",
 				},
-				Requires: []models.Requires{
+				Requires: []Requires{
 					{
 						Name: "someproj-apprepo-dt",
 					},
 				},
-				BuildParams: models.BuildParameters{
+				BuildParams: BuildParameters{
 					Builder: "grunt",
 					Type:    "com.sap.html5.application-content",
-					Requires: []models.BuildRequires{
+					Requires: []BuildRequires{
 						{
 							Name: "someproj-catalog-ui",
 						},
@@ -260,15 +259,15 @@ func Test_FullMta(t *testing.T) {
 				Name: "someproj",
 				Type: "approuter.nodejs",
 				Path: "approuter",
-				Parameters: models.Parameters{
+				Parameters: Parameters{
 					"memory":     "256M",
 					"disk-quota": "256M",
 				},
-				Requires: []models.Requires{
+				Requires: []Requires{
 					{
 						Name:  "java",
 						Group: "destinations",
-						Properties: models.Properties{
+						Properties: Properties{
 							"name": "someproj-backend",
 							"url":  "~{url}",
 						},
@@ -282,10 +281,10 @@ func Test_FullMta(t *testing.T) {
 				},
 			},
 		},
-		Resources: []*models.Resources{
+		Resources: []*Resources{
 			{
 				Name: "someproj-hdi-container",
-				Properties: models.Properties{
+				Properties: Properties{
 					"hdi-container-name": "${service-name}",
 				},
 				Type: "com.sap.xs.hdi-container",
@@ -293,7 +292,7 @@ func Test_FullMta(t *testing.T) {
 			{
 				Name: "someproj-apprepo-rt",
 				Type: "org.cloudfoundry.managed-service",
-				Parameters: models.Parameters{
+				Parameters: Parameters{
 					"service":      "html5-apps-repo",
 					"service-plan": "app-runtime",
 				},
@@ -301,7 +300,7 @@ func Test_FullMta(t *testing.T) {
 			{
 				Name: "someproj-apprepo-dt",
 				Type: "org.cloudfoundry.managed-service",
-				Parameters: models.Parameters{
+				Parameters: Parameters{
 					"service":      "html5-apps-repo",
 					"service-plan": "app-host",
 				},
@@ -309,7 +308,7 @@ func Test_FullMta(t *testing.T) {
 			{
 				Name: "someproj-logging",
 				Type: "org.cloudfoundry.managed-service",
-				Parameters: models.Parameters{
+				Parameters: Parameters{
 					"service":      "application-logs",
 					"service-plan": "lite",
 				},

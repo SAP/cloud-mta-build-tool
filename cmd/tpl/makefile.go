@@ -7,6 +7,8 @@ import (
 	"runtime"
 	"text/template"
 
+	"cloud-mta-build-tool/mta"
+
 	"gopkg.in/yaml.v2"
 
 	"cloud-mta-build-tool/cmd/builders"
@@ -14,7 +16,6 @@ import (
 	fs "cloud-mta-build-tool/cmd/fsys"
 	"cloud-mta-build-tool/cmd/logs"
 	"cloud-mta-build-tool/cmd/proc"
-	"cloud-mta-build-tool/mta/models"
 )
 
 func createMakeFile(path, filename string) (file *os.File, err error) {
@@ -37,10 +38,10 @@ func makeFile(yamlPath, yamlName, makeFilePath, makeFilename, verbTemplateName s
 	const BasePost = "base_post.txt"
 
 	// Using the module context for the template creation
-	mta := models.MTA{}
+	m := mta.MTA{}
 	type API map[string]string
 	var data struct {
-		File models.MTA
+		File mta.MTA
 		API  API
 	}
 	// Read the MTA
@@ -51,13 +52,13 @@ func makeFile(yamlPath, yamlName, makeFilePath, makeFilename, verbTemplateName s
 		return err
 	}
 	// Parse mta
-	err = yaml.Unmarshal([]byte(yamlFile), &mta)
+	err = yaml.Unmarshal([]byte(yamlFile), &m)
 	if err != nil {
 		logs.Logger.Error("Not able to unmarshal the mta file ")
 		return err
 	}
 
-	data.File = mta
+	data.File = m
 	// Create maps of the template method's
 	funcMap := template.FuncMap{
 		"CommandProvider": builders.CommandProvider,
@@ -89,10 +90,10 @@ func makeFile(yamlPath, yamlName, makeFilePath, makeFilename, verbTemplateName s
 
 	makeFile.Close()
 	return err
-	//logs.Logger.Info("MTA build script was generated successfully: " + projPath + constants.PathSep + makefile)
+	// logs.Logger.Info("MTA build script was generated successfully: " + projPath + constants.PathSep + makefile)
 }
 
-//Make - Generate the makefile
+// Make - Generate the makefile
 func Make() error {
 
 	const MakeVerbTmpl = "make_verbose.txt"
