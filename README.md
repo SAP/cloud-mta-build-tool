@@ -60,6 +60,7 @@ For background and detailed information, see The [Multi-Target Application Model
 
 ## Todo's
 
+ - [ ] Move MTA & validations package to separate GitHub repository 
  - [ ] Support first MVP scenarios such as:
  
    - [ ] Feature build
