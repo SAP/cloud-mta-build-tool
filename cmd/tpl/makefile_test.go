@@ -78,8 +78,8 @@ func TestMake(t *testing.T) {
 			}},
 		{"public Make testing", "mta.yaml",
 			func(t *testing.T, path, yamlFilename, makeFilename string) {
-				var args []string
-				err := Make(args)
+				var flag string
+				err := Make(flag)
 				assert.NotNil(t, err)
 			}},
 		{"Template is wrong", "mta.yaml",
@@ -103,7 +103,7 @@ func TestMake(t *testing.T) {
 func Test_makeMode(t *testing.T) {
 
 	type args struct {
-		mode []string
+		mode string
 	}
 	tests := []struct {
 		name    string
@@ -114,7 +114,7 @@ func Test_makeMode(t *testing.T) {
 		{
 			name: "Default template - Generate user template according to command params ",
 			args: args{
-				mode: nil,
+				mode: "",
 			},
 			want:    "make_default.txt",
 			wantErr: false,
@@ -123,7 +123,7 @@ func Test_makeMode(t *testing.T) {
 		{
 			name: "Verbose template - Generate user template according to command params ",
 			args: args{
-				mode: []string{"--verbose", "test"},
+				mode: "verbose",
 			},
 			want:    "make_verbose.txt",
 			wantErr: false,
@@ -131,7 +131,7 @@ func Test_makeMode(t *testing.T) {
 		{
 			name: "Unsupported command - Generate user template according to command params",
 			args: args{
-				mode: []string{"--test", "test"},
+				mode: "--test",
 			},
 			want:    "",
 			wantErr: true,
