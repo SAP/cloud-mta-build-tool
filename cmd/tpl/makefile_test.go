@@ -14,7 +14,7 @@ import (
 )
 
 func basicMakeAndValidate(t *testing.T, path, yamlFilename, makeFilename, expectedMakeFilename, expectedMakeFileExtension string) {
-	err := makeFile(path, yamlFilename, path, makeFilename, "make_verbose.txt")
+	err := makeFile(path, makeFilename, "make_verbose.txt")
 	makeFullName := path + constants.PathSep + makeFilename
 	if err != nil {
 		os.Remove(makeFullName)
@@ -61,12 +61,12 @@ func TestMake(t *testing.T) {
 			}},
 		{"Yaml file not exists", "YamlNotExists",
 			func(t *testing.T, path, yamlFilename, makeFilename string) {
-				err := makeFile(path, yamlFilename, path, makeFilename, "make.txt")
+				err := makeFile(path+"1", makeFilename, "make.txt")
 				assert.NotNil(t, err)
 			}},
 		{"Yaml file exists but not answers YAML format", expectedMakeFilename,
 			func(t *testing.T, path, yamlFilename, makeFilename string) {
-				err := makeFile(path, yamlFilename, path, makeFilename, "make.txt")
+				err := makeFile(path, makeFilename, "make.txt")
 				assert.NotNil(t, err)
 			}},
 		{"Make runs twice, 2 files created - with and without extension", "mta.yaml",
@@ -84,12 +84,12 @@ func TestMake(t *testing.T) {
 			}},
 		{"Template is wrong", "mta.yaml",
 			func(t *testing.T, path, yamlFilename, makeFilename string) {
-				err := makeFile(path, yamlFilename, path, makeFilename, "testdata"+constants.PathSep+"WrongMakeTmpl.txt")
+				err := makeFile(path, makeFilename, "testdata"+constants.PathSep+"WrongMakeTmpl.txt")
 				assert.NotNil(t, err)
 			}},
 		{"Template is empty", "mta.yaml",
 			func(t *testing.T, path, yamlFilename, makeFilename string) {
-				err := makeFile(path, yamlFilename, path, makeFilename, "testdata"+constants.PathSep+"emptyMakeTmpl.txt")
+				err := makeFile(path, makeFilename, "testdata"+constants.PathSep+"emptyMakeTmpl.txt")
 				removeMakefile(t, path, makeFilename)
 				assert.NotNil(t, err)
 			}},

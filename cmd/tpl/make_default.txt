@@ -2,7 +2,8 @@
 modules := $(shell mbt provide modules)
 modules := $(subst ],,$(subst [,,$(modules)))
 
-modules:
+##Execute module build
+execute:
 {{"\t"}}@for module in $(modules) ; do \
-{{"\t"}}@mbt build module @@module ; \
+{{"\t"}} mbt build module $$module ; \
 {{"\t"}}done

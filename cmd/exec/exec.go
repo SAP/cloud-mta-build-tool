@@ -13,9 +13,8 @@ import (
 func makeCommand(params []string) *exec.Cmd {
 	if len(params) > 1 {
 		return exec.Command(params[0], params[1:]...)
-	} else {
-		return exec.Command(params[0])
 	}
+	return exec.Command(params[0])
 }
 
 // Execute - Execute child process and wait to results
@@ -44,7 +43,7 @@ func Execute(cmdParams [][]string) error {
 			return err
 		}
 
-		// Start indicator:
+		// Start indicator
 		shutdownCh := make(chan struct{})
 		go indicator(shutdownCh)
 

@@ -10,8 +10,6 @@ import (
 
 	"cloud-mta-build-tool/mta"
 
-	"gopkg.in/yaml.v2"
-
 	"cloud-mta-build-tool/cmd/builders"
 	"cloud-mta-build-tool/cmd/constants"
 	fs "cloud-mta-build-tool/cmd/fsys"
@@ -24,60 +22,45 @@ func createMakeFile(path, filename string) (file *os.File, err error) {
 	fullFilename := path + constants.PathSep + filename
 
 	var mf *os.File
-	if _, sErr := os.Stat(fullFilename); sErr == nil {
+	if _, err = os.Stat(fullFilename); err == nil {
 		// path/to/whatever exists
-		mf, sErr = fs.CreateFile(fullFilename + ".mta")
+		mf, err = fs.CreateFile(fullFilename + ".mta")
 	} else {
-		mf, sErr = fs.CreateFile(fullFilename)
+		mf, err = fs.CreateFile(fullFilename)
 	}
 	return mf, err
 }
 
-func makeFile(yamlPath, yamlName, makeFilePath, makeFilename, verbTemplateName string) error {
+func makeFile(projectPath, makeFilename, verbTemplateName string) error {
 
 	const BasePre = "base_pre.txt"
 	const BasePost = "base_post.txt"
 
-	// Using the module context for the template creation
-	m := mta.MTA{}
 	type API map[string]string
 	var data struct {
 		File mta.MTA
 		API  API
 	}
-	// Read the MTA
-	yamlFile, err := ioutil.ReadFile(yamlPath + constants.PathSep + yamlName)
 
+	// Read the MTA
+	yamlFile, err := ioutil.ReadFile(projectPath + constants.PathSep + constants.MtaYaml)
 	if err != nil {
 		logs.Logger.Error("Not able to read the mta file ")
 		return err
 	}
-	// Parse mta
-	err = yaml.Unmarshal([]byte(yamlFile), &m)
+	mta, err := mta.Parse(yamlFile)
 	if err != nil {
-		logs.Logger.Error("Not able to unmarshal the mta file ")
+		logs.Logger.Error("Error occurred while parsing yaml file")
 		return err
 	}
-
-	data.File = m
+	data.File = mta
 	// Create maps of the template method's
-	funcMap := template.FuncMap{
-		"CommandProvider": builders.CommandProvider,
-		"OsCore":          proc.OsCore,
-	}
-	// Get the path of the template source code
-	_, file, _, _ := runtime.Caller(0)
-
-	makeVerbPath := filepath.Join(filepath.Dir(file), verbTemplateName)
-	preVerbPath := filepath.Join(filepath.Dir(file), BasePre)
-	postVerbPath := filepath.Join(filepath.Dir(file), BasePost)
-	// parse the template txt file
-	t, err := template.New(verbTemplateName).Funcs(funcMap).ParseFiles(makeVerbPath, preVerbPath, postVerbPath)
+	t, err := makeVerbose(verbTemplateName, BasePre, BasePost)
 	if err != nil {
 		logs.Logger.Error(err)
 		return err
 	}
-	makeFile, err := createMakeFile(makeFilePath, makeFilename)
+	makeFile, err := createMakeFile(projectPath, makeFilename)
 	if err != nil {
 		logs.Logger.Error(err)
 		return err
@@ -89,8 +72,26 @@ func makeFile(yamlPath, yamlName, makeFilePath, makeFilename, verbTemplateName s
 		logs.Logger.Error(err)
 	}
 
-	makeFile.Close()
+	e := makeFile.Close()
+	if err != nil {
+		logs.Logger.Error(e)
+	}
 	return err
+}
+
+func makeVerbose(verbTemplateName string, BasePre string, BasePost string) (*template.Template, error) {
+	funcMap := template.FuncMap{
+		"CommandProvider": builders.CommandProvider,
+		"OsCore":          proc.OsCore,
+	}
+	// Get the path of the template source code
+	_, file, _, _ := runtime.Caller(0)
+	makeVerbPath := filepath.Join(filepath.Dir(file), verbTemplateName)
+	preVerbPath := filepath.Join(filepath.Dir(file), BasePre)
+	postVerbPath := filepath.Join(filepath.Dir(file), BasePost)
+	// parse the template txt file
+	t, err := template.New(verbTemplateName).Funcs(funcMap).ParseFiles(makeVerbPath, preVerbPath, postVerbPath)
+	return t, err
 }
 
 // Make - Generate the makefile
@@ -100,17 +101,17 @@ func Make(mode []string) error {
 		logs.Logger.Error(err)
 	}
 	var genFileName = "Makefile"
-	// Get working directory
-	projPath := fs.GetPath()
-	return makeFile(projPath, "mta.yaml", projPath, genFileName, tpl)
-
+	// Get project working directory
+	pPath := fs.GetPath()
+	return makeFile(pPath, genFileName, tpl)
 }
 
 // Get template according to the CLI flags
 func makeMode(mode []string) (string, error) {
 	tpl := "make_default.txt"
-	if (len(mode) > 0) && (stringInSlice("--verbose", mode)) {
-		if (mode[0] == "--verbose") || (mode[0] == "-v") {
+	const verbose = "--verbose"
+	if (len(mode) > 0) && (stringInSlice(verbose, mode)) {
+		if (mode[0] == verbose) || (mode[0] == "-v") {
 			tpl = "make_verbose.txt"
 		}
 	} else if len(mode) == 0 {
