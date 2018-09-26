@@ -2,11 +2,8 @@
 modules := $(shell mbt provide modules)
 modules := $(subst ],,$(subst [,,$(modules)))
 
-modules:
-{{"\t"}}@for a in $(modules) ; do \
-            if [[ $$a = "ui5app" ]]; then\
-            echo first: $$a ; \
-            else \
-            echo second: $$a ; \
-            fi \
-        done
+##Execute module build
+execute:
+{{"\t"}}@for module in $(modules) ; do \
+{{"\t"}} mbt build module $$module ; \
+{{"\t"}}done
