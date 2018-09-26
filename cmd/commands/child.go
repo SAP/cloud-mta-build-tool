@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"errors"
 	"os"
 	"path/filepath"
 
@@ -43,6 +44,13 @@ var pack = &cobra.Command{
 	Use:   "pack",
 	Short: "pack module artifacts",
 	Long:  "pack the module artifacts after the build process",
+	Args: func(cmd *cobra.Command, args []string) error {
+		if len(args) > 2 {
+			return nil
+		} else {
+			return errors.New("no path's provided to pack the module artifacts")
+		}
+	},
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) > 2 {
 			td := args[0]
@@ -60,9 +68,9 @@ var pack = &cobra.Command{
 			} else {
 				// zipping the build artifacts
 				logs.Logger.Infof("Starting execute zipping module %v ", mName)
-				if err := fs.Archive(mp, mrp+constants.DataZip); err != nil {
+				if err = fs.Archive(mp, mrp+constants.DataZip); err != nil {
 					logs.Logger.Error("Error occurred during ZIP module %v creation, error:   ", mName, err)
-					err := os.RemoveAll(td)
+					err = os.RemoveAll(td)
 					if err != nil {
 						logs.Logger.Error(err)
 					}
@@ -70,8 +78,6 @@ var pack = &cobra.Command{
 					logs.Logger.Infof("Execute zipping module %v finished successfully ", mName)
 				}
 			}
-		} else {
-			logs.Logger.Errorf("No path's provided to pack the module artifacts")
 		}
 	},
 }
@@ -88,6 +94,7 @@ var genMeta = &cobra.Command{
 	Use:   "meta",
 	Short: "generate meta folder",
 	Long:  "generate META-INF folder with all the required data",
+	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		generateMeta("", args)
 	},
@@ -119,6 +126,7 @@ var genMtar = &cobra.Command{
 	Use:   "mtar",
 	Short: "generate MTAR",
 	Long:  "generate MTAR from the project build artifacts",
+	Args:  cobra.ExactArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {
 		generateMtar("", args)
 	},
@@ -129,6 +137,7 @@ var cleanup = &cobra.Command{
 	Use:   "cleanup",
 	Short: "Remove process artifacts",
 	Long:  "Remove process artifacts",
+	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		logs.Logger.Info("Starting Cleanup process")
 		// Remove temp folder

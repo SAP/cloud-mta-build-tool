@@ -22,6 +22,7 @@ var rootCmd = &cobra.Command{
 	Use:   "mbt",
 	Short: "MTA Build tool",
 	Long:  "MTA Build tool V2",
+	Args:  cobra.MaximumNArgs(1),
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -29,7 +30,6 @@ var rootCmd = &cobra.Command{
 // It only needs to happen once to the rootCmd.
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
-		logs.Logger.Println(err)
 		os.Exit(1)
 	}
 }

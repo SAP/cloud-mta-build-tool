@@ -5,6 +5,7 @@ import (
 )
 
 var initMode string
+var buildTargetEnv string
 
 // Parent command
 var build = &cobra.Command{
@@ -31,6 +32,8 @@ var provides = &cobra.Command{
 }
 
 func init() {
+	// build target flags
+	build.Flags().StringVarP(&buildTargetEnv, "target", "t", "", "Build for specified environment ")
 	// Build module
 	provides.AddCommand(pm)
 	// Provide module

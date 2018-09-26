@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"errors"
 	"path/filepath"
 	"strings"
 
@@ -16,17 +17,24 @@ import (
 
 var buildTarget string
 
+func init() {
+	// Add environment flag for build purpose
+	bm.Flags().StringVarP(&buildTarget, "target", "t", "", "Build for specified environment ")
+}
+
 // Build module
 var bm = &cobra.Command{
 	Use:   "module",
 	Short: "Build module",
-	Long:  "Build module",
-	Run: func(cmd *cobra.Command, args []string) {
-		if len(args) > 0 {
-			buildModule(args[0])
-		} else {
-			logs.Logger.Errorf("Build module command require module name")
+	Long:  "Build specific module according to the module name",
+	Args: func(cmd *cobra.Command, args []string) error {
+		if len(args) < 1 {
+			return errors.New("build module command require module name")
 		}
+		return nil
+	},
+	Run: func(cmd *cobra.Command, args []string) {
+		buildModule(args[0])
 	},
 }
 
@@ -48,10 +56,6 @@ func buildModule(module string) {
 		logs.Logger.Error(err)
 	}
 
-}
-
-func init() {
-	bm.Flags().StringVarP(&buildTarget, "target", "t", "", "Build for specified environment ")
 }
 
 // Get commands for specific module type
