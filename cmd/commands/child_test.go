@@ -112,7 +112,6 @@ func Test_pack(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			pack.Run(nil, tt.args)
 			tt.validator(t, tt.args)
-
 		})
 	}
 
