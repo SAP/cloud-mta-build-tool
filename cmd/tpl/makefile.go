@@ -17,13 +17,20 @@ import (
 	"cloud-mta-build-tool/cmd/proc"
 )
 
+const (
+	makefile       = "Makefile"
+	basePre        = "base_pre.txt"
+	basePost       = "base_post.txt"
+	verbose        = "verbose"
+	makeDefaultTpl = "make_default.txt"
+	makeVerboseTpl = "make_verbose.txt"
+)
+
 func createMakeFile(path, filename string) (file *os.File, err error) {
 
 	fullFilename := path + constants.PathSep + filename
-
 	var mf *os.File
 	if _, err = os.Stat(fullFilename); err == nil {
-		// path/to/whatever exists
 		mf, err = fs.CreateFile(fullFilename + ".mta")
 	} else {
 		mf, err = fs.CreateFile(fullFilename)
@@ -33,15 +40,12 @@ func createMakeFile(path, filename string) (file *os.File, err error) {
 
 func makeFile(projectPath, makeFilename, verbTemplateName string) error {
 
-	const BasePre = "base_pre.txt"
-	const BasePost = "base_post.txt"
-
 	type API map[string]string
+	// template data
 	var data struct {
 		File mta.MTA
 		API  API
 	}
-
 	// Read the MTA
 	yamlFile, err := ioutil.ReadFile(projectPath + constants.PathSep + constants.MtaYaml)
 	if err != nil {
@@ -55,17 +59,17 @@ func makeFile(projectPath, makeFilename, verbTemplateName string) error {
 	}
 	data.File = mta
 	// Create maps of the template method's
-	t, err := makeVerbose(verbTemplateName, BasePre, BasePost)
+	t, err := makeVerbose(verbTemplateName, basePre, basePost)
 	if err != nil {
 		logs.Logger.Error(err)
 		return err
 	}
+	// Create make file for the template
 	makeFile, err := createMakeFile(projectPath, makeFilename)
 	if err != nil {
 		logs.Logger.Error(err)
 		return err
 	}
-
 	// Execute the template
 	err = t.Execute(makeFile, data)
 	if err != nil {
@@ -95,26 +99,22 @@ func makeVerbose(verbTemplateName string, BasePre string, BasePost string) (*tem
 }
 
 // Make - Generate the makefile
-func Make(mode []string) error {
+func Make(mode string) error {
 	tpl, err := makeMode(mode)
 	if err != nil {
 		logs.Logger.Error(err)
 	}
-	var genFileName = "Makefile"
 	// Get project working directory
 	pPath := fs.GetPath()
-	return makeFile(pPath, genFileName, tpl)
+	return makeFile(pPath, makefile, tpl)
 }
 
-// Get template according to the CLI flags
-func makeMode(mode []string) (string, error) {
-	tpl := "make_default.txt"
-	const verbose = "--verbose"
-	if (len(mode) > 0) && (stringInSlice(verbose, mode)) {
-		if (mode[0] == verbose) || (mode[0] == "-v") {
-			tpl = "make_verbose.txt"
-		}
-	} else if len(mode) == 0 {
+// Get template (default/verbose) according to the CLI flags
+func makeMode(mode string) (string, error) {
+	tpl := makeDefaultTpl
+	if (mode == verbose) || (mode == "v") {
+		tpl = makeVerboseTpl
+	} else if mode == "" {
 		return tpl, nil
 	} else {
 		return "", errors.New("command is not supported")
