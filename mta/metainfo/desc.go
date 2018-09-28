@@ -6,7 +6,6 @@ import (
 	"io/ioutil"
 	"os"
 
-	"cloud-mta-build-tool/cmd/constants"
 	"cloud-mta-build-tool/cmd/fsys"
 	"cloud-mta-build-tool/cmd/logs"
 	"cloud-mta-build-tool/cmd/platform"
@@ -24,21 +23,23 @@ import (
 // This used by deploy service to track the build project
 
 const (
-	MetaInf         = "/META-INF"
-	Manifest        = "MANIFEST.MF"
-	Mtad            = "mtad.yaml"
-	NewLine         = "\n"
-	ContentType     = "Content-Type: "
-	MtaModule       = "MTA-Module: "
-	ModuleName      = "Name: "
-	ApplicationZip  = "application/zip"
-	ManifestVersion = "Manifest-Version: 1.0"
+	metaInf         = "/META-INF"
+	manifest        = "MANIFEST.MF"
+	mtadYaml        = "mtad.yaml"
+	newLine         = "\n"
+	contentType     = "Content-Type: "
+	mtaModule       = "MTA-Module: "
+	moduleName      = "Name: "
+	applicationZip  = "application/zip"
+	manifestVersion = "manifest-Version: 1.0"
+	pathSep         = string(os.PathSeparator)
+	dataZip         = pathSep + "data.zip"
 )
 
 // Set the MANIFEST.MF file
 func setManifetDesc(file io.Writer, mtaStr []*mta.Modules, modules []string) {
 	// TODO create dynamically
-	fmt.Fprint(file, ManifestVersion+NewLine)
+	fmt.Fprint(file, manifestVersion+newLine)
 	// TODO set the version from external config for automatic version bump during release
 	fmt.Fprint(file, "Created-By: SAP Application Archive Builder 0.0.1")
 	for _, mod := range mtaStr {
@@ -54,18 +55,18 @@ func setManifetDesc(file io.Writer, mtaStr []*mta.Modules, modules []string) {
 }
 
 func printToFile(file io.Writer, mtaStr *mta.Modules) {
-	fmt.Fprint(file, NewLine)
-	fmt.Fprint(file, NewLine)
-	fmt.Fprint(file, ModuleName+mtaStr.Name+constants.DataZip)
-	fmt.Fprint(file, NewLine)
-	fmt.Fprint(file, MtaModule+mtaStr.Name)
-	fmt.Fprint(file, NewLine)
-	fmt.Fprint(file, ContentType+ApplicationZip)
+	fmt.Fprint(file, newLine)
+	fmt.Fprint(file, newLine)
+	fmt.Fprint(file, moduleName+mtaStr.Name+dataZip)
+	fmt.Fprint(file, newLine)
+	fmt.Fprint(file, mtaModule+mtaStr.Name)
+	fmt.Fprint(file, newLine)
+	fmt.Fprint(file, contentType+applicationZip)
 }
 
 func GenMetaInf(tmpDir string, mtaStr mta.MTA, modules []string) {
 	// Create META-INF folder under the mtar folder
-	dir.CreateDirIfNotExist(tmpDir + MetaInf)
+	dir.CreateDirIfNotExist(tmpDir + metaInf)
 	// Load platform configuration file
 
 	platformCfg := platform.Parse(platform.PlatformConfig)
@@ -76,13 +77,13 @@ func GenMetaInf(tmpDir string, mtaStr mta.MTA, modules []string) {
 	mtad, err := mta.Marshal(mtaStr)
 	// Write back the MTAD to the META-INF folder
 	if err == nil {
-		err = ioutil.WriteFile(tmpDir+MetaInf+constants.PathSep+Mtad, mtad, os.ModePerm)
+		err = ioutil.WriteFile(tmpDir+metaInf+pathSep+mtadYaml, mtad, os.ModePerm)
 	}
 	if err != nil {
 		logs.Logger.Errorln(err)
 	}
 	// Create MANIFEST.MF file
-	file, _ := dir.CreateFile(tmpDir + MetaInf + constants.PathSep + Manifest)
+	file, _ := dir.CreateFile(tmpDir + metaInf + pathSep + manifest)
 	defer file.Close()
 	// Set the MANIFEST.MF file
 	setManifetDesc(file, mtaStr.Modules, modules)

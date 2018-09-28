@@ -5,15 +5,19 @@ import (
 	"os"
 	"path/filepath"
 
-	"cloud-mta-build-tool/mta/provider"
-
 	"github.com/spf13/cobra"
 
-	"cloud-mta-build-tool/cmd/constants"
 	fs "cloud-mta-build-tool/cmd/fsys"
 	"cloud-mta-build-tool/cmd/logs"
 	"cloud-mta-build-tool/mta"
 	"cloud-mta-build-tool/mta/metainfo"
+	"cloud-mta-build-tool/mta/provider"
+)
+
+const (
+	pathSep = string(os.PathSeparator)
+	dataZip = pathSep + "data.zip"
+	mtarSuffix = ".mtar"
 )
 
 // Prepare the process for execution
@@ -26,19 +30,9 @@ var prepare = &cobra.Command{
 	},
 }
 
-// Copy specific module from source to target
-var copyModule = &cobra.Command{
-	Use:   "copy",
-	Short: "copy module for build process",
-	Long:  "copy module for build process",
-	Run: func(cmd *cobra.Command, args []string) {
-
-	},
-}
-
 // zip specific module and put the artifacts on the temp folder according
 // to the mtar structure, i.e each module have new entry as folder in the mtar folder
-// note - even if the path of the module was changed in the mta.yaml in the mtar the
+// Note - even if the path of the module was changed in the mta.yaml in the mtar the
 // the module folder will get the module name
 var pack = &cobra.Command{
 	Use:   "pack",
@@ -53,33 +47,34 @@ var pack = &cobra.Command{
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) > 2 {
-			td := args[0]
-			// Module name
-			mName := args[2]
-			// Get module path
-			mp := filepath.Join(fs.GetPath(), args[1])
-			// Get module relative path
-			mrp := filepath.Join(td, mName)
-			// Create empty folder with name as before the zip process
-			// to put the file such as data.zip inside
-			err := os.MkdirAll(mrp, os.ModePerm)
-			if err != nil {
-				logs.Logger.Error(err)
-			} else {
-				// zipping the build artifacts
-				logs.Logger.Infof("Starting execute zipping module %v ", mName)
-				if err = fs.Archive(mp, mrp+constants.DataZip); err != nil {
-					logs.Logger.Error("Error occurred during ZIP module %v creation, error:   ", mName, err)
-					err = os.RemoveAll(td)
-					if err != nil {
-						logs.Logger.Error(err)
-					}
-				} else {
-					logs.Logger.Infof("Execute zipping module %v finished successfully ", mName)
-				}
-			}
+			packModule(args[0], args[1], args[2])
 		}
 	},
+}
+
+func packModule(tDir string, mPathProp string, mNameProp string) {
+	// Get module path
+	mp := filepath.Join(fs.GetPath(), mPathProp)
+	// Get module relative path
+	mrp := filepath.Join(tDir, mNameProp)
+	// Create empty folder with name as before the zip process
+	// to put the file such as data.zip inside
+	err := os.MkdirAll(mrp, os.ModePerm)
+	if err != nil {
+		logs.Logger.Error(err)
+	} else {
+		// zipping the build artifacts
+		logs.Logger.Infof("Starting execute zipping module %v ", mNameProp)
+		if err = fs.Archive(mp, mrp+dataZip); err != nil {
+			logs.Logger.Error("Error occurred during ZIP module %v creation, error:   ", mNameProp, err)
+			err = os.RemoveAll(tDir)
+			if err != nil {
+				logs.Logger.Error(err)
+			}
+		} else {
+			logs.Logger.Infof("Execute zipping module %v finished successfully ", mNameProp)
+		}
+	}
 }
 
 func generateMeta(relativePath string, args []string) {
@@ -114,7 +109,7 @@ func processMta(relativePath string, processName string, args []string, process 
 func generateMtar(relativePath string, args []string) {
 	processMta(relativePath, "MTAR generation", args, func(mtaStruct mta.MTA, args []string) {
 		// Create MTAR from the building artifacts
-		err := fs.Archive(args[0], args[1]+constants.PathSep+mtaStruct.Id+constants.MtarSuffix)
+		err := fs.Archive(args[0], args[1]+pathSep+mtaStruct.Id+mtarSuffix)
 		if err != nil {
 			logs.Logger.Error(err)
 		}
@@ -136,7 +131,7 @@ var genMtar = &cobra.Command{
 var cleanup = &cobra.Command{
 	Use:   "cleanup",
 	Short: "Remove process artifacts",
-	Long:  "Remove process artifacts",
+	Long:  "Remove MTA build process artifacts",
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		logs.Logger.Info("Starting Cleanup process")

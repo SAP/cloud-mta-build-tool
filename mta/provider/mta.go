@@ -2,19 +2,23 @@ package provider
 
 import (
 	"io/ioutil"
+	"os"
 
 	"gopkg.in/yaml.v2"
 
-	"cloud-mta-build-tool/cmd/constants"
 	"cloud-mta-build-tool/cmd/logs"
 	"cloud-mta-build-tool/mta"
+)
+
+const (
+	pathSep = string(os.PathSeparator)
 )
 
 // MTA - provide full mta object
 func MTA(source string) (mta.MTA, error) {
 
 	// Read the MTA
-	yamlFile, err := ioutil.ReadFile(source + constants.PathSep + "mta.yaml")
+	yamlFile, err := ioutil.ReadFile(source + pathSep + "mta.yaml")
 	m := mta.MTA{}
 	if err != nil {
 		logs.Logger.Error("Not able to read the mta file ")
@@ -40,7 +44,6 @@ func modules(mta mta.MTA) []string {
 
 // GetModulesNames - get list of modules names
 func GetModulesNames(source string) []string {
-
 	mta, e := MTA(source)
 	if e != nil {
 		logs.Logger.Error(e)
