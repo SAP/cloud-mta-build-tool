@@ -11,12 +11,11 @@ import (
 	"cloud-mta-build-tool/cmd/logs"
 	"cloud-mta-build-tool/mta"
 	"cloud-mta-build-tool/mta/metainfo"
-	"cloud-mta-build-tool/mta/provider"
 )
 
 const (
-	pathSep = string(os.PathSeparator)
-	dataZip = pathSep + "data.zip"
+	pathSep    = string(os.PathSeparator)
+	dataZip    = pathSep + "data.zip"
 	mtarSuffix = ".mtar"
 )
 
@@ -77,10 +76,14 @@ func packModule(tDir string, mPathProp string, mNameProp string) {
 	}
 }
 
-func generateMeta(relativePath string, args []string) {
-	processMta(relativePath, "Metadata creation", args, func(mtaStruct mta.MTA, args []string) {
+func generateMeta(relPath string, args []string) {
+	processMta("Metadata creation", relPath, args, func(file []byte, args []string) {
+		m, err := mta.Parse(file)
+		if err != nil {
+			logs.Logger.Error(err)
+		}
 		// Generate meta info dir with required content
-		metainfo.GenMetaInf(args[0], mtaStruct, args[1:])
+		metainfo.GenMetaInf(args[0], m, args[1:])
 	})
 }
 
@@ -95,25 +98,30 @@ var genMeta = &cobra.Command{
 	},
 }
 
-func processMta(relativePath string, processName string, args []string, process func(mta mta.MTA, args []string)) {
+func processMta(processName string, relPath string, args []string, process func(file []byte, args []string)) {
 	logs.Logger.Info("Starting " + processName)
-	mta, err := provider.MTA(filepath.Join(fs.GetPath(), relativePath))
+	mf, err := getFile(relPath)
 	if err == nil {
-		process(mta, args)
+		process(mf, args)
 		logs.Logger.Info(processName + " finish successfully ")
 	} else {
-		logs.Logger.Error("No MTA structure found")
+		logs.Logger.Error("MTA file not found")
 	}
 }
 
-func generateMtar(relativePath string, args []string) {
-	processMta(relativePath, "MTAR generation", args, func(mtaStruct mta.MTA, args []string) {
+func generateMtar(relPath string, args []string) error {
+	processMta("MTAR generation", relPath, args, func(file []byte, args []string) {
 		// Create MTAR from the building artifacts
-		err := fs.Archive(args[0], args[1]+pathSep+mtaStruct.Id+mtarSuffix)
+		m, err := mta.Parse(file)
+		if err != nil {
+			logs.Logger.Error(err)
+		}
+		err = fs.Archive(args[0], args[1]+pathSep+m.Id+mtarSuffix)
 		if err != nil {
 			logs.Logger.Error(err)
 		}
 	})
+	return nil
 }
 
 // Generate mtar from build artifacts

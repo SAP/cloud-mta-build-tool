@@ -1,11 +1,14 @@
 package commands
 
 import (
-	"os"
-
+	"fmt"
 	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"io/ioutil"
+	"os"
+
+	fs "cloud-mta-build-tool/cmd/fsys"
 
 	"cloud-mta-build-tool/cmd/logs"
 )
@@ -55,4 +58,14 @@ func initConfig() {
 	if err := viper.ReadInConfig(); err == nil {
 		logs.Logger.Println("Using config file:", viper.ConfigFileUsed())
 	}
+}
+
+func getFile(relPath string) ([]byte, error) {
+	pPath := fs.GetPath()
+	// Read MTA file
+	yamlFile, err := ioutil.ReadFile(pPath + pathSep + relPath + pathSep + "mta.yaml")
+	if err != nil {
+		return yamlFile, fmt.Errorf("not able to read the mta file : %s", err.Error())
+	}
+	return yamlFile, err
 }

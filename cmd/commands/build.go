@@ -2,6 +2,7 @@ package commands
 
 import (
 	"errors"
+	"io/ioutil"
 	"path/filepath"
 	"strings"
 
@@ -12,7 +13,6 @@ import (
 	fs "cloud-mta-build-tool/cmd/fsys"
 	"cloud-mta-build-tool/cmd/logs"
 	"cloud-mta-build-tool/mta"
-	"cloud-mta-build-tool/mta/provider"
 )
 
 var buildTarget string
@@ -41,7 +41,15 @@ var bm = &cobra.Command{
 func buildModule(module string) {
 
 	logs.Logger.Info("Start building module: ", module)
-	mta, err := provider.MTA(filepath.Join(fs.GetPath(), ""))
+
+	pPath := fs.ProjectPath()
+	// Read MTA file
+	yamlFile, err := ioutil.ReadFile(pPath + pathSep + "mta.yaml")
+	if err != nil {
+		logs.Logger.Error("Not able to read the mta file ")
+	}
+	// Parse MTA file
+	mta, err := mta.Parse(yamlFile)
 	if err != nil {
 		logs.Logger.Errorf("Error occurred while parsing the MTA file", err)
 	}

@@ -1,6 +1,7 @@
 package mta
 
 import (
+	"fmt"
 	"gopkg.in/yaml.v2"
 
 	"cloud-mta-build-tool/cmd/logs"
@@ -34,4 +35,23 @@ func Marshal(in MTA) (mtads []byte, err error) {
 		logs.Logger.Error(err.Error())
 	}
 	return mtads, err
+}
+
+// Provide list of modules
+func modules(mta MTA) []string {
+	var mNames []string
+	for _, mod := range mta.Modules {
+		mNames = append(mNames, mod.Name)
+	}
+	return mNames
+}
+
+// GetModulesNames - get list of modules names
+func GetModulesNames(file []byte) ([]string, error) {
+
+	mta, err := Parse(file)
+	if err != nil {
+		return nil, fmt.Errorf("not able to read the mta file : %s", err.Error())
+	}
+	return modules(mta), err
 }
