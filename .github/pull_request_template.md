@@ -7,6 +7,6 @@ Please explain the changes you made.
 
 ### Checklist
 - [ ] Code compiles correctly
-- [ ] in case of bug please create a test which fail without the change (if possible)
+- [ ] in case of bug please create a test which fails without the change (if possible)
 - [ ] All tests passing
 - [ ] Extended the README / documentation, if necessary

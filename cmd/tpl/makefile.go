@@ -11,7 +11,6 @@ import (
 	"cloud-mta-build-tool/mta"
 
 	"cloud-mta-build-tool/cmd/builders"
-	"cloud-mta-build-tool/cmd/constants"
 	fs "cloud-mta-build-tool/cmd/fsys"
 	"cloud-mta-build-tool/cmd/logs"
 	"cloud-mta-build-tool/cmd/proc"
@@ -19,16 +18,18 @@ import (
 
 const (
 	makefile       = "Makefile"
+	mtaFile        = "mta.yaml"
 	basePre        = "base_pre.txt"
 	basePost       = "base_post.txt"
 	verbose        = "verbose"
 	makeDefaultTpl = "make_default.txt"
 	makeVerboseTpl = "make_verbose.txt"
+	pathSep        = string(os.PathSeparator)
 )
 
 func createMakeFile(path, filename string) (file *os.File, err error) {
 
-	fullFilename := path + constants.PathSep + filename
+	fullFilename := path + pathSep + filename
 	var mf *os.File
 	if _, err = os.Stat(fullFilename); err == nil {
 		mf, err = fs.CreateFile(fullFilename + ".mta")
@@ -47,7 +48,7 @@ func makeFile(projectPath, makeFilename, verbTemplateName string) error {
 		API  API
 	}
 	// Read the MTA
-	yamlFile, err := ioutil.ReadFile(projectPath + constants.PathSep + constants.MtaYaml)
+	yamlFile, err := ioutil.ReadFile(projectPath + pathSep + mtaFile)
 	if err != nil {
 		logs.Logger.Error("Not able to read the mta file ")
 		return err

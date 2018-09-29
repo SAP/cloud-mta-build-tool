@@ -9,8 +9,11 @@ import (
 	"path/filepath"
 	"strings"
 
-	"cloud-mta-build-tool/cmd/constants"
 	"cloud-mta-build-tool/cmd/logs"
+)
+
+const (
+	pathSep = string(os.PathSeparator)
 )
 
 // CreateDirIfNotExist - Create new dir
@@ -55,7 +58,7 @@ func Archive(params ...string) error {
 	}
 
 	if baseDir != "" {
-		baseDir += constants.PathSep
+		baseDir += pathSep
 	}
 
 	filepath.Walk(params[0], func(path string, info os.FileInfo, err error) error {
@@ -103,10 +106,10 @@ func CreateFile(path string) (file *os.File, err error) {
 	}
 	// /defer file.Close()
 
-	//if err != nil {
-	//	logs.Logger.Fatalf("Failed to write to file: %s , %s", path, err)
-	//	return nil, err
-	//}
+	// if err != nil {
+	// 	logs.Logger.Fatalf("Failed to write to file: %s , %s", path, err)
+	// 	return nil, err
+	// }
 	return file, err
 }
 
@@ -208,7 +211,7 @@ func copyFile(src, dst string) (err error) {
 // The tmp dir should be deleted after the process finished or failed
 // TODO delete tmp in case of failure
 func DefaultTempDirFunc(path string) string {
-	tmpDir, _ := ioutil.TempDir(path, constants.TempFolder)
+	tmpDir, _ := ioutil.TempDir(path, "BUILD_MTAR_TEMP")
 	return tmpDir
 }
 

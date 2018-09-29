@@ -39,7 +39,7 @@ func init() {
 	// Provide module
 	build.AddCommand(bm)
 	// execute immutable commands
-	execute.AddCommand(prepare, copyModule, pack, genMeta, genMtar, cleanup)
+	execute.AddCommand(prepare, pack, genMeta, genMtar, cleanup)
 	// Add command to the root
 	rootCmd.AddCommand(provides, build, execute, initProcess)
 }

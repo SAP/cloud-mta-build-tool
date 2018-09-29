@@ -6,7 +6,6 @@ import (
 	"runtime"
 	"testing"
 
-	"cloud-mta-build-tool/cmd/constants"
 	fs "cloud-mta-build-tool/cmd/fsys"
 	"cloud-mta-build-tool/cmd/logs"
 
@@ -15,25 +14,25 @@ import (
 
 func basicMakeAndValidate(t *testing.T, path, yamlFilename, makeFilename, expectedMakeFilename, expectedMakeFileExtension string) {
 	err := makeFile(path, makeFilename, "make_verbose.txt")
-	makeFullName := path + constants.PathSep + makeFilename
+	makeFullName := path + pathSep + makeFilename
 	if err != nil {
 		os.Remove(makeFullName)
 		t.Error(err)
 	}
 	actual, err := ioutil.ReadFile(makeFullName + expectedMakeFileExtension)
 	assert.Nil(t, err)
-	expected, _ := ioutil.ReadFile(path + constants.PathSep + expectedMakeFilename)
+	expected, _ := ioutil.ReadFile(path + pathSep + expectedMakeFilename)
 	assert.Equal(t, expected, actual)
 }
 
 func removeMakefile(t *testing.T, path, makeFilename string) {
-	err := os.Remove(path + constants.PathSep + makeFilename)
+	err := os.Remove(path + pathSep + makeFilename)
 	assert.Nil(t, err)
 }
 
 func TestMake(t *testing.T) {
 
-	path := fs.GetPath() + constants.PathSep + "testdata"
+	path := fs.GetPath() + pathSep + "testdata"
 	makeFilename := "MakeFileTest"
 	var expectedMakeFilename string
 	switch runtime.GOOS {
@@ -84,12 +83,12 @@ func TestMake(t *testing.T) {
 			}},
 		{"Template is wrong", "mta.yaml",
 			func(t *testing.T, path, yamlFilename, makeFilename string) {
-				err := makeFile(path, makeFilename, "testdata"+constants.PathSep+"WrongMakeTmpl.txt")
+				err := makeFile(path, makeFilename, "testdata"+pathSep+"WrongMakeTmpl.txt")
 				assert.NotNil(t, err)
 			}},
 		{"Template is empty", "mta.yaml",
 			func(t *testing.T, path, yamlFilename, makeFilename string) {
-				err := makeFile(path, makeFilename, "testdata"+constants.PathSep+"emptyMakeTmpl.txt")
+				err := makeFile(path, makeFilename, "testdata"+pathSep+"emptyMakeTmpl.txt")
 				removeMakefile(t, path, makeFilename)
 				assert.NotNil(t, err)
 			}},
