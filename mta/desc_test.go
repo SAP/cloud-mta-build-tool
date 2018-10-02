@@ -1,9 +1,8 @@
-package metainfo
+package mta
 
 import (
 	"bytes"
 	"io/ioutil"
-	"os"
 	"path/filepath"
 	"testing"
 
@@ -11,7 +10,6 @@ import (
 	"gopkg.in/yaml.v2"
 
 	"cloud-mta-build-tool/cmd/fsys"
-	"cloud-mta-build-tool/mta"
 )
 
 var module []string
@@ -21,13 +19,13 @@ func Test_setManifetDesc(t *testing.T) {
 	tests := []struct {
 		n        int
 		name     string
-		args     []*mta.Modules
+		args     []*Modules
 		expected []byte
 	}{
 		{
 			n:    0,
 			name: "MANIFEST.MF: One module",
-			args: []*mta.Modules{
+			args: []*Modules{
 
 				{
 					Name:       "ui5",
@@ -45,7 +43,7 @@ func Test_setManifetDesc(t *testing.T) {
 		{
 			n:    0,
 			name: "MANIFEST.MF: Two modules",
-			args: []*mta.Modules{
+			args: []*Modules{
 
 				{
 					Name:       "ui6",
@@ -74,7 +72,7 @@ func Test_setManifetDesc(t *testing.T) {
 		{
 			n:    0,
 			name: "MANIFEST.MF: multi module with filter of one",
-			args: []*mta.Modules{
+			args: []*Modules{
 
 				{
 					Name:       "ui6",
@@ -147,13 +145,13 @@ modules:
     type: html5
     path: app
 `)
-	mta := mta.MTA{}
+	mta := MTA{}
 	yaml.Unmarshal(mtaSingleModule, &mta)
-	GenMetaInf(filepath.Join(dir.GetPath(), "testdata"), mta, []string{"htmlapp"})
+	GenMetaInfo(filepath.Join(dir.GetPath(), "testdata"), mta, []string{"htmlapp"})
 
 	_, err := ioutil.ReadFile(filepath.Join(dir.GetPath(), "testdata", "META-INF", "MANIFEST.MF"))
 	assert.Nil(t, err)
 	_, err = ioutil.ReadFile(filepath.Join(dir.GetPath(), "testdata", "META-INF", "mtad.yaml"))
 	assert.Nil(t, err)
-	os.RemoveAll(filepath.Join(dir.GetPath(), "testdata"))
+	//os.RemoveAll(filepath.Join(dir.GetPath(), "testdata"))
 }

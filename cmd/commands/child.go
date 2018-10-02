@@ -10,7 +10,6 @@ import (
 	fs "cloud-mta-build-tool/cmd/fsys"
 	"cloud-mta-build-tool/cmd/logs"
 	"cloud-mta-build-tool/mta"
-	"cloud-mta-build-tool/mta/metainfo"
 )
 
 const (
@@ -83,7 +82,7 @@ func generateMeta(relPath string, args []string) {
 			logs.Logger.Error(err)
 		}
 		// Generate meta info dir with required content
-		metainfo.GenMetaInf(args[0], m, args[1:])
+		mta.GenMetaInfo(args[0], m, args[1:])
 	})
 }
 

@@ -1,4 +1,4 @@
-package metainfo
+package mta
 
 import (
 	"fmt"
@@ -9,8 +9,6 @@ import (
 	"cloud-mta-build-tool/cmd/fsys"
 	"cloud-mta-build-tool/cmd/logs"
 	"cloud-mta-build-tool/cmd/platform"
-	"cloud-mta-build-tool/mta"
-	"cloud-mta-build-tool/mta/converter"
 )
 
 // The deployment descriptor shall be located within the META-INF folder of the JAR.
@@ -37,7 +35,7 @@ const (
 )
 
 // Set the MANIFEST.MF file
-func setManifetDesc(file io.Writer, mtaStr []*mta.Modules, modules []string) {
+func setManifetDesc(file io.Writer, mtaStr []*Modules, modules []string) {
 	// TODO create dynamically
 	fmt.Fprint(file, manifestVersion+newLine)
 	// TODO set the version from external config for automatic version bump during release
@@ -54,7 +52,7 @@ func setManifetDesc(file io.Writer, mtaStr []*mta.Modules, modules []string) {
 	}
 }
 
-func printToFile(file io.Writer, mtaStr *mta.Modules) {
+func printToFile(file io.Writer, mtaStr *Modules) {
 	fmt.Fprint(file, newLine)
 	fmt.Fprint(file, newLine)
 	fmt.Fprint(file, moduleName+mtaStr.Name+dataZip)
@@ -64,7 +62,7 @@ func printToFile(file io.Writer, mtaStr *mta.Modules) {
 	fmt.Fprint(file, contentType+applicationZip)
 }
 
-func GenMetaInf(tmpDir string, mtaStr mta.MTA, modules []string) {
+func GenMetaInfo(tmpDir string, mtaStr MTA, modules []string) {
 	// Create META-INF folder under the mtar folder
 	dir.CreateDirIfNotExist(tmpDir + metaInf)
 	// Load platform configuration file
@@ -72,9 +70,9 @@ func GenMetaInf(tmpDir string, mtaStr mta.MTA, modules []string) {
 	platformCfg := platform.Parse(platform.PlatformConfig)
 	// Modify MTAD object according to platform types
 	// Todo platform should provided as command parameter
-	converter.ConvertTypes(mtaStr, platformCfg, "cf")
+	ConvertTypes(mtaStr, platformCfg, "cf")
 	// Create readable Yaml before writing to file
-	mtad, err := mta.Marshal(mtaStr)
+	mtad, err := Marshal(mtaStr)
 	// Write back the MTAD to the META-INF folder
 	if err == nil {
 		err = ioutil.WriteFile(tmpDir+metaInf+pathSep+mtadYaml, mtad, os.ModePerm)

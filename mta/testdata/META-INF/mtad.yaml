@@ -1,0 +1,7 @@
+_schema-version: "3.1"
+ID: com.sap.webide.feature.management
+version: 1.0.0
+modules:
+- name: htmlapp
+  type: javascript.nodejs
+  path: app
