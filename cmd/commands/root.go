@@ -9,7 +9,6 @@ import (
 	"os"
 
 	fs "cloud-mta-build-tool/cmd/fsys"
-
 	"cloud-mta-build-tool/cmd/logs"
 )
 

@@ -102,14 +102,9 @@ func Archive(params ...string) error {
 func CreateFile(path string) (file *os.File, err error) {
 	file, err = os.Create(path) // Truncates if file already exists
 	if err != nil {
-		logs.Logger.Error("Failed to create file: %s , %s", path, err)
+		return nil, fmt.Errorf("Failed to create file %s ", err)
 	}
 	// /defer file.Close()
-
-	// if err != nil {
-	// 	logs.Logger.Fatalf("Failed to write to file: %s , %s", path, err)
-	// 	return nil, err
-	// }
 	return file, err
 }
 
@@ -123,8 +118,7 @@ func CopyDir(src string, dst string) (err error) {
 		return err
 	}
 	if !si.IsDir() {
-		logs.Logger.Println("The provided source is not a directory")
-		return fmt.Errorf("The provided source %s is not a directory", src)
+		return fmt.Errorf("The provided source %s is not a directory ", src)
 	}
 
 	_, err = os.Stat(dst)

@@ -51,7 +51,7 @@ func buildModule(module string) {
 	// Parse MTA file
 	mta, err := mta.Parse(yamlFile)
 	if err != nil {
-		logs.Logger.Errorf("Error occurred while parsing the MTA file", err)
+		logs.Logger.Errorf("Error occurred while parsing the MTA file %s", err)
 	}
 	// Get module respective command's to execute
 	mPathProp, mCmd := moduleCmd(mta, module)

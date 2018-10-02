@@ -1,9 +1,9 @@
 package exec
 
 import (
-	"testing"
-
 	"cloud-mta-build-tool/cmd/logs"
+	"testing"
+	"time"
 
 	"gotest.tools/assert"
 )
@@ -32,24 +32,26 @@ func Test_Execute_WithGoTestingNegative(t *testing.T) {
 	assert.Equal(t, err != nil, true)
 }
 
-// func Test_indicator(t *testing.T) {
-// 	shutdownCh := make(chan struct{})
-// 	start := time.Now()
-// 	go indicator(shutdownCh)
-// 	time.Sleep(1 * time.Second)
-// 	close(shutdownCh)
-// 	sec := time.Since(start).Seconds()
-// 	switch int(sec) {
-// 	case 0:
-// 		// Output:
-// 	case 1:
-// 		// Output: .
-// 	case 2:
-// 		// Output: ..
-// 	case 3:
-// 		// Output: ...
-// 	default:
-// 		t.Error("Sleeping time is more than 3 seconds")
-// 	}
-//
-// }
+func Test_Indicator(t *testing.T) {
+
+	shutdownCh := make(chan struct{})
+	start := time.Now()
+	go indicator(shutdownCh)
+	time.Sleep(1 * time.Second)
+	close(shutdownCh)
+	sec := time.Since(start).Seconds()
+	switch int(sec) {
+	case 0:
+		// Output:
+	case 1:
+		// Output: .
+	case 2:
+		// Output: ..
+	case 3:
+		// Output: ...
+	default:
+		t.Error("Sleeping time is more than 3 seconds")
+	}
+
+
+}

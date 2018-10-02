@@ -9,7 +9,7 @@ func ConvertTypes(iCfg MTA, eCfg platform.Platforms, targetPlatform string) {
 	const (
 		SchemaVersion = "3.1"
 	)
-	tpl := PlatformConfig(eCfg, targetPlatform)
+	tpl := platformConfig(eCfg, targetPlatform)
 	for i, v := range iCfg.Modules {
 		*iCfg.SchemaVersion = SchemaVersion
 		for _, em := range tpl.Modules {
@@ -20,7 +20,7 @@ func ConvertTypes(iCfg MTA, eCfg platform.Platforms, targetPlatform string) {
 	}
 }
 
-func PlatformConfig(eCfg platform.Platforms, targetPlatform string) platform.Modules {
+func platformConfig(eCfg platform.Platforms, targetPlatform string) platform.Modules {
 	var tpl platform.Modules
 	for _, tp := range eCfg.Platforms {
 		if tp.Name == targetPlatform {
