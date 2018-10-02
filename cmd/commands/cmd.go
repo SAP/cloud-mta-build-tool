@@ -32,7 +32,6 @@ var provides = &cobra.Command{
 	Run:   nil,
 }
 
-
 // Parent command
 var validate = &cobra.Command{
 	Use:   "validate",
@@ -41,12 +40,8 @@ var validate = &cobra.Command{
 	Run:   nil,
 }
 
-
 func init() {
-	// build target flags
-	build.Flags().StringVarP(&buildTargetFlag, "target", "t", "", "Build for specified environment ")
 
-	validate.Flags().StringVarP(&validationFlag, "validate", "v", "", "Validation process ")
 	// Build module
 	provides.AddCommand(pModule)
 	// Provide module
@@ -55,4 +50,8 @@ func init() {
 	execute.AddCommand(prepare, pack, genMeta, genMtar, cleanup)
 	// Add command to the root
 	rootCmd.AddCommand(provides, build, execute, initProcess)
+	// build target flags
+	build.Flags().StringVarP(&buildTargetFlag, "target", "t", "", "Build for specified environment ")
+	// validation flags , can be used for multiple scenario
+	validate.Flags().StringVarP(&validationFlag, "validate", "v", "", "Validation process ")
 }
