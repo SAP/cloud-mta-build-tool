@@ -17,6 +17,60 @@ type MTA struct {
 	Parameters    Parameters   `yaml:"parameters,omitempty"`
 }
 
+// BuildParameters - build params
+type BuildParameters struct {
+	Builder  string          `yaml:"builder,omitempty"`
+	Type     string          `yaml:"type,omitempty"`
+	Path     string          `yaml:"path,omitempty"`
+	Requires []BuildRequires `yaml:"requires,omitempty"`
+}
+
+// Modules - MTA modules
+type Modules struct {
+	Name        string
+	Type        string
+	Path        string          `yaml:"path,omitempty"`
+	Requires    []Requires      `yaml:"requires,omitempty"`
+	Provides    []Provides      `yaml:"provides,omitempty"`
+	Parameters  Parameters      `yaml:"parameters,omitempty"`
+	BuildParams BuildParameters `yaml:"build-parameters,omitempty"`
+	Properties  Properties      `yaml:"properties,omitempty"`
+}
+
+// Properties - MTA map
+type Properties map[string]string
+
+// Parameters - MTA parameters
+type Parameters map[string]interface{}
+
+// Provides - MTA struct
+type Provides struct {
+	Name       string
+	Properties Properties `yaml:"properties,omitempty"`
+}
+
+// Requires / Mta struct
+type Requires struct {
+	Name       string     `yaml:"name,omitempty"`
+	Group      string     `yaml:"group,omitempty"`
+	Type       string     `yaml:"type,omitempty"`
+	Properties Properties `yaml:"properties,omitempty"`
+}
+
+// BuildRequires - build requires section
+type BuildRequires struct {
+	Name       string `yaml:"name,omitempty"`
+	TargetPath string `yaml:"target-path,omitempty"`
+}
+
+// Resources - resources section
+type Resources struct {
+	Name       string
+	Type       string
+	Parameters Parameters `yaml:"parameters,omitempty"`
+	Properties Properties `yaml:"properties,omitempty"`
+}
+
 // Parse MTA file and provide mta object with data
 func Parse(yamlContent []byte) (out MTA, err error) {
 	mta := MTA{}
