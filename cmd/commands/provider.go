@@ -8,7 +8,7 @@ import (
 )
 
 // Provide list of modules
-var pm = &cobra.Command{
+var pModule = &cobra.Command{
 	Use:   "modules",
 	Short: "Provide list of modules",
 	Long:  "Provide list of modules",
@@ -23,5 +23,15 @@ var pm = &cobra.Command{
 			logs.Logger.Error(err)
 		}
 		fmt.Println(names)
+	},
+}
+
+// Provide mtad.yaml from mta.yaml
+var pMtad = &cobra.Command{
+	Use:   "mtad",
+	Short: "Provide mtad",
+	Long:  "Provide deployment descriptor (mtad.yaml) from development descriptor (mta.yaml)",
+	Run: func(cmd *cobra.Command, args []string) {
+
 	},
 }

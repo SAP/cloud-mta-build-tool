@@ -19,11 +19,11 @@ var buildTarget string
 
 func init() {
 	// Add environment flag for build purpose
-	bm.Flags().StringVarP(&buildTarget, "target", "t", "", "Build for specified environment ")
+	bModule.Flags().StringVarP(&buildTarget, "target", "t", "", "Build for specified environment ")
 }
 
 // Build module
-var bm = &cobra.Command{
+var bModule = &cobra.Command{
 	Use:   "module",
 	Short: "Build module",
 	Long:  "Build specific module according to the module name",
