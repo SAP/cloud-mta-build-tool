@@ -320,9 +320,9 @@ platform:
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := PlatformConfig(tt.platforms, tt.platform)
+			got := platformConfig(tt.platforms, tt.platform)
 			if !reflect.DeepEqual(got, tt.expected.Platforms[0]) {
-				t.Errorf("PlatformConfig() = %v, expected %v", got, tt.expected)
+				t.Errorf("platformConfig() = %v, expected %v", got, tt.expected)
 			}
 		})
 	}

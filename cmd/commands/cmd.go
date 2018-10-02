@@ -5,7 +5,8 @@ import (
 )
 
 var initMode string
-var buildTargetEnv string
+var buildTargetFlag string
+var validationFlag string
 
 // Parent command
 var build = &cobra.Command{
@@ -31,9 +32,21 @@ var provides = &cobra.Command{
 	Run:   nil,
 }
 
+
+// Parent command
+var validate = &cobra.Command{
+	Use:   "validate",
+	Short: "MBT validation",
+	Long:  "MBT validation process",
+	Run:   nil,
+}
+
+
 func init() {
 	// build target flags
-	build.Flags().StringVarP(&buildTargetEnv, "target", "t", "", "Build for specified environment ")
+	build.Flags().StringVarP(&buildTargetFlag, "target", "t", "", "Build for specified environment ")
+
+	validate.Flags().StringVarP(&validationFlag, "validate", "v", "", "Validation process ")
 	// Build module
 	provides.AddCommand(pModule)
 	// Provide module

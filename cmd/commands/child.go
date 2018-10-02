@@ -64,7 +64,7 @@ func packModule(tDir string, mPathProp string, mNameProp string) {
 		// zipping the build artifacts
 		logs.Logger.Infof("Starting execute zipping module %v ", mNameProp)
 		if err = fs.Archive(mp, mrp+dataZip); err != nil {
-			logs.Logger.Error("Error occurred during ZIP module %v creation, error:   ", mNameProp, err)
+			logs.Logger.Errorf("Error occurred during ZIP module %v creation, error: %s  ", mNameProp, err)
 			err = os.RemoveAll(tDir)
 			if err != nil {
 				logs.Logger.Error(err)
