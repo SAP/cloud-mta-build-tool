@@ -1,0 +1,6 @@
+manifest-Version: 1.0
+Created-By: SAP Application Archive Builder 0.0.1
+
+Name: htmlapp/data.zip
+MTA-Module: htmlapp
+Content-Type: application/zip

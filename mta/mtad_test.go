@@ -1,4 +1,4 @@
-package converter
+package mta
 
 import (
 	"log"
@@ -6,8 +6,6 @@ import (
 	"testing"
 
 	"cloud-mta-build-tool/cmd/platform"
-	"cloud-mta-build-tool/mta"
-
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/yaml.v2"
 )
@@ -55,7 +53,7 @@ modules:
     path: app
 `)
 
-	m := mta.MTA{}
+	m := MTA{}
 	// parse mta yaml
 	err = yaml.Unmarshal(mtaSingleModule, &m)
 	if err != nil {
@@ -74,7 +72,7 @@ modules:
     path: app
 `)
 
-	expected := mta.MTA{}
+	expected := MTA{}
 	// parse mta yaml
 	err = yaml.Unmarshal(expectedMta1Modules, &expected)
 	if err != nil {
@@ -105,7 +103,7 @@ modules:
 `)
 
 	// Parse the mta content
-	actualMtaMultiNeo := mta.MTA{}
+	actualMtaMultiNeo := MTA{}
 	// parse mta yaml
 	err = yaml.Unmarshal(mtaNeo, &actualMtaMultiNeo)
 	if err != nil {
@@ -133,7 +131,7 @@ modules:
 `)
 
 	// Parse the expected content
-	expectedMultiModulesNeo := mta.MTA{}
+	expectedMultiModulesNeo := MTA{}
 	// parse mta yaml
 	err = yaml.Unmarshal(expectedMtaMultiModules, &expectedMultiModulesNeo)
 	if err != nil {
@@ -162,7 +160,7 @@ modules:
     path: app
 `)
 
-	actulMtaCFMulti := mta.MTA{}
+	actulMtaCFMulti := MTA{}
 	// parse mta yaml
 	err = yaml.Unmarshal(mtaCF, &actulMtaCFMulti)
 	if err != nil {
@@ -189,7 +187,7 @@ modules:
     path: app
 `)
 
-	expectedMultiModulesCF := mta.MTA{}
+	expectedMultiModulesCF := MTA{}
 	// parse mta yaml
 	err = yaml.Unmarshal(expectedMultiModCF, &expectedMultiModulesCF)
 	if err != nil {
@@ -198,11 +196,11 @@ modules:
 
 	tests := []struct {
 		name          string
-		mta           mta.MTA
+		mta           MTA
 		platforms     platform.Platforms
 		platform      string
 		expected      string
-		expectedMulti mta.MTA
+		expectedMulti MTA
 	}{
 		{
 

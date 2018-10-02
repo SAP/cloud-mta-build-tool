@@ -1,8 +1,6 @@
 package mta
 
-// BuildParameters - MTA build parameters
-//type BuildParameters map[string]interface{}
-
+// BuildParameters - build params
 type BuildParameters struct {
 	Builder  string          `yaml:"builder,omitempty"`
 	Type     string          `yaml:"type,omitempty"`
