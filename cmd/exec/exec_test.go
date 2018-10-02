@@ -53,5 +53,4 @@ func Test_Indicator(t *testing.T) {
 		t.Error("Sleeping time is more than 3 seconds")
 	}
 
-
 }

@@ -41,7 +41,6 @@ var bModule = &cobra.Command{
 func buildModule(module string) {
 
 	logs.Logger.Info("Start building module: ", module)
-
 	pPath := fs.ProjectPath()
 	// Read MTA file
 	yamlFile, err := ioutil.ReadFile(pPath + pathSep + "mta.yaml")
@@ -58,11 +57,17 @@ func buildModule(module string) {
 	mRelPath := filepath.Join(fs.GetPath(), mPathProp)
 	// Get module commands and path
 	commands := cmdConverter(mRelPath, mCmd)
-	// Execute child-process
+	// Get temp dir for packing the artifacts
+	dir, file := filepath.Split(pPath)
+	tdir := filepath.Join(dir, file, file)
+	// Execute child-process with module respective commands
 	err = exec.Execute(commands)
 	if err != nil {
 		logs.Logger.Error(err)
 	}
+	// Pack the modules build artifacts (include node modules)
+	// into the temp dir as data zip
+	packModule(tdir, mPathProp, module)
 
 }
 
