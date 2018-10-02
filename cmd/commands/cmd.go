@@ -35,9 +35,9 @@ func init() {
 	// build target flags
 	build.Flags().StringVarP(&buildTargetEnv, "target", "t", "", "Build for specified environment ")
 	// Build module
-	provides.AddCommand(pm)
+	provides.AddCommand(pModule)
 	// Provide module
-	build.AddCommand(bm)
+	build.AddCommand(bModule)
 	// execute immutable commands
 	execute.AddCommand(prepare, pack, genMeta, genMtar, cleanup)
 	// Add command to the root
