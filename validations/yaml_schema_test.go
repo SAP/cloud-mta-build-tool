@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func assertNoSchemaIssues(errors []string, t *testing.T) {
+func assertNoSchemaIssues(errors []YamlValidationIssue, t *testing.T) {
 	if len(errors) != 0 {
 		t.Error("Schema issues detected")
 	}
@@ -331,7 +331,7 @@ mapping:
 `)
 
 	_, schemaIssues := BuildValidationsFromSchemaText(schema)
-	assert.Equal(t, schemaIssues[0], "YAML Schema Error: <pattern> node not valid: error parsing regexp: missing closing ]: `[a-zA-Z+`")
+	assert.Equal(t, schemaIssues[0].Msg, "YAML Schema Error: <pattern> node not valid: error parsing regexp: missing closing ]: `[a-zA-Z+`")
 }
 
 func TestSchemaOptionalInvalid(t *testing.T) {

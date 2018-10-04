@@ -14,7 +14,7 @@ import (
 )
 
 type YamlValidationIssue struct {
-	msg string
+	Msg string
 }
 
 type YamlCheck func(y *simpleyaml.Yaml, path []string) []YamlValidationIssue
@@ -101,7 +101,7 @@ func ForEach(checks ...YamlCheck) YamlCheck {
 func Required() YamlCheck {
 	return func(yProp *simpleyaml.Yaml, path []string) []YamlValidationIssue {
 		if !yProp.IsFound() {
-			return []YamlValidationIssue{{msg: fmt.Sprintf("Missing Required Property <%s> in <%s>",
+			return []YamlValidationIssue{{Msg: fmt.Sprintf("Missing Required Property <%s> in <%s>",
 				last(path),
 				buildPathString(dropRight(path)))}}
 		}
@@ -135,7 +135,7 @@ func TypeIsNotMapArray() YamlCheck {
 	return func(yProp *simpleyaml.Yaml, path []string) []YamlValidationIssue {
 
 		if yProp.IsMap() || yProp.IsArray() {
-			return []YamlValidationIssue{{msg: fmt.Sprintf("Property <%s> must be of type <string>", buildPathString(path))}}
+			return []YamlValidationIssue{{Msg: fmt.Sprintf("Property <%s> must be of type <string>", buildPathString(path))}}
 		}
 
 		return []YamlValidationIssue{}
@@ -147,7 +147,7 @@ func TypeIsArray() YamlCheck {
 		_, err := yProp.Array()
 
 		if err != nil {
-			return []YamlValidationIssue{{msg: fmt.Sprintf("Property <%s> must be of type <Array>", buildPathString(path))}}
+			return []YamlValidationIssue{{Msg: fmt.Sprintf("Property <%s> must be of type <Array>", buildPathString(path))}}
 		}
 
 		return []YamlValidationIssue{}
@@ -159,7 +159,7 @@ func TypeIsMap() YamlCheck {
 		_, err := yProp.Map()
 
 		if err != nil {
-			return []YamlValidationIssue{{msg: fmt.Sprintf("Property <%s> must be of type <Map>", buildPathString(path))}}
+			return []YamlValidationIssue{{Msg: fmt.Sprintf("Property <%s> must be of type <Map>", buildPathString(path))}}
 		}
 
 		return []YamlValidationIssue{}
@@ -171,7 +171,7 @@ func TypeIsBoolean() YamlCheck {
 		_, err := yProp.Bool()
 
 		if err != nil {
-			return []YamlValidationIssue{{msg: fmt.Sprintf("Property <%s> must be of type <Boolean>", buildPathString(path))}}
+			return []YamlValidationIssue{{Msg: fmt.Sprintf("Property <%s> must be of type <Boolean>", buildPathString(path))}}
 		}
 
 		return []YamlValidationIssue{}
@@ -186,7 +186,7 @@ func MatchesRegExp(pattern string) YamlCheck {
 
 		if !regExp.MatchString(strValue) {
 			return []YamlValidationIssue{
-				{msg: fmt.Sprintf("Property <%s> with value: <%s> must match pattern: <%s>", buildPathString(path), strValue, pattern)}}
+				{Msg: fmt.Sprintf("Property <%s> with value: <%s> must match pattern: <%s>", buildPathString(path), strValue, pattern)}}
 		}
 
 		return []YamlValidationIssue{}
@@ -218,7 +218,7 @@ func MatchesEnumValues(enumValues []string) YamlCheck {
 			}
 		}
 		if !found {
-			return []YamlValidationIssue{{msg: fmt.Sprintf("Enum property <%s> has invalid value. Expecting one of [%s]",
+			return []YamlValidationIssue{{Msg: fmt.Sprintf("Enum property <%s> has invalid value. Expecting one of [%s]",
 				buildPathString(path), expectedSubset)}}
 		}
 
