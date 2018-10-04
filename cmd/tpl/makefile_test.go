@@ -13,7 +13,8 @@ import (
 )
 
 func basicMakeAndValidate(t *testing.T, path, yamlFilename, makeFilename, expectedMakeFilename, expectedMakeFileExtension string) {
-	err := makeFile(path, makeFilename, "make_verbose.txt")
+	tpl := tplCfg{tplName: "make_verbose.txt", relPath: "/testdata", pre: basePreVerbose, post: basePostVerbose}
+	err := makeFile(makeFilename, tpl)
 	makeFullName := path + pathSep + makeFilename
 	if err != nil {
 		os.Remove(makeFullName)
@@ -60,12 +61,14 @@ func TestMake(t *testing.T) {
 			}},
 		{"Yaml file not exists", "YamlNotExists",
 			func(t *testing.T, path, yamlFilename, makeFilename string) {
-				err := makeFile(path+"1", makeFilename, "make.txt")
+				tpl := tplCfg{tplName: "make.txt"}
+				err := makeFile(makeFilename, tpl)
 				assert.NotNil(t, err)
 			}},
 		{"Yaml file exists but not answers YAML format", expectedMakeFilename,
 			func(t *testing.T, path, yamlFilename, makeFilename string) {
-				err := makeFile(path, makeFilename, "make.txt")
+				tpl := tplCfg{tplName: "make.txt"}
+				err := makeFile(makeFilename, tpl)
 				assert.NotNil(t, err)
 			}},
 		{"Make runs twice, 2 files created - with and without extension", "mta.yaml",
@@ -77,19 +80,19 @@ func TestMake(t *testing.T) {
 			}},
 		{"public Make testing", "mta.yaml",
 			func(t *testing.T, path, yamlFilename, makeFilename string) {
-				var flag string
-				err := Make(flag)
+				err := Make("errorMode")
 				assert.NotNil(t, err)
 			}},
 		{"Template is wrong", "mta.yaml",
 			func(t *testing.T, path, yamlFilename, makeFilename string) {
-				err := makeFile(path, makeFilename, "testdata"+pathSep+"WrongMakeTmpl.txt")
+				tpl := tplCfg{tplName: "testdata" + pathSep + "WrongMakeTmpl.txt"}
+				err := makeFile(makeFilename, tpl)
 				assert.NotNil(t, err)
 			}},
 		{"Template is empty", "mta.yaml",
 			func(t *testing.T, path, yamlFilename, makeFilename string) {
-				err := makeFile(path, makeFilename, "testdata"+pathSep+"emptyMakeTmpl.txt")
-				removeMakefile(t, path, makeFilename)
+				tpl := tplCfg{tplName: "testdata" + pathSep + "emptyMakeTmpl.txt"}
+				err := makeFile(makeFilename, tpl)
 				assert.NotNil(t, err)
 			}},
 	} {
@@ -105,9 +108,10 @@ func Test_makeMode(t *testing.T) {
 		mode string
 	}
 	tests := []struct {
-		name    string
-		args    args
-		want    string
+		name string
+		args args
+
+		want    tplCfg
 		wantErr bool
 	}{
 		{
@@ -115,7 +119,7 @@ func Test_makeMode(t *testing.T) {
 			args: args{
 				mode: "",
 			},
-			want:    "make_default.txt",
+			want:    tplCfg{tplName: makeDefaultTpl, pre: basePreDefault, post: basePostDefault},
 			wantErr: false,
 		},
 
@@ -124,7 +128,7 @@ func Test_makeMode(t *testing.T) {
 			args: args{
 				mode: "verbose",
 			},
-			want:    "make_verbose.txt",
+			want:    tplCfg{tplName: makeVerboseTpl, pre: basePreVerbose, post: basePostVerbose},
 			wantErr: false,
 		},
 		{
@@ -132,7 +136,7 @@ func Test_makeMode(t *testing.T) {
 			args: args{
 				mode: "--test",
 			},
-			want:    "",
+			want:    tplCfg{},
 			wantErr: true,
 		},
 	}

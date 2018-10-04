@@ -2,7 +2,6 @@ package tpl
 
 import (
 	"errors"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -17,86 +16,23 @@ import (
 )
 
 const (
-	makefile       = "Makefile"
-	mtaFile        = "mta.yaml"
-	basePre        = "base_pre.txt"
-	basePost       = "base_post.txt"
-	verbose        = "verbose"
-	makeDefaultTpl = "make_default.txt"
-	makeVerboseTpl = "make_verbose.txt"
-	pathSep        = string(os.PathSeparator)
+	makefile        = "Makefile"
+	mtaFile         = "mta.yaml"
+	basePreVerbose  = "base_pre_verbose.txt"
+	basePostVerbose = "base_post_verbose.txt"
+	basePreDefault  = "base_pre_default.txt"
+	basePostDefault = "base_post_default.txt"
+	verbose         = "verbose"
+	makeDefaultTpl  = "make_default.txt"
+	makeVerboseTpl  = "make_verbose.txt"
+	pathSep         = string(os.PathSeparator)
 )
 
-func createMakeFile(path, filename string) (file *os.File, err error) {
-
-	fullFilename := path + pathSep + filename
-	var mf *os.File
-	if _, err = os.Stat(fullFilename); err == nil {
-		mf, err = fs.CreateFile(fullFilename + ".mta")
-	} else {
-		mf, err = fs.CreateFile(fullFilename)
-	}
-	return mf, err
-}
-
-func makeFile(projectPath, makeFilename, verbTemplateName string) error {
-
-	type API map[string]string
-	// template data
-	var data struct {
-		File mta.MTA
-		API  API
-	}
-	// Read the MTA
-	yamlFile, err := ioutil.ReadFile(projectPath + pathSep + mtaFile)
-	if err != nil {
-		logs.Logger.Error("Not able to read the mta file ")
-		return err
-	}
-	mta, err := mta.Parse(yamlFile)
-	if err != nil {
-		logs.Logger.Error("Error occurred while parsing yaml file")
-		return err
-	}
-	data.File = mta
-	// Create maps of the template method's
-	t, err := makeVerbose(verbTemplateName, basePre, basePost)
-	if err != nil {
-		logs.Logger.Error(err)
-		return err
-	}
-	// Create make file for the template
-	makeFile, err := createMakeFile(projectPath, makeFilename)
-	if err != nil {
-		logs.Logger.Error(err)
-		return err
-	}
-	// Execute the template
-	err = t.Execute(makeFile, data)
-	if err != nil {
-		logs.Logger.Error(err)
-	}
-
-	e := makeFile.Close()
-	if err != nil {
-		logs.Logger.Error(e)
-	}
-	return err
-}
-
-func makeVerbose(verbTemplateName string, BasePre string, BasePost string) (*template.Template, error) {
-	funcMap := template.FuncMap{
-		"CommandProvider": builders.CommandProvider,
-		"OsCore":          proc.OsCore,
-	}
-	// Get the path of the template source code
-	_, file, _, _ := runtime.Caller(0)
-	makeVerbPath := filepath.Join(filepath.Dir(file), verbTemplateName)
-	preVerbPath := filepath.Join(filepath.Dir(file), BasePre)
-	postVerbPath := filepath.Join(filepath.Dir(file), BasePost)
-	// parse the template txt file
-	t, err := template.New(verbTemplateName).Funcs(funcMap).ParseFiles(makeVerbPath, preVerbPath, postVerbPath)
-	return t, err
+type tplCfg struct {
+	tplName string
+	relPath string
+	pre     string
+	post    string
 }
 
 // Make - Generate the makefile
@@ -106,19 +42,78 @@ func Make(mode string) error {
 		logs.Logger.Error(err)
 	}
 	// Get project working directory
-	pPath := fs.GetPath()
-	return makeFile(pPath, makefile, tpl)
+	return makeFile(makefile, tpl)
+}
+
+func makeFile(makeFilename string, tpl tplCfg) error {
+
+	type API map[string]string
+	// template data
+	var data struct {
+		File mta.MTA
+		API  API
+	}
+	// Read the MTA
+	s := &mta.Source{Path: tpl.relPath}
+	mf, err := s.ReadExtFile()
+	// Parse
+	m, e := mta.Parse(mf)
+	// Template data
+	data.File = m
+	// Create maps of the template method's
+	t, err := mapTpl(tpl.tplName, tpl.pre, tpl.post)
+	if err != nil {
+		logs.Logger.Error(err)
+		return err
+	}
+	// path for creating the file
+	path := filepath.Join(fs.GetPath(), tpl.relPath)
+	// Create make file for the template
+	makeFile, err := createMakeFile(path, makeFilename)
+	if err != nil {
+		logs.Logger.Error(err)
+		return err
+	}
+	// Execute the template
+	err = t.Execute(makeFile, data)
+	if err != nil {
+		logs.Logger.Error(err)
+	}
+	err = makeFile.Close()
+	if err != nil {
+		logs.Logger.Error(e)
+	}
+	return err
+}
+
+func mapTpl(templateName string, BasePre string, BasePost string) (*template.Template, error) {
+	funcMap := template.FuncMap{
+		"CommandProvider": builders.CommandProvider,
+		"OsCore":          proc.OsCore,
+	}
+	// Get the path of the template source code
+	_, file, _, _ := runtime.Caller(0)
+	makeVerbPath := filepath.Join(filepath.Dir(file), templateName)
+	prePath := filepath.Join(filepath.Dir(file), BasePre)
+	postPath := filepath.Join(filepath.Dir(file), BasePost)
+	// parse the template txt file
+	t, err := template.New(templateName).Funcs(funcMap).ParseFiles(makeVerbPath, prePath, postPath)
+	return t, err
 }
 
 // Get template (default/verbose) according to the CLI flags
-func makeMode(mode string) (string, error) {
-	tpl := makeDefaultTpl
+func makeMode(mode string) (tplCfg, error) {
+	tpl := tplCfg{}
 	if (mode == verbose) || (mode == "v") {
-		tpl = makeVerboseTpl
+		tpl.tplName = makeVerboseTpl
+		tpl.pre = basePreVerbose
+		tpl.post = basePostVerbose
 	} else if mode == "" {
-		return tpl, nil
+		tpl.tplName = makeDefaultTpl
+		tpl.pre = basePreDefault
+		tpl.post = basePostDefault
 	} else {
-		return "", errors.New("command is not supported")
+		return tplCfg{}, errors.New("command is not supported")
 	}
 	return tpl, nil
 }
@@ -131,4 +126,16 @@ func stringInSlice(a string, list []string) bool {
 		}
 	}
 	return false
+}
+
+func createMakeFile(path, filename string) (file *os.File, err error) {
+
+	fullFilename := path + pathSep + filename
+	var mf *os.File
+	if _, err = os.Stat(fullFilename); err == nil {
+		mf, err = fs.CreateFile(fullFilename + ".mta")
+	} else {
+		mf, err = fs.CreateFile(fullFilename)
+	}
+	return mf, err
 }

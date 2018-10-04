@@ -7,3 +7,4 @@ execute:
 {{"\t"}}@for module in $(modules) ; do \
 {{"\t"}} mbt build module $$module ; \
 {{"\t"}}done
+{{template "base_post" .}}

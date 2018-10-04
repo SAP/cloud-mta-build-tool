@@ -28,3 +28,7 @@ docker*
 cover.html
 cover.out
 coverage.txt
+
+
+cmd/tpl/MakeFileTest
+cmd/tpl/MakeFileTest.mta
