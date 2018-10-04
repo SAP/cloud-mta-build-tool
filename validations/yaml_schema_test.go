@@ -2,6 +2,8 @@ package mta_validate
 
 import (
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func assertNoSchemaIssues(errors []string, t *testing.T) {
@@ -108,6 +110,86 @@ lastName: duck
 	assertNoValidationErrors(validateIssues, t)
 }
 
+func TestSchemaEnumNotStringIssue(t *testing.T) {
+	var schema = []byte(`
+type: enum
+enums:
+   duck : 1
+   dog  : 2
+`)
+
+	_, schemaIssues := BuildValidationsFromSchemaText(schema)
+	expectSingleSchemaIssue(schemaIssues,
+		`YAML Schema Error: enums must be listed as array`, t)
+}
+
+func TestSchemaEnumNoEnumsNode(t *testing.T) {
+	var schema = []byte(`
+type: enum
+enumos:
+   - duck
+   - dog  
+`)
+
+	_, schemaIssues := BuildValidationsFromSchemaText(schema)
+	expectSingleSchemaIssue(schemaIssues,
+		`YAML Schema Error: enums must be listed`, t)
+}
+
+func TestSchemaEnumValueNotSimple(t *testing.T) {
+	var schema = []byte(`
+type: enum
+enums:
+   [duck, [dog, cat]]
+`)
+
+	_, schemaIssues := BuildValidationsFromSchemaText(schema)
+	expectSingleSchemaIssue(schemaIssues,
+		`YAML Schema Error: enum values must be simple`, t)
+}
+
+func TestSchemaEnumValid(t *testing.T) {
+	var schema = []byte(`
+type: enum
+enums:
+   - duck
+   - dog
+   - cat
+`)
+
+	schemaValidations, schemaIssues := BuildValidationsFromSchemaText(schema)
+	assertNoSchemaIssues(schemaIssues, t)
+
+	input := []byte(`
+    duck
+`)
+	validateIssues, parseErr := ValidateYaml(input, schemaValidations...)
+	assertNoParsingErrors(parseErr, t)
+	assertNoValidationErrors(validateIssues, t)
+}
+
+func TestSchemaEnumInvalid(t *testing.T) {
+	var schema = []byte(`
+type: enum
+enums:
+   - duck
+   - dog
+   - cat
+`)
+
+	schemaValidations, schemaIssues := BuildValidationsFromSchemaText(schema)
+	assertNoSchemaIssues(schemaIssues, t)
+
+	input := []byte(`
+    bird
+`)
+	validateIssues, parseErr := ValidateYaml(input, schemaValidations...)
+	assertNoParsingErrors(parseErr, t)
+	expectSingleValidationError(validateIssues,
+		`Enum property <root> has invalid value`,
+		t)
+}
+
 func TestSchemaRequiredInvalid(t *testing.T) {
 	var schema = []byte(`
 type: map
@@ -199,7 +281,7 @@ lastName: duck
 	assertNoValidationErrors(validateIssues, t)
 }
 
-func TestSchemaPatternInvalid(t *testing.T) {
+func TestSchemaPatternValidationError(t *testing.T) {
 	var schema = []byte(`
 type: map
 mapping:
@@ -237,6 +319,17 @@ lastName: duck
 	validateIssues, parseErr := ValidateYaml(input, schemaValidations...)
 	assertNoParsingErrors(parseErr, t)
 	assertNoValidationErrors(validateIssues, t)
+}
+
+func TestSchemaPatternInvalid(t *testing.T) {
+	var schema = []byte(`
+type: map
+mapping:
+   firstName:  {required: true, pattern: '/[a-zA-Z+/'}
+`)
+
+	_, schemaIssues := BuildValidationsFromSchemaText(schema)
+	assert.Equal(t, schemaIssues[0], "YAML Schema Error: <pattern> node not valid: error parsing regexp: missing closing ]: `[a-zA-Z+`")
 }
 
 func TestSchemaOptionalInvalid(t *testing.T) {

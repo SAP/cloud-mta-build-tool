@@ -1,6 +1,11 @@
 package mta_validate
 
-import "testing"
+import (
+	"fmt"
+	"testing"
+
+	"github.com/smallfish/simpleyaml"
+)
 import "github.com/stretchr/testify/assert"
 
 func TestInvalidYamlHandling(t *testing.T) {
@@ -73,7 +78,7 @@ firstName: Donald
 lastName: duck
 `)
 	validateIssues, parseErr := ValidateYaml(data, Property("firstName",
-		TypeIsString()))
+		TypeIsNotMapArray()))
 
 	assertNoParsingErrors(parseErr, t)
 	assertNoValidationErrors(validateIssues, t)
@@ -88,7 +93,7 @@ firstName:
 lastName: duck
 `)
 	validateIssues, parseErr := ValidateYaml(data, Property("firstName",
-		TypeIsString()))
+		TypeIsNotMapArray()))
 
 	assertNoParsingErrors(parseErr, t)
 	expectSingleValidationError(validateIssues,
@@ -289,7 +294,7 @@ lastName: duck
 	validateIssues, parseErr := ValidateYaml(data,
 		Property("firstName",
 			Optional(
-				TypeIsString())))
+				TypeIsNotMapArray())))
 
 	assertNoParsingErrors(parseErr, t)
 	assertNoValidationErrors(validateIssues, t)
@@ -302,7 +307,7 @@ lastName: duck
 	validateIssues, parseErr := ValidateYaml(data,
 		Property("firstName",
 			Optional(
-				TypeIsString())))
+				TypeIsNotMapArray())))
 
 	assertNoParsingErrors(parseErr, t)
 	assertNoValidationErrors(validateIssues, t)
@@ -318,10 +323,29 @@ lastName: duck
 	validateIssues, parseErr := ValidateYaml(data,
 		Property("firstName",
 			Optional(
-				TypeIsString())))
+				TypeIsNotMapArray())))
 
 	assertNoParsingErrors(parseErr, t)
 	expectSingleValidationError(validateIssues,
 		`Property <root.firstName> must be of type <string>`,
 		t)
+}
+
+func TestGetLiteralStringValueInvalid(t *testing.T) {
+	data := []byte(`
+  [a,b]
+`)
+	y, _ := simpleyaml.NewYaml(data)
+	value := getLiteralStringValue(y)
+	assert.Empty(t, value)
+
+}
+
+func TestGetLiteralStringValueFloat(t *testing.T) {
+	str := fmt.Sprintf("%g", 0.55)
+	data := []byte(str)
+	y, _ := simpleyaml.NewYaml(data)
+	value := getLiteralStringValue(y)
+	assert.Equal(t, str, value)
+
 }

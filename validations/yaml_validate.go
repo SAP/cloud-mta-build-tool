@@ -1,6 +1,5 @@
 // TODO: Implement additional validations
 // 1. Unique:
-// 3. TypeIsEnum
 // 4. Allowed Properties.
 // 5. TypeIsNotMapOrSet
 
@@ -132,12 +131,10 @@ func Optional(checks ...YamlCheck) YamlCheck {
 	}
 }
 
-// TODO: This should actually be TypeIsNotMapSequence (literal)
-func TypeIsString() YamlCheck {
+func TypeIsNotMapArray() YamlCheck {
 	return func(yProp *simpleyaml.Yaml, path []string) []YamlValidationIssue {
-		_, err := yProp.String()
 
-		if err != nil {
+		if yProp.IsMap() || yProp.IsArray() {
 			return []YamlValidationIssue{{msg: fmt.Sprintf("Property <%s> must be of type <string>", buildPathString(path))}}
 		}
 
@@ -242,8 +239,11 @@ func getLiteralStringValue(y *simpleyaml.Yaml) string {
 		return fmt.Sprintf("%d", IntVal)
 	}
 
-	// TODO: Literal format of float? How to do with transformation?
-	// https://golang.org/pkg/fmt/
+	FloatVal, FloatErr := y.Float()
+	if FloatErr == nil {
+		return fmt.Sprintf("%g", FloatVal)
+	}
+
 	return ""
 }
 

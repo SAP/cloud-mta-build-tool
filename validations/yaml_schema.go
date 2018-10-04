@@ -1,14 +1,13 @@
 // TODO: HO
 // 1. Position information for schema issues (blocked)
 // 2. Path information for schema issues.
-// 3. Validate that regExp patterns are valid
 // 4. regExp patterns also implicitly require a NotMapSequence validation
-// 5. TypeValidations (Bool / Enum)
 
 package mta_validate
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 
 	"github.com/smallfish/simpleyaml"
@@ -52,12 +51,12 @@ func buildValidationsFromSchema(schema *simpleyaml.Yaml) ([]YamlCheck, []string)
 			newValidations, newSchemaIssues := buildValidationsFromMap(mappingNode)
 			schemaIssues = append(schemaIssues, newSchemaIssues...)
 			validations = append(validations, newValidations...)
-		// type: seq
-		// sequence:
-		//  - type: map
-		//  mapping:
-		//    name: {required: true}
-		//    ...
+			// type: seq
+			// sequence:
+			//  - type: map
+			//  mapping:
+			//    name: {required: true}
+			//    ...
 		case "seq":
 			sequenceNode := schema.Get("sequence")
 			if !sequenceNode.IsArray() {
@@ -176,10 +175,49 @@ func buildTypeValidation(y *simpleyaml.Yaml) ([]YamlCheck, []string) {
 		if typeValue == "bool" {
 			validations = append(validations, TypeIsBoolean())
 		} else if typeValue == "enum" {
-			// TODO: TBD
+			return buildEnumValidation(y)
 		}
 	}
 	return validations, schemaIssues
+}
+
+func buildEnumValidation(y *simpleyaml.Yaml) ([]YamlCheck, []string) {
+	enumsNode := y.Get("enums")
+	if !enumsNode.IsFound() {
+		return []YamlCheck{}, []string{"YAML Schema Error: enums must be listed"}
+	}
+	if !enumsNode.IsArray() {
+		return []YamlCheck{}, []string{"YAML Schema Error: enums must be listed as array"}
+	}
+
+	enumsNumber, _ := enumsNode.GetArraySize()
+	enumValues := []string{}
+	for i := 0; i < enumsNumber; i++ {
+		enumNode := enumsNode.GetIndex(i)
+		if enumNode.IsArray() || enumNode.IsMap() {
+			return []YamlCheck{}, []string{"YAML Schema Error: enum values must be simple"}
+		} else {
+			enumValue := getLiteralStringValue(enumNode)
+			enumValues = append(enumValues, enumValue)
+		}
+	}
+
+	return []YamlCheck{func(yProp *simpleyaml.Yaml, path []string) []YamlValidationIssue {
+		value := getLiteralStringValue(yProp)
+		found := false
+		for _, enumValue := range enumValues {
+			if enumValue == value {
+				found = true
+				break
+			}
+		}
+		if !found {
+			return []YamlValidationIssue{{msg: fmt.Sprintf("Enum property <%s> has invalid value", buildPathString(path))}}
+		}
+
+		return []YamlValidationIssue{}
+	}}, nil
+
 }
 
 func buildPatternValidation(y *simpleyaml.Yaml) ([]YamlCheck, []string) {
@@ -194,9 +232,13 @@ func buildPatternValidation(y *simpleyaml.Yaml) ([]YamlCheck, []string) {
 			return validations, schemaIssues
 		}
 		// TODO: we must validate: NOT MAP/SEQ
-		// TODO: validate that the pattern is valid
 		patternWithoutSlashes := strings.TrimSuffix(strings.TrimPrefix(patternValue, "/"), "/")
-		validations = append(validations, MatchesRegExp(patternWithoutSlashes))
+		_, err = regexp.Compile(patternWithoutSlashes)
+		if err != nil {
+			schemaIssues = append(schemaIssues, "YAML Schema Error: <pattern> node not valid: "+err.Error())
+		} else {
+			validations = append(validations, MatchesRegExp(patternWithoutSlashes))
+		}
 	}
 	return validations, schemaIssues
 }
