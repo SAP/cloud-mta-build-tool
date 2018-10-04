@@ -3,6 +3,8 @@ package mta
 import (
 	"fmt"
 	"gopkg.in/yaml.v2"
+	"io/ioutil"
+	"os"
 
 	"cloud-mta-build-tool/cmd/logs"
 )
@@ -71,6 +73,15 @@ type Resources struct {
 	Properties Properties `yaml:"properties,omitempty"`
 }
 
+type file interface {
+	ReadExtFile() ([]byte, error)
+}
+
+// Source - file path
+type Source struct {
+	Path string
+}
+
 // Parse MTA file and provide mta object with data
 func Parse(yamlContent []byte) (out MTA, err error) {
 	mta := MTA{}
@@ -89,6 +100,20 @@ func Marshal(in MTA) (mtads []byte, err error) {
 		logs.Logger.Error(err.Error())
 	}
 	return mtads, err
+}
+
+// ReadExtFile - read external
+func (s Source) ReadExtFile() ([]byte, error) {
+	wd, err := os.Getwd()
+	if err != nil {
+		logs.Logger.Error(err)
+	}
+	// Read MTA file
+	yamlFile, err := ioutil.ReadFile(wd + pathSep + s.Path + pathSep + "mta.yaml")
+	if err != nil {
+		return yamlFile, fmt.Errorf("not able to read the mta file : %s", err.Error())
+	}
+	return yamlFile, err
 }
 
 // Provide list of modules
