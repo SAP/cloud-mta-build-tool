@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-func TestMtaScehmaMain(t *testing.T) {
+func TestMtaSchemaMain(t *testing.T) {
 	var data = []byte(`
 type: map
 mapping:
