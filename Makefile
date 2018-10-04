@@ -54,6 +54,7 @@ build-windows:
 # use for local development - > copy the new bin to go/bin path to use new compiled version
 copy:
 	cp $(CURDIR)/release/$(BINARY_NAME) $(GOPATH)/bin/
+	cp $(CURDIR)/release/$(BINARY_NAME) $~/usr/local/bin/
 	@echo "done"
 
 

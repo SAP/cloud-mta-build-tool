@@ -34,11 +34,13 @@ func Test_Execute_WithGoTestingNegative(t *testing.T) {
 
 func Test_Indicator(t *testing.T) {
 
+	// var wg sync.WaitGroup
+	// wg.Add(1)
 	shutdownCh := make(chan struct{})
 	start := time.Now()
 	go indicator(shutdownCh)
-	time.Sleep(1 * time.Second)
-	close(shutdownCh)
+	time.Sleep(3 * time.Second)
+	// close(shutdownCh)
 	sec := time.Since(start).Seconds()
 	switch int(sec) {
 	case 0:
@@ -53,4 +55,6 @@ func Test_Indicator(t *testing.T) {
 		t.Error("Sleeping time is more than 3 seconds")
 	}
 
+	shutdownCh <- struct{}{}
+	// wg.Wait()
 }
