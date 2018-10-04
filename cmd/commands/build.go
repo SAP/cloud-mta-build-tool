@@ -68,7 +68,9 @@ func buildModule(module string) {
 	// Pack the modules build artifacts (include node modules)
 	// into the temp dir as data zip
 	packModule(tdir, mPathProp, module)
-
+	if err != nil {
+		logs.Logger.Error(err)
+	}
 }
 
 // Get commands for specific module type

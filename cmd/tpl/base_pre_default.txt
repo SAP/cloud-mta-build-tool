@@ -1,0 +1,20 @@
+{{define "base_pre"}}
+# Create folder for build artifacts
+DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
+BASE := $(notdir $(patsubst %/,%,$(DIR)))
+MTR_DIR := $(DIR)$(BASE)
+# Determine OS cores
+{{- range OsCore }}
+{{ .NPROCS  }}
+{{ .MAKEFLAGS  }}
+{{- end}}
+# List of all the recipes to be executed during the build process
+.PHONY: {{- range .File.Modules}} {{.Name}}{{end}} meta mtar cleanup
+# Default target compile all
+all: tdir execute meta mtar cleanup
+# Create folder for build artifacts
+tdir:
+	@mkdir -p "$(MTR_DIR)"
+# Set the current project repository path for general mta process
+  PROJ_DIR := $(CURDIR)
+{{end}}

@@ -50,7 +50,7 @@ var pack = &cobra.Command{
 	},
 }
 
-func packModule(tDir string, mPathProp string, mNameProp string) {
+func packModule(tDir string, mPathProp string, mNameProp string) error {
 	// Get module path
 	mp := filepath.Join(fs.GetPath(), mPathProp)
 	// Get module relative path
@@ -73,6 +73,7 @@ func packModule(tDir string, mPathProp string, mNameProp string) {
 			logs.Logger.Infof("Execute zipping module %v finished successfully ", mNameProp)
 		}
 	}
+	return err
 }
 
 func generateMeta(relPath string, args []string) {
