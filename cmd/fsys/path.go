@@ -12,7 +12,7 @@ func GetPath() (dir string) {
 	// TODO should get also from user
 	wd, err := os.Getwd()
 	if err != nil {
-		logs.Logger.Panicln(err)
+		logs.Logger.Error(err)
 	}
 	return wd
 }

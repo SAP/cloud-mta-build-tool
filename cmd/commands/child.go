@@ -99,7 +99,8 @@ var genMeta = &cobra.Command{
 
 func processMta(processName string, relPath string, args []string, process func(file []byte, args []string)) {
 	logs.Logger.Info("Starting " + processName)
-	mf, err := getFile(relPath)
+	s := &mta.Source{Path: relPath}
+	mf, err := s.ReadExtFile()
 	if err == nil {
 		process(mf, args)
 		logs.Logger.Info(processName + " finish successfully ")

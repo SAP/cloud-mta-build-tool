@@ -94,6 +94,7 @@ func Execute(cmdParams [][]string) error {
 func indicator(shutdownCh <-chan struct{}) {
 	ticker := time.NewTicker(time.Second)
 	defer ticker.Stop()
+	// defer wg.Done()
 	for {
 		select {
 		case <-ticker.C:

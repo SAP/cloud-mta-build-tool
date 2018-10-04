@@ -14,11 +14,14 @@ var pModule = &cobra.Command{
 	Long:  "Provide list of modules",
 	Run: func(cmd *cobra.Command, args []string) {
 		// Get Yaml file
-		bytes, err := getFile(pathSep)
+		s := mta.Source{
+			Path: pathSep,
+		}
+		yamlFile, err := s.ReadExtFile()
 		if err != nil {
 			logs.Logger.Error(err)
 		}
-		names, err := mta.GetModulesNames(bytes)
+		names, err := mta.GetModulesNames(yamlFile)
 		if err != nil {
 			logs.Logger.Error(err)
 		}

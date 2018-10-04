@@ -2,7 +2,6 @@ package commands
 
 import (
 	"errors"
-	"io/ioutil"
 	"path/filepath"
 	"strings"
 
@@ -41,13 +40,14 @@ var bModule = &cobra.Command{
 func buildModule(module string) {
 
 	logs.Logger.Info("Start building module: ", module)
-	pPath := fs.ProjectPath()
+	// Read File
+	s := &mta.Source{}
+	yamlFile, err := s.ReadExtFile()
 	// Read MTA file
-	yamlFile, err := ioutil.ReadFile(pPath + pathSep + "mta.yaml")
 	if err != nil {
 		logs.Logger.Error("Not able to read the mta file ")
 	}
-	// Parse MTA file
+	// // Parse MTA file
 	mta, err := mta.Parse(yamlFile)
 	if err != nil {
 		logs.Logger.Errorf("Error occurred while parsing the MTA file %s", err)
@@ -58,7 +58,7 @@ func buildModule(module string) {
 	// Get module commands and path
 	commands := cmdConverter(mRelPath, mCmd)
 	// Get temp dir for packing the artifacts
-	dir, file := filepath.Split(pPath)
+	dir, file := filepath.Split(fs.ProjectPath())
 	tdir := filepath.Join(dir, file, file)
 	// Execute child-process with module respective commands
 	err = exec.Execute(commands)
