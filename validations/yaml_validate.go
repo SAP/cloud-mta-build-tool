@@ -193,6 +193,39 @@ func MatchesRegExp(pattern string) YamlCheck {
 	}
 }
 
+// Validates that value matches to one of defined enums values
+func MatchesEnumValues(enumValues []string) YamlCheck {
+	expectedSubset := ""
+	i := 0
+	for _, enumValue := range enumValues {
+		i++
+		if i > 4 {
+			break
+		}
+		if i > 1 {
+			expectedSubset = expectedSubset + ","
+		}
+		expectedSubset = expectedSubset + enumValue
+	}
+
+	return func(yProp *simpleyaml.Yaml, path []string) []YamlValidationIssue {
+		value := getLiteralStringValue(yProp)
+		found := false
+		for _, enumValue := range enumValues {
+			if enumValue == value {
+				found = true
+				break
+			}
+		}
+		if !found {
+			return []YamlValidationIssue{{msg: fmt.Sprintf("Enum property <%s> has invalid value. Expecting one of [%s]",
+				buildPathString(path), expectedSubset)}}
+		}
+
+		return []YamlValidationIssue{}
+	}
+}
+
 func prettifyPath(path string) string {
 	wrongIdxSyntax, _ := regexp.Compile("\\.\\[")
 

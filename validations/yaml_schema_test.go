@@ -120,7 +120,7 @@ enums:
 
 	_, schemaIssues := BuildValidationsFromSchemaText(schema)
 	expectSingleSchemaIssue(schemaIssues,
-		`YAML Schema Error: enums must be listed as array`, t)
+		`YAML Schema Error: enums values must be listed as array`, t)
 }
 
 func TestSchemaEnumNoEnumsNode(t *testing.T) {
@@ -133,7 +133,7 @@ enumos:
 
 	_, schemaIssues := BuildValidationsFromSchemaText(schema)
 	expectSingleSchemaIssue(schemaIssues,
-		`YAML Schema Error: enums must be listed`, t)
+		`YAML Schema Error: enums values must be listed`, t)
 }
 
 func TestSchemaEnumValueNotSimple(t *testing.T) {
@@ -175,6 +175,8 @@ enums:
    - duck
    - dog
    - cat
+   - mouse
+   - elephant
 `)
 
 	schemaValidations, schemaIssues := BuildValidationsFromSchemaText(schema)
@@ -186,7 +188,7 @@ enums:
 	validateIssues, parseErr := ValidateYaml(input, schemaValidations...)
 	assertNoParsingErrors(parseErr, t)
 	expectSingleValidationError(validateIssues,
-		`Enum property <root> has invalid value`,
+		`Enum property <root> has invalid value. Expecting one of [duck,dog,cat,mouse]`,
 		t)
 }
 

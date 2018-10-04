@@ -175,7 +175,9 @@ func buildTypeValidation(y *simpleyaml.Yaml) ([]YamlCheck, []string) {
 		if typeValue == "bool" {
 			validations = append(validations, TypeIsBoolean())
 		} else if typeValue == "enum" {
-			return buildEnumValidation(y)
+			enumValidations, enumSchemaIssues := buildEnumValidation(y)
+			validations = append(validations, enumValidations...)
+			schemaIssues = append(schemaIssues, enumSchemaIssues...)
 		}
 	}
 	return validations, schemaIssues
@@ -184,13 +186,14 @@ func buildTypeValidation(y *simpleyaml.Yaml) ([]YamlCheck, []string) {
 func buildEnumValidation(y *simpleyaml.Yaml) ([]YamlCheck, []string) {
 	enumsNode := y.Get("enums")
 	if !enumsNode.IsFound() {
-		return []YamlCheck{}, []string{"YAML Schema Error: enums must be listed"}
+		return []YamlCheck{}, []string{"YAML Schema Error: enums values must be listed"}
 	}
 	if !enumsNode.IsArray() {
-		return []YamlCheck{}, []string{"YAML Schema Error: enums must be listed as array"}
+		return []YamlCheck{}, []string{"YAML Schema Error: enums values must be listed as array"}
 	}
 
 	enumsNumber, _ := enumsNode.GetArraySize()
+
 	enumValues := []string{}
 	for i := 0; i < enumsNumber; i++ {
 		enumNode := enumsNode.GetIndex(i)
@@ -202,22 +205,7 @@ func buildEnumValidation(y *simpleyaml.Yaml) ([]YamlCheck, []string) {
 		}
 	}
 
-	return []YamlCheck{func(yProp *simpleyaml.Yaml, path []string) []YamlValidationIssue {
-		value := getLiteralStringValue(yProp)
-		found := false
-		for _, enumValue := range enumValues {
-			if enumValue == value {
-				found = true
-				break
-			}
-		}
-		if !found {
-			return []YamlValidationIssue{{msg: fmt.Sprintf("Enum property <%s> has invalid value", buildPathString(path))}}
-		}
-
-		return []YamlValidationIssue{}
-	}}, nil
-
+	return []YamlCheck{MatchesEnumValues(enumValues)}, nil
 }
 
 func buildPatternValidation(y *simpleyaml.Yaml) ([]YamlCheck, []string) {
