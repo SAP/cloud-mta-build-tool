@@ -4,7 +4,6 @@
 <b>Disclaimer</b>:  This repository is <b>under development</b> and currently unstable, don't use until there is an official release.  
 # Multi-target Application (MTA) Archive Builder
 
-
 The MTA command-line archive builder provides a convenient way to bundle an MTA project into an MTAR file (MTA archive).
 
 ### Multi-Target Applications

@@ -23,8 +23,8 @@ func expectSingleValidationError(actual []YamlValidationIssue, expectedMsg strin
 		t.Errorf("A single validation issue expected but found: <%d>", numOfErrors)
 	}
 
-	actualMsg := actual[0].msg
-	if actual[0].msg != expectedMsg {
+	actualMsg := actual[0].Msg
+	if actual[0].Msg != expectedMsg {
 		t.Errorf("Expecting <%s>.\n\t But found <%s>.", expectedMsg, actualMsg)
 	}
 }
@@ -38,21 +38,21 @@ func expectMultipleValidationError(actualIssues []YamlValidationIssue, expectedM
 
 	var actualMsgs []string
 	for _, issue := range actualIssues {
-		actualMsgs = append(actualMsgs, issue.msg)
+		actualMsgs = append(actualMsgs, issue.Msg)
 	}
 
 	assert.Subset(t, actualMsgs, expectedMsgs)
 	assert.Subset(t, expectedMsgs, actualMsgs)
 }
 
-func expectSingleSchemaIssue(actual []string, expectedMsg string, t *testing.T) {
+func expectSingleSchemaIssue(actual []YamlValidationIssue, expectedMsg string, t *testing.T) {
 	numOfErrors := len(actual)
 	if numOfErrors != 1 {
 		t.Errorf("A single validation issue expected but found: <%d>", numOfErrors)
 	}
 
 	actualMsg := actual[0]
-	if actual[0] != expectedMsg {
+	if actual[0].Msg != expectedMsg {
 		t.Errorf("Expecting <%s>.\n\t But found <%s>.", expectedMsg, actualMsg)
 	}
 }
