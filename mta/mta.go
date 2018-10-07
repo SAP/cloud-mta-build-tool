@@ -83,7 +83,8 @@ type file interface {
 
 // Source - file path
 type Source struct {
-	Path string
+	Path     string
+	Filename string
 }
 
 // Parse MTA file and provide mta object with data
@@ -129,7 +130,7 @@ func (s Source) ReadExtFile() ([]byte, error) {
 		logs.Logger.Error(err)
 	}
 	// Read MTA file
-	yamlFile, err := ioutil.ReadFile(wd + pathSep + s.Path + pathSep + "mta.yaml")
+	yamlFile, err := ioutil.ReadFile(wd + pathSep + s.Path + pathSep + s.Filename)
 	if err != nil {
 		return yamlFile, fmt.Errorf("not able to read the mta file : %s", err.Error())
 	}

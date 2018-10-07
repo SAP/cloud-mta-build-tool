@@ -1,8 +1,7 @@
 package commands
 
 import (
-	"io/ioutil"
-
+	"cloud-mta-build-tool/cmd/fsys"
 	"cloud-mta-build-tool/cmd/logs"
 	"cloud-mta-build-tool/mta"
 	"github.com/spf13/cobra"
@@ -42,13 +41,14 @@ var validate = &cobra.Command{
 	Short: "MBT validation",
 	Long:  "MBT validation process",
 	Run: func(cmd *cobra.Command, args []string) {
-		validateMtaYaml(args[0])
+		validateMtaYaml(dir.GetPath(), "mta.yaml")
 	},
 }
 
-func validateMtaYaml(yamlFilename string) {
+func validateMtaYaml(yamlPath string, yamlFilename string) {
 	logs.Logger.Info("Starting MTA Yaml validation")
-	yamlContent, err := ioutil.ReadFile(yamlFilename)
+	source := mta.Source{yamlPath, yamlFilename}
+	yamlContent, err := source.ReadExtFile()
 	if err != nil {
 		logs.Logger.Error(err)
 	} else {
