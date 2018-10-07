@@ -17,11 +17,19 @@ var pModule = &cobra.Command{
 		s := mta.Source{
 			Path: pathSep,
 		}
+		// Read file
 		yamlFile, err := s.ReadExtFile()
 		if err != nil {
 			logs.Logger.Error(err)
 		}
-		names, err := mta.GetModulesNames(yamlFile)
+		// Parse file
+		mo := &mta.MTA{}
+		err = mo.Parse(yamlFile)
+		if err != nil {
+			logs.Logger.Error(err)
+		}
+		// Get list of modules names
+		names := mo.GetModulesNames()
 		if err != nil {
 			logs.Logger.Error(err)
 		}

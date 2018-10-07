@@ -51,13 +51,19 @@ func makeFile(makeFilename string, tpl tplCfg) error {
 		File mta.MTA
 		API  API
 	}
-	// Read the MTA
+	// Read file
 	s := &mta.Source{Path: tpl.relPath}
 	mf, err := s.ReadExtFile()
-	// Parse
-	m, e := mta.Parse(mf)
+
+	// Parse file
+	m := &mta.MTA{}
+	err = m.Parse(mf)
+	if err != nil {
+		logs.Logger.Error(err)
+	}
+
 	// Template data
-	data.File = m
+	data.File = *m
 	// Create maps of the template method's
 	t, err := mapTpl(tpl.tplName, tpl.pre, tpl.post)
 	if err != nil {
@@ -79,7 +85,7 @@ func makeFile(makeFilename string, tpl tplCfg) error {
 	}
 	err = makeFile.Close()
 	if err != nil {
-		logs.Logger.Error(e)
+		logs.Logger.Error(err)
 	}
 	return err
 }
