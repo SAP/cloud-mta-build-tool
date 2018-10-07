@@ -1,6 +1,5 @@
 // TODO: Implement additional validations
 // 1. Unique:
-// 3. TypeIsEnum
 // 4. Allowed Properties.
 // 5. TypeIsNotMapOrSet
 
@@ -15,7 +14,7 @@ import (
 )
 
 type YamlValidationIssue struct {
-	msg string
+	Msg string
 }
 
 type YamlCheck func(y *simpleyaml.Yaml, path []string) []YamlValidationIssue
@@ -102,7 +101,7 @@ func ForEach(checks ...YamlCheck) YamlCheck {
 func Required() YamlCheck {
 	return func(yProp *simpleyaml.Yaml, path []string) []YamlValidationIssue {
 		if !yProp.IsFound() {
-			return []YamlValidationIssue{{msg: fmt.Sprintf("Missing Required Property <%s> in <%s>",
+			return []YamlValidationIssue{{Msg: fmt.Sprintf("Missing Required Property <%s> in <%s>",
 				last(path),
 				buildPathString(dropRight(path)))}}
 		}
@@ -132,13 +131,11 @@ func Optional(checks ...YamlCheck) YamlCheck {
 	}
 }
 
-// TODO: This should actually be TypeIsNotMapSequence (literal)
-func TypeIsString() YamlCheck {
+func TypeIsNotMapArray() YamlCheck {
 	return func(yProp *simpleyaml.Yaml, path []string) []YamlValidationIssue {
-		_, err := yProp.String()
 
-		if err != nil {
-			return []YamlValidationIssue{{msg: fmt.Sprintf("Property <%s> must be of type <string>", buildPathString(path))}}
+		if yProp.IsMap() || yProp.IsArray() {
+			return []YamlValidationIssue{{Msg: fmt.Sprintf("Property <%s> must be of type <string>", buildPathString(path))}}
 		}
 
 		return []YamlValidationIssue{}
@@ -147,10 +144,13 @@ func TypeIsString() YamlCheck {
 
 func TypeIsArray() YamlCheck {
 	return func(yProp *simpleyaml.Yaml, path []string) []YamlValidationIssue {
-		_, err := yProp.Array()
 
-		if err != nil {
-			return []YamlValidationIssue{{msg: fmt.Sprintf("Property <%s> must be of type <Array>", buildPathString(path))}}
+		if yProp.IsFound() {
+			_, err := yProp.Array()
+
+			if err != nil {
+				return []YamlValidationIssue{{Msg: fmt.Sprintf("Property <%s> must be of type <Array>", buildPathString(path))}}
+			}
 		}
 
 		return []YamlValidationIssue{}
@@ -159,10 +159,13 @@ func TypeIsArray() YamlCheck {
 
 func TypeIsMap() YamlCheck {
 	return func(yProp *simpleyaml.Yaml, path []string) []YamlValidationIssue {
-		_, err := yProp.Map()
 
-		if err != nil {
-			return []YamlValidationIssue{{msg: fmt.Sprintf("Property <%s> must be of type <Map>", buildPathString(path))}}
+		if yProp.IsFound() {
+			_, err := yProp.Map()
+
+			if err != nil {
+				return []YamlValidationIssue{{Msg: fmt.Sprintf("Property <%s> must be of type <Map>", buildPathString(path))}}
+			}
 		}
 
 		return []YamlValidationIssue{}
@@ -171,10 +174,12 @@ func TypeIsMap() YamlCheck {
 
 func TypeIsBoolean() YamlCheck {
 	return func(yProp *simpleyaml.Yaml, path []string) []YamlValidationIssue {
-		_, err := yProp.Bool()
+		if yProp.IsFound() {
+			_, err := yProp.Bool()
 
-		if err != nil {
-			return []YamlValidationIssue{{msg: fmt.Sprintf("Property <%s> must be of type <Boolean>", buildPathString(path))}}
+			if err != nil {
+				return []YamlValidationIssue{{Msg: fmt.Sprintf("Property <%s> must be of type <Boolean>", buildPathString(path))}}
+			}
 		}
 
 		return []YamlValidationIssue{}
@@ -189,7 +194,40 @@ func MatchesRegExp(pattern string) YamlCheck {
 
 		if !regExp.MatchString(strValue) {
 			return []YamlValidationIssue{
-				{msg: fmt.Sprintf("Property <%s> with value: <%s> must match pattern: <%s>", buildPathString(path), strValue, pattern)}}
+				{Msg: fmt.Sprintf("Property <%s> with value: <%s> must match pattern: <%s>", buildPathString(path), strValue, pattern)}}
+		}
+
+		return []YamlValidationIssue{}
+	}
+}
+
+// Validates that value matches to one of defined enums values
+func MatchesEnumValues(enumValues []string) YamlCheck {
+	expectedSubset := ""
+	i := 0
+	for _, enumValue := range enumValues {
+		i++
+		if i > 4 {
+			break
+		}
+		if i > 1 {
+			expectedSubset = expectedSubset + ","
+		}
+		expectedSubset = expectedSubset + enumValue
+	}
+
+	return func(yProp *simpleyaml.Yaml, path []string) []YamlValidationIssue {
+		value := getLiteralStringValue(yProp)
+		found := false
+		for _, enumValue := range enumValues {
+			if enumValue == value {
+				found = true
+				break
+			}
+		}
+		if !found {
+			return []YamlValidationIssue{{Msg: fmt.Sprintf("Enum property <%s> has invalid value. Expecting one of [%s]",
+				buildPathString(path), expectedSubset)}}
 		}
 
 		return []YamlValidationIssue{}
@@ -242,8 +280,11 @@ func getLiteralStringValue(y *simpleyaml.Yaml) string {
 		return fmt.Sprintf("%d", IntVal)
 	}
 
-	// TODO: Literal format of float? How to do with transformation?
-	// https://golang.org/pkg/fmt/
+	FloatVal, FloatErr := y.Float()
+	if FloatErr == nil {
+		return fmt.Sprintf("%g", FloatVal)
+	}
+
 	return ""
 }
 

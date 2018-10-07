@@ -2,8 +2,10 @@ package mta
 
 import (
 	"io/ioutil"
+	"path/filepath"
 	"testing"
 
+	"cloud-mta-build-tool/cmd/fsys"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -33,6 +35,13 @@ func doTest(t *testing.T, expected []testInfo, filename string) {
 	newActual, newErr := Parse(mtaContent)
 	assert.Nil(t, newErr)
 	assert.Equal(t, actual, newActual)
+}
+
+func Test_Validate(t *testing.T) {
+	logs.NewLogger()
+	yamlContent, _ := ioutil.ReadFile(filepath.Join(dir.GetPath(), "testdata", "mta_multiapps.yaml"))
+	valid := Validate(yamlContent)
+	assert.Equal(t, true, valid)
 }
 
 // Table driven test
