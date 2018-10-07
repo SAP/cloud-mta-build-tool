@@ -9,6 +9,12 @@ import (
 	"cloud-mta-build-tool/cmd/logs"
 )
 
+type MTAI interface {
+	GetModules() []*Modules
+	GetResources() []*Resources
+	GetModuleByName(name string) (*Modules, error)
+}
+
 // MTA - Main mta struct
 type MTA struct {
 	SchemaVersion *string      `yaml:"_schema-version"`
@@ -73,7 +79,7 @@ type Resources struct {
 	Properties Properties `yaml:"properties,omitempty"`
 }
 
-type file interface {
+type MTAFile interface {
 	ReadExtFile() ([]byte, error)
 }
 
@@ -102,7 +108,7 @@ func Marshal(in MTA) (mtads []byte, err error) {
 	return mtads, err
 }
 
-// ReadExtFile - read external
+// ReadExtFile - Read external
 func (s Source) ReadExtFile() ([]byte, error) {
 	wd, err := os.Getwd()
 	if err != nil {
@@ -116,7 +122,26 @@ func (s Source) ReadExtFile() ([]byte, error) {
 	return yamlFile, err
 }
 
-// Provide list of modules
+// GetModules - Get list of mta modules
+func (mta *MTA) GetModules() []*Modules {
+	return mta.Modules
+}
+
+// GetResources - Get list of mta resources
+func (mta *MTA) GetResources() []*Resources {
+	return mta.Resources
+}
+
+// GetModuleByName - Get specific module
+func (mta *MTA) GetModuleByName(name string) (*Modules, error) {
+	for _, app := range mta.Modules {
+		if app.Name == name {
+			return app, nil
+		}
+	}
+	return nil, fmt.Errorf("module %s , not found ", name)
+}
+
 func modules(mta MTA) []string {
 	var mNames []string
 	for _, mod := range mta.Modules {
@@ -127,7 +152,6 @@ func modules(mta MTA) []string {
 
 // GetModulesNames - get list of modules names
 func GetModulesNames(file []byte) ([]string, error) {
-
 	mta, err := Parse(file)
 	if err != nil {
 		return nil, fmt.Errorf("not able to read the mta file : %s", err.Error())
