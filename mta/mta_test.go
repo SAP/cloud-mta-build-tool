@@ -49,11 +49,18 @@ func doTest(t *testing.T, expected []testInfo, filename string) {
 	assert.Equal(t, oMta, oMta2)
 }
 
-func Test_Validate(t *testing.T) {
-	logs.NewLogger()
+
+
+func Test_ValidateAll(t *testing.T) {
+	yamlContent, _ := ioutil.ReadFile(filepath.Join(dir.GetPath(), "testdata", "testproject", "mta.yaml"))
+	issues := Validate(yamlContent, (filepath.Join(dir.GetPath(), "testdata", "testproject")), true, true)
+	assert.Equal(t, 1, len(issues))
+}
+
+func Test_ValidateSchema(t *testing.T) {
 	yamlContent, _ := ioutil.ReadFile(filepath.Join(dir.GetPath(), "testdata", "mta_multiapps.yaml"))
-	valid := Validate(yamlContent)
-	assert.Equal(t, true, valid)
+	issues := Validate(yamlContent, (filepath.Join(dir.GetPath(), "testdata")), true, false)
+	assert.Equal(t, 0, len(issues))
 }
 
 // Table driven test

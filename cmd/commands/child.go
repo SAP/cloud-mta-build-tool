@@ -106,7 +106,7 @@ var genMeta = &cobra.Command{
 
 func processMta(processName string, relPath string, args []string, process func(file []byte, args []string)) {
 	logs.Logger.Info("Starting " + processName)
-	s := &mta.Source{Path: relPath}
+	s := &mta.Source{Path: relPath, Filename: "mta.yaml"}
 	mf, err := s.ReadExtFile()
 	if err == nil {
 		process(mf, args)
