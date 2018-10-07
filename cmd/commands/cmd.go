@@ -74,9 +74,6 @@ func validateMtaYaml(yamlPath string, yamlFilename string, validateSchema bool, 
 	}
 }
 
-
-
-
 func init() {
 
 	// Build module
