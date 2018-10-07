@@ -41,19 +41,36 @@ var validate = &cobra.Command{
 	Short: "MBT validation",
 	Long:  "MBT validation process",
 	Run: func(cmd *cobra.Command, args []string) {
-		validateMtaYaml(dir.GetPath(), "mta.yaml")
+		validateSchema, validateProject := getValidationMode(args)
+		validateMtaYaml(dir.GetPath(), "mta.yaml", validateSchema, validateProject)
 	},
 }
 
-func validateMtaYaml(yamlPath string, yamlFilename string) {
+func getValidationMode(args []string) (bool, bool) {
+	switch true {
+	case len(args) == 0 || args[0] == "all":
+		return true, true
+	case args[0] == "schema":
+		return true, false
+	case args[0] == "project":
+		return false, true
+	}
+	logs.Logger.Error("Wrong argument of validation mode. Expected one of [all, schema, project")
+	return false, false
+}
+
+func validateMtaYaml(yamlPath string, yamlFilename string, validateSchema bool, validateProject bool) {
+	if !validateProject && !validateSchema {
+		return
+	}
 	logs.Logger.Info("Starting MTA Yaml validation")
 	source := mta.Source{yamlPath, yamlFilename}
 	yamlContent, err := source.ReadExtFile()
 	if err != nil {
 		logs.Logger.Error(err)
 	} else {
-		valid := mta.Validate(yamlContent)
-		logs.Logger.Info("MTA Yaml is %t", valid)
+		issues := mta.Validate(yamlContent, dir.GetPath(), validateSchema, validateProject)
+		logs.Logger.Info("MTA Yaml is %t", issues)
 	}
 }
 

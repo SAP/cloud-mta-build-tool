@@ -107,20 +107,29 @@ func Marshal(in MTA) (mtads []byte, err error) {
 	return mtads, err
 }
 
-func Validate(yamlContent []byte) bool {
-	schemaContent, _ := ioutil.ReadFile(filepath.Join(dir.GetPath(), "schema.yaml"))
-	validations, schemaValidationLog := mta_validate.BuildValidationsFromSchemaText(schemaContent)
-	if len(schemaValidationLog) > 0 {
-		logs.Logger.Error(schemaValidationLog)
-		return false
-	} else {
-		issues, err := mta_validate.ValidateYaml(yamlContent, validations...)
-		if err != nil || len(issues) > 0 {
-			logs.Logger.Error(issues)
-			return false
+func Validate(yamlContent []byte, projectPath string, validateSchema bool, validateProject bool) []mta_validate.YamlValidationIssue {
+	issues := []mta_validate.YamlValidationIssue{}
+	if validateSchema {
+		schemaContent, _ := ioutil.ReadFile(filepath.Join(dir.GetPath(), "schema.yaml"))
+		validations, schemaValidationLog := mta_validate.BuildValidationsFromSchemaText(schemaContent)
+		if len(schemaValidationLog) > 0 {
+			return schemaValidationLog
+		} else {
+			yamlValidationLog, err := mta_validate.ValidateYaml(yamlContent, validations...)
+			if err != nil && len(yamlValidationLog) == 0 {
+				yamlValidationLog = append(yamlValidationLog, []mta_validate.YamlValidationIssue{{"Validation failed" + err.Error()}}...)
+			}
+			issues = append(issues, yamlValidationLog...)
 		}
-		return true
 	}
+	if validateProject {
+		mta := MTA{}
+		yaml.Unmarshal(yamlContent, &mta)
+		projectIssues := ValidateYamlProject(mta, projectPath)
+		issues = append(issues, projectIssues...)
+	}
+
+	return issues
 }
 
 // ReadExtFile - read external
