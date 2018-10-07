@@ -18,6 +18,7 @@ type MTAI interface {
 	GetResources() []*Resources
 	GetModuleByName(name string) (*Modules, error)
 	GetModulesNames() []string
+	GetResourceByName(name string) (*Resources, error)
 }
 
 // MTA - Main mta struct
@@ -155,9 +156,19 @@ func (mta *MTA) GetResources() []*Resources {
 
 // GetModuleByName - Get specific module
 func (mta *MTA) GetModuleByName(name string) (*Modules, error) {
-	for _, app := range mta.Modules {
-		if app.Name == name {
-			return app, nil
+	for _, m := range mta.Modules {
+		if m.Name == name {
+			return m, nil
+		}
+	}
+	return nil, fmt.Errorf("module %s , not found ", name)
+}
+
+// GetResourceByName - Get specific resource
+func (mta *MTA) GetResourceByName(name string) (*Resources, error) {
+	for _, r := range mta.Resources {
+		if r.Name == name {
+			return r, nil
 		}
 	}
 	return nil, fmt.Errorf("module %s , not found ", name)
