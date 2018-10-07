@@ -1,8 +1,7 @@
 package commands
 
 import (
-	"io/ioutil"
-
+	"cloud-mta-build-tool/cmd/fsys"
 	"cloud-mta-build-tool/cmd/logs"
 	"cloud-mta-build-tool/mta"
 	"github.com/spf13/cobra"
@@ -42,20 +41,41 @@ var validate = &cobra.Command{
 	Short: "MBT validation",
 	Long:  "MBT validation process",
 	Run: func(cmd *cobra.Command, args []string) {
-		validateMtaYaml(args[0])
+		validateSchema, validateProject := getValidationMode(args)
+		validateMtaYaml(dir.GetPath(), "mta.yaml", validateSchema, validateProject)
 	},
 }
 
-func validateMtaYaml(yamlFilename string) {
+func getValidationMode(args []string) (bool, bool) {
+	switch true {
+	case len(args) == 0 || args[0] == "all":
+		return true, true
+	case args[0] == "schema":
+		return true, false
+	case args[0] == "project":
+		return false, true
+	}
+	logs.Logger.Error("Wrong argument of validation mode. Expected one of [all, schema, project")
+	return false, false
+}
+
+func validateMtaYaml(yamlPath string, yamlFilename string, validateSchema bool, validateProject bool) {
+	if !validateProject && !validateSchema {
+		return
+	}
 	logs.Logger.Info("Starting MTA Yaml validation")
-	yamlContent, err := ioutil.ReadFile(yamlFilename)
+	source := mta.Source{yamlPath, yamlFilename}
+	yamlContent, err := source.ReadExtFile()
 	if err != nil {
 		logs.Logger.Error(err)
 	} else {
-		valid := mta.Validate(yamlContent)
-		logs.Logger.Infof("MTA Yaml is %t", valid)
+		issues := mta.Validate(yamlContent, dir.GetPath(), validateSchema, validateProject)
+		logs.Logger.Info("MTA Yaml is  ", issues)
 	}
 }
+
+
+
 
 func init() {
 

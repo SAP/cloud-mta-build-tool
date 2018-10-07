@@ -16,6 +16,7 @@ var pModule = &cobra.Command{
 		// Get Yaml file
 		s := mta.Source{
 			Path: pathSep,
+			Filename:"mta.yaml",
 		}
 		// Read file
 		yamlFile, err := s.ReadExtFile()

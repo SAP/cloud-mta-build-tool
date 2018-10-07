@@ -41,7 +41,7 @@ func buildModule(module string) {
 
 	logs.Logger.Info("Start building module: ", module)
 	// Read File
-	s := &mta.Source{}
+	s := &mta.Source{Filename: "mta.yaml"}
 	yamlFile, err := s.ReadExtFile()
 	// Read MTA file
 	if err != nil {

@@ -1,16 +1,14 @@
 package mta
 
 import (
+	"cloud-mta-build-tool/cmd/fsys"
+	"cloud-mta-build-tool/validations"
 	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 
-	"cloud-mta-build-tool/cmd/fsys"
-	"cloud-mta-build-tool/validations"
 	"gopkg.in/yaml.v2"
-
-	"cloud-mta-build-tool/cmd/logs"
 )
 
 type MTAI interface {
@@ -91,7 +89,8 @@ type MTAFile interface {
 
 // Source - file path
 type Source struct {
-	Path string
+	Path     string
+	Filename string
 }
 
 // Parse MTA file and provide mta object with data
@@ -108,36 +107,19 @@ func (mta *MTA) Parse(yamlContent []byte) (err error) {
 func Marshal(in MTA) (mtads []byte, err error) {
 	mtads, err = yaml.Marshal(&in)
 	if err != nil {
-		logs.Logger.Error(err.Error())
+		return nil,err
 	}
-	return mtads, err
-}
-
-// Validate - Validate MTA Yaml
-func Validate(yamlContent []byte) bool {
-	schemaContent, _ := ioutil.ReadFile(filepath.Join(dir.GetPath(), "schema.yaml"))
-	validations, schemaValidationLog := mta_validate.BuildValidationsFromSchemaText(schemaContent)
-	if len(schemaValidationLog) > 0 {
-		logs.Logger.Error(schemaValidationLog)
-		return false
-	} else {
-		issues, err := mta_validate.ValidateYaml(yamlContent, validations...)
-		if err != nil || len(issues) > 0 {
-			logs.Logger.Error(issues)
-			return false
-		}
-		return true
-	}
+	return mtads, nil
 }
 
 // ReadExtFile - read external
 func (s Source) ReadExtFile() ([]byte, error) {
 	wd, err := os.Getwd()
 	if err != nil {
-		logs.Logger.Error(err)
+		return nil,err
 	}
 	// Read MTA file
-	yamlFile, err := ioutil.ReadFile(wd + pathSep + s.Path + pathSep + "mta.yaml")
+	yamlFile, err := ioutil.ReadFile(wd + pathSep + s.Path + pathSep + s.Filename)
 	if err != nil {
 		return yamlFile, fmt.Errorf("not able to read the mta file : %s", err.Error())
 	}
@@ -185,4 +167,30 @@ func modules(mta *MTA) []string {
 // GetModulesNames - get list of modules names
 func (mta *MTA) GetModulesNames() []string {
 	return modules(mta)
+}
+
+
+func Validate(yamlContent []byte, projectPath string, validateSchema bool, validateProject bool) []mta_validate.YamlValidationIssue {
+	issues := []mta_validate.YamlValidationIssue{}
+	if validateSchema {
+		schemaContent, _ := ioutil.ReadFile(filepath.Join(dir.GetPath(), "schema.yaml"))
+		validations, schemaValidationLog := mta_validate.BuildValidationsFromSchemaText(schemaContent)
+		if len(schemaValidationLog) > 0 {
+			return schemaValidationLog
+		} else {
+			yamlValidationLog, err := mta_validate.ValidateYaml(yamlContent, validations...)
+			if err != nil && len(yamlValidationLog) == 0 {
+				yamlValidationLog = append(yamlValidationLog, []mta_validate.YamlValidationIssue{{"Validation failed" + err.Error()}}...)
+			}
+			issues = append(issues, yamlValidationLog...)
+		}
+	}
+	if validateProject {
+		mta := MTA{}
+		yaml.Unmarshal(yamlContent, &mta)
+		projectIssues := ValidateYamlProject(mta, projectPath)
+		issues = append(issues, projectIssues...)
+	}
+
+	return issues
 }
