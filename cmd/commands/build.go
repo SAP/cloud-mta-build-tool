@@ -47,13 +47,14 @@ func buildModule(module string) {
 	if err != nil {
 		logs.Logger.Error("Not able to read the mta file ")
 	}
-	// // Parse MTA file
-	mta, err := mta.Parse(yamlFile)
+	// Parse MTA file
+	mta := &mta.MTA{}
+	err = mta.Parse(yamlFile)
 	if err != nil {
 		logs.Logger.Errorf("Error occurred while parsing the MTA file %s", err)
 	}
 	// Get module respective command's to execute
-	mPathProp, mCmd := moduleCmd(mta, module)
+	mPathProp, mCmd := moduleCmd(*mta, module)
 	mRelPath := filepath.Join(fs.GetPath(), mPathProp)
 	// Get module commands and path
 	commands := cmdConverter(mRelPath, mCmd)

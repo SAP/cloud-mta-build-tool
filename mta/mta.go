@@ -17,6 +17,7 @@ type MTAI interface {
 	GetModules() []*Modules
 	GetResources() []*Resources
 	GetModuleByName(name string) (*Modules, error)
+	GetModulesNames() []string
 }
 
 // MTA - Main mta struct
@@ -93,14 +94,13 @@ type Source struct {
 }
 
 // Parse MTA file and provide mta object with data
-func Parse(yamlContent []byte) (out MTA, err error) {
-	mta := MTA{}
+func (mta *MTA) Parse(yamlContent []byte) (err error) {
 	// Format the YAML to struct's
 	err = yaml.Unmarshal([]byte(yamlContent), &mta)
 	if err != nil {
-		logs.Logger.Error("Yaml file is not valid, Error: " + err.Error())
+		return fmt.Errorf("not able to read the mta file : %s", err.Error())
 	}
-	return mta, err
+	return nil
 }
 
 // Marshal - usage for edit purpose
@@ -163,7 +163,7 @@ func (mta *MTA) GetModuleByName(name string) (*Modules, error) {
 	return nil, fmt.Errorf("module %s , not found ", name)
 }
 
-func modules(mta MTA) []string {
+func modules(mta *MTA) []string {
 	var mNames []string
 	for _, mod := range mta.Modules {
 		mNames = append(mNames, mod.Name)
@@ -172,10 +172,6 @@ func modules(mta MTA) []string {
 }
 
 // GetModulesNames - get list of modules names
-func GetModulesNames(file []byte) ([]string, error) {
-	mta, err := Parse(file)
-	if err != nil {
-		return nil, fmt.Errorf("not able to read the mta file : %s", err.Error())
-	}
-	return modules(mta), err
+func (mta *MTA) GetModulesNames() []string {
+	return modules(mta)
 }

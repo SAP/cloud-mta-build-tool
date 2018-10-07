@@ -22,20 +22,31 @@ type testInfo struct {
 func doTest(t *testing.T, expected []testInfo, filename string) {
 	logs.NewLogger()
 	mtaFile, _ := ioutil.ReadFile(filename)
+	// Parse file
+	oMta := &MTA{}
+	err := oMta.Parse(mtaFile)
+	if err != nil {
+		logs.Logger.Error(err)
+	}
 
-	actual, _ := Parse(mtaFile)
 	for i, tt := range expected {
 		t.Run(tt.name, func(t *testing.T) {
-			require.NotNil(t, actual)
-			require.Len(t, actual.Modules, len(expected))
-			tt.validator(t, *actual.Modules[i], tt.expected)
+			require.NotNil(t, oMta)
+			require.Len(t, oMta.Modules, len(expected))
+			tt.validator(t, *oMta.Modules[i], tt.expected)
 		})
 	}
-	mtaContent, err := Marshal(actual)
+
+	mtaContent, err := Marshal(*oMta)
 	assert.Nil(t, err)
-	newActual, newErr := Parse(mtaContent)
+
+	oMta2 := &MTA{}
+	newErr := oMta2.Parse(mtaContent)
+	if err != nil {
+		logs.Logger.Error(err)
+	}
 	assert.Nil(t, newErr)
-	assert.Equal(t, actual, newActual)
+	assert.Equal(t, oMta, oMta2)
 }
 
 func Test_Validate(t *testing.T) {
@@ -140,11 +151,17 @@ func Test_ModulesParsing(t *testing.T) {
 }
 
 func Test_BrokenMta(t *testing.T) {
+
 	mtaContent, _ := ioutil.ReadFile("./testdata/mtaWithBrokenProperties.yaml")
 
-	mta, err := Parse(mtaContent)
+	oMta := &MTA{}
+	err := oMta.Parse(mtaContent)
+	if err != nil {
+		logs.Logger.Error(err)
+	}
+
 	require.NotNil(t, err)
-	require.NotNil(t, mta)
+	require.NotNil(t, oMta)
 }
 
 func Test_FullMta(t *testing.T) {
@@ -328,12 +345,16 @@ func Test_FullMta(t *testing.T) {
 
 	mtaContent, _ := ioutil.ReadFile("./testdata/mta2.yaml")
 
-	actual, err := Parse(mtaContent)
+	actual := &MTA{}
+	err := actual.Parse(mtaContent)
+	if err != nil {
+		logs.Logger.Error(err)
+	}
+
 	assert.Nil(t, err)
-	assert.Equal(t, expected, actual)
+	assert.Equal(t, expected, *actual)
 
 }
-
 
 func TestMTA_GetModules(t *testing.T) {
 	type fields struct {
@@ -599,7 +620,7 @@ func TestMTA_GetModuleByName(t *testing.T) {
 									},
 								},
 							},
-						},},
+						}},
 					Resources: nil,
 				},
 				want: &Modules{
@@ -633,7 +654,7 @@ func TestMTA_GetModuleByName(t *testing.T) {
 									Name: "someproj-hdi-container",
 								},
 							},
-						},},},
+						}}},
 				moduleName: "foo",
 				want:       nil,
 				wantErr:    true,
@@ -661,4 +682,3 @@ func TestMTA_GetModuleByName(t *testing.T) {
 		}
 	}
 }
-
