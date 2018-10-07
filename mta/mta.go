@@ -2,9 +2,13 @@ package mta
 
 import (
 	"fmt"
-	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"os"
+	"path/filepath"
+
+	"cloud-mta-build-tool/cmd/fsys"
+	"cloud-mta-build-tool/validations"
+	"gopkg.in/yaml.v2"
 
 	"cloud-mta-build-tool/cmd/logs"
 )
@@ -100,6 +104,22 @@ func Marshal(in MTA) (mtads []byte, err error) {
 		logs.Logger.Error(err.Error())
 	}
 	return mtads, err
+}
+
+func Validate(yamlContent []byte) bool {
+	schemaContent, _ := ioutil.ReadFile(filepath.Join(dir.GetPath(), "schema.yaml"))
+	validations, schemaValidationLog := mta_validate.BuildValidationsFromSchemaText(schemaContent)
+	if len(schemaValidationLog) > 0 {
+		logs.Logger.Error(schemaValidationLog)
+		return false
+	} else {
+		issues, err := mta_validate.ValidateYaml(yamlContent, validations...)
+		if err != nil || len(issues) > 0 {
+			logs.Logger.Error(issues)
+			return false
+		}
+		return true
+	}
 }
 
 // ReadExtFile - read external

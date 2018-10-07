@@ -144,10 +144,13 @@ func TypeIsNotMapArray() YamlCheck {
 
 func TypeIsArray() YamlCheck {
 	return func(yProp *simpleyaml.Yaml, path []string) []YamlValidationIssue {
-		_, err := yProp.Array()
 
-		if err != nil {
-			return []YamlValidationIssue{{Msg: fmt.Sprintf("Property <%s> must be of type <Array>", buildPathString(path))}}
+		if yProp.IsFound() {
+			_, err := yProp.Array()
+
+			if err != nil {
+				return []YamlValidationIssue{{Msg: fmt.Sprintf("Property <%s> must be of type <Array>", buildPathString(path))}}
+			}
 		}
 
 		return []YamlValidationIssue{}
@@ -156,10 +159,13 @@ func TypeIsArray() YamlCheck {
 
 func TypeIsMap() YamlCheck {
 	return func(yProp *simpleyaml.Yaml, path []string) []YamlValidationIssue {
-		_, err := yProp.Map()
 
-		if err != nil {
-			return []YamlValidationIssue{{Msg: fmt.Sprintf("Property <%s> must be of type <Map>", buildPathString(path))}}
+		if yProp.IsFound() {
+			_, err := yProp.Map()
+
+			if err != nil {
+				return []YamlValidationIssue{{Msg: fmt.Sprintf("Property <%s> must be of type <Map>", buildPathString(path))}}
+			}
 		}
 
 		return []YamlValidationIssue{}
@@ -168,10 +174,12 @@ func TypeIsMap() YamlCheck {
 
 func TypeIsBoolean() YamlCheck {
 	return func(yProp *simpleyaml.Yaml, path []string) []YamlValidationIssue {
-		_, err := yProp.Bool()
+		if yProp.IsFound() {
+			_, err := yProp.Bool()
 
-		if err != nil {
-			return []YamlValidationIssue{{Msg: fmt.Sprintf("Property <%s> must be of type <Boolean>", buildPathString(path))}}
+			if err != nil {
+				return []YamlValidationIssue{{Msg: fmt.Sprintf("Property <%s> must be of type <Boolean>", buildPathString(path))}}
+			}
 		}
 
 		return []YamlValidationIssue{}
