@@ -174,12 +174,8 @@ func Validate(yamlContent []byte, projectPath string, validateSchema bool, valid
 	issues := []mta_validate.YamlValidationIssue{}
 	wd, err := os.Getwd()
 	if err != nil {
-		issues = append(issues, []mta_validate.YamlValidationIssue{{"Validation failed" + err.Error()}}...)
-		if issues != nil {
-			return issues
-		}
+		return append(issues, []mta_validate.YamlValidationIssue{{"Validation failed" + err.Error()}}...)
 	}
-
 	if validateSchema {
 		schemaContent, _ := ioutil.ReadFile(filepath.Join(wd, "schema.yaml"))
 		validations, schemaValidationLog := mta_validate.BuildValidationsFromSchemaText(schemaContent)
