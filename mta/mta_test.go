@@ -3,6 +3,7 @@ package mta
 import (
 	"io/ioutil"
 	"path/filepath"
+	"reflect"
 	"testing"
 
 	"cloud-mta-build-tool/cmd/fsys"
@@ -332,3 +333,332 @@ func Test_FullMta(t *testing.T) {
 	assert.Equal(t, expected, actual)
 
 }
+
+
+func TestMTA_GetModules(t *testing.T) {
+	type fields struct {
+		SchemaVersion *string
+		Id            string
+		Version       string
+		Modules       []*Modules
+		Resources     []*Resources
+		Parameters    Parameters
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		want   []*Modules
+	}{
+		{
+			name: "GetModules - two Modules",
+			fields: fields{
+				Modules: []*Modules{
+					{
+						Name: "someproj-db",
+						Type: "hdb",
+						Path: "db",
+						Requires: []Requires{
+							{
+								Name: "someproj-hdi-container",
+							},
+							{
+								Name: "someproj-logging",
+							},
+						},
+					},
+					{
+						Name: "someproj-java",
+						Type: "java",
+						Path: "srv",
+						Parameters: Parameters{
+							"memory":     "512M",
+							"disk-quota": "256M",
+						},
+					},
+				},
+				Resources: []*Resources{
+					{
+						Name: "someproj-hdi-container",
+						Properties: Properties{
+							"hdi-container-name": "${service-name}",
+						},
+						Type: "com.sap.xs.hdi-container",
+					},
+				},
+			},
+			want: []*Modules{
+				{
+					Name: "someproj-db",
+					Type: "hdb",
+					Path: "db",
+					Requires: []Requires{
+						{
+							Name: "someproj-hdi-container",
+						},
+						{
+							Name: "someproj-logging",
+						},
+					},
+				},
+				{
+					Name: "someproj-java",
+					Type: "java",
+					Path: "srv",
+					Parameters: Parameters{
+						"memory":     "512M",
+						"disk-quota": "256M",
+					},
+				},
+			},
+		}, {
+			name:   "GetModules - Empty list",
+			fields: fields{},
+			want:   nil,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			mta := &MTA{
+				SchemaVersion: tt.fields.SchemaVersion,
+				Id:            tt.fields.Id,
+				Version:       tt.fields.Version,
+				Modules:       tt.fields.Modules,
+				Resources:     tt.fields.Resources,
+				Parameters:    tt.fields.Parameters,
+			}
+			got := mta.GetModules()
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("MTA.GetModules() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestMTA_GetResources(t *testing.T) {
+	type fields struct {
+		SchemaVersion *string
+		Id            string
+		Version       string
+		Modules       []*Modules
+		Resources     []*Resources
+		Parameters    Parameters
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		want   []*Resources
+	}{
+		{
+			name: "GetResources - two resources",
+			fields: fields{
+				Modules: []*Modules{
+					{
+						Name: "someproj-db",
+						Type: "hdb",
+						Path: "db",
+						Requires: []Requires{
+							{
+								Name: "someproj-hdi-container",
+							},
+							{
+								Name: "someproj-logging",
+							},
+						},
+					},
+					{
+						Name: "someproj-java",
+						Type: "java",
+						Path: "srv",
+						Parameters: Parameters{
+							"memory":     "512M",
+							"disk-quota": "256M",
+						},
+					},
+				},
+				Resources: []*Resources{
+					{
+						Name: "someproj-hdi-container",
+						Properties: Properties{
+							"hdi-container-name": "${service-name}",
+						},
+						Type: "com.sap.xs.hdi-container",
+					},
+					{
+						Name: "someproj-apprepo-rt",
+						Type: "org.cloudfoundry.managed-service",
+						Parameters: Parameters{
+							"service":      "html5-apps-repo",
+							"service-plan": "app-runtime",
+						},
+					},
+				},
+			},
+			want: []*Resources{
+				{
+					Name: "someproj-hdi-container",
+					Properties: Properties{
+						"hdi-container-name": "${service-name}",
+					},
+					Type: "com.sap.xs.hdi-container",
+				},
+				{
+					Name: "someproj-apprepo-rt",
+					Type: "org.cloudfoundry.managed-service",
+					Parameters: Parameters{
+						"service":      "html5-apps-repo",
+						"service-plan": "app-runtime",
+					},
+				},
+			},
+		}, {
+			name: "GetResources - Empty list",
+			fields: fields{
+				SchemaVersion: nil,
+				Id:            "",
+				Version:       "",
+				Modules:       nil,
+				Resources:     nil,
+				Parameters:    nil,
+			},
+			want: nil,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			mta := &MTA{
+				SchemaVersion: tt.fields.SchemaVersion,
+				Id:            tt.fields.Id,
+				Version:       tt.fields.Version,
+				Modules:       tt.fields.Modules,
+				Resources:     tt.fields.Resources,
+				Parameters:    tt.fields.Parameters,
+			}
+
+			got := mta.GetResources()
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("MTA.GetResources() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestMTA_GetModuleByName(t *testing.T) {
+
+	type fields struct {
+		SchemaVersion *string
+		Id            string
+		Version       string
+		Modules       []*Modules
+		Resources     []*Resources
+		Parameters    Parameters
+	}
+	{
+		tests := []struct {
+			name       string
+			fields     fields
+			moduleName string
+			want       *Modules
+			wantErr    bool
+		}{
+			{
+				name:       "GetModuleByName",
+				moduleName: "someproj-java",
+				fields: fields{
+					Modules: []*Modules{
+						{
+							Name: "someproj-db",
+							Type: "hdb",
+							Path: "db",
+							Requires: []Requires{
+								{
+									Name: "someproj-hdi-container",
+								},
+								{
+									Name: "someproj-logging",
+								},
+							},
+							Parameters: Parameters{
+								"disk-quota": "256M",
+								"memory":     "256M",
+							},
+						},
+						{
+							Name: "someproj-java",
+							Type: "java",
+							Path: "srv",
+							Parameters: Parameters{
+								"memory":     "512M",
+								"disk-quota": "256M",
+							},
+							Provides: []Provides{
+								{
+									Name: "java",
+									Properties: Properties{
+										"url": "${default-url}",
+									},
+								},
+							},
+						},},
+					Resources: nil,
+				},
+				want: &Modules{
+
+					Name: "someproj-java",
+					Type: "java",
+					Path: "srv",
+					Parameters: Parameters{
+						"memory":     "512M",
+						"disk-quota": "256M",
+					},
+					Provides: []Provides{
+						{
+							Name: "java",
+							Properties: Properties{
+								"url": "${default-url}",
+							},
+						},
+					},
+				},
+			}, {
+				name: "GetModuleByName: Name don't exist ",
+				fields: fields{
+					Modules: []*Modules{
+						{
+							Name: "someproj-db",
+							Type: "hdb",
+							Path: "db",
+							Requires: []Requires{
+								{
+									Name: "someproj-hdi-container",
+								},
+							},
+						},},},
+				moduleName: "foo",
+				want:       nil,
+				wantErr:    true,
+			},
+		}
+		for _, tt := range tests {
+			t.Run(tt.name, func(t *testing.T) {
+				mta := &MTA{
+					SchemaVersion: tt.fields.SchemaVersion,
+					Id:            tt.fields.Id,
+					Version:       tt.fields.Version,
+					Modules:       tt.fields.Modules,
+					Resources:     tt.fields.Resources,
+					Parameters:    tt.fields.Parameters,
+				}
+				got, err := mta.GetModuleByName(tt.moduleName)
+				if (err != nil) != tt.wantErr {
+					t.Errorf("MTA.GetModuleByName() error = %v, wantErr %v", err, tt.wantErr)
+					return
+				}
+				if !reflect.DeepEqual(got, tt.want) {
+					t.Errorf("MTA.GetModuleByName() = %v, want %v", got, tt.want)
+				}
+			})
+		}
+	}
+}
+
