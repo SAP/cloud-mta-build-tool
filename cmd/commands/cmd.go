@@ -53,7 +53,7 @@ func validateMtaYaml(yamlFilename string) {
 		logs.Logger.Error(err)
 	} else {
 		valid := mta.Validate(yamlContent)
-		logs.Logger.Info("MTA Yaml is %t", valid)
+		logs.Logger.Infof("MTA Yaml is %t", valid)
 	}
 }
 

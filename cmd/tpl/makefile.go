@@ -17,12 +17,10 @@ import (
 
 const (
 	makefile        = "Makefile"
-	mtaFile         = "mta.yaml"
 	basePreVerbose  = "base_pre_verbose.txt"
 	basePostVerbose = "base_post_verbose.txt"
 	basePreDefault  = "base_pre_default.txt"
 	basePostDefault = "base_post_default.txt"
-	verbose         = "verbose"
 	makeDefaultTpl  = "make_default.txt"
 	makeVerboseTpl  = "make_verbose.txt"
 	pathSep         = string(os.PathSeparator)
@@ -104,7 +102,7 @@ func mapTpl(templateName string, BasePre string, BasePost string) (*template.Tem
 // Get template (default/verbose) according to the CLI flags
 func makeMode(mode string) (tplCfg, error) {
 	tpl := tplCfg{}
-	if (mode == verbose) || (mode == "v") {
+	if (mode == "verbose") || (mode == "v") {
 		tpl.tplName = makeVerboseTpl
 		tpl.pre = basePreVerbose
 		tpl.post = basePostVerbose
