@@ -6,8 +6,6 @@ import (
 	"io/ioutil"
 	"os"
 
-	"cloud-mta-build-tool/cmd/fsys"
-	"cloud-mta-build-tool/cmd/logs"
 	"cloud-mta-build-tool/cmd/platform"
 )
 
@@ -62,11 +60,10 @@ func printToFile(file io.Writer, mtaStr *Modules) {
 	fmt.Fprint(file, contentType+applicationZip)
 }
 
-func GenMetaInfo(tmpDir string, mtaStr MTA, modules []string) {
+func GenMetaInfo(tmpDir string, mtaStr MTA, modules []string) error {
 	// Create META-INF folder under the mtar folder
-	dir.CreateDirIfNotExist(tmpDir + metaInf)
+	createDirIfNotExist(tmpDir + metaInf)
 	// Load platform configuration file
-
 	platformCfg := platform.Parse(platform.PlatformConfig)
 	// Modify MTAD object according to platform types
 	// Todo platform should provided as command parameter
@@ -74,15 +71,38 @@ func GenMetaInfo(tmpDir string, mtaStr MTA, modules []string) {
 	// Create readable Yaml before writing to file
 	mtad, err := Marshal(mtaStr)
 	// Write back the MTAD to the META-INF folder
-	if err == nil {
-		err = ioutil.WriteFile(tmpDir+metaInf+pathSep+mtadYaml, mtad, os.ModePerm)
-	}
 	if err != nil {
-		logs.Logger.Errorln(err)
+		return err
+	}
+	err = ioutil.WriteFile(tmpDir+metaInf+pathSep+mtadYaml, mtad, os.ModePerm)
+	if err != nil {
+		return err
 	}
 	// Create MANIFEST.MF file
-	file, _ := dir.CreateFile(tmpDir + metaInf + pathSep + manifest)
+	file, _ := createFile(tmpDir + metaInf + pathSep + manifest)
 	defer file.Close()
 	// Set the MANIFEST.MF file
 	setManifetDesc(file, mtaStr.Modules, modules)
+	return nil
+}
+
+// CreateDirIfNotExist - Create new dir
+func createDirIfNotExist(dir string) error {
+	if _, err := os.Stat(dir); os.IsNotExist(err) {
+		err = os.MkdirAll(dir, os.ModePerm)
+		if err != nil {
+			return fmt.Errorf("Failed to create dir %s ", err)
+		}
+	}
+	return nil
+}
+
+// CreateFile - create new file
+func createFile(path string) (file *os.File, err error) {
+	file, err = os.Create(path) // Truncates if file already exists
+	if err != nil {
+		return nil, fmt.Errorf("Failed to create file %s ", err)
+	}
+	// /defer file.Close()
+	return file, err
 }

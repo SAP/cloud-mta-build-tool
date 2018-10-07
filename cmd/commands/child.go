@@ -86,7 +86,10 @@ func generateMeta(relPath string, args []string) {
 			logs.Logger.Error(err)
 		}
 		// Generate meta info dir with required content
-		mta.GenMetaInfo(args[0], *m, args[1:])
+		err = mta.GenMetaInfo(args[0], *m, args[1:])
+		if err != nil {
+			logs.Logger.Error(err)
+		}
 	})
 }
 
