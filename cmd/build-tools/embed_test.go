@@ -21,8 +21,10 @@ func Test_main(t *testing.T) {
 
 func removeSpecialSymbols(b []byte) string {
 	reg, _ := regexp.Compile("[^a-zA-Z0-9]+")
-	s := reg.ReplaceAllString(string(b), "")
-	return strings.Replace(string(s), "0xd, ", "", -1)
+	s := string(b)
+	s = strings.Replace(s, "0xd, ", "", -1)
+	s = reg.ReplaceAllString(s, "")
+	return s
 }
 
 func Test_mainNegative(t *testing.T) {
