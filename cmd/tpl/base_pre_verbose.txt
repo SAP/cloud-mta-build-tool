@@ -15,6 +15,7 @@ all: tdir validate {{- range .File.Modules}} {{.Name}}{{end}} meta mtar cleanup
 # Create folder for build artifacts
 tdir:
 	@mkdir -p "$(MTR_DIR)"
+# Validate mta.yaml
 validate:
     @mbt validate
 # Set the current project repository path for general mta process
