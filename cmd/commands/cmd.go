@@ -40,6 +40,7 @@ var validate = &cobra.Command{
 	Use:   "validate",
 	Short: "MBT validation",
 	Long:  "MBT validation process",
+	Args:  cobra.RangeArgs(0, 1),
 	Run: func(cmd *cobra.Command, args []string) {
 		validateSchema, validateProject := getValidationMode(args)
 		validateMtaYaml(dir.GetPath(), "mta.yaml", validateSchema, validateProject)
