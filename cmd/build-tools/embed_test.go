@@ -4,6 +4,7 @@ import (
 	"io/ioutil"
 	"os"
 	"regexp"
+	"strings"
 	"testing"
 
 	"gotest.tools/assert"
@@ -20,7 +21,8 @@ func Test_main(t *testing.T) {
 
 func removeSpecialSymbols(b []byte) string {
 	reg, _ := regexp.Compile("[^a-zA-Z0-9]+")
-	return reg.ReplaceAllString(string(b), "")
+	s := reg.ReplaceAllString(string(b), "")
+	return strings.Replace(string(s), "0xd, ", "", -1)
 }
 
 func Test_mainNegative(t *testing.T) {
