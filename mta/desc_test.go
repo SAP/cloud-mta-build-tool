@@ -3,13 +3,12 @@ package mta
 import (
 	"bytes"
 	"io/ioutil"
+	"os"
 	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/yaml.v2"
-
-	"cloud-mta-build-tool/cmd/fsys"
 )
 
 var module []string
@@ -146,12 +145,15 @@ modules:
     path: app
 `)
 	mta := MTA{}
-	yaml.Unmarshal(mtaSingleModule, &mta)
-	GenMetaInfo(filepath.Join(dir.GetPath(), "testdata"), mta, []string{"htmlapp"})
 
-	_, err := ioutil.ReadFile(filepath.Join(dir.GetPath(), "testdata", "META-INF", "MANIFEST.MF"))
+	wd, _ := os.Getwd()
+
+	yaml.Unmarshal(mtaSingleModule, &mta)
+	GenMetaInfo(filepath.Join(wd, "testdata"), mta, []string{"htmlapp"})
+
+	_, err := ioutil.ReadFile(filepath.Join(wd, "testdata", "META-INF", "MANIFEST.MF"))
 	assert.Nil(t, err)
-	_, err = ioutil.ReadFile(filepath.Join(dir.GetPath(), "testdata", "META-INF", "mtad.yaml"))
+	_, err = ioutil.ReadFile(filepath.Join(wd, "testdata", "META-INF", "mtad.yaml"))
 	assert.Nil(t, err)
-	//os.RemoveAll(filepath.Join(dir.GetPath(), "testdata"))
+	// os.RemoveAll(filepath.Join(dir.GetPath(), "testdata"))
 }

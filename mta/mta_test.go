@@ -2,15 +2,13 @@ package mta
 
 import (
 	"io/ioutil"
+	"os"
 	"path/filepath"
 	"reflect"
 	"testing"
 
-	"cloud-mta-build-tool/cmd/fsys"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-
-	"cloud-mta-build-tool/cmd/logs"
 )
 
 type testInfo struct {
@@ -20,15 +18,11 @@ type testInfo struct {
 }
 
 func doTest(t *testing.T, expected []testInfo, filename string) {
-	logs.NewLogger()
+
 	mtaFile, _ := ioutil.ReadFile(filename)
 	// Parse file
 	oMta := &MTA{}
 	err := oMta.Parse(mtaFile)
-	if err != nil {
-		logs.Logger.Error(err)
-	}
-
 	for i, tt := range expected {
 		t.Run(tt.name, func(t *testing.T) {
 			require.NotNil(t, oMta)
@@ -42,24 +36,22 @@ func doTest(t *testing.T, expected []testInfo, filename string) {
 
 	oMta2 := &MTA{}
 	newErr := oMta2.Parse(mtaContent)
-	if err != nil {
-		logs.Logger.Error(err)
-	}
 	assert.Nil(t, newErr)
 	assert.Equal(t, oMta, oMta2)
 }
 
-
-
 func Test_ValidateAll(t *testing.T) {
-	yamlContent, _ := ioutil.ReadFile(filepath.Join(dir.GetPath(), "testdata", "testproject", "mta.yaml"))
-	issues := Validate(yamlContent, (filepath.Join(dir.GetPath(), "testdata", "testproject")), true, true)
+
+	wd, _ := os.Getwd()
+	yamlContent, _ := ioutil.ReadFile(filepath.Join(wd, "testdata", "testproject", "mta.yaml"))
+	issues := Validate(yamlContent, (filepath.Join(wd, "testdata", "testproject")), true, true)
 	assert.Equal(t, 1, len(issues))
 }
 
 func Test_ValidateSchema(t *testing.T) {
-	yamlContent, _ := ioutil.ReadFile(filepath.Join(dir.GetPath(), "testdata", "mta_multiapps.yaml"))
-	issues := Validate(yamlContent, (filepath.Join(dir.GetPath(), "testdata")), true, false)
+	wd, _ := os.Getwd()
+	yamlContent, _ := ioutil.ReadFile(filepath.Join(wd, "testdata", "mta_multiapps.yaml"))
+	issues := Validate(yamlContent, (filepath.Join(wd, "testdata")), true, false)
 	assert.Equal(t, 0, len(issues))
 }
 
@@ -163,10 +155,6 @@ func Test_BrokenMta(t *testing.T) {
 
 	oMta := &MTA{}
 	err := oMta.Parse(mtaContent)
-	if err != nil {
-		logs.Logger.Error(err)
-	}
-
 	require.NotNil(t, err)
 	require.NotNil(t, oMta)
 }
@@ -354,10 +342,6 @@ func Test_FullMta(t *testing.T) {
 
 	actual := &MTA{}
 	err := actual.Parse(mtaContent)
-	if err != nil {
-		logs.Logger.Error(err)
-	}
-
 	assert.Nil(t, err)
 	assert.Equal(t, expected, *actual)
 

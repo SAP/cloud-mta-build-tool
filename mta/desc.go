@@ -1,13 +1,12 @@
 package mta
 
 import (
-	"cloud-mta-build-tool/cmd/platform"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"os"
 
-	//"cloud-mta-build-tool/cmd/platform"
+	"cloud-mta-build-tool/cmd/platform"
 )
 
 // The deployment descriptor shall be located within the META-INF folder of the JAR.
