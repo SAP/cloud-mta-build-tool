@@ -13,7 +13,7 @@ BINARY_NAME=mbt
 BUILD  = $(CURDIR)/release
 
 
-all:format clean dir gen build-linux build-darwin build-windows copy test
+all:format clean dir gen build-linux build-darwin build-windows  test
 .PHONY: build-darwin build-linux build-windows
 
 format :
@@ -52,11 +52,12 @@ build-windows:
 	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 $(GOBUILD) -o release/$(BINARY_NAME)_windows -v
 
 # use for local development - > copy the new bin to go/bin path to use new compiled version
-copy:
+   ifeq ($(OS),Windows_NT)
+	echo "test"
+   else
 	cp $(CURDIR)/release/$(BINARY_NAME) $(GOPATH)/bin/
 	cp $(CURDIR)/release/$(BINARY_NAME) $~/usr/local/bin/
-	@echo "done"
-
+   endif
 
 
 
