@@ -5,6 +5,7 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 
 	"cloud-mta-build-tool/cmd/platform"
 )
@@ -19,7 +20,7 @@ import (
 // This used by deploy service to track the build project
 
 const (
-	metaInf         = "/META-INF"
+	metaInf         = "META-INF"
 	manifest        = "MANIFEST.MF"
 	mtadYaml        = "mtad.yaml"
 	newLine         = "\n"
@@ -60,9 +61,9 @@ func printToFile(file io.Writer, mtaStr *Modules) {
 	fmt.Fprint(file, contentType+applicationZip)
 }
 
-func GenMetaInfo(tmpDir string, mtaStr MTA, modules []string) error {
+func GenMtad(mtaStr MTA, targetPath string) error {
 	// Create META-INF folder under the mtar folder
-	createDirIfNotExist(tmpDir + metaInf)
+	createDirIfNotExist(filepath.Join(targetPath, metaInf))
 	// Load platform configuration file
 	platformCfg := platform.Parse(platform.PlatformConfig)
 	// Modify MTAD object according to platform types
@@ -71,19 +72,22 @@ func GenMetaInfo(tmpDir string, mtaStr MTA, modules []string) error {
 	// Create readable Yaml before writing to file
 	mtad, err := Marshal(mtaStr)
 	// Write back the MTAD to the META-INF folder
-	if err != nil {
-		return err
+	if err == nil {
+		err = ioutil.WriteFile(filepath.Join(targetPath, metaInf, mtadYaml), mtad, os.ModePerm)
 	}
-	err = ioutil.WriteFile(tmpDir+metaInf+pathSep+mtadYaml, mtad, os.ModePerm)
-	if err != nil {
-		return err
+	return err
+}
+
+func GenMetaInfo(tmpDir string, mtaStr MTA, modules []string) error {
+	err := GenMtad(mtaStr, tmpDir)
+	if err == nil {
+		// Create MANIFEST.MF file
+		file, _ := createFile(filepath.Join(tmpDir, metaInf, manifest))
+		defer file.Close()
+		// Set the MANIFEST.MF file
+		setManifetDesc(file, mtaStr.Modules, modules)
 	}
-	// Create MANIFEST.MF file
-	file, _ := createFile(tmpDir + metaInf + pathSep + manifest)
-	defer file.Close()
-	// Set the MANIFEST.MF file
-	setManifetDesc(file, mtaStr.Modules, modules)
-	return nil
+	return err
 }
 
 // CreateDirIfNotExist - Create new dir

@@ -15,7 +15,7 @@ import (
 )
 
 func basicMakeAndValidate(t *testing.T, path, yamlFilename, makeFilename, expectedMakeFilename, expectedMakeFileExtension string) {
-	tpl := tplCfg{tplName: "make_verbose.txt", relPath: "/testdata", pre: basePreVerbose, post: basePostVerbose}
+	tpl := tplCfg{tplName: "make_verbose.txt", relPath: "testdata", pre: basePreVerbose, post: basePostVerbose}
 	err := makeFile(makeFilename, tpl)
 	makeFullName := path + pathSep + makeFilename
 	if err != nil {
@@ -67,7 +67,6 @@ func TestMake(t *testing.T) {
 		{"SanityTest", "mta.yaml",
 			func(t *testing.T, path, yamlFilename, makeFilename string) {
 				basicMakeAndValidate(t, path, yamlFilename, makeFilename, expectedMakeFilename, "")
-				removeMakefile(t, path, makeFilename)
 			}},
 		{"Yaml file not exists", "YamlNotExists",
 			func(t *testing.T, path, yamlFilename, makeFilename string) {

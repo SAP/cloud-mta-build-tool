@@ -7,6 +7,8 @@ import (
 	"cloud-mta-build-tool/cmd/tpl"
 )
 
+var initMode string
+
 var initProcess = &cobra.Command{
 	Use:   "init",
 	Short: "Generate Makefile",

@@ -78,10 +78,8 @@ func packModule(tDir string, mPathProp string, mNameProp string) error {
 
 func generateMeta(relPath string, args []string) {
 	processMta("Metadata creation", relPath, args, func(file []byte, args []string) {
-
 		// Parse MTA file
-		m := &mta.MTA{}
-		err := m.Parse(file)
+		m, err := mta.ParseToMta(file)
 		if err != nil {
 			logs.Logger.Error(err)
 		}
@@ -119,8 +117,7 @@ func processMta(processName string, relPath string, args []string, process func(
 func generateMtar(relPath string, args []string) error {
 	processMta("MTAR generation", relPath, args, func(file []byte, args []string) {
 		// Create MTAR from the building artifacts
-		m := &mta.MTA{}
-		err := m.Parse(file)
+		m, err := mta.ParseToMta(file)
 		if err != nil {
 			logs.Logger.Error(err)
 		}

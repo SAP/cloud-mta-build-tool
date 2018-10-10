@@ -8,7 +8,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var initMode string
 var buildTargetFlag string
 var validationFlag string
 
@@ -66,8 +65,7 @@ func validateMtaYaml(yamlPath string, yamlFilename string, validateSchema bool, 
 		return
 	}
 	logs.Logger.Info("Starting MTA Yaml validation")
-	source := mta.Source{yamlPath, yamlFilename}
-	yamlContent, err := source.ReadExtFile()
+	yamlContent, err := mta.ReadMtaContent(yamlPath, yamlFilename)
 	var wd string
 	if err == nil {
 		wd, err = os.Getwd()
@@ -92,7 +90,7 @@ func init() {
 	// Provide module
 	build.AddCommand(bModule)
 	// execute immutable commands
-	execute.AddCommand(prepare, pack, genMeta, genMtar, cleanup, validate)
+	execute.AddCommand(prepare, pack, genMeta, pMtad, genMtar, cleanup, validate)
 	// Add command to the root
 	rootCmd.AddCommand(provides, build, execute, initProcess)
 	// build target flags
