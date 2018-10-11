@@ -41,17 +41,10 @@ func buildModule(module string) {
 
 	logs.Logger.Info("Start building module: ", module)
 	// Read File
-	s := &mta.Source{Filename: "mta.yaml"}
-	yamlFile, err := s.ReadExtFile()
-	// Read MTA file
+	mta, err := mta.ReadMta("", "mta.yaml")
 	if err != nil {
-		logs.Logger.Error("Not able to read the mta file ")
-	}
-	// Parse MTA file
-	mta := &mta.MTA{}
-	err = mta.Parse(yamlFile)
-	if err != nil {
-		logs.Logger.Errorf("Error occurred while parsing the MTA file %s", err)
+		logs.Logger.Error(err)
+		return
 	}
 	// Get module respective command's to execute
 	mPathProp, mCmd := moduleCmd(*mta, module)

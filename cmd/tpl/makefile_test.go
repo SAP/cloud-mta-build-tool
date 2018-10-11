@@ -3,7 +3,9 @@ package tpl
 import (
 	"io/ioutil"
 	"os"
+	"regexp"
 	"runtime"
+	"strings"
 	"testing"
 
 	fs "cloud-mta-build-tool/cmd/fsys"
@@ -13,7 +15,7 @@ import (
 )
 
 func basicMakeAndValidate(t *testing.T, path, yamlFilename, makeFilename, expectedMakeFilename, expectedMakeFileExtension string) {
-	tpl := tplCfg{tplName: "make_verbose.txt", relPath: "/testdata", pre: basePreVerbose, post: basePostVerbose}
+	tpl := tplCfg{tplName: "make_verbose.txt", relPath: "testdata", pre: basePreVerbose, post: basePostVerbose}
 	err := makeFile(makeFilename, tpl)
 	makeFullName := path + pathSep + makeFilename
 	if err != nil {
@@ -23,7 +25,15 @@ func basicMakeAndValidate(t *testing.T, path, yamlFilename, makeFilename, expect
 	actual, err := ioutil.ReadFile(makeFullName + expectedMakeFileExtension)
 	assert.Nil(t, err)
 	expected, _ := ioutil.ReadFile(path + pathSep + expectedMakeFilename)
-	assert.Equal(t, expected, actual)
+	assert.Equal(t, removeSpecialSymbols(expected), removeSpecialSymbols(actual))
+}
+
+func removeSpecialSymbols(b []byte) string {
+	reg, _ := regexp.Compile("[^a-zA-Z0-9]+")
+	s := string(b)
+	s = strings.Replace(s, "0xd, ", "", -1)
+	s = reg.ReplaceAllString(s, "")
+	return s
 }
 
 func removeMakefile(t *testing.T, path, makeFilename string) {
@@ -57,7 +67,6 @@ func TestMake(t *testing.T) {
 		{"SanityTest", "mta.yaml",
 			func(t *testing.T, path, yamlFilename, makeFilename string) {
 				basicMakeAndValidate(t, path, yamlFilename, makeFilename, expectedMakeFilename, "")
-				removeMakefile(t, path, makeFilename)
 			}},
 		{"Yaml file not exists", "YamlNotExists",
 			func(t *testing.T, path, yamlFilename, makeFilename string) {

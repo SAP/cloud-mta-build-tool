@@ -52,14 +52,10 @@ func makeFile(makeFilename string, tpl tplCfg) error {
 		API  API
 	}
 	// Read file
-	s := &mta.Source{Path: tpl.relPath, Filename: "mta.yaml"}
-	mf, err := s.ReadExtFile()
-
-	// Parse file
-	m := &mta.MTA{}
-	err = m.Parse(mf)
+	m, err := mta.ReadMta(tpl.relPath, "mta.yaml")
 	if err != nil {
 		logs.Logger.Error(err)
+		return err
 	}
 
 	// Template data

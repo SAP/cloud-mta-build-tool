@@ -6,7 +6,7 @@
 
 GOCMD=go
 GOBUILD=$(GOCMD) build
-
+MBT_PATH=C:\mbt_build
 
 # Binary names
 BINARY_NAME=mbt
@@ -52,18 +52,12 @@ build-windows:
 	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 $(GOBUILD) -o release/$(BINARY_NAME)_windows -v
 
 # use for local development - > copy the new bin to go/bin path to use new compiled version
-   ifeq ($(OS),Windows_NT)
-	echo "test"
-   else
+copy:
+ifeq ($(OS),Windows_NT)
+	rm -rf $(MBT_PATH)
+	mkdir $(MBT_PATH)
+	cp $(CURDIR)/release/$(BINARY_NAME)_windows $(MBT_PATH)/$(BINARY_NAME).exe
+else
 	cp $(CURDIR)/release/$(BINARY_NAME) $(GOPATH)/bin/
 	cp $(CURDIR)/release/$(BINARY_NAME) $~/usr/local/bin/
-   endif
-
-
-
-
-
-
-
-
-
+endif

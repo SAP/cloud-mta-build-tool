@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	"cloud-mta-build-tool/cmd/fsys"
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/yaml.v2"
 )
@@ -155,5 +156,5 @@ modules:
 	assert.Nil(t, err)
 	_, err = ioutil.ReadFile(filepath.Join(wd, "testdata", "META-INF", "mtad.yaml"))
 	assert.Nil(t, err)
-	// os.RemoveAll(filepath.Join(dir.GetPath(), "testdata"))
+	os.RemoveAll(filepath.Join(dir.GetPath(), "testdata", "META-INF"))
 }

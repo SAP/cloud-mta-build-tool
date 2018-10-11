@@ -14,10 +14,10 @@ MTR_DIR := $(DIR)$(BASE)
 all: tdir validate execute meta mtar cleanup
 # Create folder for build artifacts
 tdir:
-	@mkdir -p "$(MTR_DIR)"
+{{"\t"}}@mkdir -p "$(MTR_DIR)"
 # Validate mta.yaml
 validate:
-    @mbt validate
+{{"\t"}}@mbt validate
 # Set the current project repository path for general mta process
   PROJ_DIR := $(CURDIR)
 {{end}}
