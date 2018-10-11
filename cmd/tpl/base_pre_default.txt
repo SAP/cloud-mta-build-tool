@@ -3,15 +3,16 @@
 DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 BASE := $(notdir $(patsubst %/,%,$(DIR)))
 MTR_DIR := $(DIR)$(BASE)
+# List of all the recipes to be executed during the build process
+.PHONY: {{- range .File.Modules}} {{.Name}}{{end}} meta mtar cleanup
+# Default target compile all
+all: tdir validate execute meta mtar cleanup
+cores:
 # Determine OS cores
 {{- range OsCore }}
 {{"\t"}}{{ .NPROCS  }}
 {{"\t"}}{{ .MAKEFLAGS  }}
 {{- end}}
-# List of all the recipes to be executed during the build process
-.PHONY: {{- range .File.Modules}} {{.Name}}{{end}} meta mtar cleanup
-# Default target compile all
-all: tdir validate execute meta mtar cleanup
 # Create folder for build artifacts
 tdir:
 {{"\t"}}@mkdir -p "$(MTR_DIR)"
