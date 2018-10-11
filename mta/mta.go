@@ -51,7 +51,7 @@ type Modules struct {
 }
 
 // Properties - MTA map
-type Properties map[string]string
+type Properties map[string]interface{}
 
 // Parameters - MTA parameters
 type Parameters map[string]interface{}
