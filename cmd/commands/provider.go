@@ -1,14 +1,12 @@
 package commands
 
 import (
+	"fmt"
+
 	"cloud-mta-build-tool/cmd/logs"
 	"cloud-mta-build-tool/mta"
-	"fmt"
 	"github.com/spf13/cobra"
 )
-
-var pMtadSourceFlag string
-var pMtadTargetFlag string
 
 // Provide list of modules
 var pModule = &cobra.Command{
@@ -30,26 +28,4 @@ var pModule = &cobra.Command{
 		}
 		fmt.Println(names)
 	},
-}
-
-// Provide mtad.yaml from mta.yaml
-var pMtad = &cobra.Command{
-	Use:   "mtad",
-	Short: "Provide mtad",
-	Long:  "Provide deployment descriptor (mtad.yaml) from development descriptor (mta.yaml)",
-	Args:  cobra.NoArgs,
-	Run: func(cmd *cobra.Command, args []string) {
-		mtaStr, err := mta.ReadMta(pMtadSourceFlag, "mta.yaml")
-		if err == nil {
-			err = mta.GenMtad(*mtaStr, pMtadTargetFlag)
-		}
-		if err != nil {
-			logs.Logger.Error(err)
-		}
-	},
-}
-
-func init() {
-	pMtad.Flags().StringVarP(&pMtadSourceFlag, "source", "s", "", "Provide MTAD source ")
-	pMtad.Flags().StringVarP(&pMtadTargetFlag, "target", "t", "", "Provide MTAD target ")
 }
