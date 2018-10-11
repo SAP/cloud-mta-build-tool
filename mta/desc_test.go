@@ -150,7 +150,9 @@ modules:
 	wd, _ := os.Getwd()
 
 	yaml.Unmarshal(mtaSingleModule, &mta)
-	GenMetaInfo(filepath.Join(wd, "testdata"), mta, []string{"htmlapp"})
+	GenMetaInfo(filepath.Join(wd, "testdata"), mta, []string{"htmlapp"}, func(mtaStr MTA) {
+
+	})
 
 	_, err := ioutil.ReadFile(filepath.Join(wd, "testdata", "META-INF", "MANIFEST.MF"))
 	assert.Nil(t, err)

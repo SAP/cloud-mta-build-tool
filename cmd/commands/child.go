@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"cloud-mta-build-tool/cmd/platform"
 	"github.com/spf13/cobra"
 
 	fs "cloud-mta-build-tool/cmd/fsys"
@@ -17,6 +18,9 @@ const (
 	dataZip    = pathSep + "data.zip"
 	mtarSuffix = ".mtar"
 )
+
+var pMtadSourceFlag string
+var pMtadTargetFlag string
 
 // Prepare the process for execution
 var prepare = &cobra.Command{
@@ -76,6 +80,38 @@ func packModule(tDir string, mPathProp string, mNameProp string) error {
 	return err
 }
 
+// Provide mtad.yaml from mta.yaml
+var pMtad = &cobra.Command{
+	Use:   "mtad",
+	Short: "Provide mtad",
+	Long:  "Provide deployment descriptor (mtad.yaml) from development descriptor (mta.yaml)",
+	Args:  cobra.NoArgs,
+	Run: func(cmd *cobra.Command, args []string) {
+		mtaStr, err := mta.ReadMta(pMtadSourceFlag, "mta.yaml")
+		if err == nil {
+			err = mta.GenMtad(*mtaStr, pMtadTargetFlag, func(mtaStr mta.MTA) {
+				convertTypes(mtaStr)
+			})
+		}
+		if err != nil {
+			logs.Logger.Error(err)
+		}
+	},
+}
+
+func init() {
+	pMtad.Flags().StringVarP(&pMtadSourceFlag, "source", "s", "", "Provide MTAD source ")
+	pMtad.Flags().StringVarP(&pMtadTargetFlag, "target", "t", "", "Provide MTAD target ")
+}
+
+func convertTypes(mtaStr mta.MTA) {
+	// Load platform configuration file
+	platformCfg := platform.Parse(platform.PlatformConfig)
+	// Modify MTAD object according to platform types
+	// Todo platform should provided as command parameter
+	platform.ConvertTypes(mtaStr, platformCfg, "cf")
+}
+
 func generateMeta(relPath string, args []string) {
 	processMta("Metadata creation", relPath, args, func(file []byte, args []string) {
 		// Parse MTA file
@@ -84,7 +120,9 @@ func generateMeta(relPath string, args []string) {
 			logs.Logger.Error(err)
 		}
 		// Generate meta info dir with required content
-		err = mta.GenMetaInfo(args[0], *m, args[1:])
+		err = mta.GenMetaInfo(args[0], *m, args[1:], func(mtaStr mta.MTA) {
+			convertTypes(mtaStr)
+		})
 		if err != nil {
 			logs.Logger.Error(err)
 		}
