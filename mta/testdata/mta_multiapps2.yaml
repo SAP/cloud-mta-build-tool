@@ -1,0 +1,351 @@
+_schema-version: 2.1.0
+ID: com.company.platform2.samples.odata.myProj
+version: 0.3.0
+
+parameters:
+  deploy_mode: uiapp-repo
+
+modules:
+
+- name: myProj-java
+  type: java
+  path: srv
+  requires:
+  - name: ed-zdi
+    properties:
+      JBP_CONFIG_RESOURCE_CONFIGURATION: '[tomcat/webapps/ROOT/META-INF/context.xml: {"service_name_for_DefaultDB" : "~{zdi-container-name}"}]'
+  parameters:
+    health-check-type: http
+    health-check-http-endpoint: /health
+    health-check-timeout: 180
+    memory: 2G
+  properties:
+    JBP_CONFIG_SAPJVM: '[ memory_calculator: { memory_sizes: { heap: 1000m, stack: 1m, metaspace: 150m } } ]'
+  provides:
+  - name: java
+    properties:
+      url: '${default-url}'
+
+- name: myProj-db
+  type: mydb
+  path: db
+  requires:
+  - name: ed-zdi
+  parameters:
+    buildpack: https://github.com/target/nodejs-buildpack.git#v1.6.24
+
+
+### UI related artifacts
+
+- name: myProj-uideployer
+  type: com.company.uiapp.application-content
+  requires:
+  - name: ed-apprepo-dt
+  build-parameters:
+    builder: grunt
+    type: com.company.uiapp.application-content
+    requires:
+    - name: myProj-ui-conf-myproj
+    - name: myProj-ui-conf-extensionfunction
+    - name: myProj-ui-conf-movementcategory
+    - name: myProj-ui-conf-stockledgercharacteristic
+    - name: myProj-ui-conf-taxrate
+    - name: myProj-ui-conf-taxwarehouse
+    - name: myProj-ui-stockledgerlineitem
+    - name: myProj-ui-stockledgerlineitem-alp
+    - name: myProj-ui-stockledgerprocessingerror
+    - name: myProj-ui-md-shiptomaster
+    - name: myProj-ui-md-materialmaster
+
+- name: myProj-ui-conf-myproj
+  type: uiapp
+  path: ui-conf-myproj
+  parameters:
+    disk-quota: 256M
+    memory: 256M
+  build-parameters:
+    builder: grunt
+  requires:
+  - name: java
+    group: destinations
+    properties:
+      name: java
+      url: '~{url}'
+
+- name: myProj-ui-conf-extensionfunction
+  type: uiapp
+  path: ui-conf-extensionfunction
+  parameters:
+    disk-quota: 256M
+    memory: 256M
+  build-parameters:
+    builder: grunt
+  requires:
+  - name: java
+    group: destinations
+    properties:
+      name: java
+      url: '~{url}'
+
+- name: myProj-ui-conf-movementcategory
+  type: uiapp
+  path: ui-conf-movementcategory
+  parameters:
+    disk-quota: 256M
+    memory: 256M
+  build-parameters:
+    builder: grunt
+  requires:
+  - name: java
+    group: destinations
+    properties:
+      name: java
+      url: '~{url}'
+
+- name: myProj-ui-conf-stockledgercharacteristic
+  type: uiapp
+  path: ui-conf-stockledgercharacteristic
+  parameters:
+    disk-quota: 256M
+    memory: 256M
+  build-parameters:
+    builder: grunt
+  requires:
+  - name: java
+    group: destinations
+    properties:
+      name: java
+      url: '~{url}'
+
+- name: myProj-ui-conf-taxrate
+  type: uiapp
+  path: ui-conf-taxrate
+  parameters:
+    disk-quota: 256M
+    memory: 256M
+  build-parameters:
+    builder: grunt
+  requires:
+  - name: java
+    group: destinations
+    properties:
+      name: java
+      url: '~{url}'
+
+- name: myProj-ui-conf-taxwarehouse
+  type: uiapp
+  path: ui-conf-taxwarehouse
+  parameters:
+    disk-quota: 256M
+    memory: 256M
+  build-parameters:
+    builder: grunt
+  requires:
+  - name: java
+    group: destinations
+    properties:
+      name: java
+      url: '~{url}'
+
+- name: myProj-ui-md-materialmaster
+  type: uiapp
+  path: ui-md-materialmaster
+  parameters:
+    disk-quota: 256M
+    memory: 256M
+  build-parameters:
+    builder: grunt
+  requires:
+  - name: java
+    group: destinations
+    properties:
+      name: java
+      url: '~{url}'
+
+- name: myProj-ui-md-shiptomaster
+  type: uiapp
+  path: ui-md-shiptomaster
+  parameters:
+    disk-quota: 256M
+    memory: 256M
+  build-parameters:
+    builder: grunt
+  requires:
+  - name: java
+    group: destinations
+    properties:
+      name: java
+      url: '~{url}'
+
+- name: myProj-ui-stockledgerlineitem
+  type: uiapp
+  path: ui-stockledgerlineitem
+  parameters:
+    disk-quota: 256M
+    memory: 256M
+  build-parameters:
+    builder: grunt
+  requires:
+  - name: java
+    group: destinations
+    properties:
+      name: java
+      url: '~{url}'
+
+- name: myProj-ui-stockledgerlineitem-alp
+  type: uiapp
+  path: ui-stockledgerlineitem-alp
+  parameters:
+    disk-quota: 256M
+    memory: 256M
+  build-parameters:
+    builder: grunt
+  requires:
+  - name: java
+    group: destinations
+    properties:
+      name: java
+      url: '~{url}'
+
+- name: myProj-ui-stockledgerprocessingerror
+  type: uiapp
+  path: ui-stockledgerprocessingerror
+  parameters:
+    disk-quota: 256M
+    memory: 256M
+  build-parameters:
+    builder: grunt
+  requires:
+  - name: java
+    group: destinations
+    properties:
+      name: java
+      url: '~{url}'
+
+- name: myProj-router
+  type: router.nodejs
+  path: router
+  parameters:
+    disk-quota: 256M
+    memory: 256M
+  requires:
+  - name: ed-apprepo-rt
+  - name: ed-portal
+  - name: java
+    group: destinations
+    properties:
+      name: ed-backend
+      url: ~{url}
+      forwardAuthToken: true
+  - name: myProj-xsahaa
+    group: destinations
+    properties:
+      name: XSAHAA_BACKEND
+      url: ~{url}
+      forwardAuthToken: true
+  - name: orca-remote-qbuilder-zdi
+    group: destinations
+    properties:
+      name: orca-remote-qbuilder-zdi
+      url: ~{url}
+      forwardAuthToken: true
+
+- name: myProj-ftp-content
+  type: com.company.portal.site-content
+  path: ftp-content
+  parameters:
+    memory: 128M
+    buildpack: https://github.com/target/nodejs-buildpack/releases/download/v1.6.21/nodejs-buildpack-v1.6.21.zip
+  requires:
+  - name: ed-portal
+  - name: ed-apprepo-dt
+  - name: myProj-uideployer
+
+### Supporting artifacts
+
+- name: myProj-sb
+  type: nodejs
+  path: service-broker/
+  properties:
+    SBF_BROKER_CREDENTIALS: >
+      {
+        "${generated-user}": "${generated-password}"
+      }
+  requires:
+  - name: java
+    properties:
+      SBF_SERVICE_CONFIG:
+        ExciseDuty-ServiceBroker:
+          extend_credentials:
+            shared:
+              url: ~{url}
+  parameters:
+    memory: 128M
+
+- name: myProj-xsahaa
+  type: java
+  path: xsahaa
+  parameters:
+    memory: 512M
+    buildpack: sap_java_buildpack
+    health-check-timeout: 180
+  properties:
+    TARGET_RUNTIME: tomee
+    JBP_CONFIG_RESOURCE_CONFIGURATION: "['tomee/webapps/ROOT/WEB-INF/web.xml': {'cors-origins':'https://demo-custom.eu1.sapbusinessobjects.cloud, https://integration-service2.eu1.sapanalytics.cloud'},
+                                           'tomee/webapps/ROOT/WEB-INF/resources.xml': {'xsahaa-zdi-container':'ed-zdi'}]"
+    SAP_JWT_TRUST_ACL: >
+      [
+        {"clientid":"*","identityzone":"*"}
+      ]
+  provides:
+  - name: myProj-xsahaa
+    properties:
+      url: "${default-url}"
+  requires:
+  - name: ed-zdi
+  build-parameters:
+    build-result: target/*.war
+
+resources:
+- name: ed-zdi
+  type: com.company.platform.zdi-container
+  properties:
+    zdi-container-name: '${service-name}'
+
+- name: ed-apprepo-rt
+  type: org.target.managed-service
+  parameters:
+    service: uiapp-apps-repo
+    service-plan: app-runtime
+
+- name: ed-apprepo-dt
+  type: org.target.managed-service
+  parameters:
+    service: uiapp-apps-repo
+    service-plan: app-host
+
+- name: ed-portal
+  type: org.target.managed-service
+  parameters:
+    service-plan: standard
+    service: portal
+
+- name: orca-remote-qbuilder-zdi
+  properties:
+    url: 'https://company.com/'
+
+- name: ed-rabbit
+  type: org.target.managed-service
+  parameters:
+    service: rabbitmq
+    service-plan: v3.6-dev
+
+
+# - name: xray
+#   properties:
+#     xrayurl: 'https://xraycontrolstebofwk.int.company.memdb.ondemand.com/xRayControls/resources/company/dfa/help'
+
+# - name: xray_data
+#   properties:
+#     xraydataurl: 'https://cp1canary.int.company.memdb.ondemand.com/dps' #Canary
+#     #xraydataurl: 'https://cp.memdb.ondemand.com/dps/' #Production
