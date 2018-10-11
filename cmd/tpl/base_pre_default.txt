@@ -5,8 +5,8 @@ BASE := $(notdir $(patsubst %/,%,$(DIR)))
 MTR_DIR := $(DIR)$(BASE)
 # Determine OS cores
 {{- range OsCore }}
-{{ .NPROCS  }}
-{{ .MAKEFLAGS  }}
+{{"\t"}}{{ .NPROCS  }}
+{{"\t"}}{{ .MAKEFLAGS  }}
 {{- end}}
 # List of all the recipes to be executed during the build process
 .PHONY: {{- range .File.Modules}} {{.Name}}{{end}} meta mtar cleanup
@@ -17,7 +17,7 @@ tdir:
 {{"\t"}}@mkdir -p "$(MTR_DIR)"
 # Validate mta.yaml
 validate:
-{{"\t"}}@mbt validate
+{{"\t"}}@mbt execute validate
 # Set the current project repository path for general mta process
   PROJ_DIR := $(CURDIR)
 {{end}}
