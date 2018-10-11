@@ -111,8 +111,8 @@ func Test_ModulesParsing(t *testing.T) {
 						Name:  "srv_api",
 						Group: "destinations",
 						Properties: Properties{
-							"forwardAuthToken": "true",
-							"strictSSL":        "false",
+							"forwardAuthToken": true,
+							"strictSSL":        false,
 							"name":             "srv_api",
 							"url":              "~{url}",
 						},
