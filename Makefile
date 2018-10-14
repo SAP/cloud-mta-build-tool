@@ -13,7 +13,7 @@ BINARY_NAME=mbt
 BUILD  = $(CURDIR)/release
 
 
-all:format clean dir gen build-linux build-darwin build-windows  test
+all:format clean dir gen build-linux build-darwin build-windows copy test
 .PHONY: build-darwin build-linux build-windows
 
 format :
