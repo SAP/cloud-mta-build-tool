@@ -3,7 +3,6 @@ package commands
 import (
 	"fmt"
 
-	"cloud-mta-build-tool/cmd/logs"
 	"cloud-mta-build-tool/mta"
 	"github.com/spf13/cobra"
 )
@@ -16,16 +15,13 @@ var pModule = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		// Get Yaml file
 		mo, err := mta.ReadMta("", "mta.yaml")
-		if err != nil {
-			logs.Logger.Error(err)
-			return
+		if err == nil {
+			// Get list of modules names
+			names := mo.GetModulesNames()
+			if err == nil {
+				fmt.Println(names)
+			}
 		}
-		// Get list of modules names
-		names := mo.GetModulesNames()
-		if err != nil {
-			logs.Logger.Error(err)
-			return
-		}
-		fmt.Println(names)
+		LogError(err)
 	},
 }

@@ -37,34 +37,29 @@ var bModule = &cobra.Command{
 	},
 }
 
-func buildModule(module string) {
+func buildModule(module string) error {
 
 	logs.Logger.Info("Start building module: ", module)
 	// Read File
 	mta, err := mta.ReadMta("", "mta.yaml")
-	if err != nil {
-		logs.Logger.Error(err)
-		return
+	if err == nil {
+		// Get module respective command's to execute
+		mPathProp, mCmd := moduleCmd(*mta, module)
+		mRelPath := filepath.Join(fs.GetPath(), mPathProp)
+		// Get module commands and path
+		commands := cmdConverter(mRelPath, mCmd)
+		// Get temp dir for packing the artifacts
+		dir, file := filepath.Split(fs.ProjectPath())
+		tdir := filepath.Join(dir, file, file)
+		// Execute child-process with module respective commands
+		err = exec.Execute(commands)
+		if err == nil {
+			// Pack the modules build artifacts (include node modules)
+			// into the temp dir as data zip
+			err = packModule(tdir, mPathProp, module)
+		}
 	}
-	// Get module respective command's to execute
-	mPathProp, mCmd := moduleCmd(*mta, module)
-	mRelPath := filepath.Join(fs.GetPath(), mPathProp)
-	// Get module commands and path
-	commands := cmdConverter(mRelPath, mCmd)
-	// Get temp dir for packing the artifacts
-	dir, file := filepath.Split(fs.ProjectPath())
-	tdir := filepath.Join(dir, file, file)
-	// Execute child-process with module respective commands
-	err = exec.Execute(commands)
-	if err != nil {
-		logs.Logger.Error(err)
-	}
-	// Pack the modules build artifacts (include node modules)
-	// into the temp dir as data zip
-	packModule(tdir, mPathProp, module)
-	if err != nil {
-		logs.Logger.Error(err)
-	}
+	return err
 }
 
 // Get commands for specific module type

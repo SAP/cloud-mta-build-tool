@@ -3,7 +3,6 @@ package commands
 import (
 	"github.com/spf13/cobra"
 
-	"cloud-mta-build-tool/cmd/logs"
 	"cloud-mta-build-tool/cmd/tpl"
 )
 
@@ -16,9 +15,8 @@ var initProcess = &cobra.Command{
 	Args:  cobra.NoArgs,
 	Run: func(cmd *cobra.Command, args []string) {
 		// Generate build script
-		if err := tpl.Make(initMode); err != nil {
-			logs.Logger.Error(err)
-		}
+		err := tpl.Make(initMode)
+		LogError(err)
 	},
 }
 

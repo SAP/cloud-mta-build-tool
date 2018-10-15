@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"errors"
 	"os"
 
 	"cloud-mta-build-tool/cmd/logs"
@@ -42,45 +43,54 @@ var validate = &cobra.Command{
 	Long:  "MBT validation process",
 	Args:  cobra.NoArgs,
 	Run: func(cmd *cobra.Command, args []string) {
-		validateSchema, validateProject := getValidationMode(validationFlag)
-		validateMtaYaml("", "mta.yaml", validateSchema, validateProject)
+		validateSchema, validateProject, err := getValidationMode(validationFlag)
+		if err == nil {
+			err = validateMtaYaml("", "mta.yaml", validateSchema, validateProject)
+		}
+		LogError(err)
 	},
 }
 
-func getValidationMode(validationFlag string) (bool, bool) {
-	switch true {
-	case validationFlag == "":
-		return true, true
-	case validationFlag == "schema":
-		return true, false
-	case validationFlag == "project":
-		return false, true
+func LogError(err error) {
+	if err != nil {
+		logs.Logger.Error(err)
 	}
-	logs.Logger.Error("Wrong argument of validation mode. Expected one of [all, schema, project")
-	return false, false
 }
 
-func validateMtaYaml(yamlPath string, yamlFilename string, validateSchema bool, validateProject bool) {
-	if !validateProject && !validateSchema {
-		return
+func getValidationMode(validationFlag string) (bool, bool, error) {
+	switch true {
+	case validationFlag == "":
+		return true, true, nil
+	case validationFlag == "schema":
+		return true, false, nil
+	case validationFlag == "project":
+		return false, true, nil
 	}
-	logs.Logger.Info("Starting MTA Yaml validation")
-	yamlContent, err := mta.ReadMtaContent(yamlPath, yamlFilename)
-	var wd string
-	if err == nil {
-		wd, err = os.Getwd()
-	}
-	if err != nil {
-		logs.Logger.Error("MTA validation failed. " + err.Error())
-	} else {
-		issues := mta.Validate(yamlContent, wd, validateSchema, validateProject)
-		valid := len(issues) == 0
-		if valid {
-			logs.Logger.Info("MTA Yaml is valid")
+	logs.Logger.Error("Wrong argument of validation mode. Expected one of [all, schema, project")
+	return false, false, errors.New("Wrong argument of validation mode. Expected one of [all, schema, project]")
+}
+
+func validateMtaYaml(yamlPath string, yamlFilename string, validateSchema bool, validateProject bool) error {
+	if validateProject || validateSchema {
+		logs.Logger.Info("Starting MTA Yaml validation")
+		yamlContent, err := mta.ReadMtaContent(yamlPath, yamlFilename)
+		var wd string
+		if err == nil {
+			wd, err = os.Getwd()
+		}
+		if err != nil {
+			return errors.New("MTA validation failed. " + err.Error())
 		} else {
-			logs.Logger.Info("MTA Yaml is  invalid. Issues: \n", issues)
+			issues := mta.Validate(yamlContent, wd, validateSchema, validateProject)
+			valid := len(issues) == 0
+			if valid {
+				logs.Logger.Info("MTA Yaml is valid")
+			} else {
+				return errors.New("MTA Yaml is  invalid. Issues: \n" + issues.String())
+			}
 		}
 	}
+	return nil
 }
 
 func init() {
