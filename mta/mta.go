@@ -170,7 +170,7 @@ func (mta *MTA) GetModulesNames() []string {
 	return modules(mta)
 }
 
-func Validate(yamlContent []byte, projectPath string, validateSchema bool, validateProject bool) []mta_validate.YamlValidationIssue {
+func Validate(yamlContent []byte, projectPath string, validateSchema bool, validateProject bool) mta_validate.YamlValidationIssues {
 	issues := []mta_validate.YamlValidationIssue{}
 	wd, err := os.Getwd()
 	if err != nil {

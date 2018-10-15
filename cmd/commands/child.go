@@ -2,6 +2,7 @@ package commands
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 
@@ -49,7 +50,8 @@ var pack = &cobra.Command{
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) > 2 {
-			packModule(args[0], args[1], args[2])
+			err := packModule(args[0], args[1], args[2])
+			LogError(err)
 		}
 	},
 }
@@ -68,10 +70,10 @@ func packModule(tDir string, mPathProp string, mNameProp string) error {
 		// zipping the build artifacts
 		logs.Logger.Infof("Starting execute zipping module %v ", mNameProp)
 		if err = fs.Archive(mp, mrp+dataZip); err != nil {
-			logs.Logger.Errorf("Error occurred during ZIP module %v creation, error: %s  ", mNameProp, err)
-			err = os.RemoveAll(tDir)
-			if err != nil {
-				logs.Logger.Error(err)
+			err = errors.New(fmt.Sprintf("Error occurred during ZIP module %v creation, error: %s  ", mNameProp, err))
+			err1 := os.RemoveAll(tDir)
+			if err1 != nil {
+				err = errors.New(fmt.Sprintf("Error occured during directory %s removal failed %s. %s", tDir, err, err1))
 			}
 		} else {
 			logs.Logger.Infof("Execute zipping module %v finished successfully ", mNameProp)
@@ -93,9 +95,7 @@ var pMtad = &cobra.Command{
 				convertTypes(mtaStr)
 			})
 		}
-		if err != nil {
-			logs.Logger.Error(err)
-		}
+		LogError(err)
 	},
 }
 
@@ -112,20 +112,17 @@ func convertTypes(mtaStr mta.MTA) {
 	platform.ConvertTypes(mtaStr, platformCfg, "cf")
 }
 
-func generateMeta(relPath string, args []string) {
-	processMta("Metadata creation", relPath, args, func(file []byte, args []string) {
+func generateMeta(relPath string, args []string) error {
+	return processMta("Metadata creation", relPath, args, func(file []byte, args []string) error {
 		// Parse MTA file
 		m, err := mta.ParseToMta(file)
-		if err != nil {
-			logs.Logger.Error(err)
+		if err == nil {
+			// Generate meta info dir with required content
+			err = mta.GenMetaInfo(args[0], *m, args[1:], func(mtaStr mta.MTA) {
+				convertTypes(mtaStr)
+			})
 		}
-		// Generate meta info dir with required content
-		err = mta.GenMetaInfo(args[0], *m, args[1:], func(mtaStr mta.MTA) {
-			convertTypes(mtaStr)
-		})
-		if err != nil {
-			logs.Logger.Error(err)
-		}
+		return err
 	})
 }
 
@@ -136,35 +133,35 @@ var genMeta = &cobra.Command{
 	Long:  "generate META-INF folder with all the required data",
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		generateMeta("", args)
+		err := generateMeta("", args)
+		LogError(err)
 	},
 }
 
-func processMta(processName string, relPath string, args []string, process func(file []byte, args []string)) {
+func processMta(processName string, relPath string, args []string, process func(file []byte, args []string) error) error {
 	logs.Logger.Info("Starting " + processName)
 	s := &mta.Source{Path: relPath, Filename: "mta.yaml"}
 	mf, err := s.ReadExtFile()
 	if err == nil {
-		process(mf, args)
-		logs.Logger.Info(processName + " finish successfully ")
+		err = process(mf, args)
+		if err == nil {
+			logs.Logger.Info(processName + " finish successfully ")
+		}
 	} else {
-		logs.Logger.Error("MTA file not found")
+		err = errors.New(fmt.Sprintf("MTA file not found: %s", err))
 	}
+	return err
 }
 
 func generateMtar(relPath string, args []string) error {
-	processMta("MTAR generation", relPath, args, func(file []byte, args []string) {
+	return processMta("MTAR generation", relPath, args, func(file []byte, args []string) error {
 		// Create MTAR from the building artifacts
 		m, err := mta.ParseToMta(file)
-		if err != nil {
-			logs.Logger.Error(err)
+		if err == nil {
+			err = fs.Archive(args[0], args[1]+pathSep+m.Id+mtarSuffix)
 		}
-		err = fs.Archive(args[0], args[1]+pathSep+m.Id+mtarSuffix)
-		if err != nil {
-			logs.Logger.Error(err)
-		}
+		return err
 	})
-	return nil
 }
 
 // Generate mtar from build artifacts

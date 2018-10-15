@@ -2,6 +2,7 @@ package exec
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"os/exec"
 	"path/filepath"
@@ -33,14 +34,13 @@ func Execute(cmdParams [][]string) error {
 		// During the running process get the standard output
 		stdout, err := cmd.StdoutPipe()
 		if err != nil {
-			logs.Logger.Errorf("%s cmd.StdoutPipe() error: %s ", cp[1:], err)
-			return err
+			return errors.New(fmt.Sprintf("%s cmd.StdoutPipe() error: %s ", cp[1:], err))
 		}
 		// During the running process get the standard output
 		stderr, err := cmd.StderrPipe()
 		if err != nil {
 			logs.Logger.Errorf("cmd.StderrPipe() error: %s ", err)
-			return err
+			return errors.New(fmt.Sprintf("cmd.StderrPipe() error: %s ", err))
 		}
 
 		// Start indicator
@@ -49,8 +49,7 @@ func Execute(cmdParams [][]string) error {
 
 		// Execute the process immediately
 		if err = cmd.Start(); err != nil {
-			logs.Logger.Errorf("%s start error: %panicIndicator\n", cp[1:], err)
-			return err
+			return errors.New(fmt.Sprintf("%s start error: %panicIndicator\n", cp[1:], err))
 		}
 		// Stream command output:
 		// Creates a bufio.Scanner that will read from the pipe
@@ -69,18 +68,15 @@ func Execute(cmdParams [][]string) error {
 		}
 
 		if scanout.Err() != nil {
-			logs.Logger.Errorf("Reading %s stdout error: %panicIndicator\n", cp[1:], err)
-			return err
+			return errors.New(fmt.Sprintf("%s scanout error: %panicIndicator\n", cp[1:], err))
 		}
 
 		if scanerr.Err() != nil {
-			logs.Logger.Errorf("Reading %s stderr error: %panicIndicator\n", cp[1:], err)
-			return err
+			return errors.New(fmt.Sprintf("Reading %s stderr error: %panicIndicator\n", cp[1:], err))
 		}
 		// Get execution success or failure:
 		if err = cmd.Wait(); err != nil {
-			logs.Logger.Errorf("Error running %s: %panicIndicator\n", cp[1:], err)
-			return err
+			return errors.New(fmt.Sprintf("Error running %s: %panicIndicator\n", cp[1:], err))
 		}
 		close(shutdownCh) // Signal indicator() to terminate
 		logs.Logger.Infof("Finished %s", cp[1:])
