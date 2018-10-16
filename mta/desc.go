@@ -5,8 +5,8 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
-	"path/filepath"
-	"strings"
+
+	"cloud-mta-build-tool/cmd/fsys"
 )
 
 // The deployment descriptor shall be located within the META-INF folder of the JAR.
@@ -53,7 +53,7 @@ func setManifetDesc(file io.Writer, mtaStr []*Modules, modules []string) {
 func printToFile(file io.Writer, mtaStr *Modules) {
 	fmt.Fprint(file, newLine)
 	fmt.Fprint(file, newLine)
-	fmt.Fprint(file, strings.Replace(moduleName+mtaStr.Name+dataZip, "\\", "/", -1))
+	fmt.Fprint(file, dir.ConvertPathToUnixFormat(moduleName+mtaStr.Name+dataZip))
 	fmt.Fprint(file, newLine)
 	fmt.Fprint(file, mtaModule+mtaStr.Name)
 	fmt.Fprint(file, newLine)
@@ -62,7 +62,8 @@ func printToFile(file io.Writer, mtaStr *Modules) {
 
 func GenMtad(mtaStr MTA, targetPath string, convertTypes func(mtaStr MTA)) error {
 	// Create META-INF folder under the mtar folder
-	createDirIfNotExist(filepath.Join(targetPath, metaInf))
+	targetBasePath := dir.Path{targetPath}
+	createDirIfNotExist(targetBasePath.GetFullPath(metaInf))
 	convertTypes(mtaStr)
 	//// Load platform configuration file
 	//platformCfg := platform.Parse(platform.PlatformConfig)
@@ -73,7 +74,7 @@ func GenMtad(mtaStr MTA, targetPath string, convertTypes func(mtaStr MTA)) error
 	mtad, err := Marshal(mtaStr)
 	// Write back the MTAD to the META-INF folder
 	if err == nil {
-		err = ioutil.WriteFile(filepath.Join(targetPath, metaInf, mtadYaml), mtad, os.ModePerm)
+		err = ioutil.WriteFile(targetBasePath.GetFullPath(metaInf, mtadYaml), mtad, os.ModePerm)
 	}
 	return err
 }
@@ -82,7 +83,7 @@ func GenMetaInfo(tmpDir string, mtaStr MTA, modules []string, convertTypes func(
 	err := GenMtad(mtaStr, tmpDir, convertTypes)
 	if err == nil {
 		// Create MANIFEST.MF file
-		file, _ := createFile(filepath.Join(tmpDir, metaInf, manifest))
+		file, _ := createFile(dir.Path{tmpDir}.GetFullPath(metaInf, manifest))
 		defer file.Close()
 		// Set the MANIFEST.MF file
 		setManifetDesc(file, mtaStr.Modules, modules)
@@ -108,5 +109,5 @@ func createFile(path string) (file *os.File, err error) {
 		return nil, fmt.Errorf("Failed to create file %s ", err)
 	}
 	// /defer file.Close()
-	return file, err
+	return file, nil
 }

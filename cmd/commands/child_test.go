@@ -17,7 +17,7 @@ import (
 // 	srcFilePath := filepath.Join("testdata", "mtahtml5", "testapp", "webapp", "controller")
 // 	dstFilePath := filepath.Join("testdata", "result")
 // 	copyModule.Run(nil, []string{srcFilePath, dstFilePath, "controller"})
-// 	resultPath := filepath.Join(dir.GetPath(), "testdata", "result", "testdata", "mtahtml5", "testapp", "webapp", "controller", "View1.controller.js")
+// 	resultPath := filepath.Join(dir.GetCurrentPath(), "testdata", "result", "testdata", "mtahtml5", "testapp", "webapp", "controller", "View1.controller.js")
 // 	fileInfo, _ := os.Stat(resultPath)
 // 	assert.Equal(t, fileInfo.IsDir(), false)
 //
@@ -26,42 +26,47 @@ import (
 // 	assert.Nil(t, fileInfo)
 // }
 
+func getFullPath(relPath ...string) string {
+	path, _ := dir.GetFullPath(relPath...)
+	return path
+}
+
 func Test_genMetaFunction(t *testing.T) {
 
 	logs.Logger = logs.NewLogger()
 	args := []string{filepath.Join("testdata", "result"), "testapp"}
 	generateMeta(filepath.Join("testdata", "mtahtml5"), args)
-	actualContent, _ := ioutil.ReadFile(filepath.Join(dir.GetPath(), "testdata", "result", "META-INF", "mtad.yaml"))
+	actualContent, _ := ioutil.ReadFile(getFullPath("testdata", "result", "META-INF", "mtad.yaml"))
 	actualString := string(actualContent[:])
 	actualString = strings.Replace(actualString, "\n", "", -1)
 	actualString = strings.Replace(actualString, "\r", "", -1)
-	expectedContent, _ := ioutil.ReadFile(filepath.Join(dir.GetPath(), "testdata", "golden", "mtad.yaml"))
+	expectedContent, _ := ioutil.ReadFile(getFullPath("testdata", "golden", "mtad.yaml"))
 	expectedString := string(expectedContent[:])
 	expectedString = strings.Replace(expectedString, "\n", "", -1)
 	expectedString = strings.Replace(expectedString, "\r", "", -1)
 	assert.Equal(t, actualString, expectedString)
-	os.RemoveAll(filepath.Join(dir.GetPath(), "testdata", "result"))
+	os.RemoveAll(getFullPath("testdata", "result"))
 }
 
 func Test_genMetaCommand(t *testing.T) {
 	args := []string{filepath.Join("testdata", "result"), "testapp"}
 	genMeta.Run(nil, args)
-	actualContent, _ := ioutil.ReadFile(filepath.Join(dir.GetPath(), "testdata", "result", "META-INF", "mtad.yaml"))
+	actualContent, _ := ioutil.ReadFile(getFullPath("testdata", "result", "META-INF", "mtad.yaml"))
 	assert.Nil(t, actualContent)
 }
 
 func Test_genMtarFunction(t *testing.T) {
-	args := []string{filepath.Join(dir.GetPath(), "testdata", "mtahtml5"), filepath.Join(dir.GetPath(), "testdata")}
+	args := []string{getFullPath("testdata", "mtahtml5"), getFullPath("testdata")}
 	generateMtar(filepath.Join("testdata", "mtahtml5"), args)
-	_, err := ioutil.ReadFile(filepath.Join(dir.GetPath(), "testdata", "mtahtml5.mtar"))
+	_, err := ioutil.ReadFile(getFullPath("testdata", "mtahtml5.mtar"))
 	assert.Nil(t, err)
-	os.RemoveAll(filepath.Join(dir.GetPath(), "testdata", "mtahtml5.mtar"))
+	os.RemoveAll(getFullPath("testdata", "mtahtml5.mtar"))
 }
 
 func Test_genMtarCommand(t *testing.T) {
-	args := []string{filepath.Join(dir.GetPath(), "testdata", "mtahtml5"), filepath.Join(dir.GetPath(), "testdata")}
+	args := []string{getFullPath("testdata", "mtahtml5"), getFullPath("testdata")}
 	genMtar.Run(nil, args)
-	actualContent, _ := ioutil.ReadFile(filepath.Join(dir.GetPath(), "testdata", "mtahtml5.mtar"))
+	actualContent, _ := ioutil.ReadFile(getFullPath("testdata", "mtahtml5.mtar"))
 	assert.Nil(t, actualContent)
 }
 
@@ -74,7 +79,7 @@ func Test_pack(t *testing.T) {
 	}{
 		{
 			name: "SanityTest",
-			args: []string{filepath.Join(dir.GetPath(), "testdata", "result"),
+			args: []string{getFullPath("testdata", "result"),
 				filepath.Join("testdata", "mtahtml5", "testapp"),
 				"ui5app"},
 			validator: func(t *testing.T, args []string) {
@@ -87,7 +92,7 @@ func Test_pack(t *testing.T) {
 		},
 		{
 			name: "Wrong relative path to module",
-			args: []string{filepath.Join(dir.GetPath(), "testdata", "result"),
+			args: []string{getFullPath("testdata", "result"),
 				filepath.Join("testdata", "mtahtml5", "ui5app"),
 				"ui5app"},
 			validator: func(t *testing.T, args []string) {
@@ -98,7 +103,7 @@ func Test_pack(t *testing.T) {
 		},
 		{
 			name: "Missing arguments",
-			args: []string{filepath.Join(dir.GetPath(), "testdata", "result"),
+			args: []string{getFullPath("testdata", "result"),
 				"ui5app"},
 			validator: func(t *testing.T, args []string) {
 				resultPath := filepath.Join(args[0], "ui5app", "data.zip")
@@ -123,7 +128,7 @@ func Test_packWithOpenedFile(t *testing.T) {
 	logs.Logger.SetOutput(&str)
 	f, _ := os.Create(filepath.Join("testdata", "temp"))
 
-	args := []string{filepath.Join(dir.GetPath(), "testdata", "temp"), filepath.Join("testdata", "mtahtml5", "testapp"), "ui5app"}
+	args := []string{getFullPath("testdata", "temp"), filepath.Join("testdata", "mtahtml5", "testapp"), "ui5app"}
 
 	pack.Run(nil, args)
 	assert.Contains(t, str.String(), "ERROR mkdir")

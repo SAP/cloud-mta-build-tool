@@ -1,7 +1,6 @@
 package commands
 
 import (
-	"path/filepath"
 	"testing"
 
 	"cloud-mta-build-tool/cmd/fsys"
@@ -15,14 +14,14 @@ func Test_initConfig(t *testing.T) {
 	property := viper.Get("xxx")
 	assert.Nil(t, property)
 
-	cfgFile = filepath.Join(dir.GetPath(), "testdata", "config.props")
+	cfgFile, _ = dir.GetFullPath("testdata", "config.props")
 	initConfig()
 	property = viper.Get("xxx")
 	assert.Equal(t, "10", property)
 
 	viper.Reset()
 
-	cfgFile = filepath.Join(dir.GetPath(), "testdata", "config1.props")
+	cfgFile, _ = dir.GetFullPath("testdata", "config1.props")
 	initConfig()
 	cfgFile = ""
 	property = viper.Get("xxx")

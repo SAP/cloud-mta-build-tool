@@ -7,7 +7,6 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"cloud-mta-build-tool/cmd/logs"
 )
@@ -31,16 +30,16 @@ func CreateDirIfNotExist(dir string) error {
 // Archive module and mtar artifacts,
 // compatible with the JAR specification
 // to support the spec requirements
-// Source path to zip -> params[0])
-// Target artifact  -> ,params[1])
-func Archive(params ...string) error {
+// Source Path to be zipped
+// Target artifact
+func Archive(sourcePath, targetArchivePath string) error {
 
-	info, err := os.Stat(params[0])
+	info, err := os.Stat(sourcePath)
 	if err != nil {
 		return err
 	}
 
-	zipfile, err := os.Create(params[1])
+	zipfile, err := os.Create(targetArchivePath)
 	if err != nil {
 		return err
 	}
@@ -52,16 +51,16 @@ func Archive(params ...string) error {
 	// Skip headers to support jar archive structure
 	var baseDir string
 	if info.IsDir() {
-		baseDir = params[0]
+		baseDir = sourcePath
 	} else {
-		baseDir = filepath.Base(params[0])
+		baseDir = filepath.Base(sourcePath)
 	}
 
 	if baseDir != "" {
 		baseDir += pathSep
 	}
 
-	filepath.Walk(params[0], func(path string, info os.FileInfo, err error) error {
+	filepath.Walk(sourcePath, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
@@ -76,23 +75,20 @@ func Archive(params ...string) error {
 		}
 
 		if baseDir != "" {
-			header.Name = filepath.Join(strings.TrimPrefix(path, baseDir))
-			header.Name = strings.Replace(header.Name, "\\", "/", -1)
+			header.Name = GetRelativePath(path, baseDir)
+			header.Name = ConvertPathToUnixFormat(header.Name)
 		}
 
 		header.Method = zip.Deflate
 
 		writer, err := archive.CreateHeader(header)
-		if err != nil {
-			return err
+		if err == nil {
+			file, err := os.Open(path)
+			if err == nil {
+				defer file.Close()
+				_, err = io.Copy(writer, file)
+			}
 		}
-
-		file, err := os.Open(path)
-		if err != nil {
-			return err
-		}
-		defer file.Close()
-		_, err = io.Copy(writer, file)
 		return err
 	})
 
@@ -214,7 +210,7 @@ func DefaultTempDirFunc(path string) string {
 func Load(path string) (content []byte, err error) {
 	yamlFile, err := ioutil.ReadFile(path)
 	if err != nil {
-		logs.Logger.Errorf("File not found for path %s, error is: #%v ", path, err)
+		logs.Logger.Errorf("File not found for Path %s, error is: #%v ", path, err)
 		// YAML descriptor file not found abort the process
 		return yamlFile, err
 	}

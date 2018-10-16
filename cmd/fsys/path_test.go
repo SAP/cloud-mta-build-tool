@@ -8,11 +8,7 @@ import (
 
 func TestGetPath(t *testing.T) {
 
-	path := GetPath()
+	path, err := GetCurrentPath()
 	assert.NotEmpty(t, path)
-}
-
-func TestProjectPath(t *testing.T) {
-	path := ProjectPath()
-	assert.NotEmpty(t, path)
+	assert.Nil(t, err)
 }
