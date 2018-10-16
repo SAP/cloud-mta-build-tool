@@ -2,6 +2,7 @@ package commands
 
 import (
 	"errors"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -49,7 +50,8 @@ func buildModule(module string) error {
 		// Get module commands and path
 		commands := cmdConverter(mRelPath, mCmd)
 		// Get temp dir for packing the artifacts
-		dir, file := filepath.Split(fs.ProjectPath())
+		wd, _ := os.Getwd()
+		dir, file := filepath.Split(wd)
 		tdir := filepath.Join(dir, file, file)
 		// Execute child-process with module respective commands
 		err = exec.Execute(commands)

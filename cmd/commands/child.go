@@ -58,7 +58,9 @@ var pack = &cobra.Command{
 
 func packModule(tDir string, mPathProp string, mNameProp string) error {
 	// Get module path
-	mp := filepath.Join(fs.GetPath(), mPathProp)
+
+	ws, _ := os.Getwd()
+	mp := filepath.Join(ws, mPathProp)
 	// Get module relative path
 	mrp := filepath.Join(tDir, mNameProp)
 	// Create empty folder with name as before the zip process
@@ -158,7 +160,7 @@ func generateMtar(relPath string, args []string) error {
 		// Create MTAR from the building artifacts
 		m, err := mta.ParseToMta(file)
 		if err == nil {
-			err = fs.Archive(args[0], args[1]+pathSep+m.Id+mtarSuffix)
+			err = fs.Archive(filepath.Join(args[0]), filepath.Join(args[1], m.Id+mtarSuffix))
 		}
 		return err
 	})
