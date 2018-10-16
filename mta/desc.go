@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 // The deployment descriptor shall be located within the META-INF folder of the JAR.
@@ -52,7 +53,7 @@ func setManifetDesc(file io.Writer, mtaStr []*Modules, modules []string) {
 func printToFile(file io.Writer, mtaStr *Modules) {
 	fmt.Fprint(file, newLine)
 	fmt.Fprint(file, newLine)
-	fmt.Fprint(file, moduleName+mtaStr.Name+dataZip)
+	fmt.Fprint(file, strings.Replace(moduleName+mtaStr.Name+dataZip, "\\", "/", -1))
 	fmt.Fprint(file, newLine)
 	fmt.Fprint(file, mtaModule+mtaStr.Name)
 	fmt.Fprint(file, newLine)

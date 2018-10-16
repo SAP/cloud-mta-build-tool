@@ -77,6 +77,7 @@ func Archive(params ...string) error {
 
 		if baseDir != "" {
 			header.Name = filepath.Join(strings.TrimPrefix(path, baseDir))
+			header.Name = strings.Replace(header.Name, "\\", "/", -1)
 		}
 
 		header.Method = zip.Deflate
