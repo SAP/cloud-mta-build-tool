@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"io/ioutil"
 	"os"
-	"path/filepath"
 	"testing"
 
 	"cloud-mta-build-tool/cmd/fsys"
@@ -147,16 +146,18 @@ modules:
 `)
 	mta := MTA{}
 
-	wd, _ := os.Getwd()
-
 	yaml.Unmarshal(mtaSingleModule, &mta)
-	GenMetaInfo(filepath.Join(wd, "testdata"), mta, []string{"htmlapp"}, func(mtaStr MTA) {
+	testProjectPath, _ := dir.GetFullPath("testdata")
+	GenMetaInfo(testProjectPath, mta, []string{"htmlapp"}, func(mtaStr MTA) {
 
 	})
 
-	_, err := ioutil.ReadFile(filepath.Join(wd, "testdata", "META-INF", "MANIFEST.MF"))
+	manifestFilename, _ := dir.GetFullPath("testdata", "META-INF", "MANIFEST.MF")
+	_, err := ioutil.ReadFile(manifestFilename)
 	assert.Nil(t, err)
-	_, err = ioutil.ReadFile(filepath.Join(wd, "testdata", "META-INF", "mtad.yaml"))
+	mtadFilename, _ := dir.GetFullPath("testdata", "META-INF", "mtad.yaml")
+	_, err = ioutil.ReadFile(mtadFilename)
 	assert.Nil(t, err)
-	os.RemoveAll(filepath.Join(dir.GetPath(), "testdata", "META-INF"))
+	metaInfoPath, _ := dir.GetFullPath("testdata", "META-INF")
+	os.RemoveAll(metaInfoPath)
 }

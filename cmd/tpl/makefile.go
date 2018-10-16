@@ -2,6 +2,7 @@ package tpl
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -11,7 +12,6 @@ import (
 
 	"cloud-mta-build-tool/cmd/builders"
 	fs "cloud-mta-build-tool/cmd/fsys"
-	"cloud-mta-build-tool/cmd/logs"
 	"cloud-mta-build-tool/cmd/proc"
 )
 
@@ -36,11 +36,11 @@ type tplCfg struct {
 // Make - Generate the makefile
 func Make(mode string) error {
 	tpl, err := makeMode(mode)
-	if err != nil {
-		logs.Logger.Error(err)
+	if err == nil {
+		// Get project working directory
+		err = makeFile(makefile, tpl)
 	}
-	// Get project working directory
-	return makeFile(makefile, tpl)
+	return err
 }
 
 func makeFile(makeFilename string, tpl tplCfg) error {
@@ -54,7 +54,6 @@ func makeFile(makeFilename string, tpl tplCfg) error {
 	// Read file
 	m, err := mta.ReadMta(tpl.relPath, "mta.yaml")
 	if err != nil {
-		logs.Logger.Error(err)
 		return err
 	}
 
@@ -63,25 +62,24 @@ func makeFile(makeFilename string, tpl tplCfg) error {
 	// Create maps of the template method's
 	t, err := mapTpl(tpl.tplName, tpl.pre, tpl.post)
 	if err != nil {
-		logs.Logger.Error(err)
 		return err
 	}
 	// path for creating the file
-	path := filepath.Join(fs.GetPath(), tpl.relPath)
+	path, err := fs.GetFullPath(tpl.relPath)
 	// Create make file for the template
-	makeFile, err := createMakeFile(path, makeFilename)
-	if err != nil {
-		logs.Logger.Error(err)
-		return err
-	}
-	// Execute the template
-	err = t.Execute(makeFile, data)
-	if err != nil {
-		logs.Logger.Error(err)
-	}
-	err = makeFile.Close()
-	if err != nil {
-		logs.Logger.Error(err)
+	if err == nil {
+		makeFile, err := createMakeFile(path, makeFilename)
+		if err == nil {
+			// Execute the template
+			err = t.Execute(makeFile, data)
+
+			errClose := makeFile.Close()
+			if err != nil && errClose != nil {
+				err = errors.New(fmt.Sprintf("%s\n%s", err, errClose))
+			} else if errClose != nil {
+				err = errClose
+			}
+		}
 	}
 	return err
 }
