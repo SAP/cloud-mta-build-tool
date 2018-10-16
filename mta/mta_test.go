@@ -22,7 +22,8 @@ func doTest(t *testing.T, expected []testInfo, filename string) {
 	mtaFile, _ := ioutil.ReadFile(filename)
 	// Parse file
 	oMta := &MTA{}
-	err := oMta.Parse(mtaFile)
+	mtaContent, err := Marshal(*oMta)
+	err = oMta.Parse(mtaFile)
 	for i, tt := range expected {
 		t.Run(tt.name, func(t *testing.T) {
 			require.NotNil(t, oMta)
@@ -30,8 +31,7 @@ func doTest(t *testing.T, expected []testInfo, filename string) {
 			tt.validator(t, *oMta.Modules[i], tt.expected)
 		})
 	}
-
-	mtaContent, err := Marshal(*oMta)
+	mtaContent, err = Marshal(*oMta)
 	assert.Nil(t, err)
 
 	oMta2 := &MTA{}
@@ -41,7 +41,6 @@ func doTest(t *testing.T, expected []testInfo, filename string) {
 }
 
 func Test_ValidateAll(t *testing.T) {
-
 	wd, _ := os.Getwd()
 	yamlContent, _ := ioutil.ReadFile(filepath.Join(wd, "testdata", "testproject", "mta.yaml"))
 	issues := Validate(yamlContent, (filepath.Join(wd, "testdata", "testproject")), true, true)
@@ -53,6 +52,19 @@ func Test_ValidateSchema(t *testing.T) {
 	yamlContent, _ := ioutil.ReadFile(filepath.Join(wd, "testdata", "mta_multiapps.yaml"))
 	issues := Validate(yamlContent, (filepath.Join(wd, "testdata")), true, false)
 	assert.Equal(t, 0, len(issues))
+}
+
+func TestSource_ReadExtFile(t *testing.T) {
+	wd, _ := os.Getwd()
+	source := Source{filepath.Join(wd, "testdata", "testproject"), "mta.yaml"}
+	res, resErr := source.ReadExtFile()
+	expected, expectedErr := ioutil.ReadFile(source.Filename)
+	if !reflect.DeepEqual(res, expected) {
+		t.Errorf("ReadExtFile() = %v, want %v expected", string(res), string(expected))
+	}
+	if (resErr != nil && expectedErr == nil) || (resErr == nil && expectedErr != nil){
+		t.Errorf("incorrect error")
+	}
 }
 
 // Table driven test
@@ -442,6 +454,215 @@ func TestMTA_GetModules(t *testing.T) {
 			got := mta.GetModules()
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("MTA.GetModules() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestMTA_GetModulesNames(t *testing.T) {
+	type fields struct {
+		SchemaVersion *string
+		Id            string
+		Version       string
+		Modules       []*Modules
+		Resources     []*Resources
+		Parameters    Parameters
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		want   []*Modules
+	}{
+		{
+			name: "GetModules - two Modules",
+			fields: fields{
+				Modules: []*Modules{
+					{
+						Name: "someproj-db",
+						Type: "hdb",
+						Path: "db",
+						Requires: []Requires{
+							{
+								Name: "someproj-hdi-container",
+							},
+							{
+								Name: "someproj-logging",
+							},
+						},
+					},
+					{
+						Name: "someproj-java",
+						Type: "java",
+						Path: "srv",
+						Parameters: Parameters{
+							"memory":     "512M",
+							"disk-quota": "256M",
+						},
+					},
+				},
+				Resources: []*Resources{
+					{
+						Name: "someproj-hdi-container",
+						Properties: Properties{
+							"hdi-container-name": "${service-name}",
+						},
+						Type: "com.sap.xs.hdi-container",
+					},
+				},
+			},
+			want: []*Modules{
+				{
+					Name: "someproj-db",
+					Type: "hdb",
+					Path: "db",
+					Requires: []Requires{
+						{
+							Name: "someproj-hdi-container",
+						},
+						{
+							Name: "someproj-logging",
+						},
+					},
+				},
+				{
+					Name: "someproj-java",
+					Type: "java",
+					Path: "srv",
+					Parameters: Parameters{
+						"memory":     "512M",
+						"disk-quota": "256M",
+					},
+				},
+			},
+		}, {
+			name:   "GetModules - Empty list",
+			fields: fields{},
+			want:   nil,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			mta := &MTA{
+				SchemaVersion: tt.fields.SchemaVersion,
+				Id:            tt.fields.Id,
+				Version:       tt.fields.Version,
+				Modules:       tt.fields.Modules,
+				Resources:     tt.fields.Resources,
+				Parameters:    tt.fields.Parameters,
+			}
+			got := mta.GetModulesNames()
+			for i, elem := range mta.Modules {
+				if got[i] != elem.Name {
+					t.Errorf("MTA.GetModulesNames[%d]() = %v, expected %v", i, got[i], elem.Name)
+				}
+			}
+		})
+	}
+}
+
+func TestMTA_GetResourceByName(t *testing.T) {
+	type fields struct {
+		SchemaVersion *string
+		Id            string
+		Version       string
+		Modules       []*Modules
+		Resources     []*Resources
+		Parameters    Parameters
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		want   []*Modules
+	}{
+		{
+			name: "GetModules - two Modules",
+			fields: fields{
+				Modules: []*Modules{
+					{
+						Name: "someproj-db",
+						Type: "hdb",
+						Path: "db",
+						Requires: []Requires{
+							{
+								Name: "someproj-hdi-container",
+							},
+							{
+								Name: "someproj-logging",
+							},
+						},
+					},
+					{
+						Name: "someproj-java",
+						Type: "java",
+						Path: "srv",
+						Parameters: Parameters{
+							"memory":     "512M",
+							"disk-quota": "256M",
+						},
+					},
+				},
+				Resources: []*Resources{
+					{
+						Name: "someproj-hdi-container",
+						Properties: Properties{
+							"hdi-container-name": "${service-name}",
+						},
+						Type: "com.sap.xs.hdi-container",
+					},
+				},
+			},
+			want: []*Modules{
+				{
+					Name: "someproj-db",
+					Type: "hdb",
+					Path: "db",
+					Requires: []Requires{
+						{
+							Name: "someproj-hdi-container",
+						},
+						{
+							Name: "someproj-logging",
+						},
+					},
+				},
+				{
+					Name: "someproj-java",
+					Type: "java",
+					Path: "srv",
+					Parameters: Parameters{
+						"memory":     "512M",
+						"disk-quota": "256M",
+					},
+				},
+			},
+		}, {
+			name:   "GetModules - Empty list",
+			fields: fields{},
+			want:   nil,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			mta := &MTA{
+				SchemaVersion: tt.fields.SchemaVersion,
+				Id:            tt.fields.Id,
+				Version:       tt.fields.Version,
+				Modules:       tt.fields.Modules,
+				Resources:     tt.fields.Resources,
+				Parameters:    tt.fields.Parameters,
+			}
+			for _, elem := range tt.fields.Resources {
+				got,_ := mta.GetResourceByName(elem.Name)
+				if !reflect.DeepEqual(got, elem) {
+					t.Errorf("MTA.GetResourceByName() = %v, Resource =  %v", got, elem)
+				}
+			}
+			//Wrong name case
+			_,err := mta.GetResourceByName("")
+			if err == nil {
+				t.Errorf("Wrong name case is not supported")
 			}
 		})
 	}
