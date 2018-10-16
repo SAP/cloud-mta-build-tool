@@ -55,16 +55,9 @@ func Test_ValidateSchema(t *testing.T) {
 }
 
 func TestSource_ReadExtFile(t *testing.T) {
-	wd, _ := os.Getwd()
-	source := Source{filepath.Join(wd, "testdata", "testproject"), "mta.yaml"}
-	res, resErr := source.ReadExtFile()
-	expected, expectedErr := ioutil.ReadFile(source.Filename)
-	if !reflect.DeepEqual(res, expected) {
-		t.Errorf("ReadExtFile() = %v, want %v expected", string(res), string(expected))
-	}
-	if (resErr != nil && expectedErr == nil) || (resErr == nil && expectedErr != nil){
-		t.Errorf("incorrect error")
-	}
+	source := Source{filepath.Join( "testdata", "testproject"), "mta.yaml"}
+	_, resErr := source.ReadExtFile()
+	assert.Nil(t, resErr)
 }
 
 // Table driven test
