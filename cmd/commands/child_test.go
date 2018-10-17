@@ -13,19 +13,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// func Test_copyModuleAndClean(t *testing.T) {
-// 	srcFilePath := filepath.Join("testdata", "mtahtml5", "testapp", "webapp", "controller")
-// 	dstFilePath := filepath.Join("testdata", "result")
-// 	copyModule.Run(nil, []string{srcFilePath, dstFilePath, "controller"})
-// 	resultPath := filepath.Join(dir.GetCurrentPath(), "testdata", "result", "testdata", "mtahtml5", "testapp", "webapp", "controller", "View1.controller.js")
-// 	fileInfo, _ := os.Stat(resultPath)
-// 	assert.Equal(t, fileInfo.IsDir(), false)
-//
-// 	cleanup.Run(nil, []string{filepath.Join("testdata", "result")})
-// 	fileInfo, _ = os.Stat(resultPath)
-// 	assert.Nil(t, fileInfo)
-// }
-
 func getFullPath(relPath ...string) string {
 	path, _ := dir.GetFullPath(relPath...)
 	return path

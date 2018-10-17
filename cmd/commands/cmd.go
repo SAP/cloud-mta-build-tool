@@ -2,8 +2,8 @@ package commands
 
 import (
 	"errors"
-	"os"
 
+	"cloud-mta-build-tool/cmd/fsys"
 	"cloud-mta-build-tool/cmd/logs"
 	"cloud-mta-build-tool/mta"
 	"github.com/spf13/cobra"
@@ -74,14 +74,14 @@ func validateMtaYaml(yamlPath string, yamlFilename string, validateSchema bool, 
 	if validateProject || validateSchema {
 		logs.Logger.Info("Starting MTA Yaml validation")
 		yamlContent, err := mta.ReadMtaContent(yamlPath, yamlFilename)
-		var wd string
+		var projectPath string
 		if err == nil {
-			wd, err = os.Getwd()
+			projectPath, err = dir.GetCurrentPath()
 		}
 		if err != nil {
 			return errors.New("MTA validation failed. " + err.Error())
 		} else {
-			issues := mta.Validate(yamlContent, wd, validateSchema, validateProject)
+			issues := mta.Validate(yamlContent, projectPath, validateSchema, validateProject)
 			valid := len(issues) == 0
 			if valid {
 				logs.Logger.Info("MTA Yaml is valid")
