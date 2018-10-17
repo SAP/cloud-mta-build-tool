@@ -2,6 +2,8 @@ package mta
 
 import (
 	"io/ioutil"
+	"os"
+	"path/filepath"
 	"reflect"
 	"testing"
 
@@ -56,8 +58,8 @@ func Test_ValidateSchema(t *testing.T) {
 }
 
 func TestSource_ReadExtFile(t *testing.T) {
-	yamlPath, _ := dir.GetFullPath("testdata", "mta.yaml")
-	source := Source{yamlPath, "mta.yaml"}
+	wd, _ := os.Getwd()
+	source := Source{filepath.Join(wd, "testdata", "testproject"), "mta.yaml"}
 	res, resErr := source.ReadExtFile()
 	expected, expectedErr := ioutil.ReadFile(source.Filename)
 	if !reflect.DeepEqual(res, expected) {
