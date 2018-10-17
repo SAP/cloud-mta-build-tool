@@ -43,7 +43,8 @@ func removeMakefile(t *testing.T, path, makeFilename string) {
 
 func TestMake(t *testing.T) {
 
-	path := fs.GetPath() + pathSep + "testdata"
+	path, _ := fs.GetCurrentPath()
+	path = path + pathSep + "testdata"
 	makeFilename := "MakeFileTest"
 	var expectedMakeFilename string
 	switch runtime.GOOS {

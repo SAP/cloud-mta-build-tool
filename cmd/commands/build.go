@@ -2,8 +2,6 @@ package commands
 
 import (
 	"errors"
-	"os"
-	"path/filepath"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -41,24 +39,26 @@ var bModule = &cobra.Command{
 func buildModule(module string) error {
 
 	logs.Logger.Info("Start building module: ", module)
-	// Read File
+	// Read MTA Yaml File
 	mta, err := mta.ReadMta("", "mta.yaml")
 	if err == nil {
 		// Get module respective command's to execute
-		mPathProp, mCmd := moduleCmd(*mta, module)
-		mRelPath := filepath.Join(fs.GetPath(), mPathProp)
-		// Get module commands and path
-		commands := cmdConverter(mRelPath, mCmd)
-		// Get temp dir for packing the artifacts
-		wd, _ := os.Getwd()
-		dir, file := filepath.Split(wd)
-		tdir := filepath.Join(dir, file, file)
-		// Execute child-process with module respective commands
-		err = exec.Execute(commands)
+		moduleRelPath, moduleCmd := moduleCmd(*mta, module)
+		modulePath, err := fs.GetFullPath(moduleRelPath)
 		if err == nil {
-			// Pack the modules build artifacts (include node modules)
-			// into the temp dir as data zip
-			err = packModule(tdir, mPathProp, module)
+			// Get module commands
+			commands := cmdConverter(modulePath, moduleCmd)
+			// Get temp dir for packing the artifacts
+			artifactsPath, err := fs.GetArtifactsPath()
+			if err == nil {
+				// Execute child-process with module respective commands
+				err = exec.Execute(commands)
+				if err == nil {
+					// Pack the modules build artifacts (include node modules)
+					// into the artifactsPath dir as data zip
+					err = packModule(artifactsPath, moduleRelPath, module)
+				}
+			}
 		}
 	}
 	return err

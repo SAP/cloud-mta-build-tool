@@ -3,7 +3,6 @@ package dir
 import (
 	"io/ioutil"
 	"os"
-	"path/filepath"
 	"strings"
 	"testing"
 	"time"
@@ -13,6 +12,11 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func getFullPath(relPath ...string) string {
+	path, _ := GetFullPath(relPath...)
+	return path
+}
+
 func TestCreateDirIfNotExist(t *testing.T) {
 	tests := []struct {
 		name      string
@@ -21,7 +25,7 @@ func TestCreateDirIfNotExist(t *testing.T) {
 	}{
 		{
 			name:    "SanityTest",
-			dirName: filepath.Join(GetPath(), "testdata", "level2", "result"),
+			dirName: getFullPath("testdata", "level2", "result"),
 			validator: func(t *testing.T, dirName string, err error) {
 				assert.Nil(t, err)
 				err = os.RemoveAll(dirName)
@@ -30,7 +34,7 @@ func TestCreateDirIfNotExist(t *testing.T) {
 		},
 		{
 			name:    "DirectoryExists",
-			dirName: filepath.Join(GetPath(), "testdata", "level2", "level3"),
+			dirName: getFullPath("testdata", "level2", "level3"),
 			validator: func(t *testing.T, dirName string, err error) {
 				assert.Nil(t, err)
 			},
@@ -58,8 +62,8 @@ func TestArchive(t *testing.T) {
 		{
 			name: "SanityTest",
 			args: args{
-				srcFolderName: filepath.Join(GetPath(), "testdata", "mtahtml5"),
-				archFilename:  filepath.Join(GetPath(), "testdata", "arch.mbt"),
+				srcFolderName: getFullPath("testdata", "mtahtml5"),
+				archFilename:  getFullPath("testdata", "arch.mbt"),
 			},
 			validator: func(t *testing.T, args args, err error) {
 				assert.Nil(t, err)
@@ -69,8 +73,8 @@ func TestArchive(t *testing.T) {
 		{
 			name: "TargetIsNotFolder",
 			args: args{
-				srcFolderName: filepath.Join(GetPath(), "testdata", "level2", "level2_one.txt"),
-				archFilename:  filepath.Join(GetPath(), "testdata", "arch.mbt"),
+				srcFolderName: getFullPath("testdata", "level2", "level2_one.txt"),
+				archFilename:  getFullPath("testdata", "arch.mbt"),
 			},
 			validator: func(t *testing.T, args args, err error) {
 				assert.Nil(t, err)
@@ -80,8 +84,8 @@ func TestArchive(t *testing.T) {
 		{
 			name: "TargetIsNotExists",
 			args: args{
-				srcFolderName: filepath.Join(GetPath(), "testdata", "level3"),
-				archFilename:  filepath.Join(GetPath(), "testdata", "arch.mbt"),
+				srcFolderName: getFullPath("testdata", "level3"),
+				archFilename:  getFullPath("testdata", "arch.mbt"),
 			},
 			validator: func(t *testing.T, args args, err error) {
 				assert.NotNil(t, err)
@@ -144,7 +148,7 @@ func TestCopyDir(t *testing.T) {
 	}{
 		{
 			name:         "SanityTest",
-			args:         args{filepath.Join(GetPath(), "testdata", "level2"), filepath.Join(GetPath(), "testdata", "result")},
+			args:         args{getFullPath("testdata", "level2"), getFullPath("testdata", "result")},
 			preprocessor: func(t *testing.T, args args) {},
 			validator: func(t *testing.T, args args, err error) {
 				assert.Nil(t, err)
@@ -154,7 +158,7 @@ func TestCopyDir(t *testing.T) {
 		},
 		{
 			name:         "SourceDirectoryDoesNotExist",
-			args:         args{filepath.Join(GetPath(), "testdata", "level5"), filepath.Join(GetPath(), "testdata", "result")},
+			args:         args{getFullPath("testdata", "level5"), getFullPath("testdata", "result")},
 			preprocessor: func(t *testing.T, args args) {},
 			validator: func(t *testing.T, args args, err error) {
 				assert.NotNil(t, err)
@@ -162,7 +166,7 @@ func TestCopyDir(t *testing.T) {
 		},
 		{
 			name:         "SourceIsNotDirectory",
-			args:         args{filepath.Join(GetPath(), "testdata", "level2", "level2_one.txt"), filepath.Join(GetPath(), "testdata", "result")},
+			args:         args{getFullPath("testdata", "level2", "level2_one.txt"), getFullPath("testdata", "result")},
 			preprocessor: func(t *testing.T, args args) {},
 			validator: func(t *testing.T, args args, err error) {
 				assert.NotNil(t, err)
@@ -170,7 +174,7 @@ func TestCopyDir(t *testing.T) {
 		},
 		{
 			name:         "DstDirectoryNotValid",
-			args:         args{filepath.Join(GetPath(), "testdata", "level2"), "/"},
+			args:         args{getFullPath("testdata", "level2"), "/"},
 			preprocessor: func(t *testing.T, args args) {},
 			validator: func(t *testing.T, args args, err error) {
 				assert.NotNil(t, err)
@@ -191,10 +195,10 @@ func TestCopyDir(t *testing.T) {
 
 func TestCopyDirFileLocked(t *testing.T) {
 	logs.NewLogger()
-	dirName := filepath.Join(GetPath(), "testdata", "temp")
+	dirName := getFullPath("testdata", "temp")
 	f, _ := os.Create(dirName)
 
-	err := CopyDir(filepath.Join(GetPath(), "testdata", "level2"), dirName)
+	err := CopyDir(getFullPath("testdata", "level2"), dirName)
 	assert.NotNil(t, err)
 	f.Close()
 	os.RemoveAll(dirName)
@@ -232,8 +236,8 @@ func (file testFile) Sys() interface{} {
 }
 
 func Test_copyEntries(t *testing.T) {
-	srcPath := filepath.Join(GetPath(), "testdata", "level2", "level3")
-	dstPath := filepath.Join(GetPath(), "testdata", "result")
+	srcPath := getFullPath("testdata", "level2", "level3")
+	dstPath := getFullPath("testdata", "result")
 	os.MkdirAll(dstPath, os.ModePerm)
 	files, _ := ioutil.ReadDir(srcPath)
 	var filesWrapped [2]os.FileInfo
@@ -244,8 +248,8 @@ func Test_copyEntries(t *testing.T) {
 	assert.Equal(t, countFilesInDir(srcPath)-1, countFilesInDir(dstPath))
 	os.RemoveAll(dstPath)
 
-	dstPath = filepath.Join(GetPath(), "testdata", "//")
-	err := copyEntries(filesWrapped[:], filepath.Join(GetPath(), "testdata", "level2", "levelx"), dstPath)
+	dstPath = getFullPath("testdata", "//")
+	err := copyEntries(filesWrapped[:], getFullPath("testdata", "level2", "levelx"), dstPath)
 	assert.NotNil(t, err)
 }
 
@@ -261,14 +265,14 @@ func Test_copyFile(t *testing.T) {
 	}{
 		{
 			name: "SourceNotExists",
-			args: args{filepath.Join(GetPath(), "testdata", "fileSrc"), filepath.Join(GetPath(), "testdata", "fileDst")},
+			args: args{getFullPath("testdata", "fileSrc"), getFullPath("testdata", "fileDst")},
 			validator: func(t *testing.T, args args, err error) {
 				assert.NotNil(t, err)
 			},
 		},
 		{
 			name: "SourceIsDirectory",
-			args: args{filepath.Join(GetPath(), "testdata", "level2"), filepath.Join(GetPath(), "testdata", "level2", "fileDst")},
+			args: args{getFullPath("testdata", "level2"), getFullPath("testdata", "level2", "fileDst")},
 			validator: func(t *testing.T, args args, err error) {
 				assert.NotNil(t, err)
 				os.RemoveAll(args.dst)
@@ -276,14 +280,14 @@ func Test_copyFile(t *testing.T) {
 		},
 		{
 			name: "WrongDestinationName",
-			args: args{filepath.Join(GetPath(), "testdata", "level2", "level2_one.txt"), filepath.Join(GetPath(), "testdata", "level2", "/")},
+			args: args{getFullPath("testdata", "level2", "level2_one.txt"), getFullPath("testdata", "level2", "/")},
 			validator: func(t *testing.T, args args, err error) {
 				assert.NotNil(t, err)
 			},
 		},
 		{
 			name: "DestinationExists",
-			args: args{filepath.Join(GetPath(), "testdata", "level2", "level3", "level3_one.txt"), filepath.Join(GetPath(), "testdata", "level2", "level3", "level3_two.txt")},
+			args: args{getFullPath("testdata", "level2", "level3", "level3_one.txt"), getFullPath("testdata", "level2", "level3", "level3_two.txt")},
 			validator: func(t *testing.T, args args, err error) {
 				assert.Nil(t, err)
 			},
@@ -296,43 +300,4 @@ func Test_copyFile(t *testing.T) {
 			tt.validator(t, tt.args, err)
 		})
 	}
-}
-
-func TestLoad(t *testing.T) {
-	tests := []struct {
-		name      string
-		filename  string
-		validator func(t *testing.T, filename string, fileContent []byte, err error)
-	}{
-		{
-			name:     "SanityTest",
-			filename: filepath.Join(GetPath(), "testdata", "level2", "level2_one.txt"),
-			validator: func(t *testing.T, filename string, fileContent []byte, err error) {
-				assert.Nil(t, err)
-				s := string(fileContent)
-				assert.Equal(t, "level2_one.txt", s)
-			},
-		},
-		{
-			name:     "FileNotExists",
-			filename: filepath.Join(GetPath(), "testdata", "level2", "level2_one__.txt"),
-			validator: func(t *testing.T, filename string, fileContent []byte, err error) {
-				assert.NotNil(t, err)
-			},
-		},
-	}
-	logs.NewLogger()
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			fileContent, err := Load(tt.filename)
-			tt.validator(t, tt.filename, fileContent, err)
-
-		})
-	}
-}
-
-func TestDefaultTempDirFunc(t *testing.T) {
-	tempDir := DefaultTempDirFunc(filepath.Join(GetPath(), "testdata"))
-	assert.NotEmpty(t, tempDir)
-	os.RemoveAll(tempDir)
 }
