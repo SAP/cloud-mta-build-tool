@@ -32,6 +32,7 @@ func CreateDirIfNotExist(dir string) error {
 // to support the spec requirements
 // Source Path to be zipped
 // Target artifact
+//TODO add more comments
 func Archive(sourcePath, targetArchivePath string) error {
 
 	info, err := os.Stat(sourcePath)
@@ -75,8 +76,7 @@ func Archive(sourcePath, targetArchivePath string) error {
 		}
 
 		if baseDir != "" {
-			header.Name = GetRelativePath(path, baseDir)
-			header.Name = ConvertPathToUnixFormat(header.Name)
+			header.Name = filepath.ToSlash(GetRelativePath(path, baseDir))
 		}
 
 		header.Method = zip.Deflate
@@ -195,25 +195,4 @@ func copyFile(src, dst string) (err error) {
 	err = os.Chmod(dst, si.Mode())
 
 	return err
-}
-
-// DefaultTempDirFunc - Currently the generated temp dir is one lvl up from the running project
-// e.g. proj -> go/src/mta tmpdir-> go/src
-// The tmp dir should be deleted after the process finished or failed
-// TODO delete tmp in case of failure
-func DefaultTempDirFunc(path string) string {
-	tmpDir, _ := ioutil.TempDir(path, "BUILD_MTAR_TEMP")
-	return tmpDir
-}
-
-// Load - load the mta.yaml file
-func Load(path string) (content []byte, err error) {
-	yamlFile, err := ioutil.ReadFile(path)
-	if err != nil {
-		logs.Logger.Errorf("File not found for Path %s, error is: #%v ", path, err)
-		// YAML descriptor file not found abort the process
-		return yamlFile, err
-	}
-	logs.Logger.Debugf("The file loaded successfully:" + string(yamlFile))
-	return yamlFile, err
 }

@@ -57,8 +57,7 @@ var pack = &cobra.Command{
 }
 
 func packModule(artifactsPath string, moduleRelPath string, moduleName string) error {
-	// Get module path
-
+	// Get module full path
 	moduleFullPath, err := fs.GetFullPath(moduleRelPath)
 	if err == nil {
 		// Get module relative path
@@ -74,9 +73,9 @@ func packModule(artifactsPath string, moduleRelPath string, moduleName string) e
 			moduleZipFullPath := moduleZipPath + dataZip
 			if err = fs.Archive(moduleFullPath, moduleZipFullPath); err != nil {
 				err = errors.New(fmt.Sprintf("Error occurred during ZIP module %v creation, error: %s  ", moduleName, err))
-				err1 := os.RemoveAll(artifactsPath)
-				if err1 != nil {
-					err = errors.New(fmt.Sprintf("Error occured during directory %s removal failed %s. %s", artifactsPath, err, err1))
+				removeErr := os.RemoveAll(artifactsPath)
+				if removeErr != nil {
+					err = errors.New(fmt.Sprintf("Error occured during directory %s removal failed %s. %s", artifactsPath, err, removeErr))
 				}
 			} else {
 				logs.Logger.Infof("Execute zipping module %v finished successfully ", moduleName)

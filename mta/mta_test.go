@@ -2,11 +2,10 @@ package mta
 
 import (
 	"io/ioutil"
-	"os"
-	"path/filepath"
 	"reflect"
 	"testing"
 
+	"cloud-mta-build-tool/cmd/fsys"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -41,28 +40,30 @@ func doTest(t *testing.T, expected []testInfo, filename string) {
 }
 
 func Test_ValidateAll(t *testing.T) {
-	wd, _ := os.Getwd()
-	yamlContent, _ := ioutil.ReadFile(filepath.Join(wd, "testdata", "testproject", "mta.yaml"))
-	issues := Validate(yamlContent, (filepath.Join(wd, "testdata", "testproject")), true, true)
+	mtaYamlPath, _ := dir.GetFullPath("testdata", "testproject", "mta.yaml")
+	yamlContent, _ := ioutil.ReadFile(mtaYamlPath)
+	projectPath, _ := dir.GetFullPath("testdata", "testproject")
+	issues := Validate(yamlContent, projectPath, true, true)
 	assert.Equal(t, 1, len(issues))
 }
 
 func Test_ValidateSchema(t *testing.T) {
-	wd, _ := os.Getwd()
-	yamlContent, _ := ioutil.ReadFile(filepath.Join(wd, "testdata", "mta_multiapps.yaml"))
-	issues := Validate(yamlContent, (filepath.Join(wd, "testdata")), true, false)
+	yamlPath, _ := dir.GetFullPath("testdata", "mta_multiapps.yaml")
+	yamlContent, _ := ioutil.ReadFile(yamlPath)
+	projectPath, _ := dir.GetFullPath("testdata")
+	issues := Validate(yamlContent, projectPath, true, false)
 	assert.Equal(t, 0, len(issues))
 }
 
 func TestSource_ReadExtFile(t *testing.T) {
-	wd, _ := os.Getwd()
-	source := Source{filepath.Join(wd, "testdata", "testproject"), "mta.yaml"}
+	yamlPath, _ := dir.GetFullPath("testdata", "mta.yaml")
+	source := Source{yamlPath, "mta.yaml"}
 	res, resErr := source.ReadExtFile()
 	expected, expectedErr := ioutil.ReadFile(source.Filename)
 	if !reflect.DeepEqual(res, expected) {
 		t.Errorf("ReadExtFile() = %v, want %v expected", string(res), string(expected))
 	}
-	if (resErr != nil && expectedErr == nil) || (resErr == nil && expectedErr != nil){
+	if (resErr != nil && expectedErr == nil) || (resErr == nil && expectedErr != nil) {
 		t.Errorf("incorrect error")
 	}
 }
@@ -654,13 +655,13 @@ func TestMTA_GetResourceByName(t *testing.T) {
 				Parameters:    tt.fields.Parameters,
 			}
 			for _, elem := range tt.fields.Resources {
-				got,_ := mta.GetResourceByName(elem.Name)
+				got, _ := mta.GetResourceByName(elem.Name)
 				if !reflect.DeepEqual(got, elem) {
 					t.Errorf("MTA.GetResourceByName() = %v, Resource =  %v", got, elem)
 				}
 			}
 			//Wrong name case
-			_,err := mta.GetResourceByName("")
+			_, err := mta.GetResourceByName("")
 			if err == nil {
 				t.Errorf("Wrong name case is not supported")
 			}

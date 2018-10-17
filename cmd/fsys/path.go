@@ -45,7 +45,3 @@ func GetArtifactsPath() (string, error) {
 func GetRelativePath(fullPath, basePath string) string {
 	return strings.TrimPrefix(fullPath, basePath)
 }
-
-func ConvertPathToUnixFormat(path string) string {
-	return strings.Replace(path, "\\", "/", -1)
-}

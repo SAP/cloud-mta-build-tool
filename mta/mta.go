@@ -2,11 +2,9 @@ package mta
 
 import (
 	"fmt"
-
 	"io/ioutil"
-	"os"
-	"path/filepath"
 
+	"cloud-mta-build-tool/cmd/fsys"
 	"gopkg.in/yaml.v2"
 
 	"cloud-mta-build-tool/validations"
@@ -115,14 +113,14 @@ func Marshal(in MTA) (mtads []byte, err error) {
 
 // ReadExtFile - read external
 func (s Source) ReadExtFile() ([]byte, error) {
-	wd, err := os.Getwd()
-	if err != nil {
-		return nil, err
-	}
-	// Read MTA file
-	yamlFile, err := ioutil.ReadFile(wd + pathSep + s.Path + pathSep + s.Filename)
-	if err != nil {
-		return yamlFile, fmt.Errorf("not able to read the mta file : %s", err.Error())
+	fileFullPath, err := dir.GetFullPath(s.Path, s.Filename)
+	var yamlFile []byte
+	if err == nil {
+		// Read MTA file
+		yamlFile, err = ioutil.ReadFile(fileFullPath)
+		if err != nil {
+			err = fmt.Errorf("not able to read the mta file : %s", err.Error())
+		}
 	}
 	return yamlFile, err
 }
@@ -172,12 +170,15 @@ func (mta *MTA) GetModulesNames() []string {
 
 func Validate(yamlContent []byte, projectPath string, validateSchema bool, validateProject bool) mta_validate.YamlValidationIssues {
 	issues := []mta_validate.YamlValidationIssue{}
-	wd, err := os.Getwd()
-	if err != nil {
-		return append(issues, []mta_validate.YamlValidationIssue{{"Validation failed" + err.Error()}}...)
-	}
 	if validateSchema {
-		schemaContent, _ := ioutil.ReadFile(filepath.Join(wd, "schema.yaml"))
+		schemaFilename, err := dir.GetFullPath("schema.yaml")
+		var schemaContent []byte
+		if err == nil {
+			schemaContent, err = ioutil.ReadFile(schemaFilename)
+		}
+		if err != nil {
+			return append(issues, []mta_validate.YamlValidationIssue{{"Validation failed" + err.Error()}}...)
+		}
 		validations, schemaValidationLog := mta_validate.BuildValidationsFromSchemaText(schemaContent)
 		if len(schemaValidationLog) > 0 {
 			return schemaValidationLog

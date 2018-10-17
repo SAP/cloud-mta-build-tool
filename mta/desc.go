@@ -5,6 +5,7 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 
 	"cloud-mta-build-tool/cmd/fsys"
 )
@@ -53,7 +54,7 @@ func setManifetDesc(file io.Writer, mtaStr []*Modules, modules []string) {
 func printToFile(file io.Writer, mtaStr *Modules) {
 	fmt.Fprint(file, newLine)
 	fmt.Fprint(file, newLine)
-	fmt.Fprint(file, dir.ConvertPathToUnixFormat(moduleName+mtaStr.Name+dataZip))
+	fmt.Fprint(file, filepath.ToSlash(moduleName+mtaStr.Name+dataZip))
 	fmt.Fprint(file, newLine)
 	fmt.Fprint(file, mtaModule+mtaStr.Name)
 	fmt.Fprint(file, newLine)
