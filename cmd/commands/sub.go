@@ -29,7 +29,7 @@ var prepare = &cobra.Command{
 	Short: "prepare for build",
 	Long:  "prepare The project generation environment For build process",
 	Run: func(cmd *cobra.Command, args []string) {
-		// proc.Prepare()
+		// Todo add preparation process
 	},
 }
 
@@ -84,7 +84,6 @@ func packModule(artifactsPath string, moduleRelPath string, moduleName string) e
 	}
 	return err
 }
-
 
 func init() {
 	pMtad.Flags().StringVarP(&pMtadSourceFlag, "source", "s", "", "Provide MTAD source ")
