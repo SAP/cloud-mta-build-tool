@@ -1,5 +1,5 @@
 Before submitting a pull request, 
-please make sure the following is done:
+Please make sure the following:
 
 ##Description
 
@@ -9,4 +9,4 @@ Please explain the changes you made.
 - [ ] Code compiles correctly
 - [ ] in case of bug please create a test which fails without the change (if possible)
 - [ ] All tests passing
-- [ ] Extended the README / documentation, if necessary
+- [ ] Extend the README / documentation, if necessary
