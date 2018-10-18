@@ -51,6 +51,7 @@ var validate = &cobra.Command{
 	},
 }
 
+// LogError - log errors if any
 func LogError(err error) {
 	if err != nil {
 		logs.Logger.Error(err)

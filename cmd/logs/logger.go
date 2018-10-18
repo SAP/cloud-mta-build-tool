@@ -12,7 +12,7 @@ const (
 	DefLvl      = "info"
 )
 
-// Logger - logrus variable
+// Logger expose for usage
 var Logger *logrus.Logger
 
 // NewLogger - init logger
