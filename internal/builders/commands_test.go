@@ -6,7 +6,7 @@ import (
 
 	"gopkg.in/yaml.v2"
 
-	"cloud-mta-build-tool/cmd/logs"
+	"cloud-mta-build-tool/internal/logs"
 	"cloud-mta-build-tool/mta"
 )
 

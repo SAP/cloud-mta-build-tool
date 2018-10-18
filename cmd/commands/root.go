@@ -6,7 +6,7 @@ import (
 	"github.com/spf13/viper"
 	"os"
 
-	"cloud-mta-build-tool/cmd/logs"
+	"cloud-mta-build-tool/internal/logs"
 )
 
 var cfgFile string

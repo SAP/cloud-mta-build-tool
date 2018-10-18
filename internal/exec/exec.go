@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"time"
 
-	"cloud-mta-build-tool/cmd/logs"
+	"cloud-mta-build-tool/internal/logs"
 )
 
 func makeCommand(params []string) *exec.Cmd {

@@ -8,7 +8,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"cloud-mta-build-tool/cmd/logs"
+	"cloud-mta-build-tool/internal/logs"
 )
 
 const (

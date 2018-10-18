@@ -3,7 +3,7 @@ package commands
 import (
 	"testing"
 
-	"cloud-mta-build-tool/cmd/fsys"
+	"cloud-mta-build-tool/internal/fsys"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 )

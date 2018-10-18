@@ -6,11 +6,11 @@ import (
 	"os"
 	"path/filepath"
 
-	"cloud-mta-build-tool/cmd/platform"
+	"cloud-mta-build-tool/internal/platform"
 	"github.com/spf13/cobra"
 
-	fs "cloud-mta-build-tool/cmd/fsys"
-	"cloud-mta-build-tool/cmd/logs"
+	fs "cloud-mta-build-tool/internal/fsys"
+	"cloud-mta-build-tool/internal/logs"
 	"cloud-mta-build-tool/mta"
 )
 
