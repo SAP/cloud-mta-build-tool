@@ -85,22 +85,6 @@ func packModule(artifactsPath string, moduleRelPath string, moduleName string) e
 	return err
 }
 
-// Provide mtad.yaml from mta.yaml
-var pMtad = &cobra.Command{
-	Use:   "mtad",
-	Short: "Provide mtad",
-	Long:  "Provide deployment descriptor (mtad.yaml) from development descriptor (mta.yaml)",
-	Args:  cobra.NoArgs,
-	Run: func(cmd *cobra.Command, args []string) {
-		mtaStr, err := mta.ReadMta(pMtadSourceFlag, "mta.yaml")
-		if err == nil {
-			err = mta.GenMtad(*mtaStr, pMtadTargetFlag, func(mtaStr mta.MTA) {
-				convertTypes(mtaStr)
-			})
-		}
-		LogError(err)
-	},
-}
 
 func init() {
 	pMtad.Flags().StringVarP(&pMtadSourceFlag, "source", "s", "", "Provide MTAD source ")
@@ -144,7 +128,7 @@ var genMeta = &cobra.Command{
 func processMta(processName string, relPath string, args []string, process func(file []byte, args []string) error) error {
 	logs.Logger.Info("Starting " + processName)
 	s := &mta.Source{Path: relPath, Filename: "mta.yaml"}
-	mf, err := s.ReadExtFile()
+	mf, err := s.Readfile()
 	if err == nil {
 		err = process(mf, args)
 		if err == nil {

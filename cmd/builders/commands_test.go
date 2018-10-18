@@ -48,7 +48,7 @@ builders:
 	tests := []struct {
 		name     string
 		args     args
-		expected CommandList
+		expected commandList
 	}{
 		{
 			name: "Command for required module type",
@@ -63,7 +63,7 @@ builders:
 					Properties: nil,
 				},
 			},
-			expected: CommandList{
+			expected: commandList{
 				Info:    "build UI application",
 				Command: []string{"npm install", "grunt", "npm prune --production"},
 			},
@@ -85,7 +85,7 @@ func TestCommandProvider(t *testing.T) {
 	tests := []struct {
 		name string
 		args args
-		want CommandList
+		want commandList
 	}{
 		{
 			name: "Command for required module type",
