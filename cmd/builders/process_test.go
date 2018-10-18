@@ -9,6 +9,7 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+// This test is checking the parse process
 func TestParse(t *testing.T) {
 	// Initialize logger for use in the class under test (process)
 	logs.Logger = logs.NewLogger()
@@ -59,7 +60,7 @@ builders:
     - command: go build *.go
 `)
 
-	//Get parsed yaml content
+	// Get parsed yaml content
 	commands := Builders{}
 	err := yaml.Unmarshal(wantOut, &commands)
 	if err != nil {
@@ -82,7 +83,7 @@ builders:
 			expected: Builders{},
 		},
 	}
-	//Todo - basic parse test, need types test
+	// Todo - basic parse test, need types test
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := Parse(tt.args); !reflect.DeepEqual(got, tt.expected) {

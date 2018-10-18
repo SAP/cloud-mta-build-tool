@@ -25,3 +25,21 @@ var pModule = &cobra.Command{
 		LogError(err)
 	},
 }
+
+
+// Provide mtad.yaml from mta.yaml
+var pMtad = &cobra.Command{
+	Use:   "mtad",
+	Short: "Provide mtad",
+	Long:  "Provide deployment descriptor (mtad.yaml) from development descriptor (mta.yaml)",
+	Args:  cobra.NoArgs,
+	Run: func(cmd *cobra.Command, args []string) {
+		mtaStr, err := mta.ReadMta(pMtadSourceFlag, "mta.yaml")
+		if err == nil {
+			err = mta.GenMtad(*mtaStr, pMtadTargetFlag, func(mtaStr mta.MTA) {
+				convertTypes(mtaStr)
+			})
+		}
+		LogError(err)
+	},
+}

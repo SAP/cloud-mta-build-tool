@@ -18,7 +18,7 @@ func init() {
 
 // rootCmd represents the base command
 var rootCmd = &cobra.Command{
-	Use:   "mbt",
+	Use:   "MBT",
 	Short: "MTA Build tool",
 	Long:  "MTA Build tool V2",
 	Args:  cobra.MaximumNArgs(1),
@@ -33,7 +33,7 @@ func Execute() {
 	}
 }
 
-// TODO -initConfig reads in config file and ENV variables if set.
+// TODO - using config file and ENV variables if set.
 func initConfig() {
 	if cfgFile != "" {
 		// TODO Use config file from the flag.

@@ -5,10 +5,10 @@ import (
 )
 
 func Test_getValidationMode(t *testing.T) {
-	validModeTest := []struct{
-		n string //input
-		expected [2] bool //expected result
-		isNilErr bool //expected error
+	validModeTest := []struct {
+		n        string  //input
+		expected [2]bool //expected result
+		isNilErr bool    //expected error
 	}{
 		{"", [2]bool{true, true}, true},
 		{"schema", [2]bool{true, false}, true},
@@ -27,11 +27,11 @@ func Test_getValidationMode(t *testing.T) {
 
 func Test_validateMtaYaml(t *testing.T) {
 	validateMtaTest := []struct {
-		yamlPath string //input
-		yamlFileName string //input
-		validateSchema bool //input
-		validateProject bool //input
-		isNilErr bool //expected error
+		yamlPath        string //input
+		yamlFileName    string //input
+		validateSchema  bool   //input
+		validateProject bool   //input
+		isNilErr        bool   //expected error
 	}{
 		{"ui5app", "mta.yaml", true, true, false},
 		{"ui5app", "mta.yaml", true, false, false},

@@ -10,14 +10,6 @@ import (
 	"cloud-mta-build-tool/validations"
 )
 
-type MTAI interface {
-	GetModules() []*Modules
-	GetResources() []*Resources
-	GetModuleByName(name string) (*Modules, error)
-	GetModulesNames() []string
-	GetResourceByName(name string) (*Resources, error)
-}
-
 // MTA - Main mta struct
 type MTA struct {
 	SchemaVersion *string      `yaml:"_schema-version"`
@@ -82,8 +74,16 @@ type Resources struct {
 	Properties Properties `yaml:"properties,omitempty"`
 }
 
+type MTAI interface {
+	GetModules() []*Modules
+	GetResources() []*Resources
+	GetModuleByName(name string) (*Modules, error)
+	GetModulesNames() []string
+	GetResourceByName(name string) (*Resources, error)
+}
+
 type MTAFile interface {
-	ReadExtFile() ([]byte, error)
+	Readfile() ([]byte, error)
 }
 
 // Source - file path
@@ -111,8 +111,8 @@ func Marshal(in MTA) (mtads []byte, err error) {
 	return mtads, nil
 }
 
-// ReadExtFile - read external
-func (s Source) ReadExtFile() ([]byte, error) {
+// Readfile - read external file
+func (s Source) Readfile() ([]byte, error) {
 	fileFullPath, err := dir.GetFullPath(s.Path, s.Filename)
 	var yamlFile []byte
 	if err == nil {
@@ -168,6 +168,7 @@ func (mta *MTA) GetModulesNames() []string {
 	return modules(mta)
 }
 
+// Validate schema
 func Validate(yamlContent []byte, projectPath string, validateSchema bool, validateProject bool) mta_validate.YamlValidationIssues {
 	issues := []mta_validate.YamlValidationIssue{}
 	if validateSchema {

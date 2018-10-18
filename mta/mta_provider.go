@@ -16,7 +16,7 @@ func ReadMta(path, filename string) (*MTA, error) {
 
 func ReadMtaContent(path, filename string) ([]byte, error) {
 	s := &Source{Path: path, Filename: filename}
-	yamlContent, err := s.ReadExtFile()
+	yamlContent, err := s.Readfile()
 	// Read MTA file
 	if err != nil {
 		err = errors.New("Error reading the MTA file: " + err.Error())
