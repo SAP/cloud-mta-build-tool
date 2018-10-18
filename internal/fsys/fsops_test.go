@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"cloud-mta-build-tool/cmd/logs"
+	"cloud-mta-build-tool/internal/logs"
 
 	"github.com/stretchr/testify/assert"
 )

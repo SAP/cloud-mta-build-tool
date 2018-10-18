@@ -30,5 +30,5 @@ cover.out
 coverage.txt
 
 
-cmd/tpl/MakeFileTest
-cmd/tpl/MakeFileTest.mta
+internal/tpl/MakeFileTest
+internal/tpl/MakeFileTest.mta

@@ -10,9 +10,9 @@ import (
 
 	"cloud-mta-build-tool/mta"
 
-	"cloud-mta-build-tool/cmd/builders"
-	fs "cloud-mta-build-tool/cmd/fsys"
-	"cloud-mta-build-tool/cmd/proc"
+	"cloud-mta-build-tool/internal/builders"
+	fs "cloud-mta-build-tool/internal/fsys"
+	"cloud-mta-build-tool/internal/proc"
 )
 
 const (

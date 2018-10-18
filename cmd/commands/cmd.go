@@ -3,8 +3,8 @@ package commands
 import (
 	"errors"
 
-	"cloud-mta-build-tool/cmd/fsys"
-	"cloud-mta-build-tool/cmd/logs"
+	"cloud-mta-build-tool/internal/fsys"
+	"cloud-mta-build-tool/internal/logs"
 	"cloud-mta-build-tool/mta"
 	"github.com/spf13/cobra"
 )

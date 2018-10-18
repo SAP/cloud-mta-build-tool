@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 
-	"cloud-mta-build-tool/cmd/fsys"
+	"cloud-mta-build-tool/internal/fsys"
 	"gopkg.in/yaml.v2"
 
 	"cloud-mta-build-tool/validations"

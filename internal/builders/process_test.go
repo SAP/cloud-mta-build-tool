@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	"cloud-mta-build-tool/cmd/logs"
+	"cloud-mta-build-tool/internal/logs"
 
 	"gopkg.in/yaml.v2"
 )

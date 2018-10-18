@@ -8,8 +8,8 @@ import (
 	"strings"
 	"testing"
 
-	fs "cloud-mta-build-tool/cmd/fsys"
-	"cloud-mta-build-tool/cmd/logs"
+	fs "cloud-mta-build-tool/internal/fsys"
+	"cloud-mta-build-tool/internal/logs"
 
 	"github.com/stretchr/testify/assert"
 )

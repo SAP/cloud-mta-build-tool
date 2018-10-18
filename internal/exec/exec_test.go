@@ -1,7 +1,7 @@
 package exec
 
 import (
-	"cloud-mta-build-tool/cmd/logs"
+	"cloud-mta-build-tool/internal/logs"
 	"testing"
 	"time"
 

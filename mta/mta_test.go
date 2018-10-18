@@ -7,7 +7,7 @@ import (
 	"reflect"
 	"testing"
 
-	"cloud-mta-build-tool/cmd/fsys"
+	"cloud-mta-build-tool/internal/fsys"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

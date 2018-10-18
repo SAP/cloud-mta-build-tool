@@ -4,7 +4,7 @@ import (
 	"cloud-mta-build-tool/mta"
 	"gopkg.in/yaml.v2"
 
-	"cloud-mta-build-tool/cmd/logs"
+	"cloud-mta-build-tool/internal/logs"
 )
 
 func Parse(data []byte) Platforms {

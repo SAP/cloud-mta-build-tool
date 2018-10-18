@@ -4,7 +4,7 @@ import (
 	"io/ioutil"
 	"testing"
 
-	"cloud-mta-build-tool/cmd/fsys"
+	"cloud-mta-build-tool/internal/fsys"
 	"gopkg.in/yaml.v2"
 	"gotest.tools/assert"
 )

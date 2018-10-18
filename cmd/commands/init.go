@@ -3,7 +3,7 @@ package commands
 import (
 	"github.com/spf13/cobra"
 
-	"cloud-mta-build-tool/cmd/tpl"
+	"cloud-mta-build-tool/internal/tpl"
 )
 
 var initMode string

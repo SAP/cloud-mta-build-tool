@@ -6,7 +6,7 @@ import (
 	"os"
 	"testing"
 
-	"cloud-mta-build-tool/cmd/fsys"
+	"cloud-mta-build-tool/internal/fsys"
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/yaml.v2"
 )
