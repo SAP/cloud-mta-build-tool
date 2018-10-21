@@ -26,7 +26,6 @@ var pModule = &cobra.Command{
 	},
 }
 
-
 // Provide mtad.yaml from mta.yaml
 var pMtad = &cobra.Command{
 	Use:   "mtad",

@@ -11,7 +11,7 @@ import (
 )
 
 func TestParse(t *testing.T) {
-
+	t.Parallel()
 	// ------------Multi platform ---------
 	var platforms = []byte(`
 platform:

@@ -11,7 +11,7 @@ import (
 )
 
 func TestExeCmd(t *testing.T) {
-
+	t.Parallel()
 	var buildersCfg = []byte(`
 version: 1
 builders:
