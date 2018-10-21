@@ -11,6 +11,7 @@ import (
 
 // This test is checking the parse process
 func TestParse(t *testing.T) {
+	t.Parallel()
 	// Initialize logger for use in the class under test (process)
 	logs.Logger = logs.NewLogger()
 

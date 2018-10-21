@@ -7,7 +7,7 @@ import (
 )
 
 func TestOsCore(t *testing.T) {
-
+	t.Parallel()
 	tests := []struct {
 		name string
 		want []Proc
