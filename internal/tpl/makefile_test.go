@@ -6,27 +6,17 @@ import (
 	"regexp"
 	"runtime"
 	"strings"
-	"testing"
 
-	fs "cloud-mta-build-tool/internal/fsys"
+	"cloud-mta-build-tool/internal/fsys"
 	"cloud-mta-build-tool/internal/logs"
-
-	"github.com/stretchr/testify/assert"
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/ginkgo/extensions/table"
+	. "github.com/onsi/gomega"
 )
 
-func basicMakeAndValidate(t *testing.T, path, yamlFilename, makeFilename, expectedMakeFilename, expectedMakeFileExtension string) {
-	tpl := tplCfg{tplName: "make_verbose.txt", relPath: "testdata", pre: basePreVerbose, post: basePostVerbose}
-	err := makeFile(makeFilename, tpl)
-	makeFullName := path + pathSep + makeFilename
-	if err != nil {
-		os.Remove(makeFullName)
-		t.Error(err)
-	}
-	actual, err := ioutil.ReadFile(makeFullName + expectedMakeFileExtension)
-	assert.Nil(t, err)
-	expected, _ := ioutil.ReadFile(path + pathSep + expectedMakeFilename)
-	assert.Equal(t, removeSpecialSymbols(expected), removeSpecialSymbols(actual))
-}
+var _ = BeforeSuite(func() {
+	logs.Logger = logs.NewLogger()
+})
 
 func removeSpecialSymbols(b []byte) string {
 	reg, _ := regexp.Compile("[^a-zA-Z0-9]+")
@@ -36,166 +26,61 @@ func removeSpecialSymbols(b []byte) string {
 	return s
 }
 
-func removeMakefile(t *testing.T, path, makeFilename string) {
-	err := os.Remove(path + pathSep + makeFilename)
-	assert.Nil(t, err)
+func getMakeFileContent(filePath string) string {
+	expected, _ := ioutil.ReadFile(filePath)
+	return removeSpecialSymbols(expected)
 }
 
-func TestMake(t *testing.T) {
+var _ = Describe("Makefile", func() {
 
-	path, _ := fs.GetCurrentPath()
-	path = path + pathSep + "testdata"
-	makeFilename := "MakeFileTest"
-	var expectedMakeFilename string
-	switch runtime.GOOS {
-	case "linux":
-		expectedMakeFilename = "ExpectedMakeFileLinux"
-	case "darwin":
-		expectedMakeFilename = "ExpectedMakeFileMac"
-	case "windows":
-		expectedMakeFilename = "ExpectedMakeFileWindows"
-	}
-
-	logs.Logger = logs.NewLogger()
-
-	type testInfo = struct {
-		name         string
-		filename     string
-		testExecutor func(t *testing.T, path, yamlFilename, makeFilename string)
-	}
-
-	for _, ti := range []testInfo{
-		{"SanityTest", "mta.yaml",
-			func(t *testing.T, path, yamlFilename, makeFilename string) {
-				basicMakeAndValidate(t, path, yamlFilename, makeFilename, expectedMakeFilename, "")
-			}},
-		{"Yaml file not exists", "YamlNotExists",
-			func(t *testing.T, path, yamlFilename, makeFilename string) {
-				tpl := tplCfg{tplName: "make.txt"}
-				err := makeFile(makeFilename, tpl)
-				assert.NotNil(t, err)
-			}},
-		{"Yaml file exists but not answers YAML format", expectedMakeFilename,
-			func(t *testing.T, path, yamlFilename, makeFilename string) {
-				tpl := tplCfg{tplName: "make.txt"}
-				err := makeFile(makeFilename, tpl)
-				assert.NotNil(t, err)
-			}},
-		{"Make runs twice, 2 files created - with and without extension", "mta.yaml",
-			func(t *testing.T, path, yamlFilename, makeFilename string) {
-				basicMakeAndValidate(t, path, yamlFilename, makeFilename, expectedMakeFilename, "")
-				basicMakeAndValidate(t, path, yamlFilename, makeFilename, expectedMakeFilename, ".mta")
-				removeMakefile(t, path, makeFilename)
-				removeMakefile(t, path, makeFilename+".mta")
-			}},
-		{"public Make testing", "mta.yaml",
-			func(t *testing.T, path, yamlFilename, makeFilename string) {
-				err := Make("errorMode")
-				assert.NotNil(t, err)
-			}},
-		{"Template is wrong", "mta.yaml",
-			func(t *testing.T, path, yamlFilename, makeFilename string) {
-				tpl := tplCfg{tplName: "testdata" + pathSep + "WrongMakeTmpl.txt"}
-				err := makeFile(makeFilename, tpl)
-				assert.NotNil(t, err)
-			}},
-		{"Template is empty", "mta.yaml",
-			func(t *testing.T, path, yamlFilename, makeFilename string) {
-				tpl := tplCfg{tplName: "testdata" + pathSep + "emptyMakeTmpl.txt"}
-				err := makeFile(makeFilename, tpl)
-				assert.NotNil(t, err)
-			}},
-	} {
-		t.Run(ti.name, func(t *testing.T) {
-			ti.testExecutor(t, path, ti.filename, makeFilename)
-		})
-	}
-}
-
-func Test_makeMode(t *testing.T) {
-
-	type args struct {
-		mode string
-	}
-	tests := []struct {
-		name string
-		args args
-
-		want    tplCfg
-		wantErr bool
-	}{
-		{
-			name: "Default template - Generate user template according to command params ",
-			args: args{
-				mode: "",
-			},
-			want:    tplCfg{tplName: makeDefaultTpl, pre: basePreDefault, post: basePostDefault},
-			wantErr: false,
-		},
-
-		{
-			name: "Verbose template - Generate user template according to command params ",
-			args: args{
-				mode: "verbose",
-			},
-			want:    tplCfg{tplName: makeVerboseTpl, pre: basePreVerbose, post: basePostVerbose},
-			wantErr: false,
-		},
-		{
-			name: "Unsupported command - Generate user template according to command params",
-			args: args{
-				mode: "--test",
-			},
-			want:    tplCfg{},
-			wantErr: true,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got, err := makeMode(tt.args.mode)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("makeMode() error = %v, wantErr %v", err, tt.wantErr)
-				return
+	var (
+		tpl              = tplCfg{tplName: "make_verbose.txt", relPath: "testdata", pre: basePreVerbose, post: basePostVerbose}
+		makeFileName     = "MakeFileTest"
+		expectedMakePath = func() string {
+			var filename string
+			switch runtime.GOOS {
+			case "linux":
+				filename = "ExpectedMakeFileLinux"
+			case "darwin":
+				filename = "ExpectedMakeFileMac"
+			default:
+				filename = "ExpectedMakeFileWindows"
 			}
-			if got != tt.want {
-				t.Errorf("makeMode() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
+			path, _ := dir.GetFullPath("testdata", filename)
+			return path
+		}()
+		makeFilePath = func() string {
+			path, _ := dir.GetFullPath("testdata", makeFileName)
+			return path
+		}()
+		makeFileExtendedPath    = makeFilePath + ".mta"
+		expectedMakeFileContent = getMakeFileContent(expectedMakePath)
+	)
 
-func Test_stringInSlice(t *testing.T) {
-	type args struct {
-		a    string
-		list []string
-	}
-	tests := []struct {
-		name string
-		args args
-		want bool
-	}{
-		{
-			name: "find string in slice",
-			args: args{
-				a:    "--test1",
-				list: []string{"--test1", "foo"},
-			},
-			want: true,
-		},
-		{
-			name: "find string in slice",
-			args: args{
-				a:    "--test",
-				list: []string{"--test1", "bar"},
-			},
-			want: false,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := stringInSlice(tt.args.a, tt.args.list); got != tt.want {
-				t.Errorf("stringInSlice() = %v, want %v", got, tt.want)
-			}
+	var _ = Describe("MakeFile Generation", func() {
+		assertMakeFile := func(expectedMakeFilePath string) {
+			Ω(makeFile(makeFileName, tpl)).Should(Succeed())
+			Ω(expectedMakeFilePath).Should(BeAnExistingFile())
+			Ω(getMakeFileContent(expectedMakeFilePath)).Should(Equal(expectedMakeFileContent))
+		}
+		AfterEach(func() {
+			os.Remove(makeFilePath)
+			os.Remove(makeFileExtendedPath)
 		})
-	}
-}
+
+		It("Sanity", func() {
+			assertMakeFile(makeFilePath)
+			Ω(makeFileExtendedPath).ShouldNot(BeAnExistingFile())
+			assertMakeFile(makeFileExtendedPath)
+		})
+	})
+
+	var _ = DescribeTable("Makefile Generation Failed", func() {
+
+		//Ω(makeFile(makeFileName, tplCfg{tplName: filepath.Join("testdata", tplFilename)})).Should(HaveOccurred())
+	},
+	//Entry("Wrong Template", "WrongMakeTmpl.txt"),
+	//Entry("Empty Template", "emptyMakeTmpl.txt"),
+	)
+
+})
