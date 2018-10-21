@@ -97,7 +97,7 @@ func (mta *MTA) Parse(yamlContent []byte) (err error) {
 	// Format the YAML to struct's
 	err = yaml.Unmarshal([]byte(yamlContent), &mta)
 	if err != nil {
-		return fmt.Errorf("not able to read the mta file : %s", err.Error())
+		return fmt.Errorf("not able to parse the mta content : %s", err.Error())
 	}
 	return nil
 }

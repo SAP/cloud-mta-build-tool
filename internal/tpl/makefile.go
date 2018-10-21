@@ -8,6 +8,7 @@ import (
 	"runtime"
 	"text/template"
 
+	"cloud-mta-build-tool/internal/logs"
 	"cloud-mta-build-tool/mta"
 
 	"cloud-mta-build-tool/internal/builders"
@@ -16,7 +17,7 @@ import (
 )
 
 const (
-	makefile        = "Makefile"
+	makefile        = "Makefile.mta"
 	basePreVerbose  = "base_pre_verbose.txt"
 	basePostVerbose = "base_post_verbose.txt"
 	basePreDefault  = "base_pre_default.txt"
@@ -69,7 +70,7 @@ func makeFile(makeFilename string, tpl tplCfg) error {
 	// Create make file for the template
 	if err == nil {
 		makeFile, err := createMakeFile(path, makeFilename)
-		if err == nil {
+		if err == nil && makeFile != nil {
 			// Execute the template
 			err = t.Execute(makeFile, data)
 
@@ -128,10 +129,11 @@ func stringInSlice(a string, list []string) bool {
 
 func createMakeFile(path, filename string) (file *os.File, err error) {
 
-	fullFilename := path + pathSep + filename
+	fullFilename := filepath.Join(path, filename)
 	var mf *os.File
 	if _, err = os.Stat(fullFilename); err == nil {
-		mf, err = fs.CreateFile(fullFilename + ".mta")
+		logs.Logger.Warn(fmt.Sprintf("Make file %s exists", fullFilename))
+		return nil, nil
 	} else {
 		mf, err = fs.CreateFile(fullFilename)
 	}

@@ -1,8 +1,10 @@
 package tpl
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"regexp"
 	"runtime"
 	"strings"
@@ -35,7 +37,7 @@ var _ = Describe("Makefile", func() {
 
 	var (
 		tpl              = tplCfg{tplName: "make_verbose.txt", relPath: "testdata", pre: basePreVerbose, post: basePostVerbose}
-		makeFileName     = "MakeFileTest"
+		makeFileName     = "MakeFileTest.mta"
 		expectedMakePath = func() string {
 			var filename string
 			switch runtime.GOOS {
@@ -49,38 +51,66 @@ var _ = Describe("Makefile", func() {
 			path, _ := dir.GetFullPath("testdata", filename)
 			return path
 		}()
-		makeFilePath = func() string {
+		makeFileFullPath = func() string {
 			path, _ := dir.GetFullPath("testdata", makeFileName)
 			return path
 		}()
-		makeFileExtendedPath    = makeFilePath + ".mta"
 		expectedMakeFileContent = getMakeFileContent(expectedMakePath)
 	)
 
 	var _ = Describe("MakeFile Generation", func() {
-		assertMakeFile := func(expectedMakeFilePath string) {
-			Ω(makeFile(makeFileName, tpl)).Should(Succeed())
-			Ω(expectedMakeFilePath).Should(BeAnExistingFile())
-			Ω(getMakeFileContent(expectedMakeFilePath)).Should(Equal(expectedMakeFileContent))
-		}
 		AfterEach(func() {
-			os.Remove(makeFilePath)
-			os.Remove(makeFileExtendedPath)
+			e := os.Remove(makeFileFullPath)
+			if e != nil {
+				fmt.Println("aaaaaaaaaaaaaaaaaaaaaaaaa " + makeFileFullPath)
+			}
 		})
 
+		It("createMakeFile testing", func() {
+			makeFilePath, _ := dir.GetFullPath("testdata")
+			file, _ := createMakeFile(makeFilePath, makeFileName)
+			Ω(file).ShouldNot(BeNil())
+			file.Close()
+			Ω(makeFilePath).Should(BeAnExistingFile())
+			Ω(createMakeFile(makeFilePath, makeFileName)).Should(BeNil())
+		})
 		It("Sanity", func() {
-			assertMakeFile(makeFilePath)
-			Ω(makeFileExtendedPath).ShouldNot(BeAnExistingFile())
-			assertMakeFile(makeFileExtendedPath)
+			Ω(makeFile(makeFileName, tpl)).Should(Succeed())
+			Ω(makeFileFullPath).Should(BeAnExistingFile())
+			Ω(getMakeFileContent(makeFileFullPath)).Should(Equal(expectedMakeFileContent))
+		})
+		It("Make testing with wrong mode", func() {
+			Ω(Make("wrongMode")).Should(HaveOccurred())
 		})
 	})
 
-	var _ = DescribeTable("Makefile Generation Failed", func() {
+	var _ = DescribeTable("Makefile Generation Failed", func(testPath, testTemplate string) {
 
-		//Ω(makeFile(makeFileName, tplCfg{tplName: filepath.Join("testdata", tplFilename)})).Should(HaveOccurred())
+		Ω(makeFile(makeFileName, tplCfg{relPath: testPath, tplName: testTemplate, pre: basePreVerbose, post: basePostVerbose})).Should(HaveOccurred())
 	},
-	//Entry("Wrong Template", "WrongMakeTmpl.txt"),
-	//Entry("Empty Template", "emptyMakeTmpl.txt"),
+		Entry("Wrong Template", "testdata", filepath.Join("testdata", "WrongMakeTmpl.txt")),
+		Entry("Yaml not exists", "testdata1", "make_default.txt"),
+	)
+
+	var _ = DescribeTable("String in slice search", func(s string, slice []string, expected bool) {
+		Ω(stringInSlice(s, slice)).Should(Equal(expected))
+	},
+		Entry("positive test", "test1", []string{"test1", "foo"}, true),
+		Entry("negative test", "test1", []string{"--test", "foo"}, false),
+	)
+
+	var _ = Describe("Make mode tests", func() {
+		DescribeTable("Positive", func(mode string, tpl tplCfg) {
+			Ω(makeMode(mode)).Should(Equal(tpl))
+		},
+			Entry("Default mode", "", tplCfg{tplName: makeDefaultTpl, pre: basePreDefault, post: basePostDefault}),
+			Entry("Verbose mode", "verbose", tplCfg{tplName: makeVerboseTpl, pre: basePreVerbose, post: basePostVerbose}),
+		)
+		It("unknown mode", func() {
+			_, err := makeMode("test")
+			Ω(err).Should(MatchError("command is not supported"))
+		})
+	},
 	)
 
 })
