@@ -34,6 +34,7 @@ func Test_Execute_WithGoTestingNegative(t *testing.T) {
 
 func Test_Indicator(t *testing.T) {
 
+	t.Parallel()
 	// var wg sync.WaitGroup
 	// wg.Add(1)
 	shutdownCh := make(chan struct{})

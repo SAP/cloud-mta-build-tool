@@ -15,6 +15,8 @@ var module []string
 
 func Test_setManifetDesc(t *testing.T) {
 
+	t.Parallel()
+
 	tests := []struct {
 		n        int
 		name     string

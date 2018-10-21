@@ -10,6 +10,7 @@ import (
 )
 
 func TestNewLogger(t *testing.T) {
+	t.Parallel()
 	RegisterFailHandler(Fail)
 	RunSpecs(t, "test logger")
 }

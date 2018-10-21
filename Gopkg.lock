@@ -120,11 +120,12 @@
   revision = "f15292f7a699fcc1a38a80977f80a046874ba8ac"
 
 [[projects]]
-  digest = "1:42e29deef12327a69123b9cb2cb45fee4af5c12c2a23c6e477338279a052703f"
+  digest = "1:f37a92358921891d53d5375ff7fa57739ba65d5b3c311d96a460609bfc1b4999"
   name = "github.com/onsi/ginkgo"
   packages = [
     ".",
     "config",
+    "extensions/table",
     "internal/codelocation",
     "internal/containernode",
     "internal/failer",
@@ -380,7 +381,9 @@
   input-imports = [
     "github.com/mitchellh/go-homedir",
     "github.com/onsi/ginkgo",
+    "github.com/onsi/ginkgo/extensions/table",
     "github.com/onsi/gomega",
+    "github.com/pkg/errors",
     "github.com/sirupsen/logrus",
     "github.com/smallfish/simpleyaml",
     "github.com/spf13/cobra",
