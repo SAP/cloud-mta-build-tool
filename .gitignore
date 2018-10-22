@@ -28,7 +28,7 @@ docker*
 cover.html
 cover.out
 coverage.txt
-
+page.html
 
 internal/tpl/MakeFileTest
 internal/tpl/MakeFileTest.mta

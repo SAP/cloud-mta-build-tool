@@ -12,6 +12,23 @@ import (
 var buildTargetFlag string
 var validationFlag string
 
+func init() {
+
+	// Build module
+	provides.AddCommand(pModule)
+	// Provide module
+	build.AddCommand(bModule)
+	// execute immutable commands
+	execute.AddCommand(prepare, pack, genMeta, pMtad, genMtar, cleanup, validate)
+	// Add command to the root
+	rootCmd.AddCommand(provides, build, execute, initProcess)
+	// build target flags
+	build.Flags().StringVarP(&buildTargetFlag, "target", "t", "", "Build for specified environment ")
+	// validation flags , can be used for multiple scenario
+	validate.Flags().StringVarP(&validationFlag, "mode", "m", "", "Validation mode ")
+}
+
+
 // Parent command
 var build = &cobra.Command{
 	Use:   "build",
@@ -58,17 +75,15 @@ func LogError(err error) {
 	}
 }
 
-
 func getValidationMode(validationFlag string) (bool, bool, error) {
-	switch true {
-	case validationFlag == "":
+	switch validationFlag {
+	case "":
 		return true, true, nil
-	case validationFlag == "schema":
+	case "schema":
 		return true, false, nil
-	case validationFlag == "project":
+	case "project":
 		return false, true, nil
 	}
-	logs.Logger.Error("wrong argument of validation mode. Expected one of [all, schema, project")
 	return false, false, errors.New("wrong argument of validation mode. Expected one of [all, schema, project]")
 }
 
@@ -95,18 +110,3 @@ func validateMtaYaml(yamlPath string, yamlFilename string, validateSchema bool, 
 	return nil
 }
 
-func init() {
-
-	// Build module
-	provides.AddCommand(pModule)
-	// Provide module
-	build.AddCommand(bModule)
-	// execute immutable commands
-	execute.AddCommand(prepare, pack, genMeta, pMtad, genMtar, cleanup, validate)
-	// Add command to the root
-	rootCmd.AddCommand(provides, build, execute, initProcess)
-	// build target flags
-	build.Flags().StringVarP(&buildTargetFlag, "target", "t", "", "Build for specified environment ")
-	// validation flags , can be used for multiple scenario
-	validate.Flags().StringVarP(&validationFlag, "mode", "m", "", "Validation mode ")
-}
