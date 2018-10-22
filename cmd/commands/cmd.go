@@ -58,6 +58,7 @@ func LogError(err error) {
 	}
 }
 
+
 func getValidationMode(validationFlag string) (bool, bool, error) {
 	switch true {
 	case validationFlag == "":
@@ -67,8 +68,8 @@ func getValidationMode(validationFlag string) (bool, bool, error) {
 	case validationFlag == "project":
 		return false, true, nil
 	}
-	logs.Logger.Error("Wrong argument of validation mode. Expected one of [all, schema, project")
-	return false, false, errors.New("Wrong argument of validation mode. Expected one of [all, schema, project]")
+	logs.Logger.Error("wrong argument of validation mode. Expected one of [all, schema, project")
+	return false, false, errors.New("wrong argument of validation mode. Expected one of [all, schema, project]")
 }
 
 func validateMtaYaml(yamlPath string, yamlFilename string, validateSchema bool, validateProject bool) error {
