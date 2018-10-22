@@ -23,6 +23,11 @@ const (
 var pMtadSourceFlag string
 var pMtadTargetFlag string
 
+func init() {
+	pMtad.Flags().StringVarP(&pMtadSourceFlag, "source", "s", "", "Provide MTAD source ")
+	pMtad.Flags().StringVarP(&pMtadTargetFlag, "target", "t", "", "Provide MTAD target ")
+}
+
 // Prepare the process for execution
 var prepare = &cobra.Command{
 	Use:   "prepare",
@@ -86,10 +91,6 @@ func packModule(artifactsPath string, moduleRelPath string, moduleName string) e
 	return err
 }
 
-func init() {
-	pMtad.Flags().StringVarP(&pMtadSourceFlag, "source", "s", "", "Provide MTAD source ")
-	pMtad.Flags().StringVarP(&pMtadTargetFlag, "target", "t", "", "Provide MTAD target ")
-}
 
 // convert types to appropriate target platform types
 func convertTypes(mtaStr mta.MTA) {
