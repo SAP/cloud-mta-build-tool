@@ -3,12 +3,12 @@
 # it is bundled with the tool delivery as default to provide ease of use and quick start
 # However, To create a clear separation between the build tool and platform types
 # the build tool will support a path for platform config file via CLI flags
-# path to file which provide the following config wins over the following config
+# path to file which provide the a file with the following config format wins over the local config (i.e. from the repo)
 
 # Note: in the future this file will be removed from the tool
 
 # usage: to add new command to the file, execute command `go:generate`
-# on the root project to regenerate the file binary
+# The command should be executed on the root project level to regenerate the file that contain the binary (see generator.go file)
 
 # Types for cloudfoundry platform
 platform:
