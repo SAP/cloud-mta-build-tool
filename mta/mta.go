@@ -74,14 +74,6 @@ type Resources struct {
 	Properties Properties `yaml:"properties,omitempty"`
 }
 
-type MTAI interface {
-	GetModules() []*Modules
-	GetResources() []*Resources
-	GetModuleByName(name string) (*Modules, error)
-	GetModulesNames() []string
-	GetResourceByName(name string) (*Resources, error)
-}
-
 type MTAFile interface {
 	Readfile() ([]byte, error)
 }
