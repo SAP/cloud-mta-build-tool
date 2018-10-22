@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
 	"github.com/sirupsen/logrus"
 )
@@ -24,30 +25,18 @@ var _ = Describe("logger", func() {
 		Logger = nil
 	})
 
-	It("should return Debug Level", func() {
-		level := logLevel("debug")
-		Expect(level).To(Equal(logrus.DebugLevel))
-	})
-	It("should return Info Level", func() {
-		level := logLevel("info")
-		Expect(level).To(Equal(logrus.InfoLevel))
-	})
-	It("should return Error Level", func() {
-		level := logLevel("error")
-		Expect(level).To(Equal(logrus.ErrorLevel))
-	})
-	It("should return Warn Level", func() {
-		level := logLevel("warn")
-		Expect(level).To(Equal(logrus.WarnLevel))
-	})
-	It("should return Fatal Level", func() {
-		level := logLevel("fatal")
-		Expect(level).To(Equal(logrus.FatalLevel))
-	})
-	It("should return Panic Level", func() {
-		level := logLevel("panic")
-		Expect(level).To(Equal(logrus.PanicLevel))
-	})
+	DescribeTable("Log Level", func(input string, expected logrus.Level) {
+		level := logLevel(input)
+		Ω(level).To(Equal(expected))
+	},
+		Entry("Debug Level", "debug", logrus.DebugLevel),
+		Entry("Info Level", "info", logrus.InfoLevel),
+		Entry("Error Level", "error", logrus.ErrorLevel),
+		Entry("Warn Level", "warn", logrus.WarnLevel),
+		Entry("Fatal Level", "fatal", logrus.FatalLevel),
+		Entry("Panic Level", "panic", logrus.PanicLevel),
+	)
+
 	It("should Panic", func() {
 		Ω(logLevelWithPanic).Should(Panic())
 	})

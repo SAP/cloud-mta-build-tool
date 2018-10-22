@@ -2,57 +2,40 @@
 // in the coverage report, although we do end-up with a strange file name...
 package mta_validate
 
-import "testing"
-import "github.com/stretchr/testify/assert"
+import (
+	. "github.com/onsi/gomega"
+)
 
-func assertNoParsingErrors(err error, t *testing.T) {
-	if err != nil {
-		t.Error("Yaml Parsing Errors Detected")
-	}
+func assertNoParsingErrors(err error) {
+	Ω(err).Should(BeNil(), "Yaml Parsing Errors Detected: %v")
 }
 
-func assertNoValidationErrors(errors []YamlValidationIssue, t *testing.T) {
-	if len(errors) != 0 {
-		t.Error("Validation issues detected")
-	}
+func assertNoValidationErrors(errors []YamlValidationIssue) {
+	Ω(len(errors)).Should(Equal(0), "Validation issues detected: %v")
 }
 
-func expectSingleValidationError(actual []YamlValidationIssue, expectedMsg string, t *testing.T) {
+func expectSingleValidationError(actual []YamlValidationIssue, expectedMsg string) {
 	numOfErrors := len(actual)
-	if numOfErrors != 1 {
-		t.Errorf("A single validation issue expected but found: <%d>", numOfErrors)
-	}
+	Ω(numOfErrors).Should(Equal(1), "A single validation issue expected but found: <%d>", numOfErrors)
 
 	actualMsg := actual[0].Msg
-	if actual[0].Msg != expectedMsg {
-		t.Errorf("Expecting <%s>.\n\t But found <%s>.", expectedMsg, actualMsg)
-	}
+	Ω(actual[0].Msg).Should(Equal(expectedMsg), "Expecting <%s>.\n\t But found <%s>.", expectedMsg, actualMsg)
 }
 
-func expectMultipleValidationError(actualIssues []YamlValidationIssue, expectedMsgs []string, t *testing.T) {
+func expectMultipleValidationError(actualIssues []YamlValidationIssue, expectedMsgs []string) {
 	expectedNumOfErrors := len(expectedMsgs)
 	actualNumOfErrors := len(actualIssues)
-	if actualNumOfErrors != len(expectedMsgs) {
-		t.Errorf("Wrong number of issues found expected <%d> but found: <%d>", expectedNumOfErrors, actualNumOfErrors)
-	}
+	Ω(actualNumOfErrors).Should(Equal(expectedNumOfErrors), "Wrong number of issues found expected <%d> but found: <%d>", expectedNumOfErrors, actualNumOfErrors)
 
-	var actualMsgs []string
 	for _, issue := range actualIssues {
-		actualMsgs = append(actualMsgs, issue.Msg)
+		Ω(expectedMsgs).Should(ContainElement(issue.Msg))
 	}
-
-	assert.Subset(t, actualMsgs, expectedMsgs)
-	assert.Subset(t, expectedMsgs, actualMsgs)
 }
 
-func expectSingleSchemaIssue(actual []YamlValidationIssue, expectedMsg string, t *testing.T) {
+func expectSingleSchemaIssue(actual []YamlValidationIssue, expectedMsg string) {
 	numOfErrors := len(actual)
-	if numOfErrors != 1 {
-		t.Errorf("A single validation issue expected but found: <%d>", numOfErrors)
-	}
+	Ω(numOfErrors).Should(Equal(1), "A single validation issue expected but found: <%d>", numOfErrors)
 
 	actualMsg := actual[0]
-	if actual[0].Msg != expectedMsg {
-		t.Errorf("Expecting <%s>.\n\t But found <%s>.", expectedMsg, actualMsg)
-	}
+	Ω(actual[0].Msg).Should(Equal(expectedMsg), "Expecting <%s>.\n\t But found <%s>.", expectedMsg, actualMsg)
 }
