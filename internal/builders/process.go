@@ -2,16 +2,14 @@ package builders
 
 import (
 	"gopkg.in/yaml.v2"
-
-	"cloud-mta-build-tool/internal/logs"
 )
 
 // Parse the builders command list
-func Parse(data []byte) Builders {
+func Parse(data []byte) (Builders , error){
 	commands := Builders{}
 	err := yaml.Unmarshal(data, &commands)
 	if err != nil {
-		logs.Logger.Error("Yaml file is not valid, Error: " + err.Error())
+		return Builders{}, err
 	}
-	return commands
+	return commands,nil
 }
