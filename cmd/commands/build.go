@@ -32,7 +32,10 @@ var bModule = &cobra.Command{
 		return nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		buildModule(args[0])
+		err := buildModule(args[0])
+		if err != nil {
+			logs.Logger.Error(err)
+		}
 	},
 }
 
@@ -43,11 +46,14 @@ func buildModule(module string) error {
 	mta, err := mta.ReadMta("", "mta.yaml")
 	if err == nil {
 		// Get module respective command's to execute
-		moduleRelPath, moduleCmd := moduleCmd(*mta, module)
+		moduleRelPath, mCmd, err := moduleCmd(*mta, module)
+		if err != nil {
+			return err
+		}
 		modulePath, err := fs.GetFullPath(moduleRelPath)
 		if err == nil {
 			// Get module commands
-			commands := cmdConverter(modulePath, moduleCmd)
+			commands := cmdConverter(modulePath, mCmd)
 			// Get temp dir for packing the artifacts
 			artifactsPath, err := fs.GetArtifactsPath()
 			if err == nil {
@@ -65,18 +71,21 @@ func buildModule(module string) error {
 }
 
 // Get commands for specific module type
-func moduleCmd(mta mta.MTA, moduleName string) (string, []string) {
+func moduleCmd(mta mta.MTA, moduleName string) (string, []string, error) {
 	var cmd []string
 	var mPath string
 	for _, m := range mta.Modules {
 		if m.Name == moduleName {
-			commandProvider := builders.CommandProvider(*m)
+			commandProvider, err := builders.CommandProvider(*m)
+			if err != nil {
+				return "", nil, err
+			}
 			cmd = commandProvider.Command
 			mPath = m.Path
 			break
 		}
 	}
-	return mPath, cmd
+	return mPath, cmd, nil
 }
 
 // Path and commands to execute

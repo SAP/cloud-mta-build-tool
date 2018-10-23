@@ -51,7 +51,8 @@ func setManifetDesc(file io.Writer, mtaStr []*Modules, modules []string) {
 	}
 }
 
-// printToFile - Print the module to the file
+
+// Print to manifest.mf file
 func printToFile(file io.Writer, mtaStr *Modules) {
 	fmt.Fprint(file, newLine)
 	fmt.Fprint(file, newLine)
@@ -68,11 +69,6 @@ func GenMtad(mtaStr MTA, targetPath string, convertTypes func(mtaStr MTA)) error
 	targetBasePath := dir.Path{targetPath}
 	createDirIfNotExist(targetBasePath.GetFullPath(metaInf))
 	convertTypes(mtaStr)
-	//// Load platform configuration file
-	//platformCfg := platform.Parse(platform.PlatformConfig)
-	//// Modify MTAD object according to platform types
-	//// Todo platform should provided as command parameter
-	//ConvertTypes(mtaStr, platformCfg, "cf")
 	// Create readable Yaml before writing to file
 	mtad, err := Marshal(mtaStr)
 	// Write back the MTAD to the META-INF folder
@@ -81,6 +77,7 @@ func GenMtad(mtaStr MTA, targetPath string, convertTypes func(mtaStr MTA)) error
 	}
 	return err
 }
+
 
 // GenMetaInfo -Generate MetaInfo (MANIFEST.MF file)
 func GenMetaInfo(tmpDir string, mtaStr MTA, modules []string, convertTypes func(mtaStr MTA)) error {

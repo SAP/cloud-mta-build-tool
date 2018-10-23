@@ -11,6 +11,7 @@ import (
 
 // This test is checking the parse process
 func TestParse(t *testing.T) {
+	t.Parallel()
 	// Initialize logger for use in the class under test (process)
 	logs.Logger = logs.NewLogger()
 
@@ -86,7 +87,7 @@ builders:
 	// Todo - basic parse test, need types test
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := Parse(tt.args); !reflect.DeepEqual(got, tt.expected) {
+			if got,_ := Parse(tt.args); !reflect.DeepEqual(got, tt.expected) {
 				t.Errorf("Parse() = %v, \n expected %v", got, tt.expected)
 			}
 		})

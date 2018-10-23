@@ -1,175 +1,167 @@
 package mta_validate
 
 import (
-	"testing"
-
-	"github.com/stretchr/testify/assert"
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/ginkgo/extensions/table"
+	. "github.com/onsi/gomega"
 )
 
-func assertNoSchemaIssues(errors []YamlValidationIssue, t *testing.T) {
-	if len(errors) != 0 {
-		t.Error("Schema issues detected")
-	}
+func assertNoSchemaIssues(errors []YamlValidationIssue) {
+	Ω(len(errors)).Should(Equal(0), "Schema issues detected")
 }
 
-func TestSchemaParseIssue(t *testing.T) {
-	var schema = []byte(`
+var _ = Describe("Schema tests Issues", func() {
+
+	var _ = DescribeTable("Schema issues",
+		func(schema string, message string) {
+			_, schemaIssues := BuildValidationsFromSchemaText([]byte(schema))
+			expectSingleSchemaIssue(schemaIssues, message)
+		},
+		Entry("Parsing", `
 type: map
 # bad indentation
  mapping:
-   firstName:  {required: true}
-`)
+   firstName:  {required: true}`, `unmarshal []byte to yaml failed: yaml: line 3: did not find expected key`),
 
-	_, schemaIssues := BuildValidationsFromSchemaText(schema)
-	if len(schemaIssues) != 1 {
-		t.Error("Expected a single Schema issue")
-	}
-}
-
-func TestSchemaMappingIssue(t *testing.T) {
-	var schema = []byte(`
+		Entry("Mapping", `
 type: map
-mapping: NotAMap
-`)
-	_, schemaIssues := BuildValidationsFromSchemaText(schema)
-	expectSingleSchemaIssue(schemaIssues,
-		`YAML Schema Error: <mapping> node must be a map`, t)
-}
+mapping: NotAMap`, `YAML Schema Error: <mapping> node must be a map`),
 
-func TestSchemaSequenceIssue(t *testing.T) {
-	var schema = []byte(`
+		Entry("SchemaSequenceIssue", `
 type: seq
 sequence: NotASequence
-`)
-	_, schemaIssues := BuildValidationsFromSchemaText(schema)
-	expectSingleSchemaIssue(schemaIssues,
-		`YAML Schema Error: <sequence> node must be an array`, t)
-}
+`, `YAML Schema Error: <sequence> node must be an array`),
 
-func TestSchemaSequenceOneItemIssue(t *testing.T) {
-	var schema = []byte(`
+		Entry("Sequence One Item", `
 type: seq
-sequence: 
+sequence:
 - 1
 - 2
-`)
-	_, schemaIssues := BuildValidationsFromSchemaText(schema)
-	expectSingleSchemaIssue(schemaIssues,
-		`YAML Schema Error: <sequence> node can only have one item`, t)
-}
+`, `YAML Schema Error: <sequence> node can only have one item`),
 
-func TestSchemaRequiredNotBoolIssue(t *testing.T) {
-	var schema = []byte(`
+		Entry("Required value not bool", `
 type: map
 mapping:
-   firstName:  {required: 123}
-`)
-	_, schemaIssues := BuildValidationsFromSchemaText(schema)
-	expectSingleSchemaIssue(schemaIssues,
-		`YAML Schema Error: <required> node must be a boolean but found <123>`, t)
-}
+  firstName:  {required: 123}
+`, `YAML Schema Error: <required> node must be a boolean but found <123>`),
 
-func TestSchemaNestedTypeNotStringIssue(t *testing.T) {
-	var schema = []byte(`
+		Entry("Sequence NestedTypeNotString", `
 type: map
 mapping:
-   firstName:  {type: [1,2] }
-`)
-	_, schemaIssues := BuildValidationsFromSchemaText(schema)
-	expectSingleSchemaIssue(schemaIssues,
-		`YAML Schema Error: <type> node must be a string`, t)
-}
+  firstName:  {type: [1,2] }
+`, `YAML Schema Error: <type> node must be a string`),
 
-func TestSchemaPatternNotStringIssue(t *testing.T) {
-	var schema = []byte(`
+		Entry("Pattern NotString", `
 type: map
 mapping:
-   firstName:  {pattern: [1,2] }
-`)
-	_, schemaIssues := BuildValidationsFromSchemaText(schema)
-	expectSingleSchemaIssue(schemaIssues,
-		`YAML Schema Error: <pattern> node must be a string`, t)
-}
+  firstName:  {pattern: [1,2] }
+`, `YAML Schema Error: <pattern> node must be a string`),
 
-func TestSchemaRequiredValid(t *testing.T) {
-	var schema = []byte(`
+		Entry("Pattern InvalidRegex", `
 type: map
 mapping:
-   firstName:  {required: true}
-`)
+  firstName:  {required: true, pattern: '/[a-zA-Z+/'}
+`, "YAML Schema Error: <pattern> node not valid: error parsing regexp: missing closing ]: `[a-zA-Z+`"),
 
-	schemaValidations, schemaIssues := BuildValidationsFromSchemaText(schema)
-	assertNoSchemaIssues(schemaIssues, t)
-
-	input := []byte(`
-firstName: Donald
-lastName: duck
-`)
-	validateIssues, parseErr := ValidateYaml(input, schemaValidations...)
-	assertNoParsingErrors(parseErr, t)
-	assertNoValidationErrors(validateIssues, t)
-}
-
-func TestSchemaEnumNotStringIssue(t *testing.T) {
-	var schema = []byte(`
+		Entry("Enum NotString", `
 type: enum
 enums:
-   duck : 1
-   dog  : 2
-`)
+  duck : 1
+  dog  : 2
+`, `YAML Schema Error: enums values must be listed as array`),
 
-	_, schemaIssues := BuildValidationsFromSchemaText(schema)
-	expectSingleSchemaIssue(schemaIssues,
-		`YAML Schema Error: enums values must be listed as array`, t)
-}
-
-func TestSchemaEnumNoEnumsNode(t *testing.T) {
-	var schema = []byte(`
+		Entry("Enum NoEnumsNode", `
 type: enum
 enumos:
-   - duck
-   - dog  
-`)
+  - duck
+  - dog
+`, `YAML Schema Error: enums values must be listed`),
 
-	_, schemaIssues := BuildValidationsFromSchemaText(schema)
-	expectSingleSchemaIssue(schemaIssues,
-		`YAML Schema Error: enums values must be listed`, t)
-}
-
-func TestSchemaEnumValueNotSimple(t *testing.T) {
-	var schema = []byte(`
+		Entry("Enum ValueNotSimple", `
 type: enum
 enums:
-   [duck, [dog, cat]]
-`)
+  [duck, [dog, cat]]
+`, `YAML Schema Error: enum values must be simple`),
+	)
 
-	_, schemaIssues := BuildValidationsFromSchemaText(schema)
-	expectSingleSchemaIssue(schemaIssues,
-		`YAML Schema Error: enum values must be simple`, t)
-}
-
-func TestSchemaEnumValid(t *testing.T) {
-	var schema = []byte(`
+	var _ = DescribeTable("Valid input",
+		func(schema, input string) {
+			schemaValidations, schemaIssues := BuildValidationsFromSchemaText([]byte(schema))
+			assertNoSchemaIssues(schemaIssues)
+			validateIssues, parseErr := ValidateYaml([]byte(input), schemaValidations...)
+			assertNoParsingErrors(parseErr)
+			assertNoValidationErrors(validateIssues)
+		},
+		Entry("Required", `
+type: map
+mapping:
+ firstName:  {required: true}
+`, `
+firstName: Donald
+lastName: duck`),
+		Entry("Enum value", `
 type: enum
 enums:
-   - duck
-   - dog
-   - cat
-`)
+  - duck
+  - dog
+`, `duck`),
+		Entry("Sequence", `
+type: seq
+sequence:
+- type: map
+  mapping:
+    name: {required: true}
+`, `
+- name: Donald
+  lastName: duck
 
-	schemaValidations, schemaIssues := BuildValidationsFromSchemaText(schema)
-	assertNoSchemaIssues(schemaIssues, t)
+- name: Bugs
+  lastName: Bunny
 
-	input := []byte(`
-    duck
-`)
-	validateIssues, parseErr := ValidateYaml(input, schemaValidations...)
-	assertNoParsingErrors(parseErr, t)
-	assertNoValidationErrors(validateIssues, t)
-}
+`),
+		Entry("Pattern", `
+type: map
+mapping:
+   firstName:  {required: true, pattern: '/^[a-zA-Z]+$/'}
+`, `
+firstName: Donald
+lastName: duck
+`),
+		Entry("Optional", `
+type: map
+mapping:
+   firstName:  {required: false, pattern: '/^[a-zA-Z]+$/'}
+`, `
+lastName: duck
+`),
+		Entry("Type Is Bool", `
+type: map
+mapping:
+   isHappy:  {type: bool}
+`, `
+firstName: Tim
+isHappy: false
+`),
+	)
 
-func TestSchemaEnumInvalid(t *testing.T) {
-	var schema = []byte(`
+	var _ = DescribeTable("Invalid input",
+		func(schema, input, message string) {
+			schemaValidations, schemaIssues := BuildValidationsFromSchemaText([]byte(schema))
+			assertNoSchemaIssues(schemaIssues)
+			validateIssues, parseErr := ValidateYaml([]byte(input), schemaValidations...)
+			assertNoParsingErrors(parseErr)
+			expectSingleValidationError(validateIssues, message)
+		},
+		Entry("Required", `
+type: map
+mapping:
+   age:  {required: true}
+`, `
+firstName: Donald
+lastName: duck
+`, "Missing Required Property <age> in <root>"),
+
+		Entry("Enum", `
 type: enum
 enums:
    - duck
@@ -177,220 +169,47 @@ enums:
    - cat
    - mouse
    - elephant
-`)
+`, `bird`, "Enum property <root> has invalid value. Expecting one of [duck,dog,cat,mouse]"),
 
-	schemaValidations, schemaIssues := BuildValidationsFromSchemaText(schema)
-	assertNoSchemaIssues(schemaIssues, t)
-
-	input := []byte(`
-    bird
-`)
-	validateIssues, parseErr := ValidateYaml(input, schemaValidations...)
-	assertNoParsingErrors(parseErr, t)
-	expectSingleValidationError(validateIssues,
-		`Enum property <root> has invalid value. Expecting one of [duck,dog,cat,mouse]`,
-		t)
-}
-
-func TestSchemaRequiredInvalid(t *testing.T) {
-	var schema = []byte(`
-type: map
-mapping:
-   age:  {required: true}
-`)
-
-	schemaValidations, schemaIssues := BuildValidationsFromSchemaText(schema)
-	assertNoSchemaIssues(schemaIssues, t)
-
-	input := []byte(`
-firstName: Donald
-lastName: duck
-`)
-	validateIssues, parseErr := ValidateYaml(input, schemaValidations...)
-	assertNoParsingErrors(parseErr, t)
-	expectSingleValidationError(validateIssues,
-		`Missing Required Property <age> in <root>`,
-		t)
-}
-
-func TestSchemaSequenceValid(t *testing.T) {
-	var schema = []byte(`
+		Entry("Sequence", `
 type: seq
 sequence:
 - type: map
   mapping:
     name: {required: true}
-`)
-
-	schemaValidations, schemaIssues := BuildValidationsFromSchemaText(schema)
-	assertNoSchemaIssues(schemaIssues, t)
-
-	input := []byte(`
-- name: Donald
-  lastName: duck
-
-- name: Bugs
-  lastName: Bunny
-
-`)
-	validateIssues, parseErr := ValidateYaml(input, schemaValidations...)
-	assertNoParsingErrors(parseErr, t)
-	assertNoValidationErrors(validateIssues, t)
-}
-
-func TestSchemaSequenceInvalid(t *testing.T) {
-	var schema = []byte(`
-type: seq
-sequence:
-- type: map
-  mapping:
-    name: {required: true}
-`)
-
-	schemaValidations, schemaIssues := BuildValidationsFromSchemaText(schema)
-	assertNoSchemaIssues(schemaIssues, t)
-
-	input := []byte(`
+`, `
 - name: Donald
   lastName: duck
 
 - age: 80
   lastName: Bunny
-`)
-	validateIssues, parseErr := ValidateYaml(input, schemaValidations...)
-	assertNoParsingErrors(parseErr, t)
-	expectSingleValidationError(validateIssues,
-		`Missing Required Property <name> in <root[1]>`,
-		t)
-}
+`, "Missing Required Property <name> in <root[1]>"),
 
-func TestSchemaPatternValid(t *testing.T) {
-	var schema = []byte(`
-type: map
-mapping:
-   firstName:  {required: true}
-`)
-
-	schemaValidations, schemaIssues := BuildValidationsFromSchemaText(schema)
-	assertNoSchemaIssues(schemaIssues, t)
-
-	input := []byte(`
-firstName: Donald
-lastName: duck
-`)
-	validateIssues, parseErr := ValidateYaml(input, schemaValidations...)
-	assertNoParsingErrors(parseErr, t)
-	assertNoValidationErrors(validateIssues, t)
-}
-
-func TestSchemaPatternValidationError(t *testing.T) {
-	var schema = []byte(`
+		Entry("Pattern", `
 type: map
 mapping:
    age:  {pattern: '/^[0-9]+$/'}
-`)
-
-	schemaValidations, schemaIssues := BuildValidationsFromSchemaText(schema)
-	assertNoSchemaIssues(schemaIssues, t)
-
-	input := []byte(`
+`, `
 name: Bamba
 age: NaN
-`)
-	validateIssues, parseErr := ValidateYaml(input, schemaValidations...)
-	assertNoParsingErrors(parseErr, t)
-	expectSingleValidationError(validateIssues,
-		`Property <root.age> with value: <NaN> must match pattern: <^[0-9]+$>`,
-		t)
-}
+`, "Property <root.age> with value: <NaN> must match pattern: <^[0-9]+$>"),
 
-func TestSchemaOptionalValid(t *testing.T) {
-	var schema = []byte(`
+		Entry("Optional With Pattern", `
 type: map
 mapping:
    firstName:  {required: false, pattern: '/^[a-zA-Z]+$/'}
-`)
-
-	schemaValidations, schemaIssues := BuildValidationsFromSchemaText(schema)
-	assertNoSchemaIssues(schemaIssues, t)
-
-	input := []byte(`
-firstName: Donald
-lastName: duck
-`)
-	validateIssues, parseErr := ValidateYaml(input, schemaValidations...)
-	assertNoParsingErrors(parseErr, t)
-	assertNoValidationErrors(validateIssues, t)
-}
-
-func TestSchemaPatternInvalid(t *testing.T) {
-	var schema = []byte(`
-type: map
-mapping:
-   firstName:  {required: true, pattern: '/[a-zA-Z+/'}
-`)
-
-	_, schemaIssues := BuildValidationsFromSchemaText(schema)
-	assert.Equal(t, schemaIssues[0].Msg, "YAML Schema Error: <pattern> node not valid: error parsing regexp: missing closing ]: `[a-zA-Z+`")
-}
-
-func TestSchemaOptionalInvalid(t *testing.T) {
-	var schema = []byte(`
-type: map
-mapping:
-   firstName:  {required: false, pattern: '/^[a-zA-Z]+$/'}
-`)
-
-	schemaValidations, schemaIssues := BuildValidationsFromSchemaText(schema)
-	assertNoSchemaIssues(schemaIssues, t)
-
-	input := []byte(`
+`, `
 firstName: Donald123
 lastName: duck
-`)
-	validateIssues, parseErr := ValidateYaml(input, schemaValidations...)
-	assertNoParsingErrors(parseErr, t)
-	expectSingleValidationError(validateIssues,
-		`Property <root.firstName> with value: <Donald123> must match pattern: <^[a-zA-Z]+$>`,
-		t)
-}
+`, "Property <root.firstName> with value: <Donald123> must match pattern: <^[a-zA-Z]+$>"),
 
-func TestSchemaTypeIsBoolValid(t *testing.T) {
-	var schema = []byte(`
+		Entry("Type Is Bool", `
 type: map
 mapping:
    isHappy:  {type: bool}
-`)
-
-	schemaValidations, schemaIssues := BuildValidationsFromSchemaText(schema)
-	assertNoSchemaIssues(schemaIssues, t)
-
-	input := []byte(`
-firstName: Tim
-isHappy: false
-`)
-	validateIssues, parseErr := ValidateYaml(input, schemaValidations...)
-	assertNoParsingErrors(parseErr, t)
-	assertNoValidationErrors(validateIssues, t)
-}
-
-func TestSchemaTypeIsBoolInvalid(t *testing.T) {
-	var schema = []byte(`
-type: map
-mapping:
-   isHappy:  {type: bool}
-`)
-
-	schemaValidations, schemaIssues := BuildValidationsFromSchemaText(schema)
-	assertNoSchemaIssues(schemaIssues, t)
-
-	input := []byte(`
+`, `
 firstName: John
 isHappy: 123
-`)
-	validateIssues, parseErr := ValidateYaml(input, schemaValidations...)
-	assertNoParsingErrors(parseErr, t)
-	expectSingleValidationError(validateIssues,
-		`Property <root.isHappy> must be of type <Boolean>`,
-		t)
-}
+`, "Property <root.isHappy> must be of type <Boolean>"),
+	)
+})

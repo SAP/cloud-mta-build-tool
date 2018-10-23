@@ -1,17 +1,18 @@
 package builders
 
 import (
+	"log"
 	"reflect"
 	"testing"
 
 	"gopkg.in/yaml.v2"
 
-	"cloud-mta-build-tool/internal/logs"
+
 	"cloud-mta-build-tool/mta"
 )
 
 func TestExeCmd(t *testing.T) {
-
+	t.Parallel()
 	var buildersCfg = []byte(`
 version: 1
 builders:
@@ -39,7 +40,7 @@ builders:
 	commands := Builders{}
 	err := yaml.Unmarshal(buildersCfg, &commands)
 	if err != nil {
-		logs.Logger.Error("Error: " + err.Error())
+		log.Println("Error: " + err.Error())
 	}
 
 	type args struct {
@@ -104,7 +105,7 @@ func TestCommandProvider(t *testing.T) {
 		}}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := CommandProvider(tt.args.modules); !reflect.DeepEqual(got, tt.want) {
+			if got,_ := CommandProvider(tt.args.modules); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("CommandProvider() = %v, want %v", got, tt.want)
 			}
 		})

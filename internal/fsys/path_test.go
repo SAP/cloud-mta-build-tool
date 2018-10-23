@@ -9,6 +9,8 @@ import (
 )
 
 func TestGetPath(t *testing.T) {
+  
+	t.Parallel()
 	path, err := GetCurrentPath()
 	assert.NotEmpty(t, path)
 	assert.Nil(t, err)

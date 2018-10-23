@@ -74,14 +74,6 @@ type Resources struct {
 	Properties Properties `yaml:"properties,omitempty"`
 }
 
-type MTAI interface {
-	GetModules() []*Modules
-	GetResources() []*Resources
-	GetModuleByName(name string) (*Modules, error)
-	GetModulesNames() []string
-	GetResourceByName(name string) (*Resources, error)
-}
-
 type MTAFile interface {
 	Readfile() ([]byte, error)
 }
@@ -97,7 +89,7 @@ func (mta *MTA) Parse(yamlContent []byte) (err error) {
 	// Format the YAML to struct's
 	err = yaml.Unmarshal([]byte(yamlContent), &mta)
 	if err != nil {
-		return fmt.Errorf("not able to read the mta file : %s", err.Error())
+		return fmt.Errorf("not able to parse the mta content : %s", err.Error())
 	}
 	return nil
 }
@@ -173,15 +165,7 @@ func (mta *MTA) GetModulesNames() []string {
 func Validate(yamlContent []byte, projectPath string, validateSchema bool, validateProject bool) mta_validate.YamlValidationIssues {
 	issues := []mta_validate.YamlValidationIssue{}
 	if validateSchema {
-		schemaFilename, err := dir.GetFullPath("schema.yaml")
-		var schemaContent []byte
-		if err == nil {
-			schemaContent, err = ioutil.ReadFile(schemaFilename)
-		}
-		if err != nil {
-			return append(issues, []mta_validate.YamlValidationIssue{{"Validation failed" + err.Error()}}...)
-		}
-		validations, schemaValidationLog := mta_validate.BuildValidationsFromSchemaText(schemaContent)
+		validations, schemaValidationLog := mta_validate.BuildValidationsFromSchemaText(SchemaDef)
 		if len(schemaValidationLog) > 0 {
 			return schemaValidationLog
 		} else {

@@ -8,7 +8,7 @@
 # Note: in the future this file will be removed from the tool
 
 # usage: to add new command to the file, execute command `go:generate`
-# on the root project to regenerate the file binary
+# The command should be executed on the root project level to regenerate the file that contain the binary (see generator.go file)
 
 
 builders:
@@ -28,7 +28,7 @@ builders:
   info: "build nodejs application"
   path: "path to config file which override the following default commands"
   type:
-  - command: npm install --production
+  - command: npm prune --production
 - name: golang
   info: "build golang application"
   path: "path to config file which override the following default commands"

@@ -1,30 +1,31 @@
 package commands
 
 import (
-	"testing"
-
 	"cloud-mta-build-tool/internal/fsys"
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/ginkgo/extensions/table"
+	. "github.com/onsi/gomega"
+	. "github.com/onsi/gomega/types"
 	"github.com/spf13/viper"
-	"github.com/stretchr/testify/assert"
 )
 
-func Test_initConfig(t *testing.T) {
+var _ = Describe("", func() {
+	AfterEach(func() {
+		viper.Reset()
+		cfgFile = ""
+	})
 
-	initConfig()
-	property := viper.Get("xxx")
-	assert.Nil(t, property)
+	It("config file not defined", func() {
+		viper.Reset()
+		Ω(viper.Get("xxx")).Should(BeNil())
+	})
 
-	cfgFile, _ = dir.GetFullPath("testdata", "config.props")
-	initConfig()
-	property = viper.Get("xxx")
-	assert.Equal(t, "10", property)
-
-	viper.Reset()
-
-	cfgFile, _ = dir.GetFullPath("testdata", "config1.props")
-	initConfig()
-	cfgFile = ""
-	property = viper.Get("xxx")
-	assert.Nil(t, property)
-
-}
+	DescribeTable("config file defined", func(configFilename string, matcher GomegaMatcher) {
+		cfgFile, _ = dir.GetFullPath("testdata", configFilename)
+		initConfig()
+		Ω(viper.Get("xxx")).Should(matcher)
+	},
+		Entry("right config", "config.props", Equal("10")),
+		Entry("wrong config", "config1.props", BeNil()),
+	)
+})

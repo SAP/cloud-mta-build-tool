@@ -8,6 +8,10 @@ import (
 
 var initMode string
 
+func init() {
+	initProcess.Flags().StringVarP(&initMode, "mode", "m", "", "Mode of Makefile generation - default/verbose")
+}
+
 var initProcess = &cobra.Command{
 	Use:   "init",
 	Short: "Generate Makefile",
@@ -18,8 +22,4 @@ var initProcess = &cobra.Command{
 		err := tpl.Make(initMode)
 		LogError(err)
 	},
-}
-
-func init() {
-	initProcess.Flags().StringVarP(&initMode, "mode", "m", "", "Mode of Makefile generation - default/verbose")
 }

@@ -18,6 +18,7 @@ func getFullPath(relPath ...string) string {
 }
 
 func TestCreateDirIfNotExist(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name      string
 		dirName   string
@@ -49,6 +50,7 @@ func TestCreateDirIfNotExist(t *testing.T) {
 }
 
 func TestArchive(t *testing.T) {
+	t.Parallel()
 	type args struct {
 		srcFolderName  string
 		archFilename   string
@@ -101,6 +103,7 @@ func TestArchive(t *testing.T) {
 }
 
 func TestCreateFile(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name      string
 		filename  string
@@ -194,6 +197,7 @@ func TestCopyDir(t *testing.T) {
 }
 
 func TestCopyDirFileLocked(t *testing.T) {
+	t.Parallel()
 	logs.NewLogger()
 	dirName := getFullPath("testdata", "temp")
 	f, _ := os.Create(dirName)
@@ -236,6 +240,7 @@ func (file testFile) Sys() interface{} {
 }
 
 func Test_copyEntries(t *testing.T) {
+	t.Parallel()
 	srcPath := getFullPath("testdata", "level2", "level3")
 	dstPath := getFullPath("testdata", "result")
 	os.MkdirAll(dstPath, os.ModePerm)
@@ -254,6 +259,7 @@ func Test_copyEntries(t *testing.T) {
 }
 
 func Test_copyFile(t *testing.T) {
+	t.Parallel()
 	type args struct {
 		src string
 		dst string

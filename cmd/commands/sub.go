@@ -23,6 +23,11 @@ const (
 var pMtadSourceFlag string
 var pMtadTargetFlag string
 
+func init() {
+	pMtad.Flags().StringVarP(&pMtadSourceFlag, "source", "s", "", "Provide MTAD source ")
+	pMtad.Flags().StringVarP(&pMtadTargetFlag, "target", "t", "", "Provide MTAD target ")
+}
+
 // Prepare the process for execution
 var prepare = &cobra.Command{
 	Use:   "prepare",
@@ -56,6 +61,7 @@ var pack = &cobra.Command{
 	},
 }
 
+// pack build module artifacts
 func packModule(artifactsPath string, moduleRelPath string, moduleName string) error {
 	// Get module full path
 	moduleFullPath, err := fs.GetFullPath(moduleRelPath)
@@ -85,11 +91,8 @@ func packModule(artifactsPath string, moduleRelPath string, moduleName string) e
 	return err
 }
 
-func init() {
-	pMtad.Flags().StringVarP(&pMtadSourceFlag, "source", "s", "", "Provide MTAD source ")
-	pMtad.Flags().StringVarP(&pMtadTargetFlag, "target", "t", "", "Provide MTAD target ")
-}
 
+// convert types to appropriate target platform types
 func convertTypes(mtaStr mta.MTA) {
 	// Load platform configuration file
 	platformCfg := platform.Parse(platform.PlatformConfig)
@@ -98,6 +101,7 @@ func convertTypes(mtaStr mta.MTA) {
 	platform.ConvertTypes(mtaStr, platformCfg, "cf")
 }
 
+// generate build metadata artifacts
 func generateMeta(relPath string, args []string) error {
 	return processMta("Metadata creation", relPath, args, func(file []byte, args []string) error {
 		// Parse MTA file
@@ -124,6 +128,7 @@ var genMeta = &cobra.Command{
 	},
 }
 
+// process mta.yaml file
 func processMta(processName string, relPath string, args []string, process func(file []byte, args []string) error) error {
 	logs.Logger.Info("Starting " + processName)
 	s := &mta.Source{Path: relPath, Filename: "mta.yaml"}
@@ -139,6 +144,7 @@ func processMta(processName string, relPath string, args []string, process func(
 	return err
 }
 
+// generate mtar archive from the build artifacts
 func generateMtar(relPath string, args []string) error {
 	return processMta("MTAR generation", relPath, args, func(file []byte, args []string) error {
 		// Create MTAR from the building artifacts

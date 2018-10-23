@@ -6,11 +6,13 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"testing"
 
 	"cloud-mta-build-tool/internal/fsys"
 	"cloud-mta-build-tool/internal/logs"
-	"github.com/stretchr/testify/assert"
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/ginkgo/extensions/table"
+	. "github.com/onsi/gomega"
+	"github.com/spf13/cobra"
 )
 
 func getFullPath(relPath ...string) string {
@@ -18,108 +20,95 @@ func getFullPath(relPath ...string) string {
 	return path
 }
 
-func Test_genMetaFunction(t *testing.T) {
+var _ = Describe("Sub Commands", func() {
+	BeforeEach(func() {
+		logs.Logger = logs.NewLogger()
+	})
 
-	logs.Logger = logs.NewLogger()
-	args := []string{filepath.Join("testdata", "result"), "testapp"}
-	generateMeta(filepath.Join("testdata", "mtahtml5"), args)
-	actualContent, _ := ioutil.ReadFile(getFullPath("testdata", "result", "META-INF", "mtad.yaml"))
-	actualString := string(actualContent[:])
-	actualString = strings.Replace(actualString, "\n", "", -1)
-	actualString = strings.Replace(actualString, "\r", "", -1)
-	expectedContent, _ := ioutil.ReadFile(getFullPath("testdata", "golden", "mtad.yaml"))
-	expectedString := string(expectedContent[:])
-	expectedString = strings.Replace(expectedString, "\n", "", -1)
-	expectedString = strings.Replace(expectedString, "\r", "", -1)
-	assert.Equal(t, actualString, expectedString)
-	os.RemoveAll(getFullPath("testdata", "result"))
-}
-
-func Test_genMetaCommand(t *testing.T) {
-	args := []string{filepath.Join("testdata", "result"), "testapp"}
-	genMeta.Run(nil, args)
-	actualContent, _ := ioutil.ReadFile(getFullPath("testdata", "result", "META-INF", "mtad.yaml"))
-	assert.Nil(t, actualContent)
-}
-
-func Test_genMtarFunction(t *testing.T) {
-	args := []string{getFullPath("testdata", "mtahtml5"), getFullPath("testdata")}
-	generateMtar(filepath.Join("testdata", "mtahtml5"), args)
-	_, err := ioutil.ReadFile(getFullPath("testdata", "mtahtml5.mtar"))
-	assert.Nil(t, err)
-	os.RemoveAll(getFullPath("testdata", "mtahtml5.mtar"))
-}
-
-func Test_genMtarCommand(t *testing.T) {
-	args := []string{getFullPath("testdata", "mtahtml5"), getFullPath("testdata")}
-	genMtar.Run(nil, args)
-	actualContent, _ := ioutil.ReadFile(getFullPath("testdata", "mtahtml5.mtar"))
-	assert.Nil(t, actualContent)
-}
-
-func Test_pack(t *testing.T) {
-
-	tests := []struct {
-		name      string
-		args      []string
-		validator func(t *testing.T, args []string)
-	}{
-		{
-			name: "SanityTest",
-			args: []string{getFullPath("testdata", "result"),
-				filepath.Join("testdata", "mtahtml5", "testapp"),
-				"ui5app"},
-			validator: func(t *testing.T, args []string) {
-				resultPath := filepath.Join(args[0], "ui5app", "data.zip")
-				fileInfo, _ := os.Stat(resultPath)
-				assert.NotNil(t, fileInfo)
-				assert.Equal(t, fileInfo.IsDir(), false)
-				os.RemoveAll(args[0])
-			},
-		},
-		{
-			name: "Wrong relative path to module",
-			args: []string{getFullPath("testdata", "result"),
-				filepath.Join("testdata", "mtahtml5", "ui5app"),
-				"ui5app"},
-			validator: func(t *testing.T, args []string) {
-				resultPath := filepath.Join(args[0], "ui5app", "data.zip")
-				fileInfo, _ := os.Stat(resultPath)
-				assert.Nil(t, fileInfo)
-			},
-		},
-		{
-			name: "Missing arguments",
-			args: []string{getFullPath("testdata", "result"),
-				"ui5app"},
-			validator: func(t *testing.T, args []string) {
-				resultPath := filepath.Join(args[0], "ui5app", "data.zip")
-				fileInfo, _ := os.Stat(resultPath)
-				assert.Nil(t, fileInfo)
-			},
-		},
-	}
-	logs.NewLogger()
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			pack.Run(nil, tt.args)
-			tt.validator(t, tt.args)
-		})
+	readFileContent := func(args ...string) string {
+		content, _ := ioutil.ReadFile(getFullPath(args...))
+		contentString := string(content[:])
+		contentString = strings.Replace(contentString, "\n", "", -1)
+		contentString = strings.Replace(contentString, "\r", "", -1)
+		return contentString
 	}
 
-}
+	It("Generate Meta", func() {
+		generateMeta(filepath.Join("testdata", "mtahtml5"), []string{filepath.Join("testdata", "result"), "testapp"})
+		Ω(readFileContent("testdata", "result", "META-INF", "mtad.yaml")).Should(Equal(readFileContent("testdata", "golden", "mtad.yaml")))
+		os.RemoveAll(getFullPath("testdata", "result"))
+	})
 
-func Test_packWithOpenedFile(t *testing.T) {
-	var str bytes.Buffer
+	It("Generate Mtar", func() {
+		generateMtar(filepath.Join("testdata", "mtahtml5"), []string{getFullPath("testdata", "mtahtml5"), getFullPath("testdata")})
+		mtarPath := getFullPath("testdata", "mtahtml5.mtar")
+		Ω(mtarPath).Should(BeAnExistingFile())
+		os.RemoveAll(mtarPath)
+	})
 
-	logs.Logger.SetOutput(&str)
-	f, _ := os.Create(filepath.Join("testdata", "temp"))
+	Describe("Pack", func() {
+		DescribeTable("Standard cases", func(args []string, validator func(projectPath string)) {
+			pack.Run(nil, args)
+			validator(args[0])
+		},
+			Entry("SanityTest",
+				[]string{
+					getFullPath("testdata", "result"),
+					filepath.Join("testdata", "mtahtml5", "testapp"),
+					"ui5app",
+				},
+				func(projectPath string) {
+					resultPath := filepath.Join(projectPath, "ui5app", "data.zip")
+					fileInfo, _ := os.Stat(resultPath)
+					Ω(fileInfo).ShouldNot(BeNil())
+					Ω(fileInfo.IsDir()).Should(BeFalse())
+					os.RemoveAll(projectPath)
+				}),
+			Entry("Wrong relative path to module",
+				[]string{
+					getFullPath("testdata", "result"),
+					filepath.Join("testdata", "mtahtml5", "ui5app"),
+					"ui5app",
+				},
+				func(projectPath string) {
+					fileInfo, _ := os.Stat(filepath.Join(projectPath, "ui5app", "data.zip"))
+					Ω(fileInfo).Should(BeNil())
+				}),
+			Entry("Missing arguments",
+				[]string{
+					getFullPath("testdata", "result"),
+					"ui5app",
+				},
+				func(projectPath string) {
+					fileInfo, _ := os.Stat(filepath.Join(projectPath, "ui5app", "data.zip"))
+					Ω(fileInfo).Should(BeNil())
+				}),
+		)
+	})
 
-	args := []string{getFullPath("testdata", "temp"), filepath.Join("testdata", "mtahtml5", "testapp"), "ui5app"}
+	It("Target file in opened status", func() {
+		var str bytes.Buffer
+		// navigate log output to local string buffer. It will be used for error analysis
+		logs.Logger.SetOutput(&str)
+		f, _ := os.Create(filepath.Join("testdata", "temp"))
 
-	pack.Run(nil, args)
-	assert.Contains(t, str.String(), "ERROR mkdir")
+		args := []string{getFullPath("testdata", "temp"), filepath.Join("testdata", "mtahtml5", "testapp"), "ui5app"}
 
-	f.Close()
-	cleanup.Run(nil, []string{filepath.Join("testdata", "temp")})
-}
+		pack.Run(nil, args)
+		Ω(str.String()).Should(ContainSubstring("ERROR mkdir"))
+
+		f.Close()
+		// cleanup command used for test temp file removal
+		cleanup.Run(nil, []string{filepath.Join("testdata", "temp")})
+	})
+
+	var _ = DescribeTable("Generate commands call with no effect", func(projectRelPath string, module string,
+		expectedFileRelPath string, genGommand *cobra.Command) {
+		genGommand.Run(nil, []string{projectRelPath, module})
+		Ω(getFullPath(projectRelPath, expectedFileRelPath)).ShouldNot(BeAnExistingFile())
+	},
+		Entry("Generate META", filepath.Join("testdata", "result"), "testapp", filepath.Join("META-INF", "mtad.yaml"), genMeta),
+		Entry("Generate MTAR", filepath.Join("testdata", "mtahtml5"), "testdata", filepath.Join("testdata-INF", "mtahtml5.mtar"), genMtar),
+	)
+
+})
