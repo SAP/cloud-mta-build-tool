@@ -58,7 +58,7 @@ modules:
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if _, got := moduleCmd(tt.args.mta, tt.args.moduleName); !reflect.DeepEqual(got, tt.expected) {
+			if _, got ,_:= moduleCmd(tt.args.mta, tt.args.moduleName); !reflect.DeepEqual(got, tt.expected) {
 				t.Errorf("moduleCmd() = %v, want %v", got, tt.expected)
 			}
 		})

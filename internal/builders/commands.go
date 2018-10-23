@@ -11,10 +11,13 @@ type commandList struct {
 }
 
 // CommandProvider - Get build command's to execute
-func CommandProvider(modules mta.Modules) commandList {
+func CommandProvider(modules mta.Modules) (commandList, error) {
 	// Get config from ./commands_cfg.yaml as generated artifacts from source
-	commands := Parse(CommandsConfig)
-	return mesh(modules, commands)
+	commands, err := Parse(CommandsConfig)
+	if err != nil {
+		return commandList{}, err
+	}
+	return mesh(modules, commands), nil
 }
 
 // Match the object according to type and provide the respective command

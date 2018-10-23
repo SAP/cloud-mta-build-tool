@@ -24,9 +24,7 @@ var rootCmd = &cobra.Command{
 	Args:  cobra.MaximumNArgs(1),
 }
 
-// Execute adds all child commands to the root command and sets flags appropriately.
-// This is called by main().
-// It only needs to happen once to the rootCmd.
+// Execute command adds all child commands to the root command and sets flags appropriately.
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
 		os.Exit(1)
