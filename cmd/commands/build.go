@@ -55,7 +55,7 @@ func buildModule(module string) error {
 			// Get module commands
 			commands := cmdConverter(modulePath, mCmd)
 			// Get temp dir for packing the artifacts
-			artifactsPath, err := fs.GetArtifactsPath()
+			artifactsPath, err := fs.GetArtifactsPath(modulePath)
 			if err == nil {
 				// Execute child-process with module respective commands
 				err = exec.Execute(commands)
@@ -88,7 +88,7 @@ func moduleCmd(mta mta.MTA, moduleName string) (string, []string, error) {
 	return mPath, cmd, nil
 }
 
-// Path and commands to execute
+// path and commands to execute
 func cmdConverter(mPath string, cmdList []string) [][]string {
 	var cmd [][]string
 	for i := 0; i < len(cmdList); i++ {

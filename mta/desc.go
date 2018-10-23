@@ -51,7 +51,6 @@ func setManifetDesc(file io.Writer, mtaStr []*Modules, modules []string) {
 	}
 }
 
-
 // Print to manifest.mf file
 func printToFile(file io.Writer, mtaStr *Modules) {
 	fmt.Fprint(file, newLine)
@@ -77,7 +76,6 @@ func GenMtad(mtaStr MTA, targetPath string, convertTypes func(mtaStr MTA)) error
 	}
 	return err
 }
-
 
 // GenMetaInfo -Generate MetaInfo (MANIFEST.MF file)
 func GenMetaInfo(tmpDir string, mtaStr MTA, modules []string, convertTypes func(mtaStr MTA)) error {
