@@ -1,7 +1,6 @@
 package tpl
 
 import (
-	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -60,10 +59,7 @@ var _ = Describe("Makefile", func() {
 
 	var _ = Describe("MakeFile Generation", func() {
 		AfterEach(func() {
-			e := os.Remove(makeFileFullPath)
-			if e != nil {
-				fmt.Println("aaaaaaaaaaaaaaaaaaaaaaaaa " + makeFileFullPath)
-			}
+			os.Remove(makeFileFullPath)
 		})
 
 		It("createMakeFile testing", func() {
@@ -110,7 +106,5 @@ var _ = Describe("Makefile", func() {
 			_, err := makeMode("test")
 			Ω(err).Should(MatchError("command is not supported"))
 		})
-	},
-	)
-
+	})
 })

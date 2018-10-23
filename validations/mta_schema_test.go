@@ -1,19 +1,21 @@
 package mta_validate
 
 import (
-	"testing"
+	. "github.com/onsi/ginkgo"
 )
 
-func TestMtaSchemaMain(t *testing.T) {
-	var data = []byte(`
+var _ = Describe("MTA Schema Validations", func() {
+	It("Main", func() {
+
+		var data = []byte(`
 type: map
 mapping:
    _schema-version:  {required: true}
    ID: {required: true, pattern: '/^[A-Za-z0-9_\-\.]+$/'}
-   description:     
+   description:
    version: {required: true, pattern: '/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(-(0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(\.(0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*)?(\+[0-9a-zA-Z-]+(\.[0-9a-zA-Z-]+)*)?$/'}
-   provider:  
-   copyright:   
+   provider:
+   copyright:
    modules:
       type: seq
       sequence:
@@ -23,10 +25,10 @@ mapping:
             type: {required: true}
             description:
             path:
-   
+
 `)
-	schemaValidations, _ := BuildValidationsFromSchemaText(data)
-	input := []byte(`
+		schemaValidations, _ := BuildValidationsFromSchemaText(data)
+		input := []byte(`
 _schema-version: "2.0.0"
 ID: com.sap.webide.feature.management
 version: 1.0.0
@@ -54,12 +56,9 @@ modules:
       builder: npm
       supported-platforms: []
 
-
-
 `)
-	validateIssues, parseErr := ValidateYaml(input, schemaValidations...)
-	assertNoParsingErrors(parseErr, t)
-	expectSingleValidationError(validateIssues,
-		`Missing Required Property <type> in <modules[1]>`,
-		t)
-}
+		validateIssues, parseErr := ValidateYaml(input, schemaValidations...)
+		assertNoParsingErrors(parseErr)
+		expectSingleValidationError(validateIssues, `Missing Required Property <type> in <modules[1]>`)
+	})
+})
