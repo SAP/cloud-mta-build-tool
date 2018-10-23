@@ -10,6 +10,7 @@ import (
 
 type YamlProjectCheck func(mta MTA, path string) []mta_validate.YamlValidationIssue
 
+// validateModules - Validate the MTA file
 func validateModules(mta MTA, projectPath string) []mta_validate.YamlValidationIssue {
 	issues := []mta_validate.YamlValidationIssue{}
 	for _, module := range mta.Modules {
@@ -27,6 +28,7 @@ func validateModules(mta MTA, projectPath string) []mta_validate.YamlValidationI
 	return issues
 }
 
+// ValidateYamlProject - Validate the MTA file
 func ValidateYamlProject(mta MTA, path string) []mta_validate.YamlValidationIssue {
 	validations := []YamlProjectCheck{validateModules}
 	issues := []mta_validate.YamlValidationIssue{}

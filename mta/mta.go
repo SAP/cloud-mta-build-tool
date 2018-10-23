@@ -155,6 +155,7 @@ func (mta *MTA) GetResourceByName(name string) (*Resources, error) {
 	return nil, fmt.Errorf("module %s , not found ", name)
 }
 
+// modules - return a string slice of modules names
 func modules(mta *MTA) []string {
 	var mNames []string
 	for _, mod := range mta.Modules {

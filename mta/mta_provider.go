@@ -4,6 +4,8 @@ import (
 	"github.com/pkg/errors"
 )
 
+// ReadMta reads the MTA file according to it's name and path
+// returns a reference to the MTA object
 func ReadMta(path, filename string) (*MTA, error) {
 	var mta *MTA
 	yamlContent, err := ReadMtaContent(path, filename)
@@ -14,6 +16,8 @@ func ReadMta(path, filename string) (*MTA, error) {
 	return mta, err
 }
 
+// ReadMtaContent reads the MTA file according to it's name and path
+// returns a []byte object represents the content of the MTA file
 func ReadMtaContent(path, filename string) ([]byte, error) {
 	s := &Source{Path: path, Filename: filename}
 	yamlContent, err := s.Readfile()
@@ -24,6 +28,7 @@ func ReadMtaContent(path, filename string) ([]byte, error) {
 	return yamlContent, err
 }
 
+// ParseToMta - Parse MTA file ([]byte object) to an MTA object
 func ParseToMta(content []byte) (*MTA, error) {
 	mta := &MTA{}
 	// Parse MTA file

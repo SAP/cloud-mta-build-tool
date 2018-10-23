@@ -33,7 +33,7 @@ const (
 	dataZip         = pathSep + "data.zip"
 )
 
-// Set the MANIFEST.MF file
+// setManifetDesc - Set the MANIFEST.MF file
 func setManifetDesc(file io.Writer, mtaStr []*Modules, modules []string) {
 	// TODO create dynamically
 	fmt.Fprint(file, manifestVersion+newLine)
@@ -51,6 +51,7 @@ func setManifetDesc(file io.Writer, mtaStr []*Modules, modules []string) {
 	}
 }
 
+// printToFile - Print the module to the file
 func printToFile(file io.Writer, mtaStr *Modules) {
 	fmt.Fprint(file, newLine)
 	fmt.Fprint(file, newLine)
@@ -61,6 +62,7 @@ func printToFile(file io.Writer, mtaStr *Modules) {
 	fmt.Fprint(file, contentType+applicationZip)
 }
 
+// GenMtad -Generate mtad.yaml from mta file and configuration file
 func GenMtad(mtaStr MTA, targetPath string, convertTypes func(mtaStr MTA)) error {
 	// Create META-INF folder under the mtar folder
 	targetBasePath := dir.Path{targetPath}
@@ -80,6 +82,7 @@ func GenMtad(mtaStr MTA, targetPath string, convertTypes func(mtaStr MTA)) error
 	return err
 }
 
+// GenMetaInfo -Generate MetaInfo (MANIFEST.MF file)
 func GenMetaInfo(tmpDir string, mtaStr MTA, modules []string, convertTypes func(mtaStr MTA)) error {
 	err := GenMtad(mtaStr, tmpDir, convertTypes)
 	if err == nil {
