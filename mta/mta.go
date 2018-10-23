@@ -164,15 +164,7 @@ func (mta *MTA) GetModulesNames() []string {
 func Validate(yamlContent []byte, projectPath string, validateSchema bool, validateProject bool) mta_validate.YamlValidationIssues {
 	issues := []mta_validate.YamlValidationIssue{}
 	if validateSchema {
-		schemaFilename, err := dir.GetFullPath("schema.yaml")
-		var schemaContent []byte
-		if err == nil {
-			schemaContent, err = ioutil.ReadFile(schemaFilename)
-		}
-		if err != nil {
-			return append(issues, []mta_validate.YamlValidationIssue{{"Validation failed" + err.Error()}}...)
-		}
-		validations, schemaValidationLog := mta_validate.BuildValidationsFromSchemaText(schemaContent)
+		validations, schemaValidationLog := mta_validate.BuildValidationsFromSchemaText(SchemaDef)
 		if len(schemaValidationLog) > 0 {
 			return schemaValidationLog
 		} else {
