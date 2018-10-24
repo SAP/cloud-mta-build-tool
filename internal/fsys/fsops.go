@@ -7,8 +7,6 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
-
-	"cloud-mta-build-tool/internal/logs"
 )
 
 const (
@@ -20,9 +18,6 @@ func CreateDirIfNotExist(dir string) error {
 	var err error
 	if _, err = os.Stat(dir); os.IsNotExist(err) {
 		err = os.MkdirAll(dir, os.ModePerm)
-		if err != nil {
-			logs.Logger.Error(err)
-		}
 	}
 	return err
 }

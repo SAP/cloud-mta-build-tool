@@ -53,7 +53,7 @@ platform:
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := Parse(tt.platforms)
+			got, _ := Parse(tt.platforms)
 			if !assert.Equal(t, got.Platforms, tt.expected.Platforms) {
 				t.Errorf("Parse() = %v, `\n` want %v", got, tt.expected)
 			}
