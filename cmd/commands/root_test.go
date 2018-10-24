@@ -9,23 +9,36 @@ import (
 	"github.com/spf13/viper"
 )
 
-var _ = Describe("", func() {
-	AfterEach(func() {
-		viper.Reset()
-		cfgFile = ""
+var _ = Describe("Root", func() {
+
+	Describe("Init config", func() {
+		AfterEach(func() {
+			viper.Reset()
+			cfgFile = ""
+		})
+
+		It("config file not defined", func() {
+			viper.Reset()
+			Ω(viper.Get("xxx")).Should(BeNil())
+		})
+
+		DescribeTable("config file defined", func(configFilename string, matcher GomegaMatcher) {
+			cfgFile, _ = dir.GetFullPath("testdata", configFilename)
+			initConfig()
+			Ω(viper.Get("xxx")).Should(matcher)
+		},
+			Entry("right config", "config.props", Equal("10")),
+			Entry("wrong config", "config1.props", BeNil()),
+		)
 	})
 
-	It("config file not defined", func() {
-		viper.Reset()
-		Ω(viper.Get("xxx")).Should(BeNil())
+	Describe("Execute", func() {
+		It("Sanity", func() {
+			out := executeAndProvideOutput(func() {
+				Execute()
+			})
+			Ω(out).Should(ContainSubstring("help"))
+		})
 	})
 
-	DescribeTable("config file defined", func(configFilename string, matcher GomegaMatcher) {
-		cfgFile, _ = dir.GetFullPath("testdata", configFilename)
-		initConfig()
-		Ω(viper.Get("xxx")).Should(matcher)
-	},
-		Entry("right config", "config.props", Equal("10")),
-		Entry("wrong config", "config1.props", BeNil()),
-	)
 })

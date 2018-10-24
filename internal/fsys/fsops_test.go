@@ -245,7 +245,7 @@ func Test_copyEntries(t *testing.T) {
 	dstPath := getFullPath("testdata", "result")
 	os.MkdirAll(dstPath, os.ModePerm)
 	files, _ := ioutil.ReadDir(srcPath)
-	var filesWrapped [2]os.FileInfo
+	var filesWrapped [3]os.FileInfo
 	for i, file := range files {
 		filesWrapped[i] = testFile{file: file}
 	}

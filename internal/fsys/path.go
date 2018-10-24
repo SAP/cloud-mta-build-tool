@@ -36,15 +36,11 @@ func (basePath Path) GetFullPath(relPath ...string) string {
 }
 
 // GetArtifactsPath - the Path where all the build file will be saved
-func GetArtifactsPath(path string) (string, error) {
-	currentPath, err := GetFullPath(path)
-	var artifactsPath string
-	if err == nil {
-		_, file := filepath.Split(currentPath)
-		// append to the currentPath the file name
-		artifactsPath = filepath.Join(currentPath, file)
-	}
-	return artifactsPath, err
+func GetArtifactsPath(path string) string {
+	_, file := filepath.Split(path)
+	// append to the currentPath the file name
+	artifactsPath := filepath.Join(path, file)
+	return artifactsPath
 }
 
 // GetRelativePath - remove the basePath from the fullPath and get only the relative

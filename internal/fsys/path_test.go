@@ -1,86 +1,35 @@
 package dir
 
 import (
-	"os"
 	"path/filepath"
-	"testing"
 
-	"github.com/stretchr/testify/assert"
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
 )
 
-func TestGetPath(t *testing.T) {
+var _ = Describe("Path", func() {
+	It("GetPath", func() {
+		Ω(GetCurrentPath()).Should(BeADirectory())
+	})
 
-	t.Parallel()
-	path, err := GetCurrentPath()
-	assert.NotEmpty(t, path)
-	assert.Nil(t, err)
-}
+	It("GetFullPath Method", func() {
+		currentPath, _ := GetCurrentPath()
+		Ω(Path{currentPath}.GetFullPath("testdata", "mtahtml5")).Should(BeADirectory())
+		Ω(Path{currentPath}.GetFullPath("testdata", "level2", "level2_one.txt")).Should(BeAnExistingFile())
+	})
 
-func TestGetFullPath(t *testing.T) {
-	currentPath, _ := os.Getwd()
-	basePath := Path{currentPath}
-	got := basePath.GetFullPath(filepath.Join("testdata", "mtahtml5"))
-	expected := filepath.Join(basePath.Path, "testdata", "mtahtml5")
-	if got != expected {
-		t.Errorf("expected output %v, actual %v", expected, got)
-	}
-}
+	It("GetFullPath Function", func() {
+		Ω(GetFullPath("testdata", "mtahtml5")).Should(BeADirectory())
+		Ω(GetFullPath("testdata", "level2", "level2_one.txt")).Should(BeAnExistingFile())
+	})
 
-func TestPath_GetFullPath(t *testing.T) {
-	currentPath, _ := os.Getwd()
-	tests := []struct {
-		input    []string
-		expected string
-	}{
-		{
-			input:    []string{"testdata"},
-			expected: filepath.Join(currentPath, "testdata"),
-		},
-		{
-			input:    []string{"testdata", "mtahtml5"},
-			expected: filepath.Join(currentPath, "testdata", "mtahtml5"),
-		},
-		{
-			input:    []string{"testdata", "level2"},
-			expected: filepath.Join(currentPath, "testdata", "level2"),
-		},
-	}
-	for _, tt := range tests {
-		got := getFullPath(tt.input...)
-		if got != tt.expected {
-			t.Errorf("expected output %v, actual %v", tt.expected, got)
-		}
-	}
-}
+	It("GetArtifactsPath", func() {
+		Ω(GetArtifactsPath(getFullPath())).ShouldNot(BeADirectory())
+		Ω(GetArtifactsPath(getFullPath("testdata", "level2", "level3"))).Should(BeADirectory())
+	})
 
-func TestGetArtifactsPath(t *testing.T) {
-	currentPath, _ := os.Getwd()
-	got, _ := GetArtifactsPath("")
-	expected := filepath.Join(currentPath, "fsys")
-	if got != expected {
-		t.Errorf("expected output %v, actual %v", expected, got)
-	}
-}
-
-func TestGetRelativePath(t *testing.T) {
-	tests := []struct {
-		fullPath string
-		basePath string
-		expected string
-	}{
-		{
-			fullPath: filepath.Join("https:", " ", "github.com", "SAP", "cloud-mta-build-tool"),
-			basePath: filepath.Join("https:", " ", "github.com"),
-			expected: filepath.Join(" ", "SAP", "cloud-mta-build-tool"),
-		},
-		{
-			fullPath: filepath.Join("https:", " ", "github.com", "SAP", "cloud-mta-build-tool"),
-			basePath: filepath.Join("https:", " ", "github.com", "SAP"),
-			expected: filepath.Join(" ", "cloud-mta-build-tool"),
-		},
-	}
-	for _, tt := range tests {
-		got := GetRelativePath(tt.fullPath, tt.basePath)
-		assert.NotEqual(t, tt.expected, got)
-	}
-}
+	It("GetRelativePath", func() {
+		Ω(GetRelativePath(getFullPath("abc", "xyz", "fff"),
+			filepath.Join(getFullPath()))).Should(Equal(string(filepath.Separator) + filepath.Join("abc", "xyz", "fff")))
+	})
+})

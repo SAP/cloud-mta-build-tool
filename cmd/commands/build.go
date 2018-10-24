@@ -17,11 +17,11 @@ var buildTarget string
 
 func init() {
 	// Add environment flag for build purpose
-	bModule.Flags().StringVarP(&buildTarget, "target", "t", "", "Build for specified environment ")
+	bModuleCmd.Flags().StringVarP(&buildTarget, "target", "t", "", "Build for specified environment ")
 }
 
 // Build module
-var bModule = &cobra.Command{
+var bModuleCmd = &cobra.Command{
 	Use:   "module",
 	Short: "Build module",
 	Long:  "Build specific module according to the module name",
@@ -33,9 +33,7 @@ var bModule = &cobra.Command{
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		err := buildModule(args[0])
-		if err != nil {
-			logs.Logger.Error(err)
-		}
+		LogError(err)
 	},
 }
 
@@ -44,30 +42,31 @@ func buildModule(module string) error {
 	logs.Logger.Info("Start building module: ", module)
 	// Read MTA Yaml File
 	mta, err := mta.ReadMta("", "mta.yaml")
-	if err == nil {
-		// Get module respective command's to execute
-		moduleRelPath, mCmd, err := moduleCmd(*mta, module)
-		if err != nil {
-			return err
-		}
-		modulePath, err := fs.GetFullPath(moduleRelPath)
-		if err == nil {
-			// Get module commands
-			commands := cmdConverter(modulePath, mCmd)
-			// Get temp dir for packing the artifacts
-			artifactsPath, err := fs.GetArtifactsPath(modulePath)
-			if err == nil {
-				// Execute child-process with module respective commands
-				err = exec.Execute(commands)
-				if err == nil {
-					// Pack the modules build artifacts (include node modules)
-					// into the artifactsPath dir as data zip
-					err = packModule(artifactsPath, moduleRelPath, module)
-				}
-			}
-		}
+	if err != nil {
+		return err
 	}
-	return err
+	// Get module respective command's to execute
+	moduleRelPath, mCmd, err := moduleCmd(*mta, module)
+	if err != nil {
+		return err
+	}
+	modulePath, err := fs.GetFullPath(moduleRelPath)
+	if err != nil {
+		return err
+	}
+	// Get module commands
+	commands := cmdConverter(modulePath, mCmd)
+	// Get temp dir for packing the artifacts
+	artifactsPath := fs.GetArtifactsPath(modulePath)
+
+	// Execute child-process with module respective commands
+	err = exec.Execute(commands)
+	if err != nil {
+		return err
+	}
+	// Pack the modules build artifacts (include node modules)
+	// into the artifactsPath dir as data zip
+	return packModule(artifactsPath, moduleRelPath, module)
 }
 
 // Get commands for specific module type

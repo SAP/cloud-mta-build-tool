@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"path/filepath"
 	"testing"
 )
 
@@ -34,6 +35,8 @@ func Test_validateMtaYaml(t *testing.T) {
 		isNilErr        bool   //expected error
 	}{
 		{"ui5app", "mta.yaml", true, true, false},
+		{filepath.Join("testdata", "mtahtml5"), "mta.yaml", true, false, true},
+		{filepath.Join("testdata", "mtahtml5"), "mta.yaml", true, true, false},
 		{"ui5app", "mta.yaml", true, false, false},
 		{"ui5app", "mta.yaml", false, true, false},
 		{"ui5app", "mta.yaml", false, false, true},
