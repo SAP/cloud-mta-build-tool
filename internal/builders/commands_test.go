@@ -7,7 +7,6 @@ import (
 
 	"gopkg.in/yaml.v2"
 
-
 	"cloud-mta-build-tool/mta"
 )
 
@@ -105,7 +104,7 @@ func TestCommandProvider(t *testing.T) {
 		}}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got,_ := CommandProvider(tt.args.modules); !reflect.DeepEqual(got, tt.want) {
+			if got, _ := CommandProvider(tt.args.modules); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("CommandProvider() = %v, want %v", got, tt.want)
 			}
 		})
