@@ -68,18 +68,22 @@ func makeFile(makeFilename string, tpl tplCfg) error {
 	// path for creating the file
 	path, err := fs.GetFullPath(tpl.relPath)
 	// Create make file for the template
-	if err == nil {
-		makeFile, err := createMakeFile(path, makeFilename)
-		if err == nil && makeFile != nil {
-			// Execute the template
-			err = t.Execute(makeFile, data)
+	if err != nil {
+		return err
+	}
+	makeFile, err := createMakeFile(path, makeFilename)
+	if err != nil {
+		return err
+	}
+	if makeFile != nil {
+		// Execute the template
+		err = t.Execute(makeFile, data)
 
-			errClose := makeFile.Close()
-			if err != nil && errClose != nil {
-				err = errors.New(fmt.Sprintf("%s\n%s", err, errClose))
-			} else if errClose != nil {
-				err = errClose
-			}
+		errClose := makeFile.Close()
+		if err != nil && errClose != nil {
+			err = errors.New(fmt.Sprintf("%s\n%s", err, errClose))
+		} else if errClose != nil {
+			err = errClose
 		}
 	}
 	return err

@@ -9,10 +9,10 @@ import (
 var initMode string
 
 func init() {
-	initProcess.Flags().StringVarP(&initMode, "mode", "m", "", "Mode of Makefile generation - default/verbose")
+	initProcessCmd.Flags().StringVarP(&initMode, "mode", "m", "", "Mode of Makefile generation - default/verbose")
 }
 
-var initProcess = &cobra.Command{
+var initProcessCmd = &cobra.Command{
 	Use:   "init",
 	Short: "Generate Makefile",
 	Long:  "Generate Makefile as manifest which describe's the build process",
