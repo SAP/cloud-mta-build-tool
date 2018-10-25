@@ -2,18 +2,17 @@ package platform
 
 import (
 	"cloud-mta-build-tool/mta"
+	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
-
-	"cloud-mta-build-tool/internal/logs"
 )
 
-func Parse(data []byte) Platforms {
+func Parse(data []byte) (Platforms, error) {
 	platforms := Platforms{}
 	err := yaml.Unmarshal(data, &platforms)
 	if err != nil {
-		logs.Logger.Error("Yaml file is not valid, Error: " + err.Error())
+		return platforms, errors.New("Yaml file is not valid, Error: " + err.Error())
 	}
-	return platforms
+	return platforms, nil
 }
 
 func ConvertTypes(iCfg mta.MTA, eCfg Platforms, targetPlatform string) {

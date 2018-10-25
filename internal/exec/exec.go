@@ -39,7 +39,6 @@ func Execute(cmdParams [][]string) error {
 		// During the running process get the standard output
 		stderr, err := cmd.StderrPipe()
 		if err != nil {
-			logs.Logger.Errorf("cmd.StderrPipe() error: %s ", err)
 			return errors.New(fmt.Sprintf("cmd.StderrPipe() error: %s ", err))
 		}
 
