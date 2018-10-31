@@ -27,17 +27,17 @@ modules = ui
 ui:
 	@cd $(PROJ_DIR)/ui && npm install && grunt && npm prune --production
 # Pack module build artifacts
-	@mbt execute pack $(MTR_DIR) ui ui
+	@mbt execute pack -m=ui
 
 
 # Create META-INF folder with MANIFEST.MF & mtad.yaml
 meta:
-	@mbt execute meta $(MTR_DIR)
+	@mbt execute meta
 
 # Pack as MTAR artifact
 mtar: $(modules) meta
-	@mbt execute mtar $(MTR_DIR) $(PROJ_DIR)
+	@mbt execute mtar
 
 cleanup: mtar
 # Remove tmp folder
-	@mbt execute cleanup $(MTR_DIR)
+	@mbt execute cleanup

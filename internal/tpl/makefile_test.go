@@ -35,8 +35,9 @@ func getMakeFileContent(filePath string) string {
 var _ = Describe("Makefile", func() {
 
 	var (
-		tpl              = tplCfg{tplName: "make_verbose.txt", relPath: "testdata", pre: basePreVerbose, post: basePostVerbose}
+		tpl              = tplCfg{tplName: "make_verbose.txt", relPath: "", pre: basePreVerbose, post: basePostVerbose}
 		makeFileName     = "MakeFileTest.mta"
+		wd, _            = os.Getwd()
 		expectedMakePath = func() string {
 			var filename string
 			switch runtime.GOOS {
@@ -47,12 +48,10 @@ var _ = Describe("Makefile", func() {
 			default:
 				filename = "ExpectedMakeFileWindows"
 			}
-			path, _ := dir.GetFullPath("testdata", filename)
-			return path
+			return filepath.Join(wd, "testdata", filename)
 		}()
 		makeFileFullPath = func() string {
-			path, _ := dir.GetFullPath("testdata", makeFileName)
-			return path
+			return filepath.Join(wd, "testdata", makeFileName)
 		}()
 		expectedMakeFileContent = getMakeFileContent(expectedMakePath)
 	)
@@ -63,7 +62,7 @@ var _ = Describe("Makefile", func() {
 		})
 
 		It("createMakeFile testing", func() {
-			makeFilePath, _ := dir.GetFullPath("testdata")
+			makeFilePath := filepath.Join(wd, "testdata")
 			file, _ := createMakeFile(makeFilePath, makeFileName)
 			Ω(file).ShouldNot(BeNil())
 			file.Close()
@@ -71,18 +70,18 @@ var _ = Describe("Makefile", func() {
 			Ω(createMakeFile(makeFilePath, makeFileName)).Should(BeNil())
 		})
 		It("Sanity", func() {
-			Ω(makeFile(makeFileName, tpl)).Should(Succeed())
+			Ω(makeFile(dir.EndPoints{SourcePath: filepath.Join(wd, "testdata")}, makeFileName, tpl)).Should(Succeed())
 			Ω(makeFileFullPath).Should(BeAnExistingFile())
 			Ω(getMakeFileContent(makeFileFullPath)).Should(Equal(expectedMakeFileContent))
 		})
 		It("Make testing with wrong mode", func() {
-			Ω(Make("wrongMode")).Should(HaveOccurred())
+			Ω(Make(dir.EndPoints{SourcePath: filepath.Join(wd, "testdata")}, "wrongMode")).Should(HaveOccurred())
 		})
 	})
 
 	var _ = DescribeTable("Makefile Generation Failed", func(testPath, testTemplate string) {
-
-		Ω(makeFile(makeFileName, tplCfg{relPath: testPath, tplName: testTemplate, pre: basePreVerbose, post: basePostVerbose})).Should(HaveOccurred())
+		ep := dir.EndPoints{SourcePath: filepath.Join(wd, "testdata")}
+		Ω(makeFile(ep, makeFileName, tplCfg{relPath: testPath, tplName: testTemplate, pre: basePreVerbose, post: basePostVerbose})).Should(HaveOccurred())
 	},
 		Entry("Wrong Template", "testdata", filepath.Join("testdata", "WrongMakeTmpl.txt")),
 		Entry("Yaml not exists", "testdata1", "make_default.txt"),

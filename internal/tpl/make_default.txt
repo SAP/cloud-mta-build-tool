@@ -5,6 +5,6 @@ modules := $(subst ],,$(subst [,,$(modules)))
 ##Execute module build
 execute:
 {{"\t"}}@for module in $(modules) ; do \
-{{"\t"}} mbt build module $$module ; \
+{{"\t"}} mbt build module -m=$$module ; \
 {{"\t"}}done
 {{template "base_post" .}}

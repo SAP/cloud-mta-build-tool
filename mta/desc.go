@@ -20,9 +20,6 @@ import (
 // This used by deploy service to track the build project
 
 const (
-	metaInf         = "META-INF"
-	manifest        = "MANIFEST.MF"
-	mtadYaml        = "mtad.yaml"
 	newLine         = "\n"
 	contentType     = "Content-Type: "
 	mtaModule       = "MTA-Module: "
@@ -63,26 +60,25 @@ func printToFile(file io.Writer, mtaStr *Modules) {
 }
 
 // GenMtad -Generate mtad.yaml from mta file and configuration file
-func GenMtad(mtaStr MTA, targetPath string, convertTypes func(mtaStr MTA)) error {
+func GenMtad(mtaStr MTA, ep dir.EndPoints, convertTypes func(mtaStr MTA)) error {
 	// Create META-INF folder under the mtar folder
-	targetBasePath := dir.Path{targetPath}
-	createDirIfNotExist(targetBasePath.GetFullPath(metaInf))
+	createDirIfNotExist(ep.GetMetaPath())
 	convertTypes(mtaStr)
 	// Create readable Yaml before writing to file
 	mtad, err := Marshal(mtaStr)
 	// Write back the MTAD to the META-INF folder
 	if err == nil {
-		err = ioutil.WriteFile(targetBasePath.GetFullPath(metaInf, mtadYaml), mtad, os.ModePerm)
+		err = ioutil.WriteFile(ep.GetMtadPath(), mtad, os.ModePerm)
 	}
 	return err
 }
 
 // GenMetaInfo -Generate MetaInfo (MANIFEST.MF file)
-func GenMetaInfo(tmpDir string, mtaStr MTA, modules []string, convertTypes func(mtaStr MTA)) error {
-	err := GenMtad(mtaStr, tmpDir, convertTypes)
+func GenMetaInfo(ep dir.EndPoints, mtaStr MTA, modules []string, convertTypes func(mtaStr MTA)) error {
+	err := GenMtad(mtaStr, ep, convertTypes)
 	if err == nil {
 		// Create MANIFEST.MF file
-		file, _ := createFile(dir.Path{tmpDir}.GetFullPath(metaInf, manifest))
+		file, _ := createFile(ep.GetManifestPath())
 		defer file.Close()
 		// Set the MANIFEST.MF file
 		setManifetDesc(file, mtaStr.Modules, modules)

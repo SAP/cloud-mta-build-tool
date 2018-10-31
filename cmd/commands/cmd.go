@@ -10,33 +10,19 @@ import (
 )
 
 var buildTargetFlag string
-var validationFlag string
 
 func init() {
 
 	// Add command to the root
-	rootCmd.AddCommand(provideCmd, buildCmd, executeCmd, initProcessCmd, versionCmd)
+	rootCmd.AddCommand(provideCmd, executeCmd, initProcessCmd, versionCmd)
 	// Build module
 	provideCmd.AddCommand(pModuleCmd)
-	// Provide module
-	buildCmd.AddCommand(bModuleCmd)
 	// execute immutable commands
-	executeCmd.AddCommand(packCmd, genMetaCmd, genMtadCmd, genMtarCmd, cleanupCmd, validateCmd)
+	executeCmd.AddCommand(bModuleCmd, packCmd, genMetaCmd, genMtadCmd, genMtarCmd, cleanupCmd, validateCmd)
 	// build command target flags
-	buildCmd.Flags().StringVarP(&buildTargetFlag, "target", "t", "", "Build for specified environment ")
-	// validation flags , can be used for multiple scenario
-	validateCmd.Flags().StringVarP(&validationFlag, "mode", "m", "", "Validation mode ")
 }
 
-// Parent command
-var buildCmd = &cobra.Command{
-	Use:   "build",
-	Short: "Build Project",
-	Long:  "Build MTA project",
-	Run:   nil,
-}
-
-// Parent command
+// Parent command - Parent of all execution commands
 var executeCmd = &cobra.Command{
 	Use:   "execute",
 	Short: "Execute step",
@@ -44,7 +30,7 @@ var executeCmd = &cobra.Command{
 	Run:   nil,
 }
 
-// Parent command
+// Parent command - MTA info provider
 var provideCmd = &cobra.Command{
 	Use:   "provide",
 	Short: "MBT data provider",
@@ -52,7 +38,7 @@ var provideCmd = &cobra.Command{
 	Run:   nil,
 }
 
-// Parent command
+// Parent command - CLI Version provider
 var versionCmd = &cobra.Command{
 	Use:   "version",
 	Short: "MBT version",

@@ -1,20 +1,20 @@
 package mta
 
 import (
-	"io/ioutil"
-	"testing"
+	"os"
+	"path/filepath"
 
 	"cloud-mta-build-tool/internal/fsys"
-	"gopkg.in/yaml.v2"
-	"gotest.tools/assert"
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
 )
 
-func Test_ValidateYamlProject(t *testing.T) {
-	mtaYamlPath, _ := dir.GetFullPath("testdata", "testproject", "mta.yaml")
-	mtaContent, _ := ioutil.ReadFile(mtaYamlPath)
-	mta := MTA{}
-	yaml.Unmarshal(mtaContent, &mta)
-	mtaProjectPath, _ := dir.GetFullPath("testdata", "testproject")
-	issues := ValidateYamlProject(mta, mtaProjectPath)
-	assert.Equal(t, issues[0].Msg, "Module <ui5app2> not found in project. Expected path: <ui5app2>")
-}
+var _ = Describe("ValidateYamlProject", func() {
+	It("Sanity", func() {
+		wd, _ := os.Getwd()
+		ep := dir.EndPoints{SourcePath: filepath.Join(wd, "testdata", "testproject")}
+		mta, _ := ReadMta(ep)
+		issues := ValidateYamlProject(*mta, ep.GetSource())
+		Ω(issues[0].Msg).Should(Equal("Module <ui5app2> not found in project. Expected path: <ui5app2>"))
+	})
+})

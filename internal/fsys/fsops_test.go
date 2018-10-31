@@ -3,6 +3,7 @@ package dir
 import (
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 	"time"
@@ -13,8 +14,8 @@ import (
 )
 
 func getFullPath(relPath ...string) string {
-	path, _ := GetFullPath(relPath...)
-	return path
+	wd, _ := os.Getwd()
+	return filepath.Join(wd, filepath.Join(relPath...))
 }
 
 func TestCreateDirIfNotExist(t *testing.T) {

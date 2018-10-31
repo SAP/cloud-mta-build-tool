@@ -30,17 +30,20 @@ func CreateDirIfNotExist(dir string) error {
 //TODO add more comments
 func Archive(sourcePath, targetArchivePath string) error {
 
+	// check that folder to be packed exist
 	info, err := os.Stat(sourcePath)
 	if err != nil {
 		return err
 	}
 
+	// create archive file
 	zipfile, err := os.Create(targetArchivePath)
 	if err != nil {
 		return err
 	}
 	defer zipfile.Close()
 
+	// create archive writer
 	archive := zip.NewWriter(zipfile)
 	defer archive.Close()
 
@@ -56,6 +59,7 @@ func Archive(sourcePath, targetArchivePath string) error {
 		baseDir += pathSep
 	}
 
+	// pack files of source into archive
 	filepath.Walk(sourcePath, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
@@ -71,11 +75,14 @@ func Archive(sourcePath, targetArchivePath string) error {
 		}
 
 		if baseDir != "" {
+			// care of UNIX-style separators of path in header
 			header.Name = filepath.ToSlash(GetRelativePath(path, baseDir))
 		}
 
+		// compress file
 		header.Method = zip.Deflate
 
+		// add new header and file to archive
 		writer, err := archive.CreateHeader(header)
 		if err == nil {
 			file, err := os.Open(path)

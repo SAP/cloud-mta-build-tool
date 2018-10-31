@@ -1,7 +1,9 @@
 package commands
 
 import (
-	"cloud-mta-build-tool/internal/fsys"
+	"os"
+	"path/filepath"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
@@ -23,7 +25,8 @@ var _ = Describe("Root", func() {
 		})
 
 		DescribeTable("config file defined", func(configFilename string, matcher GomegaMatcher) {
-			cfgFile, _ = dir.GetFullPath("testdata", configFilename)
+			wd, _ := os.Getwd()
+			cfgFile = filepath.Join(wd, "testdata", configFilename)
 			initConfig()
 			Ω(viper.Get("xxx")).Should(matcher)
 		},

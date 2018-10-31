@@ -24,7 +24,6 @@ const (
 	basePostDefault = "base_post_default.txt"
 	makeDefaultTpl  = "make_default.txt"
 	makeVerboseTpl  = "make_verbose.txt"
-	pathSep         = string(os.PathSeparator)
 )
 
 type tplCfg struct {
@@ -35,16 +34,16 @@ type tplCfg struct {
 }
 
 // Make - Generate the makefile
-func Make(mode string) error {
+func Make(ep fs.EndPoints, mode string) error {
 	tpl, err := makeMode(mode)
 	if err == nil {
 		// Get project working directory
-		err = makeFile(makefile, tpl)
+		err = makeFile(ep, makefile, tpl)
 	}
 	return err
 }
 
-func makeFile(makeFilename string, tpl tplCfg) error {
+func makeFile(ep fs.EndPoints, makeFilename string, tpl tplCfg) error {
 
 	type API map[string]string
 	// template data
@@ -53,7 +52,7 @@ func makeFile(makeFilename string, tpl tplCfg) error {
 		API  API
 	}
 	// Read file
-	m, err := mta.ReadMta(tpl.relPath, "mta.yaml")
+	m, err := mta.ReadMta(ep)
 	if err != nil {
 		return err
 	}
@@ -66,11 +65,8 @@ func makeFile(makeFilename string, tpl tplCfg) error {
 		return err
 	}
 	// path for creating the file
-	path, err := fs.GetFullPath(tpl.relPath)
+	path := filepath.Join(ep.GetTarget(), tpl.relPath)
 	// Create make file for the template
-	if err != nil {
-		return err
-	}
 	makeFile, err := createMakeFile(path, makeFilename)
 	if err != nil {
 		return err
