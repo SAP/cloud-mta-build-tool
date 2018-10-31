@@ -23,7 +23,7 @@ func ReadMtaContent(ep dir.EndPoints) ([]byte, error) {
 	yamlContent, err := ReadMtaYaml(ep)
 	// Read MTA file
 	if err != nil {
-		err = errors.New("Error reading the MTA file: " + err.Error())
+		err = errors.Wrap(err, "Error reading the MTA file")
 	}
 	return yamlContent, err
 }
@@ -34,7 +34,7 @@ func ParseToMta(content []byte) (*MTA, error) {
 	// Parse MTA file
 	err := mta.Parse(content)
 	if err != nil {
-		err = errors.New("Error parsing the MTA: " + err.Error())
+		err = errors.Wrap(err, "Error parsing the MTA")
 	}
 	return mta, err
 }

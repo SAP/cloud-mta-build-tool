@@ -1,8 +1,8 @@
 package commands
 
 import (
-	"errors"
 	"fmt"
+	"github.com/pkg/errors"
 	"os"
 	"path/filepath"
 	"strings"
@@ -212,7 +212,7 @@ func processMta(processName string, ep fs.EndPoints, args []string, process func
 			logs.Logger.Info(processName + " finish successfully ")
 		}
 	} else {
-		err = errors.New(fmt.Sprintf("MTA file not found: %s", err))
+		err = errors.Wrap(err, "MTA file not found")
 	}
 	return err
 }
@@ -234,10 +234,12 @@ func packModule(ep fs.EndPoints, modulePath, moduleName string) error {
 	logs.Logger.Infof("Starting execute zipping module %v ", moduleName)
 	moduleZipFullPath := moduleZipPath + dataZip
 	if err = fs.Archive(ep.GetSourceModuleDir(modulePath), moduleZipFullPath); err != nil {
-		err = errors.New(fmt.Sprintf("Error occurred during ZIP module %v creation, error: %s  ", moduleName, err))
+		err = errors.Wrapf(err, "Error occurred during ZIP module %v creation", moduleName)
 		removeErr := os.RemoveAll(ep.GetTargetTmpDir())
 		if removeErr != nil {
-			err = errors.New(fmt.Sprintf("Error occured during directory %s removal failed %s. %s", ep.GetTargetTmpDir(), err, removeErr))
+			err = errors.Wrapf(removeErr, "Directory %s removal after failed archiving (%s)", ep.GetTargetTmpDir(), err)
+		} else {
+			err = errors.Wrapf(err, "Zipping module %v failed", moduleName)
 		}
 	} else {
 		logs.Logger.Infof("Execute zipping module %v finished successfully ", moduleName)
@@ -267,7 +269,7 @@ func validateMtaYaml(ep fs.EndPoints, validateSchema bool, validateProject bool)
 		yamlContent, err := mta.ReadMtaContent(ep)
 
 		if err != nil {
-			return errors.New("MTA validation failed. " + err.Error())
+			return errors.Wrap(err, "MTA validation failed")
 		}
 		projectPath := ep.GetSource()
 

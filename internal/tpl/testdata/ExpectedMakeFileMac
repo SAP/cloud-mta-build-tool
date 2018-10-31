@@ -1,4 +1,4 @@
-
+version=0.0.0
 # Create folder for build artifacts
 DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 BASE := $(notdir $(patsubst %/,%,$(DIR)))

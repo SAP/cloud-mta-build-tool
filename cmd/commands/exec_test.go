@@ -84,7 +84,7 @@ var _ = Describe("Commands", func() {
 			logs.Logger.SetOutput(&str)
 			validateCmd.Run(nil, []string{})
 
-			Ω(str.String()).Should(ContainSubstring("ERROR MTA validation failed. Error reading the MTA file:"))
+			Ω(str.String()).Should(ContainSubstring("Error reading the MTA file"))
 		})
 	})
 

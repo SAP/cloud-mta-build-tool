@@ -5,7 +5,6 @@ import (
 
 	"cloud-mta-build-tool/internal/logs"
 	"cloud-mta-build-tool/internal/version"
-	"github.com/alecthomas/gometalinter/_linters/src/gopkg.in/yaml.v2"
 	"github.com/spf13/cobra"
 )
 
@@ -50,8 +49,7 @@ var versionCmd = &cobra.Command{
 }
 
 func printCliVersion() error {
-	v := version.Version{}
-	err := yaml.Unmarshal(version.VersionConfig, &v)
+	v, err := version.GetVersion()
 	if err == nil {
 		fmt.Println(v.CliVersion)
 	}

@@ -10,6 +10,7 @@ import (
 
 	"cloud-mta-build-tool/internal/fsys"
 	"cloud-mta-build-tool/internal/logs"
+	"cloud-mta-build-tool/internal/version"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
@@ -57,6 +58,12 @@ var _ = Describe("Makefile", func() {
 	)
 
 	var _ = Describe("MakeFile Generation", func() {
+		BeforeEach(func() {
+			version.VersionConfig = []byte(`
+cli_version: 0.0.0
+makefile_version: 0.0.0
+`)
+		})
 		AfterEach(func() {
 			os.Remove(makeFileFullPath)
 		})

@@ -1,8 +1,9 @@
 package tpl
 
 import (
-	"errors"
+	"cloud-mta-build-tool/internal/version"
 	"fmt"
+	"github.com/pkg/errors"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -77,9 +78,9 @@ func makeFile(ep fs.EndPoints, makeFilename string, tpl tplCfg) error {
 
 		errClose := makeFile.Close()
 		if err != nil && errClose != nil {
-			err = errors.New(fmt.Sprintf("%s\n%s", err, errClose))
+			err = errors.Wrapf(err, "Makefile creation failed. Closing failed with %s", errClose)
 		} else if errClose != nil {
-			err = errClose
+			err = errors.Wrap(errClose, "Makefile сlosing failed")
 		}
 	}
 	return err
@@ -89,6 +90,7 @@ func mapTpl(templateName string, BasePre string, BasePost string) (*template.Tem
 	funcMap := template.FuncMap{
 		"CommandProvider": builders.CommandProvider,
 		"OsCore":          proc.OsCore,
+		"Version":         version.GetVersion,
 	}
 	// Get the path of the template source code
 	_, file, _, _ := runtime.Caller(0)
