@@ -228,19 +228,13 @@ func packModule(ep fs.EndPoints, modulePath, moduleName string) error {
 	// to put the file such as data.zip inside
 	err := os.MkdirAll(moduleZipPath, os.ModePerm)
 	if err != nil {
-		return err
+		return errors.Wrapf(err, "Error occurred during creation of directory of ZIP module %v", moduleName)
 	}
 	// zipping the build artifacts
 	logs.Logger.Infof("Starting execute zipping module %v ", moduleName)
 	moduleZipFullPath := moduleZipPath + dataZip
 	if err = fs.Archive(ep.GetSourceModuleDir(modulePath), moduleZipFullPath); err != nil {
 		err = errors.Wrapf(err, "Error occurred during ZIP module %v creation", moduleName)
-		removeErr := os.RemoveAll(ep.GetTargetTmpDir())
-		if removeErr != nil {
-			err = errors.Wrapf(removeErr, "Directory %s removal after failed archiving (%s)", ep.GetTargetTmpDir(), err)
-		} else {
-			err = errors.Wrapf(err, "Zipping module %v failed", moduleName)
-		}
 	} else {
 		logs.Logger.Infof("Execute zipping module %v finished successfully ", moduleName)
 	}

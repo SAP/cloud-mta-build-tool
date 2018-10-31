@@ -42,7 +42,7 @@ var _ = Describe("Commands", func() {
 			f, _ := os.Create(filepath.Join(ep.GetTargetTmpDir(), "ui5app"))
 
 			packCmd.Run(nil, []string{})
-			Ω(str.String()).Should(ContainSubstring("ERROR mkdir"))
+			Ω(str.String()).Should(ContainSubstring("Error occurred during creation of directory of ZIP module"))
 
 			f.Close()
 			// cleanup command used for test temp file removal
