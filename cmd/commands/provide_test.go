@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"cloud-mta-build-tool/internal/fsys"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
@@ -36,17 +37,18 @@ var _ = Describe("Provide", func() {
 	It("Valid path to yaml", func() {
 
 		out := executeAndProvideOutput(func() {
-			Ω(provideModules(filepath.Join("testdata", "mtahtml5"))).Should(Succeed())
+			Ω(provideModules(dir.EndPoints{SourcePath: filepath.Join("testdata", "mtahtml5")})).Should(Succeed())
 		})
 		Ω(out).Should(ContainSubstring("[ui5app ui5app2]"))
 	})
 
 	It("Invalid path to yaml", func() {
-		Ω(provideModules(filepath.Join("testdata", "mtahtml6"))).Should(HaveOccurred())
+		Ω(provideModules(dir.EndPoints{SourcePath: filepath.Join("testdata", "mtahtml6")})).Should(HaveOccurred())
 	})
 
 	It("Invalid command call", func() {
 		out := executeAndProvideOutput(func() {
+			pSourceFlag = ""
 			pModuleCmd.Run(nil, []string{})
 		})
 		Ω(out).Should(BeEmpty())

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 
-	"cloud-mta-build-tool/internal/fsys"
+	fs "cloud-mta-build-tool/internal/fsys"
 	"gopkg.in/yaml.v2"
 
 	"cloud-mta-build-tool/validations"
@@ -74,16 +74,6 @@ type Resources struct {
 	Properties Properties `yaml:"properties,omitempty"`
 }
 
-type MTAFile interface {
-	Readfile() ([]byte, error)
-}
-
-// Source - file path
-type Source struct {
-	Path     string
-	Filename string
-}
-
 // Parse MTA file and provide mta object with data
 func (mta *MTA) Parse(yamlContent []byte) (err error) {
 	// Format the YAML to struct's
@@ -103,16 +93,13 @@ func Marshal(in MTA) (mtads []byte, err error) {
 	return mtads, nil
 }
 
-// Readfile - read external file
-func (s Source) Readfile() ([]byte, error) {
-	fileFullPath, err := dir.GetFullPath(s.Path, s.Filename)
-	var yamlFile []byte
-	if err == nil {
-		// Read MTA file
-		yamlFile, err = ioutil.ReadFile(fileFullPath)
-		if err != nil {
-			err = fmt.Errorf("not able to read the mta file : %s", err.Error())
-		}
+// Read MTA Yaml file
+func ReadMtaYaml(ep fs.EndPoints) ([]byte, error) {
+	fileFullPath := ep.GetMtaYamlPath()
+	// Read MTA file
+	yamlFile, err := ioutil.ReadFile(fileFullPath)
+	if err != nil {
+		err = fmt.Errorf("not able to read the mta file : %s", err.Error())
 	}
 	return yamlFile, err
 }

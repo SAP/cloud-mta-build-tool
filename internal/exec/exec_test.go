@@ -1,61 +1,57 @@
 package exec
 
 import (
-	"cloud-mta-build-tool/internal/logs"
-	"testing"
 	"time"
 
-	"gotest.tools/assert"
+	"cloud-mta-build-tool/internal/logs"
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/ginkgo/extensions/table"
+	. "github.com/onsi/gomega"
 )
 
-func TestExecute_WithEchoTesting(t *testing.T) {
-	logs.NewLogger()
-	cdParams := [][]string{{"", "echo", "-n", `{"Name": "Bob", "Age": 32}`}}
-	Execute(cdParams)
-}
+var _ = Describe("Execute", func() {
 
-func Test_Execute_WithGoTesting(t *testing.T) {
-	logs.NewLogger()
-	cdParams := [][]string{{"", "go", "test", "exec_dummy_test.go"}}
-	err := Execute(cdParams)
-	assert.NilError(t, err)
-}
+	var _ = Describe("Execute call", func() {
+		BeforeEach(func() {
+			logs.NewLogger()
+		})
 
-func Test_Execute_WithGoTestingNegative(t *testing.T) {
-	logs.NewLogger()
-	cdParams := [][]string{{"", "go", "test", "exec_unknown_test.go"}}
-	err := Execute(cdParams)
-	assert.Equal(t, err != nil, true)
+		var _ = DescribeTable("Valid input", func(args [][]string) {
+			Ω(Execute(args)).Should(Succeed())
+		},
+			Entry("EchoTesting", [][]string{{"", "echo", "-n", `{"Name": "Bob", "Age": 32}`}}),
+			Entry("Dummy Go Testing", [][]string{{"", "go", "test", "exec_dummy_test.go"}}))
 
-	cdParams = [][]string{{"", "dateXXX"}}
-	err = Execute(cdParams)
-	assert.Equal(t, err != nil, true)
-}
+		var _ = DescribeTable("Invalid input", func(args [][]string) {
+			Ω(Execute(args)).Should(HaveOccurred())
+		},
+			Entry("Valid command fails on input", [][]string{{"", "go", "test", "exec_unknown_test.go"}}),
+			Entry("Invalid command", [][]string{{"", "dateXXX"}}),
+		)
+	})
 
-func Test_Indicator(t *testing.T) {
+	It("Indicator", func() {
+		// var wg sync.WaitGroup
+		// wg.Add(1)
+		shutdownCh := make(chan struct{})
+		start := time.Now()
+		go indicator(shutdownCh)
+		time.Sleep(3 * time.Second)
+		// close(shutdownCh)
+		sec := time.Since(start).Seconds()
+		switch int(sec) {
+		case 0:
+			// Output:
+		case 1:
+			// Output: .
+		case 2:
+			// Output: ..
+		case 3:
+			// Output: ...
+		default:
+		}
 
-	t.Parallel()
-	// var wg sync.WaitGroup
-	// wg.Add(1)
-	shutdownCh := make(chan struct{})
-	start := time.Now()
-	go indicator(shutdownCh)
-	time.Sleep(3 * time.Second)
-	// close(shutdownCh)
-	sec := time.Since(start).Seconds()
-	switch int(sec) {
-	case 0:
-		// Output:
-	case 1:
-		// Output: .
-	case 2:
-		// Output: ..
-	case 3:
-		// Output: ...
-	default:
-		t.Error("Sleeping time is more than 3 seconds")
-	}
-
-	shutdownCh <- struct{}{}
-	// wg.Wait()
-}
+		shutdownCh <- struct{}{}
+		// wg.Wait()
+	})
+})

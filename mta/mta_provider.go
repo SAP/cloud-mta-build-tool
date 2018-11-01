@@ -1,14 +1,15 @@
 package mta
 
 import (
+	"cloud-mta-build-tool/internal/fsys"
 	"github.com/pkg/errors"
 )
 
 // ReadMta reads the MTA file according to it's name and path
 // returns a reference to the MTA object
-func ReadMta(path, filename string) (*MTA, error) {
+func ReadMta(ep dir.EndPoints) (*MTA, error) {
 	var mta *MTA
-	yamlContent, err := ReadMtaContent(path, filename)
+	yamlContent, err := ReadMtaContent(ep)
 	// Read MTA file
 	if err == nil {
 		mta, err = ParseToMta(yamlContent)
@@ -18,12 +19,11 @@ func ReadMta(path, filename string) (*MTA, error) {
 
 // ReadMtaContent reads the MTA file according to it's name and path
 // returns a []byte object represents the content of the MTA file
-func ReadMtaContent(path, filename string) ([]byte, error) {
-	s := &Source{Path: path, Filename: filename}
-	yamlContent, err := s.Readfile()
+func ReadMtaContent(ep dir.EndPoints) ([]byte, error) {
+	yamlContent, err := ReadMtaYaml(ep)
 	// Read MTA file
 	if err != nil {
-		err = errors.New("Error reading the MTA file: " + err.Error())
+		err = errors.Wrap(err, "Error reading the MTA file")
 	}
 	return yamlContent, err
 }
@@ -34,7 +34,7 @@ func ParseToMta(content []byte) (*MTA, error) {
 	// Parse MTA file
 	err := mta.Parse(content)
 	if err != nil {
-		err = errors.New("Error parsing the MTA: " + err.Error())
+		err = errors.Wrap(err, "Error parsing the MTA")
 	}
 	return mta, err
 }

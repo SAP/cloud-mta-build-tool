@@ -7,68 +7,45 @@ import (
 	"reflect"
 	"testing"
 
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
+
 	"cloud-mta-build-tool/internal/fsys"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
-type testInfo struct {
-	name      string
-	expected  Modules
-	validator func(t *testing.T, actual, expected Modules)
-}
-
-func doTest(t *testing.T, expected []testInfo, filename string) {
-
-	mtaFile, _ := ioutil.ReadFile(filename)
-	// Parse file
-	oMta := &MTA{}
-	mtaContent, err := Marshal(*oMta)
-	err = oMta.Parse(mtaFile)
-	for i, tt := range expected {
-		t.Run(tt.name, func(t *testing.T) {
-			require.NotNil(t, oMta)
-			require.Len(t, oMta.Modules, len(expected))
-			tt.validator(t, *oMta.Modules[i], tt.expected)
-		})
-	}
-	mtaContent, err = Marshal(*oMta)
-	assert.Nil(t, err)
-
-	oMta2 := &MTA{}
-	newErr := oMta2.Parse(mtaContent)
-	assert.Nil(t, newErr)
-	assert.Equal(t, oMta, oMta2)
-}
-
-func Test_ValidateAll(t *testing.T) {
-	mtaYamlPath, _ := dir.GetFullPath("testdata", "testproject", "mta.yaml")
-	yamlContent, _ := ioutil.ReadFile(mtaYamlPath)
-	projectPath, _ := dir.GetFullPath("testdata", "testproject")
-	issues := Validate(yamlContent, projectPath, true, true)
-	assert.Equal(t, 1, len(issues))
-}
-
-func Test_ValidateSchema(t *testing.T) {
-	yamlPath, _ := dir.GetFullPath("testdata", "mta_multiapps.yaml")
-	yamlContent, _ := ioutil.ReadFile(yamlPath)
-	projectPath, _ := dir.GetFullPath("testdata")
-	issues := Validate(yamlContent, projectPath, true, false)
-	assert.Equal(t, 0, len(issues))
-}
-
-func TestSource_ReadExtFile(t *testing.T) {
+func getTestPath(relPath ...string) string {
 	wd, _ := os.Getwd()
-	source := Source{filepath.Join(wd, "testdata", "testproject"), "mta.yaml"}
-	res, resErr := source.Readfile()
-	expected, expectedErr := ioutil.ReadFile(source.Filename)
-	if !reflect.DeepEqual(res, expected) {
-		t.Errorf("Readfile() = %v, want %v expected", string(res), string(expected))
-	}
-	if (resErr != nil && expectedErr == nil) || (resErr == nil && expectedErr != nil) {
-		t.Errorf("incorrect error")
-	}
+	return filepath.Join(wd, "testdata", filepath.Join(relPath...))
 }
+
+var _ = Describe("MTA tests", func() {
+
+	var _ = Describe("Validation", func() {
+		It("Validate All", func() {
+			ep := dir.EndPoints{SourcePath: getTestPath("testproject")}
+			yamlContent, _ := ReadMtaContent(ep)
+			issues := Validate(yamlContent, ep.GetSource(), true, true)
+			Ω(len(issues)).Should(Equal(1))
+		})
+		It("Validate Schema", func() {
+			ep := dir.EndPoints{SourcePath: getTestPath(), MtaFilename: "mta_multiapps.yaml"}
+			yamlContent, _ := ReadMtaContent(ep)
+			issues := Validate(yamlContent, ep.GetSource(), true, false)
+			Ω(len(issues)).Should(Equal(0))
+		})
+	})
+
+	var _ = Describe("ReadMtaYaml", func() {
+		It("Sanity", func() {
+			res, resErr := ReadMtaYaml(dir.EndPoints{SourcePath: getTestPath("testproject")})
+			Ω(res).ShouldNot(BeNil())
+			Ω(resErr).Should(BeNil())
+		})
+	})
+
+})
 
 // Table driven test
 // Unit test for parsing mta files to working object
@@ -162,6 +139,35 @@ func Test_ModulesParsing(t *testing.T) {
 
 	doTest(t, tests, "./testdata/mta.yaml")
 
+}
+
+type testInfo struct {
+	name      string
+	expected  Modules
+	validator func(t *testing.T, actual, expected Modules)
+}
+
+func doTest(t *testing.T, expected []testInfo, filename string) {
+
+	mtaFile, _ := ioutil.ReadFile(filename)
+	// Parse file
+	oMta := &MTA{}
+	mtaContent, err := Marshal(*oMta)
+	err = oMta.Parse(mtaFile)
+	for i, tt := range expected {
+		t.Run(tt.name, func(t *testing.T) {
+			require.NotNil(t, oMta)
+			require.Len(t, oMta.Modules, len(expected))
+			tt.validator(t, *oMta.Modules[i], tt.expected)
+		})
+	}
+	mtaContent, err = Marshal(*oMta)
+	assert.Nil(t, err)
+
+	oMta2 := &MTA{}
+	newErr := oMta2.Parse(mtaContent)
+	assert.Nil(t, newErr)
+	assert.Equal(t, oMta, oMta2)
 }
 
 func Test_BrokenMta(t *testing.T) {

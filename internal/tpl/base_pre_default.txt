@@ -1,4 +1,5 @@
 {{define "base_pre"}}
+version={{Version.MakeFile}}
 # Create folder for build artifacts
 DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 BASE := $(notdir $(patsubst %/,%,$(DIR)))
@@ -19,6 +20,4 @@ tdir:
 # Validate mta.yaml
 validate:
 {{"\t"}}@mbt execute validate
-# Set the current project repository path for general mta process
-  PROJ_DIR := $(CURDIR)
 {{end}}

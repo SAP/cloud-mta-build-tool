@@ -10,6 +10,8 @@ var initMode string
 
 func init() {
 	initProcessCmd.Flags().StringVarP(&initMode, "mode", "m", "", "Mode of Makefile generation - default/verbose")
+	initProcessCmd.Flags().StringVarP(&pSourceFlag, "source", "s", "", "Provide MTA source")
+	initProcessCmd.Flags().StringVarP(&pTargetFlag, "target", "t", "", "Provide MTA target")
 }
 
 var initProcessCmd = &cobra.Command{
@@ -19,7 +21,7 @@ var initProcessCmd = &cobra.Command{
 	Args:  cobra.NoArgs,
 	Run: func(cmd *cobra.Command, args []string) {
 		// Generate build script
-		err := tpl.Make(initMode)
+		err := tpl.Make(GetEndPoints(), initMode)
 		LogError(err)
 	},
 }

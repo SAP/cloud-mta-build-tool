@@ -9,7 +9,7 @@ type Version struct {
 	MakeFile   string `yaml:"makefile_version"`
 }
 
-func getVersion() (Version, error) {
+func GetVersion() (Version, error) {
 	v := Version{}
 	err := yaml.Unmarshal(VersionConfig, &v)
 	return v, err

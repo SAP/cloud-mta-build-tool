@@ -2,13 +2,13 @@ package exec
 
 import (
 	"bufio"
-	"errors"
 	"fmt"
 	"os/exec"
 	"path/filepath"
 	"time"
 
 	"cloud-mta-build-tool/internal/logs"
+	"github.com/pkg/errors"
 )
 
 func makeCommand(params []string) *exec.Cmd {
@@ -34,12 +34,12 @@ func Execute(cmdParams [][]string) error {
 		// During the running process get the standard output
 		stdout, err := cmd.StdoutPipe()
 		if err != nil {
-			return errors.New(fmt.Sprintf("%s cmd.StdoutPipe() error: %s ", cp[1:], err))
+			return errors.Wrapf(err, "%s cmd.StdoutPipe() error", cp[1:])
 		}
 		// During the running process get the standard output
 		stderr, err := cmd.StderrPipe()
 		if err != nil {
-			return errors.New(fmt.Sprintf("cmd.StderrPipe() error: %s ", err))
+			return errors.Wrapf(err, "%s cmd.StderrPipe() error", cp[1:])
 		}
 
 		// Start indicator
@@ -48,7 +48,7 @@ func Execute(cmdParams [][]string) error {
 
 		// Execute the process immediately
 		if err = cmd.Start(); err != nil {
-			return errors.New(fmt.Sprintf("%s start error: %panicIndicator\n", cp[1:], err))
+			return errors.Wrapf(err, "%s command start error", cp[1:])
 		}
 		// Stream command output:
 		// Creates a bufio.Scanner that will read from the pipe
@@ -67,15 +67,15 @@ func Execute(cmdParams [][]string) error {
 		}
 
 		if scanout.Err() != nil {
-			return errors.New(fmt.Sprintf("%s scanout error: %panicIndicator\n", cp[1:], err))
+			return errors.Wrapf(err, "%s scanout error", cp[1:])
 		}
 
 		if scanerr.Err() != nil {
-			return errors.New(fmt.Sprintf("Reading %s stderr error: %panicIndicator\n", cp[1:], err))
+			return errors.Wrapf(err, "Reading %s stderr error", cp[1:])
 		}
 		// Get execution success or failure:
 		if err = cmd.Wait(); err != nil {
-			return errors.New(fmt.Sprintf("Error running %s: %panicIndicator\n", cp[1:], err))
+			return errors.Wrapf(err, "Error running %s", cp[1:])
 		}
 		close(shutdownCh) // Signal indicator() to terminate
 		logs.Logger.Infof("Finished %s", cp[1:])

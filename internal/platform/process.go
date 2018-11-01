@@ -10,7 +10,7 @@ func Parse(data []byte) (Platforms, error) {
 	platforms := Platforms{}
 	err := yaml.Unmarshal(data, &platforms)
 	if err != nil {
-		return platforms, errors.New("Yaml file is not valid, Error: " + err.Error())
+		return platforms, errors.Wrap(err, "Yaml file is not valid")
 	}
 	return platforms, nil
 }
