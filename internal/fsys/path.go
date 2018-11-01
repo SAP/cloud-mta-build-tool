@@ -6,14 +6,17 @@ import (
 	"strings"
 )
 
-// EndPoints - source and target paths of
+// EndPoints - MTA tool file properties
 type EndPoints struct {
-	SourcePath  string
-	TargetPath  string
+	// SourcePath - Path to MTA project
+	SourcePath string
+	// TargetPath - Path to MTA tool results
+	TargetPath string
+	// MtaFilename - MTA yaml filename "mta.yaml" by default
 	MtaFilename string
 }
 
-// Get Processed Project Path
+// GetSource Get Processed Project Path
 // If not provided - current directory
 func (ep EndPoints) GetSource() string {
 	if ep.SourcePath == "" {
@@ -24,7 +27,7 @@ func (ep EndPoints) GetSource() string {
 	}
 }
 
-// Get Target Path
+// GetTarget Get Target Path
 // If not provided - path of processed project
 func (ep EndPoints) GetTarget() string {
 	if ep.TargetPath == "" {
@@ -34,7 +37,7 @@ func (ep EndPoints) GetTarget() string {
 	}
 }
 
-// Get Target Temporary Directory path
+// GetTargetTmpDir Get Target Temporary Directory path
 // Subdirectory in target folder named as source project folder
 func (ep EndPoints) GetTargetTmpDir() string {
 	_, file := filepath.Split(ep.GetSource())
@@ -42,24 +45,25 @@ func (ep EndPoints) GetTargetTmpDir() string {
 	return filepath.Join(ep.GetTarget(), file)
 }
 
-// Get path to the packed module directory
+// GetTargetModuleDir Get path to the packed module directory
 // Subdirectory in Target Temporary Directory named by module name
 func (ep EndPoints) GetTargetModuleDir(moduleName string) string {
 	return filepath.Join(ep.GetTargetTmpDir(), moduleName)
 }
 
-// Get path to the packed module data.zip
+// GetTargetModuleZipPath Get path to the packed module data.zip
 // Subdirectory in Target Temporary Directory named by module name
 func (ep EndPoints) GetTargetModuleZipPath(moduleName string) string {
 	return filepath.Join(ep.GetTargetModuleDir(moduleName), "data.zip")
 }
 
-// Get path to module to be packed
+// GetSourceModuleDir Get path to module to be packed
 // Subdirectory in Source
 func (ep EndPoints) GetSourceModuleDir(modulePath string) string {
 	return filepath.Join(ep.GetSource(), modulePath)
 }
 
+// GetMtaYamlFilename Get MTA yaml File name
 func (ep EndPoints) GetMtaYamlFilename() string {
 	if ep.MtaFilename == "" {
 		return "mta.yaml"
@@ -68,18 +72,22 @@ func (ep EndPoints) GetMtaYamlFilename() string {
 	}
 }
 
+// GetMtaYamlPath Get MTA yaml File path
 func (ep EndPoints) GetMtaYamlPath() string {
 	return filepath.Join(ep.GetSource(), ep.GetMtaYamlFilename())
 }
 
+// GetMetaPath - Get path to generated META-INF directory
 func (ep EndPoints) GetMetaPath() string {
 	return filepath.Join(ep.GetTargetTmpDir(), "META-INF")
 }
 
+// GetMtadPath Get path to generated MTAD file
 func (ep EndPoints) GetMtadPath() string {
 	return filepath.Join(ep.GetMetaPath(), "mtad.yaml")
 }
 
+// GetManifestPath Get path to generated manifest file
 func (ep EndPoints) GetManifestPath() string {
 	return filepath.Join(ep.GetMetaPath(), "MANIFEST.MF")
 }
