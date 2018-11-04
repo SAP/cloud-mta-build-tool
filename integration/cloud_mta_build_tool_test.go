@@ -5,7 +5,6 @@ import (
 	"bytes"
 	"fmt"
 	"os"
-
 	"os/exec"
 	"strings"
 
@@ -20,6 +19,7 @@ var _ = Describe("CloudMtaBuildTool", func() {
 		cmd := exec.Command("go", "build", "-o", "./integration/testdata/mbt", ".")
 		cmd.Dir = "../"
 		err := cmd.Run()
+		fmt.Println("finish to execute process", err)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -31,12 +31,13 @@ var _ = Describe("CloudMtaBuildTool", func() {
 
 	var _ = Describe("Command to provide the list of modules", func() {
 		It("Target file in opened status", func() {
-			path := "./testdata/"
+			dir,_ := os.Getwd()
+			path := dir + "/testdata/"
 			args := "provide modules"
-			bin := "mbt"
+			bin := "./mbt"
 			cmdOut := execute(bin, args, path)
 			Ω(cmdOut).ShouldNot(BeNil())
-			Ω(cmdOut).Should(BeEquivalentTo("[eb-java eb-db eb-uideployer eb-ui-conf-eb eb-ui-conf-extensionfunction eb-ui-conf-movementcategory eb-ui-conf-stockledgercharacteristic eb-ui-conf-taxrate eb-ui-conf-taxwarehouse eb-ui-md-materialmaster eb-ui-md-shiptomaster eb-ui-stockledgerlineitem eb-ui-stockledgerlineitem-alp eb-ui-stockledgerprocessingerror eb-approuter eb-ftp-content eb-sb eb-msahaa]"+ "\n"))
+			Ω(cmdOut).Should(BeEquivalentTo("[eb-java eb-db eb-uideployer eb-ui-conf-eb eb-ui-conf-extensionfunction eb-ui-conf-movementcategory eb-ui-conf-stockledgercharacteristic eb-ui-conf-taxrate eb-ui-conf-taxwarehouse eb-ui-md-materialmaster eb-ui-md-shiptomaster eb-ui-stockledgerlineitem eb-ui-stockledgerlineitem-alp eb-ui-stockledgerprocessingerror eb-approuter eb-ftp-content eb-sb eb-msahaa]" + "\n"))
 		})
 
 	})
