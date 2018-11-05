@@ -49,7 +49,7 @@ var _ = Describe("Provide", func() {
 	It("Invalid command call", func() {
 		out := executeAndProvideOutput(func() {
 			pSourceFlag = ""
-			pModuleCmd.Run(nil, []string{})
+			pModuleCmd.RunE(nil, []string{})
 		})
 		Ω(out).Should(BeEmpty())
 	})

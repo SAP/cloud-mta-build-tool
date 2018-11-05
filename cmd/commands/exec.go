@@ -30,7 +30,7 @@ var pBuildModuleName string
 var pValidationFlag string
 
 func init() {
-	//set source and target path flags of commands
+	// set source and target path flags of commands
 	setEndpointsFlags(*genMtadCmd, *genMetaCmd, *genMtarCmd, *packCmd, *bModuleCmd, *cleanupCmd)
 
 	// set module flags of module related commands
@@ -55,9 +55,12 @@ var bModuleCmd = &cobra.Command{
 	Short: "Build module",
 	Long:  "Build specific module according to the module name",
 	Args:  cobra.NoArgs,
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		err := buildModule(GetEndPoints(), pBuildModuleName)
-		LogError(err)
+		if err != nil {
+			return err
+		}
+		return nil
 	},
 }
 
@@ -334,3 +337,4 @@ func cmdConverter(mPath string, cmdList []string) [][]string {
 	}
 	return cmd
 }
+
