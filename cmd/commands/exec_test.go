@@ -207,7 +207,7 @@ builders:
 			pBuildModuleName = "node-js"
 			pSourceFlag = getTestPath("mta")
 			ep := dir.EndPoints{SourcePath: pSourceFlag, TargetPath: pTargetFlag}
-			bModuleCmd.Run(nil, []string{})
+			bModuleCmd.RunE(nil, []string{})
 			Ω(ep.GetTargetModuleZipPath(pBuildModuleName)).Should(BeAnExistingFile())
 		})
 	})

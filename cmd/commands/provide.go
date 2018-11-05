@@ -17,10 +17,15 @@ var pModuleCmd = &cobra.Command{
 	Use:   "modules",
 	Short: "Provide list of modules",
 	Long:  "Provide list of modules",
-	Run: func(cmd *cobra.Command, args []string) {
+	Args:  cobra.NoArgs,
+	RunE: func(cmd *cobra.Command, args []string) error {
 		err := provideModules(GetEndPoints())
-		LogError(err)
+		if err != nil {
+			return err
+		}
+		return nil
 	},
+	SilenceUsage: true,
 }
 
 func provideModules(ep dir.EndPoints) error {
