@@ -40,7 +40,7 @@ var _ = Describe("CloudMtaBuildTool", func() {
 				fmt.Println(err)
 			}
 			Ω(cmdOut).ShouldNot(BeNil())
-			Ω(cmdOut).Should(BeEquivalentTo("[eb-java eb-db eb-ui-conf-eb eb-ui-conf-extensionfunction eb-ui-conf-movementcategory eb-ui-conf-stockledgercharacteristic eb-ui-conf-taxrate eb-ui-conf-taxwarehouse eb-ui-md-materialmaster eb-ui-md-shiptomaster eb-ui-stockledgerlineitem eb-ui-stockledgerlineitem-alp eb-ui-stockledgerprocessingerror eb-approuter eb-ftp-content eb-sb eb-msahaa] eb-uideployer" + "\n"))
+			Ω(cmdOut).Should(BeEquivalentTo("[eb-java eb-db eb-ui-conf-eb eb-ui-conf-extensionfunction eb-ui-conf-movementcategory eb-ui-conf-stockledgercharacteristic eb-ui-conf-taxrate eb-ui-conf-taxwarehouse eb-ui-md-materialmaster eb-ui-md-shiptomaster eb-ui-stockledgerlineitem eb-ui-stockledgerlineitem-alp eb-ui-stockledgerprocessingerror eb-approuter eb-ftp-content eb-sb eb-msahaa eb-uideployer]" + "\n"))
 		})
 
 		It("Command name error", func() {
