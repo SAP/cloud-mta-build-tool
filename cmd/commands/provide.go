@@ -20,10 +20,7 @@ var pModuleCmd = &cobra.Command{
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		err := provideModules(GetEndPoints())
-		if err != nil {
-			return err
-		}
-		return nil
+		return err
 	},
 	SilenceUsage: true,
 }
