@@ -2,8 +2,10 @@ package mta
 
 import (
 	"fmt"
-	"gopkg.in/yaml.v2"
 	"io/ioutil"
+
+	"github.com/pkg/errors"
+	"gopkg.in/yaml.v2"
 
 	fs "cloud-mta-build-tool/internal/fsys"
 	"cloud-mta-build-tool/validations"
@@ -110,7 +112,7 @@ func (mta *MTA) Parse(yamlContent []byte) (err error) {
 	// Format the YAML to struct's
 	err = yaml.Unmarshal([]byte(yamlContent), &mta)
 	if err != nil {
-		return fmt.Errorf("not able to parse the mta content : %s", err.Error())
+		return errors.Wrap(err, "not able to parse the mta content : %s")
 	}
 	return nil
 }
@@ -130,7 +132,7 @@ func ReadMtaYaml(ep fs.EndPoints) ([]byte, error) {
 	// Read MTA file
 	yamlFile, err := ioutil.ReadFile(fileFullPath)
 	if err != nil {
-		err = fmt.Errorf("not able to read the mta file : %s", err.Error())
+		err = errors.Wrap(err, "not able to read the mta file", )
 	}
 	return yamlFile, err
 }
@@ -203,3 +205,4 @@ func Validate(yamlContent []byte, projectPath string, validateSchema bool, valid
 
 	return issues
 }
+
