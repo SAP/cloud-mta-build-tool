@@ -20,6 +20,7 @@ type EndPoints struct {
 // If not provided - current directory
 func (ep EndPoints) GetSource() string {
 	if ep.SourcePath == "" {
+		// TODO handle error
 		p, _ := os.Getwd()
 		return p
 	} else {

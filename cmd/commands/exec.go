@@ -295,6 +295,12 @@ func getModuleRelativePathAndCommands(ep fs.EndPoints, module string) (string, [
 func buildModule(ep fs.EndPoints, module string) error {
 
 	logs.Logger.Info("Start building module: ", module)
+
+	err := processRequirements(ep, module)
+	if err != nil {
+		return err
+	}
+
 	// Get module respective command's to execute
 	moduleRelPath, mCmd, err := getModuleRelativePathAndCommands(ep, module)
 	if err != nil {
@@ -338,3 +344,22 @@ func cmdConverter(mPath string, cmdList []string) [][]string {
 	return cmd
 }
 
+func processRequirements(ep fs.EndPoints, moduleName string) error {
+	mtaObj, err := mta.ReadMta(ep)
+	if err != nil {
+		return err
+	}
+	module, err := mtaObj.GetModuleByName(moduleName)
+	if err != nil {
+		return err
+	}
+	if module.Requires != nil {
+		for _, req := range module.BuildParams.Requires {
+			err := req.ProcessRequirements(ep, *mtaObj, module.Name)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}

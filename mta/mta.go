@@ -93,6 +93,7 @@ type Requires struct {
 // BuildRequires - build requires section
 type BuildRequires struct {
 	Name       string `yaml:"name,omitempty"`
+	Artifacts  string `yaml:"artifacts,omitempty"`
 	TargetPath string `yaml:"target-path,omitempty"`
 }
 
@@ -132,7 +133,7 @@ func ReadMtaYaml(ep fs.EndPoints) ([]byte, error) {
 	// Read MTA file
 	yamlFile, err := ioutil.ReadFile(fileFullPath)
 	if err != nil {
-		err = errors.Wrap(err, "not able to read the mta file", )
+		err = errors.Wrap(err, "not able to read the mta file")
 	}
 	return yamlFile, err
 }
@@ -177,8 +178,8 @@ func modules(mta *MTA) []string {
 }
 
 // GetModulesNames - get list of modules names
-func (mta *MTA) GetModulesNames() []string {
-	return modules(mta)
+func (mta *MTA) GetModulesNames() ([]string, error) {
+	return mta.GetModulesOrder()
 }
 
 // Validate validate mta schema
@@ -205,4 +206,3 @@ func Validate(yamlContent []byte, projectPath string, validateSchema bool, valid
 
 	return issues
 }
-

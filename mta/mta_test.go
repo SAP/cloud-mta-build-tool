@@ -45,6 +45,22 @@ var _ = Describe("MTA tests", func() {
 		})
 	})
 
+	var _ = Describe("GetModulesNames", func() {
+		It("Sanity", func() {
+			mta := &MTA{
+				Modules: []*Modules{
+					{
+						Name: "someproj-db",
+					},
+					{
+						Name: "someproj-java",
+					},
+				},
+			}
+			Ω(mta.GetModulesNames()).Should(Equal([]string{"someproj-db", "someproj-java"}))
+		})
+	})
+
 })
 
 // Table driven test
@@ -463,108 +479,6 @@ func TestMTA_GetModules(t *testing.T) {
 			got := mta.GetModules()
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("MTA.GetModules() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
-func TestMTA_GetModulesNames(t *testing.T) {
-	type fields struct {
-		SchemaVersion *string
-		Id            string
-		Version       string
-		Modules       []*Modules
-		Resources     []*Resources
-		Parameters    Parameters
-	}
-	tests := []struct {
-		name   string
-		fields fields
-		want   []*Modules
-	}{
-		{
-			name: "GetModules - two Modules",
-			fields: fields{
-				Modules: []*Modules{
-					{
-						Name: "someproj-db",
-						Type: "hdb",
-						Path: "db",
-						Requires: []Requires{
-							{
-								Name: "someproj-hdi-container",
-							},
-							{
-								Name: "someproj-logging",
-							},
-						},
-					},
-					{
-						Name: "someproj-java",
-						Type: "java",
-						Path: "srv",
-						Parameters: Parameters{
-							"memory":     "512M",
-							"disk-quota": "256M",
-						},
-					},
-				},
-				Resources: []*Resources{
-					{
-						Name: "someproj-hdi-container",
-						Properties: Properties{
-							"hdi-container-name": "${service-name}",
-						},
-						Type: "com.sap.xs.hdi-container",
-					},
-				},
-			},
-			want: []*Modules{
-				{
-					Name: "someproj-db",
-					Type: "hdb",
-					Path: "db",
-					Requires: []Requires{
-						{
-							Name: "someproj-hdi-container",
-						},
-						{
-							Name: "someproj-logging",
-						},
-					},
-				},
-				{
-					Name: "someproj-java",
-					Type: "java",
-					Path: "srv",
-					Parameters: Parameters{
-						"memory":     "512M",
-						"disk-quota": "256M",
-					},
-				},
-			},
-		}, {
-			name:   "GetModules - Empty list",
-			fields: fields{},
-			want:   nil,
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			mta := &MTA{
-				SchemaVersion: tt.fields.SchemaVersion,
-				Id:            tt.fields.Id,
-				Version:       tt.fields.Version,
-				Modules:       tt.fields.Modules,
-				Resources:     tt.fields.Resources,
-				Parameters:    tt.fields.Parameters,
-			}
-			got := mta.GetModulesNames()
-			for i, elem := range mta.Modules {
-				if got[i] != elem.Name {
-					t.Errorf("MTA.GetModulesNames[%d]() = %v, expected %v", i, got[i], elem.Name)
-				}
 			}
 		})
 	}
