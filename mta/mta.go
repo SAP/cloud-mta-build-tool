@@ -2,61 +2,89 @@ package mta
 
 import (
 	"fmt"
+	"gopkg.in/yaml.v2"
 	"io/ioutil"
 
 	fs "cloud-mta-build-tool/internal/fsys"
-	"gopkg.in/yaml.v2"
-
 	"cloud-mta-build-tool/validations"
 )
 
-// MTA - Main mta struct
+// Todo 1. Provide interface to support multiple mta schema (2.1 / 3.1 ) versions and concrete struct type
+// Todo 2. Add missing properties
+// MTA struct
 type MTA struct {
-	SchemaVersion *string      `yaml:"_schema-version"`
-	Id            string       `yaml:"ID"`
-	Version       string       `yaml:"version,omitempty"`
-	Modules       []*Modules   `yaml:"modules,omitempty"`
-	Resources     []*Resources `yaml:"resources,omitempty"`
-	Parameters    Parameters   `yaml:"parameters,omitempty"`
+	// indicate MTA schema version, using semantic versioning standard
+	SchemaVersion *string `yaml:"_schema-version"`
+	// A globally unique ID of this MTA. Unlimited string of unicode characters.
+	Id string `yaml:"ID"`
+	// A non-translatable description of this MTA. This is not a text for application users
+	description string `yaml:"description,omitempty"`
+	// Application version, using semantic versioning standard
+	Version string `yaml:"version,omitempty"`
+	// The provider or vendor of this software
+	provider string `yaml:"provider,omitempty"`
+	// A copyright statement from the provider
+	copyright string `yaml:"copyright,omitempty"`
+	// list of modules
+	Modules []*Modules `yaml:"modules,omitempty"`
+	// Resource declarations. Resources can be anything required to run the application which is not provided by the application itself.
+	Resources []*Resources `yaml:"resources,omitempty"`
+	// Parameters can be used to steer the behavior of tools which interpret this descriptor.
+	Parameters Parameters `yaml:"parameters,omitempty"`
 }
 
-// BuildParameters - build params
+// Build-parameters are specifically steering the behavior of build tools.
 type BuildParameters struct {
-	Builder  string          `yaml:"builder,omitempty"`
-	Type     string          `yaml:"type,omitempty"`
-	Path     string          `yaml:"path,omitempty"`
+	// Builder name
+	Builder string `yaml:"builder,omitempty"`
+	// Builder type
+	Type string `yaml:"type,omitempty"`
+	// A path pointing to a file which contains a map of parameters, either in JSON or in YAML format.
+	Path string `yaml:"path,omitempty"`
+	// list of names either matching a resource name or a name provided by another module within the same MTA
 	Requires []BuildRequires `yaml:"requires,omitempty"`
 }
 
 // Modules - MTA modules
 type Modules struct {
-	Name        string
-	Type        string
-	Path        string          `yaml:"path,omitempty"`
-	Requires    []Requires      `yaml:"requires,omitempty"`
-	Provides    []Provides      `yaml:"provides,omitempty"`
-	Parameters  Parameters      `yaml:"parameters,omitempty"`
+	// An MTA internal module name. Names need to be unique within the MTA scope
+	Name string
+	// a globally unique type ID. Deployment tools will interpret this type ID
+	Type string
+	// A file path which identifies the location of module artifacts.
+	Path string `yaml:"path,omitempty"`
+	// list of names either matching a resource name or a name provided by another module within the same MTA
+	Requires []Requires `yaml:"requires,omitempty"`
+	// List of provided names (MTA internal)to which properties (= configuration data) can be attached
+	Provides []Provides `yaml:"provides,omitempty"`
+	// Parameters can be used to steer the behavior of tools which interpret this descriptor. Parameters are not made available to the module at runtime
+	Parameters Parameters `yaml:"parameters,omitempty"`
+	// Build-parameters are specifically steering the behavior of build tools.
 	BuildParams BuildParameters `yaml:"build-parameters,omitempty"`
-	Properties  Properties      `yaml:"properties,omitempty"`
+	// Provided property values can be accessed by "~{<name-of-provides-section>/<provided-property-name>}". Such expressions can be part of an arbitrary string
+	Properties Properties `yaml:"properties,omitempty"`
 }
 
-// Properties - MTA map
+// Properties - properties map
 type Properties map[string]interface{}
 
-// Parameters - MTA parameters
+// Parameters - parameters map
 type Parameters map[string]interface{}
 
-// Provides - MTA struct
+// Provides section
 type Provides struct {
 	Name       string
 	Properties Properties `yaml:"properties,omitempty"`
 }
 
-// Requires / Mta struct
+// list of names either matching a resource name or a name provided by another module within the same MTA
 type Requires struct {
-	Name       string     `yaml:"name,omitempty"`
-	Group      string     `yaml:"group,omitempty"`
-	Type       string     `yaml:"type,omitempty"`
+	// an MTA internal name which must match either a provided name, a resource name, or a module name within the same MTA
+	Name string `yaml:"name,omitempty"`
+	// A group name which shall be use by a deployer to group properties for lookup by a module runtime.
+	Group string `yaml:"group,omitempty"`
+	Type  string `yaml:"type,omitempty"`
+	// Provided property values can be accessed by "~{<provided-property-name>}". Such expressions can be part of an arbitrary string
 	Properties Properties `yaml:"properties,omitempty"`
 }
 
@@ -66,11 +94,14 @@ type BuildRequires struct {
 	TargetPath string `yaml:"target-path,omitempty"`
 }
 
-// Resources - resources section
+// Resource declarations. Resources can be anything required to run the application which is not provided by the application itself.
 type Resources struct {
-	Name       string
-	Type       string
+	Name string
+	// A type of a resource. This type is interpreted by and must be known to the deployer. Resources can be untyped
+	Type string
+	// Parameters can be used to influence the behavior of tools which interpret this descriptor. Parameters are not made available to requiring modules at runtime
 	Parameters Parameters `yaml:"parameters,omitempty"`
+	// property names and values make up the configuration data which is to be provided to requiring modules at runtime
 	Properties Properties `yaml:"properties,omitempty"`
 }
 
@@ -84,7 +115,7 @@ func (mta *MTA) Parse(yamlContent []byte) (err error) {
 	return nil
 }
 
-// Marshal - usage for edit purpose
+// Marshal - edit mta object structure
 func Marshal(in MTA) (mtads []byte, err error) {
 	mtads, err = yaml.Marshal(&in)
 	if err != nil {
@@ -148,7 +179,7 @@ func (mta *MTA) GetModulesNames() []string {
 	return modules(mta)
 }
 
-// Validate schema
+// Validate validate mta schema
 func Validate(yamlContent []byte, projectPath string, validateSchema bool, validateProject bool) mta_validate.YamlValidationIssues {
 	issues := []mta_validate.YamlValidationIssue{}
 	if validateSchema {
