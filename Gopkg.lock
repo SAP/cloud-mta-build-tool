@@ -383,6 +383,7 @@
     "github.com/onsi/ginkgo",
     "github.com/onsi/ginkgo/extensions/table",
     "github.com/onsi/gomega",
+    "github.com/onsi/gomega/types",
     "github.com/pkg/errors",
     "github.com/sirupsen/logrus",
     "github.com/smallfish/simpleyaml",
