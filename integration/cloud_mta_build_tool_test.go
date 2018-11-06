@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"path/filepath"
 	"strings"
 
 	. "github.com/onsi/ginkgo"
@@ -33,29 +32,28 @@ var _ = Describe("CloudMtaBuildTool", func() {
 
 		It("Getting module", func() {
 			dir, _ := os.Getwd()
-			path := filepath.Join(dir, "testdata")
+			path := dir + "/testdata/"
 			args := "provide modules"
-			bin := filepath.Join(".", "mbt")
+			bin := "./mbt"
 			cmdOut, err := execute(bin, args, path)
 			if len(err) > 0 {
 				fmt.Println(err)
 			}
 			Ω(cmdOut).ShouldNot(BeNil())
-			Ω(cmdOut).Should(BeEquivalentTo("[eb-java eb-db eb-uideployer eb-ui-conf-eb eb-ui-conf-extensionfunction eb-ui-conf-movementcategory eb-ui-conf-stockledgercharacteristic eb-ui-conf-taxrate eb-ui-conf-taxwarehouse eb-ui-md-materialmaster eb-ui-md-shiptomaster eb-ui-stockledgerlineitem eb-ui-stockledgerlineitem-alp eb-ui-stockledgerprocessingerror eb-approuter eb-ftp-content eb-sb eb-msahaa]" + "\n"))
+			Ω(cmdOut).Should(BeEquivalentTo("[eb-java eb-db eb-ui-conf-eb eb-ui-conf-extensionfunction eb-ui-conf-movementcategory eb-ui-conf-stockledgercharacteristic eb-ui-conf-taxrate eb-ui-conf-taxwarehouse eb-ui-md-materialmaster eb-ui-md-shiptomaster eb-ui-stockledgerlineitem eb-ui-stockledgerlineitem-alp eb-ui-stockledgerprocessingerror eb-approuter eb-ftp-content eb-sb eb-msahaa] eb-uideployer" + "\n"))
 		})
 
 		It("Command name error", func() {
 			dir, _ := os.Getwd()
-			path := filepath.Join(dir, "testdata")
+			path := dir + "/testdata/"
 			args := "provide modules 2"
-			bin := filepath.Join(".", "mbt")
-			//cmdOut, err := execute(bin, args, path)
-			_, err := execute(bin, args, path)
+			bin := "./mbt"
+			cmdOut, err := execute(bin, args, path)
 			if len(err) > 0 {
 				fmt.Println(err)
 			}
-			//Ω(err).ShouldNot(BeNil())
-			//Ω(cmdOut).Should(BeEmpty())
+			Ω(err).ShouldNot(BeNil())
+			Ω(cmdOut).Should(BeEmpty())
 		})
 
 	})
