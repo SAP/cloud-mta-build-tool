@@ -128,7 +128,7 @@ func Marshal(in MTA) (mtads []byte, err error) {
 }
 
 // Read MTA Yaml file
-func ReadMtaYaml(ep fs.EndPoints) ([]byte, error) {
+func ReadMtaYaml(ep fs.MtaLocationParameters) ([]byte, error) {
 	fileFullPath := ep.GetMtaYamlPath()
 	// Read MTA file
 	yamlFile, err := ioutil.ReadFile(fileFullPath)

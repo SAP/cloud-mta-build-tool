@@ -7,7 +7,7 @@ import (
 
 // ReadMta reads the MTA file according to it's name and path
 // returns a reference to the MTA object
-func ReadMta(ep dir.EndPoints) (*MTA, error) {
+func ReadMta(ep dir.MtaLocationParameters) (*MTA, error) {
 	var mta *MTA
 	yamlContent, err := ReadMtaContent(ep)
 	// Read MTA file
@@ -19,7 +19,7 @@ func ReadMta(ep dir.EndPoints) (*MTA, error) {
 
 // ReadMtaContent reads the MTA file according to it's name and path
 // returns a []byte object represents the content of the MTA file
-func ReadMtaContent(ep dir.EndPoints) ([]byte, error) {
+func ReadMtaContent(ep dir.MtaLocationParameters) ([]byte, error) {
 	yamlContent, err := ReadMtaYaml(ep)
 	// Read MTA file
 	if err != nil {

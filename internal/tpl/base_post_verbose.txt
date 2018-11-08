@@ -1,11 +1,11 @@
 {{define "base_post"}}
 # Create META-INF folder with MANIFEST.MF & mtad.yaml
 meta:
-{{"\t"}}@mbt execute meta
+{{"\t"}}@mbt execute meta -d={{.Dep}}
 
 # Pack as MTAR artifact
 mtar: $(modules) meta
-{{"\t"}}@mbt execute mtar
+{{"\t"}}@mbt execute mtar -d={{.Dep}}
 
 cleanup: mtar
 # Remove tmp folder

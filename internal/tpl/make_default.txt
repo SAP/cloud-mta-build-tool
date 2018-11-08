@@ -1,10 +1,10 @@
 {{template "base_pre" .}}
-modules := $(shell mbt provide modules)
+modules := $(shell mbt provide modules -d={{.Dep}})
 modules := $(subst ],,$(subst [,,$(modules)))
 
 ##Execute module build
 execute:
 {{"\t"}}@for module in $(modules) ; do \
-{{"\t"}} mbt execute module -m=$$module ; \
+{{"\t"}} mbt execute module -m=$$module -d={{.Dep}}; \
 {{"\t"}}done
 {{template "base_post" .}}

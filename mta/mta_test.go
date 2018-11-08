@@ -24,13 +24,13 @@ var _ = Describe("MTA tests", func() {
 
 	var _ = Describe("Validation", func() {
 		It("Validate All", func() {
-			ep := dir.EndPoints{SourcePath: getTestPath("testproject")}
+			ep := dir.MtaLocationParameters{SourcePath: getTestPath("testproject")}
 			yamlContent, _ := ReadMtaContent(ep)
 			issues := Validate(yamlContent, ep.GetSource(), true, true)
 			Ω(len(issues)).Should(Equal(1))
 		})
 		It("Validate Schema", func() {
-			ep := dir.EndPoints{SourcePath: getTestPath(), MtaFilename: "mta_multiapps.yaml"}
+			ep := dir.MtaLocationParameters{SourcePath: getTestPath(), MtaFilename: "mta_multiapps.yaml"}
 			yamlContent, _ := ReadMtaContent(ep)
 			issues := Validate(yamlContent, ep.GetSource(), true, false)
 			Ω(len(issues)).Should(Equal(0))
@@ -39,7 +39,7 @@ var _ = Describe("MTA tests", func() {
 
 	var _ = Describe("ReadMtaYaml", func() {
 		It("Sanity", func() {
-			res, resErr := ReadMtaYaml(dir.EndPoints{SourcePath: getTestPath("testproject")})
+			res, resErr := ReadMtaYaml(dir.MtaLocationParameters{SourcePath: getTestPath("testproject")})
 			Ω(res).ShouldNot(BeNil())
 			Ω(resErr).Should(BeNil())
 		})

@@ -2,10 +2,11 @@ package commands
 
 import (
 	"fmt"
-	"github.com/pkg/errors"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/pkg/errors"
 
 	"cloud-mta-build-tool/internal/builders"
 	"cloud-mta-build-tool/internal/exec"
@@ -23,30 +24,64 @@ const (
 	mtarSuffix = ".mtar"
 )
 
-var pSourceFlag string
-var pTargetFlag string
+var sourceMtadFlag string
+var targetMtadFlag string
+var sourceMetaFlag string
+var targetMetaFlag string
+var sourceMtarFlag string
+var targetMtarFlag string
+var sourcePackFlag string
+var targetPackFlag string
+var sourceBModuleFlag string
+var targetBModuleFlag string
+var sourceCleanupFlag string
+var targetCleanupFlag string
+var sourceValidateFlag string
+
 var pPackModuleFlag string
-var pBuildModuleName string
+var pBuildModuleNameFlag string
 var pValidationFlag string
 
+var descriptorMtadFlag string
+var descriptorMtarFlag string
+var descriptorMetaFlag string
+var descriptorPackFlag string
+var descriptorBModuleFlag string
+var descriptorCleanupFlag string
+var descriptorValidateFlag string
+
 func init() {
+
 	// set source and target path flags of commands
-	setEndpointsFlags(*genMtadCmd, *genMetaCmd, *genMtarCmd, *packCmd, *bModuleCmd, *cleanupCmd)
+	genMtadCmd.Flags().StringVarP(&sourceMtadFlag, "source", "s", "", "Provide MTA source ")
+	genMtadCmd.Flags().StringVarP(&targetMtadFlag, "target", "t", "", "Provide MTA target ")
+	genMetaCmd.Flags().StringVarP(&sourceMetaFlag, "source", "s", "", "Provide MTA source ")
+	genMetaCmd.Flags().StringVarP(&targetMetaFlag, "target", "t", "", "Provide MTA target ")
+	genMtarCmd.Flags().StringVarP(&sourceMtarFlag, "source", "s", "", "Provide MTA source ")
+	genMtarCmd.Flags().StringVarP(&targetMtarFlag, "target", "t", "", "Provide MTA target ")
+	packCmd.Flags().StringVarP(&sourcePackFlag, "source", "s", "", "Provide MTA source ")
+	packCmd.Flags().StringVarP(&targetPackFlag, "target", "t", "", "Provide MTA target ")
+	bModuleCmd.Flags().StringVarP(&sourceBModuleFlag, "source", "s", "", "Provide MTA source ")
+	bModuleCmd.Flags().StringVarP(&targetBModuleFlag, "target", "t", "", "Provide MTA target ")
+	cleanupCmd.Flags().StringVarP(&sourceCleanupFlag, "source", "s", "", "Provide MTA source ")
+	cleanupCmd.Flags().StringVarP(&targetCleanupFlag, "target", "t", "", "Provide MTA target ")
+	validateCmd.Flags().StringVarP(&sourceValidateFlag, "source", "s", "", "Provide MTA source  ")
 
 	// set module flags of module related commands
 	packCmd.Flags().StringVarP(&pPackModuleFlag, "module", "m", "", "Provide Module name ")
-	bModuleCmd.Flags().StringVarP(&pBuildModuleName, "module", "m", "", "Provide Module name ")
+	bModuleCmd.Flags().StringVarP(&pBuildModuleNameFlag, "module", "m", "", "Provide Module name ")
 
 	// set flags of validation command
 	validateCmd.Flags().StringVarP(&pValidationFlag, "mode", "m", "", "Provide Validation mode ")
-	validateCmd.Flags().StringVarP(&pSourceFlag, "source", "s", "", "Provide MTA source  ")
-}
 
-func setEndpointsFlags(commands ...cobra.Command) {
-	for _, cmd := range commands {
-		cmd.Flags().StringVarP(&pSourceFlag, "source", "s", "", "Provide MTA source ")
-		cmd.Flags().StringVarP(&pTargetFlag, "target", "t", "", "Provide MTA target ")
-	}
+	// set mta descriptor flag of commands
+	genMtadCmd.Flags().StringVarP(&descriptorMtadFlag, "desc", "d", "", "Descriptor MTA - dev/dep")
+	genMetaCmd.Flags().StringVarP(&descriptorMetaFlag, "desc", "d", "", "Descriptor MTA - dev/dep")
+	genMtarCmd.Flags().StringVarP(&descriptorMtarFlag, "desc", "d", "", "Descriptor MTA - dev/dep")
+	packCmd.Flags().StringVarP(&descriptorPackFlag, "desc", "d", "", "Descriptor MTA - dev/dep")
+	bModuleCmd.Flags().StringVarP(&descriptorBModuleFlag, "desc", "d", "", "Descriptor MTA - dev/dep")
+	cleanupCmd.Flags().StringVarP(&descriptorCleanupFlag, "desc", "d", "", "Descriptor MTA - dev/dep")
+	validateCmd.Flags().StringVarP(&descriptorValidateFlag, "desc", "d", "", "Descriptor MTA - dev/dep")
 }
 
 // Build module
@@ -56,11 +91,11 @@ var bModuleCmd = &cobra.Command{
 	Long:  "Build specific module according to the module name",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		err := buildModule(GetEndPoints(), pBuildModuleName)
-		if err != nil {
-			return err
+		err := fs.ValidateDeploymentDescriptor(descriptorBModuleFlag)
+		if err == nil {
+			err = buildModule(GetEndPoints(sourceBModuleFlag, targetBModuleFlag, descriptorBModuleFlag), pBuildModuleNameFlag)
 		}
-		return nil
+		return err
 	},
 }
 
@@ -74,7 +109,7 @@ var packCmd = &cobra.Command{
 	Long:  "pack the module artifacts after the build process",
 	Args:  cobra.NoArgs,
 	Run: func(cmd *cobra.Command, args []string) {
-		ep := GetEndPoints()
+		ep := GetEndPoints(sourcePackFlag, targetPackFlag, descriptorPackFlag)
 		modulePath, _, err := getModuleRelativePathAndCommands(ep, pPackModuleFlag)
 		if err == nil {
 			err = packModule(ep, modulePath, pPackModuleFlag)
@@ -90,8 +125,11 @@ var genMetaCmd = &cobra.Command{
 	Long:  "generate META-INF folder with all the required data",
 	Args:  cobra.NoArgs,
 	Run: func(cmd *cobra.Command, args []string) {
-		err := generateMeta(GetEndPoints())
-		LogError(err)
+		err := fs.ValidateDeploymentDescriptor(descriptorMetaFlag)
+		if err == nil {
+			err = generateMeta(GetEndPoints(sourceMetaFlag, targetMetaFlag, descriptorMetaFlag))
+		}
+		LogErrorExt(err, "META generation failed")
 	},
 }
 
@@ -102,8 +140,11 @@ var genMtarCmd = &cobra.Command{
 	Long:  "generate MTAR from the project build artifacts",
 	Args:  cobra.NoArgs,
 	Run: func(cmd *cobra.Command, args []string) {
-		err := generateMtar(GetEndPoints())
-		LogError(err)
+		err := fs.ValidateDeploymentDescriptor(descriptorMtarFlag)
+		if err == nil {
+			err = generateMtar(GetEndPoints(sourceMtarFlag, targetMtarFlag, descriptorMtarFlag))
+		}
+		LogErrorExt(err, "MTAR generation failed")
 	},
 }
 
@@ -114,14 +155,20 @@ var genMtadCmd = &cobra.Command{
 	Long:  "Provide deployment descriptor (mtad.yaml) from development descriptor (mta.yaml)",
 	Args:  cobra.NoArgs,
 	Run: func(cmd *cobra.Command, args []string) {
-		ep := GetEndPoints()
+		err := fs.ValidateDeploymentDescriptor(descriptorMtadFlag)
+		if err != nil {
+			LogErrorExt(err, "MTAD generation failed")
+			return
+		}
+		ep := GetEndPoints(sourceMtadFlag, targetMtadFlag, descriptorMtadFlag)
+		// TODO if descriptor == "dep" -> Copy mtad
 		mtaStr, err := mta.ReadMta(ep)
 		if err == nil {
 			err = mta.GenMtad(*mtaStr, ep, func(mtaStr mta.MTA) {
 				convertTypes(mtaStr)
 			})
 		}
-		LogError(err)
+		LogErrorExt(err, "MTAD generation failed")
 	},
 }
 
@@ -132,11 +179,16 @@ var validateCmd = &cobra.Command{
 	Long:  "MBT validation process",
 	Args:  cobra.NoArgs,
 	Run: func(cmd *cobra.Command, args []string) {
+		err := fs.ValidateDeploymentDescriptor(descriptorValidateFlag)
+		if err != nil {
+			LogErrorExt(err, "MBT Validation failed")
+			return
+		}
 		validateSchema, validateProject, err := getValidationMode(pValidationFlag)
 		if err == nil {
-			err = validateMtaYaml(GetEndPoints(), validateSchema, validateProject)
+			err = validateMtaYaml(GetEndPoints(sourceValidateFlag, sourceValidateFlag, descriptorValidateFlag), validateSchema, validateProject)
 		}
-		LogError(err)
+		LogErrorExt(err, "MBT Validation failed")
 	},
 }
 
@@ -149,7 +201,7 @@ var cleanupCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		logs.Logger.Info("Starting Cleanup process")
 		// Remove temp folder
-		ep := GetEndPoints()
+		ep := GetEndPoints(sourceCleanupFlag, targetCleanupFlag, descriptorCleanupFlag)
 		err := os.RemoveAll(ep.GetTargetTmpDir())
 		if err != nil {
 			logs.Logger.Error(err)
@@ -159,12 +211,20 @@ var cleanupCmd = &cobra.Command{
 	},
 }
 
-func GetEndPoints() fs.EndPoints {
-	return fs.EndPoints{SourcePath: pSourceFlag, TargetPath: pTargetFlag}
+func GetEndPoints(sourceFlag, targetFlag, descriptor string) fs.MtaLocationParameters {
+	var mtaFilename string
+	if descriptor == "dev" || descriptor == "" {
+		mtaFilename = "mta.yaml"
+		descriptor = "dev"
+	} else {
+		mtaFilename = "mtad.yaml"
+		descriptor = "dep"
+	}
+	return fs.MtaLocationParameters{SourcePath: sourceFlag, TargetPath: targetFlag, MtaFilename: mtaFilename, Descriptor: descriptor}
 }
 
 // generate build metadata artifacts
-func generateMeta(ep fs.EndPoints) error {
+func generateMeta(ep fs.MtaLocationParameters) error {
 	return processMta("Metadata creation", ep, []string{}, func(file []byte, args []string) error {
 		// Parse MTA file
 		m, err := mta.ParseToMta(file)
@@ -179,7 +239,7 @@ func generateMeta(ep fs.EndPoints) error {
 }
 
 // generate mtar archive from the build artifacts
-func generateMtar(ep fs.EndPoints) error {
+func generateMtar(ep fs.MtaLocationParameters) error {
 	logs.Logger.Info(fmt.Sprintf("Generate MTAR. Project path %v, MTAR path %v", ep.GetSource(), ep.GetTarget()))
 	return processMta("MTAR generation", ep, []string{}, func(file []byte, args []string) error {
 		// read MTA
@@ -206,7 +266,7 @@ func convertTypes(mtaStr mta.MTA) error {
 }
 
 // process mta.yaml file
-func processMta(processName string, ep fs.EndPoints, args []string, process func(file []byte, args []string) error) error {
+func processMta(processName string, ep fs.MtaLocationParameters, args []string, process func(file []byte, args []string) error) error {
 	logs.Logger.Info("Starting " + processName)
 	mf, err := mta.ReadMtaContent(ep)
 	if err == nil {
@@ -221,7 +281,7 @@ func processMta(processName string, ep fs.EndPoints, args []string, process func
 }
 
 // pack build module artifacts
-func packModule(ep fs.EndPoints, modulePath, moduleName string) error {
+func packModule(ep fs.MtaLocationParameters, modulePath, moduleName string) error {
 
 	logs.Logger.Info("Pack Module Starts")
 	// Get module relative path
@@ -258,9 +318,9 @@ func getValidationMode(validationFlag string) (bool, bool, error) {
 }
 
 // Validate MTA yaml
-func validateMtaYaml(ep fs.EndPoints, validateSchema bool, validateProject bool) error {
+func validateMtaYaml(ep fs.MtaLocationParameters, validateSchema bool, validateProject bool) error {
 	if validateProject || validateSchema {
-		logs.Logger.Info("Starting MTA Yaml validation")
+		logs.Logger.Infof("Starting %v validation", ep.MtaFilename)
 
 		// Read MTA yaml content
 		yamlContent, err := mta.ReadMtaContent(ep)
@@ -273,17 +333,18 @@ func validateMtaYaml(ep fs.EndPoints, validateSchema bool, validateProject bool)
 		// validate mta content
 		issues := mta.Validate(yamlContent, projectPath, validateSchema, validateProject)
 		if len(issues) == 0 {
-			logs.Logger.Info("MTA Yaml is valid")
+			logs.Logger.Infof("%v is valid", ep.MtaFilename)
 		} else {
-			return errors.New("MTA Yaml is  invalid. Issues: \n" + issues.String())
+			return errors.New(fmt.Sprintf("%v is invalid. Issues: \n%v", ep.MtaFilename, issues.String()))
 		}
 	}
+
 	return nil
 }
 
 // Get module relative path from mta.yaml and
 // commands (with resolved paths) configured for the module type
-func getModuleRelativePathAndCommands(ep fs.EndPoints, module string) (string, []string, error) {
+func getModuleRelativePathAndCommands(ep fs.MtaLocationParameters, module string) (string, []string, error) {
 	mtaObj, err := mta.ReadMta(ep)
 	if err != nil {
 		return "", nil, err
@@ -292,7 +353,11 @@ func getModuleRelativePathAndCommands(ep fs.EndPoints, module string) (string, [
 	return moduleCmd(*mtaObj, module)
 }
 
-func buildModule(ep fs.EndPoints, module string) error {
+func buildModule(ep fs.MtaLocationParameters, module string) error {
+
+	if ep.IsDeploymentDescriptor() {
+		return nil
+	}
 
 	logs.Logger.Info("Start building module: ", module)
 
@@ -344,7 +409,7 @@ func cmdConverter(mPath string, cmdList []string) [][]string {
 	return cmd
 }
 
-func processRequirements(ep fs.EndPoints, moduleName string) error {
+func processRequirements(ep fs.MtaLocationParameters, moduleName string) error {
 	mtaObj, err := mta.ReadMta(ep)
 	if err != nil {
 		return err

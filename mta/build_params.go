@@ -10,7 +10,7 @@ import (
 )
 
 // ProcessRequirements - Processes build requirement of module (moduleName)
-func (requires BuildRequires) ProcessRequirements(ep dir.EndPoints, mta MTA, moduleName string) error {
+func (requires BuildRequires) ProcessRequirements(ep dir.MtaLocationParameters, mta MTA, moduleName string) error {
 	// validate module names - both in process and required
 	module, err := mta.GetModuleByName(moduleName)
 	if err != nil {
@@ -64,7 +64,7 @@ func CopyRequiredArtifacts(sourcePath, targetPath string, artifacts []string) er
 }
 
 // validateArtifacts - validates list of required artifacts
-func validateArtifacts(ep dir.EndPoints, requiredModule Modules, artifacts []string) error {
+func validateArtifacts(ep dir.MtaLocationParameters, requiredModule Modules, artifacts []string) error {
 	if len(artifacts) == 0 {
 		errors.New("No artifacts defined")
 	}
@@ -84,7 +84,7 @@ func validateArtifacts(ep dir.EndPoints, requiredModule Modules, artifacts []str
 }
 
 // getBuildResultsPath - provides path of build results
-func (module Modules) getBuildResultsPath(ep dir.EndPoints) string {
+func (module Modules) getBuildResultsPath(ep dir.MtaLocationParameters) string {
 	if module.BuildParams.Path == "" {
 		// if no subfolder provided - build results will be saved in the module folder
 		return ep.GetSourceModuleDir(module.Path)
@@ -95,7 +95,7 @@ func (module Modules) getBuildResultsPath(ep dir.EndPoints) string {
 }
 
 // getRequiredTargetPath - provides path of required artifacts
-func (requires BuildRequires) getRequiredTargetPath(ep dir.EndPoints, module *Modules) string {
+func (requires BuildRequires) getRequiredTargetPath(ep dir.MtaLocationParameters, module *Modules) string {
 	if requires.TargetPath == "" {
 		// if no target folder provided - artifacts will be saved in module folder
 		return ep.GetSourceModuleDir(module.Path)

@@ -5,11 +5,16 @@ import (
 
 	"cloud-mta-build-tool/internal/fsys"
 	"cloud-mta-build-tool/mta"
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 )
 
+var sourcePModuleFlag string
+var descriptorPModuleFlag string
+
 func init() {
-	pModuleCmd.Flags().StringVarP(&pSourceFlag, "source", "s", "", "Provide MTA source  ")
+	pModuleCmd.Flags().StringVarP(&sourcePModuleFlag, "source", "s", "", "Provide MTA source  ")
+	pModuleCmd.Flags().StringVarP(&descriptorPModuleFlag, "desc", "d", "", "Descriptor MTA - dev/dep")
 }
 
 // Provide list of modules
@@ -19,13 +24,16 @@ var pModuleCmd = &cobra.Command{
 	Long:  "Provide list of modules",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		err := provideModules(GetEndPoints())
-		return err
+		err := dir.ValidateDeploymentDescriptor(descriptorPModuleFlag)
+		if err == nil {
+			err = provideModules(GetEndPoints(sourceBModuleFlag, targetBModuleFlag, descriptorPModuleFlag))
+		}
+		return errors.Wrap(err, "Modules provider failed")
 	},
 	SilenceUsage: true,
 }
 
-func provideModules(ep dir.EndPoints) error {
+func provideModules(ep dir.MtaLocationParameters) error {
 	// read MTA from mta.yaml
 	mo, err := mta.ReadMta(ep)
 	if err != nil {

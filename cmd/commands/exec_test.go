@@ -20,13 +20,18 @@ import (
 var _ = Describe("Commands", func() {
 
 	BeforeEach(func() {
-		pTargetFlag = getTestPath("result")
+		targetMtadFlag = getTestPath("result")
+		targetMetaFlag = getTestPath("result")
+		targetMtarFlag = getTestPath("result")
+		targetPackFlag = getTestPath("result")
+		targetBModuleFlag = getTestPath("result")
+		targetCleanupFlag = getTestPath("result")
 		logs.Logger = logs.NewLogger()
-		os.Mkdir(pTargetFlag, os.ModePerm)
+		os.Mkdir(targetMtadFlag, os.ModePerm)
 	})
 
 	AfterEach(func() {
-		os.RemoveAll(pTargetFlag)
+		os.RemoveAll(targetMtadFlag)
 	})
 
 	var _ = Describe("Pack and cleanup commands", func() {
@@ -36,8 +41,8 @@ var _ = Describe("Commands", func() {
 			logs.Logger.SetOutput(&str)
 			// Target path has to be dir, but is currently created and opened as file
 			pPackModuleFlag = "ui5app"
-			pSourceFlag = getTestPath("mtahtml5")
-			ep := dir.EndPoints{SourcePath: pSourceFlag, TargetPath: pTargetFlag}
+			sourcePackFlag = getTestPath("mtahtml5")
+			ep := dir.MtaLocationParameters{SourcePath: sourcePackFlag, TargetPath: targetPackFlag}
 			os.MkdirAll(ep.GetTargetTmpDir(), os.ModePerm)
 			f, _ := os.Create(filepath.Join(ep.GetTargetTmpDir(), "ui5app"))
 
@@ -46,6 +51,7 @@ var _ = Describe("Commands", func() {
 
 			f.Close()
 			// cleanup command used for test temp file removal
+			sourceCleanupFlag = sourcePackFlag
 			cleanupCmd.Run(nil, []string{})
 			Ω(ep.GetTargetTmpDir()).ShouldNot(BeADirectory())
 		})
@@ -54,22 +60,23 @@ var _ = Describe("Commands", func() {
 
 	var _ = Describe("Generate commands call", func() {
 
-		var ep dir.EndPoints
-
-		BeforeEach(func() {
-			pSourceFlag = getTestPath("mtahtml5")
-			ep = dir.EndPoints{SourcePath: pSourceFlag, TargetPath: pTargetFlag}
-		})
+		var ep dir.MtaLocationParameters
 
 		It("Generate Meta", func() {
+			sourceMetaFlag = getTestPath("mtahtml5")
+			ep = dir.MtaLocationParameters{SourcePath: sourceMetaFlag, TargetPath: targetMetaFlag}
 			genMetaCmd.Run(nil, []string{})
 			Ω(ep.GetMtadPath()).Should(BeAnExistingFile())
 		})
 		It("Generate Mtad", func() {
+			sourceMtadFlag = getTestPath("mtahtml5")
+			ep = dir.MtaLocationParameters{SourcePath: sourceMtadFlag, TargetPath: targetMtadFlag}
 			genMtadCmd.Run(nil, []string{})
 			Ω(ep.GetMtadPath()).Should(BeAnExistingFile())
 		})
 		It("Generate Mtar", func() {
+			sourceMtarFlag = getTestPath("mtahtml5")
+			ep = dir.MtaLocationParameters{SourcePath: sourceMtarFlag, TargetPath: targetMtarFlag}
 			genMetaCmd.Run(nil, []string{})
 			genMtarCmd.Run(nil, []string{})
 			Ω(getTestPath("result", "mtahtml5.mtar")).Should(BeAnExistingFile())
@@ -79,7 +86,7 @@ var _ = Describe("Commands", func() {
 	var _ = Describe("Validate", func() {
 		It("Invalid yaml path", func() {
 			var str bytes.Buffer
-			pSourceFlag = getTestPath("mta1")
+			sourceValidateFlag = getTestPath("mta1")
 			// navigate log output to local string buffer. It will be used for error analysis
 			logs.Logger.SetOutput(&str)
 			validateCmd.Run(nil, []string{})
@@ -98,13 +105,13 @@ var _ = Describe("Commands", func() {
 		}
 
 		It("Generate Meta", func() {
-			ep := dir.EndPoints{SourcePath: getTestPath("mtahtml5"), TargetPath: pTargetFlag}
+			ep := dir.MtaLocationParameters{SourcePath: getTestPath("mtahtml5"), TargetPath: targetMetaFlag}
 			generateMeta(ep)
 			Ω(readFileContent(ep.GetMtadPath())).Should(Equal(readFileContent(getTestPath("golden", "mtad.yaml"))))
 		})
 
 		It("Generate Mtar", func() {
-			ep := dir.EndPoints{SourcePath: getTestPath("mtahtml5"), TargetPath: pTargetFlag}
+			ep := dir.MtaLocationParameters{SourcePath: getTestPath("mtahtml5"), TargetPath: targetMtarFlag}
 			generateMeta(ep)
 			generateMtar(ep)
 			mtarPath := getTestPath("result", "mtahtml5.mtar")
@@ -114,21 +121,21 @@ var _ = Describe("Commands", func() {
 	})
 
 	var _ = Describe("Pack", func() {
-		DescribeTable("Standard cases", func(projectPath string, validator func(ep dir.EndPoints)) {
-			pSourceFlag = projectPath
-			ep := dir.EndPoints{SourcePath: pSourceFlag, TargetPath: pTargetFlag}
+		DescribeTable("Standard cases", func(projectPath string, validator func(ep dir.MtaLocationParameters)) {
+			sourcePackFlag = projectPath
+			ep := dir.MtaLocationParameters{SourcePath: sourcePackFlag, TargetPath: targetPackFlag}
 			pPackModuleFlag = "ui5app"
 			packCmd.Run(nil, []string{})
 			validator(ep)
 		},
 			Entry("SanityTest",
 				getTestPath("mtahtml5"),
-				func(ep dir.EndPoints) {
+				func(ep dir.MtaLocationParameters) {
 					Ω(ep.GetTargetModuleZipPath("ui5app")).Should(BeAnExistingFile())
 				}),
 			Entry("Wrong path to project",
 				getTestPath("mtahtml6"),
-				func(ep dir.EndPoints) {
+				func(ep dir.MtaLocationParameters) {
 					Ω(ep.GetTargetModuleZipPath("ui5app")).ShouldNot(BeAnExistingFile())
 				}),
 		)
@@ -148,7 +155,7 @@ var _ = Describe("Commands", func() {
 		)
 
 		var _ = DescribeTable("validateMtaYaml", func(projectRelPath string, validateSchema, validateProject, expectedSuccess bool) {
-			ep := dir.EndPoints{SourcePath: getTestPath(projectRelPath)}
+			ep := dir.MtaLocationParameters{SourcePath: getTestPath(projectRelPath)}
 			err := validateMtaYaml(ep, validateSchema, validateProject)
 			Ω(err == nil).Should(Equal(expectedSuccess))
 		},
@@ -167,7 +174,7 @@ var _ = Describe("Build", func() {
 	var _ = Describe("build Module", func() {
 
 		BeforeEach(func() {
-			pTargetFlag = getTestPath("result")
+			targetBModuleFlag = getTestPath("result")
 			// Simplified commands configuration (performance purposes). removed "npm prune --production"
 			builders.CommandsConfig = []byte(`
 builders:
@@ -185,17 +192,17 @@ builders:
 		})
 
 		AfterEach(func() {
-			os.RemoveAll(pTargetFlag)
+			os.RemoveAll(targetBModuleFlag)
 		})
 
 		It("Sanity", func() {
-			ep := dir.EndPoints{SourcePath: getTestPath("mta"), TargetPath: pTargetFlag}
+			ep := dir.MtaLocationParameters{SourcePath: getTestPath("mta"), TargetPath: targetBModuleFlag}
 			Ω(buildModule(ep, "node-js")).Should(Succeed())
 			Ω(ep.GetTargetModuleZipPath("node-js")).Should(BeAnExistingFile())
 		})
 
 		var _ = DescribeTable("Invalid inputs", func(projectName, moduleName string) {
-			ep := dir.EndPoints{SourcePath: getTestPath(projectName), TargetPath: pTargetFlag}
+			ep := dir.MtaLocationParameters{SourcePath: getTestPath(projectName), TargetPath: targetBModuleFlag}
 			Ω(buildModule(ep, moduleName)).Should(HaveOccurred())
 			Ω(ep.GetTargetTmpDir()).ShouldNot(BeADirectory())
 		},
@@ -204,11 +211,11 @@ builders:
 		)
 
 		It("build Command", func() {
-			pBuildModuleName = "node-js"
-			pSourceFlag = getTestPath("mta")
-			ep := dir.EndPoints{SourcePath: pSourceFlag, TargetPath: pTargetFlag}
+			pBuildModuleNameFlag = "node-js"
+			sourceBModuleFlag = getTestPath("mta")
+			ep := dir.MtaLocationParameters{SourcePath: sourceBModuleFlag, TargetPath: targetBModuleFlag}
 			bModuleCmd.RunE(nil, []string{})
-			Ω(ep.GetTargetModuleZipPath(pBuildModuleName)).Should(BeAnExistingFile())
+			Ω(ep.GetTargetModuleZipPath(pBuildModuleNameFlag)).Should(BeAnExistingFile())
 		})
 	})
 

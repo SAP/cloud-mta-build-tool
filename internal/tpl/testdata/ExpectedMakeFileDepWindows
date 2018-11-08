@@ -1,24 +1,32 @@
-{{define "base_pre"}}
-version={{Version.MakeFile}}
+version=0.0.0
 # Create folder for build artifacts
 DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 BASE := $(notdir $(patsubst %/,%,$(DIR)))
 MTR_DIR := $(DIR)$(BASE)
 # Determine OS cores
-{{- range OsCore }}
-{{ .NPROCS  }}
-{{ .MAKEFLAGS  }}
-{{- end}}
+    NPROCS = $(shell echo %NUMBER_OF_PROCESSORS%)
+    MAKEFLAGS += -j$(NPROCS)
 # List of all the recipes to be executed during the build process
-.PHONY: {{- range .File.Modules}} {{.Name}}{{end}} meta mtar cleanup
+.PHONY: ui meta mtar cleanup
 # Default target compile all
-all: tdir validate {{- range .File.Modules}} {{.Name}}{{end}} meta mtar cleanup
+all: tdir validate ui meta mtar cleanup
 # Create folder for build artifacts
 tdir:
-{{"\t"}}@mkdir -p "$(MTR_DIR)"
+	@mkdir -p "$(MTR_DIR)"
 # Validate mta.yaml
 validate:
-{{"\t"}}@mbt execute validate -d={{.Dep}}
+	@mbt execute validate -d=dep
 # Set the current project repository path for general mta process
   PROJ_DIR := $(CURDIR)
-{{end}}
+
+# Create META-INF folder with MANIFEST.MF & mtad.yaml
+meta:
+	@mbt execute meta -d=dep
+
+# Pack as MTAR artifact
+mtar: $(modules) meta
+	@mbt execute mtar -d=dep
+
+cleanup: mtar
+# Remove tmp folder
+	@mbt execute cleanup

@@ -1,13 +1,14 @@
 package tpl
 
 import (
-	"cloud-mta-build-tool/internal/version"
 	"fmt"
-	"github.com/pkg/errors"
 	"os"
 	"path/filepath"
 	"runtime"
 	"text/template"
+
+	"cloud-mta-build-tool/internal/version"
+	"github.com/pkg/errors"
 
 	"cloud-mta-build-tool/internal/logs"
 	"cloud-mta-build-tool/mta"
@@ -25,6 +26,7 @@ const (
 	basePostDefault = "base_post_default.txt"
 	makeDefaultTpl  = "make_default.txt"
 	makeVerboseTpl  = "make_verbose.txt"
+	makeDeployTpl   = "make_deployment.txt"
 )
 
 type tplCfg struct {
@@ -32,25 +34,34 @@ type tplCfg struct {
 	relPath string
 	pre     string
 	post    string
+	depDesc string
 }
 
 // Make - Generate the makefile
-func Make(ep fs.EndPoints, mode string) error {
+func Make(ep fs.MtaLocationParameters, mode string) error {
 	tpl, err := makeMode(mode)
+	if err != nil {
+		return err
+	}
+	if ep.Descriptor == "dev" {
+		tpl.tplName = makeDeployTpl
+	}
 	if err == nil {
+		tpl.depDesc = ep.Descriptor
 		// Get project working directory
 		err = makeFile(ep, makefile, tpl)
 	}
 	return err
 }
 
-func makeFile(ep fs.EndPoints, makeFilename string, tpl tplCfg) error {
+func makeFile(ep fs.MtaLocationParameters, makeFilename string, tpl tplCfg) error {
 
 	type API map[string]string
 	// template data
 	var data struct {
 		File mta.MTA
 		API  API
+		Dep  string
 	}
 	// Read file
 	m, err := mta.ReadMta(ep)
@@ -60,8 +71,10 @@ func makeFile(ep fs.EndPoints, makeFilename string, tpl tplCfg) error {
 
 	// Template data
 	data.File = *m
+	data.Dep = ep.Descriptor
+
 	// Create maps of the template method's
-	t, err := mapTpl(tpl.tplName, tpl.pre, tpl.post)
+	t, err := mapTpl(tpl.tplName, tpl.pre, tpl.post, data.Dep != "dev")
 	if err != nil {
 		return err
 	}
@@ -86,7 +99,7 @@ func makeFile(ep fs.EndPoints, makeFilename string, tpl tplCfg) error {
 	return err
 }
 
-func mapTpl(templateName string, BasePre string, BasePost string) (*template.Template, error) {
+func mapTpl(templateName string, BasePre string, BasePost string, isDeployment bool) (*template.Template, error) {
 	funcMap := template.FuncMap{
 		"CommandProvider": builders.CommandProvider,
 		"OsCore":          proc.OsCore,
@@ -98,8 +111,7 @@ func mapTpl(templateName string, BasePre string, BasePost string) (*template.Tem
 	prePath := filepath.Join(filepath.Dir(file), BasePre)
 	postPath := filepath.Join(filepath.Dir(file), BasePost)
 	// parse the template txt file
-	t, err := template.New(templateName).Funcs(funcMap).ParseFiles(makeVerbPath, prePath, postPath)
-	return t, err
+	return template.New(templateName).Funcs(funcMap).ParseFiles(makeVerbPath, prePath, postPath)
 }
 
 // Get template (default/verbose) according to the CLI flags

@@ -36,7 +36,8 @@ func getMakeFileContent(filePath string) string {
 var _ = Describe("Makefile", func() {
 
 	var (
-		tpl              = tplCfg{tplName: "make_verbose.txt", relPath: "", pre: basePreVerbose, post: basePostVerbose}
+		tpl              = tplCfg{tplName: makeVerboseTpl, relPath: "", pre: basePreVerbose, post: basePostVerbose, depDesc: "dev"}
+		tplDep           = tplCfg{tplName: makeDeployTpl, relPath: "", pre: basePreVerbose, post: basePostVerbose, depDesc: "dep"}
 		makeFileName     = "MakeFileTest.mta"
 		wd, _            = os.Getwd()
 		expectedMakePath = func() string {
@@ -51,10 +52,23 @@ var _ = Describe("Makefile", func() {
 			}
 			return filepath.Join(wd, "testdata", filename)
 		}()
+		expectedMakeDepPath = func() string {
+			var filename string
+			switch runtime.GOOS {
+			case "linux":
+				filename = "ExpectedMakeFileDepLinux"
+			case "darwin":
+				filename = "ExpectedMakeFileDepMac"
+			default:
+				filename = "ExpectedMakeFileDepWindows"
+			}
+			return filepath.Join(wd, "testdata", filename)
+		}()
 		makeFileFullPath = func() string {
 			return filepath.Join(wd, "testdata", makeFileName)
 		}()
-		expectedMakeFileContent = getMakeFileContent(expectedMakePath)
+		expectedMakeFileContent    = getMakeFileContent(expectedMakePath)
+		expectedMakeFileDepContent = getMakeFileContent(expectedMakeDepPath)
 	)
 
 	var _ = Describe("MakeFile Generation", func() {
@@ -76,18 +90,23 @@ makefile_version: 0.0.0
 			Ω(makeFilePath).Should(BeAnExistingFile())
 			Ω(createMakeFile(makeFilePath, makeFileName)).Should(BeNil())
 		})
-		It("Sanity", func() {
-			Ω(makeFile(dir.EndPoints{SourcePath: filepath.Join(wd, "testdata")}, makeFileName, tpl)).Should(Succeed())
+		It("Sanity - Dev", func() {
+			Ω(makeFile(dir.MtaLocationParameters{SourcePath: filepath.Join(wd, "testdata"), Descriptor: "dev"}, makeFileName, tpl)).Should(Succeed())
 			Ω(makeFileFullPath).Should(BeAnExistingFile())
 			Ω(getMakeFileContent(makeFileFullPath)).Should(Equal(expectedMakeFileContent))
 		})
+		It("Sanity - Dep", func() {
+			Ω(makeFile(dir.MtaLocationParameters{SourcePath: filepath.Join(wd, "testdata"), Descriptor: "dep"}, makeFileName, tplDep)).Should(Succeed())
+			Ω(makeFileFullPath).Should(BeAnExistingFile())
+			Ω(getMakeFileContent(makeFileFullPath)).Should(Equal(expectedMakeFileDepContent))
+		})
 		It("Make testing with wrong mode", func() {
-			Ω(Make(dir.EndPoints{SourcePath: filepath.Join(wd, "testdata")}, "wrongMode")).Should(HaveOccurred())
+			Ω(Make(dir.MtaLocationParameters{SourcePath: filepath.Join(wd, "testdata")}, "wrongMode")).Should(HaveOccurred())
 		})
 	})
 
 	var _ = DescribeTable("Makefile Generation Failed", func(testPath, testTemplate string) {
-		ep := dir.EndPoints{SourcePath: filepath.Join(wd, "testdata")}
+		ep := dir.MtaLocationParameters{SourcePath: filepath.Join(wd, "testdata")}
 		Ω(makeFile(ep, makeFileName, tplCfg{relPath: testPath, tplName: testTemplate, pre: basePreVerbose, post: basePostVerbose})).Should(HaveOccurred())
 	},
 		Entry("Wrong Template", "testdata", filepath.Join("testdata", "WrongMakeTmpl.txt")),
