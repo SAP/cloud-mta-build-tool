@@ -20,10 +20,7 @@ var pModuleCmd = &cobra.Command{
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		err := provideModules(GetEndPoints())
-		if err != nil {
-			return err
-		}
-		return nil
+		return err
 	},
 	SilenceUsage: true,
 }
@@ -31,9 +28,14 @@ var pModuleCmd = &cobra.Command{
 func provideModules(ep dir.EndPoints) error {
 	// read MTA from mta.yaml
 	mo, err := mta.ReadMta(ep)
-	if err == nil {
-		// Get list of modules names
-		fmt.Println(mo.GetModulesNames())
+	if err != nil {
+		return err
 	}
-	return err
+	modules, err := mo.GetModulesNames()
+	if err != nil {
+		return err
+	}
+	// Get list of modules names
+	fmt.Println(modules)
+	return nil
 }
