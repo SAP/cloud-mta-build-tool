@@ -43,7 +43,7 @@ func Make(ep *fs.MtaLocationParameters, mode string) error {
 	if err != nil {
 		return err
 	}
-	if ep.Descriptor == "dev" {
+	if ep.Descriptor == "dep" {
 		tpl.tplName = makeDeployTpl
 	}
 	if err == nil {

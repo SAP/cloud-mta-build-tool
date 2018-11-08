@@ -19,6 +19,9 @@ validate:
 # Set the current project repository path for general mta process
   PROJ_DIR := $(CURDIR)
 
+execute:
+	@echo
+
 # Create META-INF folder with MANIFEST.MF & mtad.yaml
 meta:
 	@mbt execute meta -d=dep
