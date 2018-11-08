@@ -1,7 +1,6 @@
 package mta
 
 import (
-	"fmt"
 	"path/filepath"
 	"strings"
 
@@ -9,16 +8,23 @@ import (
 	"github.com/pkg/errors"
 )
 
+// Order of modules building is done according to the dependencies defined in build parameters.
+// In case of problems in this definition build process should not start and corresponding error must be provided.
+// Possible problems:
+// 1.	Cyclic dependencies
+// 2.	Dependency on not defined module
+// 3.	Wrong definition of artifacts
+
 // ProcessRequirements - Processes build requirement of module (moduleName)
-func (requires BuildRequires) ProcessRequirements(ep dir.MtaLocationParameters, mta MTA, moduleName string) error {
+func (requires *BuildRequires) ProcessRequirements(ep *dir.MtaLocationParameters, mta *MTA, moduleName string) error {
 	// validate module names - both in process and required
 	module, err := mta.GetModuleByName(moduleName)
 	if err != nil {
-		return errors.New(fmt.Sprintf("Processed module %v not defined in MTA", moduleName))
+		return errors.Wrapf(err, "Processed module %v not defined in MTA", moduleName)
 	}
 	requiredModule, err := mta.GetModuleByName(requires.Name)
 	if err != nil {
-		return errors.New(fmt.Sprintf("Required module %v not defined in MTA", requires.Name))
+		return errors.Wrapf(err, "Required module %v not defined in MTA", requires.Name)
 	}
 	// Get slice of artifacts
 	artifactsStr := strings.Replace(requires.Artifacts, "[", "", 1)
@@ -26,7 +32,7 @@ func (requires BuildRequires) ProcessRequirements(ep dir.MtaLocationParameters, 
 	artifacts := strings.Split(artifactsStr, ",")
 
 	// Validate artifacts
-	err = validateArtifacts(ep, *requiredModule, artifacts)
+	err = validateArtifacts(ep, requiredModule, artifacts)
 	if err != nil {
 		return errors.Wrapf(err, "Error while processing requirements of module %v based on module %v", moduleName, requiredModule.Name)
 	}
@@ -64,7 +70,7 @@ func CopyRequiredArtifacts(sourcePath, targetPath string, artifacts []string) er
 }
 
 // validateArtifacts - validates list of required artifacts
-func validateArtifacts(ep dir.MtaLocationParameters, requiredModule Modules, artifacts []string) error {
+func validateArtifacts(ep *dir.MtaLocationParameters, requiredModule *Modules, artifacts []string) error {
 	if len(artifacts) == 0 {
 		errors.New("No artifacts defined")
 	}
@@ -84,7 +90,7 @@ func validateArtifacts(ep dir.MtaLocationParameters, requiredModule Modules, art
 }
 
 // getBuildResultsPath - provides path of build results
-func (module Modules) getBuildResultsPath(ep dir.MtaLocationParameters) string {
+func (module *Modules) getBuildResultsPath(ep *dir.MtaLocationParameters) string {
 	if module.BuildParams.Path == "" {
 		// if no subfolder provided - build results will be saved in the module folder
 		return ep.GetSourceModuleDir(module.Path)
@@ -95,7 +101,7 @@ func (module Modules) getBuildResultsPath(ep dir.MtaLocationParameters) string {
 }
 
 // getRequiredTargetPath - provides path of required artifacts
-func (requires BuildRequires) getRequiredTargetPath(ep dir.MtaLocationParameters, module *Modules) string {
+func (requires *BuildRequires) getRequiredTargetPath(ep *dir.MtaLocationParameters, module *Modules) string {
 	if requires.TargetPath == "" {
 		// if no target folder provided - artifacts will be saved in module folder
 		return ep.GetSourceModuleDir(module.Path)

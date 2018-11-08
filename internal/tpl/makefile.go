@@ -38,7 +38,7 @@ type tplCfg struct {
 }
 
 // Make - Generate the makefile
-func Make(ep fs.MtaLocationParameters, mode string) error {
+func Make(ep *fs.MtaLocationParameters, mode string) error {
 	tpl, err := makeMode(mode)
 	if err != nil {
 		return err
@@ -49,12 +49,12 @@ func Make(ep fs.MtaLocationParameters, mode string) error {
 	if err == nil {
 		tpl.depDesc = ep.Descriptor
 		// Get project working directory
-		err = makeFile(ep, makefile, tpl)
+		err = makeFile(ep, makefile, &tpl)
 	}
 	return err
 }
 
-func makeFile(ep fs.MtaLocationParameters, makeFilename string, tpl tplCfg) error {
+func makeFile(ep *fs.MtaLocationParameters, makeFilename string, tpl *tplCfg) error {
 
 	type API map[string]string
 	// template data

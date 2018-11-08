@@ -106,14 +106,14 @@ var _ = Describe("Commands", func() {
 
 		It("Generate Meta", func() {
 			ep := dir.MtaLocationParameters{SourcePath: getTestPath("mtahtml5"), TargetPath: targetMetaFlag}
-			generateMeta(ep)
+			generateMeta(&ep)
 			Ω(readFileContent(ep.GetMtadPath())).Should(Equal(readFileContent(getTestPath("golden", "mtad.yaml"))))
 		})
 
 		It("Generate Mtar", func() {
 			ep := dir.MtaLocationParameters{SourcePath: getTestPath("mtahtml5"), TargetPath: targetMtarFlag}
-			generateMeta(ep)
-			generateMtar(ep)
+			generateMeta(&ep)
+			generateMtar(&ep)
 			mtarPath := getTestPath("result", "mtahtml5.mtar")
 			Ω(mtarPath).Should(BeAnExistingFile())
 		})
@@ -121,21 +121,21 @@ var _ = Describe("Commands", func() {
 	})
 
 	var _ = Describe("Pack", func() {
-		DescribeTable("Standard cases", func(projectPath string, validator func(ep dir.MtaLocationParameters)) {
+		DescribeTable("Standard cases", func(projectPath string, validator func(ep *dir.MtaLocationParameters)) {
 			sourcePackFlag = projectPath
 			ep := dir.MtaLocationParameters{SourcePath: sourcePackFlag, TargetPath: targetPackFlag}
 			pPackModuleFlag = "ui5app"
 			packCmd.Run(nil, []string{})
-			validator(ep)
+			validator(&ep)
 		},
 			Entry("SanityTest",
 				getTestPath("mtahtml5"),
-				func(ep dir.MtaLocationParameters) {
+				func(ep *dir.MtaLocationParameters) {
 					Ω(ep.GetTargetModuleZipPath("ui5app")).Should(BeAnExistingFile())
 				}),
 			Entry("Wrong path to project",
 				getTestPath("mtahtml6"),
-				func(ep dir.MtaLocationParameters) {
+				func(ep *dir.MtaLocationParameters) {
 					Ω(ep.GetTargetModuleZipPath("ui5app")).ShouldNot(BeAnExistingFile())
 				}),
 		)
@@ -156,7 +156,7 @@ var _ = Describe("Commands", func() {
 
 		var _ = DescribeTable("validateMtaYaml", func(projectRelPath string, validateSchema, validateProject, expectedSuccess bool) {
 			ep := dir.MtaLocationParameters{SourcePath: getTestPath(projectRelPath)}
-			err := validateMtaYaml(ep, validateSchema, validateProject)
+			err := validateMtaYaml(&ep, validateSchema, validateProject)
 			Ω(err == nil).Should(Equal(expectedSuccess))
 		},
 			Entry("invalid path to yaml - all", "ui5app1", true, true, false),
@@ -197,13 +197,13 @@ builders:
 
 		It("Sanity", func() {
 			ep := dir.MtaLocationParameters{SourcePath: getTestPath("mta"), TargetPath: targetBModuleFlag}
-			Ω(buildModule(ep, "node-js")).Should(Succeed())
+			Ω(buildModule(&ep, "node-js")).Should(Succeed())
 			Ω(ep.GetTargetModuleZipPath("node-js")).Should(BeAnExistingFile())
 		})
 
 		var _ = DescribeTable("Invalid inputs", func(projectName, moduleName string) {
 			ep := dir.MtaLocationParameters{SourcePath: getTestPath(projectName), TargetPath: targetBModuleFlag}
-			Ω(buildModule(ep, moduleName)).Should(HaveOccurred())
+			Ω(buildModule(&ep, moduleName)).Should(HaveOccurred())
 			Ω(ep.GetTargetTmpDir()).ShouldNot(BeADirectory())
 		},
 			Entry("Invalid path to application", "mta1", "node-js"),
@@ -243,7 +243,7 @@ modules:
 			m := mta.MTA{}
 			// parse mta yaml
 			yaml.Unmarshal(mtaCF, &m)
-			path, commands, err := moduleCmd(m, "htmlapp")
+			path, commands, err := moduleCmd(&m, "htmlapp")
 			Ω(err).Should(BeNil())
 			Ω(path).Should(Equal("app"))
 			Ω(commands).Should(Equal([]string{"npm install", "grunt"}))

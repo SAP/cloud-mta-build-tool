@@ -3,10 +3,11 @@ package commands
 import (
 	"fmt"
 
-	"cloud-mta-build-tool/internal/fsys"
-	"cloud-mta-build-tool/mta"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
+
+	"cloud-mta-build-tool/internal/fsys"
+	"cloud-mta-build-tool/mta"
 )
 
 var sourcePModuleFlag string
@@ -26,14 +27,17 @@ var pModuleCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		err := dir.ValidateDeploymentDescriptor(descriptorPModuleFlag)
 		if err == nil {
-			err = provideModules(GetEndPoints(sourceBModuleFlag, targetBModuleFlag, descriptorPModuleFlag))
+			ep := GetLocationParameters(sourceBModuleFlag, targetBModuleFlag, descriptorPModuleFlag)
+			err = provideModules(&ep)
 		}
-		return errors.Wrap(err, "Modules provider failed")
+		err = errors.Wrap(err, "Modules provider failed")
+		LogError(err)
+		return err
 	},
 	SilenceUsage: true,
 }
 
-func provideModules(ep dir.MtaLocationParameters) error {
+func provideModules(ep *dir.MtaLocationParameters) error {
 	// read MTA from mta.yaml
 	mo, err := mta.ReadMta(ep)
 	if err != nil {

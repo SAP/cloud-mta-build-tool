@@ -91,23 +91,23 @@ makefile_version: 0.0.0
 			Ω(createMakeFile(makeFilePath, makeFileName)).Should(BeNil())
 		})
 		It("Sanity - Dev", func() {
-			Ω(makeFile(dir.MtaLocationParameters{SourcePath: filepath.Join(wd, "testdata"), Descriptor: "dev"}, makeFileName, tpl)).Should(Succeed())
+			Ω(makeFile(&dir.MtaLocationParameters{SourcePath: filepath.Join(wd, "testdata"), Descriptor: "dev"}, makeFileName, &tpl)).Should(Succeed())
 			Ω(makeFileFullPath).Should(BeAnExistingFile())
 			Ω(getMakeFileContent(makeFileFullPath)).Should(Equal(expectedMakeFileContent))
 		})
 		It("Sanity - Dep", func() {
-			Ω(makeFile(dir.MtaLocationParameters{SourcePath: filepath.Join(wd, "testdata"), Descriptor: "dep"}, makeFileName, tplDep)).Should(Succeed())
+			Ω(makeFile(&dir.MtaLocationParameters{SourcePath: filepath.Join(wd, "testdata"), Descriptor: "dep"}, makeFileName, &tplDep)).Should(Succeed())
 			Ω(makeFileFullPath).Should(BeAnExistingFile())
 			Ω(getMakeFileContent(makeFileFullPath)).Should(Equal(expectedMakeFileDepContent))
 		})
 		It("Make testing with wrong mode", func() {
-			Ω(Make(dir.MtaLocationParameters{SourcePath: filepath.Join(wd, "testdata")}, "wrongMode")).Should(HaveOccurred())
+			Ω(Make(&dir.MtaLocationParameters{SourcePath: filepath.Join(wd, "testdata")}, "wrongMode")).Should(HaveOccurred())
 		})
 	})
 
 	var _ = DescribeTable("Makefile Generation Failed", func(testPath, testTemplate string) {
 		ep := dir.MtaLocationParameters{SourcePath: filepath.Join(wd, "testdata")}
-		Ω(makeFile(ep, makeFileName, tplCfg{relPath: testPath, tplName: testTemplate, pre: basePreVerbose, post: basePostVerbose})).Should(HaveOccurred())
+		Ω(makeFile(&ep, makeFileName, &tplCfg{relPath: testPath, tplName: testTemplate, pre: basePreVerbose, post: basePostVerbose})).Should(HaveOccurred())
 	},
 		Entry("Wrong Template", "testdata", filepath.Join("testdata", "WrongMakeTmpl.txt")),
 		Entry("Yaml not exists", "testdata1", "make_default.txt"),

@@ -60,7 +60,7 @@ func printToFile(file io.Writer, mtaStr *Modules) {
 }
 
 // GenMtad -Generate mtad.yaml from mta file and configuration file
-func GenMtad(mtaStr MTA, ep dir.MtaLocationParameters, convertTypes func(mtaStr MTA)) error {
+func GenMtad(mtaStr *MTA, ep *dir.MtaLocationParameters, convertTypes func(mtaStr *MTA)) error {
 	// Create META-INF folder under the mtar folder
 	createDirIfNotExist(ep.GetMetaPath())
 
@@ -77,7 +77,7 @@ func GenMtad(mtaStr MTA, ep dir.MtaLocationParameters, convertTypes func(mtaStr 
 }
 
 // GenMetaInfo -Generate MetaInfo (MANIFEST.MF file)
-func GenMetaInfo(ep dir.MtaLocationParameters, mtaStr MTA, modules []string, convertTypes func(mtaStr MTA)) error {
+func GenMetaInfo(ep *dir.MtaLocationParameters, mtaStr *MTA, modules []string, convertTypes func(mtaStr *MTA)) error {
 	err := GenMtad(mtaStr, ep, convertTypes)
 	if err == nil {
 		// Create MANIFEST.MF file

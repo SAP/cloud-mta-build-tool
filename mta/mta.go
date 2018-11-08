@@ -119,8 +119,8 @@ func (mta *MTA) Parse(yamlContent []byte) (err error) {
 }
 
 // Marshal - edit mta object structure
-func Marshal(in MTA) (mtads []byte, err error) {
-	mtads, err = yaml.Marshal(&in)
+func Marshal(in *MTA) (mtads []byte, err error) {
+	mtads, err = yaml.Marshal(in)
 	if err != nil {
 		return nil, err
 	}
@@ -128,7 +128,7 @@ func Marshal(in MTA) (mtads []byte, err error) {
 }
 
 // Read MTA Yaml file
-func ReadMtaYaml(ep fs.MtaLocationParameters) ([]byte, error) {
+func ReadMtaYaml(ep *fs.MtaLocationParameters) ([]byte, error) {
 	fileFullPath := ep.GetMtaYamlPath()
 	// Read MTA file
 	yamlFile, err := ioutil.ReadFile(fileFullPath)
@@ -200,7 +200,7 @@ func Validate(yamlContent []byte, projectPath string, validateSchema bool, valid
 	if validateProject {
 		mta := MTA{}
 		yaml.Unmarshal(yamlContent, &mta)
-		projectIssues := ValidateYamlProject(mta, projectPath)
+		projectIssues := ValidateYamlProject(&mta, projectPath)
 		issues = append(issues, projectIssues...)
 	}
 

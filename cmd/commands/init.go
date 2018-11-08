@@ -1,9 +1,9 @@
 package commands
 
 import (
-	"cloud-mta-build-tool/internal/fsys"
 	"github.com/spf13/cobra"
 
+	"cloud-mta-build-tool/internal/fsys"
 	"cloud-mta-build-tool/internal/tpl"
 )
 
@@ -28,7 +28,8 @@ var initProcessCmd = &cobra.Command{
 		// Generate build script
 		err := dir.ValidateDeploymentDescriptor(descriptorInitFlag)
 		if err == nil {
-			err = tpl.Make(GetEndPoints(sourceInitFlag, targetInitFlag, descriptorInitFlag), initModeFlag)
+			ep := GetLocationParameters(sourceInitFlag, targetInitFlag, descriptorInitFlag)
+			err = tpl.Make(&ep, initModeFlag)
 		}
 		LogErrorExt(err, "Makefile Generation failed")
 	},

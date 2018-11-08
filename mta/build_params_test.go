@@ -13,23 +13,23 @@ import (
 
 var _ = Describe("BuildParams", func() {
 
-	var _ = DescribeTable("validateArtifacts", func(ep dir.MtaLocationParameters, requiredModule Modules, artifacts []string, match GomegaMatcher) {
+	var _ = DescribeTable("validateArtifacts", func(ep *dir.MtaLocationParameters, requiredModule *Modules, artifacts []string, match GomegaMatcher) {
 
 		Ω(validateArtifacts(ep, requiredModule, artifacts)).Should(match)
 
 	},
-		Entry("Valid artifacts", dir.MtaLocationParameters{}, Modules{}, []string{"*"}, Succeed()),
-		Entry("Invalid artifacts", dir.MtaLocationParameters{}, Modules{}, []string{"*", "."}, HaveOccurred()),
+		Entry("Valid artifacts", &dir.MtaLocationParameters{}, &Modules{}, []string{"*"}, Succeed()),
+		Entry("Invalid artifacts", &dir.MtaLocationParameters{}, &Modules{}, []string{"*", "."}, HaveOccurred()),
 	)
 
-	var _ = DescribeTable("getBuildResultsPath", func(module Modules, expected string) {
-		Ω(module.getBuildResultsPath(dir.MtaLocationParameters{})).Should(HaveSuffix(expected))
+	var _ = DescribeTable("getBuildResultsPath", func(module *Modules, expected string) {
+		Ω(module.getBuildResultsPath(&dir.MtaLocationParameters{})).Should(HaveSuffix(expected))
 	},
-		Entry("Implicit Build Results Path", Modules{Path: "mPath"}, "mPath"),
-		Entry("Explicit Build Results Path", Modules{Path: "mPath", BuildParams: BuildParameters{Path: "bPath"}}, "bPath"))
+		Entry("Implicit Build Results Path", &Modules{Path: "mPath"}, "mPath"),
+		Entry("Explicit Build Results Path", &Modules{Path: "mPath", BuildParams: BuildParameters{Path: "bPath"}}, "bPath"))
 
 	var _ = DescribeTable("getRequiredTargetPath", func(requires BuildRequires, module Modules, expected string) {
-		Ω(requires.getRequiredTargetPath(dir.MtaLocationParameters{}, &module)).Should(HaveSuffix(expected))
+		Ω(requires.getRequiredTargetPath(&dir.MtaLocationParameters{}, &module)).Should(HaveSuffix(expected))
 	},
 		Entry("Implicit Target Path", BuildRequires{}, Modules{Path: "mPath"}, "mPath"),
 		Entry("Explicit Target Path", BuildRequires{TargetPath: "artifacts"}, Modules{Path: "mPath"}, filepath.Join("mPath", "artifacts")))
@@ -66,7 +66,7 @@ var _ = Describe("BuildParams", func() {
 					},
 				},
 			}
-			Ω(require.ProcessRequirements(ep, mtaObj, "B")).Should(Succeed())
+			Ω(require.ProcessRequirements(&ep, &mtaObj, "B")).Should(Succeed())
 			Ω(filepath.Join(wd, expectedPath)).Should(BeADirectory())
 			Ω(filepath.Join(wd, expectedPath, "webapp", "Component.js")).Should(BeAnExistingFile())
 		},
@@ -75,7 +75,7 @@ var _ = Describe("BuildParams", func() {
 			Entry("Require All From Parent", ".", filepath.Join("testdata", "testproject", "moduleB", "b_copied_artifacts", "ui5app")))
 
 		var _ = DescribeTable("Invalid cases", func(require BuildRequires, mtaObj MTA, moduleName string) {
-			Ω(require.ProcessRequirements(dir.MtaLocationParameters{}, mtaObj, moduleName)).Should(HaveOccurred())
+			Ω(require.ProcessRequirements(&dir.MtaLocationParameters{}, &mtaObj, moduleName)).Should(HaveOccurred())
 		},
 			Entry("Module not defined",
 				BuildRequires{Name: "A", Artifacts: "[*]", TargetPath: "b_copied_artifacts"},

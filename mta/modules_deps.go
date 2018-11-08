@@ -19,8 +19,9 @@ func new(module *string, deps mapset.Set, index int) *graphNode {
 
 type Graph map[string]*graphNode
 
-func (mta MTA) GetModulesOrder() ([]string, error) {
-	var graph Graph = make(map[string]*graphNode)
+// GetModulesOrder - Provides Modules ordered according to build-parameters' dependencies
+func (mta *MTA) GetModulesOrder() ([]string, error) {
+	var graph = make(Graph)
 	for index, module := range mta.Modules {
 		deps := mapset.NewSet()
 		if module.BuildParams.Requires != nil {
@@ -30,12 +31,14 @@ func (mta MTA) GetModulesOrder() ([]string, error) {
 		}
 		graph[module.Name] = new(&module.Name, deps, index)
 	}
-	return resolveGraph(graph, mta)
+	return resolveGraph(&graph, mta)
 }
 
 // Resolves the dependency Graph
-func resolveGraph(graph Graph, mta MTA) ([]string, error) {
-	overleft := graph
+// For resolving cyclic dependencies Kahn’s algorithm of topological sorting is used.
+// https://en.wikipedia.org/wiki/Topological_sorting
+func resolveGraph(graph *Graph, mta *MTA) ([]string, error) {
+	overleft := *graph
 
 	// Iteratively find and remove nodes from the Graph which have no dependencies.
 	// If at some point there are still nodes in the Graph and we cannot find
