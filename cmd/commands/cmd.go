@@ -9,8 +9,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var buildTargetFlag string
-
 func init() {
 
 	// Add command to the root
@@ -45,7 +43,7 @@ var versionCmd = &cobra.Command{
 	Long:  "MBT version",
 	Run: func(cmd *cobra.Command, args []string) {
 		err := printCliVersion()
-		LogError(err)
+		logError(err)
 	},
 }
 
@@ -57,15 +55,15 @@ func printCliVersion() error {
 	return err
 }
 
-// LogError - log errors if any
-func LogError(err error) {
+// logError - log errors if any
+func logError(err error) {
 	if err != nil {
 		logs.Logger.Error(err)
 	}
 }
 
-// LogError - log error wrapped with new message
-func LogErrorExt(err error, newMsg string) {
+// logErrorExt - log error wrapped with new message
+func logErrorExt(err error, newMsg string) {
 	if err != nil {
 		logs.Logger.Error(errors.Wrap(err, newMsg))
 	}

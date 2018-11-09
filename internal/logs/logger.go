@@ -8,8 +8,10 @@ import (
 )
 
 const (
+	// MbtLogLevel tool log identifier
 	MbtLogLevel = "MBT_LOG_LEVEL"
-	DefLvl      = "info"
+	// DefLvl default level - should be error
+	DefLvl = "info"
 )
 
 // Logger expose for usage

@@ -115,7 +115,7 @@ func buildValidationsFromSequence(y *simpleyaml.Yaml) ([]YamlCheck, []YamlValida
 	var schemaIssues []YamlValidationIssue
 
 	sequenceInnerValidations, newIssues := buildValidationsFromSchema(y)
-	seqChecksWrapper := SequenceFailFast(TypeIsArray(), ForEach(sequenceInnerValidations...))
+	seqChecksWrapper := sequenceFailFast(TypeIsArray(), ForEach(sequenceInnerValidations...))
 	validations = append(validations, seqChecksWrapper)
 	schemaIssues = append(schemaIssues, newIssues...)
 
@@ -150,11 +150,11 @@ func buildOptionalOrRequiredValidation(y *simpleyaml.Yaml, validations []YamlChe
 		}
 
 		// When a "required" check is needed there is no need to perform additional validations
-		// if the property is missing, thus we use "SequenceFailFast"
+		// if the property is missing, thus we use "sequenceFailFast"
 		if requiredValue == "true" {
 			// The required check must be performed first in the sequence.
 			validationsWithRequiredFirst := append([]YamlCheck{Required()}, validations...)
-			validations = []YamlCheck{SequenceFailFast(validationsWithRequiredFirst...)}
+			validations = []YamlCheck{sequenceFailFast(validationsWithRequiredFirst...)}
 			// When "required" is false, we must only perform additional validations
 			// if the property actually exists, thus we use "Optional"
 		} else {
@@ -177,7 +177,7 @@ func buildTypeValidation(y *simpleyaml.Yaml) ([]YamlCheck, []YamlValidationIssue
 			return validations, schemaIssues
 		}
 		if typeValue == "bool" {
-			validations = append(validations, TypeIsBoolean())
+			validations = append(validations, typeIsBoolean())
 		} else if typeValue == "enum" {
 			enumValidations, enumSchemaIssues := buildEnumValidation(y)
 			validations = append(validations, enumValidations...)
@@ -209,7 +209,7 @@ func buildEnumValidation(y *simpleyaml.Yaml) ([]YamlCheck, []YamlValidationIssue
 		}
 	}
 
-	return []YamlCheck{MatchesEnumValues(enumValues)}, []YamlValidationIssue{}
+	return []YamlCheck{matchesEnumValues(enumValues)}, []YamlValidationIssue{}
 }
 
 func buildPatternValidation(y *simpleyaml.Yaml) ([]YamlCheck, []YamlValidationIssue) {

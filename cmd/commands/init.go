@@ -31,6 +31,6 @@ var initProcessCmd = &cobra.Command{
 			ep := GetLocationParameters(sourceInitFlag, targetInitFlag, descriptorInitFlag)
 			err = tpl.Make(&ep, initModeFlag)
 		}
-		LogErrorExt(err, "Makefile Generation failed")
+		logErrorExt(err, "Makefile Generation failed")
 	},
 }

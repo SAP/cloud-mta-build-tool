@@ -115,7 +115,7 @@ var packCmd = &cobra.Command{
 		if err == nil {
 			err = packModule(&ep, modulePath, pPackModuleFlag)
 		}
-		LogError(err)
+		logError(err)
 	},
 }
 
@@ -131,7 +131,7 @@ var genMetaCmd = &cobra.Command{
 			ep := GetLocationParameters(sourceMetaFlag, targetMetaFlag, descriptorMetaFlag)
 			err = generateMeta(&ep)
 		}
-		LogErrorExt(err, "META generation failed")
+		logErrorExt(err, "META generation failed")
 	},
 }
 
@@ -147,7 +147,7 @@ var genMtarCmd = &cobra.Command{
 			ep := GetLocationParameters(sourceMtarFlag, targetMtarFlag, descriptorMtarFlag)
 			err = generateMtar(&ep)
 		}
-		LogErrorExt(err, "MTAR generation failed")
+		logErrorExt(err, "MTAR generation failed")
 	},
 }
 
@@ -157,21 +157,24 @@ var genMtadCmd = &cobra.Command{
 	Short: "Provide mtad",
 	Long:  "Provide deployment descriptor (mtad.yaml) from development descriptor (mta.yaml)",
 	Args:  cobra.NoArgs,
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		err := fs.ValidateDeploymentDescriptor(descriptorMtadFlag)
 		if err != nil {
-			LogErrorExt(err, "MTAD generation failed")
-			return
+			logErrorExt(err, "MTAD generation failed")
+			return err
 		}
 		ep := GetLocationParameters(sourceMtadFlag, targetMtadFlag, descriptorMtadFlag)
 		// TODO if descriptor == "dep" -> Copy mtad
 		mtaStr, err := mta.ReadMta(&ep)
 		if err == nil {
 			err = mta.GenMtad(mtaStr, &ep, func(mtaStr *mta.MTA) {
-				convertTypes(*mtaStr)
+				e := convertTypes(*mtaStr);if e != nil {
+					logErrorExt(err, "MTAD generation failed")
+				}
 			})
 		}
-		LogErrorExt(err, "MTAD generation failed")
+		logErrorExt(err, "MTAD generation failed")
+		return err
 	},
 }
 
@@ -184,7 +187,7 @@ var validateCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		err := fs.ValidateDeploymentDescriptor(descriptorValidateFlag)
 		if err != nil {
-			LogErrorExt(err, "MBT Validation failed")
+			logErrorExt(err, "MBT Validation failed")
 			return
 		}
 		validateSchema, validateProject, err := getValidationMode(pValidationFlag)
@@ -192,7 +195,7 @@ var validateCmd = &cobra.Command{
 			ep := GetLocationParameters(sourceValidateFlag, sourceValidateFlag, descriptorValidateFlag)
 			err = validateMtaYaml(&ep, validateSchema, validateProject)
 		}
-		LogErrorExt(err, "MBT Validation failed")
+		logErrorExt(err, "MBT Validation failed")
 	},
 }
 

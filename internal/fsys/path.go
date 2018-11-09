@@ -27,9 +27,8 @@ func (ep *MtaLocationParameters) GetSource() string {
 		// TODO handle error
 		p, _ := os.Getwd()
 		return p
-	} else {
-		return ep.SourcePath
 	}
+	return ep.SourcePath
 }
 
 // GetTarget -Get Target Path
@@ -37,9 +36,8 @@ func (ep *MtaLocationParameters) GetSource() string {
 func (ep *MtaLocationParameters) GetTarget() string {
 	if ep.TargetPath == "" {
 		return ep.GetSource()
-	} else {
-		return ep.TargetPath
 	}
+	return ep.TargetPath
 }
 
 // GetTargetTmpDir -Get Target Temporary Directory path
@@ -72,9 +70,8 @@ func (ep *MtaLocationParameters) GetSourceModuleDir(modulePath string) string {
 func (ep *MtaLocationParameters) GetMtaYamlFilename() string {
 	if ep.MtaFilename == "" {
 		return "mta.yaml"
-	} else {
-		return ep.MtaFilename
 	}
+	return ep.MtaFilename
 }
 
 // GetMtaYamlPath -Get MTA yaml File path
@@ -110,6 +107,7 @@ func ValidateDeploymentDescriptor(descriptor string) error {
 	return nil
 }
 
+// IsDeploymentDescriptor - Check if flag is related to deployment descriptor
 func (ep *MtaLocationParameters) IsDeploymentDescriptor() bool {
 	return ep.Descriptor == "dep"
 }

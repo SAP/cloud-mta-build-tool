@@ -31,12 +31,12 @@ lastName: duck
 		Entry("Type Is String", `
 firstName: Donald
 lastName: duck
-`, Property("firstName", TypeIsNotMapArray())),
+`, Property("firstName", typeIsNotMapArray())),
 
 		Entry("Type Is Bool", `
 name: bisli
 registered: false
-`, Property("registered", TypeIsBoolean())),
+`, Property("registered", typeIsBoolean())),
 
 		Entry("Type Is Array", `
 firstName:
@@ -46,7 +46,7 @@ firstName:
 lastName: duck
 `, Property("firstName", TypeIsArray())),
 
-		Entry("SequenceFailFast", `
+		Entry("sequenceFailFast", `
 firstName: Hello
 lastName: World
 `, Property("firstName", Sequence(Required(), MatchesRegExp("^[A-Za-z0-9]+$")))),
@@ -81,11 +81,11 @@ classes:
 		Entry("Optional Exists", `
 firstName: Donald
 lastName: duck
-`, Property("firstName", Optional(TypeIsNotMapArray()))),
+`, Property("firstName", Optional(typeIsNotMapArray()))),
 
 		Entry("Optional Missing", `
 lastName: duck
-`, Property("firstName", Optional(TypeIsNotMapArray()))),
+`, Property("firstName", Optional(typeIsNotMapArray()))),
 	)
 
 	DescribeTable("Invalid Yaml", func(data, message string, validations ...YamlCheck) {
@@ -113,13 +113,13 @@ firstName:
    - 3
 lastName: duck
 `, `Property <root.firstName> must be of type <string>`,
-			Property("firstName", TypeIsNotMapArray())),
+			Property("firstName", typeIsNotMapArray())),
 
 		Entry("TypeIsBool", `
 name: bamba
 registered: 123
 `, `Property <root.registered> must be of type <Boolean>`,
-			Property("registered", TypeIsBoolean())),
+			Property("registered", typeIsBoolean())),
 
 		Entry("TypeIsArray", `
 firstName:
@@ -141,11 +141,11 @@ lastName:
 `, `Property <root.firstName> must be of type <Map>`,
 			Property("firstName", TypeIsMap())),
 
-		Entry("SequenceFailFast", `
+		Entry("sequenceFailFast", `
 firstName: Hello
 lastName: World
 `, `Missing Required Property <missing> in <root>`,
-			Property("missing", SequenceFailFast(
+			Property("missing", sequenceFailFast(
 				Required(),
 				// This second validation should not be executed as sequence breaks early.
 				MatchesRegExp("^[0-9]+$")))),
@@ -156,7 +156,7 @@ firstName:
   - 2
 lastName: duck
 `, `Property <root.firstName> must be of type <string>`,
-			Property("firstName", Optional(TypeIsNotMapArray()))),
+			Property("firstName", Optional(typeIsNotMapArray()))),
 	)
 
 	It("InvalidYamlHandling", func() {

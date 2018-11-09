@@ -147,7 +147,6 @@ func createMakeFile(path, filename string) (file *os.File, err error) {
 	var mf *os.File
 	if _, err = os.Stat(fullFilename); err == nil {
 		logs.Logger.Warn(fmt.Sprintf("Make file %s exists", fullFilename))
-		return nil, nil
 	} else {
 		mf, err = fs.CreateFile(fullFilename)
 	}
