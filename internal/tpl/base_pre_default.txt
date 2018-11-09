@@ -19,5 +19,5 @@ tdir:
 {{"\t"}}@mkdir -p "$(MTR_DIR)"
 # Validate mta.yaml
 validate:
-{{"\t"}}@mbt execute validate
+{{"\t"}}@mbt execute validate -d={{.Dep}}
 {{end}}

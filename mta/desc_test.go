@@ -59,7 +59,7 @@ var _ = Describe("Desc tests", func() {
 
 	var _ = Describe("GenMetaInf", func() {
 		wd, _ := os.Getwd()
-		ep := dir.EndPoints{SourcePath: filepath.Join(wd, "testdata", "testproject"), TargetPath: filepath.Join(wd, "testdata", "result")}
+		ep := dir.MtaLocationParameters{SourcePath: filepath.Join(wd, "testdata", "testproject"), TargetPath: filepath.Join(wd, "testdata", "result")}
 
 		AfterEach(func() {
 			os.RemoveAll(ep.GetTarget())
@@ -78,7 +78,7 @@ modules:
 `)
 			mta := MTA{}
 			yaml.Unmarshal(mtaSingleModule, &mta)
-			GenMetaInfo(ep, mta, []string{"htmlapp"}, func(mtaStr MTA) {})
+			GenMetaInfo(&ep, &mta, []string{"htmlapp"}, func(mtaStr *MTA) {})
 			Ω(ep.GetManifestPath()).Should(BeAnExistingFile())
 			Ω(ep.GetMtadPath()).Should(BeAnExistingFile())
 		})

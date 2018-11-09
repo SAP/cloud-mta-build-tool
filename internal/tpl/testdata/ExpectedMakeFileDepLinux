@@ -4,7 +4,7 @@ DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 BASE := $(notdir $(patsubst %/,%,$(DIR)))
 MTR_DIR := $(DIR)$(BASE)
 # Determine OS cores
-    NPROCS = $(shell echo %NUMBER_OF_PROCESSORS%)
+    NPROCS = $(shell grep -c 'processor' /proc/cpuinfo)
     MAKEFLAGS += -j$(NPROCS)
 # List of all the recipes to be executed during the build process
 .PHONY: ui meta mtar cleanup
@@ -15,28 +15,20 @@ tdir:
 	@mkdir -p "$(MTR_DIR)"
 # Validate mta.yaml
 validate:
-	@mbt execute validate -d=dev
+	@mbt execute validate -d=dep
 # Set the current project repository path for general mta process
   PROJ_DIR := $(CURDIR)
 
-# List of modules
-modules = ui
-
-# Execute all modules builds
-# build module ui
-ui:
-	@cd $(PROJ_DIR)/ui && npm install && grunt && npm prune --production
-# Pack module build artifacts
-	@mbt execute pack -m=ui
-
+execute:
+	@echo
 
 # Create META-INF folder with MANIFEST.MF & mtad.yaml
 meta:
-	@mbt execute meta -d=dev
+	@mbt execute meta -d=dep
 
 # Pack as MTAR artifact
 mtar: $(modules) meta
-	@mbt execute mtar -d=dev
+	@mbt execute mtar -d=dep
 
 cleanup: mtar
 # Remove tmp folder

@@ -8,10 +8,10 @@ import (
 	"cloud-mta-build-tool/validations"
 )
 
-type YamlProjectCheck func(mta MTA, path string) []mta_validate.YamlValidationIssue
+type YamlProjectCheck func(mta *MTA, path string) []mta_validate.YamlValidationIssue
 
 // validateModules - Validate the MTA file
-func validateModules(mta MTA, projectPath string) []mta_validate.YamlValidationIssue {
+func validateModules(mta *MTA, projectPath string) []mta_validate.YamlValidationIssue {
 	issues := []mta_validate.YamlValidationIssue{}
 	for _, module := range mta.Modules {
 		modulePath := module.Path
@@ -29,7 +29,7 @@ func validateModules(mta MTA, projectPath string) []mta_validate.YamlValidationI
 }
 
 // ValidateYamlProject - Validate the MTA file
-func ValidateYamlProject(mta MTA, path string) []mta_validate.YamlValidationIssue {
+func ValidateYamlProject(mta *MTA, path string) []mta_validate.YamlValidationIssue {
 	validations := []YamlProjectCheck{validateModules}
 	issues := []mta_validate.YamlValidationIssue{}
 	for _, validation := range validations {

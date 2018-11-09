@@ -1,0 +1,4 @@
+{{template "base_pre" .}}
+execute:
+	@echo
+{{template "base_post" .}}

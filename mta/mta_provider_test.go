@@ -14,14 +14,12 @@ var _ = Describe("Read MTA", func() {
 	wd, _ := os.Getwd()
 
 	It("Valid filename", func() {
-		ep := dir.EndPoints{SourcePath: filepath.Join(wd, "testdata")}
-		mta, err := ReadMta(ep)
+		mta, err := ReadMta(&dir.MtaLocationParameters{SourcePath: filepath.Join(wd, "testdata")})
 		Ω(mta).ShouldNot(BeNil())
 		Ω(err).Should(BeNil())
 	})
 	It("Invalid filename", func() {
-		ep := dir.EndPoints{SourcePath: filepath.Join(wd, "testdata"), MtaFilename: "mtax.yaml"}
-		_, err := ReadMta(ep)
+		_, err := ReadMta(&dir.MtaLocationParameters{SourcePath: filepath.Join(wd, "testdata"), MtaFilename: "mtax.yaml"})
 		Ω(err).ShouldNot(BeNil())
 	})
 })
