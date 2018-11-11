@@ -89,7 +89,7 @@ func GenMetaInfo(ep *dir.MtaLocationParameters, mtaStr *MTA, modules []string, c
 	return err
 }
 
-// CreateDirIfNotExist - Create new dir
+// CreateDirIfNotExist - Create newGn dir
 func createDirIfNotExist(dir string) error {
 	if _, err := os.Stat(dir); os.IsNotExist(err) {
 		err = os.MkdirAll(dir, os.ModePerm)
@@ -100,7 +100,7 @@ func createDirIfNotExist(dir string) error {
 	return nil
 }
 
-// CreateFile - create new file
+// CreateFile - create newGn file
 func createFile(path string) (file *os.File, err error) {
 	file, err = os.Create(path) // Truncates if file already exists
 	if err != nil {

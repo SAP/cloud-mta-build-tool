@@ -74,7 +74,7 @@ builders:
 		expected Builders
 	}{
 		{
-			name:     "Parse builders configuration files",
+			name:     "parse builders configuration files",
 			args:     buildCfg,
 			expected: commands,
 		},
@@ -87,8 +87,8 @@ builders:
 	// Todo - basic parse test, need types test
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got, _ := Parse(tt.args); !reflect.DeepEqual(got, tt.expected) {
-				t.Errorf("Parse() = %v, \n expected %v", got, tt.expected)
+			if got, _ := parse(tt.args); !reflect.DeepEqual(got, tt.expected) {
+				t.Errorf("parse() = %v, \n expected %v", got, tt.expected)
 			}
 		})
 	}

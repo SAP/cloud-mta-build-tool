@@ -13,10 +13,12 @@ type graphNode struct {
 	index  int
 }
 
-func new(module *string, deps mapset.Set, index int) *graphNode {
+// New Graph node
+func newGn(module *string, deps mapset.Set, index int) *graphNode {
 	return &graphNode{module: *module, deps: deps, index: index}
 }
 
+// Graph - graph map
 type Graph map[string]*graphNode
 
 // GetModulesOrder - Provides Modules ordered according to build-parameters' dependencies
@@ -29,7 +31,7 @@ func (mta *MTA) GetModulesOrder() ([]string, error) {
 				deps.Add(req.Name)
 			}
 		}
-		graph[module.Name] = new(&module.Name, deps, index)
+		graph[module.Name] = newGn(&module.Name, deps, index)
 	}
 	return resolveGraph(&graph, mta)
 }

@@ -20,13 +20,13 @@ type MTA struct {
 	// A globally unique ID of this MTA. Unlimited string of unicode characters.
 	Id string `yaml:"ID"`
 	// A non-translatable description of this MTA. This is not a text for application users
-	description string `yaml:"description,omitempty"`
+	Description string `yaml:"description,omitempty"`
 	// Application version, using semantic versioning standard
 	Version string `yaml:"version,omitempty"`
 	// The provider or vendor of this software
-	provider string `yaml:"provider,omitempty"`
+	Provider string `yaml:"provider,omitempty"`
 	// A copyright statement from the provider
-	copyright string `yaml:"copyright,omitempty"`
+	Copyright string `yaml:"copyright,omitempty"`
 	// list of modules
 	Modules []*Modules `yaml:"modules,omitempty"`
 	// Resource declarations. Resources can be anything required to run the application which is not provided by the application itself.
@@ -36,7 +36,7 @@ type MTA struct {
 }
 
 // Build-parameters are specifically steering the behavior of build tools.
-type BuildParameters struct {
+type buildParameters struct {
 	// Builder name
 	Builder string `yaml:"builder,omitempty"`
 	// Builder type
@@ -62,7 +62,7 @@ type Modules struct {
 	// Parameters can be used to steer the behavior of tools which interpret this descriptor. Parameters are not made available to the module at runtime
 	Parameters Parameters `yaml:"parameters,omitempty"`
 	// Build-parameters are specifically steering the behavior of build tools.
-	BuildParams BuildParameters `yaml:"build-parameters,omitempty"`
+	BuildParams buildParameters `yaml:"build-parameters,omitempty"`
 	// Provided property values can be accessed by "~{<name-of-provides-section>/<provided-property-name>}". Such expressions can be part of an arbitrary string
 	Properties Properties `yaml:"properties,omitempty"`
 }
@@ -168,15 +168,6 @@ func (mta *MTA) GetResourceByName(name string) (*Resources, error) {
 	return nil, fmt.Errorf("module %s , not found ", name)
 }
 
-// modules - return a string slice of modules names
-func modules(mta *MTA) []string {
-	var mNames []string
-	for _, mod := range mta.Modules {
-		mNames = append(mNames, mod.Name)
-	}
-	return mNames
-}
-
 // GetModulesNames - get list of modules names
 func (mta *MTA) GetModulesNames() ([]string, error) {
 	return mta.GetModulesOrder()
@@ -200,7 +191,7 @@ func Validate(yamlContent []byte, projectPath string, validateSchema bool, valid
 	if validateProject {
 		mta := MTA{}
 		yaml.Unmarshal(yamlContent, &mta)
-		projectIssues := ValidateYamlProject(&mta, projectPath)
+		projectIssues := validateYamlProject(&mta, projectPath)
 		issues = append(issues, projectIssues...)
 	}
 

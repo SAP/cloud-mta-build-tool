@@ -3,6 +3,7 @@ package exec
 import (
 	"bufio"
 	"fmt"
+	"io"
 	"os/exec"
 	"path/filepath"
 	"time"
@@ -53,18 +54,7 @@ func Execute(cmdParams [][]string) error {
 		// Stream command output:
 		// Creates a bufio.Scanner that will read from the pipe
 		// that supplies the output written by the process.
-		scanout := bufio.NewScanner(stdout)
-		scanerr := bufio.NewScanner(stderr)
-		// instructs the scanner to read the input by runes instead of the default by-lines.
-		scanout.Split(bufio.ScanRunes)
-		for scanout.Scan() {
-			fmt.Print(scanout.Text())
-		}
-		// instructs the scanner to read the input by runes instead of the default by-lines.
-		scanerr.Split(bufio.ScanRunes)
-		for scanerr.Scan() {
-			fmt.Print(scanerr.Text())
-		}
+		scanout, scanerr := scanner(stdout, stderr)
 
 		if scanout.Err() != nil {
 			return errors.Wrapf(err, "%s scanout error", cp[1:])
@@ -82,6 +72,22 @@ func Execute(cmdParams [][]string) error {
 
 	}
 	return nil
+}
+
+func scanner(stdout io.ReadCloser, stderr io.ReadCloser) (*bufio.Scanner, *bufio.Scanner) {
+	scanout := bufio.NewScanner(stdout)
+	scanerr := bufio.NewScanner(stderr)
+	// instructs the scanner to read the input by runes instead of the default by-lines.
+	scanout.Split(bufio.ScanRunes)
+	for scanout.Scan() {
+		fmt.Print(scanout.Text())
+	}
+	// instructs the scanner to read the input by runes instead of the default by-lines.
+	scanerr.Split(bufio.ScanRunes)
+	for scanerr.Scan() {
+		fmt.Print(scanerr.Text())
+	}
+	return scanout, scanerr
 }
 
 // Show progress when the command is executed
