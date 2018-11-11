@@ -12,31 +12,31 @@ import (
 
 var _ = Describe("Yaml Validation", func() {
 
-	DescribeTable("Valid Yaml", func(data string, validations ...YamlCheck) {
+	DescribeTable("Valid Yaml", func(data string, validations ...yamlCheck) {
 		validateIssues, parseErr := ValidateYaml([]byte(data), validations...)
 
 		assertNoParsingErrors(parseErr)
 		assertNoValidationErrors(validateIssues)
 	},
-		Entry("MatchesRegExp", `
+		Entry("matchesRegExp", `
 firstName: Donald
 lastName: duck
-`, Property("lastName", MatchesRegExp("^[A-Za-z0-9_\\-\\.]+$"))),
+`, property("lastName", matchesRegExp("^[A-Za-z0-9_\\-\\.]+$"))),
 
-		Entry("Required", `
+		Entry("required", `
 firstName: Donald
 lastName: duck
-`, Property("firstName", Required())),
+`, property("firstName", required())),
 
 		Entry("Type Is String", `
 firstName: Donald
 lastName: duck
-`, Property("firstName", TypeIsNotMapArray())),
+`, property("firstName", typeIsNotMapArray())),
 
 		Entry("Type Is Bool", `
 name: bisli
 registered: false
-`, Property("registered", TypeIsBoolean())),
+`, property("registered", typeIsBoolean())),
 
 		Entry("Type Is Array", `
 firstName:
@@ -44,12 +44,12 @@ firstName:
    - 2
    - 3
 lastName: duck
-`, Property("firstName", TypeIsArray())),
+`, property("firstName", typeIsArray())),
 
-		Entry("SequenceFailFast", `
+		Entry("sequenceFailFast", `
 firstName: Hello
 lastName: World
-`, Property("firstName", Sequence(Required(), MatchesRegExp("^[A-Za-z0-9]+$")))),
+`, property("firstName", sequence(required(), matchesRegExp("^[A-Za-z0-9]+$")))),
 
 		Entry("Type Is Map", `
 firstName:
@@ -59,7 +59,7 @@ firstName:
 lastName:
    a : 1
    b : 2
-`, Property("lastName", TypeIsMap())),
+`, property("lastName", typeIsMap())),
 
 		Entry("For Each", `
 firstName: Hello
@@ -71,66 +71,66 @@ classes:
  - name: history
    room: MR225
 
-`, Property("classes", Sequence(
-			Required(),
-			TypeIsArray(),
-			ForEach(
-				Property("name", Required()),
-				Property("room", MatchesRegExp("^MR[0-9]+$")))))),
+`, property("classes", sequence(
+			required(),
+			typeIsArray(),
+			forEach(
+				property("name", required()),
+				property("room", matchesRegExp("^MR[0-9]+$")))))),
 
-		Entry("Optional Exists", `
+		Entry("optional Exists", `
 firstName: Donald
 lastName: duck
-`, Property("firstName", Optional(TypeIsNotMapArray()))),
+`, property("firstName", optional(typeIsNotMapArray()))),
 
-		Entry("Optional Missing", `
+		Entry("optional Missing", `
 lastName: duck
-`, Property("firstName", Optional(TypeIsNotMapArray()))),
+`, property("firstName", optional(typeIsNotMapArray()))),
 	)
 
-	DescribeTable("Invalid Yaml", func(data, message string, validations ...YamlCheck) {
+	DescribeTable("Invalid Yaml", func(data, message string, validations ...yamlCheck) {
 		validateIssues, parseErr := ValidateYaml([]byte(data), validations...)
 
 		assertNoParsingErrors(parseErr)
 		expectSingleValidationError(validateIssues, message)
 	},
-		Entry("MatchesRegExp", `
+		Entry("matchesRegExp", `
 firstName: Donald
 lastName: duck
-`, `Property <root.firstName> with value: <Donald> must match pattern: <^[0-9_\-\.]+$>`,
-			Property("firstName", MatchesRegExp("^[0-9_\\-\\.]+$"))),
+`, `property <root.firstName> with value: <Donald> must match pattern: <^[0-9_\-\.]+$>`,
+			property("firstName", matchesRegExp("^[0-9_\\-\\.]+$"))),
 
-		Entry("Required", `
+		Entry("required", `
 firstName: Donald
 lastName: duck
-`, `Missing Required Property <age> in <root>`,
-			Property("age", Required())),
+`, `Missing required property <age> in <root>`,
+			property("age", required())),
 
-		Entry("Required", `
+		Entry("required", `
 firstName:
    - 1
    - 2
    - 3
 lastName: duck
-`, `Property <root.firstName> must be of type <string>`,
-			Property("firstName", TypeIsNotMapArray())),
+`, `property <root.firstName> must be of type <string>`,
+			property("firstName", typeIsNotMapArray())),
 
 		Entry("TypeIsBool", `
 name: bamba
 registered: 123
-`, `Property <root.registered> must be of type <Boolean>`,
-			Property("registered", TypeIsBoolean())),
+`, `property <root.registered> must be of type <Boolean>`,
+			property("registered", typeIsBoolean())),
 
-		Entry("TypeIsArray", `
+		Entry("typeIsArray", `
 firstName:
    - 1
    - 2
    - 3
 lastName: duck
-`, `Property <root.lastName> must be of type <Array>`,
-			Property("lastName", TypeIsArray())),
+`, `property <root.lastName> must be of type <Array>`,
+			property("lastName", typeIsArray())),
 
-		Entry("TypeIsMap", `
+		Entry("typeIsMap", `
 firstName:
    - 1
    - 2
@@ -138,25 +138,25 @@ firstName:
 lastName:
    a : 1
    b : 2
-`, `Property <root.firstName> must be of type <Map>`,
-			Property("firstName", TypeIsMap())),
+`, `property <root.firstName> must be of type <Map>`,
+			property("firstName", typeIsMap())),
 
-		Entry("SequenceFailFast", `
+		Entry("sequenceFailFast", `
 firstName: Hello
 lastName: World
-`, `Missing Required Property <missing> in <root>`,
-			Property("missing", SequenceFailFast(
-				Required(),
+`, `Missing required property <missing> in <root>`,
+			property("missing", sequenceFailFast(
+				required(),
 				// This second validation should not be executed as sequence breaks early.
-				MatchesRegExp("^[0-9]+$")))),
+				matchesRegExp("^[0-9]+$")))),
 
 		Entry("OptionalExists", `
 firstName:
   - 1
   - 2
 lastName: duck
-`, `Property <root.firstName> must be of type <string>`,
-			Property("firstName", Optional(TypeIsNotMapArray()))),
+`, `property <root.firstName> must be of type <string>`,
+			property("firstName", optional(typeIsNotMapArray()))),
 	)
 
 	It("InvalidYamlHandling", func() {
@@ -164,7 +164,7 @@ lastName: duck
 firstName: Donald
   lastName: duck # invalid indentation
 		`)
-		_, parseErr := ValidateYaml(data, Property("lastName", Required()))
+		_, parseErr := ValidateYaml(data, property("lastName", required()))
 		Ω(parseErr).Should(HaveOccurred())
 	})
 
@@ -179,20 +179,20 @@ classes:
  - room: 225
 
 `)
-		validations := Property("classes", Sequence(
-			Required(),
-			TypeIsArray(),
-			ForEach(
-				Property("name", Required()),
-				Property("room", MatchesRegExp("^[0-9]+$")))))
+		validations := property("classes", sequence(
+			required(),
+			typeIsArray(),
+			forEach(
+				property("name", required()),
+				property("room", matchesRegExp("^[0-9]+$")))))
 
 		validateIssues, parseErr := ValidateYaml(data, validations)
 
 		assertNoParsingErrors(parseErr)
 		expectMultipleValidationError(validateIssues,
 			[]string{
-				"Property <classes[0].room> with value: <oops> must match pattern: <^[0-9]+$>",
-				"Missing Required Property <name> in <classes[1]>"})
+				"property <classes[0].room> with value: <oops> must match pattern: <^[0-9]+$>",
+				"Missing required property <name> in <classes[1]>"})
 	})
 })
 

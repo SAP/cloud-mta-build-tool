@@ -21,7 +21,7 @@ func validateModules(mta *MTA, projectPath string) []mta_validate.YamlValidation
 		dirName := filepath.Join(projectPath, modulePath)
 		_, err := ioutil.ReadDir(dirName)
 		if err != nil {
-			issues = append(issues, []mta_validate.YamlValidationIssue{{fmt.Sprintf("Module <%s> not found in project. Expected path: <%s>", module.Name, modulePath)}}...)
+			issues = append(issues, []mta_validate.YamlValidationIssue{{Msg: fmt.Sprintf("Module <%s> not found in project. Expected path: <%s>", module.Name, modulePath)}}...)
 		}
 	}
 

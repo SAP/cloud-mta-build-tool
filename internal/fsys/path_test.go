@@ -8,8 +8,8 @@ import (
 )
 
 var _ = Describe("Path", func() {
-	It("GetRelativePath", func() {
-		Ω(GetRelativePath(getFullPath("abc", "xyz", "fff"),
+	It("getRelativePath", func() {
+		Ω(getRelativePath(getFullPath("abc", "xyz", "fff"),
 			filepath.Join(getFullPath()))).Should(Equal(string(filepath.Separator) + filepath.Join("abc", "xyz", "fff")))
 	})
 	It("GetSource - Explicit", func() {
@@ -44,13 +44,13 @@ var _ = Describe("Path", func() {
 		location := MtaLocationParameters{SourcePath: getFullPath("xyz"), TargetPath: getFullPath("abc")}
 		Ω(location.GetSourceModuleDir("mpath")).Should(Equal(getFullPath("xyz", "mpath")))
 	})
-	It("GetMtaYamlFilename - Explicit", func() {
+	It("getMtaYamlFilename - Explicit", func() {
 		location := MtaLocationParameters{MtaFilename: "mymta.yaml"}
-		Ω(location.GetMtaYamlFilename()).Should(Equal("mymta.yaml"))
+		Ω(location.getMtaYamlFilename()).Should(Equal("mymta.yaml"))
 	})
-	It("GetMtaYamlFilename - Implicit", func() {
+	It("getMtaYamlFilename - Implicit", func() {
 		location := MtaLocationParameters{}
-		Ω(location.GetMtaYamlFilename()).Should(Equal("mta.yaml"))
+		Ω(location.getMtaYamlFilename()).Should(Equal("mta.yaml"))
 	})
 	It("GetMtaYamlPath", func() {
 		location := MtaLocationParameters{}

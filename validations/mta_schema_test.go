@@ -59,6 +59,6 @@ modules:
 `)
 		validateIssues, parseErr := ValidateYaml(input, schemaValidations...)
 		assertNoParsingErrors(parseErr)
-		expectSingleValidationError(validateIssues, `Missing Required Property <type> in <modules[1]>`)
+		expectSingleValidationError(validateIssues, `Missing required property <type> in <modules[1]>`)
 	})
 })
