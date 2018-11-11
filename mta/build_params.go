@@ -20,11 +20,11 @@ func (requires *BuildRequires) ProcessRequirements(ep *dir.MtaLocationParameters
 	// validate module names - both in process and required
 	module, err := mta.GetModuleByName(moduleName)
 	if err != nil {
-		return errors.Wrapf(err, "Processed module %v not defined in MTA", moduleName)
+		return errors.Wrapf(err, "Processing requirements of module %v based on module %v failed on getting module", moduleName, requires.Name)
 	}
 	requiredModule, err := mta.GetModuleByName(requires.Name)
 	if err != nil {
-		return errors.Wrapf(err, "Required module %v not defined in MTA", requires.Name)
+		return errors.Wrapf(err, "Processing requirements of module %v based on module %v failed on getting required module", moduleName, requires.Name)
 	}
 	// Get slice of artifacts
 	artifactsStr := strings.Replace(requires.Artifacts, "[", "", 1)
@@ -34,14 +34,24 @@ func (requires *BuildRequires) ProcessRequirements(ep *dir.MtaLocationParameters
 	// Validate artifacts
 	err = validateArtifacts(ep, requiredModule, artifacts)
 	if err != nil {
-		return errors.Wrapf(err, "Error while processing requirements of module %v based on module %v", moduleName, requiredModule.Name)
+		return errors.Wrapf(err, "Processing requirements of module %v based on module %v failed on Artifacts validation", moduleName, requiredModule.Name)
 	}
 	// Build paths for artifacts copying
-	sourcePath := requiredModule.getBuildResultsPath(ep)
-	targetPath := requires.getRequiredTargetPath(ep, module)
-
+	sourcePath, err := requiredModule.getBuildResultsPath(ep)
+	if err != nil {
+		return errors.Wrapf(err, "Processing requirements of module %v based on module %v failed on getting Results Path", moduleName, requiredModule.Name)
+	}
+	targetPath, err := requires.getRequiredTargetPath(ep, module)
+	if err != nil {
+		return errors.Wrapf(err, "Processing requirements of module %v based on module %v failed on getting Required Target Path", moduleName, requiredModule.Name)
+	}
 	// execute copy of artifacts
-	return CopyRequiredArtifacts(sourcePath, targetPath, artifacts)
+	err = CopyRequiredArtifacts(sourcePath, targetPath, artifacts)
+
+	if err != nil {
+		return errors.Wrapf(err, "rocessing requirements of module %v based on module %v failed on artifacts copying", moduleName, requiredModule.Name)
+	}
+	return nil
 }
 
 // CopyRequiredArtifacts - copies artifacts of predecessor (source module) to dependent (target module)
@@ -90,23 +100,31 @@ func validateArtifacts(ep *dir.MtaLocationParameters, requiredModule *Modules, a
 }
 
 // getBuildResultsPath - provides path of build results
-func (module *Modules) getBuildResultsPath(ep *dir.MtaLocationParameters) string {
+func (module *Modules) getBuildResultsPath(ep *dir.MtaLocationParameters) (string, error) {
 	if module.BuildParams.Path == "" {
 		// if no subfolder provided - build results will be saved in the module folder
 		return ep.GetSourceModuleDir(module.Path)
 	} else {
 		// if subfolder provided - build results will be saved in the subfolder of the module folder
-		return filepath.Join(ep.GetSourceModuleDir(module.Path), module.BuildParams.Path)
+		source, err := ep.GetSourceModuleDir(module.Path)
+		if err != nil {
+			return "", errors.Wrap(err, "getBuildResultsPath failed")
+		}
+		return filepath.Join(source, module.BuildParams.Path), nil
 	}
 }
 
 // getRequiredTargetPath - provides path of required artifacts
-func (requires *BuildRequires) getRequiredTargetPath(ep *dir.MtaLocationParameters, module *Modules) string {
+func (requires *BuildRequires) getRequiredTargetPath(ep *dir.MtaLocationParameters, module *Modules) (string, error) {
 	if requires.TargetPath == "" {
 		// if no target folder provided - artifacts will be saved in module folder
 		return ep.GetSourceModuleDir(module.Path)
 	} else {
 		// if target folder provided - artifacts will be saved in the subfolder of the module folder
-		return filepath.Join(ep.GetSourceModuleDir(module.Path), requires.TargetPath)
+		source, err := ep.GetSourceModuleDir(module.Path)
+		if err != nil {
+			return "", errors.Wrap(err, "getRequiredTargetPath failed")
+		}
+		return filepath.Join(source, requires.TargetPath), nil
 	}
 }

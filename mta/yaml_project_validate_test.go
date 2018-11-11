@@ -14,7 +14,8 @@ var _ = Describe("ValidateYamlProject", func() {
 		wd, _ := os.Getwd()
 		ep := dir.MtaLocationParameters{SourcePath: filepath.Join(wd, "testdata", "testproject")}
 		mta, _ := ReadMta(&ep)
-		issues := ValidateYamlProject(mta, ep.GetSource())
+		source, _ := ep.GetSource()
+		issues := ValidateYamlProject(mta, source)
 		Ω(issues[0].Msg).Should(Equal("Module <ui5app2> not found in project. Expected path: <ui5app2>"))
 	})
 })

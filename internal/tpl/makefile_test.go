@@ -100,6 +100,9 @@ makefile_version: 0.0.0
 			Ω(makeFileFullPath).Should(BeAnExistingFile())
 			Ω(getMakeFileContent(makeFileFullPath)).Should(Equal(expectedMakeFileDepContent))
 		})
+		It("Make testing with wrong mta yaml file", func() {
+			Ω(Make(&dir.MtaLocationParameters{SourcePath: filepath.Join(wd, "testdata"), MtaFilename: "xxx.yaml"}, "")).Should(HaveOccurred())
+		})
 		It("Make testing with wrong mode", func() {
 			Ω(Make(&dir.MtaLocationParameters{SourcePath: filepath.Join(wd, "testdata")}, "wrongMode")).Should(HaveOccurred())
 		})

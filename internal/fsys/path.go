@@ -20,81 +20,134 @@ type MtaLocationParameters struct {
 	Descriptor string
 }
 
+var getWorkingDirectory = func() (string, error) {
+	return os.Getwd()
+}
+
 // GetSource -Get Processed Project Path
 // If not provided - current directory
-func (ep *MtaLocationParameters) GetSource() string {
+func (ep *MtaLocationParameters) GetSource() (string, error) {
 	if ep.SourcePath == "" {
-		// TODO handle error
-		p, _ := os.Getwd()
-		return p
+		wd, err := getWorkingDirectory()
+		if err != nil {
+			return "", errors.Wrap(err, "GetSource failed")
+		} else {
+			return wd, nil
+		}
 	} else {
-		return ep.SourcePath
+		return ep.SourcePath, nil
 	}
 }
 
 // GetTarget -Get Target Path
 // If not provided - path of processed project
-func (ep *MtaLocationParameters) GetTarget() string {
+func (ep *MtaLocationParameters) GetTarget() (string, error) {
 	if ep.TargetPath == "" {
-		return ep.GetSource()
+		source, err := ep.GetSource()
+		if err != nil {
+			return "", errors.Wrap(err, "GetTarget failed")
+		} else {
+			return source, nil
+		}
 	} else {
-		return ep.TargetPath
+		return ep.TargetPath, nil
 	}
 }
 
 // GetTargetTmpDir -Get Target Temporary Directory path
 // Subdirectory in target folder named as source project folder
-func (ep *MtaLocationParameters) GetTargetTmpDir() string {
-	_, file := filepath.Split(ep.GetSource())
+func (ep *MtaLocationParameters) GetTargetTmpDir() (string, error) {
+	source, err := ep.GetSource()
+	if err != nil {
+		return "", errors.Wrap(err, "GetTargetTmpDir failed")
+	}
+	_, file := filepath.Split(source)
+	target, err := ep.GetTarget()
+	if err != nil {
+		return "", errors.Wrap(err, "GetTargetTmpDir failed")
+	}
 	// append to the currentPath the file name
-	return filepath.Join(ep.GetTarget(), file)
+	return filepath.Join(target, file), nil
 }
 
 // GetTargetModuleDir -Get path to the packed module directory
 // Subdirectory in Target Temporary Directory named by module name
-func (ep *MtaLocationParameters) GetTargetModuleDir(moduleName string) string {
-	return filepath.Join(ep.GetTargetTmpDir(), moduleName)
+func (ep *MtaLocationParameters) GetTargetModuleDir(moduleName string) (string, error) {
+	dir, err := ep.GetTargetTmpDir()
+	if err != nil {
+		return "", errors.Wrap(err, "GetTargetModuleDir failed")
+	}
+
+	return filepath.Join(dir, moduleName), nil
 }
 
 // GetTargetModuleZipPath -Get path to the packed module data.zip
 // Subdirectory in Target Temporary Directory named by module name
-func (ep *MtaLocationParameters) GetTargetModuleZipPath(moduleName string) string {
-	return filepath.Join(ep.GetTargetModuleDir(moduleName), "data.zip")
+func (ep *MtaLocationParameters) GetTargetModuleZipPath(moduleName string) (string, error) {
+	dir, err := ep.GetTargetModuleDir(moduleName)
+	if err != nil {
+		return "", errors.Wrap(err, "GetTargetModuleZipPath failed")
+	}
+	return filepath.Join(dir, "data.zip"), nil
 }
 
 // GetSourceModuleDir -Get path to module to be packed
 // Subdirectory in Source
-func (ep *MtaLocationParameters) GetSourceModuleDir(modulePath string) string {
-	return filepath.Join(ep.GetSource(), modulePath)
+func (ep *MtaLocationParameters) GetSourceModuleDir(modulePath string) (string, error) {
+	source, err := ep.GetSource()
+	if err != nil {
+		return "", errors.Wrap(err, "GetSourceModuleDir failed")
+	}
+	return filepath.Join(source, modulePath), nil
 }
 
 // GetMtaYamlFilename -Get MTA yaml File name
 func (ep *MtaLocationParameters) GetMtaYamlFilename() string {
 	if ep.MtaFilename == "" {
-		return "mta.yaml"
+		if ep.Descriptor == "dep" {
+			return "mtad.yaml"
+		} else {
+			return "mta.yaml"
+		}
 	} else {
 		return ep.MtaFilename
 	}
 }
 
 // GetMtaYamlPath -Get MTA yaml File path
-func (ep *MtaLocationParameters) GetMtaYamlPath() string {
-	return filepath.Join(ep.GetSource(), ep.GetMtaYamlFilename())
+func (ep *MtaLocationParameters) GetMtaYamlPath() (string, error) {
+	source, err := ep.GetSource()
+	if err != nil {
+		return "", errors.Wrap(err, "GetMtaYamlPath failed")
+	}
+	return filepath.Join(source, ep.GetMtaYamlFilename()), nil
 }
 
 // GetMetaPath -Get path to generated META-INF directory
-func (ep *MtaLocationParameters) GetMetaPath() string {
-	return filepath.Join(ep.GetTargetTmpDir(), "META-INF")
+func (ep *MtaLocationParameters) GetMetaPath() (string, error) {
+	dir, err := ep.GetTargetTmpDir()
+	if err != nil {
+		return "", errors.Wrap(err, "GetMetaPath failed")
+	}
+	return filepath.Join(dir, "META-INF"), nil
 }
 
 // GetMtadPath -Get path to generated MTAD file
-func (ep *MtaLocationParameters) GetMtadPath() string {
-	return filepath.Join(ep.GetMetaPath(), "mtad.yaml")
+func (ep *MtaLocationParameters) GetMtadPath() (string, error) {
+	dir, err := ep.GetMetaPath()
+	if err != nil {
+		return "", errors.Wrap(err, "GetMtadPath failed")
+	}
+	return filepath.Join(dir, "mtad.yaml"), nil
 }
 
 // GetManifestPath -Get path to generated manifest file
-func (ep *MtaLocationParameters) GetManifestPath() string {
-	return filepath.Join(ep.GetMetaPath(), "MANIFEST.MF")
+func (ep *MtaLocationParameters) GetManifestPath() (string, error) {
+	dir, err := ep.GetMetaPath()
+	if err != nil {
+		return "", errors.Wrap(err, "GetManifestPath failed")
+	}
+	return filepath.Join(dir, "MANIFEST.MF"), nil
 }
 
 // GetRelativePath - -Remove the basePath from the fullPath and get only the relative

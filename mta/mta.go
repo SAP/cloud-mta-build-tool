@@ -129,13 +129,16 @@ func Marshal(in *MTA) (mtads []byte, err error) {
 
 // Read MTA Yaml file
 func ReadMtaYaml(ep *fs.MtaLocationParameters) ([]byte, error) {
-	fileFullPath := ep.GetMtaYamlPath()
+	fileFullPath, err := ep.GetMtaYamlPath()
+	if err != nil {
+		return nil, errors.Wrap(err, "ReadMtaYaml failed getting MTA Yaml path")
+	}
 	// Read MTA file
 	yamlFile, err := ioutil.ReadFile(fileFullPath)
 	if err != nil {
-		err = errors.Wrap(err, "not able to read the mta file")
+		return nil, errors.Wrap(err, "ReadMtaYaml failed getting MTA Yaml path reading the mta file")
 	}
-	return yamlFile, err
+	return yamlFile, nil
 }
 
 // GetModules - Get list of mta modules

@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 
 	"cloud-mta-build-tool/internal/fsys"
+	"github.com/pkg/errors"
 )
 
 // The deployment descriptor shall be located within the META-INF folder of the JAR.
@@ -62,31 +63,50 @@ func printToFile(file io.Writer, mtaStr *Modules) {
 // GenMtad -Generate mtad.yaml from mta file and configuration file
 func GenMtad(mtaStr *MTA, ep *dir.MtaLocationParameters, convertTypes func(mtaStr *MTA)) error {
 	// Create META-INF folder under the mtar folder
-	createDirIfNotExist(ep.GetMetaPath())
+	metaPath, err := ep.GetMetaPath()
+	if err != nil {
+		return errors.Wrap(err, "MTAD generation failed")
+	}
+	createDirIfNotExist(metaPath)
 
 	if !ep.IsDeploymentDescriptor() {
 		convertTypes(mtaStr)
 	}
 	// Create readable Yaml before writing to file
 	mtad, err := Marshal(mtaStr)
-	// Write back the MTAD to the META-INF folder
-	if err == nil {
-		err = ioutil.WriteFile(ep.GetMtadPath(), mtad, os.ModePerm)
+	if err != nil {
+		return errors.Wrap(err, "MTAD generation failed")
 	}
-	return err
+	mtadPath, err := ep.GetMtadPath()
+	if err == nil {
+		// Write back the MTAD to the META-INF folder
+		err = ioutil.WriteFile(mtadPath, mtad, os.ModePerm)
+	}
+	if err != nil {
+		return errors.Wrap(err, "MTAD generation failed")
+	}
+	return nil
 }
 
 // GenMetaInfo -Generate MetaInfo (MANIFEST.MF file)
 func GenMetaInfo(ep *dir.MtaLocationParameters, mtaStr *MTA, modules []string, convertTypes func(mtaStr *MTA)) error {
 	err := GenMtad(mtaStr, ep, convertTypes)
-	if err == nil {
-		// Create MANIFEST.MF file
-		file, _ := createFile(ep.GetManifestPath())
-		defer file.Close()
-		// Set the MANIFEST.MF file
-		setManifetDesc(file, mtaStr.Modules, modules)
+	if err != nil {
+		return errors.Wrap(err, "META INFO generation failed")
 	}
-	return err
+	// Create MANIFEST.MF file
+	manifestPath, err := ep.GetManifestPath()
+	if err != nil {
+		return errors.Wrap(err, "META INFO generation failed")
+	}
+	file, err := createFile(manifestPath)
+	if err != nil {
+		return errors.Wrap(err, "META INFO generation failed")
+	}
+	defer file.Close()
+	// Set the MANIFEST.MF file
+	setManifetDesc(file, mtaStr.Modules, modules)
+	return nil
 }
 
 // CreateDirIfNotExist - Create new dir
