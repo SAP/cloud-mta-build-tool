@@ -28,7 +28,7 @@ var _ = Describe("FSOPS", func() {
 
 		var _ = DescribeTable("CreateDir", func(dirPath string) {
 
-			Ω(CreateDirIfNotExist(dirPath)).Should(Succeed())
+			Ω(createDirIfNotExist(dirPath)).Should(Succeed())
 		},
 			Entry("Sanity", getFullPath("testdata", "level2", "result")),
 			Entry("DirectoryExists", getFullPath("testdata", "level2", "level3")),

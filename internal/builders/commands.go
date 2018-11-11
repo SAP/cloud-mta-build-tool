@@ -11,9 +11,10 @@ type commandList struct {
 }
 
 // CommandProvider - Get build command's to execute
+//noinspection GoExportedFuncWithUnexportedType
 func CommandProvider(modules mta.Modules) (commandList, error) {
 	// Get config from ./commands_cfg.yaml as generated artifacts from source
-	commands, err := Parse(CommandsConfig)
+	commands, err := parse(CommandsConfig)
 	if err != nil {
 		return commandList{}, err
 	}

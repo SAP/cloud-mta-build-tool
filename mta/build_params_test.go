@@ -26,7 +26,7 @@ var _ = Describe("BuildParams", func() {
 		Ω(module.getBuildResultsPath(&dir.MtaLocationParameters{})).Should(HaveSuffix(expected))
 	},
 		Entry("Implicit Build Results Path", &Modules{Path: "mPath"}, "mPath"),
-		Entry("Explicit Build Results Path", &Modules{Path: "mPath", BuildParams: BuildParameters{Path: "bPath"}}, "bPath"))
+		Entry("Explicit Build Results Path", &Modules{Path: "mPath", BuildParams: buildParameters{Path: "bPath"}}, "bPath"))
 
 	var _ = DescribeTable("getRequiredTargetPath", func(requires BuildRequires, module Modules, expected string) {
 		Ω(requires.getRequiredTargetPath(&dir.MtaLocationParameters{}, &module)).Should(HaveSuffix(expected))
@@ -58,7 +58,7 @@ var _ = Describe("BuildParams", func() {
 					{
 						Name: "B",
 						Path: "moduleB",
-						BuildParams: BuildParameters{
+						BuildParams: buildParameters{
 							Requires: []BuildRequires{
 								require,
 							},

@@ -93,7 +93,7 @@ var bModuleCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		err := fs.ValidateDeploymentDescriptor(descriptorBModuleFlag)
 		if err == nil {
-			ep := GetLocationParameters(sourceBModuleFlag, targetBModuleFlag, descriptorBModuleFlag)
+			ep := locationParameters(sourceBModuleFlag, targetBModuleFlag, descriptorBModuleFlag)
 			err = buildModule(&ep, pBuildModuleNameFlag)
 		}
 		return err
@@ -110,7 +110,7 @@ var packCmd = &cobra.Command{
 	Long:  "pack the module artifacts after the build process",
 	Args:  cobra.NoArgs,
 	Run: func(cmd *cobra.Command, args []string) {
-		ep := GetLocationParameters(sourcePackFlag, targetPackFlag, descriptorPackFlag)
+		ep := locationParameters(sourcePackFlag, targetPackFlag, descriptorPackFlag)
 		modulePath, _, err := getModuleRelativePathAndCommands(&ep, pPackModuleFlag)
 		if err == nil {
 			err = packModule(&ep, modulePath, pPackModuleFlag)
@@ -128,7 +128,7 @@ var genMetaCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		err := fs.ValidateDeploymentDescriptor(descriptorMetaFlag)
 		if err == nil {
-			ep := GetLocationParameters(sourceMetaFlag, targetMetaFlag, descriptorMetaFlag)
+			ep := locationParameters(sourceMetaFlag, targetMetaFlag, descriptorMetaFlag)
 			err = generateMeta(&ep)
 		}
 		logErrorExt(err, "META generation failed")
@@ -144,7 +144,7 @@ var genMtarCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		err := fs.ValidateDeploymentDescriptor(descriptorMtarFlag)
 		if err == nil {
-			ep := GetLocationParameters(sourceMtarFlag, targetMtarFlag, descriptorMtarFlag)
+			ep := locationParameters(sourceMtarFlag, targetMtarFlag, descriptorMtarFlag)
 			err = generateMtar(&ep)
 		}
 		logErrorExt(err, "MTAR generation failed")
@@ -163,7 +163,7 @@ var genMtadCmd = &cobra.Command{
 			logErrorExt(err, "MTAD generation failed")
 			return err
 		}
-		ep := GetLocationParameters(sourceMtadFlag, targetMtadFlag, descriptorMtadFlag)
+		ep := locationParameters(sourceMtadFlag, targetMtadFlag, descriptorMtadFlag)
 		// TODO if descriptor == "dep" -> Copy mtad
 		mtaStr, err := mta.ReadMta(&ep)
 		if err == nil {
@@ -193,7 +193,7 @@ var validateCmd = &cobra.Command{
 		}
 		validateSchema, validateProject, err := getValidationMode(pValidationFlag)
 		if err == nil {
-			ep := GetLocationParameters(sourceValidateFlag, sourceValidateFlag, descriptorValidateFlag)
+			ep := locationParameters(sourceValidateFlag, sourceValidateFlag, descriptorValidateFlag)
 			err = validateMtaYaml(&ep, validateSchema, validateProject)
 		}
 		logErrorExt(err, "MBT Validation failed")
@@ -209,7 +209,7 @@ var cleanupCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		logs.Logger.Info("Starting Cleanup process")
 		// Remove temp folder
-		ep := GetLocationParameters(sourceCleanupFlag, targetCleanupFlag, descriptorCleanupFlag)
+		ep := locationParameters(sourceCleanupFlag, targetCleanupFlag, descriptorCleanupFlag)
 		targetTmpFDir, err := ep.GetTargetTmpDir()
 		if err == nil {
 			err = os.RemoveAll(targetTmpFDir)
@@ -222,8 +222,8 @@ var cleanupCmd = &cobra.Command{
 	},
 }
 
-// GetLocationParameters - provides location parameters of MTA
-func GetLocationParameters(sourceFlag, targetFlag, descriptor string) fs.MtaLocationParameters {
+// locationParameters - provides location parameters of MTA
+func locationParameters(sourceFlag, targetFlag, descriptor string) fs.MtaLocationParameters {
 	var mtaFilename string
 	if descriptor == "dev" || descriptor == "" {
 		mtaFilename = "mta.yaml"
@@ -238,7 +238,7 @@ func GetLocationParameters(sourceFlag, targetFlag, descriptor string) fs.MtaLoca
 // generate build metadata artifacts
 func generateMeta(ep *fs.MtaLocationParameters) error {
 	return processMta("Metadata creation", ep, []string{}, func(file []byte, args []string) error {
-		// Parse MTA file
+		// parse MTA file
 		m, err := mta.ParseToMta(file)
 		if err == nil {
 			// Generate meta info dir with required content
@@ -461,9 +461,9 @@ func processDependencies(ep *fs.MtaLocationParameters, moduleName string) error 
 	}
 	if module.Requires != nil {
 		for _, req := range module.BuildParams.Requires {
-			err := req.ProcessRequirements(ep, mtaObj, module.Name)
-			if err != nil {
-				return err
+			e := req.ProcessRequirements(ep, mtaObj, module.Name)
+			if e != nil {
+				return e
 			}
 		}
 	}

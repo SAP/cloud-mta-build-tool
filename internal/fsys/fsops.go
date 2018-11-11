@@ -9,8 +9,8 @@ import (
 	"path/filepath"
 )
 
-// CreateDirIfNotExist - Create new dir
-func CreateDirIfNotExist(dir string) error {
+// createDirIfNotExist - Create new dir
+func createDirIfNotExist(dir string) error {
 	var err error
 	if _, err = os.Stat(dir); os.IsNotExist(err) {
 		err = os.MkdirAll(dir, os.ModePerm)
@@ -54,6 +54,12 @@ func Archive(sourcePath, targetArchivePath string) error {
 		baseDir += string(os.PathSeparator)
 	}
 
+	walk(sourcePath, baseDir, archive)
+
+	return err
+}
+
+func walk(sourcePath string, baseDir string, archive *zip.Writer) {
 	// pack files of source into archive
 	filepath.Walk(sourcePath, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -89,8 +95,6 @@ func Archive(sourcePath, targetArchivePath string) error {
 		}
 		return err
 	})
-
-	return err
 }
 
 // CreateFile - create new file

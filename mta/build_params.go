@@ -46,7 +46,7 @@ func (requires *BuildRequires) ProcessRequirements(ep *dir.MtaLocationParameters
 		return errors.Wrapf(err, "Processing requirements of module %v based on module %v failed on getting Required Target Path", moduleName, requiredModule.Name)
 	}
 	// execute copy of artifacts
-	err = CopyRequiredArtifacts(sourcePath, targetPath, artifacts)
+	err = copyRequiredArtifacts(sourcePath, targetPath, artifacts)
 
 	if err != nil {
 		return errors.Wrapf(err, "rocessing requirements of module %v based on module %v failed on artifacts copying", moduleName, requiredModule.Name)
@@ -54,8 +54,8 @@ func (requires *BuildRequires) ProcessRequirements(ep *dir.MtaLocationParameters
 	return nil
 }
 
-// CopyRequiredArtifacts - copies artifacts of predecessor (source module) to dependent (target module)
-func CopyRequiredArtifacts(sourcePath, targetPath string, artifacts []string) error {
+// copyRequiredArtifacts - copies artifacts of predecessor (source module) to dependent (target module)
+func copyRequiredArtifacts(sourcePath, targetPath string, artifacts []string) error {
 	if len(artifacts) == 1 {
 		if artifacts[0] == "*" {
 			// copies all source module folder's entries
@@ -70,7 +70,7 @@ func CopyRequiredArtifacts(sourcePath, targetPath string, artifacts []string) er
 		}
 	} else {
 		for _, artifact := range artifacts {
-			err := CopyRequiredArtifacts(sourcePath, targetPath, []string{artifact})
+			err := copyRequiredArtifacts(sourcePath, targetPath, []string{artifact})
 			if err != nil {
 				return errors.Wrapf(err, "Error copying artifact %v", artifact)
 			}

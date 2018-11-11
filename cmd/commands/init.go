@@ -28,7 +28,7 @@ var initProcessCmd = &cobra.Command{
 		// Generate build script
 		err := dir.ValidateDeploymentDescriptor(descriptorInitFlag)
 		if err == nil {
-			ep := GetLocationParameters(sourceInitFlag, targetInitFlag, descriptorInitFlag)
+			ep := locationParameters(sourceInitFlag, targetInitFlag, descriptorInitFlag)
 			err = tpl.Make(&ep, initModeFlag)
 		}
 		logErrorExt(err, "Makefile Generation failed")

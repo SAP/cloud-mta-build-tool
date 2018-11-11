@@ -132,7 +132,7 @@ func Test_ModulesParsing(t *testing.T) {
 						},
 					},
 				},
-				BuildParams: BuildParameters{
+				BuildParams: buildParameters{
 					Builder: "grunt",
 				},
 
@@ -175,9 +175,12 @@ func doTest(t *testing.T, expected []testInfo, filename string) {
 			tt.validator(t, *oMta.Modules[i], tt.expected)
 		})
 	}
+	run(mtaContent, err, oMta, t)
+}
+
+func run(mtaContent []byte, err error, oMta *MTA, t *testing.T) {
 	mtaContent, err = Marshal(oMta)
 	assert.Nil(t, err)
-
 	oMta2 := &MTA{}
 	newErr := oMta2.Parse(mtaContent)
 	assert.Nil(t, newErr)
@@ -250,7 +253,7 @@ func Test_FullMta(t *testing.T) {
 						Name: "someproj-logging",
 					},
 				},
-				BuildParams: BuildParameters{
+				BuildParams: buildParameters{
 					Requires: []BuildRequires{
 						{
 							Name:       "someproj-db",
@@ -280,7 +283,7 @@ func Test_FullMta(t *testing.T) {
 						Name: "someproj-logging",
 					},
 				},
-				BuildParams: BuildParameters{
+				BuildParams: buildParameters{
 					Builder: "grunt",
 					Requires: []BuildRequires{
 						{
@@ -302,7 +305,7 @@ func Test_FullMta(t *testing.T) {
 						Name: "someproj-apprepo-dt",
 					},
 				},
-				BuildParams: BuildParameters{
+				BuildParams: buildParameters{
 					Builder: "grunt",
 					Type:    "com.sap.html5.application-content",
 					Requires: []BuildRequires{
@@ -580,7 +583,7 @@ func TestMTA_GetResourceByName(t *testing.T) {
 					t.Errorf("MTA.GetResourceByName() = %v, Resource =  %v", got, elem)
 				}
 			}
-			//Wrong name case
+			// Wrong name case
 			_, err := mta.GetResourceByName("")
 			if err == nil {
 				t.Errorf("Wrong name case is not supported")
