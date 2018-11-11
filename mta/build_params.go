@@ -41,11 +41,11 @@ func (requires *BuildRequires) ProcessRequirements(ep *dir.MtaLocationParameters
 	targetPath := requires.getRequiredTargetPath(ep, module)
 
 	// execute copy of artifacts
-	return CopyRequiredArtifacts(sourcePath, targetPath, artifacts)
+	return copyRequiredArtifacts(sourcePath, targetPath, artifacts)
 }
 
-// CopyRequiredArtifacts - copies artifacts of predecessor (source module) to dependent (target module)
-func CopyRequiredArtifacts(sourcePath, targetPath string, artifacts []string) error {
+// copyRequiredArtifacts - copies artifacts of predecessor (source module) to dependent (target module)
+func copyRequiredArtifacts(sourcePath, targetPath string, artifacts []string) error {
 	if len(artifacts) == 1 {
 		if artifacts[0] == "*" {
 			// copies all source module folder's entries
@@ -60,7 +60,7 @@ func CopyRequiredArtifacts(sourcePath, targetPath string, artifacts []string) er
 		}
 	} else {
 		for _, artifact := range artifacts {
-			err := CopyRequiredArtifacts(sourcePath, targetPath, []string{artifact})
+			err := copyRequiredArtifacts(sourcePath, targetPath, []string{artifact})
 			if err != nil {
 				return errors.Wrapf(err, "Error copying artifact %v", artifact)
 			}

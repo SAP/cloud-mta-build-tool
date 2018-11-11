@@ -12,6 +12,7 @@ type yamlProjectCheck func(mta *MTA, path string) []mta_validate.YamlValidationI
 
 // validateModules - Validate the MTA file
 func validateModules(mta *MTA, projectPath string) []mta_validate.YamlValidationIssue {
+	//noinspection GoPreferNilSlice
 	issues := []mta_validate.YamlValidationIssue{}
 	for _, module := range mta.Modules {
 		modulePath := module.Path
@@ -31,6 +32,7 @@ func validateModules(mta *MTA, projectPath string) []mta_validate.YamlValidation
 // validateYamlProject - Validate the MTA file
 func validateYamlProject(mta *MTA, path string) []mta_validate.YamlValidationIssue {
 	validations := []yamlProjectCheck{validateModules}
+	//noinspection GoPreferNilSlice
 	issues := []mta_validate.YamlValidationIssue{}
 	for _, validation := range validations {
 		validationIssues := validation(mta, path)
