@@ -10,7 +10,7 @@ func TestOsCore(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
 		name string
-		want []Proc
+		want []proc
 	}{
 		{
 			name: "Operating system core",
@@ -27,16 +27,16 @@ func TestOsCore(t *testing.T) {
 	}
 }
 
-func getCores() []Proc {
+func getCores() []proc {
 
 	switch runtime.GOOS {
 	case "linux":
-		return []Proc{{`NPROCS = $(shell grep -c 'processor' /proc/cpuinfo)`, `MAKEFLAGS += -j$(NPROCS)`}}
+		return []proc{{`NPROCS = $(shell grep -c 'processor' /proc/cpuinfo)`, `MAKEFLAGS += -j$(NPROCS)`}}
 	case "darwin":
-		return []Proc{{`NPROCS = $(sysctl -n hw.ncpu')`, `MAKEFLAGS += -j$(NPROCS)`}}
+		return []proc{{`NPROCS = $(sysctl -n hw.ncpu')`, `MAKEFLAGS += -j$(NPROCS)`}}
 	case "windows":
-		return []Proc{{`NPROCS = $(shell echo %NUMBER_OF_PROCESSORS%)`, `MAKEFLAGS += -j$(NPROCS)`}}
+		return []proc{{`NPROCS = $(shell echo %NUMBER_OF_PROCESSORS%)`, `MAKEFLAGS += -j$(NPROCS)`}}
 	default:
-		return []Proc{}
+		return []proc{}
 	}
 }

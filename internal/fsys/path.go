@@ -20,29 +20,27 @@ type MtaLocationParameters struct {
 	Descriptor string
 }
 
-// GetSource -Get Processed Project Path
-// If not provided - current directory
+// GetSource - Get Processed Project Path
+// If not provided use current directory
 func (ep *MtaLocationParameters) GetSource() string {
 	if ep.SourcePath == "" {
 		// TODO handle error
 		p, _ := os.Getwd()
 		return p
-	} else {
-		return ep.SourcePath
 	}
+	return ep.SourcePath
 }
 
-// GetTarget -Get Target Path
-// If not provided - path of processed project
+// GetTarget - Get Target Path
+// If not provided use path of processed project
 func (ep *MtaLocationParameters) GetTarget() string {
 	if ep.TargetPath == "" {
 		return ep.GetSource()
-	} else {
-		return ep.TargetPath
 	}
+	return ep.TargetPath
 }
 
-// GetTargetTmpDir -Get Target Temporary Directory path
+// GetTargetTmpDir - Get Target Temporary Directory path
 // Subdirectory in target folder named as source project folder
 func (ep *MtaLocationParameters) GetTargetTmpDir() string {
 	_, file := filepath.Split(ep.GetSource())
@@ -50,59 +48,58 @@ func (ep *MtaLocationParameters) GetTargetTmpDir() string {
 	return filepath.Join(ep.GetTarget(), file)
 }
 
-// GetTargetModuleDir -Get path to the packed module directory
+// GetTargetModuleDir - Get path to the packed module directory
 // Subdirectory in Target Temporary Directory named by module name
 func (ep *MtaLocationParameters) GetTargetModuleDir(moduleName string) string {
 	return filepath.Join(ep.GetTargetTmpDir(), moduleName)
 }
 
-// GetTargetModuleZipPath -Get path to the packed module data.zip
+// GetTargetModuleZipPath - Get path to the packed module data.zip
 // Subdirectory in Target Temporary Directory named by module name
 func (ep *MtaLocationParameters) GetTargetModuleZipPath(moduleName string) string {
 	return filepath.Join(ep.GetTargetModuleDir(moduleName), "data.zip")
 }
 
-// GetSourceModuleDir -Get path to module to be packed
+// GetSourceModuleDir - Get path to module to be packed
 // Subdirectory in Source
 func (ep *MtaLocationParameters) GetSourceModuleDir(modulePath string) string {
 	return filepath.Join(ep.GetSource(), modulePath)
 }
 
-// GetMtaYamlFilename -Get MTA yaml File name
-func (ep *MtaLocationParameters) GetMtaYamlFilename() string {
+// getMtaYamlFilename - Get MTA yaml File name
+func (ep *MtaLocationParameters) getMtaYamlFilename() string {
 	if ep.MtaFilename == "" {
 		return "mta.yaml"
-	} else {
-		return ep.MtaFilename
 	}
+	return ep.MtaFilename
 }
 
-// GetMtaYamlPath -Get MTA yaml File path
+// GetMtaYamlPath - Get MTA yaml File path
 func (ep *MtaLocationParameters) GetMtaYamlPath() string {
-	return filepath.Join(ep.GetSource(), ep.GetMtaYamlFilename())
+	return filepath.Join(ep.GetSource(), ep.getMtaYamlFilename())
 }
 
-// GetMetaPath -Get path to generated META-INF directory
+// GetMetaPath - Get path to generated META-INF directory
 func (ep *MtaLocationParameters) GetMetaPath() string {
 	return filepath.Join(ep.GetTargetTmpDir(), "META-INF")
 }
 
-// GetMtadPath -Get path to generated MTAD file
+// GetMtadPath - Get path to generated MTAD file
 func (ep *MtaLocationParameters) GetMtadPath() string {
 	return filepath.Join(ep.GetMetaPath(), "mtad.yaml")
 }
 
-// GetManifestPath -Get path to generated manifest file
+// GetManifestPath - Get path to generated manifest file
 func (ep *MtaLocationParameters) GetManifestPath() string {
 	return filepath.Join(ep.GetMetaPath(), "MANIFEST.MF")
 }
 
-// GetRelativePath - -Remove the basePath from the fullPath and get only the relative
-func GetRelativePath(fullPath, basePath string) string {
+// getRelativePath - Remove the basePath from the fullPath and get only the relative
+func getRelativePath(fullPath, basePath string) string {
 	return strings.TrimPrefix(fullPath, basePath)
 }
 
-// ValidateDeploymentDescriptor -Validates Deployment Descriptor
+// ValidateDeploymentDescriptor - Validates Deployment Descriptor
 func ValidateDeploymentDescriptor(descriptor string) error {
 	if descriptor != "" && descriptor != "dev" && descriptor != "dep" {
 		return errors.New("Wrong descriptor value. Expected one of [dev, dep]. Default is dev")
@@ -110,6 +107,7 @@ func ValidateDeploymentDescriptor(descriptor string) error {
 	return nil
 }
 
+// IsDeploymentDescriptor - Check if flag is related to deployment descriptor
 func (ep *MtaLocationParameters) IsDeploymentDescriptor() bool {
 	return ep.Descriptor == "dep"
 }

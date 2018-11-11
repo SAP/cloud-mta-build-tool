@@ -13,10 +13,12 @@ import (
 	"github.com/smallfish/simpleyaml"
 )
 
+// YamlValidationIssue - specific issue
 type YamlValidationIssue struct {
 	Msg string
 }
 
+// YamlValidationIssues - list of issue's
 type YamlValidationIssues []YamlValidationIssue
 
 func (issues YamlValidationIssues) String() string {
@@ -27,11 +29,11 @@ func (issues YamlValidationIssues) String() string {
 	return s
 }
 
-type YamlCheck func(y *simpleyaml.Yaml, path []string) YamlValidationIssues
+type yamlCheck func(y *simpleyaml.Yaml, path []string) YamlValidationIssues
 
 // DSL method to execute validations on a sub node(property) of a YAML tree.
 // Can be nested to check properties farther and farther down the tree.
-func Property(propName string, checks ...YamlCheck) YamlCheck {
+func property(propName string, checks ...yamlCheck) yamlCheck {
 	return func(y *simpleyaml.Yaml, path []string) YamlValidationIssues {
 		var issues YamlValidationIssues
 		yProp := y.Get(propName)
@@ -49,8 +51,8 @@ func Property(propName string, checks ...YamlCheck) YamlCheck {
 // DSL method to execute validations in order and break early as soon as the first one fails
 // This is very useful if a certain validation cannot be executed without the previous ones succeeding.
 // For example: matching vs a regExp should not be performed for a property that is not a string.
-func Sequence(
-	checks ...YamlCheck) YamlCheck {
+func sequence(
+	checks ...yamlCheck) yamlCheck {
 
 	return sequenceInternal(false, checks...)
 }
@@ -58,14 +60,14 @@ func Sequence(
 // DSL method to execute validations in order and break early as soon as the first one fails
 // This is very useful if a certain validation cannot be executed without the previous ones succeeding.
 // For example: matching vs a regExp should not be performed for a property that is not a string.
-func SequenceFailFast(
-	checks ...YamlCheck) YamlCheck {
+func sequenceFailFast(
+	checks ...yamlCheck) yamlCheck {
 
 	return sequenceInternal(true, checks...)
 }
 
 func sequenceInternal(failfast bool,
-	checks ...YamlCheck) YamlCheck {
+	checks ...yamlCheck) yamlCheck {
 
 	return func(y *simpleyaml.Yaml, path []string) YamlValidationIssues {
 		var issues YamlValidationIssues
@@ -86,14 +88,14 @@ func sequenceInternal(failfast bool,
 }
 
 // DSL method to iterate over a YAML array items
-func ForEach(checks ...YamlCheck) YamlCheck {
+func forEach(checks ...yamlCheck) yamlCheck {
 
 	return func(yProp *simpleyaml.Yaml, path []string) YamlValidationIssues {
 		arrSize, _ := yProp.GetArraySize()
 
 		var issues YamlValidationIssues
 
-		validation := Sequence(checks...)
+		validation := sequence(checks...)
 
 		for i := 0; i < arrSize; i++ {
 			yElem := yProp.GetIndex(i)
@@ -107,11 +109,11 @@ func ForEach(checks ...YamlCheck) YamlCheck {
 
 // DSL method to ensure a property exists.
 // Note that this has no context, the property being checked is provided externally
-// via the "Property" DSL method.
-func Required() YamlCheck {
+// via the "property" DSL method.
+func required() yamlCheck {
 	return func(yProp *simpleyaml.Yaml, path []string) YamlValidationIssues {
 		if !yProp.IsFound() {
-			return []YamlValidationIssue{{Msg: fmt.Sprintf("Missing Required Property <%s> in <%s>",
+			return []YamlValidationIssue{{Msg: fmt.Sprintf("Missing required property <%s> in <%s>",
 				last(path),
 				buildPathString(dropRight(path)))}}
 		}
@@ -122,11 +124,11 @@ func Required() YamlCheck {
 
 // DSL method that will only perform validations if the property exists
 // Useful to avoid executing validations on none mandatory properties which are not present.
-func Optional(checks ...YamlCheck) YamlCheck {
+func optional(checks ...yamlCheck) yamlCheck {
 	return func(y *simpleyaml.Yaml, path []string) YamlValidationIssues {
 		var issues YamlValidationIssues
 
-		// If an Optional property is not found
+		// If an optional property is not found
 		// no sense in executing the validations.
 		if !y.IsFound() {
 			return issues
@@ -141,25 +143,25 @@ func Optional(checks ...YamlCheck) YamlCheck {
 	}
 }
 
-func TypeIsNotMapArray() YamlCheck {
+func typeIsNotMapArray() yamlCheck {
 	return func(yProp *simpleyaml.Yaml, path []string) YamlValidationIssues {
 
 		if yProp.IsMap() || yProp.IsArray() {
-			return []YamlValidationIssue{{Msg: fmt.Sprintf("Property <%s> must be of type <string>", buildPathString(path))}}
+			return []YamlValidationIssue{{Msg: fmt.Sprintf("property <%s> must be of type <string>", buildPathString(path))}}
 		}
 
 		return []YamlValidationIssue{}
 	}
 }
 
-func TypeIsArray() YamlCheck {
+func typeIsArray() yamlCheck {
 	return func(yProp *simpleyaml.Yaml, path []string) YamlValidationIssues {
 
 		if yProp.IsFound() {
 			_, err := yProp.Array()
 
 			if err != nil {
-				return []YamlValidationIssue{{Msg: fmt.Sprintf("Property <%s> must be of type <Array>", buildPathString(path))}}
+				return []YamlValidationIssue{{Msg: fmt.Sprintf("property <%s> must be of type <Array>", buildPathString(path))}}
 			}
 		}
 
@@ -167,14 +169,14 @@ func TypeIsArray() YamlCheck {
 	}
 }
 
-func TypeIsMap() YamlCheck {
+func typeIsMap() yamlCheck {
 	return func(yProp *simpleyaml.Yaml, path []string) YamlValidationIssues {
 
 		if yProp.IsFound() {
 			_, err := yProp.Map()
 
 			if err != nil {
-				return []YamlValidationIssue{{Msg: fmt.Sprintf("Property <%s> must be of type <Map>", buildPathString(path))}}
+				return []YamlValidationIssue{{Msg: fmt.Sprintf("property <%s> must be of type <Map>", buildPathString(path))}}
 			}
 		}
 
@@ -182,13 +184,13 @@ func TypeIsMap() YamlCheck {
 	}
 }
 
-func TypeIsBoolean() YamlCheck {
+func typeIsBoolean() yamlCheck {
 	return func(yProp *simpleyaml.Yaml, path []string) YamlValidationIssues {
 		if yProp.IsFound() {
 			_, err := yProp.Bool()
 
 			if err != nil {
-				return []YamlValidationIssue{{Msg: fmt.Sprintf("Property <%s> must be of type <Boolean>", buildPathString(path))}}
+				return []YamlValidationIssue{{Msg: fmt.Sprintf("property <%s> must be of type <Boolean>", buildPathString(path))}}
 			}
 		}
 
@@ -196,7 +198,7 @@ func TypeIsBoolean() YamlCheck {
 	}
 }
 
-func MatchesRegExp(pattern string) YamlCheck {
+func matchesRegExp(pattern string) yamlCheck {
 	regExp, _ := regexp.Compile(pattern)
 
 	return func(yProp *simpleyaml.Yaml, path []string) YamlValidationIssues {
@@ -204,7 +206,7 @@ func MatchesRegExp(pattern string) YamlCheck {
 
 		if !regExp.MatchString(strValue) {
 			return []YamlValidationIssue{
-				{Msg: fmt.Sprintf("Property <%s> with value: <%s> must match pattern: <%s>", buildPathString(path), strValue, pattern)}}
+				{Msg: fmt.Sprintf("property <%s> with value: <%s> must match pattern: <%s>", buildPathString(path), strValue, pattern)}}
 		}
 
 		return []YamlValidationIssue{}
@@ -212,7 +214,7 @@ func MatchesRegExp(pattern string) YamlCheck {
 }
 
 // Validates that value matches to one of defined enums values
-func MatchesEnumValues(enumValues []string) YamlCheck {
+func matchesEnumValues(enumValues []string) yamlCheck {
 	expectedSubset := ""
 	i := 0
 	for _, enumValue := range enumValues {
@@ -298,9 +300,9 @@ func getLiteralStringValue(y *simpleyaml.Yaml) string {
 	return ""
 }
 
-// Given a YAML text and a set of validations will execute them and will return relevant issue slice
+// ValidateYaml - Given a YAML text and a set of validations will execute them and will return relevant issue slice
 // And an "err" object in case of a parsing error.
-func ValidateYaml(yaml []byte, validations ...YamlCheck) ([]YamlValidationIssue, error) {
+func ValidateYaml(yaml []byte, validations ...yamlCheck) ([]YamlValidationIssue, error) {
 	var issues []YamlValidationIssue
 
 	y, parseError := simpleyaml.NewYaml(yaml)

@@ -9,10 +9,6 @@ import (
 	"path/filepath"
 )
 
-const (
-	pathSep = string(os.PathSeparator)
-)
-
 // CreateDirIfNotExist - Create new dir
 func CreateDirIfNotExist(dir string) error {
 	var err error
@@ -27,7 +23,6 @@ func CreateDirIfNotExist(dir string) error {
 // to support the spec requirements
 // Source Path to be zipped
 // Target artifact
-//TODO add more comments
 func Archive(sourcePath, targetArchivePath string) error {
 
 	// check that folder to be packed exist
@@ -56,7 +51,7 @@ func Archive(sourcePath, targetArchivePath string) error {
 	}
 
 	if baseDir != "" {
-		baseDir += pathSep
+		baseDir += string(os.PathSeparator)
 	}
 
 	// pack files of source into archive
@@ -76,7 +71,7 @@ func Archive(sourcePath, targetArchivePath string) error {
 
 		if baseDir != "" {
 			// care of UNIX-style separators of path in header
-			header.Name = filepath.ToSlash(GetRelativePath(path, baseDir))
+			header.Name = filepath.ToSlash(getRelativePath(path, baseDir))
 		}
 
 		// compress file
@@ -85,10 +80,11 @@ func Archive(sourcePath, targetArchivePath string) error {
 		// add new header and file to archive
 		writer, err := archive.CreateHeader(header)
 		if err == nil {
-			file, err := os.Open(path)
-			if err == nil {
+			file, e := os.Open(path)
+			if e == nil {
 				defer file.Close()
 				_, err = io.Copy(writer, file)
+				return err
 			}
 		}
 		return err
@@ -103,12 +99,12 @@ func CreateFile(path string) (file *os.File, err error) {
 	if err != nil {
 		return nil, fmt.Errorf("Failed to create file %s ", err)
 	}
-	// /defer file.Close()
+	// The caller needs to use defer.close
 	return file, err
 }
 
 // CopyDir - copy directory content
-func CopyDir(src string, dst string) (err error) {
+func CopyDir(src string, dst string) error {
 	src = filepath.Clean(src)
 	dst = filepath.Clean(dst)
 
@@ -149,7 +145,9 @@ func copyEntries(entries []os.FileInfo, src, dst string) error {
 			// execute recursively
 			err = CopyDir(srcPath, dstPath)
 		} else {
+			// Todo check posix compatibility
 			if entry.Mode()&os.ModeSymlink != 0 {
+				fmt.Println("MBT: SymbolicLink ignored")
 				continue
 			}
 
@@ -185,16 +183,10 @@ func copyFile(src, dst string) (err error) {
 		return err
 	}
 
-	err = out.Sync()
-	if err != nil {
-		return err
-	}
-
 	si, err := os.Stat(src)
 	if err != nil {
 		return err
 	}
 	err = os.Chmod(dst, si.Mode())
-
-	return err
+	return
 }
