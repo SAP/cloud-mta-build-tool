@@ -74,7 +74,7 @@ var _ = Describe("Commands", func() {
 		It("Generate Mtad", func() {
 			sourceMtadFlag = getTestPath("mtahtml5")
 			ep = dir.MtaLocationParameters{SourcePath: sourceMtadFlag, TargetPath: targetMtadFlag}
-			genMtadCmd.Run(nil, []string{})
+			genMtadCmd.RunE(nil, []string{})
 			Ω(ep.GetMtadPath()).Should(BeAnExistingFile())
 		})
 		It("Generate Mtar", func() {

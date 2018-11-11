@@ -195,7 +195,7 @@ func Validate(yamlContent []byte, projectPath string, validateSchema bool, valid
 		} else {
 			yamlValidationLog, err := mta_validate.ValidateYaml(yamlContent, validations...)
 			if err != nil && len(yamlValidationLog) == 0 {
-				yamlValidationLog = append(yamlValidationLog, []mta_validate.YamlValidationIssue{{"Validation failed" + err.Error()}}...)
+				yamlValidationLog = append(yamlValidationLog, []mta_validate.YamlValidationIssue{{Msg: "Validation failed" + err.Error()}}...)
 			}
 			issues = append(issues, yamlValidationLog...)
 		}

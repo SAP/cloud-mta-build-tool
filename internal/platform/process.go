@@ -6,6 +6,7 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+// Parse - parse platform config
 func Parse(data []byte) (Platforms, error) {
 	platforms := Platforms{}
 	err := yaml.Unmarshal(data, &platforms)
@@ -15,6 +16,7 @@ func Parse(data []byte) (Platforms, error) {
 	return platforms, nil
 }
 
+// ConvertTypes - convert schema type
 func ConvertTypes(iCfg mta.MTA, eCfg Platforms, targetPlatform string) {
 	// todo get from config
 	const (

@@ -8,7 +8,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-// MtaLocationParameters -MTA tool file properties
+// MtaLocationParameters - MTA tool file properties
 type MtaLocationParameters struct {
 	// SourcePath - Path to MTA project
 	SourcePath string
@@ -24,8 +24,8 @@ var getWorkingDirectory = func() (string, error) {
 	return os.Getwd()
 }
 
-// GetSource -Get Processed Project Path
-// If not provided - current directory
+// GetSource - Get Processed Project Path
+// If not provided use current directory
 func (ep *MtaLocationParameters) GetSource() (string, error) {
 	if ep.SourcePath == "" {
 		wd, err := getWorkingDirectory()
@@ -39,8 +39,8 @@ func (ep *MtaLocationParameters) GetSource() (string, error) {
 	}
 }
 
-// GetTarget -Get Target Path
-// If not provided - path of processed project
+// GetTarget - Get Target Path
+// If not provided use path of processed project
 func (ep *MtaLocationParameters) GetTarget() (string, error) {
 	if ep.TargetPath == "" {
 		source, err := ep.GetSource()
@@ -54,7 +54,7 @@ func (ep *MtaLocationParameters) GetTarget() (string, error) {
 	}
 }
 
-// GetTargetTmpDir -Get Target Temporary Directory path
+// GetTargetTmpDir - Get Target Temporary Directory path
 // Subdirectory in target folder named as source project folder
 func (ep *MtaLocationParameters) GetTargetTmpDir() (string, error) {
 	source, err := ep.GetSource()
@@ -70,7 +70,7 @@ func (ep *MtaLocationParameters) GetTargetTmpDir() (string, error) {
 	return filepath.Join(target, file), nil
 }
 
-// GetTargetModuleDir -Get path to the packed module directory
+// GetTargetModuleDir - Get path to the packed module directory
 // Subdirectory in Target Temporary Directory named by module name
 func (ep *MtaLocationParameters) GetTargetModuleDir(moduleName string) (string, error) {
 	dir, err := ep.GetTargetTmpDir()
@@ -81,7 +81,7 @@ func (ep *MtaLocationParameters) GetTargetModuleDir(moduleName string) (string, 
 	return filepath.Join(dir, moduleName), nil
 }
 
-// GetTargetModuleZipPath -Get path to the packed module data.zip
+// GetTargetModuleZipPath - Get path to the packed module data.zip
 // Subdirectory in Target Temporary Directory named by module name
 func (ep *MtaLocationParameters) GetTargetModuleZipPath(moduleName string) (string, error) {
 	dir, err := ep.GetTargetModuleDir(moduleName)
@@ -91,7 +91,7 @@ func (ep *MtaLocationParameters) GetTargetModuleZipPath(moduleName string) (stri
 	return filepath.Join(dir, "data.zip"), nil
 }
 
-// GetSourceModuleDir -Get path to module to be packed
+// GetSourceModuleDir - Get path to module to be packed
 // Subdirectory in Source
 func (ep *MtaLocationParameters) GetSourceModuleDir(modulePath string) (string, error) {
 	source, err := ep.GetSource()
@@ -101,8 +101,8 @@ func (ep *MtaLocationParameters) GetSourceModuleDir(modulePath string) (string, 
 	return filepath.Join(source, modulePath), nil
 }
 
-// GetMtaYamlFilename -Get MTA yaml File name
-func (ep *MtaLocationParameters) GetMtaYamlFilename() string {
+// getMtaYamlFilename - Get MTA yaml File name
+func (ep *MtaLocationParameters) getMtaYamlFilename() string {
 	if ep.MtaFilename == "" {
 		if ep.Descriptor == "dep" {
 			return "mtad.yaml"
@@ -114,16 +114,16 @@ func (ep *MtaLocationParameters) GetMtaYamlFilename() string {
 	}
 }
 
-// GetMtaYamlPath -Get MTA yaml File path
+// GetMtaYamlPath - Get MTA yaml File path
 func (ep *MtaLocationParameters) GetMtaYamlPath() (string, error) {
 	source, err := ep.GetSource()
 	if err != nil {
 		return "", errors.Wrap(err, "GetMtaYamlPath failed")
 	}
-	return filepath.Join(source, ep.GetMtaYamlFilename()), nil
+	return filepath.Join(source, ep.getMtaYamlFilename()), nil
 }
 
-// GetMetaPath -Get path to generated META-INF directory
+// GetMetaPath - Get path to generated META-INF directory
 func (ep *MtaLocationParameters) GetMetaPath() (string, error) {
 	dir, err := ep.GetTargetTmpDir()
 	if err != nil {
@@ -132,7 +132,7 @@ func (ep *MtaLocationParameters) GetMetaPath() (string, error) {
 	return filepath.Join(dir, "META-INF"), nil
 }
 
-// GetMtadPath -Get path to generated MTAD file
+// GetMtadPath - Get path to generated MTAD file
 func (ep *MtaLocationParameters) GetMtadPath() (string, error) {
 	dir, err := ep.GetMetaPath()
 	if err != nil {
@@ -141,7 +141,7 @@ func (ep *MtaLocationParameters) GetMtadPath() (string, error) {
 	return filepath.Join(dir, "mtad.yaml"), nil
 }
 
-// GetManifestPath -Get path to generated manifest file
+// GetManifestPath - Get path to generated manifest file
 func (ep *MtaLocationParameters) GetManifestPath() (string, error) {
 	dir, err := ep.GetMetaPath()
 	if err != nil {
@@ -150,12 +150,12 @@ func (ep *MtaLocationParameters) GetManifestPath() (string, error) {
 	return filepath.Join(dir, "MANIFEST.MF"), nil
 }
 
-// GetRelativePath - -Remove the basePath from the fullPath and get only the relative
-func GetRelativePath(fullPath, basePath string) string {
+// getRelativePath - Remove the basePath from the fullPath and get only the relative
+func getRelativePath(fullPath, basePath string) string {
 	return strings.TrimPrefix(fullPath, basePath)
 }
 
-// ValidateDeploymentDescriptor -Validates Deployment Descriptor
+// ValidateDeploymentDescriptor - Validates Deployment Descriptor
 func ValidateDeploymentDescriptor(descriptor string) error {
 	if descriptor != "" && descriptor != "dev" && descriptor != "dep" {
 		return errors.New("Wrong descriptor value. Expected one of [dev, dep]. Default is dev")
@@ -163,6 +163,7 @@ func ValidateDeploymentDescriptor(descriptor string) error {
 	return nil
 }
 
+// IsDeploymentDescriptor - Check if flag is related to deployment descriptor
 func (ep *MtaLocationParameters) IsDeploymentDescriptor() bool {
 	return ep.Descriptor == "dep"
 }

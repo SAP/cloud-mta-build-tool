@@ -32,20 +32,20 @@ type: seq
 sequence: NotASequence
 `, `YAML Schema Error: <sequence> node must be an array`),
 
-		Entry("Sequence One Item", `
+		Entry("sequence One Item", `
 type: seq
 sequence:
 - 1
 - 2
 `, `YAML Schema Error: <sequence> node can only have one item`),
 
-		Entry("Required value not bool", `
+		Entry("required value not bool", `
 type: map
 mapping:
   firstName:  {required: 123}
 `, `YAML Schema Error: <required> node must be a boolean but found <123>`),
 
-		Entry("Sequence NestedTypeNotString", `
+		Entry("sequence NestedTypeNotString", `
 type: map
 mapping:
   firstName:  {type: [1,2] }
@@ -92,7 +92,7 @@ enums:
 			assertNoParsingErrors(parseErr)
 			assertNoValidationErrors(validateIssues)
 		},
-		Entry("Required", `
+		Entry("required", `
 type: map
 mapping:
  firstName:  {required: true}
@@ -105,7 +105,7 @@ enums:
   - duck
   - dog
 `, `duck`),
-		Entry("Sequence", `
+		Entry("sequence", `
 type: seq
 sequence:
 - type: map
@@ -127,7 +127,7 @@ mapping:
 firstName: Donald
 lastName: duck
 `),
-		Entry("Optional", `
+		Entry("optional", `
 type: map
 mapping:
    firstName:  {required: false, pattern: '/^[a-zA-Z]+$/'}
@@ -152,14 +152,14 @@ isHappy: false
 			assertNoParsingErrors(parseErr)
 			expectSingleValidationError(validateIssues, message)
 		},
-		Entry("Required", `
+		Entry("required", `
 type: map
 mapping:
    age:  {required: true}
 `, `
 firstName: Donald
 lastName: duck
-`, "Missing Required Property <age> in <root>"),
+`, "Missing required property <age> in <root>"),
 
 		Entry("Enum", `
 type: enum
@@ -171,7 +171,7 @@ enums:
    - elephant
 `, `bird`, "Enum property <root> has invalid value. Expecting one of [duck,dog,cat,mouse]"),
 
-		Entry("Sequence", `
+		Entry("sequence", `
 type: seq
 sequence:
 - type: map
@@ -183,7 +183,7 @@ sequence:
 
 - age: 80
   lastName: Bunny
-`, "Missing Required Property <name> in <root[1]>"),
+`, "Missing required property <name> in <root[1]>"),
 
 		Entry("Pattern", `
 type: map
@@ -192,16 +192,16 @@ mapping:
 `, `
 name: Bamba
 age: NaN
-`, "Property <root.age> with value: <NaN> must match pattern: <^[0-9]+$>"),
+`, "property <root.age> with value: <NaN> must match pattern: <^[0-9]+$>"),
 
-		Entry("Optional With Pattern", `
+		Entry("optional With Pattern", `
 type: map
 mapping:
    firstName:  {required: false, pattern: '/^[a-zA-Z]+$/'}
 `, `
 firstName: Donald123
 lastName: duck
-`, "Property <root.firstName> with value: <Donald123> must match pattern: <^[a-zA-Z]+$>"),
+`, "property <root.firstName> with value: <Donald123> must match pattern: <^[a-zA-Z]+$>"),
 
 		Entry("Type Is Bool", `
 type: map
@@ -210,6 +210,6 @@ mapping:
 `, `
 firstName: John
 isHappy: 123
-`, "Property <root.isHappy> must be of type <Boolean>"),
+`, "property <root.isHappy> must be of type <Boolean>"),
 	)
 })

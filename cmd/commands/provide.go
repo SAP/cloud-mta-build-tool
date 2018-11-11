@@ -31,7 +31,7 @@ var pModuleCmd = &cobra.Command{
 			err = provideModules(&ep)
 		}
 		err = errors.Wrap(err, "Modules provider failed")
-		LogError(err)
+		logError(err)
 		return err
 	},
 	SilenceUsage: true,
