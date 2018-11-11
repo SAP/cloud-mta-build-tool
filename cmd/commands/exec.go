@@ -210,7 +210,10 @@ var cleanupCmd = &cobra.Command{
 		logs.Logger.Info("Starting Cleanup process")
 		// Remove temp folder
 		ep := locationParameters(sourceCleanupFlag, targetCleanupFlag, descriptorCleanupFlag)
-		err := os.RemoveAll(ep.GetTargetTmpDir())
+		targetTmpFDir, err := ep.GetTargetTmpDir()
+		if err == nil {
+			err = os.RemoveAll(targetTmpFDir)
+		}
 		if err != nil {
 			logs.Logger.Error(err)
 		} else {
@@ -249,17 +252,30 @@ func generateMeta(ep *fs.MtaLocationParameters) error {
 
 // generate mtar archive from the build artifacts
 func generateMtar(ep *fs.MtaLocationParameters) error {
-	logs.Logger.Info(fmt.Sprintf("Generate MTAR. Project path %v, MTAR path %v", ep.GetSource(), ep.GetTarget()))
-	return processMta("MTAR generation", ep, []string{}, func(file []byte, args []string) error {
+	logs.Logger.Info("MTAR Generation started")
+	err := processMta("MTAR generation", ep, []string{}, func(file []byte, args []string) error {
 		// read MTA
 		m, err := mta.ParseToMta(file)
 		if err != nil {
-			return err
+			return errors.Wrap(err, "MTA Process failed on yaml parsing")
+		}
+		targetTmpDir, err := ep.GetTargetTmpDir()
+		if err != nil {
+			return errors.Wrap(err, "MTA Process failed on getting target temp directory")
+		}
+		targetDir, err := ep.GetTarget()
+		if err != nil {
+			return errors.Wrap(err, "MTA Process failed on getting target directory")
 		}
 		// archive building artifacts to mtar
-		err = fs.Archive(ep.GetTargetTmpDir(), filepath.Join(ep.GetTarget(), m.Id+mtarSuffix))
+		err = fs.Archive(targetTmpDir, filepath.Join(targetDir, m.Id+mtarSuffix))
 		return err
 	})
+	if err != nil {
+		return errors.Wrap(err, "MTAR Generation failed on MTA processing")
+	}
+	logs.Logger.Info("MTAR Generation successfully finished")
+	return nil
 }
 
 // convert types to appropriate target platform types
@@ -292,25 +308,32 @@ func processMta(processName string, ep *fs.MtaLocationParameters, args []string,
 // pack build module artifacts
 func packModule(ep *fs.MtaLocationParameters, modulePath, moduleName string) error {
 
-	logs.Logger.Info("Pack Module Starts")
+	logs.Logger.Infof("Pack of module %v Started", moduleName)
 	// Get module relative path
-	moduleZipPath := ep.GetTargetModuleDir(moduleName)
+	moduleZipPath, err := ep.GetTargetModuleDir(moduleName)
+	if err != nil {
+		return errors.Wrapf(err, "Pack of module %v failed getting target module directory", moduleName)
+	}
 	logs.Logger.Info(fmt.Sprintf("Module %v will be packed and saved in folder %v", moduleName, moduleZipPath))
 	// Create empty folder with name as before the zip process
 	// to put the file such as data.zip inside
-	err := os.MkdirAll(moduleZipPath, os.ModePerm)
+	err = os.MkdirAll(moduleZipPath, os.ModePerm)
 	if err != nil {
-		return errors.Wrapf(err, "Error occurred during creation of directory of ZIP module %v", moduleName)
+		return errors.Wrapf(err, "Pack of module %v failed on making directory %v", moduleName, moduleZipPath)
 	}
 	// zipping the build artifacts
 	logs.Logger.Infof("Starting execute zipping module %v ", moduleName)
 	moduleZipFullPath := moduleZipPath + dataZip
-	if err = fs.Archive(ep.GetSourceModuleDir(modulePath), moduleZipFullPath); err != nil {
-		err = errors.Wrapf(err, "Error occurred during ZIP module %v creation", moduleName)
-	} else {
-		logs.Logger.Infof("Execute zipping module %v finished successfully ", moduleName)
+	sourceModuleDir, err := ep.GetSourceModuleDir(modulePath)
+	if err != nil {
+		return errors.Wrapf(err, "Pack of module %v failed on getting source module directory with relative path %v", moduleName, modulePath)
 	}
-	return err
+	if err = fs.Archive(sourceModuleDir, moduleZipFullPath); err != nil {
+		return errors.Wrapf(err, "Pack of module %v failed on archiving", moduleName)
+	} else {
+		logs.Logger.Infof("Pack of module %v successfully finished", moduleName)
+	}
+	return nil
 }
 
 // convert validation mode flag to validation process flags
@@ -329,22 +352,24 @@ func getValidationMode(validationFlag string) (bool, bool, error) {
 // Validate MTA yaml
 func validateMtaYaml(ep *fs.MtaLocationParameters, validateSchema bool, validateProject bool) error {
 	if validateProject || validateSchema {
-		logs.Logger.Infof("Starting %v validation", ep.MtaFilename)
+		logs.Logger.Infof("Validation of %v started", ep.MtaFilename)
 
 		// Read MTA yaml content
 		yamlContent, err := mta.ReadMtaContent(ep)
 
 		if err != nil {
-			return errors.Wrap(err, "MTA validation failed")
+			return errors.Wrapf(err, "Validation of %v failed on reading MTA content", ep.MtaFilename)
 		}
-		projectPath := ep.GetSource()
-
+		projectPath, err := ep.GetSource()
+		if err != nil {
+			return errors.Wrapf(err, "Validation of %v failed on getting source", ep.MtaFilename)
+		}
 		// validate mta content
 		issues := mta.Validate(yamlContent, projectPath, validateSchema, validateProject)
 		if len(issues) == 0 {
-			logs.Logger.Infof("%v is valid", ep.MtaFilename)
+			logs.Logger.Infof("Validation of %v successfully finished", ep.MtaFilename)
 		} else {
-			return errors.New(fmt.Sprintf("%v is invalid. Issues: \n%v", ep.MtaFilename, issues.String()))
+			return errors.New(fmt.Sprintf("Validation of %v failed. Issues: \n%v", ep.MtaFilename, issues.String()))
 		}
 	}
 
@@ -364,35 +389,42 @@ func getModuleRelativePathAndCommands(ep *fs.MtaLocationParameters, module strin
 
 func buildModule(ep *fs.MtaLocationParameters, module string) error {
 
+	logs.Logger.Infof("Module %v building started", module)
+
 	if ep.IsDeploymentDescriptor() {
+		logs.Logger.Infof("Module %v building finished - deployment descriptor used. Nothing to build", module)
 		return nil
 	}
 
-	logs.Logger.Info("Start building module: ", module)
-
 	err := processDependencies(ep, module)
 	if err != nil {
-		return err
+		return errors.Wrapf(err, "Module %v building failed on processing dependencies", module)
 	}
 
 	// Get module respective command's to execute
 	moduleRelPath, mCmd, err := getModuleRelativePathAndCommands(ep, module)
 	if err != nil {
-		return err
+		return errors.Wrapf(err, "Module %v building failed on getting relative path and commands", module)
 	}
-	modulePath := ep.GetSourceModuleDir(moduleRelPath)
-
+	modulePath, err := ep.GetSourceModuleDir(moduleRelPath)
+	if err != nil {
+		return errors.Wrapf(err, "Module %v building failed on getting source module directory", module)
+	}
 	// Get module commands
 	commands := cmdConverter(modulePath, mCmd)
 
 	// Execute child-process with module respective commands
 	err = exec.Execute(commands)
 	if err != nil {
-		return err
+		return errors.Wrapf(err, "Module %v building failed on commands execution", module)
 	}
 	// Pack the modules build artifacts (include node modules)
 	// into the artifactsPath dir as data zip
-	return packModule(ep, moduleRelPath, module)
+	err = packModule(ep, moduleRelPath, module)
+	if err != nil {
+		return errors.Wrapf(err, "Module %v building failed on module's packing", module)
+	}
+	return nil
 }
 
 // Get commands for specific module type

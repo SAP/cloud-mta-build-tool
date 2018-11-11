@@ -62,7 +62,8 @@ var _ = Describe("Desc tests", func() {
 		ep := dir.MtaLocationParameters{SourcePath: filepath.Join(wd, "testdata", "testproject"), TargetPath: filepath.Join(wd, "testdata", "result")}
 
 		AfterEach(func() {
-			os.RemoveAll(ep.GetTarget())
+			targetDir, _ := ep.GetTarget()
+			os.RemoveAll(targetDir)
 		})
 
 		It("Sanity", func() {

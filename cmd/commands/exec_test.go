@@ -2,6 +2,7 @@ package commands
 
 import (
 	"bytes"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -43,11 +44,13 @@ var _ = Describe("Commands", func() {
 			pPackModuleFlag = "ui5app"
 			sourcePackFlag = getTestPath("mtahtml5")
 			ep := dir.MtaLocationParameters{SourcePath: sourcePackFlag, TargetPath: targetPackFlag}
-			os.MkdirAll(ep.GetTargetTmpDir(), os.ModePerm)
-			f, _ := os.Create(filepath.Join(ep.GetTargetTmpDir(), "ui5app"))
+			targetTmpDir, _ := ep.GetTargetTmpDir()
+			os.MkdirAll(targetTmpDir, os.ModePerm)
+			f, _ := os.Create(filepath.Join(targetTmpDir, "ui5app"))
 
 			packCmd.Run(nil, []string{})
-			Ω(str.String()).Should(ContainSubstring("Error occurred during creation of directory of ZIP module"))
+			fmt.Println(str.String())
+			Ω(str.String()).Should(ContainSubstring("Pack of module ui5app failed on making directory"))
 
 			f.Close()
 			// cleanup command used for test temp file removal
@@ -107,7 +110,8 @@ var _ = Describe("Commands", func() {
 		It("Generate Meta", func() {
 			ep := dir.MtaLocationParameters{SourcePath: getTestPath("mtahtml5"), TargetPath: targetMetaFlag}
 			generateMeta(&ep)
-			Ω(readFileContent(ep.GetMtadPath())).Should(Equal(readFileContent(getTestPath("golden", "mtad.yaml"))))
+			mtadPath, _ := ep.GetMtadPath()
+			Ω(readFileContent(mtadPath)).Should(Equal(readFileContent(getTestPath("golden", "mtad.yaml"))))
 		})
 
 		It("Generate Mtar", func() {

@@ -66,7 +66,7 @@ func makeFile(ep *fs.MtaLocationParameters, makeFilename string, tpl *tplCfg) er
 	// Read file
 	m, err := mta.ReadMta(ep)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "makeFile failed reading MTA yaml")
 	}
 
 	// Template data
@@ -76,14 +76,18 @@ func makeFile(ep *fs.MtaLocationParameters, makeFilename string, tpl *tplCfg) er
 	// Create maps of the template method's
 	t, err := mapTpl(tpl.tplName, tpl.pre, tpl.post, data.Dep != "dev")
 	if err != nil {
-		return err
+		return errors.Wrap(err, "makeFile failed mapping template")
 	}
 	// path for creating the file
-	path := filepath.Join(ep.GetTarget(), tpl.relPath)
+	target, err := ep.GetTarget()
+	if err != nil {
+		return errors.Wrap(err, "makeFile failed getting target")
+	}
+	path := filepath.Join(target, tpl.relPath)
 	// Create make file for the template
 	makeFile, err := createMakeFile(path, makeFilename)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "makeFile failed on file creation")
 	}
 	if makeFile != nil {
 		// Execute the template

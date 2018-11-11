@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
 
 	"cloud-mta-build-tool/internal/fsys"
@@ -22,20 +23,17 @@ func getTestPath(relPath ...string) string {
 
 var _ = Describe("MTA tests", func() {
 
-	var _ = Describe("Validation", func() {
-		It("Validate All", func() {
-			ep := dir.MtaLocationParameters{SourcePath: getTestPath("testproject")}
-			yamlContent, _ := ReadMtaContent(&ep)
-			issues := Validate(yamlContent, ep.GetSource(), true, true)
-			Ω(len(issues)).Should(Equal(1))
-		})
-		It("Validate Schema", func() {
-			ep := dir.MtaLocationParameters{SourcePath: getTestPath(), MtaFilename: "mta_multiapps.yaml"}
-			yamlContent, _ := ReadMtaContent(&ep)
-			issues := Validate(yamlContent, ep.GetSource(), true, false)
-			Ω(len(issues)).Should(Equal(0))
-		})
-	})
+	var _ = DescribeTable("Validation", func(locationSource, mtaFilename string, issuesNumber int, validateProject bool) {
+		ep := dir.MtaLocationParameters{SourcePath: locationSource, MtaFilename: mtaFilename}
+		yamlContent, _ := ReadMtaContent(&ep)
+		source, _ := ep.GetSource()
+		issues := Validate(yamlContent, source, true, validateProject)
+		Ω(len(issues)).Should(Equal(issuesNumber))
+	},
+
+		Entry("Validate All", getTestPath("testproject"), "mta.yaml", 1, true),
+		Entry("Validate Schema", getTestPath(), "mta_multiapps.yaml", 0, false),
+	)
 
 	var _ = Describe("ReadMtaYaml", func() {
 		It("Sanity", func() {
