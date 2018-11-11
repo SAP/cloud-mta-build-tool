@@ -4,8 +4,8 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-// Parse the builders command list
-func Parse(data []byte) (Builders, error) {
+// parse the builders command list
+func parse(data []byte) (Builders, error) {
 	commands := Builders{}
 	err := yaml.Unmarshal(data, &commands)
 	if err != nil {

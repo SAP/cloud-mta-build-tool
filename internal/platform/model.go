@@ -12,6 +12,7 @@ type Modules struct {
 }
 
 // Properties - properties list
+//noinspection GoUnnecessarilyExportedIdentifiers
 type Properties struct {
 	NativeType   string `yaml:"native-type"`
 	PlatformType string `yaml:"platform-type"`

@@ -9,8 +9,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var buildTargetFlag string
-
 func init() {
 
 	// Add command to the root

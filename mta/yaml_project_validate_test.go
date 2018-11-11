@@ -9,12 +9,12 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("ValidateYamlProject", func() {
+var _ = Describe("validateYamlProject", func() {
 	It("Sanity", func() {
 		wd, _ := os.Getwd()
 		ep := dir.MtaLocationParameters{SourcePath: filepath.Join(wd, "testdata", "testproject")}
 		mta, _ := ReadMta(&ep)
-		issues := ValidateYamlProject(mta, ep.GetSource())
+		issues := validateYamlProject(mta, ep.GetSource())
 		Ω(issues[0].Msg).Should(Equal("Module <ui5app2> not found in project. Expected path: <ui5app2>"))
 	})
 })

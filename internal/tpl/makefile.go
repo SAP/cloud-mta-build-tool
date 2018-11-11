@@ -56,11 +56,11 @@ func Make(ep *fs.MtaLocationParameters, mode string) error {
 
 func makeFile(ep *fs.MtaLocationParameters, makeFilename string, tpl *tplCfg) error {
 
-	type API map[string]string
+	type api map[string]string
 	// template data
 	var data struct {
 		File mta.MTA
-		API  API
+		API  api
 		Dep  string
 	}
 	// Read file
@@ -99,6 +99,7 @@ func makeFile(ep *fs.MtaLocationParameters, makeFilename string, tpl *tplCfg) er
 	return err
 }
 
+//noinspection GoUnusedParameter
 func mapTpl(templateName string, BasePre string, BasePost string, isDeployment bool) (*template.Template, error) {
 	funcMap := template.FuncMap{
 		"CommandProvider": builders.CommandProvider,

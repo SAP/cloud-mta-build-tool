@@ -235,7 +235,7 @@ func GetLocationParameters(sourceFlag, targetFlag, descriptor string) fs.MtaLoca
 // generate build metadata artifacts
 func generateMeta(ep *fs.MtaLocationParameters) error {
 	return processMta("Metadata creation", ep, []string{}, func(file []byte, args []string) error {
-		// Parse MTA file
+		// parse MTA file
 		m, err := mta.ParseToMta(file)
 		if err == nil {
 			// Generate meta info dir with required content
