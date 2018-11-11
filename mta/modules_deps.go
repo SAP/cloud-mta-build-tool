@@ -13,17 +13,17 @@ type graphNode struct {
 	index  int
 }
 
-// New Graph node
+// New graphs node
 func newGn(module *string, deps mapset.Set, index int) *graphNode {
 	return &graphNode{module: *module, deps: deps, index: index}
 }
 
-// Graph - graph map
-type Graph map[string]*graphNode
+// graphs - graph map
+type graphs map[string]*graphNode
 
 // GetModulesOrder - Provides Modules ordered according to build-parameters' dependencies
 func (mta *MTA) GetModulesOrder() ([]string, error) {
-	var graph = make(Graph)
+	var graph = make(graphs)
 	for index, module := range mta.Modules {
 		deps := mapset.NewSet()
 		if module.BuildParams.Requires != nil {
@@ -36,18 +36,18 @@ func (mta *MTA) GetModulesOrder() ([]string, error) {
 	return resolveGraph(&graph, mta)
 }
 
-// Resolves the dependency Graph
+// Resolves the dependency graphs
 // For resolving cyclic dependencies Kahn’s algorithm of topological sorting is used.
 // https://en.wikipedia.org/wiki/Topological_sorting
-func resolveGraph(graph *Graph, mta *MTA) ([]string, error) {
+func resolveGraph(graph *graphs, mta *MTA) ([]string, error) {
 	overleft := *graph
 
-	// Iteratively find and remove nodes from the Graph which have no dependencies.
-	// If at some point there are still nodes in the Graph and we cannot find
+	// Iteratively find and remove nodes from the graphs which have no dependencies.
+	// If at some point there are still nodes in the graphs and we cannot find
 	// nodes without dependencies, that means we have a circular dependency
 	var resolved []string
 	for len(overleft) != 0 {
-		// Get all nodes from the Graph which have no dependencies
+		// Get all nodes from the graphs which have no dependencies
 		readyNodesSet := mapset.NewSet()
 		readyModulesSet := mapset.NewSet()
 		for _, node := range overleft {
@@ -75,7 +75,7 @@ func resolveGraph(graph *Graph, mta *MTA) ([]string, error) {
 			return nil, errors.New(fmt.Sprintf("Circular dependency found. Check modules %v and %v", module1, module2))
 		}
 
-		// Remove the ready nodes and add them to the resolved Graph
+		// Remove the ready nodes and add them to the resolved graphs
 		readyModulesIndexes := mapset.NewSet()
 		for node := range readyNodesSet.Iter() {
 			delete(overleft, node.(*graphNode).module)

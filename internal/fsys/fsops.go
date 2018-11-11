@@ -9,8 +9,8 @@ import (
 	"path/filepath"
 )
 
-// CreateDirIfNotExist - Create new dir
-func CreateDirIfNotExist(dir string) error {
+// createDirIfNotExist - Create new dir
+func createDirIfNotExist(dir string) error {
 	var err error
 	if _, err = os.Stat(dir); os.IsNotExist(err) {
 		err = os.MkdirAll(dir, os.ModePerm)

@@ -27,7 +27,7 @@ var pModuleCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		err := dir.ValidateDeploymentDescriptor(descriptorPModuleFlag)
 		if err == nil {
-			ep := GetLocationParameters(sourceBModuleFlag, targetBModuleFlag, descriptorPModuleFlag)
+			ep := locationParameters(sourceBModuleFlag, targetBModuleFlag, descriptorPModuleFlag)
 			err = provideModules(&ep)
 		}
 		err = errors.Wrap(err, "Modules provider failed")

@@ -198,7 +198,7 @@ func buildEnumValidation(y *simpleyaml.Yaml) ([]yamlCheck, []YamlValidationIssue
 
 	enumsNumber, _ := enumsNode.GetArraySize()
 
-	enumValues := []string{}
+	var enumValues []string
 	for i := 0; i < enumsNumber; i++ {
 		enumNode := enumsNode.GetIndex(i)
 		if enumNode.IsArray() || enumNode.IsMap() {
