@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strings"
 
 	. "github.com/onsi/ginkgo"
@@ -14,9 +15,16 @@ import (
 
 var _ = Describe("Integration - CloudMtaBuildTool", func() {
 
+	var mbtName = ""
+
 	BeforeEach(func() {
 		By("Building MBT")
-		cmd := exec.Command("go", "build", "-o", filepath.FromSlash("./integration/testdata/mbt"), ".")
+		if runtime.GOOS == "linux" || runtime.GOOS == "darwin" {
+			mbtName = "mbt"
+		} else {
+			mbtName = "mbt.exe"
+		}
+		cmd := exec.Command("go", "build", "-o", filepath.FromSlash("./integration/testdata/"+mbtName), ".")
 		cmd.Dir = filepath.FromSlash("../")
 		err := cmd.Run()
 		fmt.Println("finish to execute process", err)
@@ -26,7 +34,7 @@ var _ = Describe("Integration - CloudMtaBuildTool", func() {
 	})
 
 	AfterEach(func() {
-		os.Remove("./testdata/mbt")
+		os.Remove("./testdata/" + mbtName)
 	})
 
 	var _ = Describe("Command to provide the list of modules", func() {
@@ -85,4 +93,3 @@ func execute(bin string, args string, path string) (string, error string) {
 	}
 	return stdoutBuf.String(), stdErrBuf.String()
 }
-
