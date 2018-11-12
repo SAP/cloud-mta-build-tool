@@ -336,6 +336,7 @@ func packModule(ep *fs.MtaLocationParameters, modulePath, moduleName string) err
 	return nil
 }
 
+// copyModuleArchive - copies module archive to temp directory
 func copyModuleArchive(ep *fs.MtaLocationParameters, modulePath, moduleName string) error {
 	logs.Logger.Infof("Copy of module %v archive Started", moduleName)
 	srcModulePath, err := ep.GetSourceModuleDir(modulePath)
@@ -412,28 +413,33 @@ func getModuleRelativePathAndCommands(ep *fs.MtaLocationParameters, module strin
 	return moduleCmd(mtaObj, module)
 }
 
+// buildModule - builds module
 func buildModule(ep *fs.MtaLocationParameters, module string) error {
 
 	logs.Logger.Infof("Module %v building started", module)
-
-	if !ep.IsDeploymentDescriptor() {
-		err := processDependencies(ep, module)
-		if err != nil {
-			return errors.Wrapf(err, "Module %v building failed on processing dependencies", module)
-		}
-	}
 
 	// Get module respective command's to execute
 	moduleRelPath, mCmd, err := getModuleRelativePathAndCommands(ep, module)
 	if err != nil {
 		return errors.Wrapf(err, "Module %v building failed on getting relative path and commands", module)
 	}
-	modulePath, err := ep.GetSourceModuleDir(moduleRelPath)
-	if err != nil {
-		return errors.Wrapf(err, "Module %v building failed on getting source module directory", module)
-	}
 
 	if !ep.IsDeploymentDescriptor() {
+
+		// Development descriptor - build includes:
+
+		// 1. module dependencies processing
+		err := processDependencies(ep, module)
+		if err != nil {
+			return errors.Wrapf(err, "Module %v building failed on processing dependencies", module)
+		}
+
+		// 2. module type dependent commands execution
+		modulePath, err := ep.GetSourceModuleDir(moduleRelPath)
+		if err != nil {
+			return errors.Wrapf(err, "Module %v building failed on getting source module directory", module)
+		}
+
 		// Get module commands
 		commands := cmdConverter(modulePath, mCmd)
 
@@ -442,13 +448,17 @@ func buildModule(ep *fs.MtaLocationParameters, module string) error {
 		if err != nil {
 			return errors.Wrapf(err, "Module %v building failed on commands execution", module)
 		}
-		// Pack the modules build artifacts (include node modules)
+
+		// 3. Packing the modules build artifacts (include node modules)
 		// into the artifactsPath dir as data zip
 		err = packModule(ep, moduleRelPath, module)
 		if err != nil {
 			return errors.Wrapf(err, "Module %v building failed on module's packing", module)
 		}
 	} else {
+
+		// Deployment descriptor
+		// copy module archive to temp directory
 		err = copyModuleArchive(ep, moduleRelPath, module)
 		if err != nil {
 			return errors.Wrapf(err, "Module %v building failed on module's archive copy", module)

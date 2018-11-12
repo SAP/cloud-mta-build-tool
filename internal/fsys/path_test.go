@@ -92,14 +92,14 @@ var _ = Describe("Path Failures", func() {
 	lp := MtaLocationParameters{}
 
 	BeforeEach(func() {
-		storedWorkingDirectory = getWorkingDirectory
-		getWorkingDirectory = func() (string, error) {
+		storedWorkingDirectory = GetWorkingDirectory
+		GetWorkingDirectory = func() (string, error) {
 			return "", errors.New("Dummy error")
 		}
 	})
 
 	AfterEach(func() {
-		getWorkingDirectory = storedWorkingDirectory
+		GetWorkingDirectory = storedWorkingDirectory
 	})
 
 	It("GetSource - Implicit", func() {
