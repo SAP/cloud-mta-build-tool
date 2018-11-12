@@ -11,6 +11,7 @@ import (
 	"cloud-mta-build-tool/validations"
 )
 
+
 // Todo 1. Provide interface to support multiple mta schema (2.1 / 3.1 ) versions and concrete struct type
 // Todo 2. Add missing properties
 // MTA struct
@@ -79,7 +80,7 @@ type Provides struct {
 	Properties Properties `yaml:"properties,omitempty"`
 }
 
-// list of names either matching a resource name or a name provided by another module within the same MTA
+// Requires - list of names either matching a resource name or a name provided by another module within the same MTA
 type Requires struct {
 	// an MTA internal name which must match either a provided name, a resource name, or a module name within the same MTA
 	Name string `yaml:"name,omitempty"`
@@ -97,7 +98,7 @@ type BuildRequires struct {
 	TargetPath string `yaml:"target-path,omitempty"`
 }
 
-// Resource declarations. Resources can be anything required to run the application which is not provided by the application itself.
+// Resources - declarations. Resources can be anything required to run the application which is not provided by the application itself.
 type Resources struct {
 	Name string
 	// A type of a resource. This type is interpreted by and must be known to the deployer. Resources can be untyped
@@ -127,7 +128,7 @@ func Marshal(in *MTA) (mtads []byte, err error) {
 	return mtads, nil
 }
 
-// Read MTA Yaml file
+// ReadMtaYaml Read MTA Yaml file
 func ReadMtaYaml(ep *fs.MtaLocationParameters) ([]byte, error) {
 	fileFullPath, err := ep.GetMtaYamlPath()
 	if err != nil {

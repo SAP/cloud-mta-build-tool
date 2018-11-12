@@ -9,5 +9,5 @@ import (
 
 func TestCloudMtaBuildTool(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "MtaBuildTool Suite")
+	RunSpecs(t, "MtaBuildTool Integration Suite")
 }
