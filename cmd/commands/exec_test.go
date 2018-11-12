@@ -15,6 +15,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
+	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
 )
 
@@ -143,6 +144,44 @@ var _ = Describe("Commands", func() {
 					Ω(ep.GetTargetModuleZipPath("ui5app")).ShouldNot(BeAnExistingFile())
 				}),
 		)
+	})
+
+	var _ = Describe("copyModuleArchive", func() {
+
+		AfterEach(func() {
+			os.Remove(getTestPath("mta", "node-js", "data.zip"))
+			os.RemoveAll(getTestPath("mta", "mta"))
+			dir.GetWorkingDirectory = dir.OsGetWd
+		})
+
+		It("Sanity", func() {
+			lp := dir.MtaLocationParameters{SourcePath: getTestPath("mta")}
+			dir.Archive(getTestPath("mta", "node-js"), getTestPath("mta", "node-js", "data.zip"))
+			Ω(copyModuleArchive(&lp, "node-js", "node-js")).Should(Succeed())
+			Ω(getTestPath("mta", "mta", "node-js", "data.zip")).Should(BeAnExistingFile())
+		})
+
+		var _ = DescribeTable("Invalid cases", func(modulePath string, mockWd bool, failOnCall int) {
+			var lp dir.MtaLocationParameters
+			var countCalls = 0
+			if mockWd {
+				lp = dir.MtaLocationParameters{}
+				dir.GetWorkingDirectory = func() (string, error) {
+					countCalls++
+					if countCalls >= failOnCall {
+						return "", errors.New("error!")
+					} else {
+						return os.Getwd()
+					}
+				}
+			} else {
+				lp = dir.MtaLocationParameters{SourcePath: getTestPath("mta")}
+			}
+			Ω(copyModuleArchive(&lp, modulePath, "node-js")).Should(HaveOccurred())
+		},
+			Entry("Invalid module name", "node-js1", false, -1),
+			Entry("Get wd fails", "node-js", true, 1),
+			Entry("Get wd fails", "node-js", true, 2))
 	})
 
 	var _ = Describe("Validation", func() {

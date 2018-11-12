@@ -97,7 +97,7 @@ var _ = Describe("FSOPS", func() {
 		)
 
 		var _ = DescribeTable("Copy File - Invalid", func(source, target string, matcher GomegaMatcher) {
-			Ω(copyFile(source, target)).Should(matcher)
+			Ω(CopyFile(source, target)).Should(matcher)
 		},
 			Entry("SourceNotExists", getFullPath("testdata", "fileSrc"), targetPath, HaveOccurred()),
 			Entry("SourceIsDirectory", getFullPath("testdata", "level2"), targetPath, HaveOccurred()),

@@ -26,7 +26,6 @@ const (
 	basePostDefault = "base_post_default.txt"
 	makeDefaultTpl  = "make_default.txt"
 	makeVerboseTpl  = "make_verbose.txt"
-	makeDeployTpl   = "make_deployment.txt"
 )
 
 type tplCfg struct {
@@ -42,9 +41,6 @@ func Make(ep *fs.MtaLocationParameters, mode string) error {
 	tpl, err := makeMode(mode)
 	if err != nil {
 		return err
-	}
-	if ep.Descriptor == "dep" {
-		tpl.tplName = makeDeployTpl
 	}
 	if err == nil {
 		tpl.depDesc = ep.Descriptor

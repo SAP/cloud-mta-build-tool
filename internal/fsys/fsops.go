@@ -155,7 +155,7 @@ func copyEntries(entries []os.FileInfo, src, dst string) error {
 				continue
 			}
 
-			err = copyFile(srcPath, dstPath)
+			err = CopyFile(srcPath, dstPath)
 		}
 		if err != nil {
 			break
@@ -165,7 +165,7 @@ func copyEntries(entries []os.FileInfo, src, dst string) error {
 }
 
 // CopyFile - copy file content
-func copyFile(src, dst string) (err error) {
+func CopyFile(src, dst string) (err error) {
 	in, err := os.Open(src)
 	if err != nil {
 		return err

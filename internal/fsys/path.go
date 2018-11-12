@@ -20,15 +20,17 @@ type MtaLocationParameters struct {
 	Descriptor string
 }
 
-var getWorkingDirectory = func() (string, error) {
+var OsGetWd = func() (string, error) {
 	return os.Getwd()
 }
+
+var GetWorkingDirectory = OsGetWd
 
 // GetSource - Get Processed Project Path
 // If not provided use current directory
 func (ep *MtaLocationParameters) GetSource() (string, error) {
 	if ep.SourcePath == "" {
-		wd, err := getWorkingDirectory()
+		wd, err := GetWorkingDirectory()
 		if err != nil {
 			return "", errors.Wrap(err, "GetSource failed")
 		} else {
