@@ -2,7 +2,7 @@
 ![GitHub license](https://img.shields.io/badge/license-Apache_2.0-blue.svg)
 
 
-<b>Disclaimer</b>: The MTA explorer services is under heavy development and is currently in a `pre-alpha stage`.
+<b>Disclaimer</b>: The MTA explorer services is under heavy development and is currently in a `pre-alpha`.
                    Some functionality is still missing and the APIs are subject to change, use at your own risk.
                    
 # MTA Explorer Services
