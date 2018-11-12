@@ -2,19 +2,19 @@
 ![GitHub license](https://img.shields.io/badge/license-Apache_2.0-blue.svg)
 
 
-<b>Disclaimer</b>: The MTA explorer services is under heavy development and is currently in a `pre-alpha stage’.
+<b>Disclaimer</b>: The MTA explorer services is under heavy development and is currently in a `pre-alpha stage`.
                    Some functionality is still missing and the APIs are subject to change, use at your own risk.
                    
 # MTA Explorer Services
 
-MTA service tool for exploring, validating Multi-target application descriptor (mta.yaml).
+MTA tool for exploring, validating Multi-target application descriptor (mta.yaml).
 
 The tool commands (API's) are used:
 
-   - Explore the structure of the mta.yaml objects, e.g. retrieve a list of resources required by a specific module.
-   - Validate mta.yaml against the specified schema version;
-   - Ensure semantic correctness of the mta.yaml, e.g. uniqueness of module/resources names, resolution of requires/provides pairs, etc.
-   - Validate the descriptor against the project folder structure, e.g. ‘path’ attribute reference existing project folder;
+   - Explore the structure of the `mta.yaml` objects, e.g. retrieve a list of resources required by a specific module.
+   - Validate `mta.yaml` against the specified schema version;
+   - Ensure semantic correctness of the `mta.yaml`, e.g. uniqueness of module/resources names, resolution of requires/provides pairs, etc.
+   - Validate the descriptor against the project folder structure, e.g. `path` attribute reference existing project folder.
    - Get data for constructing deployment MTA descriptor, e.g. deployment module types
    
 
