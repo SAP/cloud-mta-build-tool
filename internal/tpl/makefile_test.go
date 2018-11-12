@@ -37,7 +37,6 @@ var _ = Describe("Makefile", func() {
 
 	var (
 		tpl              = tplCfg{tplName: makeVerboseTpl, relPath: "", pre: basePreVerbose, post: basePostVerbose, depDesc: "dev"}
-		tplDep           = tplCfg{tplName: makeDeployTpl, relPath: "", pre: basePreVerbose, post: basePostVerbose, depDesc: "dep"}
 		makeFileName     = "MakeFileTest.mta"
 		wd, _            = os.Getwd()
 		expectedMakePath = func() string {
@@ -96,7 +95,7 @@ makefile_version: 0.0.0
 			Ω(getMakeFileContent(makeFileFullPath)).Should(Equal(expectedMakeFileContent))
 		})
 		It("Sanity - Dep", func() {
-			Ω(makeFile(&dir.MtaLocationParameters{SourcePath: filepath.Join(wd, "testdata"), Descriptor: "dep"}, makeFileName, &tplDep)).Should(Succeed())
+			Ω(makeFile(&dir.MtaLocationParameters{SourcePath: filepath.Join(wd, "testdata"), Descriptor: "dep"}, makeFileName, &tpl)).Should(Succeed())
 			Ω(makeFileFullPath).Should(BeAnExistingFile())
 			Ω(getMakeFileContent(makeFileFullPath)).Should(Equal(expectedMakeFileDepContent))
 		})

@@ -336,6 +336,31 @@ func packModule(ep *fs.MtaLocationParameters, modulePath, moduleName string) err
 	return nil
 }
 
+func copyModuleArchive(ep *fs.MtaLocationParameters, modulePath, moduleName string) error {
+	logs.Logger.Infof("Copy of module %v archive Started", moduleName)
+	srcModulePath, err := ep.GetSourceModuleDir(modulePath)
+	if err != nil {
+		return errors.Wrapf(err, "Copy of module %v archive failed getting source module directory", moduleName)
+	}
+	moduleSrcZip := filepath.Join(srcModulePath, "data.zip")
+	moduleTrgZipPath, err := ep.GetTargetModuleDir(moduleName)
+	if err != nil {
+		return errors.Wrapf(err, "Copy of module %v archive failed getting target module directory", moduleName)
+	}
+	// Create empty folder with name as before the zip process
+	// to put the file such as data.zip inside
+	err = os.MkdirAll(moduleTrgZipPath, os.ModePerm)
+	if err != nil {
+		return errors.Wrapf(err, "Copy of module %v archive on making directory %v", moduleName, moduleTrgZipPath)
+	}
+	moduleTrgZip := filepath.Join(moduleTrgZipPath, "data.zip")
+	err = fs.CopyFile(moduleSrcZip, filepath.Join(moduleTrgZipPath, "data.zip"))
+	if err != nil {
+		return errors.Wrapf(err, "Copy of module %v archive failed copying %v to %v", moduleName, moduleSrcZip, moduleTrgZip)
+	}
+	return nil
+}
+
 // convert validation mode flag to validation process flags
 func getValidationMode(validationFlag string) (bool, bool, error) {
 	switch validationFlag {
