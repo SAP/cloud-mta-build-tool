@@ -416,14 +416,11 @@ func buildModule(ep *fs.MtaLocationParameters, module string) error {
 
 	logs.Logger.Infof("Module %v building started", module)
 
-	if ep.IsDeploymentDescriptor() {
-		logs.Logger.Infof("Module %v building finished - deployment descriptor used. Nothing to build", module)
-		return nil
-	}
-
-	err := processDependencies(ep, module)
-	if err != nil {
-		return errors.Wrapf(err, "Module %v building failed on processing dependencies", module)
+	if !ep.IsDeploymentDescriptor() {
+		err := processDependencies(ep, module)
+		if err != nil {
+			return errors.Wrapf(err, "Module %v building failed on processing dependencies", module)
+		}
 	}
 
 	// Get module respective command's to execute
@@ -435,19 +432,27 @@ func buildModule(ep *fs.MtaLocationParameters, module string) error {
 	if err != nil {
 		return errors.Wrapf(err, "Module %v building failed on getting source module directory", module)
 	}
-	// Get module commands
-	commands := cmdConverter(modulePath, mCmd)
 
-	// Execute child-process with module respective commands
-	err = exec.Execute(commands)
-	if err != nil {
-		return errors.Wrapf(err, "Module %v building failed on commands execution", module)
-	}
-	// Pack the modules build artifacts (include node modules)
-	// into the artifactsPath dir as data zip
-	err = packModule(ep, moduleRelPath, module)
-	if err != nil {
-		return errors.Wrapf(err, "Module %v building failed on module's packing", module)
+	if !ep.IsDeploymentDescriptor() {
+		// Get module commands
+		commands := cmdConverter(modulePath, mCmd)
+
+		// Execute child-process with module respective commands
+		err = exec.Execute(commands)
+		if err != nil {
+			return errors.Wrapf(err, "Module %v building failed on commands execution", module)
+		}
+		// Pack the modules build artifacts (include node modules)
+		// into the artifactsPath dir as data zip
+		err = packModule(ep, moduleRelPath, module)
+		if err != nil {
+			return errors.Wrapf(err, "Module %v building failed on module's packing", module)
+		}
+	} else {
+		err = copyModuleArchive(ep, moduleRelPath, module)
+		if err != nil {
+			return errors.Wrapf(err, "Module %v building failed on module's archive copy", module)
+		}
 	}
 	return nil
 }
