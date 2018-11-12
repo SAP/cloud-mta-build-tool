@@ -85,15 +85,15 @@ func makeFile(ep *fs.MtaLocationParameters, makeFilename string, tpl *tplCfg) er
 	}
 	path := filepath.Join(target, tpl.relPath)
 	// Create make file for the template
-	makeFile, err := createMakeFile(path, makeFilename)
+	mf, err := createMakeFile(path, makeFilename)
 	if err != nil {
 		return errors.Wrap(err, "makeFile failed on file creation")
 	}
-	if makeFile != nil {
+	if mf != nil {
 		// Execute the template
-		err = t.Execute(makeFile, data)
+		err = t.Execute(mf, data)
 
-		errClose := makeFile.Close()
+		errClose := mf.Close()
 		if err != nil && errClose != nil {
 			err = errors.Wrapf(err, "Makefile creation failed. Closing failed with %s", errClose)
 		} else if errClose != nil {

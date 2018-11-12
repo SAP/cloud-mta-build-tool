@@ -5,18 +5,19 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("CloudMtaBuildTool", func() {
+var _ = Describe("Integration - CloudMtaBuildTool", func() {
 
 	BeforeEach(func() {
 		By("Building MBT")
-		cmd := exec.Command("go", "build", "-o", "./integration/testdata/mbt", ".")
-		cmd.Dir = "../"
+		cmd := exec.Command("go", "build", "-o", filepath.FromSlash("./integration/testdata/mbt"), ".")
+		cmd.Dir = filepath.FromSlash("../")
 		err := cmd.Run()
 		fmt.Println("finish to execute process", err)
 		if err != nil {
@@ -32,9 +33,11 @@ var _ = Describe("CloudMtaBuildTool", func() {
 
 		It("Getting module", func() {
 			dir, _ := os.Getwd()
-			path := dir + "/testdata/"
 			args := "provide modules"
-			bin := "./mbt"
+
+			path := dir + filepath.FromSlash("/testdata/")
+			bin := filepath.FromSlash("./mbt")
+
 			cmdOut, err := execute(bin, args, path)
 			if len(err) > 0 {
 				fmt.Println(err)
@@ -45,9 +48,11 @@ var _ = Describe("CloudMtaBuildTool", func() {
 
 		It("Command name error", func() {
 			dir, _ := os.Getwd()
-			path := dir + "/testdata/"
 			args := "provide modules 2"
-			bin := "./mbt"
+
+			path := dir + filepath.FromSlash("/testdata/")
+			bin := filepath.FromSlash("./mbt")
+
 			cmdOut, err := execute(bin, args, path)
 			if len(err) > 0 {
 				fmt.Println(err)
@@ -80,3 +85,4 @@ func execute(bin string, args string, path string) (string, error string) {
 	}
 	return stdoutBuf.String(), stdErrBuf.String()
 }
+

@@ -66,7 +66,7 @@ func copyRequiredArtifacts(sourcePath, targetPath string, artifacts []string) er
 			fullTargetPath := filepath.Join(targetPath, sourceDir)
 			dir.CopyDir(sourcePath, fullTargetPath)
 		} else {
-			//TODO implement other cases of artifacts: subdirectory, file
+			// TODO implement other cases of artifacts: subdirectory, file
 		}
 	} else {
 		for _, artifact := range artifacts {
@@ -80,6 +80,7 @@ func copyRequiredArtifacts(sourcePath, targetPath string, artifacts []string) er
 }
 
 // validateArtifacts - validates list of required artifacts
+//noinspection GoUnusedParameter,GoUnusedParameter
 func validateArtifacts(ep *dir.MtaLocationParameters, requiredModule *Modules, artifacts []string) error {
 	if len(artifacts) == 0 {
 		errors.New("No artifacts defined")
@@ -93,7 +94,7 @@ func validateArtifacts(ep *dir.MtaLocationParameters, requiredModule *Modules, a
 				return errors.New("[*] and [.] artifacts listed among multiple artifacts")
 			}
 		default:
-			//TODO add validations
+			// TODO add validations
 		}
 	}
 	return nil
