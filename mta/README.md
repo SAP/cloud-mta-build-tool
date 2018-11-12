@@ -29,8 +29,8 @@ services, and interfaces, and package them in an MTA project.
 
 ### Milestone 1 
  
- - [ ] mta parser 
- - [ ] 2.1 Schema validations 
+ - [x] MTA parser 
+ - [x] Development descriptor schema validations (2.1) 
  - [ ] Semantic validations (mta->project)
 ‘path’ validation
  
