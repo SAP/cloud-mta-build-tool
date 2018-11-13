@@ -39,12 +39,10 @@ func (ep *MtaLocationParameters) GetSource() (string, error) {
 		wd, err := GetWorkingDirectory()
 		if err != nil {
 			return "", errors.Wrap(err, "GetSource failed")
-		} else {
-			return wd, nil
 		}
-	} else {
-		return ep.SourcePath, nil
+		return wd, nil
 	}
+	return ep.SourcePath, nil
 }
 
 // GetTarget - Get Target Path
@@ -54,12 +52,11 @@ func (ep *MtaLocationParameters) GetTarget() (string, error) {
 		source, err := ep.GetSource()
 		if err != nil {
 			return "", errors.Wrap(err, "GetTarget failed")
-		} else {
-			return source, nil
 		}
-	} else {
-		return ep.TargetPath, nil
+		return source, nil
 	}
+	return ep.TargetPath, nil
+
 }
 
 // GetTargetTmpDir - Get Target Temporary Directory path
@@ -112,15 +109,12 @@ func (ep *MtaLocationParameters) GetSourceModuleDir(modulePath string) (string, 
 // getMtaYamlFilename - Get MTA yaml File name
 func (ep *MtaLocationParameters) getMtaYamlFilename() string {
 	if ep.MtaFilename == "" {
-
 		if ep.Descriptor == dep {
 			return "mtad.yaml"
-		} else {
-			return "mta.yaml"
 		}
-	} else {
-		return ep.MtaFilename
+		return "mta.yaml"
 	}
+	return ep.MtaFilename
 }
 
 // GetMtaYamlPath - Get MTA yaml File path

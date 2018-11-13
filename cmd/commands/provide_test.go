@@ -7,9 +7,10 @@ import (
 	"os"
 	"path/filepath"
 
-	"cloud-mta-build-tool/internal/fsys"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+
+	"cloud-mta-build-tool/internal/fsys"
 )
 
 func executeAndProvideOutput(execute func()) string {

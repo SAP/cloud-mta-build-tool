@@ -8,8 +8,9 @@ import (
 	"path/filepath"
 	"time"
 
-	"cloud-mta-build-tool/internal/logs"
 	"github.com/pkg/errors"
+
+	"cloud-mta-build-tool/internal/logs"
 )
 
 func makeCommand(params []string) *exec.Cmd {

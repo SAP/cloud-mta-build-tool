@@ -273,7 +273,7 @@ func generateMtar(ep *fs.MtaLocationParameters) error {
 			return errors.Wrap(err, "MTA Process failed on getting target directory")
 		}
 		// archive building artifacts to mtar
-		err = fs.Archive(targetTmpDir, filepath.Join(targetDir, m.Id+mtarSuffix))
+		err = fs.Archive(targetTmpDir, filepath.Join(targetDir, m.ID+mtarSuffix))
 		return err
 	})
 	if err != nil {
@@ -336,9 +336,8 @@ func packModule(ep *fs.MtaLocationParameters, modulePath, moduleName string) err
 	}
 	if err = fs.Archive(sourceModuleDir, moduleZipFullPath); err != nil {
 		return errors.Wrapf(err, "Pack of module %v failed on archiving", moduleName)
-	} else {
-		logs.Logger.Infof("Pack of module %v successfully finished", moduleName)
 	}
+	logs.Logger.Infof("Pack of module %v successfully finished", moduleName)
 	return nil
 }
 

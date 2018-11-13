@@ -8,15 +8,16 @@ import (
 	"path/filepath"
 	"strings"
 
-	"cloud-mta-build-tool/internal/builders"
-	"cloud-mta-build-tool/internal/fsys"
-	"cloud-mta-build-tool/internal/logs"
-	"cloud-mta-build-tool/mta"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
+
+	"cloud-mta-build-tool/internal/builders"
+	"cloud-mta-build-tool/internal/fsys"
+	"cloud-mta-build-tool/internal/logs"
+	"cloud-mta-build-tool/mta"
 )
 
 var _ = Describe("Commands", func() {
@@ -183,10 +184,9 @@ var _ = Describe("Commands", func() {
 				dir.GetWorkingDirectory = func() (string, error) {
 					countCalls++
 					if countCalls >= failOnCall {
-						return "", errors.New("error!")
-					} else {
-						return os.Getwd()
+						return "", errors.New("error")
 					}
+					return os.Getwd()
 				}
 			} else {
 				lp = dir.MtaLocationParameters{SourcePath: getTestPath("mta")}

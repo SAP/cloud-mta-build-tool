@@ -3,10 +3,11 @@ package exec
 import (
 	"time"
 
-	"cloud-mta-build-tool/internal/logs"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
+
+	"cloud-mta-build-tool/internal/logs"
 )
 
 var _ = Describe("Execute", func() {

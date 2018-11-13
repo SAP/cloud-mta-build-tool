@@ -1,7 +1,6 @@
 package mta
 
 import (
-	"fmt"
 	"path/filepath"
 	"strings"
 
@@ -61,14 +60,17 @@ func copyRequiredArtifacts(sourcePath, targetPath string, artifacts []string) er
 	if len(artifacts) == 1 {
 		if artifacts[0] == "*" {
 			// copies all source module folder's entries
-			if err := dir.CopyDir(sourcePath, targetPath); err != nil{
-				fmt.Println(err)
+			if err := dir.CopyDir(sourcePath, targetPath); err != nil {
+				return errors.Wrapf(err, "Error copying dir")
 			}
 		} else if artifacts[0] == "." {
 			// copies all source module folder
 			_, sourceDir := filepath.Split(sourcePath)
 			fullTargetPath := filepath.Join(targetPath, sourceDir)
-			dir.CopyDir(sourcePath, fullTargetPath)
+			err := dir.CopyDir(sourcePath, fullTargetPath)
+			if err != nil {
+				return errors.Wrapf(err, "Error copying dir")
+			}
 		} else {
 			// TODO implement other cases of artifacts: subdirectory, file
 		}
@@ -109,14 +111,13 @@ func (module *Modules) getBuildResultsPath(ep *dir.MtaLocationParameters) (strin
 	if module.BuildParams.Path == "" {
 		// if no sub-folder provided - build results will be saved in the module folder
 		return ep.GetSourceModuleDir(module.Path)
-	} else {
-		// if sub-folder provided - build results will be saved in the subfolder of the module folder
-		source, err := ep.GetSourceModuleDir(module.Path)
-		if err != nil {
-			return "", errors.Wrap(err, "getBuildResultsPath failed")
-		}
-		return filepath.Join(source, module.BuildParams.Path), nil
 	}
+	// if sub-folder provided - build results will be saved in the subfolder of the module folder
+	source, err := ep.GetSourceModuleDir(module.Path)
+	if err != nil {
+		return "", errors.Wrap(err, "getBuildResultsPath failed")
+	}
+	return filepath.Join(source, module.BuildParams.Path), nil
 }
 
 // getRequiredTargetPath - provides path of required artifacts
@@ -124,12 +125,11 @@ func (requires *BuildRequires) getRequiredTargetPath(ep *dir.MtaLocationParamete
 	if requires.TargetPath == "" {
 		// if no target folder provided - artifacts will be saved in module folder
 		return ep.GetSourceModuleDir(module.Path)
-	} else {
-		// if target folder provided - artifacts will be saved in the sub-folder of the module folder
-		source, err := ep.GetSourceModuleDir(module.Path)
-		if err != nil {
-			return "", errors.Wrap(err, "getRequiredTargetPath failed")
-		}
-		return filepath.Join(source, requires.TargetPath), nil
 	}
+	// if target folder provided - artifacts will be saved in the sub-folder of the module folder
+	source, err := ep.GetSourceModuleDir(module.Path)
+	if err != nil {
+		return "", errors.Wrap(err, "getRequiredTargetPath failed")
+	}
+	return filepath.Join(source, requires.TargetPath), nil
 }
