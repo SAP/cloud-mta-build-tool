@@ -11,11 +11,10 @@ import (
 	"cloud-mta-build-tool/validations"
 )
 
-
-// Todo 1. Provide interface to support multiple mta schema (2.1 / 3.1 ) versions and concrete struct type
-// Todo 2. Add missing properties
 // MTA struct
 type MTA struct {
+	// Todo 1. Provide interface to support multiple mta schema (2.1 / 3.1 ) versions and concrete struct type
+	// Todo 2. Add missing properties
 	// indicate MTA schema version, using semantic versioning standard
 	SchemaVersion *string `yaml:"_schema-version"`
 	// A globally unique ID of this MTA. Unlimited string of unicode characters.
@@ -174,11 +173,12 @@ func (mta *MTA) GetResourceByName(name string) (*Resources, error) {
 
 // GetModulesNames - get list of modules names
 func (mta *MTA) GetModulesNames() ([]string, error) {
-	return mta.GetModulesOrder()
+	return mta.getModulesOrder()
 }
 
 // Validate validate mta schema
 func Validate(yamlContent []byte, projectPath string, validateSchema bool, validateProject bool) mta_validate.YamlValidationIssues {
+	//noinspection GoPreferNilSlice
 	issues := []mta_validate.YamlValidationIssue{}
 	if validateSchema {
 		validations, schemaValidationLog := mta_validate.BuildValidationsFromSchemaText(SchemaDef)

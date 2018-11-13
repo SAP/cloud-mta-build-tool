@@ -20,10 +20,12 @@ type MtaLocationParameters struct {
 	Descriptor string
 }
 
+// OsGetWd - get working dir
 var OsGetWd = func() (string, error) {
 	return os.Getwd()
 }
 
+// GetWorkingDirectory assignment
 var GetWorkingDirectory = OsGetWd
 
 // GetSource - Get Processed Project Path

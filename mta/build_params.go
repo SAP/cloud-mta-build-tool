@@ -4,8 +4,10 @@ import (
 	"path/filepath"
 	"strings"
 
-	"cloud-mta-build-tool/internal/fsys"
 	"github.com/pkg/errors"
+
+	"cloud-mta-build-tool/internal/fsys"
+
 )
 
 // Order of modules building is done according to the dependencies defined in build parameters.
@@ -49,7 +51,7 @@ func (requires *BuildRequires) ProcessRequirements(ep *dir.MtaLocationParameters
 	err = copyRequiredArtifacts(sourcePath, targetPath, artifacts)
 
 	if err != nil {
-		return errors.Wrapf(err, "rocessing requirements of module %v based on module %v failed on artifacts copying", moduleName, requiredModule.Name)
+		return errors.Wrapf(err, "Processing requirements of module %v based on module %v failed on artifacts copying", moduleName, requiredModule.Name)
 	}
 	return nil
 }
@@ -103,10 +105,10 @@ func validateArtifacts(ep *dir.MtaLocationParameters, requiredModule *Modules, a
 // getBuildResultsPath - provides path of build results
 func (module *Modules) getBuildResultsPath(ep *dir.MtaLocationParameters) (string, error) {
 	if module.BuildParams.Path == "" {
-		// if no subfolder provided - build results will be saved in the module folder
+		// if no sub-folder provided - build results will be saved in the module folder
 		return ep.GetSourceModuleDir(module.Path)
 	} else {
-		// if subfolder provided - build results will be saved in the subfolder of the module folder
+		// if sub-folder provided - build results will be saved in the subfolder of the module folder
 		source, err := ep.GetSourceModuleDir(module.Path)
 		if err != nil {
 			return "", errors.Wrap(err, "getBuildResultsPath failed")
@@ -121,7 +123,7 @@ func (requires *BuildRequires) getRequiredTargetPath(ep *dir.MtaLocationParamete
 		// if no target folder provided - artifacts will be saved in module folder
 		return ep.GetSourceModuleDir(module.Path)
 	} else {
-		// if target folder provided - artifacts will be saved in the subfolder of the module folder
+		// if target folder provided - artifacts will be saved in the sub-folder of the module folder
 		source, err := ep.GetSourceModuleDir(module.Path)
 		if err != nil {
 			return "", errors.Wrap(err, "getRequiredTargetPath failed")
