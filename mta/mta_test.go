@@ -1,6 +1,7 @@
 package mta
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -166,8 +167,11 @@ func doTest(t *testing.T, expected []testInfo, filename string) {
 	mtaFile, _ := ioutil.ReadFile(filename)
 	// Parse file
 	oMta := &MTA{}
-	mtaContent, err := Marshal(oMta)
-	err = oMta.Parse(mtaFile)
+	mtaContent, e := Marshal(oMta)
+	if e != nil{
+		fmt.Println(e)
+	}
+	e = oMta.Parse(mtaFile)
 	for i, tt := range expected {
 		t.Run(tt.name, func(t *testing.T) {
 			require.NotNil(t, oMta)
@@ -175,7 +179,7 @@ func doTest(t *testing.T, expected []testInfo, filename string) {
 			tt.validator(t, *oMta.Modules[i], tt.expected)
 		})
 	}
-	run(mtaContent, err, oMta, t)
+	run(mtaContent, e, oMta, t)
 }
 
 func run(mtaContent []byte, err error, oMta *MTA, t *testing.T) {

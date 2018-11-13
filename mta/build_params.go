@@ -1,13 +1,13 @@
 package mta
 
 import (
+	"fmt"
 	"path/filepath"
 	"strings"
 
 	"github.com/pkg/errors"
 
 	"cloud-mta-build-tool/internal/fsys"
-
 )
 
 // Order of modules building is done according to the dependencies defined in build parameters.
@@ -61,7 +61,9 @@ func copyRequiredArtifacts(sourcePath, targetPath string, artifacts []string) er
 	if len(artifacts) == 1 {
 		if artifacts[0] == "*" {
 			// copies all source module folder's entries
-			dir.CopyDir(sourcePath, targetPath)
+			if err := dir.CopyDir(sourcePath, targetPath); err != nil{
+				fmt.Println(err)
+			}
 		} else if artifacts[0] == "." {
 			// copies all source module folder
 			_, sourceDir := filepath.Split(sourcePath)

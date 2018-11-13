@@ -2,6 +2,7 @@ package commands
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -22,7 +23,10 @@ func executeAndProvideOutput(execute func()) string {
 	// copy the output in a separate goroutine so printing can't block indefinitely
 	go func() {
 		var buf bytes.Buffer
-		io.Copy(&buf, r)
+		_, err := io.Copy(&buf, r)
+		if err != nil {
+			fmt.Println(err)
+		}
 		outC <- buf.String()
 	}()
 
@@ -50,6 +54,7 @@ var _ = Describe("Provide", func() {
 		out := executeAndProvideOutput(func() {
 			sourceBModuleFlag = ""
 			pModuleCmd.RunE(nil, []string{})
+
 		})
 		Ω(out).Should(BeEmpty())
 	})

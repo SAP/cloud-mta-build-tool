@@ -67,8 +67,10 @@ func GenMtad(mtaStr *MTA, ep *dir.MtaLocationParameters, convertTypes func(mtaSt
 	if err != nil {
 		return errors.Wrap(err, "MTAD generation failed")
 	}
-	createDirIfNotExist(metaPath)
-
+	err = createDirIfNotExist(metaPath)
+	if err != nil {
+		return errors.Wrap(err, "MTAD generation failed, not able to create dir")
+	}
 	if !ep.IsDeploymentDescriptor() {
 		convertTypes(mtaStr)
 	}

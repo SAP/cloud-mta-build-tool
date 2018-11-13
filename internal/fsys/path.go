@@ -8,6 +8,10 @@ import (
 	"github.com/pkg/errors"
 )
 
+const (
+	dep = "dep"
+)
+
 // MtaLocationParameters - MTA tool file properties
 type MtaLocationParameters struct {
 	// SourcePath - Path to MTA project
@@ -108,7 +112,8 @@ func (ep *MtaLocationParameters) GetSourceModuleDir(modulePath string) (string, 
 // getMtaYamlFilename - Get MTA yaml File name
 func (ep *MtaLocationParameters) getMtaYamlFilename() string {
 	if ep.MtaFilename == "" {
-		if ep.Descriptor == "dep" {
+
+		if ep.Descriptor == dep {
 			return "mtad.yaml"
 		} else {
 			return "mta.yaml"
@@ -169,5 +174,5 @@ func ValidateDeploymentDescriptor(descriptor string) error {
 
 // IsDeploymentDescriptor - Check if flag is related to deployment descriptor
 func (ep *MtaLocationParameters) IsDeploymentDescriptor() bool {
-	return ep.Descriptor == "dep"
+	return ep.Descriptor == dep
 }

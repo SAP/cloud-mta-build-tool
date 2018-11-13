@@ -74,7 +74,7 @@ var _ = Describe("Integration - CloudMtaBuildTool", func() {
 
 // Execute commands and get outputs
 func execute(bin string, args string, path string) (string, error string) {
-
+	// Provide list of commands
 	cmd := exec.Command(bin, strings.Split(args, " ")...)
 	// bin path
 	cmd.Dir = path
@@ -84,8 +84,10 @@ func execute(bin string, args string, path string) (string, error string) {
 	// std error
 	stdErrBuf := &bytes.Buffer{}
 	cmd.Stderr = stdErrBuf
-
-	cmd.Start()
+	// Start command
+	if err := cmd.Start(); err != nil {
+		fmt.Println(err)
+	}
 	// wait to the command to finish
 	err := cmd.Wait()
 	if err != nil {
