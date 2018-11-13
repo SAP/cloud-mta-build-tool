@@ -181,7 +181,7 @@ func Validate(yamlContent []byte, projectPath string, validateSchema bool, valid
 	//noinspection GoPreferNilSlice
 	issues := []validate.YamlValidationIssue{}
 	if validateSchema {
-		validations, schemaValidationLog := validate.BuildValidationsFromSchemaText(schemaDefs)
+		validations, schemaValidationLog := validate.BuildValidationsFromSchemaText(SchemaDef)
 		if len(schemaValidationLog) > 0 {
 			return schemaValidationLog
 		} else {
