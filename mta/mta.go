@@ -18,7 +18,7 @@ type MTA struct {
 	// indicate MTA schema version, using semantic versioning standard
 	SchemaVersion *string `yaml:"_schema-version"`
 	// A globally unique ID of this MTA. Unlimited string of unicode characters.
-	Id string `yaml:"ID"`
+	ID string `yaml:"ID"`
 	// A non-translatable description of this MTA. This is not a text for application users
 	Description string `yaml:"description,omitempty"`
 	// Application version, using semantic versioning standard
@@ -177,17 +177,17 @@ func (mta *MTA) GetModulesNames() ([]string, error) {
 }
 
 // Validate validate mta schema
-func Validate(yamlContent []byte, projectPath string, validateSchema bool, validateProject bool) mta_validate.YamlValidationIssues {
+func Validate(yamlContent []byte, projectPath string, validateSchema bool, validateProject bool) validate.YamlValidationIssues {
 	//noinspection GoPreferNilSlice
-	issues := []mta_validate.YamlValidationIssue{}
+	issues := []validate.YamlValidationIssue{}
 	if validateSchema {
-		validations, schemaValidationLog := mta_validate.BuildValidationsFromSchemaText(SchemaDef)
+		validations, schemaValidationLog := validate.BuildValidationsFromSchemaText(SchemaDef)
 		if len(schemaValidationLog) > 0 {
 			return schemaValidationLog
 		} else {
-			yamlValidationLog, err := mta_validate.ValidateYaml(yamlContent, validations...)
+			yamlValidationLog, err := validate.ValidateYaml(yamlContent, validations...)
 			if err != nil && len(yamlValidationLog) == 0 {
-				yamlValidationLog = append(yamlValidationLog, []mta_validate.YamlValidationIssue{{Msg: "Validation failed" + err.Error()}}...)
+				yamlValidationLog = append(yamlValidationLog, []validate.YamlValidationIssue{{Msg: "Validation failed" + err.Error()}}...)
 			}
 			issues = append(issues, yamlValidationLog...)
 		}

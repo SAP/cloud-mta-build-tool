@@ -3,7 +3,7 @@
 // 2. Path information for schema issues.
 // 4. regExp patterns also implicitly require a NotMapSequence validation
 
-package mta_validate
+package validate
 
 import (
 	"fmt"

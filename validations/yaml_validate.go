@@ -3,7 +3,7 @@
 // 4. Allowed Properties.
 // 5. TypeIsNotMapOrSet
 
-package mta_validate
+package validate
 
 import (
 	"fmt"

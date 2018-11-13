@@ -1,6 +1,6 @@
 // By naming this file with _test suffix it is not measured
 // in the coverage report, although we do end-up with a strange file name...
-package mta_validate
+package validate
 
 import (
 	. "github.com/onsi/gomega"

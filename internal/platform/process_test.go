@@ -5,9 +5,10 @@ import (
 	"reflect"
 	"testing"
 
-	"cloud-mta-build-tool/mta"
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/yaml.v2"
+
+	"cloud-mta-build-tool/mta"
 )
 
 func TestParse(t *testing.T) {

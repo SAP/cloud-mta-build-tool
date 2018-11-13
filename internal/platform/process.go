@@ -1,9 +1,10 @@
 package platform
 
 import (
-	"cloud-mta-build-tool/mta"
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
+
+	"cloud-mta-build-tool/mta"
 )
 
 // Parse - parse platform config
