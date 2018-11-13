@@ -7,12 +7,12 @@ import (
 	"strings"
 
 	"github.com/pkg/errors"
+	"github.com/spf13/cobra"
 
 	"cloud-mta-build-tool/internal/builders"
 	"cloud-mta-build-tool/internal/exec"
 	fs "cloud-mta-build-tool/internal/fsys"
 	"cloud-mta-build-tool/internal/platform"
-	"github.com/spf13/cobra"
 
 	"cloud-mta-build-tool/internal/logs"
 	"cloud-mta-build-tool/mta"
@@ -433,31 +433,31 @@ func buildModule(ep *fs.MtaLocationParameters, module string) error {
 		// Development descriptor - build includes:
 
 		// 1. module dependencies processing
-		err := processDependencies(ep, module)
-		if err != nil {
-			return errors.Wrapf(err, "Module %v building failed on processing dependencies", module)
+		e := processDependencies(ep, module)
+		if e != nil {
+			return errors.Wrapf(e, "Module %v building failed on processing dependencies", module)
 		}
 
 		// 2. module type dependent commands execution
-		modulePath, err := ep.GetSourceModuleDir(moduleRelPath)
-		if err != nil {
-			return errors.Wrapf(err, "Module %v building failed on getting source module directory", module)
+		modulePath, e := ep.GetSourceModuleDir(moduleRelPath)
+		if e != nil {
+			return errors.Wrapf(e, "Module %v building failed on getting source module directory", module)
 		}
 
 		// Get module commands
 		commands := cmdConverter(modulePath, mCmd)
 
 		// Execute child-process with module respective commands
-		err = exec.Execute(commands)
-		if err != nil {
-			return errors.Wrapf(err, "Module %v building failed on commands execution", module)
+		e = exec.Execute(commands)
+		if e != nil {
+			return errors.Wrapf(e, "Module %v building failed on commands execution", module)
 		}
 
 		// 3. Packing the modules build artifacts (include node modules)
 		// into the artifactsPath dir as data zip
-		err = packModule(ep, moduleRelPath, module)
-		if err != nil {
-			return errors.Wrapf(err, "Module %v building failed on module's packing", module)
+		e = packModule(ep, moduleRelPath, module)
+		if e != nil {
+			return errors.Wrapf(e, "Module %v building failed on module's packing", module)
 		}
 	} else {
 

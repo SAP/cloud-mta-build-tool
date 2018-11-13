@@ -93,7 +93,7 @@ func makeFile(ep *fs.MtaLocationParameters, makeFilename string, tpl *tplCfg) er
 		if err != nil && errClose != nil {
 			err = errors.Wrapf(err, "Makefile creation failed. Closing failed with %s", errClose)
 		} else if errClose != nil {
-			err = errors.Wrap(errClose, "Makefile сlosing failed")
+			err = errors.Wrap(errClose, "Makefile close process failed")
 		}
 	}
 	return err

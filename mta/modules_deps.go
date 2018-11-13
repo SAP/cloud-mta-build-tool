@@ -21,8 +21,8 @@ func newGn(module *string, deps mapset.Set, index int) *graphNode {
 // graphs - graph map
 type graphs map[string]*graphNode
 
-// GetModulesOrder - Provides Modules ordered according to build-parameters' dependencies
-func (mta *MTA) GetModulesOrder() ([]string, error) {
+// getModulesOrder - Provides Modules ordered according to build-parameters' dependencies
+func (mta *MTA) getModulesOrder() ([]string, error) {
 	var graph = make(graphs)
 	for index, module := range mta.Modules {
 		deps := mapset.NewSet()
