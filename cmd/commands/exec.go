@@ -98,6 +98,8 @@ var bModuleCmd = &cobra.Command{
 		}
 		return err
 	},
+	SilenceUsage:  true,
+	SilenceErrors: true,
 }
 
 // zip specific module and put the artifacts on the temp folder according
@@ -177,6 +179,8 @@ var genMtadCmd = &cobra.Command{
 		logErrorExt(err, "MTAD generation failed")
 		return err
 	},
+	SilenceUsage:  true,
+	SilenceErrors: true,
 }
 
 // Validate mta.yaml

@@ -34,7 +34,8 @@ var pModuleCmd = &cobra.Command{
 		logError(err)
 		return err
 	},
-	SilenceUsage: true,
+	SilenceUsage:  true,
+	SilenceErrors: true,
 }
 
 func provideModules(ep *dir.MtaLocationParameters) error {
