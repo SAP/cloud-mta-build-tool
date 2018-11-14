@@ -147,7 +147,7 @@ var _ = Describe("FSOPS", func() {
 		},
 			Entry("Single file", "ui2",
 				[]string{"deep/folder/inui2/somefile.txt"},
-				[]string{getFullPath("testdata", "result", "somefile.txt")}),
+				[]string{getFullPath("testdata", "result", "anotherfile.txt")}),
 			Entry("Wildcard for 2 files", "ui2",
 				[]string{"deep/*/inui2/another*"},
 				[]string{getFullPath("testdata", "result", "anotherfile.txt"),
@@ -175,13 +175,12 @@ var _ = Describe("FSOPS", func() {
 				[]string{},
 				[]string{}),
 		)
+
 		var _ = DescribeTable("Invalid Cases", func(targetPath, modulePath string, patterns []string) {
 			sourcePath := getFullPath("testdata", "testbuildparams", modulePath)
 			err := CopyByPatterns(sourcePath, targetPath, patterns)
 			Ω(err).Should(HaveOccurred())
 		},
-			Entry("Wrong target base folder name", getFullPath("testdata", "::::...:::"), "ui2",
-				[]string{"deep/folder/inui2/somefile.txt"}),
 			Entry("Target path relates to file ", getFullPath("testdata", "testbuildparams", "mta.yaml"), "ui2",
 				[]string{"deep/folder/inui2/somefile.txt"}),
 			Entry("Wrong pattern ", getFullPath("testdata", "result"), "ui2",
