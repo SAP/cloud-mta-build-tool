@@ -146,7 +146,7 @@ var _ = Describe("FSOPS", func() {
 			}
 		},
 			Entry("Single file", "ui2",
-				[]string{"deep/folder/inui2/somefile.txt"},
+				[]string{"deep/folder/inui2/anotherfile.txt"},
 				[]string{getFullPath("testdata", "result", "anotherfile.txt")}),
 			Entry("Wildcard for 2 files", "ui2",
 				[]string{"deep/*/inui2/another*"},
@@ -158,7 +158,7 @@ var _ = Describe("FSOPS", func() {
 					getFullPath("testdata", "result", "anotherfile2.txt")}),
 			Entry("Specific folder of second level", "ui2",
 				[]string{"*/folder/*"},
-				[]string{getFullPath("testdata", "result", "inui2", "somefile.txt"),
+				[]string{
 					getFullPath("testdata", "result", "inui2", "anotherfile.txt"),
 					getFullPath("testdata", "result", "inui2", "anotherfile2.txt")}),
 			Entry("All", "ui1",
@@ -167,10 +167,11 @@ var _ = Describe("FSOPS", func() {
 			Entry("Dot", "ui1",
 				[]string{"."},
 				[]string{getFullPath("testdata", "result", "ui1", "webapp", "Component.js")}),
-			Entry("Multiple patterns", "ui2",
-				[]string{"deep/folder/inui2/somefile.txt", "*/folder/"},
-				[]string{getFullPath("testdata", "result", "folder", "inui2", "somefile.txt"),
-					getFullPath("testdata", "result", "somefile.txt")}),
+			Entry("Multiple patterns", "ui2", //
+				[]string{"deep/folder/inui2/anotherfile.txt", "*/folder/"},
+				[]string{
+					getFullPath("testdata", "result", "folder", "inui2", "anotherfile.txt"),
+					getFullPath("testdata", "result", "anotherfile.txt")}),
 			Entry("Empty patterns", "ui2",
 				[]string{},
 				[]string{}),
