@@ -92,9 +92,9 @@ type Requires struct {
 
 // BuildRequires - build requires section
 type BuildRequires struct {
-	Name       string `yaml:"name,omitempty"`
-	Artifacts  string `yaml:"artifacts,omitempty"`
-	TargetPath string `yaml:"target-path,omitempty"`
+	Name       string   `yaml:"name,omitempty"`
+	Artifacts  []string `yaml:"artifacts,omitempty"`
+	TargetPath string   `yaml:"target-path,omitempty"`
 }
 
 // Resources - declarations. Resources can be anything required to run the application which is not provided by the application itself.

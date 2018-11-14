@@ -216,8 +216,12 @@ var _ = Describe("Build", func() {
 
 	var _ = Describe("build Module", func() {
 
+		var config []byte
+
 		BeforeEach(func() {
 			targetBModuleFlag = getTestPath("result")
+			config = make([]byte, len(builders.CommandsConfig))
+			copy(config, builders.CommandsConfig)
 			// Simplified commands configuration (performance purposes). removed "npm prune --production"
 			builders.CommandsConfig = []byte(`
 builders:
@@ -225,8 +229,6 @@ builders:
   info: "installing module dependencies & execute grunt & remove dev dependencies"
   path: "path to config file which override the following default commands"
   type:
-  - command: npm install
-  - command: grunt
 - name: nodejs
   info: "build nodejs application"
   path: "path to config file which override the following default commands"
@@ -236,6 +238,8 @@ builders:
 
 		AfterEach(func() {
 			os.RemoveAll(targetBModuleFlag)
+			builders.CommandsConfig = make([]byte, len(config))
+			copy(builders.CommandsConfig, config)
 		})
 
 		It("Sanity", func() {
@@ -244,13 +248,14 @@ builders:
 			Ω(ep.GetTargetModuleZipPath("node-js")).Should(BeAnExistingFile())
 		})
 
-		var _ = DescribeTable("Invalid inputs", func(projectName, moduleName string) {
-			ep := dir.MtaLocationParameters{SourcePath: getTestPath(projectName), TargetPath: targetBModuleFlag}
+		var _ = DescribeTable("Invalid inputs", func(projectName, mtaFilename, moduleName string) {
+			ep := dir.MtaLocationParameters{SourcePath: getTestPath(projectName), TargetPath: targetBModuleFlag, MtaFilename: mtaFilename}
 			Ω(buildModule(&ep, moduleName)).Should(HaveOccurred())
 			Ω(ep.GetTargetTmpDir()).ShouldNot(BeADirectory())
 		},
-			Entry("Invalid path to application", "mta1", "node-js"),
-			Entry("Invalid module name", "mta", "xxx"),
+			Entry("Invalid path to application", "mta1", "mta.yaml", "node-js"),
+			Entry("Invalid module name", "mta", "mta.yaml", "xxx"),
+			Entry("Invalid module name", "mtahtml5", "mtaWithWrongBuildParams.yaml", "ui5app"),
 		)
 
 		It("build Command", func() {
@@ -289,7 +294,7 @@ modules:
 			path, commands, err := moduleCmd(&m, "htmlapp")
 			Ω(err).Should(BeNil())
 			Ω(path).Should(Equal("app"))
-			Ω(commands).Should(Equal([]string{"npm install", "grunt"}))
+			Ω(commands).Should(Equal([]string{"npm install", "grunt", "npm prune --production"}))
 		})
 	})
 
@@ -303,6 +308,18 @@ modules:
 				{"path", "npm", "prune", "--production"}}
 			Ω(cmdConverter("path", cmdInput)).Should(Equal(cmdExpected))
 		})
+	})
+})
+
+var _ = Describe("Process Dependencies", func() {
+	It("Sanity", func() {
+		Ω(processDependencies(&dir.MtaLocationParameters{SourcePath: getTestPath("mtahtml5"), MtaFilename: "mtaWithBuildParams.yaml"}, "ui5app")).Should(Succeed())
+	})
+	It("Invalid mta", func() {
+		Ω(processDependencies(&dir.MtaLocationParameters{SourcePath: getTestPath("mtahtml5"), MtaFilename: "mta1.yaml"}, "ui5app")).Should(HaveOccurred())
+	})
+	It("Invalid module name", func() {
+		Ω(processDependencies(&dir.MtaLocationParameters{SourcePath: getTestPath("mtahtml5")}, "xxx")).Should(HaveOccurred())
 	})
 })
 

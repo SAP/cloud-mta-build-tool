@@ -52,4 +52,35 @@ builders:
 		}
 		Ω(CommandProvider(mta.Modules{Type: "html5"})).Should(Equal(expected))
 	})
+
+	var _ = Describe("CommandProvider - Invalid cfg", func() {
+		var config []byte
+
+		BeforeEach(func() {
+			config = make([]byte, len(CommandsConfig))
+			copy(config, CommandsConfig)
+			// Simplified commands configuration (performance purposes). removed "npm prune --production"
+			CommandsConfig = []byte(`
+builders:
+- name: html5
+  info: "installing module dependencies & execute grunt & remove dev dependencies"
+  path: "path to config file which override the following default commands"
+  type: [xxx]
+- name: nodejs
+  info: "build nodejs application"
+  path: "path to config file which override the following default commands"
+  type:
+`)
+		})
+
+		AfterEach(func() {
+			CommandsConfig = make([]byte, len(config))
+			copy(CommandsConfig, config)
+		})
+
+		It("test", func() {
+			_, err := CommandProvider(mta.Modules{Type: "html5"})
+			Ω(err).Should(HaveOccurred())
+		})
+	})
 })

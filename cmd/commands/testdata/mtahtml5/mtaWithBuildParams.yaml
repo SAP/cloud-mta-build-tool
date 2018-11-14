@@ -12,6 +12,10 @@ modules:
    requires:
     - name: uaa_mtahtml5
     - name: dest_mtahtml5
+   build-parameters:
+    requires:
+    - name: ui5app2
+
 
  - name: ui5app2
    type: html5
