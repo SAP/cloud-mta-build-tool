@@ -233,7 +233,8 @@ func locationParameters(sourceFlag, targetFlag, descriptor string) fs.MtaLocatio
 		mtaFilename = "mta.yaml"
 		descriptor = "dev"
 	} else {
-		mtaFilename = "mtad.yaml"
+		mtaFilename =
+			"mtad.yaml"
 		descriptor = "dep"
 	}
 	return fs.MtaLocationParameters{SourcePath: sourceFlag, TargetPath: targetFlag, MtaFilename: mtaFilename, Descriptor: descriptor}
@@ -272,7 +273,7 @@ func generateMtar(ep *fs.MtaLocationParameters) error {
 			return errors.Wrap(err, "MTA Process failed on getting target directory")
 		}
 		// archive building artifacts to mtar
-		err = fs.Archive(targetTmpDir, filepath.Join(targetDir, m.Id+mtarSuffix))
+		err = fs.Archive(targetTmpDir, filepath.Join(targetDir, m.ID+mtarSuffix))
 		return err
 	})
 	if err != nil {
@@ -330,13 +331,13 @@ func packModule(ep *fs.MtaLocationParameters, modulePath, moduleName string) err
 	moduleZipFullPath := moduleZipPath + dataZip
 	sourceModuleDir, err := ep.GetSourceModuleDir(modulePath)
 	if err != nil {
-		return errors.Wrapf(err, "Pack of module %v failed on getting source module directory with relative path %v", moduleName, modulePath)
+		return errors.Wrapf(err, "Pack of module %v failed on getting source module directory with relative path %v",
+			moduleName, modulePath)
 	}
 	if err = fs.Archive(sourceModuleDir, moduleZipFullPath); err != nil {
 		return errors.Wrapf(err, "Pack of module %v failed on archiving", moduleName)
-	} else {
-		logs.Logger.Infof("Pack of module %v successfully finished", moduleName)
 	}
+	logs.Logger.Infof("Pack of module %v successfully finished", moduleName)
 	return nil
 }
 

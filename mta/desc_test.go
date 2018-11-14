@@ -79,7 +79,10 @@ modules:
 `)
 			mta := MTA{}
 			yaml.Unmarshal(mtaSingleModule, &mta)
-			GenMetaInfo(&ep, &mta, []string{"htmlapp"}, func(mtaStr *MTA) {})
+			err := GenMetaInfo(&ep, &mta, []string{"htmlapp"}, func(mtaStr *MTA) {})
+			if err != nil {
+				fmt.Println(err)
+			}
 			Ω(ep.GetManifestPath()).Should(BeAnExistingFile())
 			Ω(ep.GetMtadPath()).Should(BeAnExistingFile())
 		})

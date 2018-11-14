@@ -62,9 +62,9 @@ func Archive(sourcePath, targetArchivePath string) error {
 	return err
 }
 
-func walk(sourcePath string, baseDir string, archive *zip.Writer) {
+func walk(sourcePath string, baseDir string, archive *zip.Writer) error {
 	// pack files of source into archive
-	filepath.Walk(sourcePath, func(path string, info os.FileInfo, err error) error {
+	return filepath.Walk(sourcePath, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}

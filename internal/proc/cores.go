@@ -13,7 +13,7 @@ func OsCore() []proc {
 	case "linux":
 		return []proc{{`NPROCS = $(shell grep -c 'processor' /proc/cpuinfo)`, `MAKEFLAGS += -j$(NPROCS)`}}
 	case "darwin":
-		return []proc{{`NPROCS = $(sysctl -n hw.ncpu')`, `MAKEFLAGS += -j$(NPROCS)`}}
+		return []proc{{`NPROCS = $(sysctl -n hw.ncpu)`, `MAKEFLAGS += -j$(NPROCS)`}}
 	case "windows":
 		return []proc{{`NPROCS = $(shell echo %NUMBER_OF_PROCESSORS%)`, `MAKEFLAGS += -j$(NPROCS)`}}
 	default:

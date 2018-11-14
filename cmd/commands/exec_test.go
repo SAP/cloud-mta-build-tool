@@ -8,15 +8,16 @@ import (
 	"path/filepath"
 	"strings"
 
-	"cloud-mta-build-tool/internal/builders"
-	"cloud-mta-build-tool/internal/fsys"
-	"cloud-mta-build-tool/internal/logs"
-	"cloud-mta-build-tool/mta"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
+
+	"cloud-mta-build-tool/internal/builders"
+	"cloud-mta-build-tool/internal/fsys"
+	"cloud-mta-build-tool/internal/logs"
+	"cloud-mta-build-tool/mta"
 )
 
 var _ = Describe("Commands", func() {
@@ -29,7 +30,10 @@ var _ = Describe("Commands", func() {
 		targetBModuleFlag = getTestPath("result")
 		targetCleanupFlag = getTestPath("result")
 		logs.Logger = logs.NewLogger()
-		os.Mkdir(targetMtadFlag, os.ModePerm)
+		err := os.Mkdir(targetMtadFlag, os.ModePerm)
+		if err != nil {
+			fmt.Println(err)
+		}
 	})
 
 	AfterEach(func() {
@@ -46,9 +50,11 @@ var _ = Describe("Commands", func() {
 			sourcePackFlag = getTestPath("mtahtml5")
 			ep := dir.MtaLocationParameters{SourcePath: sourcePackFlag, TargetPath: targetPackFlag}
 			targetTmpDir, _ := ep.GetTargetTmpDir()
-			os.MkdirAll(targetTmpDir, os.ModePerm)
+			err := os.MkdirAll(targetTmpDir, os.ModePerm)
+			if err != nil {
+				logs.Logger.Error(err)
+			}
 			f, _ := os.Create(filepath.Join(targetTmpDir, "ui5app"))
-
 			packCmd.Run(nil, []string{})
 			fmt.Println(str.String())
 			Ω(str.String()).Should(ContainSubstring("Pack of module ui5app failed on making directory"))
@@ -75,7 +81,10 @@ var _ = Describe("Commands", func() {
 		It("Generate Mtad", func() {
 			sourceMtadFlag = getTestPath("mtahtml5")
 			ep = dir.MtaLocationParameters{SourcePath: sourceMtadFlag, TargetPath: targetMtadFlag}
-			genMtadCmd.RunE(nil, []string{})
+			err := genMtadCmd.RunE(nil, []string{})
+			if err != nil {
+				fmt.Println(err)
+			}
 			Ω(ep.GetMtadPath()).Should(BeAnExistingFile())
 		})
 		It("Generate Mtar", func() {
@@ -117,12 +126,17 @@ var _ = Describe("Commands", func() {
 
 		It("Generate Mtar", func() {
 			ep := dir.MtaLocationParameters{SourcePath: getTestPath("mtahtml5"), TargetPath: targetMtarFlag}
-			generateMeta(&ep)
-			generateMtar(&ep)
+			err := generateMeta(&ep)
+			if err != nil {
+				fmt.Println(err)
+			}
+			err = generateMtar(&ep)
+			if err != nil {
+				fmt.Println(err)
+			}
 			mtarPath := getTestPath("result", "mtahtml5.mtar")
 			Ω(mtarPath).Should(BeAnExistingFile())
 		})
-
 	})
 
 	var _ = Describe("Pack", func() {
@@ -157,6 +171,7 @@ var _ = Describe("Commands", func() {
 		It("Sanity", func() {
 			lp := dir.MtaLocationParameters{SourcePath: getTestPath("mta")}
 			dir.Archive(getTestPath("mta", "node-js"), getTestPath("mta", "node-js", "data.zip"))
+
 			Ω(copyModuleArchive(&lp, "node-js", "node-js")).Should(Succeed())
 			Ω(getTestPath("mta", "mta", "node-js", "data.zip")).Should(BeAnExistingFile())
 		})
@@ -169,10 +184,9 @@ var _ = Describe("Commands", func() {
 				dir.GetWorkingDirectory = func() (string, error) {
 					countCalls++
 					if countCalls >= failOnCall {
-						return "", errors.New("error!")
-					} else {
-						return os.Getwd()
+						return "", errors.New("error")
 					}
+					return os.Getwd()
 				}
 			} else {
 				lp = dir.MtaLocationParameters{SourcePath: getTestPath("mta")}
@@ -262,7 +276,10 @@ builders:
 			pBuildModuleNameFlag = "node-js"
 			sourceBModuleFlag = getTestPath("mta")
 			ep := dir.MtaLocationParameters{SourcePath: sourceBModuleFlag, TargetPath: targetBModuleFlag}
-			bModuleCmd.RunE(nil, []string{})
+			err := bModuleCmd.RunE(nil, []string{})
+			if err != nil {
+				fmt.Println(err)
+			}
 			Ω(ep.GetTargetModuleZipPath(pBuildModuleNameFlag)).Should(BeAnExistingFile())
 		})
 	})
@@ -290,7 +307,10 @@ modules:
 
 			m := mta.MTA{}
 			// parse mta yaml
-			yaml.Unmarshal(mtaCF, &m)
+			err := yaml.Unmarshal(mtaCF, &m)
+			if err != nil {
+				fmt.Println(err)
+			}
 			path, commands, err := moduleCmd(&m, "htmlapp")
 			Ω(err).Should(BeNil())
 			Ω(path).Should(Equal("app"))

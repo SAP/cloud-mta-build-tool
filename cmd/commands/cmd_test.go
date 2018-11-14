@@ -1,9 +1,10 @@
 package commands
 
 import (
-	"cloud-mta-build-tool/internal/version"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+
+	"cloud-mta-build-tool/internal/version"
 )
 
 var _ = Describe("Cmd", func() {

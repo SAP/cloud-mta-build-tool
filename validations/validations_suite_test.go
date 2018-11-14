@@ -1,4 +1,4 @@
-package mta_validate_test
+package validate_test
 
 import (
 	"testing"

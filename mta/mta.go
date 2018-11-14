@@ -15,10 +15,10 @@ import (
 type MTA struct {
 	// Todo 1. Provide interface to support multiple mta schema (2.1 / 3.1 ) versions and concrete struct type
 	// Todo 2. Add missing properties
-	// indicate MTA schema version, using semantic versioning standard
+	// indicates MTA schema version, using semver
 	SchemaVersion *string `yaml:"_schema-version"`
 	// A globally unique ID of this MTA. Unlimited string of unicode characters.
-	Id string `yaml:"ID"`
+	ID string `yaml:"ID"`
 	// A non-translatable description of this MTA. This is not a text for application users
 	Description string `yaml:"description,omitempty"`
 	// Application version, using semantic versioning standard
@@ -29,9 +29,9 @@ type MTA struct {
 	Copyright string `yaml:"copyright,omitempty"`
 	// list of modules
 	Modules []*Modules `yaml:"modules,omitempty"`
-	// Resource declarations. Resources can be anything required to run the application which is not provided by the application itself.
+	// Resource declarations. Resources can be anything required to run the application which is not provided by the application itself
 	Resources []*Resources `yaml:"resources,omitempty"`
-	// Parameters can be used to steer the behavior of tools which interpret this descriptor.
+	// Parameters can be used to steer the behavior of tools which interpret this descriptor
 	Parameters Parameters `yaml:"parameters,omitempty"`
 }
 
@@ -73,13 +73,13 @@ type Properties map[string]interface{}
 // Parameters - parameters map
 type Parameters map[string]interface{}
 
-// Provides section
+// Provides List of provided names (MTA internal)to which properties (= configuration data) can be attached
 type Provides struct {
 	Name       string
 	Properties Properties `yaml:"properties,omitempty"`
 }
 
-// Requires - list of names either matching a resource name or a name provided by another module within the same MTA
+// Requires List of names either matching a resource name or a name provided by another module within the same MTA
 type Requires struct {
 	// an MTA internal name which must match either a provided name, a resource name, or a module name within the same MTA
 	Name string `yaml:"name,omitempty"`
@@ -97,7 +97,7 @@ type BuildRequires struct {
 	TargetPath string   `yaml:"target-path,omitempty"`
 }
 
-// Resources - declarations. Resources can be anything required to run the application which is not provided by the application itself.
+// Resources can be anything required to run the application which is not provided by the application itself.
 type Resources struct {
 	Name string
 	// A type of a resource. This type is interpreted by and must be known to the deployer. Resources can be untyped
@@ -108,17 +108,17 @@ type Resources struct {
 	Properties Properties `yaml:"properties,omitempty"`
 }
 
-// Parse MTA file and provide mta object with data
+// Parse parses MTA YAML document and provides MTA object with data
 func (mta *MTA) Parse(yamlContent []byte) (err error) {
 	// Format the YAML to struct's
 	err = yaml.Unmarshal([]byte(yamlContent), &mta)
 	if err != nil {
-		return errors.Wrap(err, "not able to parse the mta content : %s")
+		return errors.Wrap(err, "error occurred while parsing file : %s")
 	}
 	return nil
 }
 
-// Marshal - edit mta object structure
+// Marshal serializes the MTA provided into a YAML document, edit scenario
 func Marshal(in *MTA) (mtads []byte, err error) {
 	mtads, err = yaml.Marshal(in)
 	if err != nil {
@@ -127,7 +127,7 @@ func Marshal(in *MTA) (mtads []byte, err error) {
 	return mtads, nil
 }
 
-// ReadMtaYaml Read MTA Yaml file
+// ReadMtaYaml Reads MTA Yaml file and stores it's data in byte slice.
 func ReadMtaYaml(ep *fs.MtaLocationParameters) ([]byte, error) {
 	fileFullPath, err := ep.GetMtaYamlPath()
 	if err != nil {
@@ -141,17 +141,17 @@ func ReadMtaYaml(ep *fs.MtaLocationParameters) ([]byte, error) {
 	return yamlFile, nil
 }
 
-// GetModules - Get list of mta modules
+// GetModules Returns list of mta modules
 func (mta *MTA) GetModules() []*Modules {
 	return mta.Modules
 }
 
-// GetResources - Get list of mta resources
+// GetResources Returns list of mta resources
 func (mta *MTA) GetResources() []*Resources {
 	return mta.Resources
 }
 
-// GetModuleByName - Get specific module
+// GetModuleByName Returns specific module
 func (mta *MTA) GetModuleByName(name string) (*Modules, error) {
 	for _, m := range mta.Modules {
 		if m.Name == name {
@@ -161,7 +161,7 @@ func (mta *MTA) GetModuleByName(name string) (*Modules, error) {
 	return nil, fmt.Errorf("module %s , not found ", name)
 }
 
-// GetResourceByName - Get specific resource
+// GetResourceByName Returns specific resource
 func (mta *MTA) GetResourceByName(name string) (*Resources, error) {
 	for _, r := range mta.Resources {
 		if r.Name == name {
@@ -171,23 +171,23 @@ func (mta *MTA) GetResourceByName(name string) (*Resources, error) {
 	return nil, fmt.Errorf("module %s , not found ", name)
 }
 
-// GetModulesNames - get list of modules names
+// GetModulesNames Returns list of modules names
 func (mta *MTA) GetModulesNames() ([]string, error) {
 	return mta.getModulesOrder()
 }
 
-// Validate validate mta schema
-func Validate(yamlContent []byte, projectPath string, validateSchema bool, validateProject bool) mta_validate.YamlValidationIssues {
+// Validate Validate mta schema
+func Validate(yamlContent []byte, projectPath string, validateSchema bool, validateProject bool) validate.YamlValidationIssues {
 	//noinspection GoPreferNilSlice
-	issues := []mta_validate.YamlValidationIssue{}
+	issues := []validate.YamlValidationIssue{}
 	if validateSchema {
-		validations, schemaValidationLog := mta_validate.BuildValidationsFromSchemaText(SchemaDef)
+		validations, schemaValidationLog := validate.BuildValidationsFromSchemaText(schemaDef)
 		if len(schemaValidationLog) > 0 {
 			return schemaValidationLog
 		} else {
-			yamlValidationLog, err := mta_validate.ValidateYaml(yamlContent, validations...)
+			yamlValidationLog, err := validate.ValidateYaml(yamlContent, validations...)
 			if err != nil && len(yamlValidationLog) == 0 {
-				yamlValidationLog = append(yamlValidationLog, []mta_validate.YamlValidationIssue{{Msg: "Validation failed" + err.Error()}}...)
+				yamlValidationLog = append(yamlValidationLog, []validate.YamlValidationIssue{{Msg: "Validation failed" + err.Error()}}...)
 			}
 			issues = append(issues, yamlValidationLog...)
 		}

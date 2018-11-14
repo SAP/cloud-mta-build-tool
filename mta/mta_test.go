@@ -1,6 +1,7 @@
 package mta
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -166,8 +167,11 @@ func doTest(t *testing.T, expected []testInfo, filename string) {
 	mtaFile, _ := ioutil.ReadFile(filename)
 	// Parse file
 	oMta := &MTA{}
-	mtaContent, err := Marshal(oMta)
-	err = oMta.Parse(mtaFile)
+	mtaContent, e := Marshal(oMta)
+	if e != nil {
+		fmt.Println(e)
+	}
+	e = oMta.Parse(mtaFile)
 	for i, tt := range expected {
 		t.Run(tt.name, func(t *testing.T) {
 			require.NotNil(t, oMta)
@@ -175,7 +179,7 @@ func doTest(t *testing.T, expected []testInfo, filename string) {
 			tt.validator(t, *oMta.Modules[i], tt.expected)
 		})
 	}
-	run(mtaContent, err, oMta, t)
+	run(mtaContent, e, oMta, t)
 }
 
 func run(mtaContent []byte, err error, oMta *MTA, t *testing.T) {
@@ -202,7 +206,7 @@ func Test_FullMta(t *testing.T) {
 
 	expected := MTA{
 		SchemaVersion: &schemaVersion,
-		Id:            "cloud.samples.someproj",
+		ID:            "cloud.samples.someproj",
 		Version:       "1.0.0",
 		Parameters: Parameters{
 			"deploy_mode": "html5-repo",
@@ -388,7 +392,7 @@ func Test_FullMta(t *testing.T) {
 func TestMTA_GetModules(t *testing.T) {
 	type fields struct {
 		SchemaVersion *string
-		Id            string
+		ID            string
 		Version       string
 		Modules       []*Modules
 		Resources     []*Resources
@@ -471,7 +475,7 @@ func TestMTA_GetModules(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			mta := &MTA{
 				SchemaVersion: tt.fields.SchemaVersion,
-				Id:            tt.fields.Id,
+				ID:            tt.fields.ID,
 				Version:       tt.fields.Version,
 				Modules:       tt.fields.Modules,
 				Resources:     tt.fields.Resources,
@@ -488,7 +492,7 @@ func TestMTA_GetModules(t *testing.T) {
 func TestMTA_GetResourceByName(t *testing.T) {
 	type fields struct {
 		SchemaVersion *string
-		Id            string
+		ID            string
 		Version       string
 		Modules       []*Modules
 		Resources     []*Resources
@@ -571,7 +575,7 @@ func TestMTA_GetResourceByName(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			mta := &MTA{
 				SchemaVersion: tt.fields.SchemaVersion,
-				Id:            tt.fields.Id,
+				ID:            tt.fields.ID,
 				Version:       tt.fields.Version,
 				Modules:       tt.fields.Modules,
 				Resources:     tt.fields.Resources,
@@ -595,7 +599,7 @@ func TestMTA_GetResourceByName(t *testing.T) {
 func TestMTA_GetResources(t *testing.T) {
 	type fields struct {
 		SchemaVersion *string
-		Id            string
+		ID            string
 		Version       string
 		Modules       []*Modules
 		Resources     []*Resources
@@ -672,7 +676,7 @@ func TestMTA_GetResources(t *testing.T) {
 			name: "GetResources - Empty list",
 			fields: fields{
 				SchemaVersion: nil,
-				Id:            "",
+				ID:            "",
 				Version:       "",
 				Modules:       nil,
 				Resources:     nil,
@@ -685,7 +689,7 @@ func TestMTA_GetResources(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			mta := &MTA{
 				SchemaVersion: tt.fields.SchemaVersion,
-				Id:            tt.fields.Id,
+				ID:            tt.fields.ID,
 				Version:       tt.fields.Version,
 				Modules:       tt.fields.Modules,
 				Resources:     tt.fields.Resources,
@@ -704,7 +708,7 @@ func TestMTA_GetModuleByName(t *testing.T) {
 
 	type fields struct {
 		SchemaVersion *string
-		Id            string
+		ID            string
 		Version       string
 		Modules       []*Modules
 		Resources     []*Resources
@@ -800,7 +804,7 @@ func TestMTA_GetModuleByName(t *testing.T) {
 			t.Run(tt.name, func(t *testing.T) {
 				mta := &MTA{
 					SchemaVersion: tt.fields.SchemaVersion,
-					Id:            tt.fields.Id,
+					ID:            tt.fields.ID,
 					Version:       tt.fields.Version,
 					Modules:       tt.fields.Modules,
 					Resources:     tt.fields.Resources,

@@ -3,10 +3,11 @@ package commands
 import (
 	"fmt"
 
-	"cloud-mta-build-tool/internal/logs"
-	"cloud-mta-build-tool/internal/version"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
+
+	"cloud-mta-build-tool/internal/logs"
+	"cloud-mta-build-tool/internal/version"
 )
 
 func init() {

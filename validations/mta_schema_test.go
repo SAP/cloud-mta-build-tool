@@ -1,4 +1,4 @@
-package mta_validate
+package validate
 
 import (
 	. "github.com/onsi/ginkgo"

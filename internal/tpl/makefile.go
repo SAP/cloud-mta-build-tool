@@ -7,15 +7,14 @@ import (
 	"runtime"
 	"text/template"
 
-	"cloud-mta-build-tool/internal/version"
 	"github.com/pkg/errors"
-
-	"cloud-mta-build-tool/internal/logs"
-	"cloud-mta-build-tool/mta"
 
 	"cloud-mta-build-tool/internal/builders"
 	fs "cloud-mta-build-tool/internal/fsys"
+	"cloud-mta-build-tool/internal/logs"
 	"cloud-mta-build-tool/internal/proc"
+	"cloud-mta-build-tool/internal/version"
+	"cloud-mta-build-tool/mta"
 )
 
 const (
@@ -149,8 +148,7 @@ func createMakeFile(path, filename string) (file *os.File, err error) {
 	if _, err = os.Stat(fullFilename); err == nil {
 		logs.Logger.Warn(fmt.Sprintf("Make file %s exists", fullFilename))
 		return nil, nil
-	} else {
-		mf, err = fs.CreateFile(fullFilename)
 	}
+	mf, err = fs.CreateFile(fullFilename)
 	return mf, err
 }

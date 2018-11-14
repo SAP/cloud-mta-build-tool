@@ -8,12 +8,13 @@ import (
 	"runtime"
 	"strings"
 
-	"cloud-mta-build-tool/internal/fsys"
-	"cloud-mta-build-tool/internal/logs"
-	"cloud-mta-build-tool/internal/version"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
+
+	"cloud-mta-build-tool/internal/fsys"
+	"cloud-mta-build-tool/internal/logs"
+	"cloud-mta-build-tool/internal/version"
 )
 
 var _ = BeforeSuite(func() {
