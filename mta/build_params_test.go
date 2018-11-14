@@ -154,8 +154,8 @@ var _ = Describe("BuildParams", func() {
 			}
 			// ["*"] => "newfolder"
 			Ω(getTestPath("testbuildparams", "node", "newfolder", "webapp")).Should(BeADirectory())
-			// ["deep/folder/inui2/somefile.txt"] => "existingfolder/deepfolder"
-			Ω(getTestPath("testbuildparams", "node", "existingfolder", "deepfolder", "somefile.txt")).Should(BeAnExistingFile())
+			// ["deep/folder/inui2/anotherfile.txt"] => "existingfolder/deepfolder"
+			Ω(getTestPath("testbuildparams", "node", "existingfolder", "deepfolder", "anotherfile.txt")).Should(BeAnExistingFile())
 			// ["./deep/*/inui2/another*"] => "./existingfolder/deepfolder"
 			Ω(getTestPath("testbuildparams", "node", "existingfolder", "deepfolder", "anotherfile2.txt")).Should(BeAnExistingFile())
 			// ["deep/folder/inui2/somefile.txt", "*/folder/"] =>  "newfolder/newdeepfolder"
