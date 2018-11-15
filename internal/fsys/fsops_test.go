@@ -93,7 +93,7 @@ var _ = Describe("FSOPS", func() {
 		},
 			Entry("SourceDirectoryDoesNotExist", getFullPath("testdata", "level5"), targetPath),
 			Entry("SourceIsNotDirectory", getFullPath("testdata", "level2", "level2_one.txt"), targetPath),
-			Entry("DstDirectoryNotValid", getFullPath("level2"), "/"),
+			Entry("DstDirectoryNotValid", getFullPath("level2"), ":"),
 		)
 
 		var _ = DescribeTable("Copy File - Invalid", func(source, target string, matcher GomegaMatcher) {
@@ -129,6 +129,64 @@ var _ = Describe("FSOPS", func() {
 			targetPath = getFullPath("testdata", "//")
 			Ω(copyEntries(filesWrapped[:], getFullPath("testdata", "level2", "levelx"), targetPath)).Should(HaveOccurred())
 		})
+	})
+
+	var _ = Describe("Copy By Patterns", func() {
+
+		AfterEach(func() {
+			os.RemoveAll(getFullPath("testdata", "result"))
+		})
+
+		var _ = DescribeTable("Valid Cases", func(modulePath string, patterns, expectedFiles []string) {
+			sourcePath := getFullPath("testdata", "testbuildparams", modulePath)
+			targetPath := getFullPath("testdata", "result")
+			Ω(CopyByPatterns(sourcePath, targetPath, patterns)).Should(Succeed())
+			for _, file := range expectedFiles {
+				Ω(file).Should(BeAnExistingFile())
+			}
+		},
+			Entry("Single file", "ui2",
+				[]string{"deep/folder/inui2/anotherfile.txt"},
+				[]string{getFullPath("testdata", "result", "anotherfile.txt")}),
+			Entry("Wildcard for 2 files", "ui2",
+				[]string{"deep/*/inui2/another*"},
+				[]string{getFullPath("testdata", "result", "anotherfile.txt"),
+					getFullPath("testdata", "result", "anotherfile2.txt")}),
+			Entry("Wildcard for 2 files - dot start", "ui2",
+				[]string{"./deep/*/inui2/another*"},
+				[]string{getFullPath("testdata", "result", "anotherfile.txt"),
+					getFullPath("testdata", "result", "anotherfile2.txt")}),
+			Entry("Specific folder of second level", "ui2",
+				[]string{"*/folder/*"},
+				[]string{
+					getFullPath("testdata", "result", "inui2", "anotherfile.txt"),
+					getFullPath("testdata", "result", "inui2", "anotherfile2.txt")}),
+			Entry("All", "ui1",
+				[]string{"*"},
+				[]string{getFullPath("testdata", "result", "webapp", "Component.js")}),
+			Entry("Dot", "ui1",
+				[]string{"."},
+				[]string{getFullPath("testdata", "result", "ui1", "webapp", "Component.js")}),
+			Entry("Multiple patterns", "ui2", //
+				[]string{"deep/folder/inui2/anotherfile.txt", "*/folder/"},
+				[]string{
+					getFullPath("testdata", "result", "folder", "inui2", "anotherfile.txt"),
+					getFullPath("testdata", "result", "anotherfile.txt")}),
+			Entry("Empty patterns", "ui2",
+				[]string{},
+				[]string{}),
+		)
+
+		var _ = DescribeTable("Invalid Cases", func(targetPath, modulePath string, patterns []string) {
+			sourcePath := getFullPath("testdata", "testbuildparams", modulePath)
+			err := CopyByPatterns(sourcePath, targetPath, patterns)
+			Ω(err).Should(HaveOccurred())
+		},
+			Entry("Target path relates to file ", getFullPath("testdata", "testbuildparams", "mta.yaml"), "ui2",
+				[]string{"deep/folder/inui2/somefile.txt"}),
+			Entry("Wrong pattern ", getFullPath("testdata", "result"), "ui2",
+				[]string{"[a,b"}),
+		)
 	})
 })
 

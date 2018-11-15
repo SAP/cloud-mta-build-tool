@@ -13,7 +13,6 @@ modules:
     - name: uaa_mtahtml5
     - name: dest_mtahtml5
 
-
  - name: ui5app2
    type: html5
    path: ui5app2
@@ -29,7 +28,7 @@ resources:
    parameters:
       path: ./xs-security.json
       service-plan: application
-   type: com.sap.xs.uaa
+   type: some.uaa
 
  - name: dest_mtahtml5
    parameters:

@@ -41,4 +41,4 @@ resources:
 - name: hdi_db
   properties:
      hdi-container-name: ${service-name}
-  type: com.sap.xs.hdi-container
+  type: com.company.xs.hdi-container

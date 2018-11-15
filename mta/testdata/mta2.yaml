@@ -58,7 +58,7 @@ modules:
       target-path: '' # <-- build fails if the whole property is missing
 
 - name: someproj-uideployer
-  type: com.sap.html5.application-content
+  type: content
   parameters:
     memory: 256M
     disk-quota: 256M
@@ -66,7 +66,7 @@ modules:
   - name: someproj-apprepo-dt
   build-parameters:
     builder: grunt
-    type: com.sap.html5.application-content
+    type: content
     requires:
     - name: someproj-catalog-ui
 
@@ -89,7 +89,7 @@ resources:
 - name: someproj-hdi-container
   properties:
     hdi-container-name: '${service-name}'
-  type: com.sap.xs.hdi-container
+  type: container
 
 - name: someproj-apprepo-rt
   type: org.cloudfoundry.managed-service

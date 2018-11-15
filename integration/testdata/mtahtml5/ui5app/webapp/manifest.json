@@ -1,6 +1,6 @@
 {
 	"_version": "1.8.0",
-	"sap.app": {
+	"company.app": {
 		"id": "aa.ui5app",
 		"type": "application",
 		"i18n": "i18n/i18n.properties",
@@ -10,12 +10,12 @@
 		"title": "{{appTitle}}",
 		"description": "{{appDescription}}",
 		"sourceTemplate": {
-			"id": "html5moduletemplates.basicSAPUI5ApplicationProjectModule",
+			"id": "html5moduletemplates.basicCOMPANYUI5ApplicationProjectModule",
 			"version": "1.40.12"
 		}
 	},
 
-	"sap.ui": {
+	"company.ui": {
 		"technology": "UI5",
 		"icons": {
 			"icon": "",
@@ -31,13 +31,13 @@
 			"phone": true
 		},
 		"supportedThemes": [
-			"sap_hcb",
-			"sap_belize"
+			"company_hcb",
+			"company_belize"
 
 		]
 	},
 
-	"sap.ui5": {
+	"company.ui5": {
 		"rootView": {
 			"viewName": "aa.ui5app.view.View1",
 			"type": "XML"
@@ -45,13 +45,13 @@
 		"dependencies": {
 			"minUI5Version": "1.30.0",
 			"libs": {
-				"sap.ui.core": {},
-				"sap.m": {},
-				"sap.ui.layout": {},
-				"sap.ushell": {},
-				"sap.collaboration": {},
-				"sap.ui.comp": {},
-				"sap.uxap": {}
+				"company.ui.core": {},
+				"company.m": {},
+				"company.ui.layout": {},
+				"company.ushell": {},
+				"company.collaboration": {},
+				"company.ui.comp": {},
+				"company.uxap": {}
 			}
 		},
 		"contentDensities": {
@@ -60,7 +60,7 @@
 		},
 		"models": {
 			"i18n": {
-				"type": "sap.ui.model.resource.ResourceModel",
+				"type": "company.ui.model.resource.ResourceModel",
 				"settings": {
 					"bundleName": "aa.ui5app.i18n.i18n"
 				}
@@ -73,7 +73,7 @@
 		},
 		"routing": {
 			"config": {
-				"routerClass": "sap.m.routing.Router",
+				"routerClass": "company.m.routing.Router",
 				"viewType": "XML",
 				"async": true,
 				"viewPath": "aa.ui5app.view",

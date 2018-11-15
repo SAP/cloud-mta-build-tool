@@ -8,7 +8,7 @@ modules:
     health-check-timeout: 180
     memory: 2G
   properties:
-    JBP_CONFIG_SAPJVM: '[ memory_calculator: { memory_sizes: { heap: 1000m, stack:
+    JBP_CONFIG_COMPANYJVM: '[ memory_calculator: { memory_sizes: { heap: 1000m, stack:
          1m, metaspace: 150m } } ]'
   provides:
   - name: java
@@ -85,14 +85,14 @@ modules:
 - name: myProj-xsahaa
   parameters:
     memory: 512M
-    buildpack: sap_java_buildpack
+    buildpack: company_java_buildpack
     health-check-timeout: 180
   properties:
     TARGET_RUNTIME: tomee
     JBP_CONFIG_RESOURCE_CONFIGURATION: '[''tomee/webapps/ROOT/WEB-INF/web.xml'':
-         {''cors-origins'':''https://demo-custom.eu1.sapbusinessobjects.cloud, https://integration-service2.eu1.sapanalytics.cloud''},
+         {''cors-origins'':''https://demo-custom.eu1.companybusinessobjects.cloud, https://integration-service2.eu1.companyanalytics.cloud''},
          ''tomee/webapps/ROOT/WEB-INF/resources.xml'': {''xsahaa-zdi-container'':''ed-zdi''}]'
-    SAP_JWT_TRUST_ACL: |
+    COMPANY_JWT_TRUST_ACL: |
       [
         {"clientid":"*","identityzone":"*"}
       ]

@@ -1,6 +1,6 @@
-sap.ui.define([
-	"sap/ui/model/json/JSONModel",
-	"sap/ui/Device"
+company.ui.define([
+	"company/ui/model/json/JSONModel",
+	"company/ui/Device"
 ], function(JSONModel, Device) {
 	"use strict";
 

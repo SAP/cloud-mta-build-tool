@@ -7,6 +7,9 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
+
+	"github.com/pkg/errors"
 )
 
 // createDirIfNotExist - Create new dir
@@ -138,6 +141,55 @@ func CopyDir(src string, dst string) error {
 	return copyEntries(entries, src, dst)
 }
 
+// CopyByPatterns - copy files/directories according to patterns
+// from source folder to target folder
+// patterns are relative to source folder
+func CopyByPatterns(source, target string, patterns []string) error {
+
+	if patterns == nil || len(patterns) == 0 {
+		return nil
+	}
+	infoTargetDir, err := os.Stat(target)
+	if err != nil {
+		err = os.MkdirAll(target, os.ModePerm)
+		if err != nil {
+			return errors.Wrapf(err, "Copy by patterns [%v,...] failed on creating directory %v", patterns[0], target)
+		}
+	} else if !infoTargetDir.IsDir() {
+		return errors.New(fmt.Sprintf("Copy by patterns [%v,...] failed. Target-path %v is not a folder", patterns[0], target))
+	}
+
+	for _, pattern := range patterns {
+
+		// build full pattern concatenating source path and pattern
+		fullPattern := filepath.Join(source, strings.Replace(pattern, "./", "", -1))
+		// get all entries matching the pattern
+		sourceEntries, err := filepath.Glob(fullPattern)
+		if err != nil {
+			return errors.Wrapf(err, "Copy by pattern %v failed on getting matching entries", pattern)
+		}
+
+		for _, sourceEntry := range sourceEntries {
+			info, err := os.Stat(sourceEntry)
+			if err != nil {
+				return errors.Wrapf(err, "Copy by pattern %v failed on getting status of source entry %v", pattern, sourceEntry)
+			}
+			targetEntry := filepath.Join(target, filepath.Base(sourceEntry))
+			if info.IsDir() {
+				err = CopyDir(sourceEntry, targetEntry)
+			} else {
+				err = CopyFile(sourceEntry, targetEntry)
+			}
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
+// copyEntries - copies entries (files and directories) from source to destination folder
 func copyEntries(entries []os.FileInfo, src, dst string) error {
 
 	var err error
