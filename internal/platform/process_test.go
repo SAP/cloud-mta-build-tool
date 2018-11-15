@@ -25,12 +25,12 @@ platform:
    - native-type: java
      platform-type: "java.tomcat"
    - native-type: hdb
-     platform-type: "com.sap.xs.hdi"
+     platform-type: "dbtype"
 
  - name: neo
    modules:
    - native-type: html5
-     platform-type: "com.sap.hcp.html"
+     platform-type: "some.html"
    - native-type: java
      platform-type: "java.tomcat"
 `)
@@ -76,12 +76,12 @@ platform:
     - native-type: java
       platform-type: "java.tomcat"
     - native-type: hdb
-      platform-type: "com.sap.xs.hdi"
+      platform-type: "some.hdb"
 
   - name: neo
     modules:
     - native-type: html5
-      platform-type: "com.sap.hcp.html5"
+      platform-type: "some.html5"
     - native-type: java
       platform-type: "java.tomcat"
 `)
@@ -96,7 +96,7 @@ platform:
 	// ---------------- MTA single module content-------------------------
 	var mtaSingleModule = []byte(`
 _schema-version: "2.0.0"
-ID: com.sap.webide.feature.management
+ID: mta_proj
 version: 1.0.0
 
 modules:
@@ -115,7 +115,7 @@ modules:
 	// expected one module
 	var expectedMta1Modules = []byte(`
 _schema-version: "2.0.0"
-ID: com.sap.webide.feature.management
+ID: mta_proj
 version: 1.0.0
 
 modules:
@@ -137,7 +137,7 @@ modules:
 	// MTA content
 	var mtaNeo = []byte(`
 _schema-version: "2.0.0"
-ID: com.sap.webide.feature.management
+ID: mta_proj
 version: 1.0.0
 
 modules:
@@ -165,16 +165,16 @@ modules:
 	// expected for multi Neo
 	var expectedMtaMultiModules = []byte(`
 _schema-version: "2.0.0"
-ID: com.sap.webide.feature.management
+ID: mta_proj
 version: 1.0.0
 
 modules:
   - name: htmlapp
-    type: com.sap.hcp.html5
+    type: some.html5
     path: app
 
   - name: htmlapp2
-    type: com.sap.hcp.html5
+    type: some.html5
     path: app
 
   - name: java
@@ -195,7 +195,7 @@ modules:
 	// MTA content
 	var mtaCF = []byte(`
 _schema-version: "2.0.0"
-ID: com.sap.webide.feature.management
+ID: mta_proj
 version: 1.0.0
 
 modules:
@@ -222,16 +222,16 @@ modules:
 	// expected for multi modules
 	var expectedMultiModCF = []byte(`
 _schema-version: "2.0.0"
-ID: com.sap.webide.feature.management
+ID: mta_proj
 version: 1.0.0
 
 modules:
   - name: htmlapp
-    type: com.sap.hcp.html5
+    type: some.html5
     path: app
 
   - name: htmlapp2
-    type: com.sap.hcp.html5
+    type: some.html5
     path: app
 
   - name: java
@@ -317,12 +317,12 @@ platform:
     - native-type: java
       platform-type: "java.tomcat"
     - native-type: hdb
-      platform-type: "com.sap.xs.hdi"
+      platform-type: "some.hdb"
 
   - name: neo
     modules:
     - native-type: html5
-      platform-type: "com.sap.hcp.html5"
+      platform-type: "some.html5"
     - native-type: java
       platform-type: "java.tomcat"
 `)
@@ -346,7 +346,7 @@ platform:
     - native-type: java
       platform-type: "java.tomcat"
     - native-type: hdb
-      platform-type: "com.sap.xs.hdi"
+      platform-type: "some.hdb"
 `)
 
 	ps := Platforms{}

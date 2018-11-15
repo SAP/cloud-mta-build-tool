@@ -299,7 +299,7 @@ func Test_FullMta(t *testing.T) {
 			},
 			{
 				Name: "someproj-uideployer",
-				Type: "com.sap.html5.application-content",
+				Type: "content",
 				Parameters: Parameters{
 					"memory":     "256M",
 					"disk-quota": "256M",
@@ -311,7 +311,7 @@ func Test_FullMta(t *testing.T) {
 				},
 				BuildParams: buildParameters{
 					Builder: "grunt",
-					Type:    "com.sap.html5.application-content",
+					Type:    "content",
 					Requires: []BuildRequires{
 						{
 							Name: "someproj-catalog-ui",
@@ -351,7 +351,7 @@ func Test_FullMta(t *testing.T) {
 				Properties: Properties{
 					"hdi-container-name": "${service-name}",
 				},
-				Type: "com.sap.xs.hdi-container",
+				Type: "container",
 			},
 			{
 				Name: "someproj-apprepo-rt",
@@ -436,7 +436,7 @@ func TestMTA_GetModules(t *testing.T) {
 						Properties: Properties{
 							"hdi-container-name": "${service-name}",
 						},
-						Type: "com.sap.xs.hdi-container",
+						Type: "container",
 					},
 				},
 			},
@@ -536,7 +536,7 @@ func TestMTA_GetResourceByName(t *testing.T) {
 						Properties: Properties{
 							"hdi-container-name": "${service-name}",
 						},
-						Type: "com.sap.xs.hdi-container",
+						Type: "container",
 					},
 				},
 			},
@@ -643,7 +643,7 @@ func TestMTA_GetResources(t *testing.T) {
 						Properties: Properties{
 							"hdi-container-name": "${service-name}",
 						},
-						Type: "com.sap.xs.hdi-container",
+						Type: "container",
 					},
 					{
 						Name: "someproj-apprepo-rt",
@@ -661,7 +661,7 @@ func TestMTA_GetResources(t *testing.T) {
 					Properties: Properties{
 						"hdi-container-name": "${service-name}",
 					},
-					Type: "com.sap.xs.hdi-container",
+					Type: "container",
 				},
 				{
 					Name: "someproj-apprepo-rt",

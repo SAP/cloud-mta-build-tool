@@ -1,5 +1,5 @@
-<mvc:View controllerName="b.ui2.controller.View1" xmlns:html="http://www.w3.org/1999/xhtml" xmlns:mvc="sap.ui.core.mvc" displayBlock="true"
-	xmlns="sap.m">
+<mvc:View controllerName="b.ui2.controller.View1" xmlns:html="http://www.w3.org/1999/xhtml" xmlns:mvc="company.ui.core.mvc" displayBlock="true"
+	xmlns="company.m">
 	<App id="idAppControl">
 		<pages>
 			<Page title="{i18n>title}">

@@ -1,7 +1,7 @@
-sap.ui.define([
-	"sap/ui/core/UIComponent",
-	"sap/ui/Device",
-	"a/ui1/model/models"
+company.ui.define([
+	"company/ui/core/UIComponent",
+	"company/ui/Device",
+	"company/ui1/model/models"
 ], function (UIComponent, Device, models) {
 	"use strict";
 

@@ -29,7 +29,7 @@ resources:
    parameters:
       path: ./xs-security.json
       service-plan: application
-   type: com.sap.xs.uaa
+   type: company.company.xs.uaa
 
  - name: dest_mtahtml5
    parameters:

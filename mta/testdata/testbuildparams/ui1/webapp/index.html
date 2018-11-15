@@ -8,7 +8,7 @@
 		<title>ui1</title>
 
 		<script id="sap-ui-bootstrap"
-			src="https://sapui5.hana.ondemand.com/resources/sap-ui-core.js"
+			src="https://company.hana.ondemand.com/resources/company-ui-core.js"
 			data-sap-ui-libs="sap.m"
 			data-sap-ui-theme="sap_belize"
 			data-sap-ui-compatVersion="edge"
@@ -18,9 +18,9 @@
 		<link rel="stylesheet" type="text/css" href="css/style.css">
 
 		<script>
-			sap.ui.getCore().attachInit(function() {
+            company.ui.getCore().attachInit(function() {
 				new sap.m.Shell({
-					app: new sap.ui.core.ComponentContainer({
+					app: new company.ui.core.ComponentContainer({
 						height : "100%",
 						name : "a.ui1"
 					})
@@ -29,7 +29,7 @@
 		</script>
 	</head>
 
-	<body class="sapUiBody" id="content">
+	<body class="companyUiBody" id="content">
 	</body>
 
 </html>

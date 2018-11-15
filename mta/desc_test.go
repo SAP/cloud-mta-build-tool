@@ -69,7 +69,7 @@ var _ = Describe("Desc tests", func() {
 		It("Sanity", func() {
 			var mtaSingleModule = []byte(`
 _schema-version: "2.0.0"
-ID: com.sap.webide.feature.management
+ID: mta_proj
 version: 1.0.0
 
 modules:
