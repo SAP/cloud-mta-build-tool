@@ -1,4 +1,4 @@
-sap.ui.define([
+company.ui.define([
 	"company/ui/core/UIComponent",
 	"company/ui/Device",
 	"aa/ui5app/model/models"

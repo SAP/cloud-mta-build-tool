@@ -287,11 +287,11 @@ modules:
   path: xsahaa
   parameters:
     memory: 512M
-    buildpack: sap_java_buildpack
+    buildpack: company_java_buildpack
     health-check-timeout: 180
   properties:
     TARGET_RUNTIME: tomee
-    JBP_CONFIG_RESOURCE_CONFIGURATION: "['tomee/webapps/ROOT/WEB-INF/web.xml': {'cors-origins':'https://demo-custom.eu1.sapbusinessobjects.cloud, https://integration-service2.eu1.sapanalytics.cloud'},
+    JBP_CONFIG_RESOURCE_CONFIGURATION: "['tomee/webapps/ROOT/WEB-INF/web.xml': {'cors-origins':'https://demo-custom.eu1.companybusinessobjects.cloud, https://integration-service2.eu1.companyanalytics.cloud'},
                                            'tomee/webapps/ROOT/WEB-INF/resources.xml': {'xsahaa-zdi-container':'ed-zdi'}]"
     SAP_JWT_TRUST_ACL: >
       [

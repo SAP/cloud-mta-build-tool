@@ -24,13 +24,13 @@ platform:
     platform-type: "javascript.nodejs"
 
   - native-type: hdb
-    platform-type: "com.sap.xs.hdi"
+    platform-type: "com.company.xs.hdi"
 
   - native-type: java
     platform-type: "java.tomcat"
 
   - native-type: dwf
-    platform-type: "com.sap.xs.dwf"
+    platform-type: "com.company.xs.dwf"
 
   - native-type: cds
     platform-type: "cds"
@@ -40,9 +40,7 @@ platform:
 - name: neo
   modules:
   - native-type: html5
-    platform-type: "com.sap.hcp.html5"
-  #java.tomcat by default or if TARGET_RUNTIME property set to tomcat
-  #com.sap.java if TARGET_RUNTIME property set to neo-java-web or neo-javaee6-wp
+    platform-type: "com.company.hcp.html5"
   - native-type: java
     platform-type: "java.tomcat"
 
@@ -59,13 +57,13 @@ platform:
     platform-type: "javascript.nodejs"
 
   - native-type: hdb
-    platform-type: "com.sap.xs.hdi"
+    platform-type: "com.company.xs.hdi"
 
   - native-type: java
     platform-type: "java.tomcat"
 
   - native-type: dwf
-    platform-type: "com.sap.xs.dwf"
+    platform-type: "com.company.xs.dwf"
 
   - native-type: cds
     platform-type: "cds"

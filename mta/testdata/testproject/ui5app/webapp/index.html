@@ -7,8 +7,8 @@
 
 		<title>ui5app</title>
 
-		<script id="sap-ui-bootstrap"
-			src="https://companyui5.hana.ondemand.com/resources/sap-ui-core.js"
+		<script id="company-ui-bootstrap"
+			src="https://companyui5.hana.ondemand.com/resources/company-ui-core.js"
 			data-company-ui-libs="company.m"
 			data-company-ui-theme="company_belize"
 			data-company-ui-compatVersion="edge"
@@ -18,7 +18,7 @@
 		<link rel="stylesheet" type="text/css" href="css/style.css">
 
 		<script>
-			sap.ui.getCore().attachInit(function() {
+            company.ui.getCore().attachInit(function() {
 				new company.m.Shell({
 					app: new company.ui.core.ComponentContainer({
 						height : "100%",
