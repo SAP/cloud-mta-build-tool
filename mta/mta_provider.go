@@ -6,7 +6,7 @@ import (
 )
 
 // ReadMta reads the MTA file according to it's name and path
-// returns a reference to the MTA object
+// returns a reference to the MTA object.
 func ReadMta(ep *dir.MtaLocationParameters) (*MTA, error) {
 	var mta *MTA
 	yamlContent, err := ReadMtaContent(ep)
@@ -18,7 +18,7 @@ func ReadMta(ep *dir.MtaLocationParameters) (*MTA, error) {
 }
 
 // ReadMtaContent returns a []byte array represents the content of the MTA file
-// according to the name and path
+// according to the name and path.
 func ReadMtaContent(ep *dir.MtaLocationParameters) ([]byte, error) {
 	yamlContent, err := ReadMtaYaml(ep)
 	// Read MTA file
@@ -28,7 +28,7 @@ func ReadMtaContent(ep *dir.MtaLocationParameters) ([]byte, error) {
 	return yamlContent, err
 }
 
-// ParseToMta returns byte array of an MTA object
+// ParseToMta returns byte array of an MTA object.
 func ParseToMta(content []byte) (*MTA, error) {
 	mta := &MTA{}
 	// Parse MTA file

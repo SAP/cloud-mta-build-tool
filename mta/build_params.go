@@ -16,7 +16,7 @@ import (
 // 2.	Dependency on not defined module
 // 3.	Wrong definition of artifacts
 
-// ProcessRequirements - Processes build requirement of module (moduleName)
+// ProcessRequirements - Processes build requirement of module (using moduleName).
 func (requires *BuildRequires) ProcessRequirements(ep *dir.MtaLocationParameters, mta *MTA, moduleName string) error {
 	// validate module names - both in process and required
 	module, err := mta.GetModuleByName(moduleName)

@@ -15,7 +15,7 @@ import (
 
 // MTA struct
 type MTA struct {
-	// indicates MTA schema version, using semver
+	// indicates MTA schema version, using semver.
 	SchemaVersion *string `yaml:"_schema-version"`
 	// A globally unique ID of this MTA. Unlimited string of unicode characters.
 	ID string `yaml:"ID"`
@@ -47,7 +47,7 @@ type buildParameters struct {
 	Requires []BuildRequires `yaml:"requires,omitempty"`
 }
 
-// Modules - modules section
+// Modules - modules section.
 type Modules struct {
 	// An MTA internal module name. Names need to be unique within the MTA scope
 	Name string
@@ -67,19 +67,19 @@ type Modules struct {
 	Properties Properties `yaml:"properties,omitempty"`
 }
 
-// Properties - properties key & value map
+// Properties - properties key & value map.
 type Properties map[string]interface{}
 
-// Parameters - parameters key & value map
+// Parameters - parameters key & value map.
 type Parameters map[string]interface{}
 
-// Provides List of provided names to which properties (config data) can be attached
+// Provides List of provided names to which properties (config data) can be attached.
 type Provides struct {
 	Name       string
 	Properties Properties `yaml:"properties,omitempty"`
 }
 
-// Requires list of names either matching a resource name or a name provided by another module within the same MTA
+// Requires list of names either matching a resource name or a name provided by another module within the same MTA.
 type Requires struct {
 	// an MTA internal name which must match either a provided name, a resource name, or a module name within the same MTA
 	Name string `yaml:"name,omitempty"`
@@ -90,7 +90,7 @@ type Requires struct {
 	Properties Properties `yaml:"properties,omitempty"`
 }
 
-// BuildRequires - build requires section
+// BuildRequires - build requires section.
 type BuildRequires struct {
 	Name       string `yaml:"name,omitempty"`
 	Artifacts  string `yaml:"artifacts,omitempty"`
@@ -108,7 +108,7 @@ type Resources struct {
 	Properties Properties `yaml:"properties,omitempty"`
 }
 
-// Parse unmarshal mta byte document and provides MTA object with corresponding
+// Parse unmarshal mta byte document and provides MTA object with corresponding.
 func (mta *MTA) Parse(yamlContent []byte) (err error) {
 	// Format the YAML to struct's
 	err = yaml.Unmarshal([]byte(yamlContent), &mta)
@@ -118,7 +118,7 @@ func (mta *MTA) Parse(yamlContent []byte) (err error) {
 	return nil
 }
 
-// Marshal serializes the MTA in into encoded YAML document
+// Marshal serializes the MTA in into encoded YAML document.
 func Marshal(in *MTA) (mtads []byte, err error) {
 	mtads, err = yaml.Marshal(in)
 	if err != nil {
@@ -141,17 +141,17 @@ func ReadMtaYaml(ep *fs.MtaLocationParameters) ([]byte, error) {
 	return yamlFile, nil
 }
 
-// GetModules returns list of mta modules
+// GetModules returns list of mta modules.
 func (mta *MTA) GetModules() []*Modules {
 	return mta.Modules
 }
 
-// GetResources returns list of mta resources
+// GetResources returns list of mta resources.
 func (mta *MTA) GetResources() []*Resources {
 	return mta.Resources
 }
 
-// GetModuleByName returns specific module by name
+// GetModuleByName returns specific module by name.
 func (mta *MTA) GetModuleByName(name string) (*Modules, error) {
 	for _, m := range mta.Modules {
 		if m.Name == name {
@@ -161,7 +161,7 @@ func (mta *MTA) GetModuleByName(name string) (*Modules, error) {
 	return nil, fmt.Errorf("module %s , not found ", name)
 }
 
-// GetResourceByName Returns specific resource by name
+// GetResourceByName Returns specific resource by name.
 func (mta *MTA) GetResourceByName(name string) (*Resources, error) {
 	for _, r := range mta.Resources {
 		if r.Name == name {
@@ -171,12 +171,12 @@ func (mta *MTA) GetResourceByName(name string) (*Resources, error) {
 	return nil, fmt.Errorf("module %s , not found ", name)
 }
 
-// GetModulesNames returns list of modules names
+// GetModulesNames returns list of modules names.
 func (mta *MTA) GetModulesNames() ([]string, error) {
 	return mta.getModulesOrder()
 }
 
-// Validate validate mta schema
+// Validate validates mta schema.
 func Validate(yamlContent []byte, projectPath string, validateSchema bool, validateProject bool) validate.YamlValidationIssues {
 	//noinspection GoPreferNilSlice
 	issues := []validate.YamlValidationIssue{}
