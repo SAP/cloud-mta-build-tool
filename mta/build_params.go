@@ -26,9 +26,7 @@ func (requires *BuildRequires) ProcessRequirements(ep *dir.MtaLocationParameters
 		return errors.Wrapf(err, "Processing requirements of module %v based on module %v failed on getting required module", moduleName, requires.Name)
 	}
 	// Get slice of artifacts
-	//artifactsStr := strings.Replace(requires.Artifacts, "[", "", 1)
-	//artifactsStr = strings.Replace(artifactsStr, "]", "", 1)
-	artifacts := requires.Artifacts // strings.Split(artifactsStr, ",")
+	artifacts := requires.Artifacts
 
 	// Build paths for artifacts copying
 	sourcePath, err := requiredModule.getBuildResultsPath(ep)
