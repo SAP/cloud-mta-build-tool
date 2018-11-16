@@ -73,9 +73,49 @@ For background and detailed information, see The [Multi-Target Application Model
  - [ ] Add concrete limitations per release
 
  
- ## Limitations
+## Roadmap
  
-   - TBD
+### Milestone 1 
+ 
+ - [ ] Build of html5 application 
+ - [ ] Build of nodes application
+ - [ ] Build params (first phase)
+    - [ ] Build dependencies
+    - [ ] Copy build results from other module
+    - [ ] Build result supporting different location
+    - [ ] Target platforms
+ - [ ] Generate default Makefile
+ - [ ] Generate `mtad.yaml` from `mta.yaml`
+ - [ ] Build for `XSA` / `CF` targets
+ - [ ] Packaging based on `mtad.yaml`
+ 
+ 
+### Milestone 2 
+ 
+  - [ ] Generate verbose Makefile
+  - [ ] Delta build
+  - [ ] Mta extension
+  - [ ] ZIP builds
+  - [ ] Fetcher 
+  - [ ] Build params
+    - [ ] Build options
+    - [ ] Ignore files/folders
+    - [ ] Define timeouts
+    - [ ] Build artifact name
+  - [ ] Multi-schema support
+  - [ ] Enhance schema validations
+  - [ ] Semantic validations
+  
+ 
+ ### Milestone 3 
+ 
+  - [ ] Build of java/maven application
+  - [ ] Parallel execution for default `Makefile` 
+ 
+ ### Milestone 4  
+
+ - [ ] Extensibility framework
+ - [ ] Advanced `mta.yaml` (3.1, >3.2) schemas support
  
  
  ## License
