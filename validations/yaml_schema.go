@@ -203,10 +203,9 @@ func buildEnumValidation(y *simpleyaml.Yaml) ([]yamlCheck, []YamlValidationIssue
 		enumNode := enumsNode.GetIndex(i)
 		if enumNode.IsArray() || enumNode.IsMap() {
 			return []yamlCheck{}, []YamlValidationIssue{{"YAML Schema Error: enum values must be simple"}}
-		} else {
-			enumValue := getLiteralStringValue(enumNode)
-			enumValues = append(enumValues, enumValue)
 		}
+		enumValue := getLiteralStringValue(enumNode)
+		enumValues = append(enumValues, enumValue)
 	}
 
 	return []yamlCheck{matchesEnumValues(enumValues)}, []YamlValidationIssue{}

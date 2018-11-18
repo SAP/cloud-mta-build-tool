@@ -72,7 +72,7 @@ var _ = Describe("MTA tests", func() {
 					"APPC_LOG_LEVEL":              "info",
 				},
 			}
-			var moduleUi = Modules{
+			var moduleUI = Modules{
 				Name: "ui",
 				Type: "html5",
 				Path: "ui",
@@ -91,7 +91,7 @@ var _ = Describe("MTA tests", func() {
 				BuildParams: buildParameters{Builder: "grunt"},
 				Parameters:  Parameters{"disk-quota": "256M", "memory": "256M"},
 			}
-			var modules = []*Modules{&moduleSrv, &moduleUi}
+			var modules = []*Modules{&moduleSrv, &moduleUI}
 			mtaFile, _ := ioutil.ReadFile("./testdata/mta.yaml")
 			// Parse file
 			oMta := &MTA{}

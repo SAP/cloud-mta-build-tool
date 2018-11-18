@@ -300,9 +300,9 @@ func getLiteralStringValue(y *simpleyaml.Yaml) string {
 	return ""
 }
 
-// ValidateYaml - Given a YAML text and a set of validations will execute them and will return relevant issue slice
+// Yaml - Given a YAML text and a set of validations will execute them and will return relevant issue slice
 // And an "err" object in case of a parsing error.
-func ValidateYaml(yaml []byte, validations ...yamlCheck) ([]YamlValidationIssue, error) {
+func Yaml(yaml []byte, validations ...yamlCheck) ([]YamlValidationIssue, error) {
 	var issues []YamlValidationIssue
 
 	y, parseError := simpleyaml.NewYaml(yaml)

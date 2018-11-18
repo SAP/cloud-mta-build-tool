@@ -112,9 +112,8 @@ var _ = Describe("BuildParams", func() {
 					callsCounter++
 					if callsCounter == failsOnCall {
 						return "", errors.New("error")
-					} else {
-						return os.Getwd()
 					}
+					return os.Getwd()
 				}
 				callsCounter = 0
 			})

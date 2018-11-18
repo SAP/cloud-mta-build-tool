@@ -32,11 +32,17 @@ const (
 )
 
 // setManifetDesc - Set the MANIFEST.MF file
-func setManifetDesc(file io.Writer, mtaStr []*Modules, modules []string) {
+func setManifetDesc(file io.Writer, mtaStr []*Modules, modules []string) error {
 	// TODO create dynamically
-	fmt.Fprint(file, manifestVersion+newLine)
+	_, err := fmt.Fprint(file, manifestVersion+newLine)
+	if err != nil {
+		return errors.Wrap(err, "META INFO generation failed")
+	}
 	// TODO set the version from external config for automatic version bump during release
 	fmt.Fprint(file, "Created-By: SAP Application Archive Builder 0.0.1")
+	if err != nil {
+		return errors.Wrap(err, "META INFO generation failed")
+	}
 	for _, mod := range mtaStr {
 		// Print only the required module to support the partial build
 		if len(modules) > 0 && mod.Name == modules[0] {
@@ -47,6 +53,7 @@ func setManifetDesc(file io.Writer, mtaStr []*Modules, modules []string) {
 			printToFile(file, mod)
 		}
 	}
+	return nil
 }
 
 // Print to manifest.mf file
@@ -65,11 +72,11 @@ func GenMtad(mtaStr *MTA, ep *dir.MtaLocationParameters, convertTypes func(mtaSt
 	// Create META-INF folder under the mtar folder
 	metaPath, err := ep.GetMetaPath()
 	if err != nil {
-		return errors.Wrap(err, "MTAD generation failed")
+		return errors.Wrap(err, "mtad.yaml generation failed")
 	}
 	err = createDirIfNotExist(metaPath)
 	if err != nil {
-		return errors.Wrap(err, "MTAD generation failed, not able to create dir")
+		return errors.Wrap(err, "mtad.yaml generation failed, not able to create dir")
 	}
 	if !ep.IsDeploymentDescriptor() {
 		convertTypes(mtaStr)
@@ -77,7 +84,7 @@ func GenMtad(mtaStr *MTA, ep *dir.MtaLocationParameters, convertTypes func(mtaSt
 	// Create readable Yaml before writing to file
 	mtad, err := Marshal(mtaStr)
 	if err != nil {
-		return errors.Wrap(err, "MTAD generation failed")
+		return errors.Wrap(err, "mtad.yaml generation failed")
 	}
 	mtadPath, err := ep.GetMtadPath()
 	if err == nil {
@@ -85,7 +92,7 @@ func GenMtad(mtaStr *MTA, ep *dir.MtaLocationParameters, convertTypes func(mtaSt
 		err = ioutil.WriteFile(mtadPath, mtad, os.ModePerm)
 	}
 	if err != nil {
-		return errors.Wrap(err, "MTAD generation failed")
+		return errors.Wrap(err, "mtad.yaml generation failed")
 	}
 	return nil
 }
@@ -107,7 +114,11 @@ func GenMetaInfo(ep *dir.MtaLocationParameters, mtaStr *MTA, modules []string, c
 	}
 	defer file.Close()
 	// Set the MANIFEST.MF file
-	setManifetDesc(file, mtaStr.Modules, modules)
+	err = setManifetDesc(file, mtaStr.Modules, modules)
+	if err != nil {
+		return errors.Wrap(err, "META INFO generation failed")
+	}
+
 	return nil
 }
 
