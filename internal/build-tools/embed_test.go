@@ -29,10 +29,7 @@ var _ = Describe("Embed", func() {
 
 	It("negative", func() {
 		os.Args = []string{"app", "-source=./testdata/cfgNotExisting.yaml", "-target=./testdata/cfg.go", "-package=testpackage", "-name=Config"}
-		defer func() {
-			Ω(recover()).ShouldNot(BeNil())
-		}()
-		main()
+		Ω(main).Should(Panic())
 	})
 })
 
