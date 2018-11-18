@@ -18,13 +18,14 @@ import (
 )
 
 const (
-	makefile        = "Makefile.mta"
-	basePreVerbose  = "base_pre_verbose.txt"
-	basePostVerbose = "base_post_verbose.txt"
-	basePreDefault  = "base_pre_default.txt"
-	basePostDefault = "base_post_default.txt"
-	makeDefaultTpl  = "make_default.txt"
-	makeVerboseTpl  = "make_verbose.txt"
+	makefile          = "Makefile.mta"
+	basePreVerbose    = "base_pre_verbose.txt"
+	basePostVerbose   = "base_post_verbose.txt"
+	basePreDefault    = "base_pre_default.txt"
+	basePostDefault   = "base_post_default.txt"
+	makeDefaultTpl    = "make_default.txt"
+	makeVerboseTpl    = "make_verbose.txt"
+	makeVerboseDepTpl = "make_verbose_dep.txt"
 )
 
 type tplCfg struct {
@@ -37,7 +38,7 @@ type tplCfg struct {
 
 // Make - Generate the makefile
 func Make(ep *fs.MtaLocationParameters, mode string) error {
-	tpl, err := makeMode(mode)
+	tpl, err := getTplCfg(mode, ep.IsDeploymentDescriptor())
 	if err != nil {
 		return err
 	}
@@ -115,10 +116,14 @@ func mapTpl(templateName string, BasePre string, BasePost string, isDeployment b
 }
 
 // Get template (default/verbose) according to the CLI flags
-func makeMode(mode string) (tplCfg, error) {
+func getTplCfg(mode string, isDep bool) (tplCfg, error) {
 	tpl := tplCfg{}
 	if (mode == "verbose") || (mode == "v") {
-		tpl.tplName = makeVerboseTpl
+		if isDep {
+			tpl.tplName = makeVerboseDepTpl
+		} else {
+			tpl.tplName = makeVerboseTpl
+		}
 		tpl.pre = basePreVerbose
 		tpl.post = basePostVerbose
 	} else if mode == "" {
