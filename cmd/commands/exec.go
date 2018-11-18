@@ -313,6 +313,10 @@ func processMta(processName string, ep *fs.MtaLocationParameters, args []string,
 // pack build module artifacts
 func packModule(ep *fs.MtaLocationParameters, modulePath, moduleName string) error {
 
+	if ep.IsDeploymentDescriptor() {
+		return copyModuleArchive(ep, modulePath, moduleName)
+	}
+
 	logs.Logger.Infof("Pack of module %v Started", moduleName)
 	// Get module relative path
 	moduleZipPath, err := ep.GetTargetModuleDir(moduleName)

@@ -25,9 +25,8 @@ modules = ui
 # Execute all modules builds
 # build module ui
 ui:
-	@cd $(PROJ_DIR)/ui && npm install && grunt && npm prune --production
 # Pack module build artifacts
-	@mbt execute pack -m=ui
+	@mbt execute pack -m=ui -d=dep
 
 # Create META-INF folder with MANIFEST.MF & mtad.yaml
 meta:

@@ -38,6 +38,7 @@ var _ = Describe("Makefile", func() {
 
 	var (
 		tpl              = tplCfg{tplName: makeVerboseTpl, relPath: "", pre: basePreVerbose, post: basePostVerbose, depDesc: "dev"}
+		tplDep           = tplCfg{tplName: makeVerboseDepTpl, relPath: "", pre: basePreVerbose, post: basePostVerbose, depDesc: "dep"}
 		makeFileName     = "MakeFileTest.mta"
 		wd, _            = os.Getwd()
 		expectedMakePath = func() string {
@@ -96,7 +97,7 @@ makefile_version: 0.0.0
 			Ω(getMakeFileContent(makeFileFullPath)).Should(Equal(expectedMakeFileContent))
 		})
 		It("Sanity - Dep", func() {
-			Ω(makeFile(&dir.MtaLocationParameters{SourcePath: filepath.Join(wd, "testdata"), Descriptor: "dep"}, makeFileName, &tpl)).Should(Succeed())
+			Ω(makeFile(&dir.MtaLocationParameters{SourcePath: filepath.Join(wd, "testdata"), Descriptor: "dep"}, makeFileName, &tplDep)).Should(Succeed())
 			Ω(makeFileFullPath).Should(BeAnExistingFile())
 			Ω(getMakeFileContent(makeFileFullPath)).Should(Equal(expectedMakeFileDepContent))
 		})
@@ -124,14 +125,16 @@ makefile_version: 0.0.0
 	)
 
 	var _ = Describe("Make mode tests", func() {
-		DescribeTable("Positive", func(mode string, tpl tplCfg) {
-			Ω(makeMode(mode)).Should(Equal(tpl))
+		DescribeTable("Positive", func(mode string, tpl tplCfg, isDep bool) {
+			Ω(getTplCfg(mode, isDep)).Should(Equal(tpl))
 		},
-			Entry("Default mode", "", tplCfg{tplName: makeDefaultTpl, pre: basePreDefault, post: basePostDefault}),
-			Entry("Verbose mode", "verbose", tplCfg{tplName: makeVerboseTpl, pre: basePreVerbose, post: basePostVerbose}),
+			Entry("Default mode Dev", "", tplCfg{tplName: makeDefaultTpl, pre: basePreDefault, post: basePostDefault}, false),
+			Entry("Default mode Dep", "", tplCfg{tplName: makeDefaultTpl, pre: basePreDefault, post: basePostDefault}, true),
+			Entry("Verbose mode Dev", "verbose", tplCfg{tplName: makeVerboseTpl, pre: basePreVerbose, post: basePostVerbose}, false),
+			Entry("Verbose mode Dep", "verbose", tplCfg{tplName: makeVerboseDepTpl, pre: basePreVerbose, post: basePostVerbose}, true),
 		)
 		It("unknown mode", func() {
-			_, err := makeMode("test")
+			_, err := getTplCfg("test", false)
 			Ω(err).Should(MatchError("command is not supported"))
 		})
 	})
