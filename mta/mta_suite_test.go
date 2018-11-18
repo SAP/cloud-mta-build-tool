@@ -1,4 +1,4 @@
-package mta_test
+package mta
 
 import (
 	"testing"
