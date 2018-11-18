@@ -4,7 +4,20 @@ import (
 	"flag"
 	"fmt"
 	"io/ioutil"
+	"os"
+	"path/filepath"
+
+	//"os"
+	"text/template"
 )
+
+type configInfo struct {
+	PackageName string
+	VarName     string
+	Data        string
+}
+
+var templatePath = "./internal/build-tools"
 
 // This code is executed during the go:generate command
 // Reading the config files and generate byte array
@@ -17,12 +30,21 @@ func main() {
 	flag.Parse()
 	// Read the config file
 	inData, err := ioutil.ReadFile(*inFile)
+
 	if err == nil {
-		template := "package %s\n\nvar %s []byte = %#v\n"
-		s := fmt.Sprintf(template, *pkg, *name, inData)
-		err = ioutil.WriteFile(*outFile, []byte(s), 0644)
+		out, err := os.Create(*outFile)
+		handleError(err)
+		t := template.Must(template.New("config.tpl").ParseFiles(filepath.Join(templatePath, "config.tpl")))
+		err = t.Execute(out, configInfo{PackageName: *pkg, VarName: *name, Data: fmt.Sprintf("%#v", inData)})
+		handleError(err)
+	} else {
+		handleError(err)
 	}
+}
+
+func handleError(err error) {
 	if err != nil {
+		fmt.Println("ERROR")
 		panic(err.Error())
 	}
 }
