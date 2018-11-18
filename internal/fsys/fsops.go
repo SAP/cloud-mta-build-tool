@@ -156,7 +156,7 @@ func CopyByPatterns(source, target string, patterns []string) error {
 			return errors.Wrapf(err, "Copy by patterns [%v,...] failed on creating directory %v", patterns[0], target)
 		}
 	} else if !infoTargetDir.IsDir() {
-		return errors.New(fmt.Sprintf("Copy by patterns [%v,...] failed. Target-path %v is not a folder", patterns[0], target))
+		return errors.Errorf("Copy by patterns [%v,...] failed. Target-path %v is not a folder", patterns[0], target)
 	}
 
 	for _, pattern := range patterns {
