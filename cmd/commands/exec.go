@@ -396,11 +396,11 @@ func validateMtaYaml(ep *fs.MtaLocationParameters, validateSchema bool, validate
 			return errors.Wrapf(err, "Validation of %v failed on getting source", ep.MtaFilename)
 		}
 		// validate mta content
-		issues := mta.Validate(yamlContent, projectPath, validateSchema, validateProject)
+		issues, err := mta.Validate(yamlContent, projectPath, validateSchema, validateProject)
 		if len(issues) == 0 {
 			logs.Logger.Infof("Validation of %v successfully finished", ep.MtaFilename)
 		} else {
-			return errors.Errorf("Validation of %v failed. Issues: \n%v", ep.MtaFilename, issues.String())
+			return errors.Errorf("Validation of %v failed. Issues: \n%v %s", ep.MtaFilename, issues.String(), err)
 		}
 	}
 

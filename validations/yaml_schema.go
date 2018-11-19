@@ -15,8 +15,8 @@ import (
 
 // BuildValidationsFromSchemaText Entry point that accepts a Yaml Schema as text and produces YAML validation functions
 // and the schema issues detected.
-func BuildValidationsFromSchemaText(yaml []byte) ([]yamlCheck, []YamlValidationIssue) {
-	var validations []yamlCheck
+func BuildValidationsFromSchemaText(yaml []byte) ([]YamlCheck, []YamlValidationIssue) {
+	var validations []YamlCheck
 	var schemaIssues []YamlValidationIssue
 
 	y, parseError := simpleyaml.NewYaml(yaml)
@@ -30,8 +30,8 @@ func BuildValidationsFromSchemaText(yaml []byte) ([]yamlCheck, []YamlValidationI
 
 // Internal YAML validation builder
 // Will be called recursively and traverse the schema structure.
-func buildValidationsFromSchema(schema *simpleyaml.Yaml) ([]yamlCheck, []YamlValidationIssue) {
-	var validations []yamlCheck
+func buildValidationsFromSchema(schema *simpleyaml.Yaml) ([]YamlCheck, []YamlValidationIssue) {
+	var validations []YamlCheck
 	var schemaIssues []YamlValidationIssue
 
 	typeNode := schema.Get("type")
@@ -90,8 +90,8 @@ func appendIssue(issues []YamlValidationIssue, issue string) []YamlValidationIss
 
 // Create Validations for a mapping
 // each key's inner validations will be wrapping in a "property" validation
-func buildValidationsFromMap(y *simpleyaml.Yaml) ([]yamlCheck, []YamlValidationIssue) {
-	var validations []yamlCheck
+func buildValidationsFromMap(y *simpleyaml.Yaml) ([]YamlCheck, []YamlValidationIssue) {
+	var validations []YamlCheck
 	var schemaIssues []YamlValidationIssue
 
 	validations = append(validations, typeIsMap())
@@ -110,8 +110,8 @@ func buildValidationsFromMap(y *simpleyaml.Yaml) ([]yamlCheck, []YamlValidationI
 // Creates validations for a sequence
 // Will wrap the nested checks with a "typeIsArray" check and iterate over the elements
 // using "forEach"
-func buildValidationsFromSequence(y *simpleyaml.Yaml) ([]yamlCheck, []YamlValidationIssue) {
-	var validations []yamlCheck
+func buildValidationsFromSequence(y *simpleyaml.Yaml) ([]YamlCheck, []YamlValidationIssue) {
+	var validations []YamlCheck
 	var schemaIssues []YamlValidationIssue
 
 	sequenceInnerValidations, newIssues := buildValidationsFromSchema(y)
@@ -125,8 +125,8 @@ func buildValidationsFromSequence(y *simpleyaml.Yaml) ([]yamlCheck, []YamlValida
 // Will create the "edge" nodes validations, these are specific checks
 // for a specific path at the end of the YAML Schema
 // e.g: {required: true, pattern: /^[a-zA-Z]$/}
-func buildLeafValidations(y *simpleyaml.Yaml) ([]yamlCheck, []YamlValidationIssue) {
-	var validations []yamlCheck
+func buildLeafValidations(y *simpleyaml.Yaml) ([]YamlCheck, []YamlValidationIssue) {
+	var validations []YamlCheck
 	var schemaIssues []YamlValidationIssue
 
 	validations, schemaIssues = invokeLeafValidation(y, validations, schemaIssues, buildTypeValidation)
@@ -139,7 +139,7 @@ func buildLeafValidations(y *simpleyaml.Yaml) ([]yamlCheck, []YamlValidationIssu
 
 }
 
-func buildOptionalOrRequiredValidation(y *simpleyaml.Yaml, validations []yamlCheck, schemaIssues []YamlValidationIssue) ([]yamlCheck, []YamlValidationIssue) {
+func buildOptionalOrRequiredValidation(y *simpleyaml.Yaml, validations []YamlCheck, schemaIssues []YamlValidationIssue) ([]YamlCheck, []YamlValidationIssue) {
 	requiredNode := y.Get("required")
 	if requiredNode.IsFound() {
 		requiredValue := getLiteralStringValue(requiredNode)
@@ -153,20 +153,20 @@ func buildOptionalOrRequiredValidation(y *simpleyaml.Yaml, validations []yamlChe
 		// if the property is missing, thus we use "sequenceFailFast"
 		if requiredValue == "true" {
 			// The required check must be performed first in the sequence.
-			validationsWithRequiredFirst := append([]yamlCheck{required()}, validations...)
-			validations = []yamlCheck{sequenceFailFast(validationsWithRequiredFirst...)}
+			validationsWithRequiredFirst := append([]YamlCheck{required()}, validations...)
+			validations = []YamlCheck{sequenceFailFast(validationsWithRequiredFirst...)}
 			// When "required" is false, we must only perform additional validations
 			// if the property actually exists, thus we use "optional"
 		} else {
 			// An optional wraps all our other validations.
-			validations = []yamlCheck{optional(validations...)}
+			validations = []YamlCheck{optional(validations...)}
 		}
 	}
 	return validations, schemaIssues
 }
 
-func buildTypeValidation(y *simpleyaml.Yaml) ([]yamlCheck, []YamlValidationIssue) {
-	var validations []yamlCheck
+func buildTypeValidation(y *simpleyaml.Yaml) ([]YamlCheck, []YamlValidationIssue) {
+	var validations []YamlCheck
 	var schemaIssues []YamlValidationIssue
 
 	typeNode := y.Get("type")
@@ -187,13 +187,13 @@ func buildTypeValidation(y *simpleyaml.Yaml) ([]yamlCheck, []YamlValidationIssue
 	return validations, schemaIssues
 }
 
-func buildEnumValidation(y *simpleyaml.Yaml) ([]yamlCheck, []YamlValidationIssue) {
+func buildEnumValidation(y *simpleyaml.Yaml) ([]YamlCheck, []YamlValidationIssue) {
 	enumsNode := y.Get("enums")
 	if !enumsNode.IsFound() {
-		return []yamlCheck{}, []YamlValidationIssue{{"YAML Schema Error: enums values must be listed"}}
+		return []YamlCheck{}, []YamlValidationIssue{{"YAML Schema Error: enums values must be listed"}}
 	}
 	if !enumsNode.IsArray() {
-		return []yamlCheck{}, []YamlValidationIssue{{"YAML Schema Error: enums values must be listed as array"}}
+		return []YamlCheck{}, []YamlValidationIssue{{"YAML Schema Error: enums values must be listed as array"}}
 	}
 
 	enumsNumber, _ := enumsNode.GetArraySize()
@@ -202,17 +202,17 @@ func buildEnumValidation(y *simpleyaml.Yaml) ([]yamlCheck, []YamlValidationIssue
 	for i := 0; i < enumsNumber; i++ {
 		enumNode := enumsNode.GetIndex(i)
 		if enumNode.IsArray() || enumNode.IsMap() {
-			return []yamlCheck{}, []YamlValidationIssue{{"YAML Schema Error: enum values must be simple"}}
+			return []YamlCheck{}, []YamlValidationIssue{{"YAML Schema Error: enum values must be simple"}}
 		}
 		enumValue := getLiteralStringValue(enumNode)
 		enumValues = append(enumValues, enumValue)
 	}
 
-	return []yamlCheck{matchesEnumValues(enumValues)}, []YamlValidationIssue{}
+	return []YamlCheck{matchesEnumValues(enumValues)}, []YamlValidationIssue{}
 }
 
-func buildPatternValidation(y *simpleyaml.Yaml) ([]yamlCheck, []YamlValidationIssue) {
-	var validations []yamlCheck
+func buildPatternValidation(y *simpleyaml.Yaml) ([]YamlCheck, []YamlValidationIssue) {
+	var validations []YamlCheck
 	var schemaIssues []YamlValidationIssue
 
 	patternNode := y.Get("pattern")
@@ -235,7 +235,7 @@ func buildPatternValidation(y *simpleyaml.Yaml) ([]yamlCheck, []YamlValidationIs
 }
 
 // Utility to reduce verbosity
-func invokeLeafValidation(y *simpleyaml.Yaml, validations []yamlCheck, schemaIsssues []YamlValidationIssue, leafBuilder func(y *simpleyaml.Yaml) ([]yamlCheck, []YamlValidationIssue)) ([]yamlCheck, []YamlValidationIssue) {
+func invokeLeafValidation(y *simpleyaml.Yaml, validations []YamlCheck, schemaIsssues []YamlValidationIssue, leafBuilder func(y *simpleyaml.Yaml) ([]YamlCheck, []YamlValidationIssue)) ([]YamlCheck, []YamlValidationIssue) {
 	newValidations, newSchemaIssues := leafBuilder(y)
 	validations = append(validations, newValidations...)
 	schemaIsssues = append(schemaIsssues, newSchemaIssues...)

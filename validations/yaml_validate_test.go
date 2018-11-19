@@ -12,7 +12,7 @@ import (
 
 var _ = Describe("Yaml Validation", func() {
 
-	DescribeTable("Valid Yaml", func(data string, validations ...yamlCheck) {
+	DescribeTable("Valid Yaml", func(data string, validations ...YamlCheck) {
 		validateIssues, parseErr := Yaml([]byte(data), validations...)
 
 		assertNoParsingErrors(parseErr)
@@ -88,7 +88,7 @@ lastName: duck
 `, property("firstName", optional(typeIsNotMapArray()))),
 	)
 
-	DescribeTable("Invalid Yaml", func(data, message string, validations ...yamlCheck) {
+	DescribeTable("Invalid Yaml", func(data, message string, validations ...YamlCheck) {
 		validateIssues, parseErr := Yaml([]byte(data), validations...)
 
 		assertNoParsingErrors(parseErr)

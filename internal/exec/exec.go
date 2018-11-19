@@ -96,7 +96,6 @@ func scanner(stdout io.ReadCloser, stderr io.ReadCloser) (*bufio.Scanner, *bufio
 func indicator(shutdownCh <-chan struct{}) {
 	ticker := time.NewTicker(time.Second)
 	defer ticker.Stop()
-	// defer wg.Done()
 	for {
 		select {
 		case <-ticker.C:

@@ -177,13 +177,13 @@ func (mta *MTA) GetModulesNames() ([]string, error) {
 }
 
 // Validate validates mta schema.
-func Validate(yamlContent []byte, projectPath string, validateSchema bool, validateProject bool) validate.YamlValidationIssues {
+func Validate(yamlContent []byte, projectPath string, validateSchema bool, validateProject bool) (validate.YamlValidationIssues, error) {
 	//noinspection GoPreferNilSlice
 	issues := []validate.YamlValidationIssue{}
 	if validateSchema {
 		validations, schemaValidationLog := validate.BuildValidationsFromSchemaText(schemaDef)
 		if len(schemaValidationLog) > 0 {
-			return schemaValidationLog
+			return schemaValidationLog, nil
 		}
 		yamlValidationLog, err := validate.Yaml(yamlContent, validations...)
 		if err != nil && len(yamlValidationLog) == 0 {
@@ -197,11 +197,10 @@ func Validate(yamlContent []byte, projectPath string, validateSchema bool, valid
 		Unmarshal := yaml.Unmarshal
 		err := Unmarshal(yamlContent, &mta)
 		if err != nil {
-			errors.Wrap(err, "Unmarshal  errors")
+			return nil, errors.Wrap(err, "ReadMtaYaml failed getting MTA Yaml path reading the mta file")
 		}
 		projectIssues := validateYamlProject(&mta, projectPath)
 		issues = append(issues, projectIssues...)
 	}
-
-	return issues
+	return issues, nil
 }

@@ -23,7 +23,7 @@ var _ = Describe("MTA tests", func() {
 		ep := dir.MtaLocationParameters{SourcePath: locationSource, MtaFilename: mtaFilename}
 		yamlContent, _ := ReadMtaContent(&ep)
 		source, _ := ep.GetSource()
-		issues := Validate(yamlContent, source, true, validateProject)
+		issues, _ := Validate(yamlContent, source, true, validateProject)
 		Ω(len(issues)).Should(Equal(issuesNumber))
 	},
 
