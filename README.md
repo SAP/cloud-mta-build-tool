@@ -59,20 +59,7 @@ The MBT supports the following commands:
 
 For background and detailed information, see The [Multi-Target Application Model](http://help.sap.com/disclaimer?site=http://www.sap.com/documents/2016/06/e2f618e4-757c-0010-82c7-eda71af511fa.html) Information published on SAP site.
 
-## Todo's
 
- - [ ] Move MTA & validations package to separate GitHub repository 
- - [ ] Support first MVP scenarios such as:
- 
-   - [ ] Feature build
-   - [ ] XMake integration 
-   - [ ] Partial build
-   
- - [ ] Release process
- - [ ] Usage
- - [ ] Add concrete limitations per release
-
- 
 ## Roadmap
  
 ### Milestone 1 
