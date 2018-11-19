@@ -189,11 +189,11 @@ var validateCmd = &cobra.Command{
 	Short: "MBT validation",
 	Long:  "MBT validation process",
 	Args:  cobra.NoArgs,
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		err := fs.ValidateDeploymentDescriptor(descriptorValidateFlag)
 		if err != nil {
 			logErrorExt(err, "MBT Validation failed")
-			return
+			return err
 		}
 		validateSchema, validateProject, err := getValidationMode(pValidationFlag)
 		if err == nil {
@@ -201,7 +201,10 @@ var validateCmd = &cobra.Command{
 			err = validateMtaYaml(&ep, validateSchema, validateProject)
 		}
 		logErrorExt(err, "MBT Validation failed")
+		return err
 	},
+	SilenceErrors: false,
+	SilenceUsage:  true,
 }
 
 // Cleanup temp artifacts

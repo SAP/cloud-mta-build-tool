@@ -102,7 +102,7 @@ var _ = Describe("Commands", func() {
 			sourceValidateFlag = getTestPath("mta1")
 			// navigate log output to local string buffer. It will be used for error analysis
 			logs.Logger.SetOutput(&str)
-			validateCmd.Run(nil, []string{})
+			validateCmd.RunE(nil, []string{})
 
 			Ω(str.String()).Should(ContainSubstring("Error reading the MTA file"))
 		})
