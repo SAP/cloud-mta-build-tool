@@ -57,8 +57,10 @@ func Archive(sourcePath, targetArchivePath string) error {
 		baseDir += string(os.PathSeparator)
 	}
 
-	walk(sourcePath, baseDir, archive)
-
+	err = walk(sourcePath, baseDir, archive)
+	if err != nil {
+		return errors.Wrap(err, "Archiving error")
+	}
 	return err
 }
 

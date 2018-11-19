@@ -57,7 +57,7 @@ modules:
       supported-platforms: []
 
 `)
-		validateIssues, parseErr := ValidateYaml(input, schemaValidations...)
+		validateIssues, parseErr := Yaml(input, schemaValidations...)
 		assertNoParsingErrors(parseErr)
 		expectSingleValidationError(validateIssues, `Missing required property <type> in <modules[1]>`)
 	})

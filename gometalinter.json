@@ -1,0 +1,23 @@
+{
+  "vendor": true,
+  "Deadline": "2m",
+  "Sort": [
+    "linter",
+    "severity"
+  ],
+  "DisableAll": true,
+  "Enable": [
+    "errcheck",
+    "gocyclo",
+    "gofmt",
+    "vet",
+    "golint",
+    "vetshadow",
+    "ineffassign",
+    "misspell",
+    "gotypex",
+    "vetshadow"
+  ],
+  "Cyclo": 10,
+  "LineLength": 120
+}

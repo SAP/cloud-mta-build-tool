@@ -400,11 +400,11 @@ func validateMtaYaml(ep *fs.MtaLocationParameters, validateSchema bool, validate
 			return errors.Wrapf(err, "Validation of %v failed on getting source", ep.MtaFilename)
 		}
 		// validate mta content
-		issues := mta.Validate(yamlContent, projectPath, validateSchema, validateProject)
+		issues, err := mta.Validate(yamlContent, projectPath, validateSchema, validateProject)
 		if len(issues) == 0 {
 			logs.Logger.Infof("Validation of %v successfully finished", ep.MtaFilename)
 		} else {
-			return errors.New(fmt.Sprintf("Validation of %v failed. Issues: \n%v", ep.MtaFilename, issues.String()))
+			return errors.Errorf("Validation of %v failed. Issues: \n%v %s", ep.MtaFilename, issues.String(), err)
 		}
 	}
 
@@ -487,7 +487,7 @@ func moduleCmd(mta *mta.MTA, moduleName string) (string, []string, error) {
 			return m.Path, commandProvider.Command, nil
 		}
 	}
-	return "", nil, errors.New(fmt.Sprintf("Module %v not defined in MTA", moduleName))
+	return "", nil, errors.Errorf("Module %v not defined in MTA", moduleName)
 }
 
 // path and commands to execute

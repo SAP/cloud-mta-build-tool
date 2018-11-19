@@ -1,4 +1,4 @@
-// Package MTA provides a convenient way To explore the structure of the mta.yaml objects.
+// Package mta provides a convenient way To explore the structure of the mta.yaml objects.
 // e.g. retrieve a list of resources required by a specific module.
 package mta
 
@@ -177,27 +177,30 @@ func (mta *MTA) GetModulesNames() ([]string, error) {
 }
 
 // Validate validates mta schema.
-func Validate(yamlContent []byte, projectPath string, validateSchema bool, validateProject bool) validate.YamlValidationIssues {
+func Validate(yamlContent []byte, projectPath string, validateSchema bool, validateProject bool) (validate.YamlValidationIssues, error) {
 	//noinspection GoPreferNilSlice
 	issues := []validate.YamlValidationIssue{}
 	if validateSchema {
 		validations, schemaValidationLog := validate.BuildValidationsFromSchemaText(schemaDef)
 		if len(schemaValidationLog) > 0 {
-			return schemaValidationLog
-		} else {
-			yamlValidationLog, err := validate.ValidateYaml(yamlContent, validations...)
-			if err != nil && len(yamlValidationLog) == 0 {
-				yamlValidationLog = append(yamlValidationLog, []validate.YamlValidationIssue{{Msg: "Validation failed" + err.Error()}}...)
-			}
-			issues = append(issues, yamlValidationLog...)
+			return schemaValidationLog, nil
 		}
+		yamlValidationLog, err := validate.Yaml(yamlContent, validations...)
+		if err != nil && len(yamlValidationLog) == 0 {
+			yamlValidationLog = append(yamlValidationLog, []validate.YamlValidationIssue{{Msg: "Validation failed" + err.Error()}}...)
+		}
+		issues = append(issues, yamlValidationLog...)
+
 	}
 	if validateProject {
 		mta := MTA{}
-		yaml.Unmarshal(yamlContent, &mta)
+		Unmarshal := yaml.Unmarshal
+		err := Unmarshal(yamlContent, &mta)
+		if err != nil {
+			return nil, errors.Wrap(err, "ReadMtaYaml failed getting MTA Yaml path reading the mta file")
+		}
 		projectIssues := validateYamlProject(&mta, projectPath)
 		issues = append(issues, projectIssues...)
 	}
-
-	return issues
+	return issues, nil
 }

@@ -1,8 +1,6 @@
 package mta
 
 import (
-	"fmt"
-
 	"github.com/deckarep/golang-set"
 	"github.com/pkg/errors"
 )
@@ -71,8 +69,7 @@ func resolveGraph(graph *graphs, mta *MTA) ([]string, error) {
 					break
 				}
 			}
-
-			return nil, errors.New(fmt.Sprintf("Circular dependency found. Check modules %v and %v", module1, module2))
+			return nil, errors.Errorf("Circular dependency found. Check modules %v and %v", module1, module2)
 		}
 
 		// Remove the ready nodes and add them to the resolved graphs
