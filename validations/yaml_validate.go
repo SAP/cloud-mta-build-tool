@@ -29,6 +29,7 @@ func (issues YamlValidationIssues) String() string {
 	return s
 }
 
+// YamlCheck - validation check function type
 type YamlCheck func(y *simpleyaml.Yaml, path []string) YamlValidationIssues
 
 // DSL method to execute validations on a sub node(property) of a YAML tree.

@@ -57,18 +57,7 @@ func resolveGraph(graph *graphs, mta *MTA) ([]string, error) {
 
 		// If there aren't any ready nodes, then we have a circular dependency
 		if readyNodesSet.Cardinality() == 0 {
-			module1 := ""
-			module2 := ""
-			index := 0
-			for _, node := range overleft {
-				if index == 0 {
-					module1 = node.module
-					index = 1
-				} else {
-					module2 = node.module
-					break
-				}
-			}
+			module1, module2 := provideCyclicModules(&overleft)
 			return nil, errors.Errorf("Circular dependency found. Check modules %v and %v", module1, module2)
 		}
 
@@ -92,4 +81,21 @@ func resolveGraph(graph *graphs, mta *MTA) ([]string, error) {
 	}
 
 	return resolved, nil
+}
+
+// provideCyclicModules - provide some of modules having cyclic dependencies
+func provideCyclicModules(overleft *graphs) (string, string) {
+	module1 := ""
+	module2 := ""
+	index := 0
+	for _, node := range *overleft {
+		if index == 0 {
+			module1 = node.module
+			index = 1
+		} else {
+			module2 = node.module
+			break
+		}
+	}
+	return module1, module2
 }
