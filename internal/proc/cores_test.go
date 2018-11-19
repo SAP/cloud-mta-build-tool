@@ -31,7 +31,7 @@ func getCores() []Proc {
 
 	switch runtime.GOOS {
 	case "linux":
-		return []Proc{{`NPROCS = $(shell grep -c 'processor' /Proc/cpuinfo)`, `MAKEFLAGS += -j$(NPROCS)`}}
+		return []Proc{{`NPROCS = $(shell grep -c 'processor' /proc/cpuinfo)`, `MAKEFLAGS += -j$(NPROCS)`}}
 	case "darwin":
 		return []Proc{{`NPROCS = $(sysctl -n hw.ncpu)`, `MAKEFLAGS += -j$(NPROCS)`}}
 	case "windows":
