@@ -22,8 +22,9 @@ format :
 	go fmt ./...
 
 lint:
-	go get -u golang.org/x/lint/golint
-	golint ./...
+	@echo "Start project linting"
+	gometalinter --config=gometalinter.json ./...
+	@echo "Done"
 
 # execute general tests
 test:

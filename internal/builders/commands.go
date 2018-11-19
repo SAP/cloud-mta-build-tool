@@ -4,27 +4,27 @@ import (
 	"cloud-mta-build-tool/mta"
 )
 
-// commandList - list of command to execute
-type commandList struct {
+// CommandList - list of command to execute
+type CommandList struct {
 	Info    string
 	Command []string
 }
 
 // CommandProvider - Get build command's to execute
 //noinspection GoExportedFuncWithUnexportedType
-func CommandProvider(modules mta.Modules) (commandList, error) {
+func CommandProvider(modules mta.Modules) (CommandList, error) {
 	// Get config from ./commands_cfg.yaml as generated artifacts from source
 	commands, err := parse(CommandsConfig)
 	if err != nil {
-		return commandList{}, err
+		return CommandList{}, err
 	}
 	return mesh(modules, commands), nil
 }
 
 // Match the object according to type and provide the respective command
-func mesh(modules mta.Modules, commands Builders) commandList {
+func mesh(modules mta.Modules, commands Builders) CommandList {
 	// The object support deep struct for future use, can be simplified to flat object
-	var cmds commandList
+	var cmds CommandList
 	for _, b := range commands.Builders {
 		// Return only matching types
 		if modules.Type == b.Name {

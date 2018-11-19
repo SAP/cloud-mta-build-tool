@@ -2,21 +2,21 @@ package proc
 
 import "runtime"
 
-type proc struct {
+type Proc struct {
 	NPROCS    string
 	MAKEFLAGS string
 }
 
 // OsCore - Get available cores according to the running OS
-func OsCore() []proc {
+func OsCore() []Proc {
 	switch runtime.GOOS {
 	case "linux":
-		return []proc{{`NPROCS = $(shell grep -c 'processor' /proc/cpuinfo)`, `MAKEFLAGS += -j$(NPROCS)`}}
+		return []Proc{{`NPROCS = $(shell grep -c 'processor' /proc/cpuinfo)`, `MAKEFLAGS += -j$(NPROCS)`}}
 	case "darwin":
-		return []proc{{`NPROCS = $(sysctl -n hw.ncpu)`, `MAKEFLAGS += -j$(NPROCS)`}}
+		return []Proc{{`NPROCS = $(sysctl -n hw.ncpu)`, `MAKEFLAGS += -j$(NPROCS)`}}
 	case "windows":
-		return []proc{{`NPROCS = $(shell echo %NUMBER_OF_PROCESSORS%)`, `MAKEFLAGS += -j$(NPROCS)`}}
+		return []Proc{{`NPROCS = $(shell echo %NUMBER_OF_PROCESSORS%)`, `MAKEFLAGS += -j$(NPROCS)`}}
 	default:
-		return []proc{}
+		return []Proc{}
 	}
 }

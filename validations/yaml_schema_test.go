@@ -88,7 +88,7 @@ enums:
 		func(schema, input string) {
 			schemaValidations, schemaIssues := BuildValidationsFromSchemaText([]byte(schema))
 			assertNoSchemaIssues(schemaIssues)
-			validateIssues, parseErr := ValidateYaml([]byte(input), schemaValidations...)
+			validateIssues, parseErr := Yaml([]byte(input), schemaValidations...)
 			assertNoParsingErrors(parseErr)
 			assertNoValidationErrors(validateIssues)
 		},
@@ -148,7 +148,7 @@ isHappy: false
 		func(schema, input, message string) {
 			schemaValidations, schemaIssues := BuildValidationsFromSchemaText([]byte(schema))
 			assertNoSchemaIssues(schemaIssues)
-			validateIssues, parseErr := ValidateYaml([]byte(input), schemaValidations...)
+			validateIssues, parseErr := Yaml([]byte(input), schemaValidations...)
 			assertNoParsingErrors(parseErr)
 			expectSingleValidationError(validateIssues, message)
 		},

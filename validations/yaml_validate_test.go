@@ -12,8 +12,8 @@ import (
 
 var _ = Describe("Yaml Validation", func() {
 
-	DescribeTable("Valid Yaml", func(data string, validations ...yamlCheck) {
-		validateIssues, parseErr := ValidateYaml([]byte(data), validations...)
+	DescribeTable("Valid Yaml", func(data string, validations ...YamlCheck) {
+		validateIssues, parseErr := Yaml([]byte(data), validations...)
 
 		assertNoParsingErrors(parseErr)
 		assertNoValidationErrors(validateIssues)
@@ -88,8 +88,8 @@ lastName: duck
 `, property("firstName", optional(typeIsNotMapArray()))),
 	)
 
-	DescribeTable("Invalid Yaml", func(data, message string, validations ...yamlCheck) {
-		validateIssues, parseErr := ValidateYaml([]byte(data), validations...)
+	DescribeTable("Invalid Yaml", func(data, message string, validations ...YamlCheck) {
+		validateIssues, parseErr := Yaml([]byte(data), validations...)
 
 		assertNoParsingErrors(parseErr)
 		expectSingleValidationError(validateIssues, message)
@@ -164,7 +164,7 @@ lastName: duck
 firstName: Donald
   lastName: duck # invalid indentation
 		`)
-		_, parseErr := ValidateYaml(data, property("lastName", required()))
+		_, parseErr := Yaml(data, property("lastName", required()))
 		Ω(parseErr).Should(HaveOccurred())
 	})
 
@@ -186,7 +186,7 @@ classes:
 				property("name", required()),
 				property("room", matchesRegExp("^[0-9]+$")))))
 
-		validateIssues, parseErr := ValidateYaml(data, validations)
+		validateIssues, parseErr := Yaml(data, validations)
 
 		assertNoParsingErrors(parseErr)
 		expectMultipleValidationError(validateIssues,

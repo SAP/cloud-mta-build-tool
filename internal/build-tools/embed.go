@@ -30,10 +30,9 @@ func main() {
 	flag.Parse()
 	// Read the config file
 	inData, err := ioutil.ReadFile(*inFile)
-
 	if err == nil {
-		out, err := os.Create(*outFile)
-		handleError(err)
+		out, e := os.Create(*outFile)
+		handleError(e)
 		t := template.Must(template.New("config.tpl").ParseFiles(filepath.Join(templatePath, "config.tpl")))
 		err = t.Execute(out, configInfo{PackageName: *pkg, VarName: *name, Data: fmt.Sprintf("%#v", inData)})
 		handleError(err)

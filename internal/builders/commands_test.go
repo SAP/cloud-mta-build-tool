@@ -37,7 +37,7 @@ builders:
 			Type: "html5",
 			Path: "./",
 		}
-		var expected = commandList{
+		var expected = CommandList{
 			Info:    "build UI application",
 			Command: []string{"npm install", "grunt", "npm prune --production"},
 		}
@@ -47,7 +47,7 @@ builders:
 	})
 
 	It("CommandProvider", func() {
-		expected := commandList{
+		expected := CommandList{
 			Info:    "installing module dependencies & execute grunt & remove dev dependencies",
 			Command: []string{"npm install", "grunt", "npm prune --production"},
 		}
