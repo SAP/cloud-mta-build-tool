@@ -57,7 +57,7 @@ var _ = Describe("BuildParams", func() {
 			require := BuildRequires{
 				Name:       "A",
 				Artifacts:  artifacts,
-				TargetPath: "b_copied_artifacts",
+				TargetPath: "./b_copied_artifacts",
 			}
 			mtaObj := MTA{
 				Modules: []*Modules{

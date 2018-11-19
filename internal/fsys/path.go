@@ -103,7 +103,7 @@ func (ep *MtaLocationParameters) GetSourceModuleDir(modulePath string) (string, 
 	if err != nil {
 		return "", errors.Wrap(err, "GetSourceModuleDir failed")
 	}
-	return filepath.Join(source, modulePath), nil
+	return filepath.Join(source, filepath.Clean(modulePath)), nil
 }
 
 // getMtaYamlFilename - Get MTA yaml File name
