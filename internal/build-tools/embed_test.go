@@ -3,6 +3,7 @@ package main
 import (
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"regexp"
 	"strings"
 
@@ -16,7 +17,8 @@ var _ = Describe("Embed", func() {
 	})
 
 	AfterEach(func() {
-		os.RemoveAll("./testdata/cfg.go")
+		wd, _ := os.Getwd()
+		os.RemoveAll(filepath.Join(wd, "testdata", "cfg.go"))
 	})
 
 	It("sanity", func() {
@@ -31,6 +33,7 @@ var _ = Describe("Embed", func() {
 		os.Args = []string{"app", "-source=./testdata/cfgNotExisting.yaml", "-target=./testdata/cfg.go", "-package=testpackage", "-name=Config"}
 		Ω(main).Should(Panic())
 	})
+
 })
 
 func removeSpecialSymbols(b []byte) string {
