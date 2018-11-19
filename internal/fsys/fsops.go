@@ -162,32 +162,40 @@ func CopyByPatterns(source, target string, patterns []string) error {
 	}
 
 	for _, pattern := range patterns {
-
-		// build full pattern concatenating source path and pattern
-		fullPattern := filepath.Join(source, strings.Replace(pattern, "./", "", -1))
-		// get all entries matching the pattern
-		sourceEntries, err := filepath.Glob(fullPattern)
+		err = copyByPattern(source, target, pattern)
 		if err != nil {
-			return errors.Wrapf(err, "Copy by pattern %v failed on getting matching entries", pattern)
-		}
-
-		for _, sourceEntry := range sourceEntries {
-			info, err := os.Stat(sourceEntry)
-			if err != nil {
-				return errors.Wrapf(err, "Copy by pattern %v failed on getting status of source entry %v", pattern, sourceEntry)
-			}
-			targetEntry := filepath.Join(target, filepath.Base(sourceEntry))
-			if info.IsDir() {
-				err = CopyDir(sourceEntry, targetEntry)
-			} else {
-				err = CopyFile(sourceEntry, targetEntry)
-			}
-			if err != nil {
-				return err
-			}
+			return err
 		}
 	}
 
+	return nil
+}
+
+// copyByPattern - copy files/directories according to pattern
+func copyByPattern(source, target, pattern string) error {
+	// build full pattern concatenating source path and pattern
+	fullPattern := filepath.Join(source, strings.Replace(pattern, "./", "", -1))
+	// get all entries matching the pattern
+	sourceEntries, err := filepath.Glob(fullPattern)
+	if err != nil {
+		return errors.Wrapf(err, "Copy by pattern %v failed on getting matching entries", pattern)
+	}
+
+	for _, sourceEntry := range sourceEntries {
+		info, err := os.Stat(sourceEntry)
+		if err != nil {
+			return errors.Wrapf(err, "Copy by pattern %v failed on getting status of source entry %v", pattern, sourceEntry)
+		}
+		targetEntry := filepath.Join(target, filepath.Base(sourceEntry))
+		if info.IsDir() {
+			err = CopyDir(sourceEntry, targetEntry)
+		} else {
+			err = CopyFile(sourceEntry, targetEntry)
+		}
+		if err != nil {
+			return errors.Wrapf(err, "Copy by pattern %v failed on copy of %v to %v", pattern, sourceEntry, targetEntry)
+		}
+	}
 	return nil
 }
 

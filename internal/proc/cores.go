@@ -2,6 +2,7 @@ package proc
 
 import "runtime"
 
+// Proc - platform dependent commands and flags
 type Proc struct {
 	NPROCS    string
 	MAKEFLAGS string
