@@ -7,7 +7,7 @@
                    
 # Multi-Target Application (MTA) Archive Builder
 
-The MTA command-line archive builder provides a convenient way to bundle an MTA project into an MTAR file (MTA archive).
+The MTA command-line archive builder provides a convenient way to bundle an MTA project into an MTAR file (Multi Target Application aRchive).
 
 ### Multi-Target Applications
 
@@ -105,4 +105,5 @@ For background and detailed information, see The [Multi-Target Application Model
  
  ## License
  
- MTA Build Tool is [Apache License 2.0 licensed](./LICENSE).
+Copyright (c) 2017 SAP SE or an SAP affiliate company. All rights reserved.
+This file is licensed under the Apache 2.0 License [except as noted otherwise in the LICENSE file](/LICENSE).
