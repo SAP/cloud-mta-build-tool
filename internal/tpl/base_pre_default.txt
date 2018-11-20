@@ -10,10 +10,8 @@ MTR_DIR := $(DIR)$(BASE)
 all: tdir validate execute meta mtar cleanup
 cores:
 # Determine OS cores
-{{- range OsCore }}
-{{"\t"}}{{ .NPROCS  }}
-{{"\t"}}{{ .MAKEFLAGS  }}
-{{- end}}
+{{"\t"}}{{ OsCore.NPROCS  }}
+{{"\t"}}{{ OsCore.MAKEFLAGS  }}
 # Create folder for build artifacts
 tdir:
 {{"\t"}}@mkdir -p "$(MTR_DIR)"
