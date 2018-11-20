@@ -5,7 +5,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-// ReadMta reads the MTA file according to it's name and path
+// ReadMta reads the MTA file according to its name and path and
 // returns a reference to the MTA object.
 func ReadMta(ep *dir.MtaLocationParameters) (*MTA, error) {
 	var mta *MTA
@@ -17,7 +17,7 @@ func ReadMta(ep *dir.MtaLocationParameters) (*MTA, error) {
 	return mta, err
 }
 
-// ReadMtaContent returns a []byte array represents the content of the MTA file
+// ReadMtaContent returns a []byte array that represents the content of the MTA file
 // according to the name and path.
 func ReadMtaContent(ep *dir.MtaLocationParameters) ([]byte, error) {
 	yamlContent, err := ReadMtaYaml(ep)
@@ -28,7 +28,7 @@ func ReadMtaContent(ep *dir.MtaLocationParameters) ([]byte, error) {
 	return yamlContent, err
 }
 
-// ParseToMta returns byte array of an MTA object.
+// ParseToMta returns a byte array of an MTA object.
 func ParseToMta(content []byte) (*MTA, error) {
 	mta := &MTA{}
 	// Parse MTA file
