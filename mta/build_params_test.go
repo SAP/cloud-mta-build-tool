@@ -143,7 +143,7 @@ var _ = Describe("BuildParams", func() {
 				SourcePath: getTestPath("testbuildparams"),
 				TargetPath: getTestPath("result"),
 			}
-			mtaObj, _ := ReadMta(&lp)
+			mtaObj, _ := ReadFile(&lp)
 			for _, m := range mtaObj.Modules {
 				if m.Name == "node" {
 					for _, r := range m.BuildParams.Requires {

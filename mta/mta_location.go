@@ -3,12 +3,14 @@ package mta
 import (
 	"path/filepath"
 
-	"cloud-mta-build-tool/internal/fsys"
 	"github.com/pkg/errors"
+	// Todo remove this dep
+	"cloud-mta-build-tool/internal/fsys"
 )
 
 const (
-	dep = "dep"
+	dep  = "dep"
+	mtad = "mtad.yaml"
 )
 
 // Loc - MTA tool file properties
@@ -101,7 +103,7 @@ func (ep *Loc) GetSourceModuleDir(modulePath string) (string, error) {
 func (ep *Loc) getMtaYamlFilename() string {
 	if ep.MtaFilename == "" {
 		if ep.Descriptor == dep {
-			return "mtad.yaml"
+			return mtad
 		}
 		return "mta.yaml"
 	}
@@ -132,7 +134,7 @@ func (ep *Loc) GetMtadPath() (string, error) {
 	if err != nil {
 		return "", errors.Wrap(err, "GetMtadPath failed")
 	}
-	return filepath.Join(dir, "mtad.yaml"), nil
+	return filepath.Join(dir, mtad), nil
 }
 
 // GetManifestPath - Get path to generated manifest file
@@ -146,7 +148,7 @@ func (ep *Loc) GetManifestPath() (string, error) {
 
 // ValidateDeploymentDescriptor - Validates Deployment Descriptor
 func ValidateDeploymentDescriptor(descriptor string) error {
-	if descriptor != "" && descriptor != "dev" && descriptor != "dep" {
+	if descriptor != "" && descriptor != "dev" && descriptor != dep {
 		return errors.New("Wrong descriptor value. Expected one of [dev, dep]. Default is dev")
 	}
 	return nil

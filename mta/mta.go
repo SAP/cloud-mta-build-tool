@@ -37,7 +37,7 @@ func ReadMtaYaml(ep *Loc) ([]byte, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "ReadMtaYaml failed getting MTA Yaml path")
 	}
-	// Read MTA file
+	// ReadFile MTA file
 	yamlFile, err := ioutil.ReadFile(fileFullPath)
 	if err != nil {
 		return nil, errors.Wrap(err, "ReadMtaYaml failed getting MTA Yaml path reading the mta file")
