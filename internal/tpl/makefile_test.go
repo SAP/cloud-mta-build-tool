@@ -8,11 +8,11 @@ import (
 	"runtime"
 	"strings"
 
+	"cloud-mta-build-tool/mta"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
 
-	"cloud-mta-build-tool/internal/fsys"
 	"cloud-mta-build-tool/internal/logs"
 	"cloud-mta-build-tool/internal/version"
 )
@@ -92,27 +92,27 @@ makefile_version: 0.0.0
 			Ω(createMakeFile(makeFilePath, makeFileName)).Should(BeNil())
 		})
 		It("Sanity - Dev", func() {
-			Ω(makeFile(&dir.MtaLocationParameters{SourcePath: filepath.Join(wd, "testdata"), Descriptor: "dev"}, makeFileName, &tpl)).Should(Succeed())
+			Ω(makeFile(&mta.MtaLocationParameters{SourcePath: filepath.Join(wd, "testdata"), Descriptor: "dev"}, makeFileName, &tpl)).Should(Succeed())
 			Ω(makeFileFullPath).Should(BeAnExistingFile())
 			Ω(getMakeFileContent(makeFileFullPath)).Should(Equal(expectedMakeFileContent))
 		})
 		It("Sanity - Dep", func() {
-			Ω(makeFile(&dir.MtaLocationParameters{SourcePath: filepath.Join(wd, "testdata"), Descriptor: "dep"}, makeFileName, &tplDep)).Should(Succeed())
+			Ω(makeFile(&mta.MtaLocationParameters{SourcePath: filepath.Join(wd, "testdata"), Descriptor: "dep"}, makeFileName, &tplDep)).Should(Succeed())
 			Ω(makeFileFullPath).Should(BeAnExistingFile())
 			Ω(getMakeFileContent(makeFileFullPath)).Should(Equal(expectedMakeFileDepContent))
 		})
 		It("Make testing with wrong mta yaml file", func() {
-			Ω(Make(&dir.MtaLocationParameters{SourcePath: filepath.Join(wd, "testdata"), MtaFilename: "xxx.yaml"}, "")).Should(HaveOccurred())
+			Ω(Make(&mta.MtaLocationParameters{SourcePath: filepath.Join(wd, "testdata"), MtaFilename: "xxx.yaml"}, "")).Should(HaveOccurred())
 		})
 		It("Make testing with wrong mode", func() {
-			Ω(Make(&dir.MtaLocationParameters{SourcePath: filepath.Join(wd, "testdata")}, "wrongMode")).Should(HaveOccurred())
+			Ω(Make(&mta.MtaLocationParameters{SourcePath: filepath.Join(wd, "testdata")}, "wrongMode")).Should(HaveOccurred())
 		})
 	})
 
 	var _ = DescribeTable("Makefile Generation Failed", func(testPath string, testTemplateFilename string) {
 		wd, _ := os.Getwd()
 		testTemplate, _ := ioutil.ReadFile(filepath.Join(wd, "testdata", testTemplateFilename))
-		ep := dir.MtaLocationParameters{SourcePath: filepath.Join(wd, "testdata")}
+		ep := mta.MtaLocationParameters{SourcePath: filepath.Join(wd, "testdata")}
 		Ω(makeFile(&ep, makeFileName, &tplCfg{relPath: testPath, tplContent: testTemplate, preContent: basePreVerbose, postContent: basePostVerbose})).Should(HaveOccurred())
 	},
 		Entry("Wrong Template", "testdata", filepath.Join("testdata", "WrongMakeTmpl.txt")),

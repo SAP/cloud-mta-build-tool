@@ -9,7 +9,6 @@ import (
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
 
-	fs "cloud-mta-build-tool/internal/fsys"
 	"cloud-mta-build-tool/validations"
 )
 
@@ -33,7 +32,7 @@ func Marshal(in *MTA) (mtads []byte, err error) {
 }
 
 // ReadMtaYaml reads an MTA .yaml file and stores the data in a byte slice.
-func ReadMtaYaml(ep *fs.MtaLocationParameters) ([]byte, error) {
+func ReadMtaYaml(ep *MtaLocationParameters) ([]byte, error) {
 	fileFullPath, err := ep.GetMtaYamlPath()
 	if err != nil {
 		return nil, errors.Wrap(err, "ReadMtaYaml failed getting MTA Yaml path")

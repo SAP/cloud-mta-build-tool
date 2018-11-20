@@ -8,8 +8,6 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
-
-	"cloud-mta-build-tool/internal/fsys"
 )
 
 func getTestPath(relPath ...string) string {
@@ -20,7 +18,7 @@ func getTestPath(relPath ...string) string {
 var _ = Describe("MTA tests", func() {
 
 	var _ = DescribeTable("Validation", func(locationSource, mtaFilename string, issuesNumber int, validateProject bool) {
-		ep := dir.MtaLocationParameters{SourcePath: locationSource, MtaFilename: mtaFilename}
+		ep := MtaLocationParameters{SourcePath: locationSource, MtaFilename: mtaFilename}
 		yamlContent, _ := ReadMtaContent(&ep)
 		source, _ := ep.GetSource()
 		issues, _ := Validate(yamlContent, source, true, validateProject)
@@ -33,7 +31,7 @@ var _ = Describe("MTA tests", func() {
 
 	var _ = Describe("ReadMtaYaml", func() {
 		It("Sanity", func() {
-			res, resErr := ReadMtaYaml(&dir.MtaLocationParameters{SourcePath: getTestPath("testproject")})
+			res, resErr := ReadMtaYaml(&MtaLocationParameters{SourcePath: getTestPath("testproject")})
 			Ω(res).ShouldNot(BeNil())
 			Ω(resErr).Should(BeNil())
 		})

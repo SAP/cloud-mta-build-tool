@@ -1,15 +1,10 @@
-package dir
+package mta
 
 import (
-	"os"
 	"path/filepath"
-	"strings"
 
+	"cloud-mta-build-tool/internal/fsys"
 	"github.com/pkg/errors"
-)
-
-const (
-	dep = "dep"
 )
 
 // MtaLocationParameters - MTA tool file properties
@@ -24,19 +19,15 @@ type MtaLocationParameters struct {
 	Descriptor string
 }
 
-// OsGetWd - get working dir
-var OsGetWd = func() (string, error) {
-	return os.Getwd()
-}
-
-// GetWorkingDirectory assignment
-var GetWorkingDirectory = OsGetWd
+const (
+	dep = "dep"
+)
 
 // GetSource - Get Processed Project Path
 // If not provided use current directory
 func (ep *MtaLocationParameters) GetSource() (string, error) {
 	if ep.SourcePath == "" {
-		wd, err := GetWorkingDirectory()
+		wd, err := dir.GetWorkingDirectory()
 		if err != nil {
 			return "", errors.Wrap(err, "GetSource failed")
 		}
@@ -151,11 +142,6 @@ func (ep *MtaLocationParameters) GetManifestPath() (string, error) {
 		return "", errors.Wrap(err, "GetManifestPath failed")
 	}
 	return filepath.Join(dir, "MANIFEST.MF"), nil
-}
-
-// getRelativePath - Remove the basePath from the fullPath and get only the relative
-func getRelativePath(fullPath, basePath string) string {
-	return strings.TrimPrefix(fullPath, basePath)
 }
 
 // ValidateDeploymentDescriptor - Validates Deployment Descriptor
