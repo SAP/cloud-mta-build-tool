@@ -99,7 +99,7 @@ var bModuleCmd = &cobra.Command{
 		return err
 	},
 	SilenceUsage:  true,
-	SilenceErrors: true,
+	SilenceErrors: false,
 }
 
 // zip specific module and put the artifacts on the temp folder according
@@ -111,13 +111,14 @@ var packCmd = &cobra.Command{
 	Short: "pack module artifacts",
 	Long:  "pack the module artifacts after the build process",
 	Args:  cobra.NoArgs,
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		ep := locationParameters(sourcePackFlag, targetPackFlag, descriptorPackFlag)
 		modulePath, _, err := getModuleRelativePathAndCommands(&ep, pPackModuleFlag)
 		if err == nil {
 			err = packModule(&ep, modulePath, pPackModuleFlag)
 		}
 		logError(err)
+		return err
 	},
 }
 
@@ -127,14 +128,17 @@ var genMetaCmd = &cobra.Command{
 	Short: "generate meta folder",
 	Long:  "generate META-INF folder with all the required data",
 	Args:  cobra.NoArgs,
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		err := fs.ValidateDeploymentDescriptor(descriptorMetaFlag)
 		if err == nil {
 			ep := locationParameters(sourceMetaFlag, targetMetaFlag, descriptorMetaFlag)
 			err = generateMeta(&ep)
 		}
 		logErrorExt(err, "META generation failed")
+		return err
 	},
+	SilenceUsage:  true,
+	SilenceErrors: false,
 }
 
 // Generate mtar from build artifacts
@@ -143,14 +147,17 @@ var genMtarCmd = &cobra.Command{
 	Short: "generate MTAR",
 	Long:  "generate MTAR from the project build artifacts",
 	Args:  cobra.NoArgs,
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		err := fs.ValidateDeploymentDescriptor(descriptorMtarFlag)
 		if err == nil {
 			ep := locationParameters(sourceMtarFlag, targetMtarFlag, descriptorMtarFlag)
 			err = generateMtar(&ep)
 		}
 		logErrorExt(err, "MTAR generation failed")
+		return err
 	},
+	SilenceUsage:  true,
+	SilenceErrors: false,
 }
 
 // Provide mtad.yaml from mta.yaml
@@ -180,7 +187,7 @@ var genMtadCmd = &cobra.Command{
 		return err
 	},
 	SilenceUsage:  true,
-	SilenceErrors: true,
+	SilenceErrors: false,
 }
 
 // Validate mta.yaml
@@ -213,7 +220,7 @@ var cleanupCmd = &cobra.Command{
 	Short: "Remove process artifacts",
 	Long:  "Remove MTA build process artifacts",
 	Args:  cobra.NoArgs,
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		logs.Logger.Info("Starting Cleanup process")
 		// Remove temp folder
 		ep := locationParameters(sourceCleanupFlag, targetCleanupFlag, descriptorCleanupFlag)
@@ -226,7 +233,10 @@ var cleanupCmd = &cobra.Command{
 		} else {
 			logs.Logger.Info("Done")
 		}
+		return err
 	},
+	SilenceUsage:  true,
+	SilenceErrors: false,
 }
 
 // locationParameters - provides location parameters of MTA

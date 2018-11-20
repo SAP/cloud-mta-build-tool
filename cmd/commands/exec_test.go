@@ -11,6 +11,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
+	"github.com/onsi/gomega/types"
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
 
@@ -55,14 +56,14 @@ var _ = Describe("Commands", func() {
 				logs.Logger.Error(err)
 			}
 			f, _ := os.Create(filepath.Join(targetTmpDir, "ui5app"))
-			packCmd.Run(nil, []string{})
+			Ω(packCmd.RunE(nil, []string{})).Should(HaveOccurred())
 			fmt.Println(str.String())
 			Ω(str.String()).Should(ContainSubstring("Pack of module ui5app failed on making directory"))
 
 			f.Close()
 			// cleanup command used for test temp file removal
 			sourceCleanupFlag = sourcePackFlag
-			cleanupCmd.Run(nil, []string{})
+			Ω(cleanupCmd.RunE(nil, []string{})).Should(Succeed())
 			Ω(ep.GetTargetTmpDir()).ShouldNot(BeADirectory())
 		})
 
@@ -75,7 +76,7 @@ var _ = Describe("Commands", func() {
 		It("Generate Meta", func() {
 			sourceMetaFlag = getTestPath("mtahtml5")
 			ep = dir.MtaLocationParameters{SourcePath: sourceMetaFlag, TargetPath: targetMetaFlag}
-			genMetaCmd.Run(nil, []string{})
+			Ω(genMetaCmd.RunE(nil, []string{})).Should(Succeed())
 			Ω(ep.GetMtadPath()).Should(BeAnExistingFile())
 		})
 		It("Generate Mtad", func() {
@@ -90,8 +91,8 @@ var _ = Describe("Commands", func() {
 		It("Generate Mtar", func() {
 			sourceMtarFlag = getTestPath("mtahtml5")
 			ep = dir.MtaLocationParameters{SourcePath: sourceMtarFlag, TargetPath: targetMtarFlag}
-			genMetaCmd.Run(nil, []string{})
-			genMtarCmd.Run(nil, []string{})
+			Ω(genMetaCmd.RunE(nil, []string{})).Should(Succeed())
+			Ω(genMtarCmd.RunE(nil, []string{})).Should(Succeed())
 			Ω(getTestPath("result", "mtahtml5.mtar")).Should(BeAnExistingFile())
 		})
 	})
@@ -140,23 +141,13 @@ var _ = Describe("Commands", func() {
 	})
 
 	var _ = Describe("Pack", func() {
-		DescribeTable("Standard cases", func(projectPath string, validator func(ep *dir.MtaLocationParameters)) {
+		DescribeTable("Standard cases", func(projectPath string, match types.GomegaMatcher) {
 			sourcePackFlag = projectPath
-			ep := dir.MtaLocationParameters{SourcePath: sourcePackFlag, TargetPath: targetPackFlag}
 			pPackModuleFlag = "ui5app"
-			packCmd.Run(nil, []string{})
-			validator(&ep)
+			Ω(packCmd.RunE(nil, []string{})).Should(match)
 		},
-			Entry("SanityTest",
-				getTestPath("mtahtml5"),
-				func(ep *dir.MtaLocationParameters) {
-					Ω(ep.GetTargetModuleZipPath("ui5app")).Should(BeAnExistingFile())
-				}),
-			Entry("Wrong path to project",
-				getTestPath("mtahtml6"),
-				func(ep *dir.MtaLocationParameters) {
-					Ω(ep.GetTargetModuleZipPath("ui5app")).ShouldNot(BeAnExistingFile())
-				}),
+			Entry("SanityTest", getTestPath("mtahtml5"), Succeed()),
+			Entry("Wrong path to project", getTestPath("mtahtml6"), HaveOccurred()),
 		)
 	})
 
