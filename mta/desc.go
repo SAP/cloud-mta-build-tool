@@ -11,14 +11,14 @@ import (
 	"github.com/pkg/errors"
 )
 
-// The deployment descriptor shall be located within the META-INF folder of the JAR.
-// The file MANIFEST.MF shall contain at least a name section for each MTA module contained in the archive.
+// The deployment descriptor should be located within the META-INF folder of the JAR.
+// The MANIFEST.MF file should contain at least a name section for each MTA module contained in the archive.
 // Following the JAR specification, the value of a name must be a relative path to a file or directory,
 // or an absolute URL referencing data outside the archive.
-// It is required to add a row MTA-module: <modulename> to each name section which corresponds to an MTA module,
+// It is required to add a row MTA-module: <modulename> to each name section that corresponds to an MTA module, and
 // to bind archive file locations to module names as used in the deployment descriptor.
-// The name sections with the MTA module attribute indicates the path to the file or directory which represents a module within the archive
-// This used by deploy service to track the build project
+// The name sections with the MTA module attribute indicate the path to the file or directory which represents a module within the archive
+// This is used by the deploy service to track the build project.
 
 const (
 	newLine         = "\n"
@@ -68,7 +68,7 @@ func printToFile(file io.Writer, mtaStr *Modules) error {
 	return nil
 }
 
-// GenMtad generate mtad.yaml file from mta.yaml file and platform configuration file.
+// GenMtad generates an mtad.yaml file from a mta.yaml file and a platform configuration file.
 func GenMtad(mtaStr *MTA, ep *dir.MtaLocationParameters, convertTypes func(mtaStr *MTA)) error {
 	// Create META-INF folder under the mtar folder
 	metaPath, err := ep.GetMetaPath()
@@ -98,7 +98,7 @@ func GenMtad(mtaStr *MTA, ep *dir.MtaLocationParameters, convertTypes func(mtaSt
 	return nil
 }
 
-// GenMetaInfo generate MANIFEST.MF file and update the build artifacts path's for deployment purpose.
+// GenMetaInfo generates a MANIFEST.MF file and updates the build artifacts paths for deployment purposes.
 func GenMetaInfo(ep *dir.MtaLocationParameters, mtaStr *MTA, modules []string, convertTypes func(mtaStr *MTA)) error {
 	err := GenMtad(mtaStr, ep, convertTypes)
 	if err != nil {
