@@ -1,5 +1,5 @@
-// Package mta provides a convenient way To explore the structure of the mta.yaml objects.
-// e.g. retrieve a list of resources required by a specific module.
+// Package MTA provides a convenient way of exploring the structure of `mta.yaml` file objects
+// such as retrieving a list of resources required by a specific module.
 package mta
 
 import (
@@ -13,7 +13,7 @@ import (
 	"cloud-mta-build-tool/validations"
 )
 
-// Parse unmarshal mta byte document and provides MTA object with corresponding.
+// Parse unmarshals an MTA byte document and provides an MTA object with corresponding.
 func (mta *MTA) Parse(yamlContent []byte) (err error) {
 	// Format the YAML to struct's
 	err = yaml.Unmarshal([]byte(yamlContent), &mta)
@@ -23,7 +23,7 @@ func (mta *MTA) Parse(yamlContent []byte) (err error) {
 	return nil
 }
 
-// Marshal serializes the MTA in into encoded YAML document.
+// Marshal serializes the MTA into an encoded YAML document.
 func Marshal(in *MTA) (mtads []byte, err error) {
 	mtads, err = yaml.Marshal(in)
 	if err != nil {
@@ -32,7 +32,7 @@ func Marshal(in *MTA) (mtads []byte, err error) {
 	return mtads, nil
 }
 
-// ReadMtaYaml reads MTA Yaml file and stores the data in a byte slice.
+// ReadMtaYaml reads an MTA .yaml file and stores the data in a byte slice.
 func ReadMtaYaml(ep *fs.MtaLocationParameters) ([]byte, error) {
 	fileFullPath, err := ep.GetMtaYamlPath()
 	if err != nil {
@@ -46,17 +46,17 @@ func ReadMtaYaml(ep *fs.MtaLocationParameters) ([]byte, error) {
 	return yamlFile, nil
 }
 
-// GetModules returns list of mta modules.
+// GetModules returns a list of MTA modules.
 func (mta *MTA) GetModules() []*Modules {
 	return mta.Modules
 }
 
-// GetResources returns list of mta resources.
+// GetResources returns list of MTA resources.
 func (mta *MTA) GetResources() []*Resources {
 	return mta.Resources
 }
 
-// GetModuleByName returns specific module by name.
+// GetModuleByName returns a specific module by name.
 func (mta *MTA) GetModuleByName(name string) (*Modules, error) {
 	for _, m := range mta.Modules {
 		if m.Name == name {
@@ -66,7 +66,7 @@ func (mta *MTA) GetModuleByName(name string) (*Modules, error) {
 	return nil, fmt.Errorf("module %s , not found ", name)
 }
 
-// GetResourceByName Returns specific resource by name.
+// GetResourceByName returns a specific resource by name.
 func (mta *MTA) GetResourceByName(name string) (*Resources, error) {
 	for _, r := range mta.Resources {
 		if r.Name == name {
@@ -76,12 +76,12 @@ func (mta *MTA) GetResourceByName(name string) (*Resources, error) {
 	return nil, fmt.Errorf("module %s , not found ", name)
 }
 
-// GetModulesNames returns list of modules names.
+// GetModulesNames returns a list of module names.
 func (mta *MTA) GetModulesNames() ([]string, error) {
 	return mta.getModulesOrder()
 }
 
-// Validate validates mta schema.
+// Validate validates an MTA schema.
 func Validate(yamlContent []byte, projectPath string, validateSchema bool, validateProject bool) (validate.YamlValidationIssues, error) {
 	//noinspection GoPreferNilSlice
 	issues := []validate.YamlValidationIssue{}
