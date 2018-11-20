@@ -58,6 +58,17 @@ $ go get -u github.com/mta-explorer/mta
 import "github.com/mta-explorer/mta"
 ```
 
+3. Quick start example
+
+```go
+// Set full path to the mta project
+mp := mta.Loc{SourcePath: “wd/mta_project”}
+// Returns mta object
+mta, err := ReadFile(&mp)
+if err != nil{
+   fmt.Println(err)
+}
+```
  ## License
  
  MTA Services is [Apache License 2.0 licensed](./LICENSE).
