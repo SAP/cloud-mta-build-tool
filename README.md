@@ -1,5 +1,6 @@
 [![CircleCI](https://circleci.com/gh/SAP/cloud-mta-build-tool.svg?style=svg&circle-token=ecedd1dce3592adcd72ee4c61481972c32dcfad7)](https://circleci.com/gh/SAP/cloud-mta-build-tool)
 ![GitHub license](https://img.shields.io/badge/license-Apache_2.0-blue.svg)
+![pre-alpha](https://img.shields.io/badge/Release-pre--alpha-red.svg)
 
 <b>Disclaimer</b>: The MTA build tool is under heavy development and is currently in a `pre-alpha` stage.
                    Some functionality is still missing and the APIs are subject to change; use at your own risk.
