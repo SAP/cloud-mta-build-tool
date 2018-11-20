@@ -105,5 +105,6 @@ For background and detailed information, see The [Multi-Target Application Model
  
  ## License
  
-Copyright (c) 2017 SAP SE or an SAP affiliate company. All rights reserved.
+Copyright (c) 2018 SAP SE or an SAP affiliate company. All rights reserved.
+
 This file is licensed under the Apache 2.0 License [except as noted otherwise in the LICENSE file](/LICENSE).
