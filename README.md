@@ -2,41 +2,38 @@
 ![GitHub license](https://img.shields.io/badge/license-Apache_2.0-blue.svg)
 
 <b>Disclaimer</b>: The MTA build tool is under heavy development and is currently in a `pre-alpha` stage.
-                   Some functionality is still missing and the API's are subject to change, use at your own risk.
+                   Some functionality is still missing and the APIs are subject to change; use at your own risk.
                    
-# Multi-target Application (MTA) Archive Builder
+# Multi-Target Application (MTA) Archive Builder
 
 The MTA command-line archive builder provides a convenient way to bundle an MTA project into an MTAR file (MTA archive).
 
 ### Multi-Target Applications
 
-A multi-Target application is a package comprised of multiple application and resource modules, 
-which have been created using different technologies and deployed to different runtimes; however, they have a common life-cycle. 
-A user can bundle the modules together, describe (using the `mta.yaml` file) them along with their inter-dependencies to other modules, 
-services, and interfaces, and package them in an MTA project.
+A multi-target application is a package comprised of multiple application and resource modules that have been created using different technologies and deployed to different runtimes; however, they have a common life cycle. A user can bundle the modules together along with their interdependencies to other modules, services, and interfaces, and package them in an MTA project, describing them using the `mta.yaml` file.
  
 
 ## MTA Archive Builder Tool 
 
-The MTA archive builder tool will provide a clear separation between the generation process and the build process as follows:
+The MTA archive builder tool (MBT) will provide a clear separation between the generation process and the build process as follows:
 
 ### CLI 
 
 The CLI tool will:
-- Parse and analyze the development descriptor a.k.a mta.yaml file and generate a Makefile accordingly. 
-- Provide atomic commands that can be executed as isolated process.
-- Build a `META-INF` folder with the following content:
+- Parse and analyze the development descriptor, a.k.a `mta.yaml` file, and generate a `Makefile` accordingly. 
+- Provide atomic commands that can be executed as an isolated process.
+- Build a `META-INF` folder containing the following content:
   - Translation of the `mta.yaml` source file into the `mtad.yaml` deployment descriptor.
-  - `META-INFO` file that describe the build artifact structure.
+  - A `META-INFO` file that describe the build artifact structure.
   
   
 #### [Makefile](https://www.gnu.org/software/make/)
 
-The generated `Makefile` (GNU Make) will describe and execute the build process with two flavors:
-- default - provide a generic build process that can be modified according to the project needs.
-- verbose - provide verbose build file as manifest which describe each step in separate target (experimental).
+The generated `Makefile` (GNU Make) will describe and execute the build process in two flavors:
+- default - Provides a generic build process that can be modified according to the project needs.
+- verbose - Provides a verbose build file as a manifest that describes each step in a separate target (experimental).
 
-During the build process the generated `makefile` is responsible for the following:
+During the build process the generated `Makefile` is responsible for the following:
 - Building each of the modules in the MTA project.
 - Invoking the CLI commands in the right order. 
 - Providing an MTA archive that is ready for deployment.
@@ -50,59 +47,59 @@ The MBT supports the following commands:
 | ------  | ------       |  ----------                                            |
 | version | `mbt -v`     | Prints the MBT version.                                 |
 | help    | `mbt -h`     | Prints all the available commands.                     | 
-| init    | `mbt init`   | Generates the `makefile` according to the `mta.yaml` file.             |
+| init    | `mbt init`   | Generates the `Makefile` according to the `mta.yaml` file.             |
 | TBD     |              | Additional commands will be added as they become available.
 
 
 
 ## What is an MTA Project
 
-For background and detailed information, see The [Multi-Target Application Model](http://help.sap.com/disclaimer?site=http://www.sap.com/documents/2016/06/e2f618e4-757c-0010-82c7-eda71af511fa.html) Information published on SAP site.
+For background and detailed information, see The [Multi-Target Application Model](http://help.sap.com/disclaimer?site=http://www.sap.com/documents/2016/06/e2f618e4-757c-0010-82c7-eda71af511fa.html) information published on the SAP website.
 
 
 ## Roadmap
  
 ### Milestone 1 
  
- - [ ] Build of html5 application 
- - [ ] Build of nodes application
- - [ ] Build params (first phase)
-    - [ ] Build dependencies
-    - [ ] Copy build results from other module
-    - [ ] Build result supporting different location
-    - [ ] Target platforms
- - [ ] Generate default Makefile
- - [ ] Generate `mtad.yaml` from `mta.yaml`
- - [ ] Build for `XSA` / `CF` targets
- - [ ] Packaging based on `mtad.yaml`
+ - [ ] Supports build of HTML5 applications 
+ - [ ] Supports build of node applications
+ - [ ] Supports build parameters (first phase)
+    - [ ] Supports build dependencies
+    - [ ] Supports the copying of build results from other modules
+    - [ ] Supports the build results from a different location
+    - [ ] Supports target platforms
+ - [ ] Generates a default `Makefile`
+ - [ ] Generates a `mtad.yaml` file from a `mta.yaml` file
+ - [ ] Supports builds for `XSA` / `CF` targets
+ - [ ] Supports packaging based on a `mtad.yaml` file
  
  
 ### Milestone 2 
  
-  - [ ] Generate verbose Makefile
-  - [ ] Delta build
-  - [ ] Mta extension
-  - [ ] ZIP builds
-  - [ ] Fetcher 
-  - [ ] Build params
-    - [ ] Build options
-    - [ ] Ignore files/folders
-    - [ ] Define timeouts
-    - [ ] Build artifact name
-  - [ ] Multi-schema support
-  - [ ] Enhance schema validations
-  - [ ] Semantic validations
+  - [ ] Generates a verbose `Makefile`
+  - [ ] Supports incremental build (one module at a time)
+  - [ ] Supports MTA extension
+  - [ ] Supports ZIP builds
+  - [ ] Supports fetcher build 
+  - [ ] Supports build parameters
+    - [ ] Supports build options
+    - [ ] Supports ignore files/folders
+    - [ ] Supports the definition of timeouts
+    - [ ] Supports build artifact naming
+  - [ ] Supports multi-schema
+  - [ ] Supports enhancing schema validations
+  - [ ] Supports semantic validations
   
  
  ### Milestone 3 
  
-  - [ ] Build of java/maven application
-  - [ ] Parallel execution for default `Makefile` 
+  - [ ] Supports build of Java/Maven applications
+  - [ ] Supports parallel execution for default `Makefile` 
  
  ### Milestone 4  
 
- - [ ] Extensibility framework
- - [ ] Advanced `mta.yaml` (3.1, >3.2) schemas support
+ - [ ] Supports extensibility framework
+ - [ ] Supports advanced `mta.yaml` (3.1, >3.2) schema
  
  
  ## License
