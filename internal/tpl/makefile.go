@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"runtime"
 	"text/template"
 
 	"github.com/pkg/errors"
@@ -18,22 +17,15 @@ import (
 )
 
 const (
-	makefile          = "Makefile.mta"
-	basePreVerbose    = "base_pre_verbose.txt"
-	basePostVerbose   = "base_post_verbose.txt"
-	basePreDefault    = "base_pre_default.txt"
-	basePostDefault   = "base_post_default.txt"
-	makeDefaultTpl    = "make_default.txt"
-	makeVerboseTpl    = "make_verbose.txt"
-	makeVerboseDepTpl = "make_verbose_dep.txt"
+	makefile = "Makefile.mta"
 )
 
 type tplCfg struct {
-	tplName string
-	relPath string
-	pre     string
-	post    string
-	depDesc string
+	tplContent  []byte
+	relPath     string
+	preContent  []byte
+	postContent []byte
+	depDesc     string
 }
 
 // Make - Generate the makefile
@@ -70,7 +62,7 @@ func makeFile(ep *fs.MtaLocationParameters, makeFilename string, tpl *tplCfg) er
 	data.Dep = ep.Descriptor
 
 	// Create maps of the template method's
-	t, err := mapTpl(tpl.tplName, tpl.pre, tpl.post, data.Dep != "dev")
+	t, err := mapTpl(tpl.tplContent, tpl.preContent, tpl.postContent)
 	if err != nil {
 		return errors.Wrap(err, "makeFile failed mapping template")
 	}
@@ -100,19 +92,17 @@ func makeFile(ep *fs.MtaLocationParameters, makeFilename string, tpl *tplCfg) er
 }
 
 //noinspection GoUnusedParameter
-func mapTpl(templateName string, BasePre string, BasePost string, isDeployment bool) (*template.Template, error) {
+func mapTpl(templateContent []byte, BasePreContent []byte, BasePostContent []byte) (*template.Template, error) {
 	funcMap := template.FuncMap{
 		"CommandProvider": builders.CommandProvider,
 		"OsCore":          proc.OsCore,
 		"Version":         version.GetVersion,
 	}
-	// Get the path of the template source code
-	_, file, _, _ := runtime.Caller(0)
-	makeVerbPath := filepath.Join(filepath.Dir(file), templateName)
-	prePath := filepath.Join(filepath.Dir(file), BasePre)
-	postPath := filepath.Join(filepath.Dir(file), BasePost)
+	fullTemplate := append(BasePreContent[:], templateContent...)
+	fullTemplate = append(fullTemplate, BasePostContent...)
+	fullTemplateStr := string(fullTemplate)
 	// parse the template txt file
-	return template.New(templateName).Funcs(funcMap).ParseFiles(makeVerbPath, prePath, postPath)
+	return template.New("makeTemplate").Funcs(funcMap).Parse(fullTemplateStr)
 }
 
 // Get template (default/verbose) according to the CLI flags
@@ -120,16 +110,16 @@ func getTplCfg(mode string, isDep bool) (tplCfg, error) {
 	tpl := tplCfg{}
 	if (mode == "verbose") || (mode == "v") {
 		if isDep {
-			tpl.tplName = makeVerboseDepTpl
+			tpl.tplContent = makeVerboseDep
 		} else {
-			tpl.tplName = makeVerboseTpl
+			tpl.tplContent = makeVerbose
 		}
-		tpl.pre = basePreVerbose
-		tpl.post = basePostVerbose
+		tpl.preContent = basePreVerbose
+		tpl.postContent = basePostVerbose
 	} else if mode == "" {
-		tpl.tplName = makeDefaultTpl
-		tpl.pre = basePreDefault
-		tpl.post = basePostDefault
+		tpl.tplContent = makeDefault
+		tpl.preContent = basePreDefault
+		tpl.postContent = basePostDefault
 	} else {
 		return tplCfg{}, errors.New("command is not supported")
 	}
