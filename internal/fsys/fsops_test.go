@@ -188,6 +188,11 @@ var _ = Describe("FSOPS", func() {
 				[]string{"[a,b"}),
 		)
 	})
+
+	It("getRelativePath", func() {
+		Ω(getRelativePath(getFullPath("abc", "xyz", "fff"),
+			filepath.Join(getFullPath()))).Should(Equal(string(filepath.Separator) + filepath.Join("abc", "xyz", "fff")))
+	})
 })
 
 func countFilesInDir(name string) int {

@@ -49,7 +49,7 @@ var _ = Describe("Commands", func() {
 			// Target path has to be dir, but is currently created and opened as file
 			pPackModuleFlag = "ui5app"
 			sourcePackFlag = getTestPath("mtahtml5")
-			ep := dir.MtaLocationParameters{SourcePath: sourcePackFlag, TargetPath: targetPackFlag}
+			ep := mta.MtaLocationParameters{SourcePath: sourcePackFlag, TargetPath: targetPackFlag}
 			targetTmpDir, _ := ep.GetTargetTmpDir()
 			err := os.MkdirAll(targetTmpDir, os.ModePerm)
 			if err != nil {
@@ -71,17 +71,17 @@ var _ = Describe("Commands", func() {
 
 	var _ = Describe("Generate commands call", func() {
 
-		var ep dir.MtaLocationParameters
+		var ep mta.MtaLocationParameters
 
 		It("Generate Meta", func() {
 			sourceMetaFlag = getTestPath("mtahtml5")
-			ep = dir.MtaLocationParameters{SourcePath: sourceMetaFlag, TargetPath: targetMetaFlag}
+			ep = mta.MtaLocationParameters{SourcePath: sourceMetaFlag, TargetPath: targetMetaFlag}
 			Ω(genMetaCmd.RunE(nil, []string{})).Should(Succeed())
 			Ω(ep.GetMtadPath()).Should(BeAnExistingFile())
 		})
 		It("Generate Mtad", func() {
 			sourceMtadFlag = getTestPath("mtahtml5")
-			ep = dir.MtaLocationParameters{SourcePath: sourceMtadFlag, TargetPath: targetMtadFlag}
+			ep = mta.MtaLocationParameters{SourcePath: sourceMtadFlag, TargetPath: targetMtadFlag}
 			err := genMtadCmd.RunE(nil, []string{})
 			if err != nil {
 				fmt.Println(err)
@@ -90,7 +90,7 @@ var _ = Describe("Commands", func() {
 		})
 		It("Generate Mtar", func() {
 			sourceMtarFlag = getTestPath("mtahtml5")
-			ep = dir.MtaLocationParameters{SourcePath: sourceMtarFlag, TargetPath: targetMtarFlag}
+			ep = mta.MtaLocationParameters{SourcePath: sourceMtarFlag, TargetPath: targetMtarFlag}
 			Ω(genMetaCmd.RunE(nil, []string{})).Should(Succeed())
 			Ω(genMtarCmd.RunE(nil, []string{})).Should(Succeed())
 			Ω(getTestPath("result", "mtahtml5.mtar")).Should(BeAnExistingFile())
@@ -119,14 +119,14 @@ var _ = Describe("Commands", func() {
 		}
 
 		It("Generate Meta", func() {
-			ep := dir.MtaLocationParameters{SourcePath: getTestPath("mtahtml5"), TargetPath: targetMetaFlag}
+			ep := mta.MtaLocationParameters{SourcePath: getTestPath("mtahtml5"), TargetPath: targetMetaFlag}
 			generateMeta(&ep)
 			mtadPath, _ := ep.GetMtadPath()
 			Ω(readFileContent(mtadPath)).Should(Equal(readFileContent(getTestPath("golden", "mtad.yaml"))))
 		})
 
 		It("Generate Mtar", func() {
-			ep := dir.MtaLocationParameters{SourcePath: getTestPath("mtahtml5"), TargetPath: targetMtarFlag}
+			ep := mta.MtaLocationParameters{SourcePath: getTestPath("mtahtml5"), TargetPath: targetMtarFlag}
 			err := generateMeta(&ep)
 			if err != nil {
 				fmt.Println(err)
@@ -160,7 +160,7 @@ var _ = Describe("Commands", func() {
 		})
 
 		It("Sanity", func() {
-			lp := dir.MtaLocationParameters{SourcePath: getTestPath("mta")}
+			lp := mta.MtaLocationParameters{SourcePath: getTestPath("mta")}
 			dir.Archive(getTestPath("mta", "node-js"), getTestPath("mta", "node-js", "data.zip"))
 
 			Ω(copyModuleArchive(&lp, "node-js", "node-js")).Should(Succeed())
@@ -168,10 +168,10 @@ var _ = Describe("Commands", func() {
 		})
 
 		var _ = DescribeTable("Invalid cases", func(modulePath string, mockWd bool, failOnCall int) {
-			var lp dir.MtaLocationParameters
+			var lp mta.MtaLocationParameters
 			var countCalls = 0
 			if mockWd {
-				lp = dir.MtaLocationParameters{}
+				lp = mta.MtaLocationParameters{}
 				dir.GetWorkingDirectory = func() (string, error) {
 					countCalls++
 					if countCalls >= failOnCall {
@@ -180,7 +180,7 @@ var _ = Describe("Commands", func() {
 					return os.Getwd()
 				}
 			} else {
-				lp = dir.MtaLocationParameters{SourcePath: getTestPath("mta")}
+				lp = mta.MtaLocationParameters{SourcePath: getTestPath("mta")}
 			}
 			Ω(copyModuleArchive(&lp, modulePath, "node-js")).Should(HaveOccurred())
 		},
@@ -203,7 +203,7 @@ var _ = Describe("Commands", func() {
 		)
 
 		var _ = DescribeTable("validateMtaYaml", func(projectRelPath string, validateSchema, validateProject, expectedSuccess bool) {
-			ep := dir.MtaLocationParameters{SourcePath: getTestPath(projectRelPath)}
+			ep := mta.MtaLocationParameters{SourcePath: getTestPath(projectRelPath)}
 			err := validateMtaYaml(&ep, validateSchema, validateProject)
 			Ω(err == nil).Should(Equal(expectedSuccess))
 		},
@@ -248,13 +248,13 @@ builders:
 		})
 
 		It("Sanity", func() {
-			ep := dir.MtaLocationParameters{SourcePath: getTestPath("mta"), TargetPath: targetBModuleFlag}
+			ep := mta.MtaLocationParameters{SourcePath: getTestPath("mta"), TargetPath: targetBModuleFlag}
 			Ω(buildModule(&ep, "node-js")).Should(Succeed())
 			Ω(ep.GetTargetModuleZipPath("node-js")).Should(BeAnExistingFile())
 		})
 
 		var _ = DescribeTable("Invalid inputs", func(projectName, mtaFilename, moduleName string) {
-			ep := dir.MtaLocationParameters{SourcePath: getTestPath(projectName), TargetPath: targetBModuleFlag, MtaFilename: mtaFilename}
+			ep := mta.MtaLocationParameters{SourcePath: getTestPath(projectName), TargetPath: targetBModuleFlag, MtaFilename: mtaFilename}
 			Ω(buildModule(&ep, moduleName)).Should(HaveOccurred())
 			Ω(ep.GetTargetTmpDir()).ShouldNot(BeADirectory())
 		},
@@ -266,7 +266,7 @@ builders:
 		It("build Command", func() {
 			pBuildModuleNameFlag = "node-js"
 			sourceBModuleFlag = getTestPath("mta")
-			ep := dir.MtaLocationParameters{SourcePath: sourceBModuleFlag, TargetPath: targetBModuleFlag}
+			ep := mta.MtaLocationParameters{SourcePath: sourceBModuleFlag, TargetPath: targetBModuleFlag}
 			err := bModuleCmd.RunE(nil, []string{})
 			if err != nil {
 				fmt.Println(err)
@@ -324,13 +324,13 @@ modules:
 
 var _ = Describe("Process Dependencies", func() {
 	It("Sanity", func() {
-		Ω(processDependencies(&dir.MtaLocationParameters{SourcePath: getTestPath("mtahtml5"), MtaFilename: "mtaWithBuildParams.yaml"}, "ui5app")).Should(Succeed())
+		Ω(processDependencies(&mta.MtaLocationParameters{SourcePath: getTestPath("mtahtml5"), MtaFilename: "mtaWithBuildParams.yaml"}, "ui5app")).Should(Succeed())
 	})
 	It("Invalid mta", func() {
-		Ω(processDependencies(&dir.MtaLocationParameters{SourcePath: getTestPath("mtahtml5"), MtaFilename: "mta1.yaml"}, "ui5app")).Should(HaveOccurred())
+		Ω(processDependencies(&mta.MtaLocationParameters{SourcePath: getTestPath("mtahtml5"), MtaFilename: "mta1.yaml"}, "ui5app")).Should(HaveOccurred())
 	})
 	It("Invalid module name", func() {
-		Ω(processDependencies(&dir.MtaLocationParameters{SourcePath: getTestPath("mtahtml5")}, "xxx")).Should(HaveOccurred())
+		Ω(processDependencies(&mta.MtaLocationParameters{SourcePath: getTestPath("mtahtml5")}, "xxx")).Should(HaveOccurred())
 	})
 })
 

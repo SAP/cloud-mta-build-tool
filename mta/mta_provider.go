@@ -1,13 +1,12 @@
 package mta
 
 import (
-	"cloud-mta-build-tool/internal/fsys"
 	"github.com/pkg/errors"
 )
 
 // ReadMta reads the MTA file according to its name and path and
 // returns a reference to the MTA object.
-func ReadMta(ep *dir.MtaLocationParameters) (*MTA, error) {
+func ReadMta(ep *MtaLocationParameters) (*MTA, error) {
 	var mta *MTA
 	yamlContent, err := ReadMtaContent(ep)
 	// Read MTA file
@@ -19,7 +18,7 @@ func ReadMta(ep *dir.MtaLocationParameters) (*MTA, error) {
 
 // ReadMtaContent returns a []byte array that represents the content of the MTA file
 // according to the name and path.
-func ReadMtaContent(ep *dir.MtaLocationParameters) ([]byte, error) {
+func ReadMtaContent(ep *MtaLocationParameters) ([]byte, error) {
 	yamlContent, err := ReadMtaYaml(ep)
 	// Read MTA file
 	if err != nil {

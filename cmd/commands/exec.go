@@ -91,7 +91,7 @@ var bModuleCmd = &cobra.Command{
 	Long:  "Build specific module according to the module name",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		err := fs.ValidateDeploymentDescriptor(descriptorBModuleFlag)
+		err := mta.ValidateDeploymentDescriptor(descriptorBModuleFlag)
 		if err == nil {
 			ep := locationParameters(sourceBModuleFlag, targetBModuleFlag, descriptorBModuleFlag)
 			err = buildModule(&ep, pBuildModuleNameFlag)
@@ -129,7 +129,7 @@ var genMetaCmd = &cobra.Command{
 	Long:  "generate META-INF folder with all the required data",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		err := fs.ValidateDeploymentDescriptor(descriptorMetaFlag)
+		err := mta.ValidateDeploymentDescriptor(descriptorMetaFlag)
 		if err == nil {
 			ep := locationParameters(sourceMetaFlag, targetMetaFlag, descriptorMetaFlag)
 			err = generateMeta(&ep)
@@ -148,7 +148,7 @@ var genMtarCmd = &cobra.Command{
 	Long:  "generate MTAR from the project build artifacts",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		err := fs.ValidateDeploymentDescriptor(descriptorMtarFlag)
+		err := mta.ValidateDeploymentDescriptor(descriptorMtarFlag)
 		if err == nil {
 			ep := locationParameters(sourceMtarFlag, targetMtarFlag, descriptorMtarFlag)
 			err = generateMtar(&ep)
@@ -167,7 +167,7 @@ var genMtadCmd = &cobra.Command{
 	Long:  "Provide deployment descriptor (mtad.yaml) from development descriptor (mta.yaml)",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		err := fs.ValidateDeploymentDescriptor(descriptorMtadFlag)
+		err := mta.ValidateDeploymentDescriptor(descriptorMtadFlag)
 		if err != nil {
 			logErrorExt(err, "MTAD generation failed")
 			return err
@@ -197,7 +197,7 @@ var validateCmd = &cobra.Command{
 	Long:  "MBT validation process",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		err := fs.ValidateDeploymentDescriptor(descriptorValidateFlag)
+		err := mta.ValidateDeploymentDescriptor(descriptorValidateFlag)
 		if err != nil {
 			logErrorExt(err, "MBT Validation failed")
 			return err
@@ -240,7 +240,7 @@ var cleanupCmd = &cobra.Command{
 }
 
 // locationParameters - provides location parameters of MTA
-func locationParameters(sourceFlag, targetFlag, descriptor string) fs.MtaLocationParameters {
+func locationParameters(sourceFlag, targetFlag, descriptor string) mta.MtaLocationParameters {
 	var mtaFilename string
 	if descriptor == "dev" || descriptor == "" {
 		mtaFilename = "mta.yaml"
@@ -250,11 +250,11 @@ func locationParameters(sourceFlag, targetFlag, descriptor string) fs.MtaLocatio
 			"mtad.yaml"
 		descriptor = "dep"
 	}
-	return fs.MtaLocationParameters{SourcePath: sourceFlag, TargetPath: targetFlag, MtaFilename: mtaFilename, Descriptor: descriptor}
+	return mta.MtaLocationParameters{SourcePath: sourceFlag, TargetPath: targetFlag, MtaFilename: mtaFilename, Descriptor: descriptor}
 }
 
 // generate build metadata artifacts
-func generateMeta(ep *fs.MtaLocationParameters) error {
+func generateMeta(ep *mta.MtaLocationParameters) error {
 	return processMta("Metadata creation", ep, []string{}, func(file []byte, args []string) error {
 		// parse MTA file
 		m, err := mta.ParseToMta(file)
@@ -269,7 +269,7 @@ func generateMeta(ep *fs.MtaLocationParameters) error {
 }
 
 // generate mtar archive from the build artifacts
-func generateMtar(ep *fs.MtaLocationParameters) error {
+func generateMtar(ep *mta.MtaLocationParameters) error {
 	logs.Logger.Info("MTAR Generation started")
 	err := processMta("MTAR generation", ep, []string{}, func(file []byte, args []string) error {
 		// read MTA
@@ -309,7 +309,7 @@ func convertTypes(mtaStr mta.MTA) error {
 }
 
 // process mta.yaml file
-func processMta(processName string, ep *fs.MtaLocationParameters, args []string, process func(file []byte, args []string) error) error {
+func processMta(processName string, ep *mta.MtaLocationParameters, args []string, process func(file []byte, args []string) error) error {
 	logs.Logger.Info("Starting " + processName)
 	mf, err := mta.ReadMtaContent(ep)
 	if err == nil {
@@ -324,7 +324,7 @@ func processMta(processName string, ep *fs.MtaLocationParameters, args []string,
 }
 
 // pack build module artifacts
-func packModule(ep *fs.MtaLocationParameters, modulePath, moduleName string) error {
+func packModule(ep *mta.MtaLocationParameters, modulePath, moduleName string) error {
 
 	if ep.IsDeploymentDescriptor() {
 		return copyModuleArchive(ep, modulePath, moduleName)
@@ -359,7 +359,7 @@ func packModule(ep *fs.MtaLocationParameters, modulePath, moduleName string) err
 }
 
 // copyModuleArchive - copies module archive to temp directory
-func copyModuleArchive(ep *fs.MtaLocationParameters, modulePath, moduleName string) error {
+func copyModuleArchive(ep *mta.MtaLocationParameters, modulePath, moduleName string) error {
 	logs.Logger.Infof("Copy of module %v archive Started", moduleName)
 	srcModulePath, err := ep.GetSourceModuleDir(modulePath)
 	if err != nil {
@@ -398,7 +398,7 @@ func getValidationMode(validationFlag string) (bool, bool, error) {
 }
 
 // Validate MTA yaml
-func validateMtaYaml(ep *fs.MtaLocationParameters, validateSchema bool, validateProject bool) error {
+func validateMtaYaml(ep *mta.MtaLocationParameters, validateSchema bool, validateProject bool) error {
 	if validateProject || validateSchema {
 		logs.Logger.Infof("Validation of %v started", ep.MtaFilename)
 
@@ -426,7 +426,7 @@ func validateMtaYaml(ep *fs.MtaLocationParameters, validateSchema bool, validate
 
 // Get module relative path from mta.yaml and
 // commands (with resolved paths) configured for the module type
-func getModuleRelativePathAndCommands(ep *fs.MtaLocationParameters, module string) (string, []string, error) {
+func getModuleRelativePathAndCommands(ep *mta.MtaLocationParameters, module string) (string, []string, error) {
 	mtaObj, err := mta.ReadMta(ep)
 	if err != nil {
 		return "", nil, err
@@ -436,7 +436,7 @@ func getModuleRelativePathAndCommands(ep *fs.MtaLocationParameters, module strin
 }
 
 // buildModule - builds module
-func buildModule(ep *fs.MtaLocationParameters, module string) error {
+func buildModule(ep *mta.MtaLocationParameters, module string) error {
 
 	logs.Logger.Infof("Module %v building started", module)
 
@@ -512,7 +512,7 @@ func cmdConverter(mPath string, cmdList []string) [][]string {
 	return cmd
 }
 
-func processDependencies(ep *fs.MtaLocationParameters, moduleName string) error {
+func processDependencies(ep *mta.MtaLocationParameters, moduleName string) error {
 	mtaObj, err := mta.ReadMta(ep)
 	if err != nil {
 		return err

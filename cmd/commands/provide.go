@@ -6,7 +6,6 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
-	"cloud-mta-build-tool/internal/fsys"
 	"cloud-mta-build-tool/mta"
 )
 
@@ -25,7 +24,7 @@ var pModuleCmd = &cobra.Command{
 	Long:  "Provide list of modules",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		err := dir.ValidateDeploymentDescriptor(descriptorPModuleFlag)
+		err := mta.ValidateDeploymentDescriptor(descriptorPModuleFlag)
 		if err == nil {
 			ep := locationParameters(sourceBModuleFlag, targetBModuleFlag, descriptorPModuleFlag)
 			err = provideModules(&ep)
@@ -38,7 +37,7 @@ var pModuleCmd = &cobra.Command{
 	SilenceErrors: true,
 }
 
-func provideModules(ep *dir.MtaLocationParameters) error {
+func provideModules(ep *mta.MtaLocationParameters) error {
 	// read MTA from mta.yaml
 	mo, err := mta.ReadMta(ep)
 	if err != nil {

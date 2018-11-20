@@ -1,50 +1,53 @@
-package dir
+package mta
 
 import (
+	"os"
 	"path/filepath"
 
+	"cloud-mta-build-tool/internal/fsys"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"
 )
 
+func getPath(relPath ...string) string {
+	wd, _ := os.Getwd()
+	return filepath.Join(wd, filepath.Join(relPath...))
+}
+
 var _ = Describe("Path", func() {
 
-	It("getRelativePath", func() {
-		Ω(getRelativePath(getFullPath("abc", "xyz", "fff"),
-			filepath.Join(getFullPath()))).Should(Equal(string(filepath.Separator) + filepath.Join("abc", "xyz", "fff")))
-	})
 	It("GetSource - Explicit", func() {
-		location := MtaLocationParameters{SourcePath: getFullPath("abc")}
-		Ω(location.GetSource()).Should(Equal(getFullPath("abc")))
+		location := MtaLocationParameters{SourcePath: getPath("abc")}
+		Ω(location.GetSource()).Should(Equal(getPath("abc")))
 	})
 	It("GetSource - Implicit", func() {
 		location := MtaLocationParameters{}
-		Ω(location.GetSource()).Should(Equal(getFullPath()))
+		Ω(location.GetSource()).Should(Equal(getPath()))
 	})
 	It("GetTarget - Explicit", func() {
-		location := MtaLocationParameters{SourcePath: getFullPath("xyz"), TargetPath: getFullPath("abc")}
-		Ω(location.GetTarget()).Should(Equal(getFullPath("abc")))
+		location := MtaLocationParameters{SourcePath: getPath("xyz"), TargetPath: getPath("abc")}
+		Ω(location.GetTarget()).Should(Equal(getPath("abc")))
 	})
 	It("GetTarget - Implicit", func() {
-		location := MtaLocationParameters{SourcePath: getFullPath("xyz")}
-		Ω(location.GetTarget()).Should(Equal(getFullPath("xyz")))
+		location := MtaLocationParameters{SourcePath: getPath("xyz")}
+		Ω(location.GetTarget()).Should(Equal(getPath("xyz")))
 	})
 	It("GetTargetTmpDir", func() {
-		location := MtaLocationParameters{SourcePath: getFullPath("xyz"), TargetPath: getFullPath("abc")}
-		Ω(location.GetTargetTmpDir()).Should(Equal(getFullPath("abc", "xyz")))
+		location := MtaLocationParameters{SourcePath: getPath("xyz"), TargetPath: getPath("abc")}
+		Ω(location.GetTargetTmpDir()).Should(Equal(getPath("abc", "xyz")))
 	})
 	It("GetTargetModuleDir", func() {
-		location := MtaLocationParameters{SourcePath: getFullPath("xyz"), TargetPath: getFullPath("abc")}
-		Ω(location.GetTargetModuleDir("mmm")).Should(Equal(getFullPath("abc", "xyz", "mmm")))
+		location := MtaLocationParameters{SourcePath: getPath("xyz"), TargetPath: getPath("abc")}
+		Ω(location.GetTargetModuleDir("mmm")).Should(Equal(getPath("abc", "xyz", "mmm")))
 	})
 	It("GetTargetModuleZipPath", func() {
-		location := MtaLocationParameters{SourcePath: getFullPath("xyz"), TargetPath: getFullPath("abc")}
-		Ω(location.GetTargetModuleZipPath("mmm")).Should(Equal(getFullPath("abc", "xyz", "mmm", "data.zip")))
+		location := MtaLocationParameters{SourcePath: getPath("xyz"), TargetPath: getPath("abc")}
+		Ω(location.GetTargetModuleZipPath("mmm")).Should(Equal(getPath("abc", "xyz", "mmm", "data.zip")))
 	})
 	It("GetSourceModuleDir", func() {
-		location := MtaLocationParameters{SourcePath: getFullPath("xyz"), TargetPath: getFullPath("abc")}
-		Ω(location.GetSourceModuleDir("mpath")).Should(Equal(getFullPath("xyz", "mpath")))
+		location := MtaLocationParameters{SourcePath: getPath("xyz"), TargetPath: getPath("abc")}
+		Ω(location.GetSourceModuleDir("mpath")).Should(Equal(getPath("xyz", "mpath")))
 	})
 	It("getMtaYamlFilename - Explicit", func() {
 		location := MtaLocationParameters{MtaFilename: "mymta.yaml"}
@@ -60,19 +63,19 @@ var _ = Describe("Path", func() {
 	})
 	It("GetMtaYamlPath", func() {
 		location := MtaLocationParameters{}
-		Ω(location.GetMtaYamlPath()).Should(Equal(getFullPath("mta.yaml")))
+		Ω(location.GetMtaYamlPath()).Should(Equal(getPath("mta.yaml")))
 	})
 	It("GetMetaPath", func() {
-		location := MtaLocationParameters{SourcePath: getFullPath("xyz"), TargetPath: getFullPath("abc")}
-		Ω(location.GetMetaPath()).Should(Equal(getFullPath("abc", "xyz", "META-INF")))
+		location := MtaLocationParameters{SourcePath: getPath("xyz"), TargetPath: getPath("abc")}
+		Ω(location.GetMetaPath()).Should(Equal(getPath("abc", "xyz", "META-INF")))
 	})
 	It("GetMtadPath", func() {
-		location := MtaLocationParameters{SourcePath: getFullPath("xyz"), TargetPath: getFullPath("abc")}
-		Ω(location.GetMtadPath()).Should(Equal(getFullPath("abc", "xyz", "META-INF", "mtad.yaml")))
+		location := MtaLocationParameters{SourcePath: getPath("xyz"), TargetPath: getPath("abc")}
+		Ω(location.GetMtadPath()).Should(Equal(getPath("abc", "xyz", "META-INF", "mtad.yaml")))
 	})
 	It("GetManifestPath", func() {
-		location := MtaLocationParameters{SourcePath: getFullPath("xyz"), TargetPath: getFullPath("abc")}
-		Ω(location.GetManifestPath()).Should(Equal(getFullPath("abc", "xyz", "META-INF", "MANIFEST.MF")))
+		location := MtaLocationParameters{SourcePath: getPath("xyz"), TargetPath: getPath("abc")}
+		Ω(location.GetManifestPath()).Should(Equal(getPath("abc", "xyz", "META-INF", "MANIFEST.MF")))
 	})
 	It("ValidateDeploymentDescriptor - Valid", func() {
 		Ω(ValidateDeploymentDescriptor("")).Should(Succeed())
@@ -92,14 +95,14 @@ var _ = Describe("Path Failures", func() {
 	lp := MtaLocationParameters{}
 
 	BeforeEach(func() {
-		storedWorkingDirectory = GetWorkingDirectory
-		GetWorkingDirectory = func() (string, error) {
+		storedWorkingDirectory = dir.GetWorkingDirectory
+		dir.GetWorkingDirectory = func() (string, error) {
 			return "", errors.New("Dummy error")
 		}
 	})
 
 	AfterEach(func() {
-		GetWorkingDirectory = storedWorkingDirectory
+		dir.GetWorkingDirectory = storedWorkingDirectory
 	})
 
 	It("GetSource - Implicit", func() {

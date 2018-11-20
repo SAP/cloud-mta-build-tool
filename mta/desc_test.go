@@ -6,7 +6,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"cloud-mta-build-tool/internal/fsys"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
@@ -59,7 +58,7 @@ var _ = Describe("Desc tests", func() {
 
 	var _ = Describe("GenMetaInf", func() {
 		wd, _ := os.Getwd()
-		ep := dir.MtaLocationParameters{SourcePath: filepath.Join(wd, "testdata", "testproject"), TargetPath: filepath.Join(wd, "testdata", "result")}
+		ep := MtaLocationParameters{SourcePath: filepath.Join(wd, "testdata", "testproject"), TargetPath: filepath.Join(wd, "testdata", "result")}
 
 		AfterEach(func() {
 			targetDir, _ := ep.GetTarget()

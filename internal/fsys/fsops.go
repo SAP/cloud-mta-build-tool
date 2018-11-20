@@ -12,6 +12,14 @@ import (
 	"github.com/pkg/errors"
 )
 
+// OsGetWd - get working dir
+var OsGetWd = func() (string, error) {
+	return os.Getwd()
+}
+
+// GetWorkingDirectory assignment
+var GetWorkingDirectory = OsGetWd
+
 // createDirIfNotExist - Create new dir
 func createDirIfNotExist(dir string) error {
 	var err error
@@ -255,4 +263,9 @@ func CopyFile(src, dst string) (err error) {
 	}
 	err = os.Chmod(dst, si.Mode())
 	return
+}
+
+// getRelativePath - Remove the basePath from the fullPath and get only the relative
+func getRelativePath(fullPath, basePath string) string {
+	return strings.TrimPrefix(fullPath, basePath)
 }
