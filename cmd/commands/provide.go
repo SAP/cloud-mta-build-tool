@@ -39,7 +39,7 @@ var pModuleCmd = &cobra.Command{
 
 func provideModules(ep *mta.Loc) error {
 	// read MTA from mta.yaml
-	mo, err := mta.ReadMta(ep)
+	mo, err := mta.ReadFile(ep)
 	if err != nil {
 		return err
 	}

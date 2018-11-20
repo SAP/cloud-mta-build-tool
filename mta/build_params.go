@@ -5,6 +5,7 @@ import (
 
 	"github.com/pkg/errors"
 
+	// Todo remove this dep
 	"cloud-mta-build-tool/internal/fsys"
 )
 
