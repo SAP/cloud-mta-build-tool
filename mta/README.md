@@ -46,19 +46,21 @@ A multi-target application is a package comprised of multiple application and re
 
 To install the package, first you need to install Go and set your Go workspace.
 
-1. Download and install it:
+Download and install it:
 
 ```sh
 $ go get -u github.com/mta-explorer/mta
 ```
 
-2. Import it into your code:
+## Usage
+
+ - Import it into your source code:
 
 ```go
 import "github.com/mta-explorer/mta"
 ```
 
-3. Quick start example
+ -  Quick start example:
 
 ```go
 // Set full path to the mta project
