@@ -5,10 +5,8 @@ DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 BASE := $(notdir $(patsubst %/,%,$(DIR)))
 MTR_DIR := $(DIR)$(BASE)
 # Determine OS cores
-{{- range OsCore }}
-{{ .NPROCS  }}
-{{ .MAKEFLAGS  }}
-{{- end}}
+{{ OsCore.NPROCS  }}
+{{ OsCore.MAKEFLAGS  }}
 # List of all the recipes to be executed during the build process
 .PHONY: {{- range .File.Modules}} {{.Name}}{{end}} meta mtar cleanup
 # Default target compile all

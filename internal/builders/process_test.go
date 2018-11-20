@@ -1,20 +1,13 @@
 package builders
 
 import (
-	"reflect"
-	"testing"
-
-	"cloud-mta-build-tool/internal/logs"
-
-	"gopkg.in/yaml.v2"
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/ginkgo/extensions/table"
+	. "github.com/onsi/gomega"
+	"github.com/onsi/gomega/types"
 )
 
-// This test is checking the parse process
-func TestParse(t *testing.T) {
-	t.Parallel()
-	// Initialize logger for use in the class under test (process)
-	logs.Logger = logs.NewLogger()
-
+var _ = Describe("Process", func() {
 	var buildCfg = []byte(`
 version: 1
 builders:
@@ -37,59 +30,48 @@ builders:
     type:
     - command: go build *.go
 `)
+	var builders = Builders{
+		Version: "1",
+		Builders: []builder{
+			{
+				Name: "html5",
+				Info: "build UI5 application",
+				Type: []Commands{
+					{Command: "npm install"},
+					{Command: "grunt"},
+					{Command: "npm prune --production"},
+				},
+			},
+			{
+				Name: "java",
+				Info: "build java application",
+				Type: []Commands{
+					{Command: "mvn clean install"},
+				},
+			},
+			{
+				Name: "nodejs",
+				Info: "build nodejs application",
+				Type: []Commands{
+					{Command: "npm install"},
+				},
+			},
+			{
+				Name: "golang",
+				Info: "build golang application",
+				Type: []Commands{
+					{Command: "go build *.go"},
+				},
+			},
+		}}
+	var malformedBuildCfg = []byte(`bad:  "YAML" syntax`)
 
-	var wantOut = []byte(`
-version: 1
-builders:
-  - name: html5
-    info: "build UI5 application"
-    type:
-    - command: npm install
-    - command: grunt
-    - command: npm prune --production
-  - name: java
-    info: "build java application"
-    type:
-    - command: mvn clean install
-  - name: nodejs
-    info: "build nodejs application"
-    type:
-    - command: npm install
-  - name: golang
-    info: "build golang application"
-    type:
-    - command: go build *.go
-`)
+	var _ = DescribeTable("Parse", func(input []byte, expected Builders, match types.GomegaMatcher) {
+		actual, err := parse(input)
+		Ω(actual).Should(Equal(expected))
+		Ω(err).Should(match)
+	},
+		Entry("Sanity", buildCfg, builders, Succeed()),
+		Entry("MalformedCfg", malformedBuildCfg, Builders{}, HaveOccurred()))
 
-	// Get parsed yaml content
-	commands := Builders{}
-	err := yaml.Unmarshal(wantOut, &commands)
-	if err != nil {
-		logs.Logger.Error("Error: " + err.Error())
-	}
-
-	tests := []struct {
-		name     string
-		args     []byte
-		expected Builders
-	}{
-		{
-			name:     "parse builders configuration files",
-			args:     buildCfg,
-			expected: commands,
-		},
-		{
-			name:     "A malformed YAML returns an empty list of commands",
-			args:     []byte(`bad:  "YAML" syntax`),
-			expected: Builders{},
-		},
-	}
-	// Todo - basic parse test, need types test
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got, _ := parse(tt.args); !reflect.DeepEqual(got, tt.expected) {
-				t.Errorf("parse() = %v, \n expected %v", got, tt.expected)
-			}
-		})
-	}
-}
+})
