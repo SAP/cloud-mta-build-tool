@@ -11,7 +11,7 @@ import (
 var _ = Describe("ValidateYamlProject", func() {
 	It("Sanity", func() {
 		wd, _ := os.Getwd()
-		ep := MtaLocationParameters{SourcePath: filepath.Join(wd, "testdata", "testproject")}
+		ep := Loc{SourcePath: filepath.Join(wd, "testdata", "testproject")}
 		mta, _ := ReadMta(&ep)
 		source, _ := ep.GetSource()
 		issues := validateYamlProject(mta, source)

@@ -58,7 +58,7 @@ var _ = Describe("Desc tests", func() {
 
 	var _ = Describe("GenMetaInf", func() {
 		wd, _ := os.Getwd()
-		ep := MtaLocationParameters{SourcePath: filepath.Join(wd, "testdata", "testproject"), TargetPath: filepath.Join(wd, "testdata", "result")}
+		ep := Loc{SourcePath: filepath.Join(wd, "testdata", "testproject"), TargetPath: filepath.Join(wd, "testdata", "result")}
 
 		AfterEach(func() {
 			targetDir, _ := ep.GetTarget()

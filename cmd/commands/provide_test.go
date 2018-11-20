@@ -41,13 +41,13 @@ var _ = Describe("Provide", func() {
 	It("Valid path to yaml", func() {
 
 		out := executeAndProvideOutput(func() {
-			Ω(provideModules(&mta.MtaLocationParameters{SourcePath: filepath.Join("testdata", "mtahtml5")})).Should(Succeed())
+			Ω(provideModules(&mta.Loc{SourcePath: filepath.Join("testdata", "mtahtml5")})).Should(Succeed())
 		})
 		Ω(out).Should(ContainSubstring("[ui5app ui5app2]"))
 	})
 
 	It("Invalid path to yaml", func() {
-		Ω(provideModules(&mta.MtaLocationParameters{SourcePath: filepath.Join("testdata", "mtahtml6")})).Should(HaveOccurred())
+		Ω(provideModules(&mta.Loc{SourcePath: filepath.Join("testdata", "mtahtml6")})).Should(HaveOccurred())
 	})
 
 	It("Invalid command call", func() {

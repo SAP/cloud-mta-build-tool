@@ -15,7 +15,7 @@ var _ = Describe("BuildParams", func() {
 
 	var _ = Describe("getBuildResultsPath", func() {
 		var _ = DescribeTable("valid cases", func(module *Modules, expected string) {
-			Ω(module.getBuildResultsPath(&MtaLocationParameters{})).Should(HaveSuffix(expected))
+			Ω(module.getBuildResultsPath(&Loc{})).Should(HaveSuffix(expected))
 		},
 			Entry("Implicit Build Results Path", &Modules{Path: "mPath"}, "mPath"),
 			Entry("Explicit Build Results Path", &Modules{Path: "mPath", BuildParams: buildParameters{Path: "bPath"}}, "bPath"))
@@ -32,14 +32,14 @@ var _ = Describe("BuildParams", func() {
 
 			It("Implicit", func() {
 				module := Modules{Path: "mPath"}
-				_, err := module.getBuildResultsPath(&MtaLocationParameters{})
+				_, err := module.getBuildResultsPath(&Loc{})
 				Ω(err).Should(HaveOccurred())
 			})
 		})
 	})
 
 	var _ = DescribeTable("getRequiredTargetPath", func(requires BuildRequires, module Modules, expected string) {
-		Ω(requires.getRequiredTargetPath(&MtaLocationParameters{}, &module)).Should(HaveSuffix(expected))
+		Ω(requires.getRequiredTargetPath(&Loc{}, &module)).Should(HaveSuffix(expected))
 	},
 		Entry("Implicit Target Path", BuildRequires{}, Modules{Path: "mPath"}, "mPath"),
 		Entry("Explicit Target Path", BuildRequires{TargetPath: "artifacts"}, Modules{Path: "mPath"}, filepath.Join("mPath", "artifacts")))
@@ -53,7 +53,7 @@ var _ = Describe("BuildParams", func() {
 
 		var _ = DescribeTable("Valid cases", func(artifacts []string, expectedPath string) {
 			wd, _ := os.Getwd()
-			ep := MtaLocationParameters{SourcePath: filepath.Join(wd, "testdata", "testproject"), TargetPath: filepath.Join(wd, "testdata", "result")}
+			ep := Loc{SourcePath: filepath.Join(wd, "testdata", "testproject"), TargetPath: filepath.Join(wd, "testdata", "result")}
 			require := BuildRequires{
 				Name:       "A",
 				Artifacts:  artifacts,
@@ -84,21 +84,21 @@ var _ = Describe("BuildParams", func() {
 			Entry("Require All - single value", []string{"*"}, filepath.Join("testdata", "testproject", "moduleB", "b_copied_artifacts")),
 			Entry("Require All From Parent", []string{"."}, filepath.Join("testdata", "testproject", "moduleB", "b_copied_artifacts", "ui5app")))
 
-		var _ = DescribeTable("Invalid cases", func(lp *MtaLocationParameters, require BuildRequires, mtaObj MTA, moduleName string) {
+		var _ = DescribeTable("Invalid cases", func(lp *Loc, require BuildRequires, mtaObj MTA, moduleName string) {
 			Ω(require.ProcessRequirements(lp, &mtaObj, moduleName)).Should(HaveOccurred())
 		},
 			Entry("Module not defined",
-				&MtaLocationParameters{},
+				&Loc{},
 				BuildRequires{Name: "A", Artifacts: []string{"*"}, TargetPath: "b_copied_artifacts"},
 				MTA{Modules: []*Modules{{Name: "A", Path: "ui5app"}, {Name: "B", Path: "moduleB"}}},
 				"C"),
 			Entry("Required Module not defined",
-				&MtaLocationParameters{},
+				&Loc{},
 				BuildRequires{Name: "C", Artifacts: []string{"*"}, TargetPath: "b_copied_artifacts"},
 				MTA{Modules: []*Modules{{Name: "A", Path: "ui5app"}, {Name: "B", Path: "moduleB"}}},
 				"B"),
 			Entry("Target path - file",
-				&MtaLocationParameters{SourcePath: getTestPath("testbuildparams")},
+				&Loc{SourcePath: getTestPath("testbuildparams")},
 				BuildRequires{Name: "ui1", Artifacts: []string{"*"}, TargetPath: "file.txt"},
 				MTA{Modules: []*Modules{{Name: "ui1", Path: "ui1"}, {Name: "node", Path: "node"}}},
 				"node"))
@@ -124,7 +124,7 @@ var _ = Describe("BuildParams", func() {
 				failsOnCall = failsOn
 				req := BuildRequires{Name: "A", Artifacts: []string{"*"}, TargetPath: "b_copied_artifacts"}
 				mtaObj := MTA{Modules: []*Modules{{Name: "A", Path: "ui5app"}, {Name: "B", Path: "moduleB"}}}
-				Ω(req.ProcessRequirements(&MtaLocationParameters{}, &mtaObj, "B")).Should(HaveOccurred())
+				Ω(req.ProcessRequirements(&Loc{}, &mtaObj, "B")).Should(HaveOccurred())
 			},
 				Entry("source", 1),
 				Entry("target", 2))
@@ -139,7 +139,7 @@ var _ = Describe("BuildParams", func() {
 		})
 
 		It("", func() {
-			lp := MtaLocationParameters{
+			lp := Loc{
 				SourcePath: getTestPath("testbuildparams"),
 				TargetPath: getTestPath("result"),
 			}
