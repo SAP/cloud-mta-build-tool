@@ -240,7 +240,7 @@ var cleanupCmd = &cobra.Command{
 }
 
 // locationParameters - provides location parameters of MTA
-func locationParameters(sourceFlag, targetFlag, descriptor string) mta.MtaLocationParameters {
+func locationParameters(sourceFlag, targetFlag, descriptor string) mta.Loc {
 	var mtaFilename string
 	if descriptor == "dev" || descriptor == "" {
 		mtaFilename = "mta.yaml"
@@ -250,11 +250,11 @@ func locationParameters(sourceFlag, targetFlag, descriptor string) mta.MtaLocati
 			"mtad.yaml"
 		descriptor = "dep"
 	}
-	return mta.MtaLocationParameters{SourcePath: sourceFlag, TargetPath: targetFlag, MtaFilename: mtaFilename, Descriptor: descriptor}
+	return mta.Loc{SourcePath: sourceFlag, TargetPath: targetFlag, MtaFilename: mtaFilename, Descriptor: descriptor}
 }
 
 // generate build metadata artifacts
-func generateMeta(ep *mta.MtaLocationParameters) error {
+func generateMeta(ep *mta.Loc) error {
 	return processMta("Metadata creation", ep, []string{}, func(file []byte, args []string) error {
 		// parse MTA file
 		m, err := mta.ParseToMta(file)
@@ -269,7 +269,7 @@ func generateMeta(ep *mta.MtaLocationParameters) error {
 }
 
 // generate mtar archive from the build artifacts
-func generateMtar(ep *mta.MtaLocationParameters) error {
+func generateMtar(ep *mta.Loc) error {
 	logs.Logger.Info("MTAR Generation started")
 	err := processMta("MTAR generation", ep, []string{}, func(file []byte, args []string) error {
 		// read MTA
@@ -309,7 +309,7 @@ func convertTypes(mtaStr mta.MTA) error {
 }
 
 // process mta.yaml file
-func processMta(processName string, ep *mta.MtaLocationParameters, args []string, process func(file []byte, args []string) error) error {
+func processMta(processName string, ep *mta.Loc, args []string, process func(file []byte, args []string) error) error {
 	logs.Logger.Info("Starting " + processName)
 	mf, err := mta.ReadMtaContent(ep)
 	if err == nil {
@@ -324,7 +324,7 @@ func processMta(processName string, ep *mta.MtaLocationParameters, args []string
 }
 
 // pack build module artifacts
-func packModule(ep *mta.MtaLocationParameters, modulePath, moduleName string) error {
+func packModule(ep *mta.Loc, modulePath, moduleName string) error {
 
 	if ep.IsDeploymentDescriptor() {
 		return copyModuleArchive(ep, modulePath, moduleName)
@@ -359,7 +359,7 @@ func packModule(ep *mta.MtaLocationParameters, modulePath, moduleName string) er
 }
 
 // copyModuleArchive - copies module archive to temp directory
-func copyModuleArchive(ep *mta.MtaLocationParameters, modulePath, moduleName string) error {
+func copyModuleArchive(ep *mta.Loc, modulePath, moduleName string) error {
 	logs.Logger.Infof("Copy of module %v archive Started", moduleName)
 	srcModulePath, err := ep.GetSourceModuleDir(modulePath)
 	if err != nil {
@@ -398,7 +398,7 @@ func getValidationMode(validationFlag string) (bool, bool, error) {
 }
 
 // Validate MTA yaml
-func validateMtaYaml(ep *mta.MtaLocationParameters, validateSchema bool, validateProject bool) error {
+func validateMtaYaml(ep *mta.Loc, validateSchema bool, validateProject bool) error {
 	if validateProject || validateSchema {
 		logs.Logger.Infof("Validation of %v started", ep.MtaFilename)
 
@@ -426,7 +426,7 @@ func validateMtaYaml(ep *mta.MtaLocationParameters, validateSchema bool, validat
 
 // Get module relative path from mta.yaml and
 // commands (with resolved paths) configured for the module type
-func getModuleRelativePathAndCommands(ep *mta.MtaLocationParameters, module string) (string, []string, error) {
+func getModuleRelativePathAndCommands(ep *mta.Loc, module string) (string, []string, error) {
 	mtaObj, err := mta.ReadMta(ep)
 	if err != nil {
 		return "", nil, err
@@ -436,7 +436,7 @@ func getModuleRelativePathAndCommands(ep *mta.MtaLocationParameters, module stri
 }
 
 // buildModule - builds module
-func buildModule(ep *mta.MtaLocationParameters, module string) error {
+func buildModule(ep *mta.Loc, module string) error {
 
 	logs.Logger.Infof("Module %v building started", module)
 
@@ -512,7 +512,7 @@ func cmdConverter(mPath string, cmdList []string) [][]string {
 	return cmd
 }
 
-func processDependencies(ep *mta.MtaLocationParameters, moduleName string) error {
+func processDependencies(ep *mta.Loc, moduleName string) error {
 	mtaObj, err := mta.ReadMta(ep)
 	if err != nil {
 		return err

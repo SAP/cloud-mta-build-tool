@@ -18,63 +18,63 @@ func getPath(relPath ...string) string {
 var _ = Describe("Path", func() {
 
 	It("GetSource - Explicit", func() {
-		location := MtaLocationParameters{SourcePath: getPath("abc")}
+		location := Loc{SourcePath: getPath("abc")}
 		Ω(location.GetSource()).Should(Equal(getPath("abc")))
 	})
 	It("GetSource - Implicit", func() {
-		location := MtaLocationParameters{}
+		location := Loc{}
 		Ω(location.GetSource()).Should(Equal(getPath()))
 	})
 	It("GetTarget - Explicit", func() {
-		location := MtaLocationParameters{SourcePath: getPath("xyz"), TargetPath: getPath("abc")}
+		location := Loc{SourcePath: getPath("xyz"), TargetPath: getPath("abc")}
 		Ω(location.GetTarget()).Should(Equal(getPath("abc")))
 	})
 	It("GetTarget - Implicit", func() {
-		location := MtaLocationParameters{SourcePath: getPath("xyz")}
+		location := Loc{SourcePath: getPath("xyz")}
 		Ω(location.GetTarget()).Should(Equal(getPath("xyz")))
 	})
 	It("GetTargetTmpDir", func() {
-		location := MtaLocationParameters{SourcePath: getPath("xyz"), TargetPath: getPath("abc")}
+		location := Loc{SourcePath: getPath("xyz"), TargetPath: getPath("abc")}
 		Ω(location.GetTargetTmpDir()).Should(Equal(getPath("abc", "xyz")))
 	})
 	It("GetTargetModuleDir", func() {
-		location := MtaLocationParameters{SourcePath: getPath("xyz"), TargetPath: getPath("abc")}
+		location := Loc{SourcePath: getPath("xyz"), TargetPath: getPath("abc")}
 		Ω(location.GetTargetModuleDir("mmm")).Should(Equal(getPath("abc", "xyz", "mmm")))
 	})
 	It("GetTargetModuleZipPath", func() {
-		location := MtaLocationParameters{SourcePath: getPath("xyz"), TargetPath: getPath("abc")}
+		location := Loc{SourcePath: getPath("xyz"), TargetPath: getPath("abc")}
 		Ω(location.GetTargetModuleZipPath("mmm")).Should(Equal(getPath("abc", "xyz", "mmm", "data.zip")))
 	})
 	It("GetSourceModuleDir", func() {
-		location := MtaLocationParameters{SourcePath: getPath("xyz"), TargetPath: getPath("abc")}
+		location := Loc{SourcePath: getPath("xyz"), TargetPath: getPath("abc")}
 		Ω(location.GetSourceModuleDir("mpath")).Should(Equal(getPath("xyz", "mpath")))
 	})
 	It("getMtaYamlFilename - Explicit", func() {
-		location := MtaLocationParameters{MtaFilename: "mymta.yaml"}
+		location := Loc{MtaFilename: "mymta.yaml"}
 		Ω(location.getMtaYamlFilename()).Should(Equal("mymta.yaml"))
 	})
 	It("getMtaYamlFilename - Implicit", func() {
-		location := MtaLocationParameters{}
+		location := Loc{}
 		Ω(location.getMtaYamlFilename()).Should(Equal("mta.yaml"))
 	})
 	It("getMtaYamlFilename - Implicit- MTAD", func() {
-		location := MtaLocationParameters{Descriptor: "dep"}
+		location := Loc{Descriptor: "dep"}
 		Ω(location.getMtaYamlFilename()).Should(Equal("mtad.yaml"))
 	})
 	It("GetMtaYamlPath", func() {
-		location := MtaLocationParameters{}
+		location := Loc{}
 		Ω(location.GetMtaYamlPath()).Should(Equal(getPath("mta.yaml")))
 	})
 	It("GetMetaPath", func() {
-		location := MtaLocationParameters{SourcePath: getPath("xyz"), TargetPath: getPath("abc")}
+		location := Loc{SourcePath: getPath("xyz"), TargetPath: getPath("abc")}
 		Ω(location.GetMetaPath()).Should(Equal(getPath("abc", "xyz", "META-INF")))
 	})
 	It("GetMtadPath", func() {
-		location := MtaLocationParameters{SourcePath: getPath("xyz"), TargetPath: getPath("abc")}
+		location := Loc{SourcePath: getPath("xyz"), TargetPath: getPath("abc")}
 		Ω(location.GetMtadPath()).Should(Equal(getPath("abc", "xyz", "META-INF", "mtad.yaml")))
 	})
 	It("GetManifestPath", func() {
-		location := MtaLocationParameters{SourcePath: getPath("xyz"), TargetPath: getPath("abc")}
+		location := Loc{SourcePath: getPath("xyz"), TargetPath: getPath("abc")}
 		Ω(location.GetManifestPath()).Should(Equal(getPath("abc", "xyz", "META-INF", "MANIFEST.MF")))
 	})
 	It("ValidateDeploymentDescriptor - Valid", func() {
@@ -84,7 +84,7 @@ var _ = Describe("Path", func() {
 		Ω(ValidateDeploymentDescriptor("xxx")).Should(HaveOccurred())
 	})
 	It("IsDeploymentDescriptor", func() {
-		location := MtaLocationParameters{}
+		location := Loc{}
 		Ω(location.IsDeploymentDescriptor()).Should(Equal(false))
 	})
 })
@@ -92,7 +92,7 @@ var _ = Describe("Path", func() {
 var _ = Describe("Path Failures", func() {
 
 	var storedWorkingDirectory func() (string, error)
-	lp := MtaLocationParameters{}
+	lp := Loc{}
 
 	BeforeEach(func() {
 		storedWorkingDirectory = dir.GetWorkingDirectory

@@ -68,7 +68,7 @@ func printToFile(file io.Writer, mtaStr *Modules) error {
 }
 
 // GenMtad generates an mtad.yaml file from a mta.yaml file and a platform configuration file.
-func GenMtad(mtaStr *MTA, ep *MtaLocationParameters, convertTypes func(mtaStr *MTA)) error {
+func GenMtad(mtaStr *MTA, ep *Loc, convertTypes func(mtaStr *MTA)) error {
 	// Create META-INF folder under the mtar folder
 	metaPath, err := ep.GetMetaPath()
 	if err != nil {
@@ -98,7 +98,7 @@ func GenMtad(mtaStr *MTA, ep *MtaLocationParameters, convertTypes func(mtaStr *M
 }
 
 // GenMetaInfo generates a MANIFEST.MF file and updates the build artifacts paths for deployment purposes.
-func GenMetaInfo(ep *MtaLocationParameters, mtaStr *MTA, modules []string, convertTypes func(mtaStr *MTA)) error {
+func GenMetaInfo(ep *Loc, mtaStr *MTA, modules []string, convertTypes func(mtaStr *MTA)) error {
 	err := GenMtad(mtaStr, ep, convertTypes)
 	if err != nil {
 		return errors.Wrap(err, "META INFO generation failed")

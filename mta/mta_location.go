@@ -7,11 +7,15 @@ import (
 	"github.com/pkg/errors"
 )
 
-// MtaLocationParameters - MTA tool file properties
-type MtaLocationParameters struct {
+const (
+	dep = "dep"
+)
+
+// Loc - MTA tool file properties
+type Loc struct {
 	// SourcePath - Path to MTA project
 	SourcePath string
-	// TargetPath - Path to MTA tool results
+	// TargetPath - Path to results
 	TargetPath string
 	// MtaFilename - MTA yaml filename "mta.yaml" by default
 	MtaFilename string
@@ -19,13 +23,9 @@ type MtaLocationParameters struct {
 	Descriptor string
 }
 
-const (
-	dep = "dep"
-)
-
 // GetSource - Get Processed Project Path
 // If not provided use current directory
-func (ep *MtaLocationParameters) GetSource() (string, error) {
+func (ep *Loc) GetSource() (string, error) {
 	if ep.SourcePath == "" {
 		wd, err := dir.GetWorkingDirectory()
 		if err != nil {
@@ -38,7 +38,7 @@ func (ep *MtaLocationParameters) GetSource() (string, error) {
 
 // GetTarget - Get Target Path
 // If not provided use path of processed project
-func (ep *MtaLocationParameters) GetTarget() (string, error) {
+func (ep *Loc) GetTarget() (string, error) {
 	if ep.TargetPath == "" {
 		source, err := ep.GetSource()
 		if err != nil {
@@ -52,7 +52,7 @@ func (ep *MtaLocationParameters) GetTarget() (string, error) {
 
 // GetTargetTmpDir - Get Target Temporary Directory path
 // Subdirectory in target folder named as source project folder
-func (ep *MtaLocationParameters) GetTargetTmpDir() (string, error) {
+func (ep *Loc) GetTargetTmpDir() (string, error) {
 	source, err := ep.GetSource()
 	if err != nil {
 		return "", errors.Wrap(err, "GetTargetTmpDir failed")
@@ -68,7 +68,7 @@ func (ep *MtaLocationParameters) GetTargetTmpDir() (string, error) {
 
 // GetTargetModuleDir - Get path to the packed module directory
 // Subdirectory in Target Temporary Directory named by module name
-func (ep *MtaLocationParameters) GetTargetModuleDir(moduleName string) (string, error) {
+func (ep *Loc) GetTargetModuleDir(moduleName string) (string, error) {
 	dir, err := ep.GetTargetTmpDir()
 	if err != nil {
 		return "", errors.Wrap(err, "GetTargetModuleDir failed")
@@ -79,7 +79,7 @@ func (ep *MtaLocationParameters) GetTargetModuleDir(moduleName string) (string, 
 
 // GetTargetModuleZipPath - Get path to the packed module data.zip
 // Subdirectory in Target Temporary Directory named by module name
-func (ep *MtaLocationParameters) GetTargetModuleZipPath(moduleName string) (string, error) {
+func (ep *Loc) GetTargetModuleZipPath(moduleName string) (string, error) {
 	dir, err := ep.GetTargetModuleDir(moduleName)
 	if err != nil {
 		return "", errors.Wrap(err, "GetTargetModuleZipPath failed")
@@ -89,7 +89,7 @@ func (ep *MtaLocationParameters) GetTargetModuleZipPath(moduleName string) (stri
 
 // GetSourceModuleDir - Get path to module to be packed
 // Subdirectory in Source
-func (ep *MtaLocationParameters) GetSourceModuleDir(modulePath string) (string, error) {
+func (ep *Loc) GetSourceModuleDir(modulePath string) (string, error) {
 	source, err := ep.GetSource()
 	if err != nil {
 		return "", errors.Wrap(err, "GetSourceModuleDir failed")
@@ -98,7 +98,7 @@ func (ep *MtaLocationParameters) GetSourceModuleDir(modulePath string) (string, 
 }
 
 // getMtaYamlFilename - Get MTA yaml File name
-func (ep *MtaLocationParameters) getMtaYamlFilename() string {
+func (ep *Loc) getMtaYamlFilename() string {
 	if ep.MtaFilename == "" {
 		if ep.Descriptor == dep {
 			return "mtad.yaml"
@@ -109,7 +109,7 @@ func (ep *MtaLocationParameters) getMtaYamlFilename() string {
 }
 
 // GetMtaYamlPath - Get MTA yaml File path
-func (ep *MtaLocationParameters) GetMtaYamlPath() (string, error) {
+func (ep *Loc) GetMtaYamlPath() (string, error) {
 	source, err := ep.GetSource()
 	if err != nil {
 		return "", errors.Wrap(err, "GetMtaYamlPath failed")
@@ -118,7 +118,7 @@ func (ep *MtaLocationParameters) GetMtaYamlPath() (string, error) {
 }
 
 // GetMetaPath - Get path to generated META-INF directory
-func (ep *MtaLocationParameters) GetMetaPath() (string, error) {
+func (ep *Loc) GetMetaPath() (string, error) {
 	dir, err := ep.GetTargetTmpDir()
 	if err != nil {
 		return "", errors.Wrap(err, "GetMetaPath failed")
@@ -127,7 +127,7 @@ func (ep *MtaLocationParameters) GetMetaPath() (string, error) {
 }
 
 // GetMtadPath - Get path to generated MTAD file
-func (ep *MtaLocationParameters) GetMtadPath() (string, error) {
+func (ep *Loc) GetMtadPath() (string, error) {
 	dir, err := ep.GetMetaPath()
 	if err != nil {
 		return "", errors.Wrap(err, "GetMtadPath failed")
@@ -136,7 +136,7 @@ func (ep *MtaLocationParameters) GetMtadPath() (string, error) {
 }
 
 // GetManifestPath - Get path to generated manifest file
-func (ep *MtaLocationParameters) GetManifestPath() (string, error) {
+func (ep *Loc) GetManifestPath() (string, error) {
 	dir, err := ep.GetMetaPath()
 	if err != nil {
 		return "", errors.Wrap(err, "GetManifestPath failed")
@@ -153,6 +153,6 @@ func ValidateDeploymentDescriptor(descriptor string) error {
 }
 
 // IsDeploymentDescriptor - Check if flag is related to deployment descriptor
-func (ep *MtaLocationParameters) IsDeploymentDescriptor() bool {
+func (ep *Loc) IsDeploymentDescriptor() bool {
 	return ep.Descriptor == dep
 }

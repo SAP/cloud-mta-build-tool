@@ -18,7 +18,7 @@ func getTestPath(relPath ...string) string {
 var _ = Describe("MTA tests", func() {
 
 	var _ = DescribeTable("Validation", func(locationSource, mtaFilename string, issuesNumber int, validateProject bool) {
-		ep := MtaLocationParameters{SourcePath: locationSource, MtaFilename: mtaFilename}
+		ep := Loc{SourcePath: locationSource, MtaFilename: mtaFilename}
 		yamlContent, _ := ReadMtaContent(&ep)
 		source, _ := ep.GetSource()
 		issues, _ := Validate(yamlContent, source, true, validateProject)
@@ -31,7 +31,7 @@ var _ = Describe("MTA tests", func() {
 
 	var _ = Describe("ReadMtaYaml", func() {
 		It("Sanity", func() {
-			res, resErr := ReadMtaYaml(&MtaLocationParameters{SourcePath: getTestPath("testproject")})
+			res, resErr := ReadMtaYaml(&Loc{SourcePath: getTestPath("testproject")})
 			Ω(res).ShouldNot(BeNil())
 			Ω(resErr).Should(BeNil())
 		})

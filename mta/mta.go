@@ -32,7 +32,7 @@ func Marshal(in *MTA) (mtads []byte, err error) {
 }
 
 // ReadMtaYaml reads an MTA .yaml file and stores the data in a byte slice.
-func ReadMtaYaml(ep *MtaLocationParameters) ([]byte, error) {
+func ReadMtaYaml(ep *Loc) ([]byte, error) {
 	fileFullPath, err := ep.GetMtaYamlPath()
 	if err != nil {
 		return nil, errors.Wrap(err, "ReadMtaYaml failed getting MTA Yaml path")

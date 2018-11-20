@@ -37,7 +37,7 @@ var pModuleCmd = &cobra.Command{
 	SilenceErrors: true,
 }
 
-func provideModules(ep *mta.MtaLocationParameters) error {
+func provideModules(ep *mta.Loc) error {
 	// read MTA from mta.yaml
 	mo, err := mta.ReadMta(ep)
 	if err != nil {
