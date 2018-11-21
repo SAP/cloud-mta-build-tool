@@ -4,7 +4,7 @@ jobs:
   build:
     docker:
     # specify the version
-    - image: circleci/golang:1.10
+    - image: circleci/golang:1.11
     environment:
      - DEP_VERSION: 0.5.0
     working_directory: /go/src/cloud-mta-build-tool
