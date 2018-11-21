@@ -174,7 +174,7 @@ var genMtadCmd = &cobra.Command{
 		}
 		ep := locationParameters(sourceMtadFlag, targetMtadFlag, descriptorMtadFlag)
 		// TODO if descriptor == "dep" -> Copy mtad
-		mtaStr, err := mta.ReadFile(&ep)
+		mtaStr, err := mta.ParseFile(&ep)
 		if err == nil {
 			err = mta.GenMtad(mtaStr, &ep, func(mtaStr *mta.MTA) {
 				e := convertTypes(*mtaStr)
@@ -257,7 +257,7 @@ func locationParameters(sourceFlag, targetFlag, descriptor string) mta.Loc {
 func generateMeta(ep *mta.Loc) error {
 	return processMta("Metadata creation", ep, []string{}, func(file []byte, args []string) error {
 		// parse MTA file
-		m, err := mta.ParseToMta(file)
+		m, err := mta.ParseByte(file)
 		if err == nil {
 			// Generate meta info dir with required content
 			err = mta.GenMetaInfo(ep, m, args, func(mtaStr *mta.MTA) {
@@ -273,7 +273,7 @@ func generateMtar(ep *mta.Loc) error {
 	logs.Logger.Info("MTAR Generation started")
 	err := processMta("MTAR generation", ep, []string{}, func(file []byte, args []string) error {
 		// read MTA
-		m, err := mta.ParseToMta(file)
+		m, err := mta.ParseByte(file)
 		if err != nil {
 			return errors.Wrap(err, "MTA Process failed on yaml parsing")
 		}
@@ -311,7 +311,7 @@ func convertTypes(mtaStr mta.MTA) error {
 // process mta.yaml file
 func processMta(processName string, ep *mta.Loc, args []string, process func(file []byte, args []string) error) error {
 	logs.Logger.Info("Starting " + processName)
-	mf, err := mta.ReadMtaContent(ep)
+	mf, err := mta.Read(ep)
 	if err == nil {
 		err = process(mf, args)
 		if err == nil {
@@ -402,8 +402,8 @@ func validateMtaYaml(ep *mta.Loc, validateSchema bool, validateProject bool) err
 	if validateProject || validateSchema {
 		logs.Logger.Infof("Validation of %v started", ep.MtaFilename)
 
-		// ReadFile MTA yaml content
-		yamlContent, err := mta.ReadMtaContent(ep)
+		// ParseFile MTA yaml content
+		yamlContent, err := mta.Read(ep)
 
 		if err != nil {
 			return errors.Wrapf(err, "Validation of %v failed on reading MTA content", ep.MtaFilename)
@@ -427,7 +427,7 @@ func validateMtaYaml(ep *mta.Loc, validateSchema bool, validateProject bool) err
 // Get module relative path from mta.yaml and
 // commands (with resolved paths) configured for the module type
 func getModuleRelativePathAndCommands(ep *mta.Loc, module string) (string, []string, error) {
-	mtaObj, err := mta.ReadFile(ep)
+	mtaObj, err := mta.ParseFile(ep)
 	if err != nil {
 		return "", nil, err
 	}
@@ -513,7 +513,7 @@ func cmdConverter(mPath string, cmdList []string) [][]string {
 }
 
 func processDependencies(ep *mta.Loc, moduleName string) error {
-	mtaObj, err := mta.ReadFile(ep)
+	mtaObj, err := mta.ParseFile(ep)
 	if err != nil {
 		return err
 	}

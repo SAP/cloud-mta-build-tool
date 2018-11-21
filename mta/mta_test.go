@@ -19,7 +19,7 @@ var _ = Describe("MTA tests", func() {
 
 	var _ = DescribeTable("Validation", func(locationSource, mtaFilename string, issuesNumber int, validateProject bool) {
 		ep := Loc{SourcePath: locationSource, MtaFilename: mtaFilename}
-		yamlContent, _ := ReadMtaContent(&ep)
+		yamlContent, _ := Read(&ep)
 		source, _ := ep.GetSource()
 		issues, _ := Validate(yamlContent, source, true, validateProject)
 		Ω(len(issues)).Should(Equal(issuesNumber))
@@ -29,9 +29,9 @@ var _ = Describe("MTA tests", func() {
 		Entry("Validate Schema", getTestPath(), "mta_multiapps.yaml", 0, false),
 	)
 
-	var _ = Describe("ReadMtaYaml", func() {
+	var _ = Describe("Read", func() {
 		It("Sanity", func() {
-			res, resErr := ReadMtaYaml(&Loc{SourcePath: getTestPath("testproject")})
+			res, resErr := Read(&Loc{SourcePath: getTestPath("testproject")})
 			Ω(res).ShouldNot(BeNil())
 			Ω(resErr).Should(BeNil())
 		})
@@ -91,9 +91,9 @@ var _ = Describe("MTA tests", func() {
 			}
 			var modules = []*Modules{&moduleSrv, &moduleUI}
 			mtaFile, _ := ioutil.ReadFile("./testdata/mta.yaml")
-			// Parse file
+			// Unmarshal file
 			oMta := &MTA{}
-			Ω(oMta.Parse(mtaFile)).Should(Succeed())
+			Ω(oMta.Unmarshal(mtaFile)).Should(Succeed())
 			Ω(oMta.Modules).Should(HaveLen(2))
 			Ω(oMta.GetModules()).Should(Equal(modules))
 
@@ -102,7 +102,7 @@ var _ = Describe("MTA tests", func() {
 		It("BrokenMta", func() {
 			mtaContent, _ := ioutil.ReadFile("./testdata/mtaWithBrokenProperties.yaml")
 			oMta := &MTA{}
-			Ω(oMta.Parse(mtaContent)).Should(HaveOccurred())
+			Ω(oMta.Unmarshal(mtaContent)).Should(HaveOccurred())
 		})
 
 		It("Full MTA Parsing - Sanity", func() {
@@ -251,7 +251,7 @@ var _ = Describe("MTA tests", func() {
 			mtaContent, _ := ioutil.ReadFile("./testdata/mta2.yaml")
 
 			actual := &MTA{}
-			Ω(actual.Parse(mtaContent)).Should(Succeed())
+			Ω(actual.Unmarshal(mtaContent)).Should(Succeed())
 			Ω(expected).Should(Equal(*actual))
 		})
 	})
@@ -325,5 +325,21 @@ var _ = Describe("MTA tests", func() {
 			Ω(err).Should(HaveOccurred())
 		})
 	})
+
+	var _ = Describe("ParseFile MTA", func() {
+
+		wd, _ := os.Getwd()
+
+		It("Valid filename", func() {
+			mta, err := ParseFile(&Loc{SourcePath: filepath.Join(wd, "testdata")})
+			Ω(mta).ShouldNot(BeNil())
+			Ω(err).Should(BeNil())
+		})
+		It("Invalid filename", func() {
+			_, err := ParseFile(&Loc{SourcePath: filepath.Join(wd, "testdata"), MtaFilename: "mtax.yaml"})
+			Ω(err).ShouldNot(BeNil())
+		})
+	})
+
 
 })

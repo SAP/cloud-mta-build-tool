@@ -26,7 +26,7 @@ var _ = Describe("Process", func() {
 		},
 	}}
 
-	It("Parse", func() {
+	It("Unmarshal", func() {
 		var platformsCfg = []byte(`
 platform:
  - name: cf

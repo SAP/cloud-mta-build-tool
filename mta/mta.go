@@ -12,8 +12,8 @@ import (
 	"cloud-mta-build-tool/validations"
 )
 
-// Parse unmarshals an MTA byte document and provides an MTA object with corresponding.
-func (mta *MTA) Parse(yamlContent []byte) (err error) {
+// Unmarshal un-marshals an MTA byte document and provides an MTA object with corresponding.
+func (mta *MTA) Unmarshal(yamlContent []byte) (err error) {
 	// Format the YAML to struct's
 	err = yaml.Unmarshal([]byte(yamlContent), &mta)
 	if err != nil {
@@ -31,18 +31,40 @@ func Marshal(in *MTA) (mtads []byte, err error) {
 	return mtads, nil
 }
 
-// ReadMtaYaml reads an MTA .yaml file and stores the data in a byte slice.
-func ReadMtaYaml(ep *Loc) ([]byte, error) {
+// Read returns mta byte slice.
+func Read(ep *Loc) ([]byte, error) {
 	fileFullPath, err := ep.GetMtaYamlPath()
 	if err != nil {
-		return nil, errors.Wrap(err, "ReadMtaYaml failed getting MTA Yaml path")
+		return nil, errors.Wrap(err, "Read failed getting MTA Yaml path")
 	}
-	// ReadFile MTA file
+	// ParseFile MTA file
 	yamlFile, err := ioutil.ReadFile(fileFullPath)
 	if err != nil {
-		return nil, errors.Wrap(err, "ReadMtaYaml failed getting MTA Yaml path reading the mta file")
+		return nil, errors.Wrap(err, "Error reading the MTA file")
 	}
 	return yamlFile, nil
+}
+
+// ParseFile returns a reference to the MTA object from a given mta.yaml file.
+func ParseFile(ep *Loc) (*MTA, error) {
+	var mta *MTA
+	yamlContent, err := Read(ep)
+	// ParseFile MTA file
+	if err == nil {
+		mta, err = ParseByte(yamlContent)
+	}
+	return mta, err
+}
+
+// ParseByte returns a reference to the MTA object from a byte array.
+func ParseByte(content []byte) (*MTA, error) {
+	mta := &MTA{}
+	// Unmarshal MTA file
+	err := mta.Unmarshal(content)
+	if err != nil {
+		err = errors.Wrap(err, "Error parsing the MTA")
+	}
+	return mta, err
 }
 
 // GetModules returns a list of MTA modules.
@@ -101,7 +123,7 @@ func Validate(yamlContent []byte, projectPath string, validateSchema bool, valid
 		Unmarshal := yaml.Unmarshal
 		err := Unmarshal(yamlContent, &mta)
 		if err != nil {
-			return nil, errors.Wrap(err, "ReadMtaYaml failed getting MTA Yaml path reading the mta file")
+			return nil, errors.Wrap(err, "Read failed getting MTA Yaml path reading the mta file")
 		}
 		projectIssues := validateYamlProject(&mta, projectPath)
 		issues = append(issues, projectIssues...)

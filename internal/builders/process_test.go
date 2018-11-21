@@ -66,7 +66,7 @@ builders:
 		}}
 	var malformedBuildCfg = []byte(`bad:  "YAML" syntax`)
 
-	var _ = DescribeTable("Parse", func(input []byte, expected Builders, match types.GomegaMatcher) {
+	var _ = DescribeTable("Unmarshal", func(input []byte, expected Builders, match types.GomegaMatcher) {
 		actual, err := parse(input)
 		Ω(actual).Should(Equal(expected))
 		Ω(err).Should(match)
