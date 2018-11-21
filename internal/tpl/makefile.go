@@ -51,8 +51,8 @@ func makeFile(ep *mta.Loc, makeFilename string, tpl *tplCfg) error {
 		API  api
 		Dep  string
 	}
-	// Parse file
-	m, err := mta.Parse(ep)
+	// ParseFile file
+	m, err := mta.ParseFile(ep)
 	if err != nil {
 		return errors.Wrap(err, "makeFile failed reading MTA yaml")
 	}

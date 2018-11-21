@@ -37,7 +37,7 @@ func Read(ep *Loc) ([]byte, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "Read failed getting MTA Yaml path")
 	}
-	// Parse MTA file
+	// ParseFile MTA file
 	yamlFile, err := ioutil.ReadFile(fileFullPath)
 	if err != nil {
 		return nil, errors.Wrap(err, "Error reading the MTA file")
@@ -45,19 +45,19 @@ func Read(ep *Loc) ([]byte, error) {
 	return yamlFile, nil
 }
 
-// Parse returns a reference to the MTA object from a given mta.yaml file.
-func Parse(ep *Loc) (*MTA, error) {
+// ParseFile returns a reference to the MTA object from a given mta.yaml file.
+func ParseFile(ep *Loc) (*MTA, error) {
 	var mta *MTA
 	yamlContent, err := Read(ep)
-	// Parse MTA file
+	// ParseFile MTA file
 	if err == nil {
-		mta, err = ParseToMta(yamlContent)
+		mta, err = ParseByte(yamlContent)
 	}
 	return mta, err
 }
 
-// ParseToMta returns a byte array of an MTA object.
-func ParseToMta(content []byte) (*MTA, error) {
+// ParseByte returns a reference to the MTA object from a byte array.
+func ParseByte(content []byte) (*MTA, error) {
 	mta := &MTA{}
 	// Unmarshal MTA file
 	err := mta.Unmarshal(content)
