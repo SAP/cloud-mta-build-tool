@@ -1,8 +1,9 @@
-package mta
+package commands
 
 import (
 	"path/filepath"
 
+	"cloud-mta-build-tool/mta"
 	"github.com/pkg/errors"
 
 	// Todo remove this dep
@@ -16,7 +17,7 @@ import (
 // 2.	Dependency on not defined module
 
 // ProcessRequirements - Processes build requirement of module (using moduleName).
-func (requires *BuildRequires) ProcessRequirements(ep *Loc, mta *MTA, moduleName string) error {
+func ProcessRequirements(ep *mta.Loc, mta *mta.MTA, requires *mta.BuildRequires, moduleName string) error {
 	// validate module names - both in process and required
 	module, err := mta.GetModuleByName(moduleName)
 	if err != nil {
@@ -30,11 +31,11 @@ func (requires *BuildRequires) ProcessRequirements(ep *Loc, mta *MTA, moduleName
 	artifacts := requires.Artifacts
 
 	// Build paths for artifacts copying
-	sourcePath, err := requiredModule.getBuildResultsPath(ep)
+	sourcePath, err := getBuildResultsPath(ep, requiredModule)
 	if err != nil {
 		return errors.Wrapf(err, "Processing requirements of module %v based on module %v failed on getting Results Path", moduleName, requiredModule.Name)
 	}
-	targetPath, err := requires.getRequiredTargetPath(ep, module)
+	targetPath, err := getRequiredTargetPath(ep, module, requires)
 	if err != nil {
 		return errors.Wrapf(err, "Processing requirements of module %v based on module %v failed on getting Required Target Path", moduleName, requiredModule.Name)
 	}
@@ -48,7 +49,7 @@ func (requires *BuildRequires) ProcessRequirements(ep *Loc, mta *MTA, moduleName
 }
 
 // getBuildResultsPath - provides path of build results
-func (module *Modules) getBuildResultsPath(ep *Loc) (string, error) {
+func getBuildResultsPath(ep *mta.Loc, module *mta.Modules) (string, error) {
 	path, err := ep.GetSourceModuleDir(module.Path)
 	if err != nil {
 		return "", errors.Wrapf(err, "getBuildResultsPath failed getting directory of module %v", module.Path)
@@ -62,7 +63,7 @@ func (module *Modules) getBuildResultsPath(ep *Loc) (string, error) {
 }
 
 // getRequiredTargetPath - provides path of required artifacts
-func (requires *BuildRequires) getRequiredTargetPath(ep *Loc, module *Modules) (string, error) {
+func getRequiredTargetPath(ep *mta.Loc, module *mta.Modules, requires *mta.BuildRequires) (string, error) {
 	path, err := ep.GetSourceModuleDir(module.Path)
 	if err != nil {
 		return "", errors.Wrapf(err, "getRequiredTargetPath failed getting directory of module %v", module.Name)

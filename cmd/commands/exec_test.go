@@ -156,7 +156,7 @@ var _ = Describe("Commands", func() {
 		AfterEach(func() {
 			os.Remove(getTestPath("mta", "node-js", "data.zip"))
 			os.RemoveAll(getTestPath("mta", "mta"))
-			dir.GetWorkingDirectory = dir.OsGetWd
+			mta.GetWorkingDirectory = mta.OsGetWd
 		})
 
 		It("Sanity", func() {
@@ -172,7 +172,7 @@ var _ = Describe("Commands", func() {
 			var countCalls = 0
 			if mockWd {
 				lp = mta.Loc{}
-				dir.GetWorkingDirectory = func() (string, error) {
+				mta.GetWorkingDirectory = func() (string, error) {
 					countCalls++
 					if countCalls >= failOnCall {
 						return "", errors.New("error")

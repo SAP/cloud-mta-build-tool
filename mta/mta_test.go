@@ -86,7 +86,7 @@ var _ = Describe("MTA tests", func() {
 						},
 					},
 				},
-				BuildParams: buildParameters{Builder: "grunt"},
+				BuildParams: BuildParameters{Builder: "grunt"},
 				Parameters:  Parameters{"disk-quota": "256M", "memory": "256M"},
 			}
 			var modules = []*Modules{&moduleSrv, &moduleUI}
@@ -144,7 +144,7 @@ var _ = Describe("MTA tests", func() {
 							},
 							{Name: "someproj-logging"},
 						},
-						BuildParams: buildParameters{
+						BuildParams: BuildParameters{
 							Requires: []BuildRequires{{Name: "someproj-db", TargetPath: ""}},
 						},
 					},
@@ -167,7 +167,7 @@ var _ = Describe("MTA tests", func() {
 							},
 							{Name: "someproj-logging"},
 						},
-						BuildParams: buildParameters{
+						BuildParams: BuildParameters{
 							Builder: "grunt",
 							Requires: []BuildRequires{
 								{
@@ -185,7 +185,7 @@ var _ = Describe("MTA tests", func() {
 							"disk-quota": "256M",
 						},
 						Requires: []Requires{{Name: "someproj-apprepo-dt"}},
-						BuildParams: buildParameters{
+						BuildParams: BuildParameters{
 							Builder: "grunt",
 							Type:    "content",
 							Requires: []BuildRequires{

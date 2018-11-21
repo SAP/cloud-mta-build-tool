@@ -25,7 +25,7 @@ type MTA struct {
 }
 
 // Build-parameters are specifically steering the behavior of build tools.
-type buildParameters struct {
+type BuildParameters struct {
 	// Builder name
 	Builder string `yaml:"builder,omitempty"`
 	// Builder type
@@ -55,7 +55,7 @@ type Modules struct {
 	// Parameters can be used to steer the behavior of tools which interpret this descriptor. Parameters are not made available to the module at runtime
 	Parameters Parameters `yaml:"parameters,omitempty"`
 	// Build-parameters are specifically steering the behavior of build tools.
-	BuildParams buildParameters `yaml:"build-parameters,omitempty"`
+	BuildParams BuildParameters `yaml:"build-parameters,omitempty"`
 }
 
 // Properties - properties key & value map.

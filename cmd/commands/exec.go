@@ -522,7 +522,7 @@ func processDependencies(ep *mta.Loc, moduleName string) error {
 	}
 	if module.Requires != nil {
 		for _, req := range module.BuildParams.Requires {
-			e := req.ProcessRequirements(ep, m, module.Name)
+			e := ProcessRequirements(ep, m, &req, module.Name)
 			if e != nil {
 				return e
 			}
