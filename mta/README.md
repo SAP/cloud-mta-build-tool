@@ -1,5 +1,6 @@
 [![CircleCI](https://circleci.com/gh/SAP/cloud-mta-build-tool.svg?style=svg&circle-token=ecedd1dce3592adcd72ee4c61481972c32dcfad7)](https://circleci.com/gh/SAP/cloud-mta-build-tool)
 ![GitHub license](https://img.shields.io/badge/license-Apache_2.0-blue.svg)
+![pre-alpha](https://img.shields.io/badge/Release-pre--alpha-orange.svg)
 
 
 <b>Disclaimer</b>: The MTA explorer services is under heavy development and is currently in a `pre-alpha` stage.
@@ -63,10 +64,10 @@ import "github.com/mta-explorer/mta"
  -  Quick start example:
 
 ```go
-// Set full path to the mta project
+// Set path to the mta project
 mp := mta.Loc{SourcePath: “wd/mta_project”}
 // Returns mta object
-mta, err := ReadFile(&mp)
+mta, err := mta.ParseFile(&mp)
 if err != nil{
    fmt.Println(err)
 }
