@@ -174,7 +174,7 @@ var genMtadCmd = &cobra.Command{
 		}
 		ep := locationParameters(sourceMtadFlag, targetMtadFlag, descriptorMtadFlag)
 		// TODO if descriptor == "dep" -> Copy mtad
-		mtaStr, err := mta.ReadFile(&ep)
+		mtaStr, err := mta.Parse(&ep)
 		if err == nil {
 			err = mta.GenMtad(mtaStr, &ep, func(mtaStr *mta.MTA) {
 				e := convertTypes(*mtaStr)
@@ -402,7 +402,7 @@ func validateMtaYaml(ep *mta.Loc, validateSchema bool, validateProject bool) err
 	if validateProject || validateSchema {
 		logs.Logger.Infof("Validation of %v started", ep.MtaFilename)
 
-		// ReadFile MTA yaml content
+		// Parse MTA yaml content
 		yamlContent, err := mta.Read(ep)
 
 		if err != nil {
@@ -427,7 +427,7 @@ func validateMtaYaml(ep *mta.Loc, validateSchema bool, validateProject bool) err
 // Get module relative path from mta.yaml and
 // commands (with resolved paths) configured for the module type
 func getModuleRelativePathAndCommands(ep *mta.Loc, module string) (string, []string, error) {
-	mtaObj, err := mta.ReadFile(ep)
+	mtaObj, err := mta.Parse(ep)
 	if err != nil {
 		return "", nil, err
 	}
@@ -513,7 +513,7 @@ func cmdConverter(mPath string, cmdList []string) [][]string {
 }
 
 func processDependencies(ep *mta.Loc, moduleName string) error {
-	mtaObj, err := mta.ReadFile(ep)
+	mtaObj, err := mta.Parse(ep)
 	if err != nil {
 		return err
 	}
