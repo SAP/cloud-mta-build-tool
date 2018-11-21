@@ -25,8 +25,8 @@ type Loc struct {
 	Descriptor string
 }
 
-// GetSource - Get Processed Project Path
-// If not provided use current directory
+// GetSource gets the processed project path;
+// if it is not provided, use the current directory.
 func (ep *Loc) GetSource() (string, error) {
 	if ep.SourcePath == "" {
 		wd, err := dir.GetWorkingDirectory()
@@ -38,8 +38,8 @@ func (ep *Loc) GetSource() (string, error) {
 	return ep.SourcePath, nil
 }
 
-// GetTarget - Get Target Path
-// If not provided use path of processed project
+// GetTarget gets the target path;
+// if it is not provided, use the path of the processed project.
 func (ep *Loc) GetTarget() (string, error) {
 	if ep.TargetPath == "" {
 		source, err := ep.GetSource()
@@ -52,8 +52,8 @@ func (ep *Loc) GetTarget() (string, error) {
 
 }
 
-// GetTargetTmpDir - Get Target Temporary Directory path
-// Subdirectory in target folder named as source project folder
+// GetTargetTmpDir gets the temporary target directory path.
+// The subdirectory in the target folder is named as the source project folder.
 func (ep *Loc) GetTargetTmpDir() (string, error) {
 	source, err := ep.GetSource()
 	if err != nil {
@@ -68,8 +68,8 @@ func (ep *Loc) GetTargetTmpDir() (string, error) {
 	return filepath.Join(target, file), nil
 }
 
-// GetTargetModuleDir - Get path to the packed module directory
-// Subdirectory in Target Temporary Directory named by module name
+// GetTargetModuleDir gets the path to the packed module directory.
+// The subdirectory in the temporary target directory is named by the module name.
 func (ep *Loc) GetTargetModuleDir(moduleName string) (string, error) {
 	dir, err := ep.GetTargetTmpDir()
 	if err != nil {
@@ -79,8 +79,8 @@ func (ep *Loc) GetTargetModuleDir(moduleName string) (string, error) {
 	return filepath.Join(dir, moduleName), nil
 }
 
-// GetTargetModuleZipPath - Get path to the packed module data.zip
-// Subdirectory in Target Temporary Directory named by module name
+// GetTargetModuleZipPath gets the path to the packed module data.zip file.
+// The subdirectory in temporary target directory is named by the module name.
 func (ep *Loc) GetTargetModuleZipPath(moduleName string) (string, error) {
 	dir, err := ep.GetTargetModuleDir(moduleName)
 	if err != nil {
@@ -89,8 +89,8 @@ func (ep *Loc) GetTargetModuleZipPath(moduleName string) (string, error) {
 	return filepath.Join(dir, "data.zip"), nil
 }
 
-// GetSourceModuleDir - Get path to module to be packed
-// Subdirectory in Source
+// GetSourceModuleDir gets the path to the module to be packed.
+// The subdirectory is in the source.
 func (ep *Loc) GetSourceModuleDir(modulePath string) (string, error) {
 	source, err := ep.GetSource()
 	if err != nil {
@@ -99,7 +99,7 @@ func (ep *Loc) GetSourceModuleDir(modulePath string) (string, error) {
 	return filepath.Join(source, filepath.Clean(modulePath)), nil
 }
 
-// getMtaYamlFilename - Get MTA yaml File name
+// getMtaYamlFilename - Gets the MTA .yaml file name.
 func (ep *Loc) getMtaYamlFilename() string {
 	if ep.MtaFilename == "" {
 		if ep.Descriptor == dep {
@@ -110,7 +110,7 @@ func (ep *Loc) getMtaYamlFilename() string {
 	return ep.MtaFilename
 }
 
-// GetMtaYamlPath - Get MTA yaml File path
+// GetMtaYamlPath gets the MTA .yaml file path.
 func (ep *Loc) GetMtaYamlPath() (string, error) {
 	source, err := ep.GetSource()
 	if err != nil {
@@ -119,7 +119,7 @@ func (ep *Loc) GetMtaYamlPath() (string, error) {
 	return filepath.Join(source, ep.getMtaYamlFilename()), nil
 }
 
-// GetMetaPath - Get path to generated META-INF directory
+// GetMetaPath gets the path to the generated META-INF directory.
 func (ep *Loc) GetMetaPath() (string, error) {
 	dir, err := ep.GetTargetTmpDir()
 	if err != nil {
@@ -128,7 +128,7 @@ func (ep *Loc) GetMetaPath() (string, error) {
 	return filepath.Join(dir, "META-INF"), nil
 }
 
-// GetMtadPath - Get path to generated MTAD file
+// GetMtadPath gets the path to the generated MTAD file.
 func (ep *Loc) GetMtadPath() (string, error) {
 	dir, err := ep.GetMetaPath()
 	if err != nil {
@@ -137,7 +137,7 @@ func (ep *Loc) GetMtadPath() (string, error) {
 	return filepath.Join(dir, mtad), nil
 }
 
-// GetManifestPath - Get path to generated manifest file
+// GetManifestPath gets the path to the generated manifest file.
 func (ep *Loc) GetManifestPath() (string, error) {
 	dir, err := ep.GetMetaPath()
 	if err != nil {
@@ -146,7 +146,7 @@ func (ep *Loc) GetManifestPath() (string, error) {
 	return filepath.Join(dir, "MANIFEST.MF"), nil
 }
 
-// ValidateDeploymentDescriptor - Validates Deployment Descriptor
+// ValidateDeploymentDescriptor validates the deployment descriptor.
 func ValidateDeploymentDescriptor(descriptor string) error {
 	if descriptor != "" && descriptor != "dev" && descriptor != dep {
 		return errors.New("Wrong descriptor value. Expected one of [dev, dep]. Default is dev")
@@ -154,7 +154,7 @@ func ValidateDeploymentDescriptor(descriptor string) error {
 	return nil
 }
 
-// IsDeploymentDescriptor - Check if flag is related to deployment descriptor
+// IsDeploymentDescriptor checks whether the flag is related to the deployment descriptor.
 func (ep *Loc) IsDeploymentDescriptor() bool {
 	return ep.Descriptor == dep
 }
