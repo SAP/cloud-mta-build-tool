@@ -8,23 +8,12 @@ import (
 // returns a reference to the MTA object.
 func ReadFile(ep *Loc) (*MTA, error) {
 	var mta *MTA
-	yamlContent, err := ReadMtaContent(ep)
+	yamlContent, err := Read(ep)
 	// ReadFile MTA file
 	if err == nil {
 		mta, err = ParseToMta(yamlContent)
 	}
 	return mta, err
-}
-
-// ReadMtaContent returns a []byte array that represents the content of the MTA file
-// according to the name and path.
-func ReadMtaContent(ep *Loc) ([]byte, error) {
-	yamlContent, err := ReadMtaYaml(ep)
-	// ReadFile MTA file
-	if err != nil {
-		err = errors.Wrap(err, "Error reading the MTA file")
-	}
-	return yamlContent, err
 }
 
 // ParseToMta returns a byte array of an MTA object.

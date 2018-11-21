@@ -19,7 +19,7 @@ var _ = Describe("MTA tests", func() {
 
 	var _ = DescribeTable("Validation", func(locationSource, mtaFilename string, issuesNumber int, validateProject bool) {
 		ep := Loc{SourcePath: locationSource, MtaFilename: mtaFilename}
-		yamlContent, _ := ReadMtaContent(&ep)
+		yamlContent, _ := Read(&ep)
 		source, _ := ep.GetSource()
 		issues, _ := Validate(yamlContent, source, true, validateProject)
 		Ω(len(issues)).Should(Equal(issuesNumber))
@@ -29,9 +29,9 @@ var _ = Describe("MTA tests", func() {
 		Entry("Validate Schema", getTestPath(), "mta_multiapps.yaml", 0, false),
 	)
 
-	var _ = Describe("ReadMtaYaml", func() {
+	var _ = Describe("Read", func() {
 		It("Sanity", func() {
-			res, resErr := ReadMtaYaml(&Loc{SourcePath: getTestPath("testproject")})
+			res, resErr := Read(&Loc{SourcePath: getTestPath("testproject")})
 			Ω(res).ShouldNot(BeNil())
 			Ω(resErr).Should(BeNil())
 		})

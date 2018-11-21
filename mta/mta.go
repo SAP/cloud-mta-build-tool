@@ -31,16 +31,16 @@ func Marshal(in *MTA) (mtads []byte, err error) {
 	return mtads, nil
 }
 
-// ReadMtaYaml reads an MTA .yaml file and stores the data in a byte slice.
-func ReadMtaYaml(ep *Loc) ([]byte, error) {
+// Read reads an MTA .yaml file and stores the data in a byte slice.
+func Read(ep *Loc) ([]byte, error) {
 	fileFullPath, err := ep.GetMtaYamlPath()
 	if err != nil {
-		return nil, errors.Wrap(err, "ReadMtaYaml failed getting MTA Yaml path")
+		return nil, errors.Wrap(err, "Read failed getting MTA Yaml path")
 	}
 	// ReadFile MTA file
 	yamlFile, err := ioutil.ReadFile(fileFullPath)
 	if err != nil {
-		return nil, errors.Wrap(err, "ReadMtaYaml failed getting MTA Yaml path reading the mta file")
+		return nil, errors.Wrap(err, "Error reading the MTA file")
 	}
 	return yamlFile, nil
 }
@@ -101,7 +101,7 @@ func Validate(yamlContent []byte, projectPath string, validateSchema bool, valid
 		Unmarshal := yaml.Unmarshal
 		err := Unmarshal(yamlContent, &mta)
 		if err != nil {
-			return nil, errors.Wrap(err, "ReadMtaYaml failed getting MTA Yaml path reading the mta file")
+			return nil, errors.Wrap(err, "Read failed getting MTA Yaml path reading the mta file")
 		}
 		projectIssues := validateYamlProject(&mta, projectPath)
 		issues = append(issues, projectIssues...)

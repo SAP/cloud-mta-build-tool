@@ -311,7 +311,7 @@ func convertTypes(mtaStr mta.MTA) error {
 // process mta.yaml file
 func processMta(processName string, ep *mta.Loc, args []string, process func(file []byte, args []string) error) error {
 	logs.Logger.Info("Starting " + processName)
-	mf, err := mta.ReadMtaContent(ep)
+	mf, err := mta.Read(ep)
 	if err == nil {
 		err = process(mf, args)
 		if err == nil {
@@ -403,7 +403,7 @@ func validateMtaYaml(ep *mta.Loc, validateSchema bool, validateProject bool) err
 		logs.Logger.Infof("Validation of %v started", ep.MtaFilename)
 
 		// ReadFile MTA yaml content
-		yamlContent, err := mta.ReadMtaContent(ep)
+		yamlContent, err := mta.Read(ep)
 
 		if err != nil {
 			return errors.Wrapf(err, "Validation of %v failed on reading MTA content", ep.MtaFilename)
