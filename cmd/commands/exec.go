@@ -449,7 +449,6 @@ func buildModule(ep *mta.Loc, module string) error {
 	if !ep.IsDeploymentDescriptor() {
 
 		// Development descriptor - build includes:
-
 		// 1. module dependencies processing
 		e := processDependencies(ep, module)
 		if e != nil {
@@ -513,17 +512,17 @@ func cmdConverter(mPath string, cmdList []string) [][]string {
 }
 
 func processDependencies(ep *mta.Loc, moduleName string) error {
-	mtaObj, err := mta.ParseFile(ep)
+	m, err := mta.ParseFile(ep)
 	if err != nil {
 		return err
 	}
-	module, err := mtaObj.GetModuleByName(moduleName)
+	module, err := m.GetModuleByName(moduleName)
 	if err != nil {
 		return err
 	}
 	if module.Requires != nil {
 		for _, req := range module.BuildParams.Requires {
-			e := req.ProcessRequirements(ep, mtaObj, module.Name)
+			e := req.ProcessRequirements(ep, m, module.Name)
 			if e != nil {
 				return e
 			}

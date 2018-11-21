@@ -65,11 +65,16 @@ import "github.com/mta-explorer/mta"
 
 ```go
 // Set path to the mta project
-mp := mta.Loc{SourcePath: “wd/mta_project”}
+mp := mta.Loc{SourcePath: “wd/my_mta_project”}
 // Returns mta object
-mta, err := mta.ParseFile(&mp)
-if err != nil{
-   fmt.Println(err)
+m, err := mta.ParseFile(&mp)
+if err != nil {
+	return err
+}
+// Returns module properties
+module, err := m.GetModuleByName(moduleName)
+if err != nil {
+	return err
 }
 ```
 ## License
