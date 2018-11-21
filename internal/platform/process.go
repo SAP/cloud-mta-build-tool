@@ -7,7 +7,7 @@ import (
 	"cloud-mta-build-tool/mta"
 )
 
-// Unmarshal - parse platform config
+// Parse - parse platform config
 func Parse(data []byte) (Platforms, error) {
 	platforms := Platforms{}
 	err := yaml.Unmarshal(data, &platforms)

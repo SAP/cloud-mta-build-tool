@@ -45,7 +45,10 @@ func setManifetDesc(file io.Writer, mtaStr []*Modules, modules []string) error {
 	for _, mod := range mtaStr {
 		// Print only the required module to support the partial build
 		if len(modules) > 0 && mod.Name == modules[0] {
-			printToFile(file, mod)
+			err := printToFile(file, mod)
+			if err != nil {
+				return errors.Wrap(err, "Error while printing values to mtad file")
+			}
 			break
 		} else if len(modules) == 0 {
 			// Print all the modules
