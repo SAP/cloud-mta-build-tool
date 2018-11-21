@@ -64,14 +64,14 @@ import "github.com/mta-explorer/mta"
  -  Quick start example:
 
 ```go
-// Set path to the mta project
+// Sets the path to the MTA project.
 mp := mta.Loc{SourcePath: “wd/my_mta_project”}
-// Returns mta object
+// Returns an MTA object.
 m, err := mta.ParseFile(&mp)
 if err != nil {
 	return err
 }
-// Returns module properties
+// Returns the module properties.
 module, err := m.GetModuleByName(moduleName)
 if err != nil {
 	return err
