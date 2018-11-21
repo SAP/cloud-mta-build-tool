@@ -1,4 +1,4 @@
-// Package MTA provides a convenient way of exploring the structure of `mta.yaml` file objects
+// Package mta provides a convenient way of exploring the structure of `mta.yaml` file objects
 // such as retrieving a list of resources required by a specific module.
 package mta
 
