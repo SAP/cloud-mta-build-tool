@@ -117,10 +117,7 @@ var _ = Describe("Commands", func() {
 		pBuildModuleNameFlag = "node-js"
 		sourceBModuleFlag = getTestPath("mta")
 		ep := mta.Loc{SourcePath: sourceBModuleFlag, TargetPath: targetBModuleFlag}
-		err := bModuleCmd.RunE(nil, []string{})
-		if err != nil {
-			fmt.Println(err)
-		}
+		Ω(bModuleCmd.RunE(nil, []string{})).Should(Succeed())
 		Ω(ep.GetTargetModuleZipPath(pBuildModuleNameFlag)).Should(BeAnExistingFile())
 	})
 })
