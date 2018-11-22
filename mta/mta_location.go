@@ -1,11 +1,10 @@
 package mta
 
 import (
+	"os"
 	"path/filepath"
 
 	"github.com/pkg/errors"
-	// Todo remove this dep
-	"cloud-mta-build-tool/internal/fsys"
 )
 
 const (
@@ -25,11 +24,19 @@ type Loc struct {
 	Descriptor string
 }
 
+// OsGetWd - get working dir
+var OsGetWd = func() (string, error) {
+	return os.Getwd()
+}
+
+// GetWorkingDirectory assignment
+var GetWorkingDirectory = OsGetWd
+
 // GetSource gets the processed project path;
 // if it is not provided, use the current directory.
 func (ep *Loc) GetSource() (string, error) {
 	if ep.SourcePath == "" {
-		wd, err := dir.GetWorkingDirectory()
+		wd, err := GetWorkingDirectory()
 		if err != nil {
 			return "", errors.Wrap(err, "GetSource failed")
 		}

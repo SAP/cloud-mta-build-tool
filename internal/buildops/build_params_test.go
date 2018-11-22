@@ -1,10 +1,10 @@
-package mta
+package buildops
 
 import (
 	"os"
 	"path/filepath"
 
-	"cloud-mta-build-tool/internal/fsys"
+	"cloud-mta-build-tool/mta"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
@@ -14,35 +14,35 @@ import (
 var _ = Describe("BuildParams", func() {
 
 	var _ = Describe("getBuildResultsPath", func() {
-		var _ = DescribeTable("valid cases", func(module *Modules, expected string) {
-			Ω(module.getBuildResultsPath(&Loc{})).Should(HaveSuffix(expected))
+		var _ = DescribeTable("valid cases", func(module *mta.Modules, expected string) {
+			Ω(getBuildResultsPath(&mta.Loc{}, module)).Should(HaveSuffix(expected))
 		},
-			Entry("Implicit Build Results Path", &Modules{Path: "mPath"}, "mPath"),
-			Entry("Explicit Build Results Path", &Modules{Path: "mPath", BuildParams: buildParameters{Path: "bPath"}}, "bPath"))
+			Entry("Implicit Build Results Path", &mta.Modules{Path: "mPath"}, "mPath"),
+			Entry("Explicit Build Results Path", &mta.Modules{Path: "mPath", BuildParams: mta.BuildParameters{Path: "bPath"}}, "bPath"))
 
 		var _ = Describe("invalid cases", func() {
 			BeforeEach(func() {
-				dir.GetWorkingDirectory = func() (string, error) {
+				mta.GetWorkingDirectory = func() (string, error) {
 					return "", errors.New("error")
 				}
 			})
 			AfterEach(func() {
-				dir.GetWorkingDirectory = dir.OsGetWd
+				mta.GetWorkingDirectory = mta.OsGetWd
 			})
 
 			It("Implicit", func() {
-				module := Modules{Path: "mPath"}
-				_, err := module.getBuildResultsPath(&Loc{})
+				module := mta.Modules{Path: "mPath"}
+				_, err := getBuildResultsPath(&mta.Loc{}, &module)
 				Ω(err).Should(HaveOccurred())
 			})
 		})
 	})
 
-	var _ = DescribeTable("getRequiredTargetPath", func(requires BuildRequires, module Modules, expected string) {
-		Ω(requires.getRequiredTargetPath(&Loc{}, &module)).Should(HaveSuffix(expected))
+	var _ = DescribeTable("getRequiredTargetPath", func(requires mta.BuildRequires, module mta.Modules, expected string) {
+		Ω(getRequiredTargetPath(&mta.Loc{}, &module, &requires)).Should(HaveSuffix(expected))
 	},
-		Entry("Implicit Target Path", BuildRequires{}, Modules{Path: "mPath"}, "mPath"),
-		Entry("Explicit Target Path", BuildRequires{TargetPath: "artifacts"}, Modules{Path: "mPath"}, filepath.Join("mPath", "artifacts")))
+		Entry("Implicit Target Path", mta.BuildRequires{}, mta.Modules{Path: "mPath"}, "mPath"),
+		Entry("Explicit Target Path", mta.BuildRequires{TargetPath: "artifacts"}, mta.Modules{Path: "mPath"}, filepath.Join("mPath", "artifacts")))
 
 	var _ = Describe("ProcessRequirements", func() {
 
@@ -53,14 +53,14 @@ var _ = Describe("BuildParams", func() {
 
 		var _ = DescribeTable("Valid cases", func(artifacts []string, expectedPath string) {
 			wd, _ := os.Getwd()
-			ep := Loc{SourcePath: filepath.Join(wd, "testdata", "testproject"), TargetPath: filepath.Join(wd, "testdata", "result")}
-			require := BuildRequires{
+			ep := mta.Loc{SourcePath: filepath.Join(wd, "testdata", "testproject"), TargetPath: filepath.Join(wd, "testdata", "result")}
+			require := mta.BuildRequires{
 				Name:       "A",
 				Artifacts:  artifacts,
 				TargetPath: "./b_copied_artifacts",
 			}
-			mtaObj := MTA{
-				Modules: []*Modules{
+			mtaObj := mta.MTA{
+				Modules: []*mta.Modules{
 					{
 						Name: "A",
 						Path: "ui5app",
@@ -68,15 +68,15 @@ var _ = Describe("BuildParams", func() {
 					{
 						Name: "B",
 						Path: "moduleB",
-						BuildParams: buildParameters{
-							Requires: []BuildRequires{
+						BuildParams: mta.BuildParameters{
+							Requires: []mta.BuildRequires{
 								require,
 							},
 						},
 					},
 				},
 			}
-			Ω(require.ProcessRequirements(&ep, &mtaObj, "B")).Should(Succeed())
+			Ω(ProcessRequirements(&ep, &mtaObj, &require, "B")).Should(Succeed())
 			Ω(filepath.Join(wd, expectedPath)).Should(BeADirectory())
 			Ω(filepath.Join(wd, expectedPath, "webapp", "Component.js")).Should(BeAnExistingFile())
 		},
@@ -84,23 +84,23 @@ var _ = Describe("BuildParams", func() {
 			Entry("Require All - single value", []string{"*"}, filepath.Join("testdata", "testproject", "moduleB", "b_copied_artifacts")),
 			Entry("Require All From Parent", []string{"."}, filepath.Join("testdata", "testproject", "moduleB", "b_copied_artifacts", "ui5app")))
 
-		var _ = DescribeTable("Invalid cases", func(lp *Loc, require BuildRequires, mtaObj MTA, moduleName string) {
-			Ω(require.ProcessRequirements(lp, &mtaObj, moduleName)).Should(HaveOccurred())
+		var _ = DescribeTable("Invalid cases", func(lp *mta.Loc, require mta.BuildRequires, mtaObj mta.MTA, moduleName string) {
+			Ω(ProcessRequirements(lp, &mtaObj, &require, moduleName)).Should(HaveOccurred())
 		},
 			Entry("Module not defined",
-				&Loc{},
-				BuildRequires{Name: "A", Artifacts: []string{"*"}, TargetPath: "b_copied_artifacts"},
-				MTA{Modules: []*Modules{{Name: "A", Path: "ui5app"}, {Name: "B", Path: "moduleB"}}},
+				&mta.Loc{},
+				mta.BuildRequires{Name: "A", Artifacts: []string{"*"}, TargetPath: "b_copied_artifacts"},
+				mta.MTA{Modules: []*mta.Modules{{Name: "A", Path: "ui5app"}, {Name: "B", Path: "moduleB"}}},
 				"C"),
 			Entry("Required Module not defined",
-				&Loc{},
-				BuildRequires{Name: "C", Artifacts: []string{"*"}, TargetPath: "b_copied_artifacts"},
-				MTA{Modules: []*Modules{{Name: "A", Path: "ui5app"}, {Name: "B", Path: "moduleB"}}},
+				&mta.Loc{},
+				mta.BuildRequires{Name: "C", Artifacts: []string{"*"}, TargetPath: "b_copied_artifacts"},
+				mta.MTA{Modules: []*mta.Modules{{Name: "A", Path: "ui5app"}, {Name: "B", Path: "moduleB"}}},
 				"B"),
 			Entry("Target path - file",
-				&Loc{SourcePath: getTestPath("testbuildparams")},
-				BuildRequires{Name: "ui1", Artifacts: []string{"*"}, TargetPath: "file.txt"},
-				MTA{Modules: []*Modules{{Name: "ui1", Path: "ui1"}, {Name: "node", Path: "node"}}},
+				&mta.Loc{SourcePath: getTestPath("testbuildparams")},
+				mta.BuildRequires{Name: "ui1", Artifacts: []string{"*"}, TargetPath: "file.txt"},
+				mta.MTA{Modules: []*mta.Modules{{Name: "ui1", Path: "ui1"}, {Name: "node", Path: "node"}}},
 				"node"))
 
 		var _ = Describe("More invalid cases", func() {
@@ -108,7 +108,7 @@ var _ = Describe("BuildParams", func() {
 			var callsCounter int
 
 			BeforeEach(func() {
-				dir.GetWorkingDirectory = func() (string, error) {
+				mta.GetWorkingDirectory = func() (string, error) {
 					callsCounter++
 					if callsCounter == failsOnCall {
 						return "", errors.New("error")
@@ -118,13 +118,13 @@ var _ = Describe("BuildParams", func() {
 				callsCounter = 0
 			})
 			AfterEach(func() {
-				dir.GetWorkingDirectory = dir.OsGetWd
+				mta.GetWorkingDirectory = mta.OsGetWd
 			})
 			var _ = DescribeTable("Get source/target path fails", func(failsOn int) {
 				failsOnCall = failsOn
-				req := BuildRequires{Name: "A", Artifacts: []string{"*"}, TargetPath: "b_copied_artifacts"}
-				mtaObj := MTA{Modules: []*Modules{{Name: "A", Path: "ui5app"}, {Name: "B", Path: "moduleB"}}}
-				Ω(req.ProcessRequirements(&Loc{}, &mtaObj, "B")).Should(HaveOccurred())
+				req := mta.BuildRequires{Name: "A", Artifacts: []string{"*"}, TargetPath: "b_copied_artifacts"}
+				mtaObj := mta.MTA{Modules: []*mta.Modules{{Name: "A", Path: "ui5app"}, {Name: "B", Path: "moduleB"}}}
+				Ω(ProcessRequirements(&mta.Loc{}, &mtaObj, &req, "B")).Should(HaveOccurred())
 			},
 				Entry("source", 1),
 				Entry("target", 2))
@@ -139,15 +139,15 @@ var _ = Describe("BuildParams", func() {
 		})
 
 		It("", func() {
-			lp := Loc{
+			lp := mta.Loc{
 				SourcePath: getTestPath("testbuildparams"),
 				TargetPath: getTestPath("result"),
 			}
-			mtaObj, _ := ParseFile(&lp)
+			mtaObj, _ := mta.ParseFile(&lp)
 			for _, m := range mtaObj.Modules {
 				if m.Name == "node" {
 					for _, r := range m.BuildParams.Requires {
-						r.ProcessRequirements(&lp, mtaObj, "node")
+						ProcessRequirements(&lp, mtaObj, &r, "node")
 					}
 				}
 			}
@@ -163,3 +163,8 @@ var _ = Describe("BuildParams", func() {
 
 	})
 })
+
+func getTestPath(relPath ...string) string {
+	wd, _ := os.Getwd()
+	return filepath.Join(wd, "testdata", filepath.Join(relPath...))
+}

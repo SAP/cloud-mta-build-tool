@@ -4,7 +4,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"cloud-mta-build-tool/internal/fsys"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"
@@ -95,14 +94,14 @@ var _ = Describe("Path Failures", func() {
 	lp := Loc{}
 
 	BeforeEach(func() {
-		storedWorkingDirectory = dir.GetWorkingDirectory
-		dir.GetWorkingDirectory = func() (string, error) {
+		storedWorkingDirectory = GetWorkingDirectory
+		GetWorkingDirectory = func() (string, error) {
 			return "", errors.New("Dummy error")
 		}
 	})
 
 	AfterEach(func() {
-		dir.GetWorkingDirectory = storedWorkingDirectory
+		GetWorkingDirectory = storedWorkingDirectory
 	})
 
 	It("GetSource - Implicit", func() {

@@ -12,14 +12,6 @@ import (
 	"github.com/pkg/errors"
 )
 
-// OsGetWd - get working dir
-var OsGetWd = func() (string, error) {
-	return os.Getwd()
-}
-
-// GetWorkingDirectory assignment
-var GetWorkingDirectory = OsGetWd
-
 // createDirIfNotExist - Create new dir
 func createDirIfNotExist(dir string) error {
 	var err error
