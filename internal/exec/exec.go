@@ -4,13 +4,26 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 	"time"
 
+	"cloud-mta-build-tool/internal/builders"
+	"cloud-mta-build-tool/internal/buildops"
+	fs "cloud-mta-build-tool/internal/fsys"
+	"cloud-mta-build-tool/internal/platform"
+	"cloud-mta-build-tool/mta"
 	"github.com/pkg/errors"
 
 	"cloud-mta-build-tool/internal/logs"
+)
+
+const (
+	pathSep    = string(os.PathSeparator)
+	dataZip    = pathSep + "data.zip"
+	mtarSuffix = ".mtar"
 )
 
 func makeCommand(params []string) *exec.Cmd {
@@ -104,4 +117,282 @@ func indicator(shutdownCh <-chan struct{}) {
 			return
 		}
 	}
+}
+
+// GenerateMeta - generate build metadata artifacts
+func GenerateMeta(ep *mta.Loc) error {
+	return processMta("Metadata creation", ep, []string{}, func(file []byte, args []string) error {
+		// parse MTA file
+		m, err := mta.ParseByte(file)
+		if err == nil {
+			// Generate meta info dir with required content
+			err = mta.GenMetaInfo(ep, m, args, func(mtaStr *mta.MTA) {
+				err = ConvertTypes(*mtaStr)
+			})
+		}
+		return err
+	})
+}
+
+// GenerateMtar - generate mtar archive from the build artifacts
+func GenerateMtar(ep *mta.Loc) error {
+	logs.Logger.Info("MTAR Generation started")
+	err := processMta("MTAR generation", ep, []string{}, func(file []byte, args []string) error {
+		// read MTA
+		m, err := mta.ParseByte(file)
+		if err != nil {
+			return errors.Wrap(err, "MTA Process failed on yaml parsing")
+		}
+		targetTmpDir, err := ep.GetTargetTmpDir()
+		if err != nil {
+			return errors.Wrap(err, "MTA Process failed on getting target temp directory")
+		}
+		targetDir, err := ep.GetTarget()
+		if err != nil {
+			return errors.Wrap(err, "MTA Process failed on getting target directory")
+		}
+		// archive building artifacts to mtar
+		err = fs.Archive(targetTmpDir, filepath.Join(targetDir, m.ID+mtarSuffix))
+		return err
+	})
+	if err != nil {
+		return errors.Wrap(err, "MTAR Generation failed on MTA processing")
+	}
+	logs.Logger.Info("MTAR Generation successfully finished")
+	return nil
+}
+
+// ConvertTypes - convert types to appropriate target platform types
+func ConvertTypes(mtaStr mta.MTA) error {
+	// Load platform configuration file
+	platformCfg, err := platform.Parse(platform.PlatformConfig)
+	if err == nil {
+		// Modify MTAD object according to platform types
+		// Todo platform should provided as command parameter
+		platform.ConvertTypes(mtaStr, platformCfg, "cf")
+	}
+	return err
+}
+
+// process mta.yaml file
+func processMta(processName string, ep *mta.Loc, args []string, process func(file []byte, args []string) error) error {
+	logs.Logger.Info("Starting " + processName)
+	mf, err := mta.Read(ep)
+	if err == nil {
+		err = process(mf, args)
+		if err == nil {
+			logs.Logger.Info(processName + " finish successfully ")
+		}
+	} else {
+		err = errors.Wrap(err, "MTA file not found")
+	}
+	return err
+}
+
+// PackModule - pack build module artifacts
+func PackModule(ep *mta.Loc, modulePath, moduleName string) error {
+
+	if ep.IsDeploymentDescriptor() {
+		return copyModuleArchive(ep, modulePath, moduleName)
+	}
+
+	logs.Logger.Infof("Pack of module %v Started", moduleName)
+	// Get module relative path
+	moduleZipPath, err := ep.GetTargetModuleDir(moduleName)
+	if err != nil {
+		return errors.Wrapf(err, "Pack of module %v failed getting target module directory", moduleName)
+	}
+	logs.Logger.Info(fmt.Sprintf("Module %v will be packed and saved in folder %v", moduleName, moduleZipPath))
+	// Create empty folder with name as before the zip process
+	// to put the file such as data.zip inside
+	err = os.MkdirAll(moduleZipPath, os.ModePerm)
+	if err != nil {
+		return errors.Wrapf(err, "Pack of module %v failed on making directory %v", moduleName, moduleZipPath)
+	}
+	// zipping the build artifacts
+	logs.Logger.Infof("Starting execute zipping module %v ", moduleName)
+	moduleZipFullPath := moduleZipPath + dataZip
+	sourceModuleDir, err := ep.GetSourceModuleDir(modulePath)
+	if err != nil {
+		return errors.Wrapf(err, "Pack of module %v failed on getting source module directory with relative path %v",
+			moduleName, modulePath)
+	}
+	if err = fs.Archive(sourceModuleDir, moduleZipFullPath); err != nil {
+		return errors.Wrapf(err, "Pack of module %v failed on archiving", moduleName)
+	}
+	logs.Logger.Infof("Pack of module %v successfully finished", moduleName)
+	return nil
+}
+
+// copyModuleArchive - copies module archive to temp directory
+func copyModuleArchive(ep *mta.Loc, modulePath, moduleName string) error {
+	logs.Logger.Infof("Copy of module %v archive Started", moduleName)
+	srcModulePath, err := ep.GetSourceModuleDir(modulePath)
+	if err != nil {
+		return errors.Wrapf(err, "Copy of module %v archive failed getting source module directory", moduleName)
+	}
+	moduleSrcZip := filepath.Join(srcModulePath, "data.zip")
+	moduleTrgZipPath, err := ep.GetTargetModuleDir(moduleName)
+	if err != nil {
+		return errors.Wrapf(err, "Copy of module %v archive failed getting target module directory", moduleName)
+	}
+	// Create empty folder with name as before the zip process
+	// to put the file such as data.zip inside
+	err = os.MkdirAll(moduleTrgZipPath, os.ModePerm)
+	if err != nil {
+		return errors.Wrapf(err, "Copy of module %v archive on making directory %v", moduleName, moduleTrgZipPath)
+	}
+	moduleTrgZip := filepath.Join(moduleTrgZipPath, "data.zip")
+	err = fs.CopyFile(moduleSrcZip, filepath.Join(moduleTrgZipPath, "data.zip"))
+	if err != nil {
+		return errors.Wrapf(err, "Copy of module %v archive failed copying %v to %v", moduleName, moduleSrcZip, moduleTrgZip)
+	}
+	return nil
+}
+
+// GetValidationMode - convert validation mode flag to validation process flags
+func GetValidationMode(validationFlag string) (bool, bool, error) {
+	switch validationFlag {
+	case "":
+		return true, true, nil
+	case "schema":
+		return true, false, nil
+	case "project":
+		return false, true, nil
+	}
+	return false, false, errors.New("wrong argument of validation mode. Expected one of [all, schema, project]")
+}
+
+// ValidateMtaYaml - Validate MTA yaml
+func ValidateMtaYaml(ep *mta.Loc, validateSchema bool, validateProject bool) error {
+	if validateProject || validateSchema {
+		logs.Logger.Infof("Validation of %v started", ep.MtaFilename)
+
+		// ParseFile MTA yaml content
+		yamlContent, err := mta.Read(ep)
+
+		if err != nil {
+			return errors.Wrapf(err, "Validation of %v failed on reading MTA content", ep.MtaFilename)
+		}
+		projectPath, err := ep.GetSource()
+		if err != nil {
+			return errors.Wrapf(err, "Validation of %v failed on getting source", ep.MtaFilename)
+		}
+		// validate mta content
+		issues, err := mta.Validate(yamlContent, projectPath, validateSchema, validateProject)
+		if len(issues) == 0 {
+			logs.Logger.Infof("Validation of %v successfully finished", ep.MtaFilename)
+		} else {
+			return errors.Errorf("Validation of %v failed. Issues: \n%v %s", ep.MtaFilename, issues.String(), err)
+		}
+	}
+
+	return nil
+}
+
+// GetModuleRelativePathAndCommands - Get module relative path from mta.yaml and
+// commands (with resolved paths) configured for the module type
+func GetModuleRelativePathAndCommands(ep *mta.Loc, module string) (string, []string, error) {
+	mtaObj, err := mta.ParseFile(ep)
+	if err != nil {
+		return "", nil, err
+	}
+	// Get module respective command's to execute
+	return moduleCmd(mtaObj, module)
+}
+
+// BuildModule - builds module
+func BuildModule(ep *mta.Loc, module string) error {
+
+	logs.Logger.Infof("Module %v building started", module)
+
+	// Get module respective command's to execute
+	moduleRelPath, mCmd, err := GetModuleRelativePathAndCommands(ep, module)
+	if err != nil {
+		return errors.Wrapf(err, "Module %v building failed on getting relative path and commands", module)
+	}
+
+	if !ep.IsDeploymentDescriptor() {
+
+		// Development descriptor - build includes:
+		// 1. module dependencies processing
+		e := processDependencies(ep, module)
+		if e != nil {
+			return errors.Wrapf(e, "Module %v building failed on processing dependencies", module)
+		}
+
+		// 2. module type dependent commands execution
+		modulePath, e := ep.GetSourceModuleDir(moduleRelPath)
+		if e != nil {
+			return errors.Wrapf(e, "Module %v building failed on getting source module directory", module)
+		}
+
+		// Get module commands
+		commands := cmdConverter(modulePath, mCmd)
+
+		// Execute child-process with module respective commands
+		e = Execute(commands)
+		if e != nil {
+			return errors.Wrapf(e, "Module %v building failed on commands execution", module)
+		}
+
+		// 3. Packing the modules build artifacts (include node modules)
+		// into the artifactsPath dir as data zip
+		e = PackModule(ep, moduleRelPath, module)
+		if e != nil {
+			return errors.Wrapf(e, "Module %v building failed on module's packing", module)
+		}
+	} else {
+
+		// Deployment descriptor
+		// copy module archive to temp directory
+		err = copyModuleArchive(ep, moduleRelPath, module)
+		if err != nil {
+			return errors.Wrapf(err, "Module %v building failed on module's archive copy", module)
+		}
+	}
+	return nil
+}
+
+// Get commands for specific module type
+func moduleCmd(mta *mta.MTA, moduleName string) (string, []string, error) {
+	for _, m := range mta.Modules {
+		if m.Name == moduleName {
+			commandProvider, err := builders.CommandProvider(*m)
+			if err != nil {
+				return "", nil, err
+			}
+			return m.Path, commandProvider.Command, nil
+		}
+	}
+	return "", nil, errors.Errorf("Module %v not defined in MTA", moduleName)
+}
+
+// path and commands to execute
+func cmdConverter(mPath string, cmdList []string) [][]string {
+	var cmd [][]string
+	for i := 0; i < len(cmdList); i++ {
+		cmd = append(cmd, append([]string{mPath}, strings.Split(cmdList[i], " ")...))
+	}
+	return cmd
+}
+
+func processDependencies(ep *mta.Loc, moduleName string) error {
+	m, err := mta.ParseFile(ep)
+	if err != nil {
+		return err
+	}
+	module, err := m.GetModuleByName(moduleName)
+	if err != nil {
+		return err
+	}
+	if module.Requires != nil {
+		for _, req := range module.BuildParams.Requires {
+			e := buildops.ProcessRequirements(ep, m, &req, module.Name)
+			if e != nil {
+				return e
+			}
+		}
+	}
+	return nil
 }

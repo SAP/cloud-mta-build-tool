@@ -1,4 +1,4 @@
-package commands
+package buildops
 
 import (
 	"os"
@@ -163,3 +163,8 @@ var _ = Describe("BuildParams", func() {
 
 	})
 })
+
+func getTestPath(relPath ...string) string {
+	wd, _ := os.Getwd()
+	return filepath.Join(wd, "testdata", filepath.Join(relPath...))
+}
