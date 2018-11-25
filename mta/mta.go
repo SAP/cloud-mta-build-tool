@@ -9,18 +9,9 @@ import (
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
 
+	fs "cloud-mta-build-tool/internal/fsys"
 	"cloud-mta-build-tool/validations"
 )
-
-// Unmarshal un-marshals an MTA byte document and provides an MTA object with corresponding.
-func (mta *MTA) Unmarshal(yamlContent []byte) (err error) {
-	// Format the YAML to struct's
-	err = yaml.Unmarshal([]byte(yamlContent), &mta)
-	if err != nil {
-		return errors.Wrap(err, "error occurred while parsing file : %s")
-	}
-	return nil
-}
 
 // Marshal serializes the MTA into an encoded YAML document.
 func Marshal(in *MTA) (mtads []byte, err error) {
@@ -32,7 +23,7 @@ func Marshal(in *MTA) (mtads []byte, err error) {
 }
 
 // Read returns mta byte slice.
-func Read(ep *Loc) ([]byte, error) {
+func Read(ep *fs.Loc) ([]byte, error) {
 	fileFullPath, err := ep.GetMtaYamlPath()
 	if err != nil {
 		return nil, errors.Wrap(err, "Read failed getting MTA Yaml path")
@@ -46,7 +37,7 @@ func Read(ep *Loc) ([]byte, error) {
 }
 
 // ParseFile returns a reference to the MTA object from a given mta.yaml file.
-func ParseFile(ep *Loc) (*MTA, error) {
+func ParseFile(ep *fs.Loc) (*MTA, error) {
 	var mta *MTA
 	yamlContent, err := Read(ep)
 	// ParseFile MTA file
@@ -60,7 +51,7 @@ func ParseFile(ep *Loc) (*MTA, error) {
 func ParseByte(content []byte) (*MTA, error) {
 	mta := &MTA{}
 	// Unmarshal MTA file
-	err := mta.Unmarshal(content)
+	err := yaml.Unmarshal([]byte(content), &mta)
 	if err != nil {
 		err = errors.Wrap(err, "Error parsing the MTA")
 	}
@@ -68,17 +59,17 @@ func ParseByte(content []byte) (*MTA, error) {
 }
 
 // GetModules returns a list of MTA modules.
-func (mta *MTA) GetModules() []*Modules {
+func (mta *MTA) GetModules() []*Module {
 	return mta.Modules
 }
 
 // GetResources returns list of MTA resources.
-func (mta *MTA) GetResources() []*Resources {
+func (mta *MTA) GetResources() []*Resource {
 	return mta.Resources
 }
 
 // GetModuleByName returns a specific module by name.
-func (mta *MTA) GetModuleByName(name string) (*Modules, error) {
+func (mta *MTA) GetModuleByName(name string) (*Module, error) {
 	for _, m := range mta.Modules {
 		if m.Name == name {
 			return m, nil
@@ -88,7 +79,7 @@ func (mta *MTA) GetModuleByName(name string) (*Modules, error) {
 }
 
 // GetResourceByName returns a specific resource by name.
-func (mta *MTA) GetResourceByName(name string) (*Resources, error) {
+func (mta *MTA) GetResourceByName(name string) (*Resource, error) {
 	for _, r := range mta.Resources {
 		if r.Name == name {
 			return r, nil
@@ -133,6 +124,6 @@ func Validate(yamlContent []byte, projectPath string, validateSchema bool, valid
 
 // PlatformsDefined - if platforms defined
 // Only empty list of platforms indicates no platforms defined
-func (module *Modules) PlatformsDefined() bool {
+func (module *Module) PlatformsDefined() bool {
 	return module.BuildParams.SupportedPlatforms == nil || len(module.BuildParams.SupportedPlatforms) > 0
 }

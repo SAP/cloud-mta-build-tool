@@ -10,17 +10,19 @@ import (
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
 	"gopkg.in/yaml.v2"
+
+	fs "cloud-mta-build-tool/internal/fsys"
 )
 
 var _ = Describe("Desc tests", func() {
 
-	var _ = DescribeTable("setManifetDesc", func(args []*Modules, expected string, modules []string) {
+	var _ = DescribeTable("setManifetDesc", func(args []*Module, expected string, modules []string) {
 		b := &bytes.Buffer{}
 		setManifetDesc(b, args, modules)
 		fmt.Println(b.String())
 		Ω(b.String()).Should(Equal(expected))
 	},
-		Entry("One module", []*Modules{
+		Entry("One module", []*Module{
 			{
 				Name: "ui5",
 				Type: "html5",
@@ -28,7 +30,7 @@ var _ = Describe("Desc tests", func() {
 			}}, "manifest-Version: 1.0\nCreated-By: SAP Application Archive Builder 0.0.1\n\n"+
 			"Name: ui5/data.zip\nMTA-Module: ui5\nContent-Type: application/zip",
 			[]string{}),
-		Entry(" Two modules", []*Modules{
+		Entry(" Two modules", []*Module{
 			{
 				Name: "ui6",
 				Type: "html5",
@@ -42,7 +44,7 @@ var _ = Describe("Desc tests", func() {
 			"Name: ui6/data.zip\nMTA-Module: ui6\nContent-Type: application/zip\n\n"+
 			"Name: ui4/data.zip\nMTA-Module: ui4\nContent-Type: application/zip",
 			[]string{}),
-		Entry(" multi module with filter of one", []*Modules{
+		Entry(" multi module with filter of one", []*Module{
 			{
 				Name: "ui6",
 				Type: "html5",
@@ -58,7 +60,7 @@ var _ = Describe("Desc tests", func() {
 
 	var _ = Describe("GenMetaInf", func() {
 		wd, _ := os.Getwd()
-		ep := Loc{SourcePath: filepath.Join(wd, "testdata", "testproject"), TargetPath: filepath.Join(wd, "testdata", "result")}
+		ep := fs.Loc{SourcePath: filepath.Join(wd, "testdata", "testproject"), TargetPath: filepath.Join(wd, "testdata", "result")}
 
 		AfterEach(func() {
 			targetDir, _ := ep.GetTarget()

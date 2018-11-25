@@ -32,7 +32,7 @@ builders:
     type:
     - command: go build *.go
 `)
-		var modules = mta.Modules{
+		var modules = mta.Module{
 			Name: "uiapp",
 			Type: "html5",
 			Path: "./",
@@ -51,7 +51,7 @@ builders:
 			Info:    "installing module dependencies & execute grunt & remove dev dependencies",
 			Command: []string{"npm install", "grunt", "npm prune --production"},
 		}
-		Ω(CommandProvider(mta.Modules{Type: "html5"})).Should(Equal(expected))
+		Ω(CommandProvider(mta.Module{Type: "html5"})).Should(Equal(expected))
 	})
 
 	var _ = Describe("CommandProvider - Invalid cfg", func() {
@@ -80,7 +80,7 @@ builders:
 		})
 
 		It("test", func() {
-			_, err := CommandProvider(mta.Modules{Type: "html5"})
+			_, err := CommandProvider(mta.Module{Type: "html5"})
 			Ω(err).Should(HaveOccurred())
 		})
 	})

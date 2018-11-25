@@ -1,4 +1,4 @@
-package mta
+package dir
 
 import (
 	"os"

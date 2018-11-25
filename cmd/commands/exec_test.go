@@ -6,13 +6,14 @@ import (
 	"os"
 	"path/filepath"
 
-	"cloud-mta-build-tool/internal/builders"
-	"cloud-mta-build-tool/internal/logs"
-	"cloud-mta-build-tool/mta"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/types"
+
+	"cloud-mta-build-tool/internal/builders"
+	fs "cloud-mta-build-tool/internal/fsys"
+	"cloud-mta-build-tool/internal/logs"
 )
 
 var _ = Describe("Commands", func() {
@@ -43,7 +44,7 @@ var _ = Describe("Commands", func() {
 			// Target path has to be dir, but is currently created and opened as file
 			pPackModuleFlag = "ui5app"
 			sourcePackFlag = getTestPath("mtahtml5")
-			ep := mta.Loc{SourcePath: sourcePackFlag, TargetPath: targetPackFlag}
+			ep := fs.Loc{SourcePath: sourcePackFlag, TargetPath: targetPackFlag}
 			targetTmpDir, _ := ep.GetTargetTmpDir()
 			err := os.MkdirAll(targetTmpDir, os.ModePerm)
 			if err != nil {
@@ -65,17 +66,17 @@ var _ = Describe("Commands", func() {
 
 	var _ = Describe("Generate commands call", func() {
 
-		var ep mta.Loc
+		var ep fs.Loc
 
 		It("Generate Meta", func() {
 			sourceMetaFlag = getTestPath("mtahtml5")
-			ep = mta.Loc{SourcePath: sourceMetaFlag, TargetPath: targetMetaFlag}
+			ep = fs.Loc{SourcePath: sourceMetaFlag, TargetPath: targetMetaFlag}
 			Ω(genMetaCmd.RunE(nil, []string{})).Should(Succeed())
 			Ω(ep.GetMtadPath()).Should(BeAnExistingFile())
 		})
 		It("Generate Mtad", func() {
 			sourceMtadFlag = getTestPath("mtahtml5")
-			ep = mta.Loc{SourcePath: sourceMtadFlag, TargetPath: targetMtadFlag}
+			ep = fs.Loc{SourcePath: sourceMtadFlag, TargetPath: targetMtadFlag}
 			err := genMtadCmd.RunE(nil, []string{})
 			if err != nil {
 				fmt.Println(err)
@@ -84,7 +85,7 @@ var _ = Describe("Commands", func() {
 		})
 		It("Generate Mtar", func() {
 			sourceMtarFlag = getTestPath("mtahtml5")
-			ep = mta.Loc{SourcePath: sourceMtarFlag, TargetPath: targetMtarFlag}
+			ep = fs.Loc{SourcePath: sourceMtarFlag, TargetPath: targetMtarFlag}
 			Ω(genMetaCmd.RunE(nil, []string{})).Should(Succeed())
 			Ω(genMtarCmd.RunE(nil, []string{})).Should(Succeed())
 			Ω(getTestPath("result", "mtahtml5.mtar")).Should(BeAnExistingFile())
@@ -143,7 +144,7 @@ builders:
 		It("build Command", func() {
 			pBuildModuleNameFlag = "node-js"
 			sourceBModuleFlag = getTestPath("mta")
-			ep := mta.Loc{SourcePath: sourceBModuleFlag, TargetPath: targetBModuleFlag}
+			ep := fs.Loc{SourcePath: sourceBModuleFlag, TargetPath: targetBModuleFlag}
 			Ω(bModuleCmd.RunE(nil, []string{})).Should(Succeed())
 			Ω(ep.GetTargetModuleZipPath(pBuildModuleNameFlag)).Should(BeAnExistingFile())
 		})

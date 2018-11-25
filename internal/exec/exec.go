@@ -120,7 +120,7 @@ func indicator(shutdownCh <-chan struct{}) {
 }
 
 // GenerateMeta - generate build metadata artifacts
-func GenerateMeta(ep *mta.Loc) error {
+func GenerateMeta(ep *fs.Loc) error {
 	return processMta("Metadata creation", ep, []string{}, func(file []byte, args []string) error {
 		// parse MTA file
 		m, err := mta.ParseByte(file)
@@ -136,7 +136,7 @@ func GenerateMeta(ep *mta.Loc) error {
 }
 
 // GenerateMtar - generate mtar archive from the build artifacts
-func GenerateMtar(ep *mta.Loc) error {
+func GenerateMtar(ep *fs.Loc) error {
 	logs.Logger.Info("MTAR Generation started")
 	err := processMta("MTAR generation", ep, []string{}, func(file []byte, args []string) error {
 		// read MTA
@@ -176,7 +176,7 @@ func ConvertTypes(mtaStr mta.MTA) error {
 }
 
 // process mta.yaml file
-func processMta(processName string, ep *mta.Loc, args []string, process func(file []byte, args []string) error) error {
+func processMta(processName string, ep *fs.Loc, args []string, process func(file []byte, args []string) error) error {
 	logs.Logger.Info("Starting " + processName)
 	mf, err := mta.Read(ep)
 	if err == nil {
@@ -191,7 +191,7 @@ func processMta(processName string, ep *mta.Loc, args []string, process func(fil
 }
 
 // PackModule - pack build module artifacts
-func PackModule(ep *mta.Loc, module *mta.Modules, moduleName string) error {
+func PackModule(ep *fs.Loc, module *mta.Module, moduleName string) error {
 
 	if !module.PlatformsDefined() {
 		return nil
@@ -230,7 +230,7 @@ func PackModule(ep *mta.Loc, module *mta.Modules, moduleName string) error {
 }
 
 // copyModuleArchive - copies module archive to temp directory
-func copyModuleArchive(ep *mta.Loc, modulePath, moduleName string) error {
+func copyModuleArchive(ep *fs.Loc, modulePath, moduleName string) error {
 	logs.Logger.Infof("Copy of module %v archive Started", moduleName)
 	srcModulePath, err := ep.GetSourceModuleDir(modulePath)
 	if err != nil {
@@ -269,7 +269,7 @@ func GetValidationMode(validationFlag string) (bool, bool, error) {
 }
 
 // ValidateMtaYaml - Validate MTA yaml
-func ValidateMtaYaml(ep *mta.Loc, validateSchema bool, validateProject bool) error {
+func ValidateMtaYaml(ep *fs.Loc, validateSchema bool, validateProject bool) error {
 	if validateProject || validateSchema {
 		logs.Logger.Infof("Validation of %v started", ep.MtaFilename)
 
@@ -297,7 +297,7 @@ func ValidateMtaYaml(ep *mta.Loc, validateSchema bool, validateProject bool) err
 
 // GetModuleRelativePathAndCommands - Get module relative path from mta.yaml and
 // commands (with resolved paths) configured for the module type
-func GetModuleAndCommands(ep *mta.Loc, module string) (*mta.Modules, []string, error) {
+func GetModuleAndCommands(ep *fs.Loc, module string) (*mta.Module, []string, error) {
 	mtaObj, err := mta.ParseFile(ep)
 	if err != nil {
 		return nil, nil, err
@@ -307,7 +307,7 @@ func GetModuleAndCommands(ep *mta.Loc, module string) (*mta.Modules, []string, e
 }
 
 // BuildModule - builds module
-func BuildModule(ep *mta.Loc, moduleName string) error {
+func BuildModule(ep *fs.Loc, moduleName string) error {
 
 	logs.Logger.Infof("Module %v building started", moduleName)
 
@@ -360,7 +360,7 @@ func BuildModule(ep *mta.Loc, moduleName string) error {
 }
 
 // Get commands for specific module type
-func moduleCmd(mta *mta.MTA, moduleName string) (*mta.Modules, []string, error) {
+func moduleCmd(mta *mta.MTA, moduleName string) (*mta.Module, []string, error) {
 	for _, m := range mta.Modules {
 		if m.Name == moduleName {
 			commandProvider, err := builders.CommandProvider(*m)
@@ -382,7 +382,7 @@ func cmdConverter(mPath string, cmdList []string) [][]string {
 	return cmd
 }
 
-func processDependencies(ep *mta.Loc, moduleName string) error {
+func processDependencies(ep *fs.Loc, moduleName string) error {
 	m, err := mta.ParseFile(ep)
 	if err != nil {
 		return err

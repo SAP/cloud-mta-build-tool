@@ -29,7 +29,7 @@ type tplCfg struct {
 }
 
 // Make - Generate the makefile
-func Make(ep *mta.Loc, mode string) error {
+func Make(ep *fs.Loc, mode string) error {
 	tpl, err := getTplCfg(mode, ep.IsDeploymentDescriptor())
 	if err != nil {
 		return err
@@ -42,7 +42,7 @@ func Make(ep *mta.Loc, mode string) error {
 	return err
 }
 
-func makeFile(ep *mta.Loc, makeFilename string, tpl *tplCfg) error {
+func makeFile(ep *fs.Loc, makeFilename string, tpl *tplCfg) error {
 
 	type api map[string]string
 	// template data

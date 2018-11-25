@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 
+	fs "cloud-mta-build-tool/internal/fsys"
 	"github.com/pkg/errors"
 )
 
@@ -31,7 +32,7 @@ const (
 )
 
 // setManifetDesc - Set the MANIFEST.MF file
-func setManifetDesc(file io.Writer, mtaStr []*Modules, modules []string) error {
+func setManifetDesc(file io.Writer, mtaStr []*Module, modules []string) error {
 	// TODO create dynamically
 	_, err := fmt.Fprint(file, manifestVersion+newLine)
 	if err != nil {
@@ -62,7 +63,7 @@ func setManifetDesc(file io.Writer, mtaStr []*Modules, modules []string) error {
 }
 
 // Print to manifest.mf file
-func printToFile(file io.Writer, mtaStr *Modules) error {
+func printToFile(file io.Writer, mtaStr *Module) error {
 	if _, err := fmt.Fprint(file, newLine+newLine, filepath.ToSlash(moduleName+mtaStr.Name+dataZip),
 		newLine, mtaModule+mtaStr.Name, newLine, contentType+applicationZip); err != nil {
 		return err
@@ -71,7 +72,7 @@ func printToFile(file io.Writer, mtaStr *Modules) error {
 }
 
 // GenMtad generates an mtad.yaml file from a mta.yaml file and a platform configuration file.
-func GenMtad(mtaStr *MTA, ep *Loc, convertTypes func(mtaStr *MTA)) error {
+func GenMtad(mtaStr *MTA, ep *fs.Loc, convertTypes func(mtaStr *MTA)) error {
 	// Create META-INF folder under the mtar folder
 	metaPath, err := ep.GetMetaPath()
 	if err != nil {
@@ -117,7 +118,7 @@ func CleanMtaForDeployment(mtaStr *MTA) {
 }
 
 // GenMetaInfo generates a MANIFEST.MF file and updates the build artifacts paths for deployment purposes.
-func GenMetaInfo(ep *Loc, mtaStr *MTA, modules []string, convertTypes func(mtaStr *MTA)) error {
+func GenMetaInfo(ep *fs.Loc, mtaStr *MTA, modules []string, convertTypes func(mtaStr *MTA)) error {
 	err := GenMtad(mtaStr, ep, convertTypes)
 	if err != nil {
 		return errors.Wrap(err, "META INFO generation failed")

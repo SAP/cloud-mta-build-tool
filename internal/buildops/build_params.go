@@ -6,8 +6,7 @@ import (
 	"cloud-mta-build-tool/mta"
 	"github.com/pkg/errors"
 
-	// Todo remove this dep
-	"cloud-mta-build-tool/internal/fsys"
+	fs "cloud-mta-build-tool/internal/fsys"
 )
 
 // Order of modules building is done according to the dependencies defined in build parameters.
@@ -17,7 +16,7 @@ import (
 // 2.	Dependency on not defined module
 
 // ProcessRequirements - Processes build requirement of module (using moduleName).
-func ProcessRequirements(ep *mta.Loc, mta *mta.MTA, requires *mta.BuildRequires, moduleName string) error {
+func ProcessRequirements(ep *fs.Loc, mta *mta.MTA, requires *mta.BuildRequires, moduleName string) error {
 	// validate module names - both in process and required
 	module, err := mta.GetModuleByName(moduleName)
 	if err != nil {
@@ -40,7 +39,7 @@ func ProcessRequirements(ep *mta.Loc, mta *mta.MTA, requires *mta.BuildRequires,
 		return errors.Wrapf(err, "Processing requirements of module %v based on module %v failed on getting Required Target Path", moduleName, requiredModule.Name)
 	}
 	// execute copy of artifacts
-	err = dir.CopyByPatterns(sourcePath, targetPath, artifacts)
+	err = fs.CopyByPatterns(sourcePath, targetPath, artifacts)
 
 	if err != nil {
 		return errors.Wrapf(err, "Processing requirements of module %v based on module %v failed on artifacts copying", moduleName, requiredModule.Name)
@@ -49,7 +48,7 @@ func ProcessRequirements(ep *mta.Loc, mta *mta.MTA, requires *mta.BuildRequires,
 }
 
 // getBuildResultsPath - provides path of build results
-func getBuildResultsPath(ep *mta.Loc, module *mta.Modules) (string, error) {
+func getBuildResultsPath(ep *fs.Loc, module *mta.Module) (string, error) {
 	path, err := ep.GetSourceModuleDir(module.Path)
 	if err != nil {
 		return "", errors.Wrapf(err, "getBuildResultsPath failed getting directory of module %v", module.Path)
@@ -63,7 +62,7 @@ func getBuildResultsPath(ep *mta.Loc, module *mta.Modules) (string, error) {
 }
 
 // getRequiredTargetPath - provides path of required artifacts
-func getRequiredTargetPath(ep *mta.Loc, module *mta.Modules, requires *mta.BuildRequires) (string, error) {
+func getRequiredTargetPath(ep *fs.Loc, module *mta.Module, requires *mta.BuildRequires) (string, error) {
 	path, err := ep.GetSourceModuleDir(module.Path)
 	if err != nil {
 		return "", errors.Wrapf(err, "getRequiredTargetPath failed getting directory of module %v", module.Name)

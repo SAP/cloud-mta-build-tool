@@ -17,9 +17,9 @@ type MTA struct {
 	// A copyright statement from the provider
 	Copyright string `yaml:"copyright,omitempty"`
 	// list of modules
-	Modules []*Modules `yaml:"modules,omitempty"`
+	Modules []*Module `yaml:"modules,omitempty"`
 	// Resource declarations. Resources can be anything required to run the application which is not provided by the application itself
-	Resources []*Resources `yaml:"resources,omitempty"`
+	Resources []*Resource `yaml:"resources,omitempty"`
 	// Parameters can be used to steer the behavior of tools which interpret this descriptor
 	Parameters Parameters `yaml:"parameters,omitempty"`
 }
@@ -37,8 +37,8 @@ type BuildParameters struct {
 	SupportedPlatforms []string        `yaml:"supported-platforms,omitempty"`
 }
 
-// Modules - modules section.
-type Modules struct {
+// Module - modules section.
+type Module struct {
 	// An MTA internal module name. Names need to be unique within the MTA scope
 	Name string
 	// a globally unique type ID. Deployment tools will interpret this type ID
@@ -90,8 +90,8 @@ type BuildRequires struct {
 	TargetPath string   `yaml:"target-path,omitempty"`
 }
 
-// Resources can be anything required to run the application which is not provided by the application itself.
-type Resources struct {
+// Resource can be anything required to run the application which is not provided by the application itself.
+type Resource struct {
 	Name string
 	// A type of a resource. This type is interpreted by and must be known to the deployer. Resources can be untyped
 	Type string
