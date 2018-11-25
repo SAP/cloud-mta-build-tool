@@ -4,8 +4,8 @@ DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 BASE := $(notdir $(patsubst %/,%,$(DIR)))
 MTR_DIR := $(DIR)$(BASE)
 # Determine OS cores
-    NPROCS = $(sysctl -n hw.ncpu)
-    MAKEFLAGS += -j$(NPROCS)
+NPROCS = $(sysctl -n hw.ncpu)
+MAKEFLAGS += -j$(NPROCS)
 # List of all the recipes to be executed during the build process
 .PHONY: ui meta mtar cleanup
 # Default target compile all

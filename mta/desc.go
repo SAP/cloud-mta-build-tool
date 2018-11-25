@@ -100,6 +100,22 @@ func GenMtad(mtaStr *MTA, ep *Loc, convertTypes func(mtaStr *MTA)) error {
 	return nil
 }
 
+// CleanMtaForDeployment - remove elements from MTAR that are not relevant for MTAD
+func CleanMtaForDeployment(mtaStr *MTA) {
+	deleted := 0
+	for i, m := range mtaStr.Modules {
+		j := i - deleted
+		if !m.PlatformsDefined() {
+			// remove modules with no platforms defined
+			mtaStr.Modules = mtaStr.Modules[:j+copy(mtaStr.Modules[j:], mtaStr.Modules[j+1:])]
+			deleted++
+		} else {
+			// remove build paramaters
+			m.BuildParams = BuildParameters{}
+		}
+	}
+}
+
 // GenMetaInfo generates a MANIFEST.MF file and updates the build artifacts paths for deployment purposes.
 func GenMetaInfo(ep *Loc, mtaStr *MTA, modules []string, convertTypes func(mtaStr *MTA)) error {
 	err := GenMtad(mtaStr, ep, convertTypes)

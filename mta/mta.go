@@ -130,3 +130,9 @@ func Validate(yamlContent []byte, projectPath string, validateSchema bool, valid
 	}
 	return issues, nil
 }
+
+// PlatformsDefined - if platforms defined
+// Only empty list of platforms indicates no platforms defined
+func (module *Modules) PlatformsDefined() bool {
+	return module.BuildParams.SupportedPlatforms == nil || len(module.BuildParams.SupportedPlatforms) > 0
+}

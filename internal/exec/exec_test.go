@@ -265,9 +265,9 @@ modules:
 			if err != nil {
 				fmt.Println(err)
 			}
-			path, commands, err := moduleCmd(&m, "htmlapp")
+			module, commands, err := moduleCmd(&m, "htmlapp")
 			Ω(err).Should(BeNil())
-			Ω(path).Should(Equal("app"))
+			Ω(module.Path).Should(Equal("app"))
 			Ω(commands).Should(Equal([]string{"npm install", "grunt", "npm prune --production"}))
 		})
 	})

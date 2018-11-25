@@ -26,8 +26,12 @@ func mesh(modules mta.Modules, commands Builders) CommandList {
 	// The object support deep struct for future use, can be simplified to flat object
 	var cmds CommandList
 	for _, b := range commands.Builders {
+		moduleType := modules.Type
+		if modules.BuildParams.Builder != "" {
+			moduleType = modules.BuildParams.Builder
+		}
 		// Return only matching types
-		if modules.Type == b.Name {
+		if moduleType == b.Name {
 			cmds.Info = b.Info
 			for _, cmd := range b.Type {
 				cmds.Command = append(cmds.Command, cmd.Command)

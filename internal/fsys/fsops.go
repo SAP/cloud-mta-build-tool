@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"cloud-mta-build-tool/internal/logs"
 	"github.com/pkg/errors"
 )
 
@@ -151,12 +152,18 @@ func CopyByPatterns(source, target string, patterns []string) error {
 	if patterns == nil || len(patterns) == 0 {
 		return nil
 	}
+
+	logs.Logger.Infof("Copy by patterns started. Source <%v> target <%v>", source, target)
+
 	infoTargetDir, err := os.Stat(target)
 	if err != nil {
 		err = os.MkdirAll(target, os.ModePerm)
 		if err != nil {
 			return errors.Wrapf(err, "Copy by patterns [%v,...] failed on creating directory %v", patterns[0], target)
+		} else {
+			logs.Logger.Infof("Directory <%v> created", target)
 		}
+
 	} else if !infoTargetDir.IsDir() {
 		return errors.Errorf("Copy by patterns [%v,...] failed. Target-path %v is not a folder", patterns[0], target)
 	}
@@ -168,11 +175,13 @@ func CopyByPatterns(source, target string, patterns []string) error {
 		}
 	}
 
+	logs.Logger.Info("Copy by patterns successfully finished.")
 	return nil
 }
 
 // copyByPattern - copy files/directories according to pattern
 func copyByPattern(source, target, pattern string) error {
+	logs.Logger.Infof("Copy by pattern <%v> started.", pattern)
 	// build full pattern concatenating source path and pattern
 	fullPattern := filepath.Join(source, strings.Replace(pattern, "./", "", -1))
 	// get all entries matching the pattern
@@ -196,6 +205,7 @@ func copyByPattern(source, target, pattern string) error {
 			return errors.Wrapf(err, "Copy by pattern %v failed on copy of %v to %v", pattern, sourceEntry, targetEntry)
 		}
 	}
+	logs.Logger.Infof("Copy by pattern <%v> successfully finished.", pattern)
 	return nil
 }
 

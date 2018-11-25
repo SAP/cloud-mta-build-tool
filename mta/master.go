@@ -33,7 +33,8 @@ type BuildParameters struct {
 	// A path pointing to a file which contains a map of parameters, either in JSON or in YAML format.
 	Path string `yaml:"path,omitempty"`
 	// list of names either matching a resource name or a name provided by another module within the same MTA
-	Requires []BuildRequires `yaml:"requires,omitempty"`
+	Requires           []BuildRequires `yaml:"requires,omitempty"`
+	SupportedPlatforms []string        `yaml:"supported-platforms,omitempty"`
 }
 
 // Modules - modules section.

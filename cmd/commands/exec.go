@@ -99,9 +99,9 @@ var packCmd = &cobra.Command{
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		ep := locationParameters(sourcePackFlag, targetPackFlag, descriptorPackFlag)
-		modulePath, _, err := exec.GetModuleRelativePathAndCommands(&ep, pPackModuleFlag)
+		module, _, err := exec.GetModuleAndCommands(&ep, pPackModuleFlag)
 		if err == nil {
-			err = exec.PackModule(&ep, modulePath, pPackModuleFlag)
+			err = exec.PackModule(&ep, module, pPackModuleFlag)
 		}
 		logError(err)
 		return err
@@ -159,8 +159,8 @@ var genMtadCmd = &cobra.Command{
 			return err
 		}
 		ep := locationParameters(sourceMtadFlag, targetMtadFlag, descriptorMtadFlag)
-		// TODO if descriptor == "dep" -> Copy mtad
 		mtaStr, err := mta.ParseFile(&ep)
+		mta.CleanMtaForDeployment(mtaStr)
 		if err == nil {
 			err = mta.GenMtad(mtaStr, &ep, func(mtaStr *mta.MTA) {
 				e := exec.ConvertTypes(*mtaStr)
