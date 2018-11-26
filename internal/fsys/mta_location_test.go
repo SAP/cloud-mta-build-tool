@@ -144,4 +144,19 @@ var _ = Describe("Path Failures", func() {
 		_, err := lp.GetManifestPath()
 		Ω(err).Should(HaveOccurred())
 	})
+
+	var _ = Describe("ParseFile MTA", func() {
+
+		wd, _ := os.Getwd()
+
+		It("Valid filename", func() {
+			mta, err := ParseFile(&Loc{SourcePath: filepath.Join(wd, "testdata")})
+			Ω(mta).ShouldNot(BeNil())
+			Ω(err).Should(BeNil())
+		})
+		It("Invalid filename", func() {
+			_, err := ParseFile(&Loc{SourcePath: filepath.Join(wd, "testdata"), MtaFilename: "mtax.yaml"})
+			Ω(err).ShouldNot(BeNil())
+		})
+	})
 })
