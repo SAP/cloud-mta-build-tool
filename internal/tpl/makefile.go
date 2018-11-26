@@ -9,7 +9,7 @@ import (
 	"github.com/pkg/errors"
 
 	"cloud-mta-build-tool/internal/builders"
-	fs "cloud-mta-build-tool/internal/fsys"
+	"cloud-mta-build-tool/internal/fsys"
 	"cloud-mta-build-tool/internal/logs"
 	"cloud-mta-build-tool/internal/proc"
 	"cloud-mta-build-tool/internal/version"
@@ -29,7 +29,7 @@ type tplCfg struct {
 }
 
 // Make - Generate the makefile
-func Make(ep *fs.Loc, mode string) error {
+func Make(ep *dir.Loc, mode string) error {
 	tpl, err := getTplCfg(mode, ep.IsDeploymentDescriptor())
 	if err != nil {
 		return err
@@ -42,7 +42,7 @@ func Make(ep *fs.Loc, mode string) error {
 	return err
 }
 
-func makeFile(ep *fs.Loc, makeFilename string, tpl *tplCfg) error {
+func makeFile(ep *dir.Loc, makeFilename string, tpl *tplCfg) error {
 
 	type api map[string]string
 	// template data
@@ -52,7 +52,7 @@ func makeFile(ep *fs.Loc, makeFilename string, tpl *tplCfg) error {
 		Dep  string
 	}
 	// ParseFile file
-	m, err := mta.ParseFile(ep)
+	m, err := dir.ParseFile(ep)
 	if err != nil {
 		return errors.Wrap(err, "makeFile failed reading MTA yaml")
 	}
@@ -144,6 +144,6 @@ func createMakeFile(path, filename string) (file *os.File, err error) {
 		logs.Logger.Warn(fmt.Sprintf("Make file %s exists", fullFilename))
 		return nil, nil
 	}
-	mf, err = fs.CreateFile(fullFilename)
+	mf, err = dir.CreateFile(fullFilename)
 	return mf, err
 }

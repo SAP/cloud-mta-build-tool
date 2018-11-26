@@ -28,7 +28,7 @@ var _ = Describe("FSOPS", func() {
 
 		var _ = DescribeTable("CreateDir", func(dirPath string) {
 
-			Ω(createDirIfNotExist(dirPath)).Should(Succeed())
+			Ω(CreateDirIfNotExist(dirPath)).Should(Succeed())
 		},
 			Entry("Sanity", getFullPath("testdata", "level2", "result")),
 			Entry("DirectoryExists", getFullPath("testdata", "level2", "level3")),
@@ -192,6 +192,14 @@ var _ = Describe("FSOPS", func() {
 	It("getRelativePath", func() {
 		Ω(getRelativePath(getFullPath("abc", "xyz", "fff"),
 			filepath.Join(getFullPath()))).Should(Equal(string(filepath.Separator) + filepath.Join("abc", "xyz", "fff")))
+	})
+
+	var _ = Describe("Read", func() {
+		It("Sanity", func() {
+			res, resErr := Read(&Loc{SourcePath: getFullPath("testdata", "testproject")})
+			Ω(res).ShouldNot(BeNil())
+			Ω(resErr).Should(BeNil())
+		})
 	})
 })
 

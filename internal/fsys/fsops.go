@@ -9,12 +9,13 @@ import (
 	"path/filepath"
 	"strings"
 
-	"cloud-mta-build-tool/internal/logs"
 	"github.com/pkg/errors"
+
+	"cloud-mta-build-tool/internal/logs"
 )
 
-// createDirIfNotExist - Create new dir
-func createDirIfNotExist(dir string) error {
+// CreateDirIfNotExist - Create new dir
+func CreateDirIfNotExist(dir string) error {
 	var err error
 	if _, err = os.Stat(dir); os.IsNotExist(err) {
 		err = os.MkdirAll(dir, os.ModePerm)
@@ -160,9 +161,8 @@ func CopyByPatterns(source, target string, patterns []string) error {
 		err = os.MkdirAll(target, os.ModePerm)
 		if err != nil {
 			return errors.Wrapf(err, "Copy by patterns [%v,...] failed on creating directory %v", patterns[0], target)
-		} else {
-			logs.Logger.Infof("Directory <%v> created", target)
 		}
+		logs.Logger.Infof("Directory <%v> created", target)
 
 	} else if !infoTargetDir.IsDir() {
 		return errors.Errorf("Copy by patterns [%v,...] failed. Target-path %v is not a folder", patterns[0], target)
@@ -270,4 +270,18 @@ func CopyFile(src, dst string) (err error) {
 // getRelativePath - Remove the basePath from the fullPath and get only the relative
 func getRelativePath(fullPath, basePath string) string {
 	return strings.TrimPrefix(fullPath, basePath)
+}
+
+// Read returns mta byte slice.
+func Read(ep *Loc) ([]byte, error) {
+	fileFullPath, err := ep.GetMtaYamlPath()
+	if err != nil {
+		return nil, errors.Wrap(err, "Read failed getting MTA Yaml path")
+	}
+	// ParseFile MTA file
+	yamlFile, err := ioutil.ReadFile(fileFullPath)
+	if err != nil {
+		return nil, errors.Wrap(err, "Error reading the MTA file")
+	}
+	return yamlFile, nil
 }

@@ -1,10 +1,11 @@
 package platform
 
 import (
-	"cloud-mta-build-tool/mta"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
+
+	"cloud-mta-build-tool/mta"
 )
 
 var _ = Describe("Process", func() {

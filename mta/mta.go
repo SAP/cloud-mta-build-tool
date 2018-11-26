@@ -4,59 +4,12 @@ package mta
 
 import (
 	"fmt"
-	"io/ioutil"
 
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
 
-	fs "cloud-mta-build-tool/internal/fsys"
 	"cloud-mta-build-tool/validations"
 )
-
-// Marshal serializes the MTA into an encoded YAML document.
-func Marshal(in *MTA) (mtads []byte, err error) {
-	mtads, err = yaml.Marshal(in)
-	if err != nil {
-		return nil, err
-	}
-	return mtads, nil
-}
-
-// Read returns mta byte slice.
-func Read(ep *fs.Loc) ([]byte, error) {
-	fileFullPath, err := ep.GetMtaYamlPath()
-	if err != nil {
-		return nil, errors.Wrap(err, "Read failed getting MTA Yaml path")
-	}
-	// ParseFile MTA file
-	yamlFile, err := ioutil.ReadFile(fileFullPath)
-	if err != nil {
-		return nil, errors.Wrap(err, "Error reading the MTA file")
-	}
-	return yamlFile, nil
-}
-
-// ParseFile returns a reference to the MTA object from a given mta.yaml file.
-func ParseFile(ep *fs.Loc) (*MTA, error) {
-	var mta *MTA
-	yamlContent, err := Read(ep)
-	// ParseFile MTA file
-	if err == nil {
-		mta, err = ParseByte(yamlContent)
-	}
-	return mta, err
-}
-
-// ParseByte returns a reference to the MTA object from a byte array.
-func ParseByte(content []byte) (*MTA, error) {
-	mta := &MTA{}
-	// Unmarshal MTA file
-	err := yaml.Unmarshal([]byte(content), &mta)
-	if err != nil {
-		err = errors.Wrap(err, "Error parsing the MTA")
-	}
-	return mta, err
-}
 
 // GetModules returns a list of MTA modules.
 func (mta *MTA) GetModules() []*Module {
@@ -88,11 +41,6 @@ func (mta *MTA) GetResourceByName(name string) (*Resource, error) {
 	return nil, fmt.Errorf("module %s , not found ", name)
 }
 
-// GetModulesNames returns a list of module names.
-func (mta *MTA) GetModulesNames() ([]string, error) {
-	return mta.getModulesOrder()
-}
-
 // Validate validates an MTA schema.
 func Validate(yamlContent []byte, projectPath string, validateSchema bool, validateProject bool) (validate.YamlValidationIssues, error) {
 	//noinspection GoPreferNilSlice
@@ -110,13 +58,13 @@ func Validate(yamlContent []byte, projectPath string, validateSchema bool, valid
 
 	}
 	if validateProject {
-		mta := MTA{}
+		mtaStr := MTA{}
 		Unmarshal := yaml.Unmarshal
-		err := Unmarshal(yamlContent, &mta)
+		err := Unmarshal(yamlContent, &mtaStr)
 		if err != nil {
 			return nil, errors.Wrap(err, "Read failed getting MTA Yaml path reading the mta file")
 		}
-		projectIssues := validateYamlProject(&mta, projectPath)
+		projectIssues := validateYamlProject(&mtaStr, projectPath)
 		issues = append(issues, projectIssues...)
 	}
 	return issues, nil
@@ -126,4 +74,15 @@ func Validate(yamlContent []byte, projectPath string, validateSchema bool, valid
 // Only empty list of platforms indicates no platforms defined
 func (module *Module) PlatformsDefined() bool {
 	return module.BuildParams.SupportedPlatforms == nil || len(module.BuildParams.SupportedPlatforms) > 0
+}
+
+// Unmarshal - returns a reference to the MTA object from a byte array.
+func Unmarshal(content []byte) (*MTA, error) {
+	m := &MTA{}
+	// Unmarshal MTA file
+	err := yaml.Unmarshal([]byte(content), &m)
+	if err != nil {
+		err = errors.Wrap(err, "Error parsing the MTA")
+	}
+	return m, err
 }

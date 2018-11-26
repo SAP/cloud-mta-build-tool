@@ -24,7 +24,7 @@ type MTA struct {
 	Parameters Parameters `yaml:"parameters,omitempty"`
 }
 
-// Build-parameters are specifically steering the behavior of build tools.
+// BuildParameters - build parameters are specifically steering the behavior of build tools.
 type BuildParameters struct {
 	// Builder name
 	Builder string `yaml:"builder,omitempty"`

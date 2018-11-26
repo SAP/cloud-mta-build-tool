@@ -10,14 +10,14 @@ import (
 	"strings"
 	"time"
 
-	"cloud-mta-build-tool/internal/builders"
-	"cloud-mta-build-tool/internal/buildops"
-	fs "cloud-mta-build-tool/internal/fsys"
-	"cloud-mta-build-tool/internal/platform"
-	"cloud-mta-build-tool/mta"
 	"github.com/pkg/errors"
 
+	"cloud-mta-build-tool/internal/builders"
+	"cloud-mta-build-tool/internal/buildops"
+	"cloud-mta-build-tool/internal/fsys"
 	"cloud-mta-build-tool/internal/logs"
+	"cloud-mta-build-tool/internal/platform"
+	"cloud-mta-build-tool/mta"
 )
 
 const (
@@ -120,14 +120,14 @@ func indicator(shutdownCh <-chan struct{}) {
 }
 
 // GenerateMeta - generate build metadata artifacts
-func GenerateMeta(ep *fs.Loc) error {
+func GenerateMeta(ep *dir.Loc) error {
 	return processMta("Metadata creation", ep, []string{}, func(file []byte, args []string) error {
 		// parse MTA file
-		m, err := mta.ParseByte(file)
-		mta.CleanMtaForDeployment(m)
+		m, err := mta.Unmarshal(file)
+		CleanMtaForDeployment(m)
 		if err == nil {
 			// Generate meta info dir with required content
-			err = mta.GenMetaInfo(ep, m, args, func(mtaStr *mta.MTA) {
+			err = GenMetaInfo(ep, m, args, func(mtaStr *mta.MTA) {
 				err = ConvertTypes(*mtaStr)
 			})
 		}
@@ -136,11 +136,11 @@ func GenerateMeta(ep *fs.Loc) error {
 }
 
 // GenerateMtar - generate mtar archive from the build artifacts
-func GenerateMtar(ep *fs.Loc) error {
+func GenerateMtar(ep *dir.Loc) error {
 	logs.Logger.Info("MTAR Generation started")
 	err := processMta("MTAR generation", ep, []string{}, func(file []byte, args []string) error {
 		// read MTA
-		m, err := mta.ParseByte(file)
+		m, err := mta.Unmarshal(file)
 		if err != nil {
 			return errors.Wrap(err, "MTA Process failed on yaml parsing")
 		}
@@ -153,7 +153,7 @@ func GenerateMtar(ep *fs.Loc) error {
 			return errors.Wrap(err, "MTA Process failed on getting target directory")
 		}
 		// archive building artifacts to mtar
-		err = fs.Archive(targetTmpDir, filepath.Join(targetDir, m.ID+mtarSuffix))
+		err = dir.Archive(targetTmpDir, filepath.Join(targetDir, m.ID+mtarSuffix))
 		return err
 	})
 	if err != nil {
@@ -176,9 +176,9 @@ func ConvertTypes(mtaStr mta.MTA) error {
 }
 
 // process mta.yaml file
-func processMta(processName string, ep *fs.Loc, args []string, process func(file []byte, args []string) error) error {
+func processMta(processName string, ep *dir.Loc, args []string, process func(file []byte, args []string) error) error {
 	logs.Logger.Info("Starting " + processName)
-	mf, err := mta.Read(ep)
+	mf, err := dir.Read(ep)
 	if err == nil {
 		err = process(mf, args)
 		if err == nil {
@@ -191,7 +191,7 @@ func processMta(processName string, ep *fs.Loc, args []string, process func(file
 }
 
 // PackModule - pack build module artifacts
-func PackModule(ep *fs.Loc, module *mta.Module, moduleName string) error {
+func PackModule(ep *dir.Loc, module *mta.Module, moduleName string) error {
 
 	if !module.PlatformsDefined() {
 		return nil
@@ -222,7 +222,7 @@ func PackModule(ep *fs.Loc, module *mta.Module, moduleName string) error {
 		return errors.Wrapf(err, "Pack of module %v failed on getting source module directory with relative path %v",
 			moduleName, module.Path)
 	}
-	if err = fs.Archive(sourceModuleDir, moduleZipFullPath); err != nil {
+	if err = dir.Archive(sourceModuleDir, moduleZipFullPath); err != nil {
 		return errors.Wrapf(err, "Pack of module %v failed on archiving", moduleName)
 	}
 	logs.Logger.Infof("Pack of module %v successfully finished", moduleName)
@@ -230,7 +230,7 @@ func PackModule(ep *fs.Loc, module *mta.Module, moduleName string) error {
 }
 
 // copyModuleArchive - copies module archive to temp directory
-func copyModuleArchive(ep *fs.Loc, modulePath, moduleName string) error {
+func copyModuleArchive(ep *dir.Loc, modulePath, moduleName string) error {
 	logs.Logger.Infof("Copy of module %v archive Started", moduleName)
 	srcModulePath, err := ep.GetSourceModuleDir(modulePath)
 	if err != nil {
@@ -248,7 +248,7 @@ func copyModuleArchive(ep *fs.Loc, modulePath, moduleName string) error {
 		return errors.Wrapf(err, "Copy of module %v archive on making directory %v", moduleName, moduleTrgZipPath)
 	}
 	moduleTrgZip := filepath.Join(moduleTrgZipPath, "data.zip")
-	err = fs.CopyFile(moduleSrcZip, filepath.Join(moduleTrgZipPath, "data.zip"))
+	err = dir.CopyFile(moduleSrcZip, filepath.Join(moduleTrgZipPath, "data.zip"))
 	if err != nil {
 		return errors.Wrapf(err, "Copy of module %v archive failed copying %v to %v", moduleName, moduleSrcZip, moduleTrgZip)
 	}
@@ -269,12 +269,12 @@ func GetValidationMode(validationFlag string) (bool, bool, error) {
 }
 
 // ValidateMtaYaml - Validate MTA yaml
-func ValidateMtaYaml(ep *fs.Loc, validateSchema bool, validateProject bool) error {
+func ValidateMtaYaml(ep *dir.Loc, validateSchema bool, validateProject bool) error {
 	if validateProject || validateSchema {
 		logs.Logger.Infof("Validation of %v started", ep.MtaFilename)
 
 		// ParseFile MTA yaml content
-		yamlContent, err := mta.Read(ep)
+		yamlContent, err := dir.Read(ep)
 
 		if err != nil {
 			return errors.Wrapf(err, "Validation of %v failed on reading MTA content", ep.MtaFilename)
@@ -295,10 +295,10 @@ func ValidateMtaYaml(ep *fs.Loc, validateSchema bool, validateProject bool) erro
 	return nil
 }
 
-// GetModuleRelativePathAndCommands - Get module relative path from mta.yaml and
+// GetModuleAndCommands - Get module from mta.yaml and
 // commands (with resolved paths) configured for the module type
-func GetModuleAndCommands(ep *fs.Loc, module string) (*mta.Module, []string, error) {
-	mtaObj, err := mta.ParseFile(ep)
+func GetModuleAndCommands(ep *dir.Loc, module string) (*mta.Module, []string, error) {
+	mtaObj, err := dir.ParseFile(ep)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -307,7 +307,7 @@ func GetModuleAndCommands(ep *fs.Loc, module string) (*mta.Module, []string, err
 }
 
 // BuildModule - builds module
-func BuildModule(ep *fs.Loc, moduleName string) error {
+func BuildModule(ep *dir.Loc, moduleName string) error {
 
 	logs.Logger.Infof("Module %v building started", moduleName)
 
@@ -382,8 +382,8 @@ func cmdConverter(mPath string, cmdList []string) [][]string {
 	return cmd
 }
 
-func processDependencies(ep *fs.Loc, moduleName string) error {
-	m, err := mta.ParseFile(ep)
+func processDependencies(ep *dir.Loc, moduleName string) error {
+	m, err := dir.ParseFile(ep)
 	if err != nil {
 		return err
 	}

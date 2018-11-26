@@ -9,8 +9,6 @@ import (
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
 	"gopkg.in/yaml.v2"
-
-	fs "cloud-mta-build-tool/internal/fsys"
 )
 
 func getTestPath(relPath ...string) string {
@@ -21,31 +19,14 @@ func getTestPath(relPath ...string) string {
 var _ = Describe("MTA tests", func() {
 
 	var _ = DescribeTable("Validation", func(locationSource, mtaFilename string, issuesNumber int, validateProject bool) {
-		ep := fs.Loc{SourcePath: locationSource, MtaFilename: mtaFilename}
-		yamlContent, _ := Read(&ep)
-		source, _ := ep.GetSource()
-		issues, _ := Validate(yamlContent, source, true, validateProject)
+		yamlContent, _ := ioutil.ReadFile(filepath.Join(locationSource, mtaFilename))
+		issues, _ := Validate(yamlContent, locationSource, true, validateProject)
 		Ω(len(issues)).Should(Equal(issuesNumber))
 	},
 
 		Entry("Validate All", getTestPath("testproject"), "mta.yaml", 1, true),
 		Entry("Validate Schema", getTestPath(), "mta_multiapps.yaml", 0, false),
 	)
-
-	var _ = Describe("Read", func() {
-		It("Sanity", func() {
-			res, resErr := Read(&fs.Loc{SourcePath: getTestPath("testproject")})
-			Ω(res).ShouldNot(BeNil())
-			Ω(resErr).Should(BeNil())
-		})
-	})
-
-	var _ = Describe("GetModulesNames", func() {
-		It("Sanity", func() {
-			mta := &MTA{Modules: []*Module{{Name: "someproj-db"}, {Name: "someproj-java"}}}
-			Ω(mta.GetModulesNames()).Should(Equal([]string{"someproj-db", "someproj-java"}))
-		})
-	})
 
 	var _ = Describe("Parsing", func() {
 		It("Modules parsing - sanity", func() {
@@ -171,21 +152,6 @@ var _ = Describe("MTA tests", func() {
 		It("GetModuleByName - Negative ", func() {
 			_, err := mta.GetModuleByName("foo")
 			Ω(err).Should(HaveOccurred())
-		})
-	})
-
-	var _ = Describe("ParseFile MTA", func() {
-
-		wd, _ := os.Getwd()
-
-		It("Valid filename", func() {
-			mta, err := ParseFile(&fs.Loc{SourcePath: filepath.Join(wd, "testdata")})
-			Ω(mta).ShouldNot(BeNil())
-			Ω(err).Should(BeNil())
-		})
-		It("Invalid filename", func() {
-			_, err := ParseFile(&fs.Loc{SourcePath: filepath.Join(wd, "testdata"), MtaFilename: "mtax.yaml"})
-			Ω(err).ShouldNot(BeNil())
 		})
 	})
 

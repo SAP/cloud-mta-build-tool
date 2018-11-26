@@ -6,7 +6,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"cloud-mta-build-tool/internal/exec"
-	fs "cloud-mta-build-tool/internal/fsys"
+	"cloud-mta-build-tool/internal/fsys"
 	"cloud-mta-build-tool/internal/logs"
 	"cloud-mta-build-tool/mta"
 )
@@ -78,7 +78,7 @@ var bModuleCmd = &cobra.Command{
 	Long:  "Build specific module according to the module name",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		err := fs.ValidateDeploymentDescriptor(descriptorBModuleFlag)
+		err := dir.ValidateDeploymentDescriptor(descriptorBModuleFlag)
 		if err == nil {
 			ep := locationParameters(sourceBModuleFlag, targetBModuleFlag, descriptorBModuleFlag)
 			err = exec.BuildModule(&ep, pBuildModuleNameFlag)
@@ -116,7 +116,7 @@ var genMetaCmd = &cobra.Command{
 	Long:  "generate META-INF folder with all the required data",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		err := fs.ValidateDeploymentDescriptor(descriptorMetaFlag)
+		err := dir.ValidateDeploymentDescriptor(descriptorMetaFlag)
 		if err == nil {
 			ep := locationParameters(sourceMetaFlag, targetMetaFlag, descriptorMetaFlag)
 			err = exec.GenerateMeta(&ep)
@@ -135,7 +135,7 @@ var genMtarCmd = &cobra.Command{
 	Long:  "generate MTAR from the project build artifacts",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		err := fs.ValidateDeploymentDescriptor(descriptorMtarFlag)
+		err := dir.ValidateDeploymentDescriptor(descriptorMtarFlag)
 		if err == nil {
 			ep := locationParameters(sourceMtarFlag, targetMtarFlag, descriptorMtarFlag)
 			err = exec.GenerateMtar(&ep)
@@ -154,16 +154,16 @@ var genMtadCmd = &cobra.Command{
 	Long:  "Provide deployment descriptor (mtad.yaml) from development descriptor (mta.yaml)",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		err := fs.ValidateDeploymentDescriptor(descriptorMtadFlag)
+		err := dir.ValidateDeploymentDescriptor(descriptorMtadFlag)
 		if err != nil {
 			logErrorExt(err, "MTAD generation failed")
 			return err
 		}
 		ep := locationParameters(sourceMtadFlag, targetMtadFlag, descriptorMtadFlag)
-		mtaStr, err := mta.ParseFile(&ep)
-		mta.CleanMtaForDeployment(mtaStr)
+		mtaStr, err := dir.ParseFile(&ep)
+		exec.CleanMtaForDeployment(mtaStr)
 		if err == nil {
-			err = mta.GenMtad(mtaStr, &ep, func(mtaStr *mta.MTA) {
+			err = exec.GenMtad(mtaStr, &ep, func(mtaStr *mta.MTA) {
 				e := exec.ConvertTypes(*mtaStr)
 				if e != nil {
 					logErrorExt(err, "MTAD generation failed")
@@ -184,7 +184,7 @@ var validateCmd = &cobra.Command{
 	Long:  "MBT validation process",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		err := fs.ValidateDeploymentDescriptor(descriptorValidateFlag)
+		err := dir.ValidateDeploymentDescriptor(descriptorValidateFlag)
 		if err != nil {
 			logErrorExt(err, "MBT Validation failed")
 			return err
@@ -227,7 +227,7 @@ var cleanupCmd = &cobra.Command{
 }
 
 // locationParameters - provides location parameters of MTA
-func locationParameters(sourceFlag, targetFlag, descriptor string) fs.Loc {
+func locationParameters(sourceFlag, targetFlag, descriptor string) dir.Loc {
 	var mtaFilename string
 	if descriptor == "dev" || descriptor == "" {
 		mtaFilename = "mta.yaml"
@@ -237,5 +237,5 @@ func locationParameters(sourceFlag, targetFlag, descriptor string) fs.Loc {
 			"mtad.yaml"
 		descriptor = "dep"
 	}
-	return fs.Loc{SourcePath: sourceFlag, TargetPath: targetFlag, MtaFilename: mtaFilename, Descriptor: descriptor}
+	return dir.Loc{SourcePath: sourceFlag, TargetPath: targetFlag, MtaFilename: mtaFilename, Descriptor: descriptor}
 }

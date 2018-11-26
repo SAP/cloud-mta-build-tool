@@ -3,11 +3,12 @@ package commands
 import (
 	"fmt"
 
+	"cloud-mta-build-tool/internal/buildops"
+
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
-	fs "cloud-mta-build-tool/internal/fsys"
-	"cloud-mta-build-tool/mta"
+	"cloud-mta-build-tool/internal/fsys"
 )
 
 var sourcePModuleFlag string
@@ -25,12 +26,14 @@ var pModuleCmd = &cobra.Command{
 	Long:  "Provide list of modules",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		err := fs.ValidateDeploymentDescriptor(descriptorPModuleFlag)
+		err := dir.ValidateDeploymentDescriptor(descriptorPModuleFlag)
 		if err == nil {
 			ep := locationParameters(sourceBModuleFlag, targetBModuleFlag, descriptorPModuleFlag)
 			err = provideModules(&ep)
 		}
-		err = errors.Wrap(err, "Modules provider failed")
+		if err != nil {
+			err = errors.Wrap(err, "Modules provider failed")
+		}
 		logError(err)
 		return err
 	},
@@ -38,13 +41,13 @@ var pModuleCmd = &cobra.Command{
 	SilenceErrors: true,
 }
 
-func provideModules(ep *fs.Loc) error {
+func provideModules(ep *dir.Loc) error {
 	// read MTA from mta.yaml
-	m, err := mta.ParseFile(ep)
+	m, err := dir.ParseFile(ep)
 	if err != nil {
 		return err
 	}
-	modules, err := m.GetModulesNames()
+	modules, err := buildops.GetModulesNames(m)
 	if err != nil {
 		return err
 	}

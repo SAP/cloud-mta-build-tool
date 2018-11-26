@@ -1,4 +1,4 @@
-package mta
+package exec
 
 import (
 	"fmt"
@@ -7,8 +7,11 @@ import (
 	"os"
 	"path/filepath"
 
-	fs "cloud-mta-build-tool/internal/fsys"
 	"github.com/pkg/errors"
+	"gopkg.in/yaml.v2"
+
+	"cloud-mta-build-tool/internal/fsys"
+	"cloud-mta-build-tool/mta"
 )
 
 // The deployment descriptor should be located within the META-INF folder of the JAR.
@@ -27,12 +30,19 @@ const (
 	moduleName      = "Name: "
 	applicationZip  = "application/zip"
 	manifestVersion = "manifest-Version: 1.0"
-	pathSep         = string(os.PathSeparator)
-	dataZip         = pathSep + "data.zip"
 )
 
+// marshal - serializes the MTA into an encoded YAML document.
+func marshal(in *mta.MTA) (mtads []byte, err error) {
+	mtads, err = yaml.Marshal(in)
+	if err != nil {
+		return nil, err
+	}
+	return mtads, nil
+}
+
 // setManifetDesc - Set the MANIFEST.MF file
-func setManifetDesc(file io.Writer, mtaStr []*Module, modules []string) error {
+func setManifetDesc(file io.Writer, mtaStr []*mta.Module, modules []string) error {
 	// TODO create dynamically
 	_, err := fmt.Fprint(file, manifestVersion+newLine)
 	if err != nil {
@@ -62,23 +72,21 @@ func setManifetDesc(file io.Writer, mtaStr []*Module, modules []string) error {
 	return nil
 }
 
-// Print to manifest.mf file
-func printToFile(file io.Writer, mtaStr *Module) error {
-	if _, err := fmt.Fprint(file, newLine+newLine, filepath.ToSlash(moduleName+mtaStr.Name+dataZip),
-		newLine, mtaModule+mtaStr.Name, newLine, contentType+applicationZip); err != nil {
-		return err
-	}
-	return nil
+// printToFile - Print to manifest.mf file
+func printToFile(file io.Writer, mtaStr *mta.Module) error {
+	_, err := fmt.Fprint(file, newLine+newLine, filepath.ToSlash(moduleName+mtaStr.Name+dataZip),
+		newLine, mtaModule+mtaStr.Name, newLine, contentType+applicationZip)
+	return err
 }
 
 // GenMtad generates an mtad.yaml file from a mta.yaml file and a platform configuration file.
-func GenMtad(mtaStr *MTA, ep *fs.Loc, convertTypes func(mtaStr *MTA)) error {
+func GenMtad(mtaStr *mta.MTA, ep *dir.Loc, convertTypes func(mtaStr *mta.MTA)) error {
 	// Create META-INF folder under the mtar folder
 	metaPath, err := ep.GetMetaPath()
 	if err != nil {
 		return errors.Wrap(err, "mtad.yaml generation failed")
 	}
-	err = createDirIfNotExist(metaPath)
+	err = dir.CreateDirIfNotExist(metaPath)
 	if err != nil {
 		return errors.Wrap(err, "mtad.yaml generation failed, not able to create dir")
 	}
@@ -86,7 +94,7 @@ func GenMtad(mtaStr *MTA, ep *fs.Loc, convertTypes func(mtaStr *MTA)) error {
 		convertTypes(mtaStr)
 	}
 	// Create readable Yaml before writing to file
-	mtad, err := Marshal(mtaStr)
+	mtad, err := marshal(mtaStr)
 	if err != nil {
 		return errors.Wrap(err, "mtad.yaml generation failed")
 	}
@@ -102,7 +110,7 @@ func GenMtad(mtaStr *MTA, ep *fs.Loc, convertTypes func(mtaStr *MTA)) error {
 }
 
 // CleanMtaForDeployment - remove elements from MTAR that are not relevant for MTAD
-func CleanMtaForDeployment(mtaStr *MTA) {
+func CleanMtaForDeployment(mtaStr *mta.MTA) {
 	deleted := 0
 	for i, m := range mtaStr.Modules {
 		j := i - deleted
@@ -111,14 +119,14 @@ func CleanMtaForDeployment(mtaStr *MTA) {
 			mtaStr.Modules = mtaStr.Modules[:j+copy(mtaStr.Modules[j:], mtaStr.Modules[j+1:])]
 			deleted++
 		} else {
-			// remove build paramaters
-			m.BuildParams = BuildParameters{}
+			// remove build parameters
+			m.BuildParams = mta.BuildParameters{}
 		}
 	}
 }
 
 // GenMetaInfo generates a MANIFEST.MF file and updates the build artifacts paths for deployment purposes.
-func GenMetaInfo(ep *fs.Loc, mtaStr *MTA, modules []string, convertTypes func(mtaStr *MTA)) error {
+func GenMetaInfo(ep *dir.Loc, mtaStr *mta.MTA, modules []string, convertTypes func(mtaStr *mta.MTA)) error {
 	err := GenMtad(mtaStr, ep, convertTypes)
 	if err != nil {
 		return errors.Wrap(err, "META INFO generation failed")
@@ -128,7 +136,7 @@ func GenMetaInfo(ep *fs.Loc, mtaStr *MTA, modules []string, convertTypes func(mt
 	if err != nil {
 		return errors.Wrap(err, "META INFO generation failed")
 	}
-	file, err := createFile(manifestPath)
+	file, err := dir.CreateFile(manifestPath)
 	if err != nil {
 		return errors.Wrap(err, "META INFO generation failed")
 	}
@@ -140,24 +148,4 @@ func GenMetaInfo(ep *fs.Loc, mtaStr *MTA, modules []string, convertTypes func(mt
 	}
 
 	return nil
-}
-
-// createDirIfNotExist - Create newGn dir
-func createDirIfNotExist(dir string) error {
-	if _, err := os.Stat(dir); os.IsNotExist(err) {
-		err = os.MkdirAll(dir, os.ModePerm)
-		if err != nil {
-			return fmt.Errorf("Failed to create dir %s ", err)
-		}
-	}
-	return nil
-}
-
-// CreateFile - create newGn file
-func createFile(path string) (file *os.File, err error) {
-	file, err = os.Create(path) // Truncates if file already exists
-	if err != nil {
-		return nil, fmt.Errorf("Failed to create file %s ", err)
-	}
-	return file, nil
 }
