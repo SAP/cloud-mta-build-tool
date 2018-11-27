@@ -1,6 +1,8 @@
 package builders
 
 import (
+	"fmt"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"gopkg.in/yaml.v2"
@@ -82,6 +84,52 @@ builders:
 		It("test", func() {
 			_, err := CommandProvider(mta.Module{Type: "html5"})
 			Ω(err).Should(HaveOccurred())
+		})
+	})
+
+	var _ = Describe("Command converter", func() {
+
+		It("Sanity", func() {
+			cmdInput := []string{"npm install", "grunt", "npm prune --production"}
+			cmdExpected := [][]string{
+				{"path", "npm", "install"},
+				{"path", "grunt"},
+				{"path", "npm", "prune", "--production"}}
+			Ω(CmdConverter("path", cmdInput)).Should(Equal(cmdExpected))
+		})
+	})
+
+	var _ = Describe("moduleCmd", func() {
+		It("Sanity", func() {
+			var mtaCF = []byte(`
+_schema-version: "2.0.0"
+ID: mta_proj
+version: 1.0.0
+
+modules:
+  - name: htmlapp
+    type: html5
+    path: app
+
+  - name: htmlapp2
+    type: html5
+    path: app
+
+  - name: java
+    type: java
+    path: app
+`)
+
+			m := mta.MTA{}
+			// parse mta yaml
+			err := yaml.Unmarshal(mtaCF, &m)
+			if err != nil {
+				fmt.Println(err)
+			}
+			module, commands, err := moduleCmd(&m, "htmlapp")
+			Ω(err).Should(BeNil())
+			Ω(module.Path).Should(Equal("app"))
+			Ω(commands).Should(Equal([]string{"npm install", "grunt", "npm prune --production"}))
 		})
 	})
 })

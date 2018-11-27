@@ -13,6 +13,22 @@ import (
 
 var _ = Describe("ModulesDeps", func() {
 
+	var _ = Describe("Process Dependencies", func() {
+		AfterEach(func() {
+			os.RemoveAll(getTestPath("result"))
+		})
+
+		It("Sanity", func() {
+			Ω(ProcessDependencies(&dir.Loc{SourcePath: getTestPath("mtahtml5"), MtaFilename: "mtaWithBuildParams.yaml"}, "ui5app")).Should(Succeed())
+		})
+		It("Invalid mta", func() {
+			Ω(ProcessDependencies(&dir.Loc{SourcePath: getTestPath("mtahtml5"), MtaFilename: "mta1.yaml"}, "ui5app")).Should(HaveOccurred())
+		})
+		It("Invalid module name", func() {
+			Ω(ProcessDependencies(&dir.Loc{SourcePath: getTestPath("mtahtml5")}, "xxx")).Should(HaveOccurred())
+		})
+	})
+
 	It("Resolve dependencies - Valid case", func() {
 		wd, _ := os.Getwd()
 		mtaStr, _ := dir.ParseFile(&dir.Loc{SourcePath: filepath.Join(wd, "testdata"), MtaFilename: "mta_multiapps.yaml"})

@@ -5,6 +5,8 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"cloud-mta-build-tool/internal/artifacts"
+	"cloud-mta-build-tool/internal/builders"
 	"cloud-mta-build-tool/internal/exec"
 	"cloud-mta-build-tool/internal/fsys"
 	"cloud-mta-build-tool/internal/logs"
@@ -81,7 +83,7 @@ var bModuleCmd = &cobra.Command{
 		err := dir.ValidateDeploymentDescriptor(descriptorBModuleFlag)
 		if err == nil {
 			ep := locationParameters(sourceBModuleFlag, targetBModuleFlag, descriptorBModuleFlag)
-			err = exec.BuildModule(&ep, pBuildModuleNameFlag)
+			err = artifacts.BuildModule(&ep, pBuildModuleNameFlag)
 		}
 		return err
 	},
@@ -100,9 +102,9 @@ var packCmd = &cobra.Command{
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		ep := locationParameters(sourcePackFlag, targetPackFlag, descriptorPackFlag)
-		module, _, err := exec.GetModuleAndCommands(&ep, pPackModuleFlag)
+		module, _, err := builders.GetModuleAndCommands(&ep, pPackModuleFlag)
 		if err == nil {
-			err = exec.PackModule(&ep, module, pPackModuleFlag)
+			err = artifacts.PackModule(&ep, module, pPackModuleFlag)
 		}
 		logError(err)
 		return err
@@ -119,7 +121,7 @@ var genMetaCmd = &cobra.Command{
 		err := dir.ValidateDeploymentDescriptor(descriptorMetaFlag)
 		if err == nil {
 			ep := locationParameters(sourceMetaFlag, targetMetaFlag, descriptorMetaFlag)
-			err = exec.GenerateMeta(&ep)
+			err = artifacts.GenerateMeta(&ep)
 		}
 		logErrorExt(err, "META generation failed")
 		return err
@@ -138,7 +140,7 @@ var genMtarCmd = &cobra.Command{
 		err := dir.ValidateDeploymentDescriptor(descriptorMtarFlag)
 		if err == nil {
 			ep := locationParameters(sourceMtarFlag, targetMtarFlag, descriptorMtarFlag)
-			err = exec.GenerateMtar(&ep)
+			err = artifacts.GenerateMtar(&ep)
 		}
 		logErrorExt(err, "MTAR generation failed")
 		return err
@@ -161,10 +163,10 @@ var genMtadCmd = &cobra.Command{
 		}
 		ep := locationParameters(sourceMtadFlag, targetMtadFlag, descriptorMtadFlag)
 		mtaStr, err := dir.ParseFile(&ep)
-		exec.CleanMtaForDeployment(mtaStr)
+		artifacts.CleanMtaForDeployment(mtaStr)
 		if err == nil {
-			err = exec.GenMtad(mtaStr, &ep, func(mtaStr *mta.MTA) {
-				e := exec.ConvertTypes(*mtaStr)
+			err = artifacts.GenMtad(mtaStr, &ep, func(mtaStr *mta.MTA) {
+				e := artifacts.ConvertTypes(*mtaStr)
 				if e != nil {
 					logErrorExt(err, "MTAD generation failed")
 				}

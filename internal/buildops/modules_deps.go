@@ -1,6 +1,8 @@
 package buildops
 
 import (
+	"cloud-mta-build-tool/internal/fsys"
+
 	"github.com/deckarep/golang-set"
 	"github.com/pkg/errors"
 
@@ -11,6 +13,29 @@ type graphNode struct {
 	module string
 	deps   mapset.Set
 	index  int
+}
+
+// ProcessDependencies - processes module dependencies
+// function prepares all artifacts required for module
+// copying them from required modules
+func ProcessDependencies(ep *dir.Loc, moduleName string) error {
+	m, err := dir.ParseFile(ep)
+	if err != nil {
+		return err
+	}
+	module, err := m.GetModuleByName(moduleName)
+	if err != nil {
+		return err
+	}
+	if module.BuildParams.Requires != nil {
+		for _, req := range module.BuildParams.Requires {
+			e := ProcessRequirements(ep, m, &req, module.Name)
+			if e != nil {
+				return e
+			}
+		}
+	}
+	return nil
 }
 
 // New graphs node

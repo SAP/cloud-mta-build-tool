@@ -1,4 +1,4 @@
-package builders
+package artifacts
 
 import (
 	"testing"
@@ -9,9 +9,9 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-func TestBuilders(t *testing.T) {
+func TestArtifacts(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Builders Suite")
+	RunSpecs(t, "Artifacts Suite")
 }
 
 var _ = BeforeSuite(func() {

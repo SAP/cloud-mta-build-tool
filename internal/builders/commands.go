@@ -1,7 +1,12 @@
 package builders
 
 import (
+	"strings"
+
+	"cloud-mta-build-tool/internal/fsys"
 	"cloud-mta-build-tool/mta"
+
+	"github.com/pkg/errors"
 )
 
 // CommandList - list of command to execute
@@ -40,4 +45,38 @@ func mesh(modules mta.Module, commands Builders) CommandList {
 		}
 	}
 	return cmds
+}
+
+// CmdConverter - path and commands to execute
+func CmdConverter(mPath string, cmdList []string) [][]string {
+	var cmd [][]string
+	for i := 0; i < len(cmdList); i++ {
+		cmd = append(cmd, append([]string{mPath}, strings.Split(cmdList[i], " ")...))
+	}
+	return cmd
+}
+
+// GetModuleAndCommands - Get module from mta.yaml and
+// commands (with resolved paths) configured for the module type
+func GetModuleAndCommands(ep *dir.Loc, module string) (*mta.Module, []string, error) {
+	mtaObj, err := dir.ParseFile(ep)
+	if err != nil {
+		return nil, nil, err
+	}
+	// Get module respective command's to execute
+	return moduleCmd(mtaObj, module)
+}
+
+// Get commands for specific module type
+func moduleCmd(mta *mta.MTA, moduleName string) (*mta.Module, []string, error) {
+	for _, m := range mta.Modules {
+		if m.Name == moduleName {
+			commandProvider, err := CommandProvider(*m)
+			if err != nil {
+				return nil, nil, err
+			}
+			return m, commandProvider.Command, nil
+		}
+	}
+	return nil, nil, errors.Errorf("Module %v not defined in MTA", moduleName)
 }
