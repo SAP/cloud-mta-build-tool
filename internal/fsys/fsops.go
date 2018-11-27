@@ -10,10 +10,12 @@ import (
 	"strings"
 
 	"github.com/pkg/errors"
+
+	"cloud-mta-build-tool/internal/logs"
 )
 
-// createDirIfNotExist - Create new dir
-func createDirIfNotExist(dir string) error {
+// CreateDirIfNotExist - Create new dir
+func CreateDirIfNotExist(dir string) error {
 	var err error
 	if _, err = os.Stat(dir); os.IsNotExist(err) {
 		err = os.MkdirAll(dir, os.ModePerm)
@@ -151,12 +153,17 @@ func CopyByPatterns(source, target string, patterns []string) error {
 	if patterns == nil || len(patterns) == 0 {
 		return nil
 	}
+
+	logs.Logger.Infof("Copy by patterns started. Source <%v> target <%v>", source, target)
+
 	infoTargetDir, err := os.Stat(target)
 	if err != nil {
 		err = os.MkdirAll(target, os.ModePerm)
 		if err != nil {
 			return errors.Wrapf(err, "Copy by patterns [%v,...] failed on creating directory %v", patterns[0], target)
 		}
+		logs.Logger.Infof("Directory <%v> created", target)
+
 	} else if !infoTargetDir.IsDir() {
 		return errors.Errorf("Copy by patterns [%v,...] failed. Target-path %v is not a folder", patterns[0], target)
 	}
@@ -168,11 +175,13 @@ func CopyByPatterns(source, target string, patterns []string) error {
 		}
 	}
 
+	logs.Logger.Info("Copy by patterns successfully finished.")
 	return nil
 }
 
 // copyByPattern - copy files/directories according to pattern
 func copyByPattern(source, target, pattern string) error {
+	logs.Logger.Infof("Copy by pattern <%v> started.", pattern)
 	// build full pattern concatenating source path and pattern
 	fullPattern := filepath.Join(source, strings.Replace(pattern, "./", "", -1))
 	// get all entries matching the pattern
@@ -196,6 +205,7 @@ func copyByPattern(source, target, pattern string) error {
 			return errors.Wrapf(err, "Copy by pattern %v failed on copy of %v to %v", pattern, sourceEntry, targetEntry)
 		}
 	}
+	logs.Logger.Infof("Copy by pattern <%v> successfully finished.", pattern)
 	return nil
 }
 
@@ -260,4 +270,18 @@ func CopyFile(src, dst string) (err error) {
 // getRelativePath - Remove the basePath from the fullPath and get only the relative
 func getRelativePath(fullPath, basePath string) string {
 	return strings.TrimPrefix(fullPath, basePath)
+}
+
+// Read returns mta byte slice.
+func Read(ep *Loc) ([]byte, error) {
+	fileFullPath, err := ep.GetMtaYamlPath()
+	if err != nil {
+		return nil, errors.Wrap(err, "Read failed getting MTA Yaml path")
+	}
+	// ParseFile MTA file
+	yamlFile, err := ioutil.ReadFile(fileFullPath)
+	if err != nil {
+		return nil, errors.Wrap(err, "Error reading the MTA file")
+	}
+	return yamlFile, nil
 }

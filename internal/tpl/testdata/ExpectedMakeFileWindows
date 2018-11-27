@@ -4,8 +4,8 @@ DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 BASE := $(notdir $(patsubst %/,%,$(DIR)))
 MTR_DIR := $(DIR)$(BASE)
 # Determine OS cores
-    NPROCS = $(shell echo %NUMBER_OF_PROCESSORS%)
-    MAKEFLAGS += -j$(NPROCS)
+NPROCS = $(shell echo %NUMBER_OF_PROCESSORS%)
+MAKEFLAGS += -j$(NPROCS)
 # List of all the recipes to be executed during the build process
 .PHONY: ui meta mtar cleanup
 # Default target compile all
@@ -25,7 +25,7 @@ modules = ui
 # Execute all modules builds
 # build module ui
 ui:
-	@cd $(PROJ_DIR)/ui && npm install && grunt && npm prune --production
+	@cd $(PROJ_DIR)/ui && grunt
 # Pack module build artifacts
 	@mbt execute pack -m=ui
 

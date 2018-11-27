@@ -1,7 +1,7 @@
 package main
 
 import (
-	"cloud-mta-build-tool/cmd/commands"
+	"cloud-mta-build-tool/cmd"
 )
 
 func main() {

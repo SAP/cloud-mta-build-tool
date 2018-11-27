@@ -3,9 +3,10 @@ package exec_test
 import (
 	"testing"
 
-	"cloud-mta-build-tool/internal/logs"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+
+	"cloud-mta-build-tool/internal/logs"
 )
 
 func TestExec(t *testing.T) {

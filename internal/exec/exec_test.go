@@ -8,14 +8,15 @@ import (
 	"strings"
 	"time"
 
-	"cloud-mta-build-tool/internal/builders"
-	"cloud-mta-build-tool/internal/fsys"
-	"cloud-mta-build-tool/mta"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
+
+	"cloud-mta-build-tool/internal/builders"
+	"cloud-mta-build-tool/internal/fsys"
+	"cloud-mta-build-tool/mta"
 )
 
 var _ = Describe("Execute", func() {
@@ -66,11 +67,11 @@ var _ = Describe("Execute", func() {
 		AfterEach(func() {
 			os.Remove(getTestPath("mta", "node-js", "data.zip"))
 			os.RemoveAll(getTestPath("mta", "mta"))
-			mta.GetWorkingDirectory = mta.OsGetWd
+			dir.GetWorkingDirectory = dir.OsGetWd
 		})
 
 		It("Sanity", func() {
-			lp := mta.Loc{SourcePath: getTestPath("mta")}
+			lp := dir.Loc{SourcePath: getTestPath("mta")}
 			dir.Archive(getTestPath("mta", "node-js"), getTestPath("mta", "node-js", "data.zip"))
 
 			Ω(copyModuleArchive(&lp, "node-js", "node-js")).Should(Succeed())
@@ -78,11 +79,11 @@ var _ = Describe("Execute", func() {
 		})
 
 		var _ = DescribeTable("Invalid cases", func(modulePath string, mockWd bool, failOnCall int) {
-			var lp mta.Loc
+			var lp dir.Loc
 			var countCalls = 0
 			if mockWd {
-				lp = mta.Loc{}
-				mta.GetWorkingDirectory = func() (string, error) {
+				lp = dir.Loc{}
+				dir.GetWorkingDirectory = func() (string, error) {
 					countCalls++
 					if countCalls >= failOnCall {
 						return "", errors.New("error")
@@ -90,7 +91,7 @@ var _ = Describe("Execute", func() {
 					return os.Getwd()
 				}
 			} else {
-				lp = mta.Loc{SourcePath: getTestPath("mta")}
+				lp = dir.Loc{SourcePath: getTestPath("mta")}
 			}
 			Ω(copyModuleArchive(&lp, modulePath, "node-js")).Should(HaveOccurred())
 		},
@@ -113,7 +114,7 @@ var _ = Describe("Execute", func() {
 		)
 
 		var _ = DescribeTable("validateMtaYaml", func(projectRelPath string, validateSchema, validateProject, expectedSuccess bool) {
-			ep := mta.Loc{SourcePath: getTestPath(projectRelPath)}
+			ep := dir.Loc{SourcePath: getTestPath(projectRelPath)}
 			err := ValidateMtaYaml(&ep, validateSchema, validateProject)
 			Ω(err == nil).Should(Equal(expectedSuccess))
 		},
@@ -157,13 +158,13 @@ builders:
 		})
 
 		It("Sanity", func() {
-			ep := mta.Loc{SourcePath: getTestPath("mta"), TargetPath: getTestPath("result")}
+			ep := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getTestPath("result")}
 			Ω(BuildModule(&ep, "node-js")).Should(Succeed())
 			Ω(ep.GetTargetModuleZipPath("node-js")).Should(BeAnExistingFile())
 		})
 
 		var _ = DescribeTable("Invalid inputs", func(projectName, mtaFilename, moduleName string) {
-			ep := mta.Loc{SourcePath: getTestPath(projectName), TargetPath: getTestPath("result"), MtaFilename: mtaFilename}
+			ep := dir.Loc{SourcePath: getTestPath(projectName), TargetPath: getTestPath("result"), MtaFilename: mtaFilename}
 			Ω(BuildModule(&ep, moduleName)).Should(HaveOccurred())
 			Ω(ep.GetTargetTmpDir()).ShouldNot(BeADirectory())
 		},
@@ -189,14 +190,14 @@ builders:
 		}
 
 		It("Generate Meta", func() {
-			ep := mta.Loc{SourcePath: getTestPath("mtahtml5"), TargetPath: getTestPath("result")}
+			ep := dir.Loc{SourcePath: getTestPath("mtahtml5"), TargetPath: getTestPath("result")}
 			GenerateMeta(&ep)
 			mtadPath, _ := ep.GetMtadPath()
 			Ω(readFileContent(mtadPath)).Should(Equal(readFileContent(getTestPath("golden", "mtad.yaml"))))
 		})
 
 		It("Generate Mtar", func() {
-			ep := mta.Loc{SourcePath: getTestPath("mtahtml5"), TargetPath: getTestPath("result")}
+			ep := dir.Loc{SourcePath: getTestPath("mtahtml5"), TargetPath: getTestPath("result")}
 			err := GenerateMeta(&ep)
 			if err != nil {
 				fmt.Println(err)
@@ -228,13 +229,13 @@ builders:
 		})
 
 		It("Sanity", func() {
-			Ω(processDependencies(&mta.Loc{SourcePath: getTestPath("mtahtml5"), MtaFilename: "mtaWithBuildParams.yaml"}, "ui5app")).Should(Succeed())
+			Ω(processDependencies(&dir.Loc{SourcePath: getTestPath("mtahtml5"), MtaFilename: "mtaWithBuildParams.yaml"}, "ui5app")).Should(Succeed())
 		})
 		It("Invalid mta", func() {
-			Ω(processDependencies(&mta.Loc{SourcePath: getTestPath("mtahtml5"), MtaFilename: "mta1.yaml"}, "ui5app")).Should(HaveOccurred())
+			Ω(processDependencies(&dir.Loc{SourcePath: getTestPath("mtahtml5"), MtaFilename: "mta1.yaml"}, "ui5app")).Should(HaveOccurred())
 		})
 		It("Invalid module name", func() {
-			Ω(processDependencies(&mta.Loc{SourcePath: getTestPath("mtahtml5")}, "xxx")).Should(HaveOccurred())
+			Ω(processDependencies(&dir.Loc{SourcePath: getTestPath("mtahtml5")}, "xxx")).Should(HaveOccurred())
 		})
 	})
 
@@ -265,9 +266,9 @@ modules:
 			if err != nil {
 				fmt.Println(err)
 			}
-			path, commands, err := moduleCmd(&m, "htmlapp")
+			module, commands, err := moduleCmd(&m, "htmlapp")
 			Ω(err).Should(BeNil())
-			Ω(path).Should(Equal("app"))
+			Ω(module.Path).Should(Equal("app"))
 			Ω(commands).Should(Equal([]string{"npm install", "grunt", "npm prune --production"}))
 		})
 	})

@@ -1,8 +1,10 @@
-package mta
+package buildops
 
 import (
 	"github.com/deckarep/golang-set"
 	"github.com/pkg/errors"
+
+	"cloud-mta-build-tool/mta"
 )
 
 type graphNode struct {
@@ -19,10 +21,15 @@ func newGn(module *string, deps mapset.Set, index int) *graphNode {
 // graphs - graph map
 type graphs map[string]*graphNode
 
+// GetModulesNames returns a list of module names.
+func GetModulesNames(m *mta.MTA) ([]string, error) {
+	return getModulesOrder(m)
+}
+
 // getModulesOrder - Provides Modules ordered according to build-parameters' dependencies
-func (mta *MTA) getModulesOrder() ([]string, error) {
+func getModulesOrder(m *mta.MTA) ([]string, error) {
 	var graph = make(graphs)
-	for index, module := range mta.Modules {
+	for index, module := range m.Modules {
 		deps := mapset.NewSet()
 		if module.BuildParams.Requires != nil {
 			for _, req := range module.BuildParams.Requires {
@@ -31,13 +38,13 @@ func (mta *MTA) getModulesOrder() ([]string, error) {
 		}
 		graph[module.Name] = newGn(&module.Name, deps, index)
 	}
-	return resolveGraph(&graph, mta)
+	return resolveGraph(&graph, m)
 }
 
 // Resolves the dependency graphs
 // For resolving cyclic dependencies Kahn’s algorithm of topological sorting is used.
 // https://en.wikipedia.org/wiki/Topological_sorting
-func resolveGraph(graph *graphs, mta *MTA) ([]string, error) {
+func resolveGraph(graph *graphs, m *mta.MTA) ([]string, error) {
 	overleft := *graph
 
 	// Iteratively find and remove nodes from the graphs which have no dependencies.
@@ -68,7 +75,7 @@ func resolveGraph(graph *graphs, mta *MTA) ([]string, error) {
 			readyModulesIndexes.Add(node.(*graphNode).index)
 		}
 
-		for index, module := range mta.Modules {
+		for index, module := range m.Modules {
 			if readyModulesIndexes.Contains(index) {
 				resolved = append(resolved, module.Name)
 			}

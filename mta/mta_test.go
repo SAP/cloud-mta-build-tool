@@ -8,6 +8,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
+	"gopkg.in/yaml.v2"
 )
 
 func getTestPath(relPath ...string) string {
@@ -18,10 +19,8 @@ func getTestPath(relPath ...string) string {
 var _ = Describe("MTA tests", func() {
 
 	var _ = DescribeTable("Validation", func(locationSource, mtaFilename string, issuesNumber int, validateProject bool) {
-		ep := Loc{SourcePath: locationSource, MtaFilename: mtaFilename}
-		yamlContent, _ := Read(&ep)
-		source, _ := ep.GetSource()
-		issues, _ := Validate(yamlContent, source, true, validateProject)
+		yamlContent, _ := ioutil.ReadFile(filepath.Join(locationSource, mtaFilename))
+		issues, _ := Validate(yamlContent, locationSource, true, validateProject)
 		Ω(len(issues)).Should(Equal(issuesNumber))
 	},
 
@@ -29,24 +28,9 @@ var _ = Describe("MTA tests", func() {
 		Entry("Validate Schema", getTestPath(), "mta_multiapps.yaml", 0, false),
 	)
 
-	var _ = Describe("Read", func() {
-		It("Sanity", func() {
-			res, resErr := Read(&Loc{SourcePath: getTestPath("testproject")})
-			Ω(res).ShouldNot(BeNil())
-			Ω(resErr).Should(BeNil())
-		})
-	})
-
-	var _ = Describe("GetModulesNames", func() {
-		It("Sanity", func() {
-			mta := &MTA{Modules: []*Modules{{Name: "someproj-db"}, {Name: "someproj-java"}}}
-			Ω(mta.GetModulesNames()).Should(Equal([]string{"someproj-db", "someproj-java"}))
-		})
-	})
-
 	var _ = Describe("Parsing", func() {
 		It("Modules parsing - sanity", func() {
-			var moduleSrv = Modules{
+			var moduleSrv = Module{
 				Name: "srv",
 				Type: "java",
 				Path: "srv",
@@ -70,7 +54,7 @@ var _ = Describe("MTA tests", func() {
 					"APPC_LOG_LEVEL":              "info",
 				},
 			}
-			var moduleUI = Modules{
+			var moduleUI = Module{
 				Name: "ui",
 				Type: "html5",
 				Path: "ui",
@@ -89,175 +73,20 @@ var _ = Describe("MTA tests", func() {
 				BuildParams: BuildParameters{Builder: "grunt"},
 				Parameters:  Parameters{"disk-quota": "256M", "memory": "256M"},
 			}
-			var modules = []*Modules{&moduleSrv, &moduleUI}
+			var modules = []*Module{&moduleSrv, &moduleUI}
 			mtaFile, _ := ioutil.ReadFile("./testdata/mta.yaml")
 			// Unmarshal file
 			oMta := &MTA{}
-			Ω(oMta.Unmarshal(mtaFile)).Should(Succeed())
+			Ω(yaml.Unmarshal(mtaFile, oMta)).Should(Succeed())
 			Ω(oMta.Modules).Should(HaveLen(2))
 			Ω(oMta.GetModules()).Should(Equal(modules))
 
 		})
 
-		It("BrokenMta", func() {
-			mtaContent, _ := ioutil.ReadFile("./testdata/mtaWithBrokenProperties.yaml")
-			oMta := &MTA{}
-			Ω(oMta.Unmarshal(mtaContent)).Should(HaveOccurred())
-		})
-
-		It("Full MTA Parsing - Sanity", func() {
-			schemaVersion := "2.0.0"
-			expected := MTA{
-				SchemaVersion: &schemaVersion,
-				ID:            "cloud.samples.someproj",
-				Version:       "1.0.0",
-				Parameters:    Parameters{"deploy_mode": "html5-repo"},
-				Modules: []*Modules{
-					{
-						Name: "someproj-db",
-						Type: "hdb",
-						Path: "db",
-						Requires: []Requires{
-							{Name: "someproj-hdi-container"},
-							{Name: "someproj-logging"},
-						},
-						Parameters: Parameters{"disk-quota": "256M", "memory": "256M"},
-					},
-					{
-						Name:       "someproj-java",
-						Type:       "java",
-						Path:       "srv",
-						Parameters: Parameters{"memory": "512M", "disk-quota": "256M"},
-						Provides: []Provides{
-							{
-								Name:       "java",
-								Properties: Properties{"url": "${default-url}"},
-							},
-						},
-						Requires: []Requires{
-							{
-								Name: "someproj-hdi-container",
-								Properties: Properties{
-									"JBP_CONFIG_RESOURCE_CONFIGURATION": "[tomcat/webapps/ROOT/META-INF/context.xml: " +
-										"{\"service_name_for_DefaultDB\" : \"~{hdi-container-name}\"}]",
-								},
-							},
-							{Name: "someproj-logging"},
-						},
-						BuildParams: BuildParameters{
-							Requires: []BuildRequires{{Name: "someproj-db", TargetPath: ""}},
-						},
-					},
-					{
-						Name: "someproj-catalog-ui",
-						Type: "html5",
-						Path: "someproj-someprojCatalog",
-						Parameters: Parameters{
-							"memory":     "256M",
-							"disk-quota": "256M",
-						},
-						Requires: []Requires{
-							{
-								Name:  "java",
-								Group: "destinations",
-								Properties: Properties{
-									"name": "someproj-backend",
-									"url":  "~{url}",
-								},
-							},
-							{Name: "someproj-logging"},
-						},
-						BuildParams: BuildParameters{
-							Builder: "grunt",
-							Requires: []BuildRequires{
-								{
-									Name:       "someproj-java",
-									TargetPath: "",
-								},
-							},
-						},
-					},
-					{
-						Name: "someproj-uideployer",
-						Type: "content",
-						Parameters: Parameters{
-							"memory":     "256M",
-							"disk-quota": "256M",
-						},
-						Requires: []Requires{{Name: "someproj-apprepo-dt"}},
-						BuildParams: BuildParameters{
-							Builder: "grunt",
-							Type:    "content",
-							Requires: []BuildRequires{
-								{Name: "someproj-catalog-ui"},
-							},
-						},
-					},
-					{
-						Name: "someproj",
-						Type: "approuter.nodejs",
-						Path: "approuter",
-						Parameters: Parameters{
-							"memory":     "256M",
-							"disk-quota": "256M",
-						},
-						Requires: []Requires{
-							{
-								Name:  "java",
-								Group: "destinations",
-								Properties: Properties{
-									"name": "someproj-backend",
-									"url":  "~{url}",
-								},
-							},
-							{Name: "someproj-apprepo-rt"},
-							{Name: "someproj-logging"},
-						},
-					},
-				},
-				Resources: []*Resources{
-					{
-						Name:       "someproj-hdi-container",
-						Properties: Properties{"hdi-container-name": "${service-name}"},
-						Type:       "container",
-					},
-					{
-						Name: "someproj-apprepo-rt",
-						Type: "org.cloudfoundry.managed-service",
-						Parameters: Parameters{
-							"service":      "html5-apps-repo",
-							"service-plan": "app-runtime",
-						},
-					},
-					{
-						Name: "someproj-apprepo-dt",
-						Type: "org.cloudfoundry.managed-service",
-						Parameters: Parameters{
-							"service":      "html5-apps-repo",
-							"service-plan": "app-host",
-						},
-					},
-					{
-						Name: "someproj-logging",
-						Type: "org.cloudfoundry.managed-service",
-						Parameters: Parameters{
-							"service":      "application-logs",
-							"service-plan": "lite",
-						},
-					},
-				},
-			}
-
-			mtaContent, _ := ioutil.ReadFile("./testdata/mta2.yaml")
-
-			actual := &MTA{}
-			Ω(actual.Unmarshal(mtaContent)).Should(Succeed())
-			Ω(expected).Should(Equal(*actual))
-		})
 	})
 
 	var _ = Describe("Get methods on MTA", func() {
-		modules := []*Modules{
+		modules := []*Module{
 			{
 				Name: "someproj-db",
 				Type: "hdb",
@@ -287,7 +116,7 @@ var _ = Describe("MTA tests", func() {
 			ID:            "MTA",
 			Version:       "1.1.1",
 			Modules:       modules,
-			Resources: []*Resources{
+			Resources: []*Resource{
 				{
 					Name: "someproj-hdi-container",
 					Properties: Properties{
@@ -323,21 +152,6 @@ var _ = Describe("MTA tests", func() {
 		It("GetModuleByName - Negative ", func() {
 			_, err := mta.GetModuleByName("foo")
 			Ω(err).Should(HaveOccurred())
-		})
-	})
-
-	var _ = Describe("ParseFile MTA", func() {
-
-		wd, _ := os.Getwd()
-
-		It("Valid filename", func() {
-			mta, err := ParseFile(&Loc{SourcePath: filepath.Join(wd, "testdata")})
-			Ω(mta).ShouldNot(BeNil())
-			Ω(err).Should(BeNil())
-		})
-		It("Invalid filename", func() {
-			_, err := ParseFile(&Loc{SourcePath: filepath.Join(wd, "testdata"), MtaFilename: "mtax.yaml"})
-			Ω(err).ShouldNot(BeNil())
 		})
 	})
 

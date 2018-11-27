@@ -1,9 +1,9 @@
 package commands
 
 import (
-	"cloud-mta-build-tool/mta"
 	"github.com/spf13/cobra"
 
+	"cloud-mta-build-tool/internal/fsys"
 	"cloud-mta-build-tool/internal/tpl"
 )
 
@@ -26,7 +26,7 @@ var initProcessCmd = &cobra.Command{
 	Args:  cobra.NoArgs,
 	Run: func(cmd *cobra.Command, args []string) {
 		// Generate build script
-		err := mta.ValidateDeploymentDescriptor(descriptorInitFlag)
+		err := dir.ValidateDeploymentDescriptor(descriptorInitFlag)
 		if err == nil {
 			ep := locationParameters(sourceInitFlag, targetInitFlag, descriptorInitFlag)
 			err = tpl.Make(&ep, initModeFlag)
