@@ -7,10 +7,10 @@ import (
 
 	"cloud-mta-build-tool/internal/artifacts"
 	"cloud-mta-build-tool/internal/builders"
-	"cloud-mta-build-tool/internal/exec"
 	"cloud-mta-build-tool/internal/fsys"
 	"cloud-mta-build-tool/internal/logs"
 	"cloud-mta-build-tool/mta"
+	"cloud-mta-build-tool/validations"
 )
 
 var sourceMtadFlag string
@@ -191,10 +191,10 @@ var validateCmd = &cobra.Command{
 			logErrorExt(err, "MBT Validation failed")
 			return err
 		}
-		validateSchema, validateProject, err := exec.GetValidationMode(pValidationFlag)
+		validateSchema, validateProject, err := validate.GetValidationMode(pValidationFlag)
 		if err == nil {
 			ep := locationParameters(sourceValidateFlag, sourceValidateFlag, descriptorValidateFlag)
-			err = exec.ValidateMtaYaml(&ep, validateSchema, validateProject)
+			err = validate.ValidateMtaYaml(&ep, validateSchema, validateProject)
 		}
 		logErrorExt(err, "MBT Validation failed")
 		return err

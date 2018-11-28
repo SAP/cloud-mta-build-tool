@@ -1,14 +1,18 @@
-package mta
+package validate
 
 import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
 
+	"cloud-mta-build-tool/internal/fsys"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
 	"gopkg.in/yaml.v2"
+
+	"cloud-mta-build-tool/mta"
 )
 
 func getTestPath(relPath ...string) string {
@@ -20,7 +24,7 @@ var _ = Describe("MTA tests", func() {
 
 	var _ = DescribeTable("Validation", func(locationSource, mtaFilename string, issuesNumber int, validateProject bool) {
 		yamlContent, _ := ioutil.ReadFile(filepath.Join(locationSource, mtaFilename))
-		issues, _ := Validate(yamlContent, locationSource, true, validateProject)
+		issues, _ := validate(yamlContent, locationSource, true, validateProject)
 		Ω(len(issues)).Should(Equal(issuesNumber))
 	},
 
@@ -30,39 +34,39 @@ var _ = Describe("MTA tests", func() {
 
 	var _ = Describe("Parsing", func() {
 		It("Modules parsing - sanity", func() {
-			var moduleSrv = Module{
+			var moduleSrv = mta.Module{
 				Name: "srv",
 				Type: "java",
 				Path: "srv",
-				Requires: []Requires{
+				Requires: []mta.Requires{
 					{
 						Name: "db",
-						Properties: Properties{
+						Properties: mta.Properties{
 							"JBP_CONFIG_RESOURCE_CONFIGURATION": `[tomcat/webapps/ROOT/META-INF/context.xml: {"service_name_for_DefaultDB" : "~{hdi-container-name}"}]`,
 						},
 					},
 				},
-				Provides: []Provides{
+				Provides: []mta.Provides{
 					{
 						Name:       "srv_api",
-						Properties: Properties{"url": "${default-url}"},
+						Properties: mta.Properties{"url": "${default-url}"},
 					},
 				},
-				Parameters: Parameters{"memory": "512M"},
-				Properties: Properties{
+				Parameters: mta.Parameters{"memory": "512M"},
+				Properties: mta.Properties{
 					"VSCODE_JAVA_DEBUG_LOG_LEVEL": "ALL",
 					"APPC_LOG_LEVEL":              "info",
 				},
 			}
-			var moduleUI = Module{
+			var moduleUI = mta.Module{
 				Name: "ui",
 				Type: "html5",
 				Path: "ui",
-				Requires: []Requires{
+				Requires: []mta.Requires{
 					{
 						Name:  "srv_api",
 						Group: "destinations",
-						Properties: Properties{
+						Properties: mta.Properties{
 							"forwardAuthToken": true,
 							"strictSSL":        false,
 							"name":             "srv_api",
@@ -70,13 +74,13 @@ var _ = Describe("MTA tests", func() {
 						},
 					},
 				},
-				BuildParams: BuildParameters{Builder: "grunt"},
-				Parameters:  Parameters{"disk-quota": "256M", "memory": "256M"},
+				BuildParams: mta.BuildParameters{Builder: "grunt"},
+				Parameters:  mta.Parameters{"disk-quota": "256M", "memory": "256M"},
 			}
-			var modules = []*Module{&moduleSrv, &moduleUI}
+			var modules = []*mta.Module{&moduleSrv, &moduleUI}
 			mtaFile, _ := ioutil.ReadFile("./testdata/mta.yaml")
 			// Unmarshal file
-			oMta := &MTA{}
+			oMta := &mta.MTA{}
 			Ω(yaml.Unmarshal(mtaFile, oMta)).Should(Succeed())
 			Ω(oMta.Modules).Should(HaveLen(2))
 			Ω(oMta.GetModules()).Should(Equal(modules))
@@ -86,12 +90,12 @@ var _ = Describe("MTA tests", func() {
 	})
 
 	var _ = Describe("Get methods on MTA", func() {
-		modules := []*Module{
+		modules := []*mta.Module{
 			{
 				Name: "someproj-db",
 				Type: "hdb",
 				Path: "db",
-				Requires: []Requires{
+				Requires: []mta.Requires{
 					{
 						Name: "someproj-hdi-container",
 					},
@@ -104,22 +108,22 @@ var _ = Describe("MTA tests", func() {
 				Name: "someproj-java",
 				Type: "java",
 				Path: "srv",
-				Parameters: Parameters{
+				Parameters: mta.Parameters{
 					"memory":     "512M",
 					"disk-quota": "256M",
 				},
 			},
 		}
 		schemaVersion := "0.0.2"
-		mta := &MTA{
+		mta := &mta.MTA{
 			SchemaVersion: &schemaVersion,
 			ID:            "MTA",
 			Version:       "1.1.1",
 			Modules:       modules,
-			Resources: []*Resource{
+			Resources: []*mta.Resource{
 				{
 					Name: "someproj-hdi-container",
-					Properties: Properties{
+					Properties: mta.Properties{
 						"hdi-container-name": "${service-name}",
 					},
 					Type: "container",
@@ -127,7 +131,7 @@ var _ = Describe("MTA tests", func() {
 				{
 					Name: "someproj-apprepo-rt",
 					Type: "org.cloudfoundry.managed-service",
-					Parameters: Parameters{
+					Parameters: mta.Parameters{
 						"service":      "html5-apps-repo",
 						"service-plan": "app-runtime",
 					},
@@ -153,6 +157,33 @@ var _ = Describe("MTA tests", func() {
 			_, err := mta.GetModuleByName("foo")
 			Ω(err).Should(HaveOccurred())
 		})
+	})
+
+	var _ = Describe("Validation", func() {
+		var _ = DescribeTable("getValidationMode", func(flag string, expectedValidateSchema, expectedValidateProject, expectedSuccess bool) {
+			res1, res2, err := GetValidationMode(flag)
+			Ω(res1).Should(Equal(expectedValidateSchema))
+			Ω(res2).Should(Equal(expectedValidateProject))
+			Ω(err == nil).Should(Equal(expectedSuccess))
+		},
+			Entry("all", "", true, true, true),
+			Entry("schema", "schema", true, false, true),
+			Entry("project", "project", false, true, true),
+			Entry("invalid", "value", false, false, false),
+		)
+
+		var _ = DescribeTable("validateMtaYaml", func(projectRelPath string, validateSchema, validateProject, expectedSuccess bool) {
+			ep := dir.Loc{SourcePath: getTestPath(projectRelPath)}
+			err := ValidateMtaYaml(&ep, validateSchema, validateProject)
+			Ω(err == nil).Should(Equal(expectedSuccess))
+		},
+			Entry("invalid path to yaml - all", "ui5app1", true, true, false),
+			Entry("invalid path to yaml - schema", "ui5app1", true, false, false),
+			Entry("invalid path to yaml - project", "ui5app1", false, true, false),
+			Entry("invalid path to yaml - nothing to validate", "ui5app1", false, false, true),
+			Entry("valid schema", "mtahtml5", true, false, true),
+			Entry("invalid project - no ui5app2 path", "mtahtml5", false, true, false),
+		)
 	})
 
 })
