@@ -39,12 +39,6 @@ func (mta *MTA) GetResourceByName(name string) (*Resource, error) {
 	return nil, fmt.Errorf("module %s , not found ", name)
 }
 
-// PlatformsDefined - if platforms defined
-// Only empty list of platforms indicates no platforms defined
-func (module *Module) PlatformsDefined() bool {
-	return module.BuildParams.SupportedPlatforms == nil || len(module.BuildParams.SupportedPlatforms) > 0
-}
-
 // Unmarshal - returns a reference to the MTA object from a byte array.
 func Unmarshal(content []byte) (*MTA, error) {
 	m := &MTA{}

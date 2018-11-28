@@ -56,7 +56,7 @@ func BuildModule(ep *dir.Loc, moduleName string) error {
 		if e != nil {
 			return errors.Wrapf(e, "Module %v building failed on module's packing", moduleName)
 		}
-	} else if module.PlatformsDefined() {
+	} else if buildops.PlatformsDefined(module) {
 
 		// Deployment descriptor
 		// copy module archive to temp directory
@@ -71,7 +71,7 @@ func BuildModule(ep *dir.Loc, moduleName string) error {
 // PackModule - pack build module artifacts
 func PackModule(ep *dir.Loc, module *mta.Module, moduleName string) error {
 
-	if !module.PlatformsDefined() {
+	if !buildops.PlatformsDefined(module) {
 		return nil
 	}
 

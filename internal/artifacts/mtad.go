@@ -4,11 +4,12 @@ import (
 	"io/ioutil"
 	"os"
 
-	"cloud-mta-build-tool/internal/fsys"
-	"cloud-mta-build-tool/mta"
-
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
+
+	"cloud-mta-build-tool/internal/buildops"
+	"cloud-mta-build-tool/internal/fsys"
+	"cloud-mta-build-tool/mta"
 )
 
 // GenMtad generates an mtad.yaml file from a mta.yaml file and a platform configuration file.
@@ -58,16 +59,18 @@ func marshal(in *mta.MTA) (mtads []byte, err error) {
 // if module has to be deployed we clean build parameters from module,
 // as this section is not used in MTAD yaml
 func CleanMtaForDeployment(mtaStr *mta.MTA) {
-	deleted := 0
-	for i, m := range mtaStr.Modules {
-		j := i - deleted
-		if !m.PlatformsDefined() {
-			// remove modules with no platforms defined
-			mtaStr.Modules = mtaStr.Modules[:j+copy(mtaStr.Modules[j:], mtaStr.Modules[j+1:])]
-			deleted++
-		} else {
-			// remove build parameters
-			m.BuildParams = mta.BuildParameters{}
+	for doCleaning := true; doCleaning; {
+		doCleaning = false
+		for i, m := range mtaStr.Modules {
+			if !buildops.PlatformsDefined(m) {
+				// remove modules with no platforms defined
+				mtaStr.Modules = mtaStr.Modules[:i+copy(mtaStr.Modules[i:], mtaStr.Modules[i+1:])]
+				doCleaning = true
+				break
+			} else {
+				// remove build parameters
+				m.BuildParams = mta.BuildParameters{}
+			}
 		}
 	}
 }

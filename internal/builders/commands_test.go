@@ -1,7 +1,10 @@
 package builders
 
 import (
-	"fmt"
+	"os"
+	"path/filepath"
+
+	"cloud-mta-build-tool/internal/fsys"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -122,14 +125,68 @@ modules:
 
 			m := mta.MTA{}
 			// parse mta yaml
-			err := yaml.Unmarshal(mtaCF, &m)
-			if err != nil {
-				fmt.Println(err)
-			}
+			Ω(yaml.Unmarshal(mtaCF, &m)).Should(Succeed())
+			module, commands, err := moduleCmd(&m, "htmlapp")
+			Ω(err).Should(Succeed())
+			Ω(module.Path).Should(Equal("app"))
+			Ω(commands).Should(Equal([]string{"npm install", "grunt", "npm prune --production"}))
+		})
+
+		It("Builder specified in build params", func() {
+			var mtaCF = []byte(`
+_schema-version: "2.0.0"
+ID: mta_proj
+version: 1.0.0
+
+modules:
+  - name: htmlapp
+    type: html5
+    path: app
+    build-parameters:
+      builder: npm
+`)
+
+			m := mta.MTA{}
+			// parse mta yaml
+			Ω(yaml.Unmarshal(mtaCF, &m)).Should(Succeed())
 			module, commands, err := moduleCmd(&m, "htmlapp")
 			Ω(err).Should(BeNil())
 			Ω(module.Path).Should(Equal("app"))
-			Ω(commands).Should(Equal([]string{"npm install", "grunt", "npm prune --production"}))
+			Ω(commands).Should(Equal([]string{"npm install", "npm prune --production"}))
+		})
+	})
+
+	var _ = Describe("GetModuleAndCommands", func() {
+		It("Sanity", func() {
+			wd, _ := os.Getwd()
+			ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata")}
+			module, cmd, err := GetModuleAndCommands(&ep, "node-js")
+			Ω(err).Should(Succeed())
+			Ω(module.Name).Should(Equal("node-js"))
+			Ω(len(cmd)).Should(Equal(1))
+			Ω(cmd[0]).Should(Equal("npm prune --production"))
+
+		})
+		It("Invalid case - wrong module name", func() {
+			wd, _ := os.Getwd()
+			ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata")}
+			_, _, err := GetModuleAndCommands(&ep, "node-js1")
+			Ω(err).Should(HaveOccurred())
+
+		})
+		It("Invalid case - wrong mta", func() {
+			wd, _ := os.Getwd()
+			ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata"), MtaFilename: "mtaUnknown.yaml"}
+			_, _, err := GetModuleAndCommands(&ep, "node-js")
+			Ω(err).Should(HaveOccurred())
+
+		})
+		It("Invalid case - wrong type", func() {
+			wd, _ := os.Getwd()
+			ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata"), MtaFilename: "mtaUnknownBuilder.yaml"}
+			_, cmd, _ := GetModuleAndCommands(&ep, "node-js")
+			Ω(len(cmd)).Should(Equal(0))
+
 		})
 	})
 })

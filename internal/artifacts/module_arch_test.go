@@ -4,6 +4,7 @@ import (
 	"os"
 
 	"cloud-mta-build-tool/internal/builders"
+	"cloud-mta-build-tool/mta"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
@@ -14,6 +15,44 @@ import (
 )
 
 var _ = Describe("ModuleArch", func() {
+
+	AfterEach(func() {
+		os.RemoveAll(getTestPath("result"))
+	})
+
+	var _ = Describe("Pack", func() {
+		It("Deployment descriptor - Copy only", func() {
+			ep := dir.Loc{
+				SourcePath: getTestPath("mta_with_zipped_module"),
+				TargetPath: getTestPath("result"),
+				Descriptor: "dep",
+			}
+			m := mta.Module{
+				Name: "node-js",
+				Path: "node-js",
+			}
+			Ω(PackModule(&ep, &m, "node-js")).Should(Succeed())
+			Ω(getTestPath("result", "mta_with_zipped_module", "node-js", "data.zip")).Should(BeAnExistingFile())
+		})
+
+		It("No platforms - no pack", func() {
+			ep := dir.Loc{
+				SourcePath: getTestPath("mta_with_zipped_module"),
+				TargetPath: getTestPath("result"),
+				Descriptor: "dep",
+			}
+			m := mta.Module{
+				Name: "node-js",
+				Path: "node-js",
+				BuildParams: mta.BuildParameters{
+					SupportedPlatforms: []string{},
+				},
+			}
+			Ω(PackModule(&ep, &m, "node-js")).Should(Succeed())
+			Ω(getTestPath("result", "mta_with_zipped_module", "node-js", "data.zip")).ShouldNot(BeAnExistingFile())
+		})
+	})
+
 	var _ = Describe("Build", func() {
 
 		var _ = Describe("build Module", func() {
@@ -37,14 +76,18 @@ builders:
 `)
 			})
 
-			AfterEach(func() {
-				os.RemoveAll(getTestPath("result"))
-				builders.CommandsConfig = make([]byte, len(config))
-				copy(builders.CommandsConfig, config)
-			})
-
 			It("Sanity", func() {
 				ep := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getTestPath("result")}
+				Ω(BuildModule(&ep, "node-js")).Should(Succeed())
+				Ω(ep.GetTargetModuleZipPath("node-js")).Should(BeAnExistingFile())
+			})
+
+			It("Deployment Descriptor", func() {
+				ep := dir.Loc{
+					SourcePath:  getTestPath("mta_with_zipped_module"),
+					TargetPath:  getTestPath("result"),
+					MtaFilename: "mta.yaml",
+					Descriptor:  "dep"}
 				Ω(BuildModule(&ep, "node-js")).Should(Succeed())
 				Ω(ep.GetTargetModuleZipPath("node-js")).Should(BeAnExistingFile())
 			})

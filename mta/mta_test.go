@@ -2,6 +2,8 @@ package mta
 
 import (
 	"io/ioutil"
+	"os"
+	"path/filepath"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -138,4 +140,17 @@ var _ = Describe("Mta", func() {
 			})
 		})
 	})
+
+	var _ = Describe("Unmarshal", func() {
+		It("Sanity", func() {
+			wd, err := os.Getwd()
+			Ω(err).Should(Succeed())
+			content, err := ioutil.ReadFile(filepath.Join(wd, "testdata", "mta.yaml"))
+			Ω(err).Should(Succeed())
+			m, err := Unmarshal(content)
+			Ω(err).Should(Succeed())
+			Ω(len(m.Modules)).Should(Equal(2))
+		})
+	})
+
 })

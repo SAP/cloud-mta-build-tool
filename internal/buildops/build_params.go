@@ -74,3 +74,9 @@ func getRequiredTargetPath(ep *dir.Loc, module *mta.Module, requires *mta.BuildR
 	}
 	return path, nil
 }
+
+// PlatformsDefined - if platforms defined
+// Only empty list of platforms indicates no platforms defined
+func PlatformsDefined(module *mta.Module) bool {
+	return module.BuildParams.SupportedPlatforms == nil || len(module.BuildParams.SupportedPlatforms) > 0
+}
