@@ -20,16 +20,6 @@ func getTestPath(relPath ...string) string {
 
 var _ = Describe("MTA tests", func() {
 
-	var _ = DescribeTable("Validation", func(locationSource, mtaFilename string, issuesNumber int, validateProject bool) {
-		yamlContent, _ := ioutil.ReadFile(filepath.Join(locationSource, mtaFilename))
-		issues, _ := validate(yamlContent, locationSource, true, validateProject)
-		Ω(len(issues)).Should(Equal(issuesNumber))
-	},
-
-		Entry("Validate All", getTestPath("testproject"), "mta.yaml", 1, true),
-		Entry("Validate Schema", getTestPath(), "mta_multiapps.yaml", 0, false),
-	)
-
 	var _ = Describe("Parsing", func() {
 		It("Modules parsing - sanity", func() {
 			var moduleSrv = mta.Module{
@@ -85,76 +75,6 @@ var _ = Describe("MTA tests", func() {
 
 		})
 
-	})
-
-	var _ = Describe("Get methods on MTA", func() {
-		modules := []*mta.Module{
-			{
-				Name: "someproj-db",
-				Type: "hdb",
-				Path: "db",
-				Requires: []mta.Requires{
-					{
-						Name: "someproj-hdi-container",
-					},
-					{
-						Name: "someproj-logging",
-					},
-				},
-			},
-			{
-				Name: "someproj-java",
-				Type: "java",
-				Path: "srv",
-				Parameters: mta.Parameters{
-					"memory":     "512M",
-					"disk-quota": "256M",
-				},
-			},
-		}
-		schemaVersion := "0.0.2"
-		mta := &mta.MTA{
-			SchemaVersion: &schemaVersion,
-			ID:            "MTA",
-			Version:       "1.1.1",
-			Modules:       modules,
-			Resources: []*mta.Resource{
-				{
-					Name: "someproj-hdi-container",
-					Properties: mta.Properties{
-						"hdi-container-name": "${service-name}",
-					},
-					Type: "container",
-				},
-				{
-					Name: "someproj-apprepo-rt",
-					Type: "org.cloudfoundry.managed-service",
-					Parameters: mta.Parameters{
-						"service":      "html5-apps-repo",
-						"service-plan": "app-runtime",
-					},
-				},
-			}}
-		It("GetModules", func() {
-			Ω(mta.GetModules()).Should(Equal(modules))
-		})
-		It("GetResourceByName - Sanity", func() {
-			Ω(mta.GetResourceByName("someproj-hdi-container")).Should(Equal(mta.Resources[0]))
-		})
-		It("GetResourceByName - Negative", func() {
-			_, err := mta.GetResourceByName("")
-			Ω(err).Should(HaveOccurred())
-		})
-		It("GetResources - Sanity ", func() {
-			Ω(mta.GetResources()).Should(Equal(mta.Resources))
-		})
-		It("GetModuleByName - Sanity ", func() {
-			Ω(mta.GetModuleByName("someproj-db")).Should(Equal(modules[0]))
-		})
-		It("GetModuleByName - Negative ", func() {
-			_, err := mta.GetModuleByName("foo")
-			Ω(err).Should(HaveOccurred())
-		})
 	})
 
 	var _ = Describe("Validation", func() {
