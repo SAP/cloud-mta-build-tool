@@ -1,11 +1,12 @@
 package validate
 
 import (
+	"io/ioutil"
+	"path/filepath"
+
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
 
-	"cloud-mta-build-tool/internal/fsys"
-	"cloud-mta-build-tool/internal/logs"
 	"cloud-mta-build-tool/mta"
 )
 
@@ -23,26 +24,20 @@ func GetValidationMode(validationFlag string) (bool, bool, error) {
 }
 
 // ValidateMtaYaml - Validate MTA yaml
-func ValidateMtaYaml(ep *dir.Loc, validateSchema bool, validateProject bool) error {
+func ValidateMtaYaml(projectPath, mtaFilename string, validateSchema bool, validateProject bool) error {
 	if validateProject || validateSchema {
-		logs.Logger.Infof("Validation of %v started", ep.MtaFilename)
 
+		mtaPath := filepath.Join(projectPath, mtaFilename)
 		// ParseFile MTA yaml content
-		yamlContent, err := dir.Read(ep)
+		yamlContent, err := ioutil.ReadFile(mtaPath)
 
 		if err != nil {
-			return errors.Wrapf(err, "Validation of %v failed on reading MTA content", ep.MtaFilename)
-		}
-		projectPath, err := ep.GetSource()
-		if err != nil {
-			return errors.Wrapf(err, "Validation of %v failed on getting source", ep.MtaFilename)
+			return errors.Wrapf(err, "Validation of %v failed on reading MTA content", mtaPath)
 		}
 		// validate mta content
 		issues, err := validate(yamlContent, projectPath, validateSchema, validateProject)
-		if len(issues) == 0 {
-			logs.Logger.Infof("Validation of %v successfully finished", ep.MtaFilename)
-		} else {
-			return errors.Errorf("Validation of %v failed. Issues: \n%v %s", ep.MtaFilename, issues.String(), err)
+		if len(issues) > 0 {
+			return errors.Errorf("Validation of %v failed. Issues: \n%v %s", mtaPath, issues.String(), err)
 		}
 	}
 

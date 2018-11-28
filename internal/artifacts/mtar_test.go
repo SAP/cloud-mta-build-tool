@@ -1,7 +1,6 @@
 package artifacts
 
 import (
-	"fmt"
 	"os"
 
 	. "github.com/onsi/ginkgo"
@@ -17,16 +16,10 @@ var _ = Describe("Mtar", func() {
 			os.RemoveAll(getTestPath("result"))
 		})
 
-		It("Generate Mtar", func() {
+		It("Generate Mtar - Sanity", func() {
 			ep := dir.Loc{SourcePath: getTestPath("mtahtml5"), TargetPath: getTestPath("result")}
-			err := GenerateMeta(&ep)
-			if err != nil {
-				fmt.Println(err)
-			}
-			err = GenerateMtar(&ep)
-			if err != nil {
-				fmt.Println(err)
-			}
+			Ω(GenerateMeta(&ep)).Should(Succeed())
+			Ω(GenerateMtar(&ep)).Should(Succeed())
 			mtarPath := getTestPath("result", "mtahtml5.mtar")
 			Ω(mtarPath).Should(BeAnExistingFile())
 		})

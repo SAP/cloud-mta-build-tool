@@ -5,8 +5,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"cloud-mta-build-tool/internal/fsys"
-
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
@@ -173,8 +171,7 @@ var _ = Describe("MTA tests", func() {
 		)
 
 		var _ = DescribeTable("validateMtaYaml", func(projectRelPath string, validateSchema, validateProject, expectedSuccess bool) {
-			ep := dir.Loc{SourcePath: getTestPath(projectRelPath)}
-			err := ValidateMtaYaml(&ep, validateSchema, validateProject)
+			err := ValidateMtaYaml(getTestPath(projectRelPath), "mta.yaml", validateSchema, validateProject)
 			Ω(err == nil).Should(Equal(expectedSuccess))
 		},
 			Entry("invalid path to yaml - all", "ui5app1", true, true, false),

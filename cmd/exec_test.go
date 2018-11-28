@@ -94,13 +94,8 @@ var _ = Describe("Commands", func() {
 
 	var _ = Describe("Validate", func() {
 		It("Invalid yaml path", func() {
-			var str bytes.Buffer
 			sourceValidateFlag = getTestPath("mta1")
-			// navigate log output to local string buffer. It will be used for error analysis
-			logs.Logger.SetOutput(&str)
-			validateCmd.RunE(nil, []string{})
-
-			Ω(str.String()).Should(ContainSubstring("Error reading the MTA file"))
+			Ω(validateCmd.RunE(nil, []string{})).Should(HaveOccurred())
 		})
 	})
 

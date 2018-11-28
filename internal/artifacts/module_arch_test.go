@@ -8,6 +8,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
+	"github.com/pkg/errors"
 
 	"cloud-mta-build-tool/internal/fsys"
 )
@@ -57,6 +58,43 @@ builders:
 				Entry("Invalid module name", "mta", "mta.yaml", "xxx"),
 				Entry("Invalid module name", "mtahtml5", "mtaWithWrongBuildParams.yaml", "ui5app"),
 			)
+		})
+
+	})
+
+	var _ = Describe("CopyModuleArchive", func() {
+
+		It("Sanity", func() {
+			ep := dir.Loc{SourcePath: getTestPath("mta_with_zipped_module"), TargetPath: getTestPath("result")}
+			Ω(CopyModuleArchive(&ep, "node-js", "node-js")).Should(Succeed())
+			Ω(ep.GetTargetModuleZipPath("node-js")).Should(BeAnExistingFile())
+		})
+		It("Invalid - no zip exists", func() {
+			ep := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getTestPath("result")}
+			Ω(CopyModuleArchive(&ep, "node-js", "node-js")).Should(HaveOccurred())
+		})
+
+		var _ = Describe("Invalid - Get Source failures", func() {
+
+			AfterEach(func() {
+				dir.GetWorkingDirectory = os.Getwd
+			})
+
+			DescribeTable("Failures", func(failOnCall int) {
+				var callsCounter = 0
+				wd, _ := os.Getwd()
+				dir.GetWorkingDirectory = func() (string, error) {
+					callsCounter++
+					if callsCounter >= failOnCall {
+						return "", errors.New("err")
+					}
+					return wd, nil
+				}
+				ep := dir.Loc{}
+				Ω(CopyModuleArchive(&ep, "node-js", "node-js")).Should(HaveOccurred())
+			},
+				Entry("Fails on first call", 1),
+				Entry("Fails on second call", 2))
 		})
 
 	})

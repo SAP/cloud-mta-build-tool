@@ -193,8 +193,7 @@ var validateCmd = &cobra.Command{
 		}
 		validateSchema, validateProject, err := validate.GetValidationMode(pValidationFlag)
 		if err == nil {
-			ep := locationParameters(sourceValidateFlag, sourceValidateFlag, descriptorValidateFlag)
-			err = validate.ValidateMtaYaml(&ep, validateSchema, validateProject)
+			err = validate.ValidateMtaYaml(sourceValidateFlag, descriptorValidateFlag, validateSchema, validateProject)
 		}
 		logErrorExt(err, "MBT Validation failed")
 		return err
