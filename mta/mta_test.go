@@ -9,7 +9,6 @@ import (
 )
 
 var _ = Describe("Mta", func() {
-
 	var _ = Describe("MTA tests", func() {
 
 		var _ = Describe("Parsing", func() {
