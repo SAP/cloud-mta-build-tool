@@ -25,17 +25,7 @@ type MTA struct {
 }
 
 // BuildParameters - build parameters are specifically steering the behavior of build tools.
-type BuildParameters struct {
-	// Builder name
-	Builder string `yaml:"builder,omitempty"`
-	// Builder type
-	Type string `yaml:"type,omitempty"`
-	// A path pointing to a file which contains a map of parameters, either in JSON or in YAML format.
-	Path string `yaml:"path,omitempty"`
-	// list of names either matching a resource name or a name provided by another module within the same MTA
-	Requires           []BuildRequires `yaml:"requires,omitempty"`
-	SupportedPlatforms []string        `yaml:"supported-platforms,omitempty"`
-}
+type BuildParameters map[string]interface{}
 
 // Module - modules section.
 type Module struct {
@@ -81,13 +71,6 @@ type Requires struct {
 	Properties Properties `yaml:"properties,omitempty"`
 	// Parameters can be used to influence the behavior of tools which interpret this descriptor. Parameters are not made available to requiring modules at runtime
 	Parameters Parameters `yaml:"parameters,omitempty"`
-}
-
-// BuildRequires - build requires section.
-type BuildRequires struct {
-	Name       string   `yaml:"name,omitempty"`
-	Artifacts  []string `yaml:"artifacts,omitempty"`
-	TargetPath string   `yaml:"target-path,omitempty"`
 }
 
 // Resource can be anything required to run the application which is not provided by the application itself.

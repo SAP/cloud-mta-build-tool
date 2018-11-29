@@ -27,6 +27,9 @@ var _ = Describe("ModulesDeps", func() {
 		It("Invalid module name", func() {
 			Ω(ProcessDependencies(&dir.Loc{SourcePath: getTestPath("mtahtml5")}, "xxx")).Should(HaveOccurred())
 		})
+		It("Invalid module name", func() {
+			Ω(ProcessDependencies(&dir.Loc{SourcePath: getTestPath("mtahtml5"), MtaFilename: "mtaWithWrongBuildParams.yaml"}, "ui5app")).Should(HaveOccurred())
+		})
 	})
 
 	It("Resolve dependencies - Valid case", func() {
