@@ -1,6 +1,11 @@
 package builders
 
 import (
+	"os"
+	"path/filepath"
+
+	"cloud-mta-build-tool/internal/fsys"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"gopkg.in/yaml.v2"
@@ -82,6 +87,106 @@ builders:
 		It("test", func() {
 			_, err := CommandProvider(mta.Module{Type: "html5"})
 			Ω(err).Should(HaveOccurred())
+		})
+	})
+
+	var _ = Describe("Command converter", func() {
+
+		It("Sanity", func() {
+			cmdInput := []string{"npm install", "grunt", "npm prune --production"}
+			cmdExpected := [][]string{
+				{"path", "npm", "install"},
+				{"path", "grunt"},
+				{"path", "npm", "prune", "--production"}}
+			Ω(CmdConverter("path", cmdInput)).Should(Equal(cmdExpected))
+		})
+	})
+
+	var _ = Describe("moduleCmd", func() {
+		It("Sanity", func() {
+			var mtaCF = []byte(`
+_schema-version: "2.0.0"
+ID: mta_proj
+version: 1.0.0
+
+modules:
+  - name: htmlapp
+    type: html5
+    path: app
+
+  - name: htmlapp2
+    type: html5
+    path: app
+
+  - name: java
+    type: java
+    path: app
+`)
+
+			m := mta.MTA{}
+			// parse mta yaml
+			Ω(yaml.Unmarshal(mtaCF, &m)).Should(Succeed())
+			module, commands, err := moduleCmd(&m, "htmlapp")
+			Ω(err).Should(Succeed())
+			Ω(module.Path).Should(Equal("app"))
+			Ω(commands).Should(Equal([]string{"npm install", "grunt", "npm prune --production"}))
+		})
+
+		It("Builder specified in build params", func() {
+			var mtaCF = []byte(`
+_schema-version: "2.0.0"
+ID: mta_proj
+version: 1.0.0
+
+modules:
+  - name: htmlapp
+    type: html5
+    path: app
+    build-parameters:
+      builder: npm
+`)
+
+			m := mta.MTA{}
+			// parse mta yaml
+			Ω(yaml.Unmarshal(mtaCF, &m)).Should(Succeed())
+			module, commands, err := moduleCmd(&m, "htmlapp")
+			Ω(err).Should(BeNil())
+			Ω(module.Path).Should(Equal("app"))
+			Ω(commands).Should(Equal([]string{"npm install", "npm prune --production"}))
+		})
+	})
+
+	var _ = Describe("GetModuleAndCommands", func() {
+		It("Sanity", func() {
+			wd, _ := os.Getwd()
+			ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata")}
+			module, cmd, err := GetModuleAndCommands(&ep, "node-js")
+			Ω(err).Should(Succeed())
+			Ω(module.Name).Should(Equal("node-js"))
+			Ω(len(cmd)).Should(Equal(1))
+			Ω(cmd[0]).Should(Equal("npm prune --production"))
+
+		})
+		It("Invalid case - wrong module name", func() {
+			wd, _ := os.Getwd()
+			ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata")}
+			_, _, err := GetModuleAndCommands(&ep, "node-js1")
+			Ω(err).Should(HaveOccurred())
+
+		})
+		It("Invalid case - wrong mta", func() {
+			wd, _ := os.Getwd()
+			ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata"), MtaFilename: "mtaUnknown.yaml"}
+			_, _, err := GetModuleAndCommands(&ep, "node-js")
+			Ω(err).Should(HaveOccurred())
+
+		})
+		It("Invalid case - wrong type", func() {
+			wd, _ := os.Getwd()
+			ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata"), MtaFilename: "mtaUnknownBuilder.yaml"}
+			_, cmd, _ := GetModuleAndCommands(&ep, "node-js")
+			Ω(len(cmd)).Should(Equal(0))
+
 		})
 	})
 })

@@ -164,6 +164,18 @@ var _ = Describe("BuildParams", func() {
 		})
 
 	})
+
+	var _ = Describe("PlatformsDefined", func() {
+		It("Sanity", func() {
+			m := mta.Module{
+				Name: "x",
+				BuildParams: mta.BuildParameters{
+					SupportedPlatforms: []string{},
+				},
+			}
+			Ω(PlatformsDefined(&m)).Should(Equal(false))
+		})
+	})
 })
 
 func getTestPath(relPath ...string) string {

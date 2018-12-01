@@ -1,19 +1,19 @@
-package mta
+package validate
 
 import (
 	"fmt"
 	"io/ioutil"
 	"path/filepath"
 
-	"cloud-mta-build-tool/validations"
+	"cloud-mta-build-tool/mta"
 )
 
-type yamlProjectCheck func(mta *MTA, path string) []validate.YamlValidationIssue
+type yamlProjectCheck func(mta *mta.MTA, path string) []YamlValidationIssue
 
 // validateModules - Validate the MTA file
-func validateModules(mta *MTA, projectPath string) []validate.YamlValidationIssue {
+func validateModules(mta *mta.MTA, projectPath string) []YamlValidationIssue {
 	//noinspection GoPreferNilSlice
-	issues := []validate.YamlValidationIssue{}
+	issues := []YamlValidationIssue{}
 	for _, module := range mta.Modules {
 		modulePath := module.Path
 		if modulePath == "" {
@@ -22,7 +22,7 @@ func validateModules(mta *MTA, projectPath string) []validate.YamlValidationIssu
 		dirName := filepath.Join(projectPath, modulePath)
 		_, err := ioutil.ReadDir(dirName)
 		if err != nil {
-			issues = append(issues, []validate.YamlValidationIssue{{Msg: fmt.Sprintf("Module <%s> not found in project. Expected path: <%s>", module.Name, modulePath)}}...)
+			issues = append(issues, []YamlValidationIssue{{Msg: fmt.Sprintf("Module <%s> not found in project. Expected path: <%s>", module.Name, modulePath)}}...)
 		}
 	}
 
@@ -30,10 +30,10 @@ func validateModules(mta *MTA, projectPath string) []validate.YamlValidationIssu
 }
 
 // validateYamlProject - Validate the MTA file
-func validateYamlProject(mta *MTA, path string) []validate.YamlValidationIssue {
+func validateYamlProject(mta *mta.MTA, path string) []YamlValidationIssue {
 	validations := []yamlProjectCheck{validateModules}
 	//noinspection GoPreferNilSlice
-	issues := []validate.YamlValidationIssue{}
+	issues := []YamlValidationIssue{}
 	for _, validation := range validations {
 		validationIssues := validation(mta, path)
 		issues = append(issues, validationIssues...)
