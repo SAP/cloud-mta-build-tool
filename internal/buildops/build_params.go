@@ -9,6 +9,64 @@ import (
 	"cloud-mta-build-tool/mta"
 )
 
+const (
+	builderParam            = "builder"
+	SupportedPlatformsParam = "supported-platforms"
+	requiresParam           = "requires"
+	buildResultsParam       = "build-results"
+	nameParam               = "name"
+	artifactsParam          = "artifacts"
+	targetPathParam         = "target-path"
+)
+
+// BuildRequires - build requires section.
+type BuildRequires struct {
+	Name       string   `yaml:"name,omitempty"`
+	Artifacts  []string `yaml:"artifacts,omitempty"`
+	TargetPath string   `yaml:"target-path,omitempty"`
+}
+
+func GetBuilder(module *mta.Module) string {
+	if module.BuildParams != nil && module.BuildParams[builderParam] != nil {
+		return module.BuildParams[builderParam].(string)
+	}
+	return module.Type
+}
+
+func getRequires(module *mta.Module) []BuildRequires {
+	if module.BuildParams != nil && module.BuildParams[requiresParam] != nil {
+		requires := module.BuildParams[requiresParam].([]interface{})
+		buildRequires := []BuildRequires{}
+		for _, reqI := range requires {
+			reqMap := reqI.(map[interface{}]interface{})
+			reqStr := BuildRequires{
+				Name:       getStrParam(reqMap, nameParam),
+				Artifacts:  []string{},
+				TargetPath: getStrParam(reqMap, targetPathParam),
+			}
+			if reqMap[artifactsParam] == nil {
+				reqStr.Artifacts = nil
+			} else {
+				for _, artifact := range reqMap[artifactsParam].([]interface{}) {
+					reqStr.Artifacts = append(reqStr.Artifacts, []string{artifact.(string)}...)
+				}
+			}
+			buildRequires = append(buildRequires, []BuildRequires{reqStr}...)
+
+		}
+		return buildRequires
+	}
+	return nil
+}
+
+func getStrParam(m map[interface{}]interface{}, param string) string {
+	if m[param] == nil {
+		return ""
+	} else {
+		return m[param].(string)
+	}
+}
+
 // Order of modules building is done according to the dependencies defined in build parameters.
 // In case of problems in this definition build process should not start and corresponding error must be provided.
 // Possible problems:
@@ -16,7 +74,7 @@ import (
 // 2.	Dependency on not defined module
 
 // ProcessRequirements - Processes build requirement of module (using moduleName).
-func ProcessRequirements(ep *dir.Loc, mta *mta.MTA, requires *mta.BuildRequires, moduleName string) error {
+func ProcessRequirements(ep *dir.Loc, mta *mta.MTA, requires *BuildRequires, moduleName string) error {
 
 	// validate module names - both in process and required
 	module, err := mta.GetModuleByName(moduleName)
@@ -55,15 +113,15 @@ func getBuildResultsPath(ep *dir.Loc, module *mta.Module) (string, error) {
 		return "", errors.Wrapf(err, "getBuildResultsPath failed getting directory of module %v", module.Path)
 	}
 	// if no sub-folder provided - build results will be saved in the module folder
-	if module.BuildParams.Path != "" {
+	if module.BuildParams != nil && module.BuildParams[buildResultsParam] != nil {
 		// if sub-folder provided - build results are located in the subfolder of the module folder
-		path = filepath.Join(path, module.BuildParams.Path)
+		path = filepath.Join(path, module.BuildParams[buildResultsParam].(string))
 	}
 	return path, nil
 }
 
 // getRequiredTargetPath - provides path of required artifacts
-func getRequiredTargetPath(ep *dir.Loc, module *mta.Module, requires *mta.BuildRequires) (string, error) {
+func getRequiredTargetPath(ep *dir.Loc, module *mta.Module, requires *BuildRequires) (string, error) {
 	path, err := ep.GetSourceModuleDir(module.Path)
 	if err != nil {
 		return "", errors.Wrapf(err, "getRequiredTargetPath failed getting directory of module %v", module.Name)
@@ -78,5 +136,9 @@ func getRequiredTargetPath(ep *dir.Loc, module *mta.Module, requires *mta.BuildR
 // PlatformsDefined - if platforms defined
 // Only empty list of platforms indicates no platforms defined
 func PlatformsDefined(module *mta.Module) bool {
-	return module.BuildParams.SupportedPlatforms == nil || len(module.BuildParams.SupportedPlatforms) > 0
+	if module.BuildParams == nil || module.BuildParams[SupportedPlatformsParam] == nil {
+		return true
+	}
+	supportedPlatforms := module.BuildParams[SupportedPlatformsParam].([]string)
+	return len(supportedPlatforms) > 0
 }

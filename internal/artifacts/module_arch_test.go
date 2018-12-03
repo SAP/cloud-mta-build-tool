@@ -4,6 +4,7 @@ import (
 	"os"
 
 	"cloud-mta-build-tool/internal/builders"
+	"cloud-mta-build-tool/internal/buildops"
 	"cloud-mta-build-tool/mta"
 
 	. "github.com/onsi/ginkgo"
@@ -45,7 +46,7 @@ var _ = Describe("ModuleArch", func() {
 				Name: "node-js",
 				Path: "node-js",
 				BuildParams: mta.BuildParameters{
-					SupportedPlatforms: []string{},
+					buildops.SupportedPlatformsParam: []string{},
 				},
 			}
 			Ω(PackModule(&ep, &m, "node-js")).Should(Succeed())

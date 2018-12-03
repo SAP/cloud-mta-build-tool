@@ -16,9 +16,11 @@ import (
 
 // CreateDirIfNotExist - Create new dir
 func CreateDirIfNotExist(dir string) error {
-	var err error
-	if _, err = os.Stat(dir); os.IsNotExist(err) {
+	info, err := os.Stat(dir)
+	if os.IsNotExist(err) {
 		err = os.MkdirAll(dir, os.ModePerm)
+	} else if !info.IsDir() {
+		err = errors.New(fmt.Sprintf("CreateDirIfNotExist failed - %v file exists", dir))
 	}
 	return err
 }

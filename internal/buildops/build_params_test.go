@@ -20,7 +20,12 @@ var _ = Describe("BuildParams", func() {
 			Ω(getBuildResultsPath(&dir.Loc{}, module)).Should(HaveSuffix(expected))
 		},
 			Entry("Implicit Build Results Path", &mta.Module{Path: "mPath"}, "mPath"),
-			Entry("Explicit Build Results Path", &mta.Module{Path: "mPath", BuildParams: mta.BuildParameters{Path: "bPath"}}, "bPath"))
+			Entry("Explicit Build Results Path",
+				&mta.Module{
+					Path:        "mPath",
+					BuildParams: mta.BuildParameters{buildResultsParam: "bPath"},
+				},
+				"bPath"))
 
 		var _ = Describe("invalid cases", func() {
 			BeforeEach(func() {
@@ -40,11 +45,11 @@ var _ = Describe("BuildParams", func() {
 		})
 	})
 
-	var _ = DescribeTable("getRequiredTargetPath", func(requires mta.BuildRequires, module mta.Module, expected string) {
+	var _ = DescribeTable("getRequiredTargetPath", func(requires BuildRequires, module mta.Module, expected string) {
 		Ω(getRequiredTargetPath(&dir.Loc{}, &module, &requires)).Should(HaveSuffix(expected))
 	},
-		Entry("Implicit Target Path", mta.BuildRequires{}, mta.Module{Path: "mPath"}, "mPath"),
-		Entry("Explicit Target Path", mta.BuildRequires{TargetPath: "artifacts"}, mta.Module{Path: "mPath"}, filepath.Join("mPath", "artifacts")))
+		Entry("Implicit Target Path", BuildRequires{}, mta.Module{Path: "mPath"}, "mPath"),
+		Entry("Explicit Target Path", BuildRequires{TargetPath: "artifacts"}, mta.Module{Path: "mPath"}, filepath.Join("mPath", "artifacts")))
 
 	var _ = Describe("ProcessRequirements", func() {
 
@@ -56,11 +61,12 @@ var _ = Describe("BuildParams", func() {
 		var _ = DescribeTable("Valid cases", func(artifacts []string, expectedPath string) {
 			wd, _ := os.Getwd()
 			ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata", "testproject"), TargetPath: filepath.Join(wd, "testdata", "result")}
-			require := mta.BuildRequires{
+			require := BuildRequires{
 				Name:       "A",
 				Artifacts:  artifacts,
 				TargetPath: "./b_copied_artifacts",
 			}
+			reqs := []BuildRequires{require}
 			mtaObj := mta.MTA{
 				Modules: []*mta.Module{
 					{
@@ -71,9 +77,7 @@ var _ = Describe("BuildParams", func() {
 						Name: "B",
 						Path: "moduleB",
 						BuildParams: mta.BuildParameters{
-							Requires: []mta.BuildRequires{
-								require,
-							},
+							requiresParam: reqs,
 						},
 					},
 				},
@@ -86,22 +90,22 @@ var _ = Describe("BuildParams", func() {
 			Entry("Require All - single value", []string{"*"}, filepath.Join("testdata", "testproject", "moduleB", "b_copied_artifacts")),
 			Entry("Require All From Parent", []string{"."}, filepath.Join("testdata", "testproject", "moduleB", "b_copied_artifacts", "ui5app")))
 
-		var _ = DescribeTable("Invalid cases", func(lp *dir.Loc, require mta.BuildRequires, mtaObj mta.MTA, moduleName string) {
+		var _ = DescribeTable("Invalid cases", func(lp *dir.Loc, require BuildRequires, mtaObj mta.MTA, moduleName string) {
 			Ω(ProcessRequirements(lp, &mtaObj, &require, moduleName)).Should(HaveOccurred())
 		},
 			Entry("Module not defined",
 				&dir.Loc{},
-				mta.BuildRequires{Name: "A", Artifacts: []string{"*"}, TargetPath: "b_copied_artifacts"},
+				BuildRequires{Name: "A", Artifacts: []string{"*"}, TargetPath: "b_copied_artifacts"},
 				mta.MTA{Modules: []*mta.Module{{Name: "A", Path: "ui5app"}, {Name: "B", Path: "moduleB"}}},
 				"C"),
 			Entry("Required Module not defined",
 				&dir.Loc{},
-				mta.BuildRequires{Name: "C", Artifacts: []string{"*"}, TargetPath: "b_copied_artifacts"},
+				BuildRequires{Name: "C", Artifacts: []string{"*"}, TargetPath: "b_copied_artifacts"},
 				mta.MTA{Modules: []*mta.Module{{Name: "A", Path: "ui5app"}, {Name: "B", Path: "moduleB"}}},
 				"B"),
 			Entry("Target path - file",
 				&dir.Loc{SourcePath: getTestPath("testbuildparams")},
-				mta.BuildRequires{Name: "ui1", Artifacts: []string{"*"}, TargetPath: "file.txt"},
+				BuildRequires{Name: "ui1", Artifacts: []string{"*"}, TargetPath: "file.txt"},
 				mta.MTA{Modules: []*mta.Module{{Name: "ui1", Path: "ui1"}, {Name: "node", Path: "node"}}},
 				"node"))
 
@@ -124,7 +128,7 @@ var _ = Describe("BuildParams", func() {
 			})
 			var _ = DescribeTable("Get source/target path fails", func(failsOn int) {
 				failsOnCall = failsOn
-				req := mta.BuildRequires{Name: "A", Artifacts: []string{"*"}, TargetPath: "b_copied_artifacts"}
+				req := BuildRequires{Name: "A", Artifacts: []string{"*"}, TargetPath: "b_copied_artifacts"}
 				mtaObj := mta.MTA{Modules: []*mta.Module{{Name: "A", Path: "ui5app"}, {Name: "B", Path: "moduleB"}}}
 				Ω(ProcessRequirements(&dir.Loc{}, &mtaObj, &req, "B")).Should(HaveOccurred())
 			},
@@ -148,7 +152,7 @@ var _ = Describe("BuildParams", func() {
 			mtaObj, _ := dir.ParseFile(&lp)
 			for _, m := range mtaObj.Modules {
 				if m.Name == "node" {
-					for _, r := range m.BuildParams.Requires {
+					for _, r := range getRequires(m) {
 						ProcessRequirements(&lp, mtaObj, &r, "node")
 					}
 				}
@@ -166,14 +170,44 @@ var _ = Describe("BuildParams", func() {
 	})
 
 	var _ = Describe("PlatformsDefined", func() {
-		It("Sanity", func() {
+		It("No platforms", func() {
 			m := mta.Module{
 				Name: "x",
 				BuildParams: mta.BuildParameters{
-					SupportedPlatforms: []string{},
+					SupportedPlatformsParam: []string{},
 				},
 			}
 			Ω(PlatformsDefined(&m)).Should(Equal(false))
+		})
+		It("All platforms", func() {
+			m := mta.Module{
+				Name:        "x",
+				BuildParams: mta.BuildParameters{},
+			}
+			Ω(PlatformsDefined(&m)).Should(Equal(true))
+		})
+	})
+
+	var _ = Describe("GetBuilder", func() {
+		It("Builder defined by type", func() {
+			m := mta.Module{
+				Name: "x",
+				Type: "node-js",
+				BuildParams: mta.BuildParameters{
+					SupportedPlatformsParam: []string{},
+				},
+			}
+			Ω(GetBuilder(&m)).Should(Equal("node-js"))
+		})
+		It("Builder defined by build params", func() {
+			m := mta.Module{
+				Name: "x",
+				Type: "node-js",
+				BuildParams: mta.BuildParameters{
+					builderParam: "npm",
+				},
+			}
+			Ω(GetBuilder(&m)).Should(Equal("npm"))
 		})
 	})
 })

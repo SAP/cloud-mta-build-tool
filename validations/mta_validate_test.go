@@ -62,7 +62,7 @@ var _ = Describe("MTA tests", func() {
 						},
 					},
 				},
-				BuildParams: mta.BuildParameters{Builder: "grunt"},
+				BuildParams: mta.BuildParameters{"builder": "grunt"},
 				Parameters:  mta.Parameters{"disk-quota": "256M", "memory": "256M"},
 			}
 			var modules = []*mta.Module{&moduleSrv, &moduleUI}
