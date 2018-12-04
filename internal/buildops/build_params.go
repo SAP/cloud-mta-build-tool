@@ -2,6 +2,7 @@ package buildops
 
 import (
 	"path/filepath"
+	"reflect"
 
 	"github.com/pkg/errors"
 
@@ -10,10 +11,11 @@ import (
 )
 
 const (
-	builderParam            = "builder"
+	// SupportedPlatformsParam - name of build-params property for supported platforms
 	SupportedPlatformsParam = "supported-platforms"
+	builderParam            = "builder"
 	requiresParam           = "requires"
-	buildResultsParam       = "build-results"
+	buildResultParam        = "build-result"
 	nameParam               = "name"
 	artifactsParam          = "artifacts"
 	targetPathParam         = "target-path"
@@ -26,24 +28,34 @@ type BuildRequires struct {
 	TargetPath string   `yaml:"target-path,omitempty"`
 }
 
+// GetBuilder - gets builder type of the module
 func GetBuilder(module *mta.Module) string {
+	// builder defined in build params is prioritised
 	if module.BuildParams != nil && module.BuildParams[builderParam] != nil {
 		return module.BuildParams[builderParam].(string)
 	}
+	// default builder is defined by type property of the module
 	return module.Type
 }
 
-func getRequires(module *mta.Module) []BuildRequires {
+// getBuildRequires - gets Requires property of module's build-params property
+// as generic property and converts it to slice of BuildRequires structures
+func getBuildRequires(module *mta.Module) []BuildRequires {
+	// check existence of module's build-params.require property
 	if module.BuildParams != nil && module.BuildParams[requiresParam] != nil {
 		requires := module.BuildParams[requiresParam].([]interface{})
 		buildRequires := []BuildRequires{}
+		// go through requirements
 		for _, reqI := range requires {
+			// cast requirement to generic map
 			reqMap := reqI.(map[interface{}]interface{})
+			// init resulting typed requirement
 			reqStr := BuildRequires{
 				Name:       getStrParam(reqMap, nameParam),
 				Artifacts:  []string{},
 				TargetPath: getStrParam(reqMap, targetPathParam),
 			}
+			// fill Artifacts field of resulting requirement
 			if reqMap[artifactsParam] == nil {
 				reqStr.Artifacts = nil
 			} else {
@@ -51,6 +63,7 @@ func getRequires(module *mta.Module) []BuildRequires {
 					reqStr.Artifacts = append(reqStr.Artifacts, []string{artifact.(string)}...)
 				}
 			}
+			// add typed requirement to result
 			buildRequires = append(buildRequires, []BuildRequires{reqStr}...)
 
 		}
@@ -59,12 +72,12 @@ func getRequires(module *mta.Module) []BuildRequires {
 	return nil
 }
 
+// getStrParam - get string parameter from the generic map
 func getStrParam(m map[interface{}]interface{}, param string) string {
 	if m[param] == nil {
 		return ""
-	} else {
-		return m[param].(string)
 	}
+	return m[param].(string)
 }
 
 // Order of modules building is done according to the dependencies defined in build parameters.
@@ -89,7 +102,7 @@ func ProcessRequirements(ep *dir.Loc, mta *mta.MTA, requires *BuildRequires, mod
 	artifacts := requires.Artifacts
 
 	// Build paths for artifacts copying
-	sourcePath, err := getBuildResultsPath(ep, requiredModule)
+	sourcePath, err := GetBuildResultsPath(ep, requiredModule)
 	if err != nil {
 		return errors.Wrapf(err, "Processing requirements of module %v based on module %v failed on getting Results Path", moduleName, requiredModule.Name)
 	}
@@ -106,16 +119,16 @@ func ProcessRequirements(ep *dir.Loc, mta *mta.MTA, requires *BuildRequires, mod
 	return nil
 }
 
-// getBuildResultsPath - provides path of build results
-func getBuildResultsPath(ep *dir.Loc, module *mta.Module) (string, error) {
+// GetBuildResultsPath - provides path of build results
+func GetBuildResultsPath(ep *dir.Loc, module *mta.Module) (string, error) {
 	path, err := ep.GetSourceModuleDir(module.Path)
 	if err != nil {
-		return "", errors.Wrapf(err, "getBuildResultsPath failed getting directory of module %v", module.Path)
+		return "", errors.Wrapf(err, "GetBuildResultsPath failed getting directory of module %v", module.Path)
 	}
 	// if no sub-folder provided - build results will be saved in the module folder
-	if module.BuildParams != nil && module.BuildParams[buildResultsParam] != nil {
+	if module.BuildParams != nil && module.BuildParams[buildResultParam] != nil {
 		// if sub-folder provided - build results are located in the subfolder of the module folder
-		path = filepath.Join(path, module.BuildParams[buildResultsParam].(string))
+		path = filepath.Join(path, module.BuildParams[buildResultParam].(string))
 	}
 	return path, nil
 }
@@ -139,6 +152,9 @@ func PlatformsDefined(module *mta.Module) bool {
 	if module.BuildParams == nil || module.BuildParams[SupportedPlatformsParam] == nil {
 		return true
 	}
-	supportedPlatforms := module.BuildParams[SupportedPlatformsParam].([]string)
-	return len(supportedPlatforms) > 0
+	supportedPlatforms := module.BuildParams[SupportedPlatformsParam]
+	if reflect.TypeOf(supportedPlatforms).Elem().Kind() == reflect.String {
+		return len(supportedPlatforms.([]string)) > 0
+	}
+	return len(supportedPlatforms.([]interface{})) > 0
 }

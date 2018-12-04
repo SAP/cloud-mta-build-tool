@@ -29,7 +29,7 @@ var _ = Describe("MTA tests", func() {
 				Requires: []mta.Requires{
 					{
 						Name: "db",
-						Properties: mta.Properties{
+						Properties: map[string]interface{}{
 							"JBP_CONFIG_RESOURCE_CONFIGURATION": `[tomcat/webapps/ROOT/META-INF/context.xml: {"service_name_for_DefaultDB" : "~{hdi-container-name}"}]`,
 						},
 					},
@@ -37,11 +37,11 @@ var _ = Describe("MTA tests", func() {
 				Provides: []mta.Provides{
 					{
 						Name:       "srv_api",
-						Properties: mta.Properties{"url": "${default-url}"},
+						Properties: map[string]interface{}{"url": "${default-url}"},
 					},
 				},
-				Parameters: mta.Parameters{"memory": "512M"},
-				Properties: mta.Properties{
+				Parameters: map[string]interface{}{"memory": "512M"},
+				Properties: map[string]interface{}{
 					"VSCODE_JAVA_DEBUG_LOG_LEVEL": "ALL",
 					"APPC_LOG_LEVEL":              "info",
 				},
@@ -54,7 +54,7 @@ var _ = Describe("MTA tests", func() {
 					{
 						Name:  "srv_api",
 						Group: "destinations",
-						Properties: mta.Properties{
+						Properties: map[string]interface{}{
 							"forwardAuthToken": true,
 							"strictSSL":        false,
 							"name":             "srv_api",
@@ -62,8 +62,8 @@ var _ = Describe("MTA tests", func() {
 						},
 					},
 				},
-				BuildParams: mta.BuildParameters{"builder": "grunt"},
-				Parameters:  mta.Parameters{"disk-quota": "256M", "memory": "256M"},
+				BuildParams: map[string]interface{}{"builder": "grunt"},
+				Parameters:  map[string]interface{}{"disk-quota": "256M", "memory": "256M"},
 			}
 			var modules = []*mta.Module{&moduleSrv, &moduleUI}
 			mtaFile, _ := ioutil.ReadFile("./testdata/mta.yaml")

@@ -15,15 +15,15 @@ import (
 
 var _ = Describe("BuildParams", func() {
 
-	var _ = Describe("getBuildResultsPath", func() {
+	var _ = Describe("GetBuildResultsPath", func() {
 		var _ = DescribeTable("valid cases", func(module *mta.Module, expected string) {
-			Ω(getBuildResultsPath(&dir.Loc{}, module)).Should(HaveSuffix(expected))
+			Ω(GetBuildResultsPath(&dir.Loc{}, module)).Should(HaveSuffix(expected))
 		},
 			Entry("Implicit Build Results Path", &mta.Module{Path: "mPath"}, "mPath"),
 			Entry("Explicit Build Results Path",
 				&mta.Module{
 					Path:        "mPath",
-					BuildParams: mta.BuildParameters{buildResultsParam: "bPath"},
+					BuildParams: map[string]interface{}{buildResultParam: "bPath"},
 				},
 				"bPath"))
 
@@ -39,7 +39,7 @@ var _ = Describe("BuildParams", func() {
 
 			It("Implicit", func() {
 				module := mta.Module{Path: "mPath"}
-				_, err := getBuildResultsPath(&dir.Loc{}, &module)
+				_, err := GetBuildResultsPath(&dir.Loc{}, &module)
 				Ω(err).Should(HaveOccurred())
 			})
 		})
@@ -76,7 +76,7 @@ var _ = Describe("BuildParams", func() {
 					{
 						Name: "B",
 						Path: "moduleB",
-						BuildParams: mta.BuildParameters{
+						BuildParams: map[string]interface{}{
 							requiresParam: reqs,
 						},
 					},
@@ -152,7 +152,7 @@ var _ = Describe("BuildParams", func() {
 			mtaObj, _ := dir.ParseFile(&lp)
 			for _, m := range mtaObj.Modules {
 				if m.Name == "node" {
-					for _, r := range getRequires(m) {
+					for _, r := range getBuildRequires(m) {
 						ProcessRequirements(&lp, mtaObj, &r, "node")
 					}
 				}
@@ -173,7 +173,7 @@ var _ = Describe("BuildParams", func() {
 		It("No platforms", func() {
 			m := mta.Module{
 				Name: "x",
-				BuildParams: mta.BuildParameters{
+				BuildParams: map[string]interface{}{
 					SupportedPlatformsParam: []string{},
 				},
 			}
@@ -182,7 +182,7 @@ var _ = Describe("BuildParams", func() {
 		It("All platforms", func() {
 			m := mta.Module{
 				Name:        "x",
-				BuildParams: mta.BuildParameters{},
+				BuildParams: map[string]interface{}{},
 			}
 			Ω(PlatformsDefined(&m)).Should(Equal(true))
 		})
@@ -193,7 +193,7 @@ var _ = Describe("BuildParams", func() {
 			m := mta.Module{
 				Name: "x",
 				Type: "node-js",
-				BuildParams: mta.BuildParameters{
+				BuildParams: map[string]interface{}{
 					SupportedPlatformsParam: []string{},
 				},
 			}
@@ -203,7 +203,7 @@ var _ = Describe("BuildParams", func() {
 			m := mta.Module{
 				Name: "x",
 				Type: "node-js",
-				BuildParams: mta.BuildParameters{
+				BuildParams: map[string]interface{}{
 					builderParam: "npm",
 				},
 			}

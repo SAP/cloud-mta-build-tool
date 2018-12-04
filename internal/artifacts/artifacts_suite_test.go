@@ -1,12 +1,14 @@
 package artifacts
 
 import (
+	"os"
+	"path/filepath"
 	"testing"
-
-	"cloud-mta-build-tool/internal/logs"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+
+	"cloud-mta-build-tool/internal/logs"
 )
 
 func TestArtifacts(t *testing.T) {
@@ -17,3 +19,8 @@ func TestArtifacts(t *testing.T) {
 var _ = BeforeSuite(func() {
 	logs.Logger = logs.NewLogger()
 })
+
+func getTestPath(relPath ...string) string {
+	wd, _ := os.Getwd()
+	return filepath.Join(wd, "testdata", filepath.Join(relPath...))
+}

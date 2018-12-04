@@ -22,6 +22,7 @@ var _ = Describe("Mtad", func() {
 			metaPath, err := ep.GetMetaPath()
 			Ω(err).Should(Succeed())
 			tmpDir, err := ep.GetTargetTmpDir()
+			Ω(err).Should(Succeed())
 			os.MkdirAll(tmpDir, os.ModePerm)
 			_, err = os.Create(metaPath)
 			Ω(err).Should(Succeed())
@@ -29,13 +30,13 @@ var _ = Describe("Mtad", func() {
 			Ω(err).Should(Succeed())
 			mtaStr, err := mta.Unmarshal(mtaBytes)
 			Ω(err).Should(Succeed())
-			Ω(GenMtad(mtaStr, &ep, func(mtaStr *mta.MTA) {
+			Ω(GenMtad(mtaStr, &ep, "cf", func(mtaStr *mta.MTA, platform string) {
 
 			})).Should(HaveOccurred())
 		})
 	})
 
-	It("CleanMtaForDeployment", func() {
+	It("AdaptMtadForDeployment", func() {
 		mta := mta.MTA{
 			ID:      "mta_proj",
 			Version: "1.0.0",
@@ -44,7 +45,7 @@ var _ = Describe("Mtad", func() {
 					Name: "htmlapp",
 					Type: "javascript.nodejs",
 					Path: "app",
-					BuildParams: mta.BuildParameters{
+					BuildParams: map[string]interface{}{
 						buildops.SupportedPlatformsParam: []string{},
 					},
 				},
@@ -52,7 +53,7 @@ var _ = Describe("Mtad", func() {
 					Name: "htmlapp2",
 					Type: "javascript.nodejs",
 					Path: "app2",
-					BuildParams: mta.BuildParameters{
+					BuildParams: map[string]interface{}{
 						buildops.SupportedPlatformsParam: nil,
 					},
 				},
@@ -60,13 +61,13 @@ var _ = Describe("Mtad", func() {
 					Name: "java",
 					Type: "java.tomcat",
 					Path: "app3",
-					BuildParams: mta.BuildParameters{
+					BuildParams: map[string]interface{}{
 						buildops.SupportedPlatformsParam: []string{},
 					},
 				},
 			},
 		}
-		CleanMtaForDeployment(&mta)
+		AdaptMtadForDeployment(&mta, "cf")
 		Ω(len(mta.Modules)).Should(Equal(1))
 		Ω(mta.Modules[0].Name).Should(Equal("htmlapp2"))
 	})

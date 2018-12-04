@@ -15,8 +15,10 @@ import (
 
 var sourceMtadFlag string
 var targetMtadFlag string
+var platformMtadFlag string
 var sourceMetaFlag string
 var targetMetaFlag string
+var platformMetaFlag string
 var sourceMtarFlag string
 var targetMtarFlag string
 var sourcePackFlag string
@@ -44,8 +46,10 @@ func init() {
 	// set source and target path flags of commands
 	genMtadCmd.Flags().StringVarP(&sourceMtadFlag, "source", "s", "", "Provide MTA source ")
 	genMtadCmd.Flags().StringVarP(&targetMtadFlag, "target", "t", "", "Provide MTA target ")
+	genMtadCmd.Flags().StringVarP(&platformMtadFlag, "platform", "p", "", "Provide MTA platform ")
 	genMetaCmd.Flags().StringVarP(&sourceMetaFlag, "source", "s", "", "Provide MTA source ")
 	genMetaCmd.Flags().StringVarP(&targetMetaFlag, "target", "t", "", "Provide MTA target ")
+	genMetaCmd.Flags().StringVarP(&platformMetaFlag, "platform", "p", "", "Provide MTA platform ")
 	genMtarCmd.Flags().StringVarP(&sourceMtarFlag, "source", "s", "", "Provide MTA source ")
 	genMtarCmd.Flags().StringVarP(&targetMtarFlag, "target", "t", "", "Provide MTA target ")
 	packCmd.Flags().StringVarP(&sourcePackFlag, "source", "s", "", "Provide MTA source ")
@@ -121,7 +125,7 @@ var genMetaCmd = &cobra.Command{
 		err := dir.ValidateDeploymentDescriptor(descriptorMetaFlag)
 		if err == nil {
 			ep := locationParameters(sourceMetaFlag, targetMetaFlag, descriptorMetaFlag)
-			err = artifacts.GenerateMeta(&ep)
+			err = artifacts.GenerateMeta(&ep, platformMetaFlag)
 		}
 		logErrorExt(err, "META generation failed")
 		return err
@@ -163,10 +167,14 @@ var genMtadCmd = &cobra.Command{
 		}
 		ep := locationParameters(sourceMtadFlag, targetMtadFlag, descriptorMtadFlag)
 		mtaStr, err := dir.ParseFile(&ep)
-		artifacts.CleanMtaForDeployment(mtaStr)
 		if err == nil {
-			err = artifacts.GenMtad(mtaStr, &ep, func(mtaStr *mta.MTA) {
-				e := artifacts.ConvertTypes(*mtaStr)
+			mtaExt, errExt := dir.ParseExtFile(&ep, platformMtadFlag)
+			if errExt == nil {
+				mta.Merge(mtaStr, mtaExt)
+			}
+			artifacts.AdaptMtadForDeployment(mtaStr, platformMtadFlag)
+			err = artifacts.GenMtad(mtaStr, &ep, platformMtadFlag, func(mtaStr *mta.MTA, platform string) {
+				e := artifacts.ConvertTypes(*mtaStr, platform)
 				if e != nil {
 					logErrorExt(err, "MTAD generation failed")
 				}
@@ -193,7 +201,7 @@ var validateCmd = &cobra.Command{
 		}
 		validateSchema, validateProject, err := validate.GetValidationMode(pValidationFlag)
 		if err == nil {
-			err = validate.ValidateMtaYaml(sourceValidateFlag, descriptorValidateFlag, validateSchema, validateProject)
+			err = validate.ValidateMtaYaml(sourceValidateFlag, "mta.yaml", validateSchema, validateProject)
 		}
 		logErrorExt(err, "MBT Validation failed")
 		return err

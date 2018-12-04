@@ -3,11 +3,11 @@ package builders
 import (
 	"strings"
 
+	"github.com/pkg/errors"
+
 	"cloud-mta-build-tool/internal/buildops"
 	"cloud-mta-build-tool/internal/fsys"
 	"cloud-mta-build-tool/mta"
-
-	"github.com/pkg/errors"
 )
 
 // CommandList - list of command to execute

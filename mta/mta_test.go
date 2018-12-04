@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 
 	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
 	"gopkg.in/yaml.v2"
 )
@@ -22,7 +23,7 @@ var _ = Describe("Mta", func() {
 					Requires: []Requires{
 						{
 							Name: "db",
-							Properties: Properties{
+							Properties: map[string]interface{}{
 								"JBP_CONFIG_RESOURCE_CONFIGURATION": `[tomcat/webapps/ROOT/META-INF/context.xml: {"service_name_for_DefaultDB" : "~{hdi-container-name}"}]`,
 							},
 						},
@@ -30,11 +31,11 @@ var _ = Describe("Mta", func() {
 					Provides: []Provides{
 						{
 							Name:       "srv_api",
-							Properties: Properties{"url": "${default-url}"},
+							Properties: map[string]interface{}{"url": "${default-url}"},
 						},
 					},
-					Parameters: Parameters{"memory": "512M"},
-					Properties: Properties{
+					Parameters: map[string]interface{}{"memory": "512M"},
+					Properties: map[string]interface{}{
 						"VSCODE_JAVA_DEBUG_LOG_LEVEL": "ALL",
 						"APPC_LOG_LEVEL":              "info",
 					},
@@ -47,7 +48,7 @@ var _ = Describe("Mta", func() {
 						{
 							Name:  "srv_api",
 							Group: "destinations",
-							Properties: Properties{
+							Properties: map[string]interface{}{
 								"forwardAuthToken": true,
 								"strictSSL":        false,
 								"name":             "srv_api",
@@ -55,8 +56,8 @@ var _ = Describe("Mta", func() {
 							},
 						},
 					},
-					BuildParams: BuildParameters{"builder": "grunt"},
-					Parameters:  Parameters{"disk-quota": "256M", "memory": "256M"},
+					BuildParams: map[string]interface{}{"builder": "grunt"},
+					Parameters:  map[string]interface{}{"disk-quota": "256M", "memory": "256M"},
 				}
 				var modules = []*Module{&moduleSrv, &moduleUI}
 				mtaFile, _ := ioutil.ReadFile("./testdata/mta.yaml")
@@ -89,7 +90,7 @@ var _ = Describe("Mta", func() {
 					Name: "someproj-java",
 					Type: "java",
 					Path: "srv",
-					Parameters: Parameters{
+					Parameters: map[string]interface{}{
 						"memory":     "512M",
 						"disk-quota": "256M",
 					},
@@ -104,7 +105,7 @@ var _ = Describe("Mta", func() {
 				Resources: []*Resource{
 					{
 						Name: "someproj-hdi-container",
-						Properties: Properties{
+						Properties: map[string]interface{}{
 							"hdi-container-name": "${service-name}",
 						},
 						Type: "container",
@@ -112,7 +113,7 @@ var _ = Describe("Mta", func() {
 					{
 						Name: "someproj-apprepo-rt",
 						Type: "org.cloudfoundry.managed-service",
-						Parameters: Parameters{
+						Parameters: map[string]interface{}{
 							"service":      "html5-apps-repo",
 							"service-plan": "app-runtime",
 						},
@@ -150,6 +151,88 @@ var _ = Describe("Mta", func() {
 			m, err := Unmarshal(content)
 			Ω(err).Should(Succeed())
 			Ω(len(m.Modules)).Should(Equal(2))
+		})
+	})
+
+	var _ = Describe("UnmarshalExt", func() {
+		It("Sanity", func() {
+			wd, err := os.Getwd()
+			Ω(err).Should(Succeed())
+			content, err := ioutil.ReadFile(filepath.Join(wd, "testdata", "mta.yaml"))
+			Ω(err).Should(Succeed())
+			m, err := UnmarshalExt(content)
+			Ω(err).Should(Succeed())
+			Ω(len(m.Modules)).Should(Equal(2))
+		})
+	})
+
+	var _ = Describe("extendMap", func() {
+		var m1 map[string]interface{}
+		var m2 map[string]interface{}
+		var m3 map[string]interface{}
+		var m4 map[string]interface{}
+
+		BeforeEach(func() {
+			m1 = make(map[string]interface{})
+			m2 = make(map[string]interface{})
+			m3 = make(map[string]interface{})
+			m4 = nil
+			m1["a"] = "aa"
+			m1["b"] = "xx"
+			m2["b"] = "bb"
+			m3["c"] = "cc"
+		})
+
+		var _ = DescribeTable("Sanity", func(m *map[string]interface{}, e *map[string]interface{}, ln int, key string, value interface{}) {
+			extendMap(m, e)
+			Ω(len(*m)).Should(Equal(ln))
+
+			if value != nil {
+				Ω((*m)[key]).Should(Equal(value))
+			} else {
+				Ω((*m)[key]).Should(BeNil())
+			}
+		},
+			Entry("overwrite", &m1, &m2, 2, "b", "bb"),
+			Entry("add", &m1, &m3, 3, "c", "cc"),
+			Entry("res equals ext", &m4, &m1, 2, "b", "xx"),
+			Entry("nothing to add", &m1, &m4, 2, "b", "xx"),
+			Entry("both nil", &m4, &m4, 0, "b", nil),
+		)
+	})
+
+	var _ = Describe("MergeMtaAndExt", func() {
+		It("Sanity", func() {
+			moduleA := Module{
+				Name: "modA",
+				Properties: map[string]interface{}{
+					"a": "aa",
+					"b": "xx",
+				},
+			}
+			moduleB := Module{
+				Name: "modB",
+				Properties: map[string]interface{}{
+					"b": "yy",
+				},
+			}
+			moduleAExt := ModuleExt{
+				Name: "modA",
+				Properties: map[string]interface{}{
+					"a": "aa",
+					"b": "bb",
+				},
+			}
+			mta := MTA{
+				Modules: []*Module{&moduleA, &moduleB},
+			}
+			mtaExt := MTAExt{
+				Modules: []*ModuleExt{&moduleAExt},
+			}
+			Merge(&mta, &mtaExt)
+			m, err := mta.GetModuleByName("modA")
+			Ω(err).Should(Succeed())
+			Ω(m.Properties["b"]).Should(Equal("bb"))
 		})
 	})
 
