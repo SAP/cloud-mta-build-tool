@@ -46,7 +46,7 @@ var _ = Describe("ModuleArch", func() {
 				Name: "node-js",
 				Path: "node-js",
 				BuildParams: map[string]interface{}{
-					buildops.SupportedPlatformsParam: []string{},
+				buildops.SupportedPlatformsParam: []string{},
 				},
 			}
 			Ω(PackModule(&ep, &m, "node-js")).Should(Succeed())
