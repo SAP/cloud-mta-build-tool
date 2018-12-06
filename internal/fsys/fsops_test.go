@@ -19,6 +19,24 @@ func getFullPath(relPath ...string) string {
 	return filepath.Join(wd, filepath.Join(relPath...))
 }
 
+type testMtaYamlStr struct {
+	fullpath string
+	path     string
+	err      error
+}
+
+func (t *testMtaYamlStr) GetMtaYamlFilename() string {
+	return t.fullpath
+}
+
+func (t *testMtaYamlStr) GetMtaYamlPath() (string, error) {
+	return t.path, t.err
+}
+
+func (t *testMtaYamlStr) GetMtaExtYamlPath(platform string) (string, error) {
+	return t.fullpath, t.err
+}
+
 var _ = Describe("FSOPS", func() {
 
 	var _ = Describe("CreateDir", func() {
@@ -196,40 +214,46 @@ var _ = Describe("FSOPS", func() {
 	})
 
 	var _ = Describe("Read", func() {
-
-		AfterEach(func() {
-			GetWorkingDirectory = OsGetWd
-		})
 		It("Sanity", func() {
-			res, resErr := Read(&Loc{SourcePath: getFullPath("testdata", "testproject")})
+			test := testMtaYamlStr{
+				fullpath: getFullPath("testdata", "testproject", "mta.yaml"),
+				path:     getFullPath("testdata", "testproject", "mta.yaml"),
+				err:      nil,
+			}
+			res, resErr := Read(&test)
 			Ω(res).ShouldNot(BeNil())
 			Ω(resErr).Should(BeNil())
 		})
 		It("GetMtaYamlPath fails", func() {
-			GetWorkingDirectory = func() (string, error) {
-				return "", errors.New("error")
+			test := testMtaYamlStr{
+				fullpath: getFullPath("testdata", "testproject", "mta.yaml"),
+				path:     getFullPath("testdata", "testproject", "mta.yaml"),
+				err:      errors.New("err"),
 			}
-			res, resErr := Read(&Loc{})
+			res, resErr := Read(&test)
 			Ω(res).Should(BeNil())
 			Ω(resErr).ShouldNot(BeNil())
 		})
 	})
 
 	var _ = Describe("ReadExt", func() {
-
-		AfterEach(func() {
-			GetWorkingDirectory = OsGetWd
-		})
 		It("Sanity", func() {
-			res, resErr := ReadExt(&Loc{SourcePath: getFullPath("testdata", "testproject")}, "cf")
+			test := testMtaYamlStr{
+				fullpath: getFullPath("testdata", "testproject", "mta.yaml"),
+				path:     getFullPath("testdata", "testproject", "mta.yaml"),
+				err:      nil,
+			}
+			res, resErr := ReadExt(&test, "cf")
 			Ω(res).ShouldNot(BeNil())
 			Ω(resErr).Should(BeNil())
 		})
 		It("GetMtaYamlPath fails", func() {
-			GetWorkingDirectory = func() (string, error) {
-				return "", errors.New("error")
+			test := testMtaYamlStr{
+				fullpath: getFullPath("testdata", "testproject", "mta.yaml"),
+				path:     getFullPath("testdata", "testproject", "mta.yaml"),
+				err:      errors.New("err"),
 			}
-			res, resErr := ReadExt(&Loc{}, "cf")
+			res, resErr := ReadExt(&test, "cf")
 			Ω(res).Should(BeNil())
 			Ω(resErr).ShouldNot(BeNil())
 		})

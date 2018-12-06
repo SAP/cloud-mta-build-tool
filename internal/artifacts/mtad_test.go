@@ -30,7 +30,7 @@ var _ = Describe("Mtad", func() {
 			Ω(err).Should(Succeed())
 			mtaStr, err := mta.Unmarshal(mtaBytes)
 			Ω(err).Should(Succeed())
-			Ω(GenMtad(mtaStr, &ep, "cf")).Should(HaveOccurred())
+			Ω(GenMtad(mtaStr, &ep, ep.IsDeploymentDescriptor(), "cf")).Should(HaveOccurred())
 		})
 	})
 
@@ -52,7 +52,7 @@ var _ = Describe("Mtad", func() {
 					Type: "javascript.nodejs",
 					Path: "app2",
 					BuildParams: map[string]interface{}{
-					buildops.SupportedPlatformsParam: nil,
+						buildops.SupportedPlatformsParam: nil,
 					},
 				},
 				{
@@ -60,14 +60,15 @@ var _ = Describe("Mtad", func() {
 					Type: "java.tomcat",
 					Path: "app3",
 					BuildParams: map[string]interface{}{
-					buildops.SupportedPlatformsParam: []string{},
+						buildops.SupportedPlatformsParam: []string{},
 					},
 				},
 			},
 		}
-		AdaptMtadForDeployment(&mta, "cf")
+		AdaptMtadForDeployment(&mta, "neo")
 		Ω(len(mta.Modules)).Should(Equal(1))
 		Ω(mta.Modules[0].Name).Should(Equal("htmlapp2"))
+		Ω(mta.Parameters["hcp-deployer-version"]).ShouldNot(BeNil())
 	})
 
 })

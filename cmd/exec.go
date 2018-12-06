@@ -108,7 +108,7 @@ var packCmd = &cobra.Command{
 		ep := locationParameters(sourcePackFlag, targetPackFlag, descriptorPackFlag)
 		module, _, err := builders.GetModuleAndCommands(&ep, pPackModuleFlag)
 		if err == nil {
-			err = artifacts.PackModule(&ep, module, pPackModuleFlag)
+			err = artifacts.PackModule(&ep, ep.IsDeploymentDescriptor(), module, pPackModuleFlag)
 		}
 		logError(err)
 		return err
@@ -144,7 +144,7 @@ var genMtarCmd = &cobra.Command{
 		err := dir.ValidateDeploymentDescriptor(descriptorMtarFlag)
 		if err == nil {
 			ep := locationParameters(sourceMtarFlag, targetMtarFlag, descriptorMtarFlag)
-			err = artifacts.GenerateMtar(&ep)
+			err = artifacts.GenerateMtar(&ep, &ep)
 		}
 		logErrorExt(err, "MTAR generation failed")
 		return err
@@ -166,17 +166,17 @@ var genMtadCmd = &cobra.Command{
 			return err
 		}
 		ep := locationParameters(sourceMtadFlag, targetMtadFlag, descriptorMtadFlag)
-		mtaStr, err := dir.ParseFile(&ep)
+		mtaStr, err := ep.ParseFile()
 		if err != nil {
 			logErrorExt(err, "MTAD generation failed on MTA parsing")
 			return err
 		}
-		mtaExt, errExt := dir.ParseExtFile(&ep, platformMtadFlag)
+		mtaExt, errExt := ep.ParseExtFile(platformMtadFlag)
 		if errExt == nil {
 			mta.Merge(mtaStr, mtaExt)
 		}
 		artifacts.AdaptMtadForDeployment(mtaStr, platformMtadFlag)
-		err = artifacts.GenMtad(mtaStr, &ep, platformMtadFlag)
+		err = artifacts.GenMtad(mtaStr, &ep, ep.IsDeploymentDescriptor(), platformMtadFlag)
 		logErrorExt(err, "MTAD generation failed")
 		return err
 	},
@@ -239,8 +239,7 @@ func locationParameters(sourceFlag, targetFlag, descriptor string) dir.Loc {
 		mtaFilename = "mta.yaml"
 		descriptor = "dev"
 	} else {
-		mtaFilename =
-			"mtad.yaml"
+		mtaFilename = "mtad.yaml"
 		descriptor = "dep"
 	}
 	return dir.Loc{SourcePath: sourceFlag, TargetPath: targetFlag, MtaFilename: mtaFilename, Descriptor: descriptor}

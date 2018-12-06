@@ -50,15 +50,15 @@ var _ = Describe("Path", func() {
 	})
 	It("getMtaYamlFilename - Explicit", func() {
 		location := Loc{MtaFilename: "mymta.yaml"}
-		Ω(location.getMtaYamlFilename()).Should(Equal("mymta.yaml"))
+		Ω(location.GetMtaYamlFilename()).Should(Equal("mymta.yaml"))
 	})
 	It("getMtaYamlFilename - Implicit", func() {
 		location := Loc{}
-		Ω(location.getMtaYamlFilename()).Should(Equal("mta.yaml"))
+		Ω(location.GetMtaYamlFilename()).Should(Equal("mta.yaml"))
 	})
 	It("getMtaYamlFilename - Implicit- MTAD", func() {
 		location := Loc{Descriptor: "dep"}
-		Ω(location.getMtaYamlFilename()).Should(Equal("mtad.yaml"))
+		Ω(location.GetMtaYamlFilename()).Should(Equal("mtad.yaml"))
 	})
 	It("GetMtaYamlPath", func() {
 		location := Loc{}
@@ -94,14 +94,14 @@ var _ = Describe("Path Failures", func() {
 	lp := Loc{}
 
 	BeforeEach(func() {
-		storedWorkingDirectory = GetWorkingDirectory
-		GetWorkingDirectory = func() (string, error) {
+		storedWorkingDirectory = getWorkingDirectory
+		getWorkingDirectory = func() (string, error) {
 			return "", errors.New("Dummy error")
 		}
 	})
 
 	AfterEach(func() {
-		GetWorkingDirectory = storedWorkingDirectory
+		getWorkingDirectory = storedWorkingDirectory
 	})
 
 	It("GetSource - Implicit", func() {
@@ -118,12 +118,12 @@ var _ = Describe("Path Failures", func() {
 	})
 	It("GetTargetTmpDir fails", func() {
 		call := 0
-		GetWorkingDirectory = func() (string, error) {
+		getWorkingDirectory = func() (string, error) {
 			if call >= 1 {
 				return "", errors.New("Dummy error")
 			}
 			call++
-			return OsGetWd()
+			return osGetWd()
 		}
 		_, err := lp.GetTargetTmpDir()
 		Ω(err).Should(HaveOccurred())
@@ -162,12 +162,14 @@ var _ = Describe("Path Failures", func() {
 		wd, _ := os.Getwd()
 
 		It("Valid filename", func() {
-			mta, err := ParseFile(&Loc{SourcePath: filepath.Join(wd, "testdata")})
+			ep := &Loc{SourcePath: filepath.Join(wd, "testdata")}
+			mta, err := ep.ParseFile()
 			Ω(mta).ShouldNot(BeNil())
 			Ω(err).Should(BeNil())
 		})
 		It("Invalid filename", func() {
-			_, err := ParseFile(&Loc{SourcePath: filepath.Join(wd, "testdata"), MtaFilename: "mtax.yaml"})
+			ep := &Loc{SourcePath: filepath.Join(wd, "testdata"), MtaFilename: "mtax.yaml"}
+			_, err := ep.ParseFile()
 			Ω(err).ShouldNot(BeNil())
 		})
 	})
@@ -177,12 +179,14 @@ var _ = Describe("Path Failures", func() {
 		wd, _ := os.Getwd()
 
 		It("Valid filename", func() {
-			mta, err := ParseExtFile(&Loc{SourcePath: filepath.Join(wd, "testdata", "testproject")}, "cf")
+			ep := Loc{SourcePath: filepath.Join(wd, "testdata", "testproject")}
+			mta, err := ep.ParseExtFile("cf")
 			Ω(mta).ShouldNot(BeNil())
 			Ω(err).Should(BeNil())
 		})
 		It("Invalid filename", func() {
-			_, err := ParseExtFile(&Loc{SourcePath: filepath.Join(wd, "testdata", "testproject"), MtaFilename: "mtax.yaml"}, "neo")
+			ep := &Loc{SourcePath: filepath.Join(wd, "testdata", "testproject"), MtaFilename: "mtax.yaml"}
+			_, err := ep.ParseExtFile("neo")
 			Ω(err).ShouldNot(BeNil())
 		})
 	})

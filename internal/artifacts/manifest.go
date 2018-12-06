@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"cloud-mta-build-tool/internal/version"
 	"cloud-mta-build-tool/mta"
 
 	"github.com/pkg/errors"
@@ -38,8 +39,11 @@ func setManifetDesc(file io.Writer, mtaStr []*mta.Module, modules []string) erro
 	if err != nil {
 		return errors.Wrap(err, "META INFO generation failed")
 	}
-	// TODO set the version from external config for automatic version bump during release
-	_, err = fmt.Fprint(file, "Created-By: SAP Application Archive Builder 0.0.1")
+	v, _ := version.GetVersion()
+	if err != nil {
+		return errors.Wrap(err, "META INFO generation failed on getting version")
+	}
+	_, err = fmt.Fprintf(file, "Created-By: SAP Application Archive Builder %v", v.CliVersion)
 	if err != nil {
 		return errors.Wrap(err, "META INFO generation failed")
 	}

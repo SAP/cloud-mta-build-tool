@@ -29,20 +29,20 @@ type tplCfg struct {
 }
 
 // Make - Generate the makefile
-func Make(ep *dir.Loc, mode string) error {
+func Make(ep dir.ILoc, mode string) error {
 	tpl, err := getTplCfg(mode, ep.IsDeploymentDescriptor())
 	if err != nil {
 		return err
 	}
 	if err == nil {
-		tpl.depDesc = ep.Descriptor
+		tpl.depDesc = ep.GetDescriptor()
 		// Get project working directory
 		err = makeFile(ep, makefile, &tpl)
 	}
 	return err
 }
 
-func makeFile(ep *dir.Loc, makeFilename string, tpl *tplCfg) error {
+func makeFile(ep dir.ILoc, makeFilename string, tpl *tplCfg) error {
 
 	type api map[string]string
 	// template data
@@ -52,14 +52,14 @@ func makeFile(ep *dir.Loc, makeFilename string, tpl *tplCfg) error {
 		Dep  string
 	}
 	// ParseFile file
-	m, err := dir.ParseFile(ep)
+	m, err := ep.ParseFile()
 	if err != nil {
 		return errors.Wrap(err, "makeFile failed reading MTA yaml")
 	}
 
 	// Template data
 	data.File = *m
-	data.Dep = ep.Descriptor
+	data.Dep = ep.GetDescriptor()
 
 	// Create maps of the template method's
 	t, err := mapTpl(tpl.tplContent, tpl.preContent, tpl.postContent)

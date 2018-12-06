@@ -14,6 +14,87 @@ const (
 	mtad = "mtad.yaml"
 )
 
+// ILoc - Location interface
+type ILoc interface {
+	ISource
+	ITarget
+	IMtaParser
+}
+
+// IMtaParser - MTA Parser interface
+type IMtaParser interface {
+	ParseFile() (*mta.MTA, error)
+	ParseExtFile(platform string) (*mta.EXT, error)
+}
+
+// IDescriptor - descriptor interface
+type IDescriptor interface {
+	IsDeploymentDescriptor() bool
+	GetDescriptor() string
+}
+
+// ISource - source interface
+type ISource interface {
+	GetSource() (string, error)
+	ISourceModule
+	ISourceArtifacts
+}
+
+// ISourceModule - source module interface
+type ISourceModule interface {
+	GetSourceModuleDir(modulePath string) (string, error)
+}
+
+// ISourceArtifacts - source artifacts interface
+type ISourceArtifacts interface {
+	IMtaYaml
+	IMtaExtYaml
+	IDescriptor
+}
+
+// IMtaYaml - MTA Yaml interface
+type IMtaYaml interface {
+	GetMtaYamlFilename() string
+	GetMtaYamlPath() (string, error)
+}
+
+// IMtaExtYaml - MTA Extension Yaml interface
+type IMtaExtYaml interface {
+	GetMtaExtYamlPath(platform string) (string, error)
+}
+
+// ITarget - target interface
+type ITarget interface {
+	ITargetPath
+	ITargetArtifacts
+	ITargetModule
+}
+
+// ITargetPath - target path interface
+type ITargetPath interface {
+	GetTarget() (string, error)
+	GetTargetTmpDir() (string, error)
+}
+
+// ITargetModule - Target Module interface
+type ITargetModule interface {
+	GetTargetModuleDir(moduleName string) (string, error)
+	GetTargetModuleZipPath(moduleName string) (string, error)
+}
+
+// IModule - module interface
+type IModule interface {
+	ISourceModule
+	ITargetModule
+}
+
+// ITargetArtifacts - target artifacts interface
+type ITargetArtifacts interface {
+	GetMetaPath() (string, error)
+	GetMtadPath() (string, error)
+	GetManifestPath() (string, error)
+}
+
 // Loc - MTA tool file properties
 type Loc struct {
 	// SourcePath - Path to MTA project
@@ -26,25 +107,34 @@ type Loc struct {
 	Descriptor string
 }
 
-// OsGetWd - get working dir
-var OsGetWd = func() (string, error) {
+// osGetWd - get working dir
+var osGetWd = func() (string, error) {
 	return os.Getwd()
 }
 
-// GetWorkingDirectory assignment
-var GetWorkingDirectory = OsGetWd
+// getWorkingDirectory assignment
+var getWorkingDirectory = osGetWd
 
 // GetSource gets the processed project path;
 // if it is not provided, use the current directory.
 func (ep *Loc) GetSource() (string, error) {
 	if ep.SourcePath == "" {
-		wd, err := GetWorkingDirectory()
+		wd, err := getWorkingDirectory()
 		if err != nil {
 			return "", errors.Wrap(err, "GetSource failed")
 		}
 		return wd, nil
 	}
 	return ep.SourcePath, nil
+}
+
+// GetDescriptor - gets descriptor type of location
+func (ep *Loc) GetDescriptor() string {
+	if ep.Descriptor == "" {
+		return "dev"
+	}
+
+	return ep.Descriptor
 }
 
 // GetTarget gets the target path;
@@ -58,7 +148,6 @@ func (ep *Loc) GetTarget() (string, error) {
 		return source, nil
 	}
 	return ep.TargetPath, nil
-
 }
 
 // GetTargetTmpDir gets the temporary target directory path.
@@ -108,8 +197,8 @@ func (ep *Loc) GetSourceModuleDir(modulePath string) (string, error) {
 	return filepath.Join(source, filepath.Clean(modulePath)), nil
 }
 
-// getMtaYamlFilename - Gets the MTA .yaml file name.
-func (ep *Loc) getMtaYamlFilename() string {
+// GetMtaYamlFilename - Gets the MTA .yaml file name.
+func (ep *Loc) GetMtaYamlFilename() string {
 	if ep.MtaFilename == "" {
 		if ep.Descriptor == dep {
 			return mtad
@@ -125,7 +214,7 @@ func (ep *Loc) GetMtaYamlPath() (string, error) {
 	if err != nil {
 		return "", errors.Wrap(err, "GetMtaYamlPath failed")
 	}
-	return filepath.Join(source, ep.getMtaYamlFilename()), nil
+	return filepath.Join(source, ep.GetMtaYamlFilename()), nil
 }
 
 // GetMtaExtYamlPath gets the MTA extension .yaml file path.
@@ -178,7 +267,7 @@ func (ep *Loc) IsDeploymentDescriptor() bool {
 }
 
 // ParseFile returns a reference to the MTA object from a given mta.yaml file.
-func ParseFile(ep *Loc) (*mta.MTA, error) {
+func (ep *Loc) ParseFile() (*mta.MTA, error) {
 	yamlContent, err := Read(ep)
 	if err != nil {
 		return nil, err
@@ -188,7 +277,7 @@ func ParseFile(ep *Loc) (*mta.MTA, error) {
 }
 
 // ParseExtFile returns a reference to the MTA object from a given mta.yaml file.
-func ParseExtFile(ep *Loc, platform string) (*mta.MTAExt, error) {
+func (ep *Loc) ParseExtFile(platform string) (*mta.EXT, error) {
 	yamlContent, err := ReadExt(ep, platform)
 	if err != nil {
 		return nil, err

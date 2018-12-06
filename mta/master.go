@@ -77,8 +77,8 @@ type Resource struct {
 	Properties map[string]interface{} `yaml:"properties,omitempty"`
 }
 
-// MTAExt - mta extension schema
-type MTAExt struct {
+// EXT - mta extension schema
+type EXT struct {
 	// indicates MTA schema version, using semver.
 	SchemaVersion *string `yaml:"_schema-version"`
 	// A globally unique ID of this MTA extension. Unlimited string of unicode characters.

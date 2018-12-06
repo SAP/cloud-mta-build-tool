@@ -41,9 +41,9 @@ var pModuleCmd = &cobra.Command{
 	SilenceErrors: true,
 }
 
-func provideModules(ep *dir.Loc) error {
+func provideModules(file dir.IMtaParser) error {
 	// read MTA from mta.yaml
-	m, err := dir.ParseFile(ep)
+	m, err := file.ParseFile()
 	if err != nil {
 		return err
 	}

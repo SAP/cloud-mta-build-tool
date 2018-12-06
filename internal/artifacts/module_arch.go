@@ -52,7 +52,7 @@ func BuildModule(ep *dir.Loc, moduleName string) error {
 
 		// 3. Packing the modules build artifacts (include node modules)
 		// into the artifactsPath dir as data zip
-		e = PackModule(ep, module, moduleName)
+		e = PackModule(ep, ep.IsDeploymentDescriptor(), module, moduleName)
 		if e != nil {
 			return errors.Wrapf(e, "Module %v building failed on module's packing", moduleName)
 		}
@@ -69,13 +69,13 @@ func BuildModule(ep *dir.Loc, moduleName string) error {
 }
 
 // PackModule - pack build module artifacts
-func PackModule(ep *dir.Loc, module *mta.Module, moduleName string) error {
+func PackModule(ep dir.IModule, deploymentDesc bool, module *mta.Module, moduleName string) error {
 
 	if !buildops.PlatformsDefined(module) {
 		return nil
 	}
 
-	if ep.IsDeploymentDescriptor() {
+	if deploymentDesc {
 		return CopyModuleArchive(ep, module.Path, moduleName)
 	}
 
@@ -108,7 +108,7 @@ func PackModule(ep *dir.Loc, module *mta.Module, moduleName string) error {
 }
 
 // CopyModuleArchive - copies module archive to temp directory
-func CopyModuleArchive(ep *dir.Loc, modulePath, moduleName string) error {
+func CopyModuleArchive(ep dir.IModule, modulePath, moduleName string) error {
 	logs.Logger.Infof("Copy of module %v archive Started", moduleName)
 	srcModulePath, err := ep.GetSourceModuleDir(modulePath)
 	if err != nil {

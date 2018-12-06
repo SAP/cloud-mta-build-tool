@@ -13,7 +13,7 @@ import (
 )
 
 // GenMtad generates an mtad.yaml file from a mta.yaml file and a platform configuration file.
-func GenMtad(mtaStr *mta.MTA, ep *dir.Loc, platform string) error {
+func GenMtad(mtaStr *mta.MTA, ep dir.ITargetArtifacts, deploymentDesc bool, platform string) error {
 	// Create META-INF folder under the mtar folder
 	metaPath, err := ep.GetMetaPath()
 	if err != nil {
@@ -23,7 +23,7 @@ func GenMtad(mtaStr *mta.MTA, ep *dir.Loc, platform string) error {
 	if err != nil {
 		return errors.Wrap(err, "mtad.yaml generation failed, not able to create dir")
 	}
-	if !ep.IsDeploymentDescriptor() {
+	if !deploymentDesc {
 		err = ConvertTypes(*mtaStr, platform)
 		if err != nil {
 			return errors.Wrap(err, "mtad.yaml generation failed on type conversion")
@@ -35,12 +35,13 @@ func GenMtad(mtaStr *mta.MTA, ep *dir.Loc, platform string) error {
 		return errors.Wrap(err, "mtad.yaml generation failed on MTAD marshaling")
 	}
 	mtadPath, err := ep.GetMtadPath()
-	if err == nil {
-		// Write back the MTAD to the META-INF folder
-		err = ioutil.WriteFile(mtadPath, mtad, os.ModePerm)
-	}
 	if err != nil {
-		return errors.Wrap(err, "mtad.yaml generation failed")
+		return errors.Wrap(err, "mtad.yaml generation failed on MTAD path getting")
+	}
+	// Write back the MTAD to the META-INF folder
+	err = ioutil.WriteFile(mtadPath, mtad, os.ModePerm)
+	if err != nil {
+		return errors.Wrap(err, "mtad.yaml generation failed of MTAD file writing")
 	}
 	return nil
 }

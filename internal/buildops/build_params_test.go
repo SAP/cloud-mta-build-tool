@@ -13,6 +13,21 @@ import (
 	"cloud-mta-build-tool/mta"
 )
 
+type testLoc struct {
+	res      string
+	maxCalls int
+	calls    int
+}
+
+func (t *testLoc) GetSourceModuleDir(modulePath string) (string, error) {
+	t.calls++
+	if t.calls >= t.maxCalls {
+		return "", errors.New("err")
+	} else {
+		return t.res, nil
+	}
+}
+
 var _ = Describe("BuildParams", func() {
 
 	var _ = Describe("GetBuildResultsPath", func() {
@@ -28,18 +43,9 @@ var _ = Describe("BuildParams", func() {
 				"bPath"))
 
 		var _ = Describe("invalid cases", func() {
-			BeforeEach(func() {
-				dir.GetWorkingDirectory = func() (string, error) {
-					return "", errors.New("error")
-				}
-			})
-			AfterEach(func() {
-				dir.GetWorkingDirectory = dir.OsGetWd
-			})
-
 			It("Implicit", func() {
 				module := mta.Module{Path: "mPath"}
-				_, err := GetBuildResultsPath(&dir.Loc{}, &module)
+				_, err := GetBuildResultsPath(&testLoc{calls: 0, maxCalls: 0}, &module)
 				Ω(err).Should(HaveOccurred())
 			})
 		})
@@ -77,7 +83,7 @@ var _ = Describe("BuildParams", func() {
 						Name: "B",
 						Path: "moduleB",
 						BuildParams: map[string]interface{}{
-					  	requiresParam: reqs,
+							requiresParam: reqs,
 						},
 					},
 				},
@@ -109,106 +115,87 @@ var _ = Describe("BuildParams", func() {
 				mta.MTA{Modules: []*mta.Module{{Name: "ui1", Path: "ui1"}, {Name: "node", Path: "node"}}},
 				"node"))
 
-		var _ = Describe("More invalid cases", func() {
-			var failsOnCall int
-			var callsCounter int
+		var _ = DescribeTable("Get source/target path fails", func(failsOn int) {
+			req := BuildRequires{Name: "A", Artifacts: []string{"*"}, TargetPath: "b_copied_artifacts"}
+			mtaObj := mta.MTA{Modules: []*mta.Module{{Name: "A", Path: "ui5app"}, {Name: "B", Path: "moduleB"}}}
+			Ω(ProcessRequirements(&testLoc{calls: 0, maxCalls: failsOn}, &mtaObj, &req, "B")).Should(HaveOccurred())
+		},
+			Entry("source", 1),
+			Entry("target", 2))
 
-			BeforeEach(func() {
-				dir.GetWorkingDirectory = func() (string, error) {
-					callsCounter++
-					if callsCounter == failsOnCall {
-						return "", errors.New("error")
-					}
-					return os.Getwd()
+	})
+})
+
+var _ = Describe("Process complex list of requirements", func() {
+	AfterEach(func() {
+		os.RemoveAll(getTestPath("testbuildparams", "node", "existingfolder", "deepfolder"))
+		os.RemoveAll(getTestPath("testbuildparams", "node", "newfolder"))
+	})
+
+	It("", func() {
+		lp := dir.Loc{
+			SourcePath: getTestPath("testbuildparams"),
+			TargetPath: getTestPath("result"),
+		}
+		mtaObj, _ := lp.ParseFile()
+		for _, m := range mtaObj.Modules {
+			if m.Name == "node" {
+				for _, r := range getBuildRequires(m) {
+					ProcessRequirements(&lp, mtaObj, &r, "node")
 				}
-				callsCounter = 0
-			})
-			AfterEach(func() {
-				dir.GetWorkingDirectory = dir.OsGetWd
-			})
-			var _ = DescribeTable("Get source/target path fails", func(failsOn int) {
-				failsOnCall = failsOn
-				req := BuildRequires{Name: "A", Artifacts: []string{"*"}, TargetPath: "b_copied_artifacts"}
-				mtaObj := mta.MTA{Modules: []*mta.Module{{Name: "A", Path: "ui5app"}, {Name: "B", Path: "moduleB"}}}
-				Ω(ProcessRequirements(&dir.Loc{}, &mtaObj, &req, "B")).Should(HaveOccurred())
+			}
+		}
+		// ["*"] => "newfolder"
+		Ω(getTestPath("testbuildparams", "node", "newfolder", "webapp")).Should(BeADirectory())
+		// ["deep/folder/inui2/anotherfile.txt"] => "existingfolder/deepfolder"
+		Ω(getTestPath("testbuildparams", "node", "existingfolder", "deepfolder", "anotherfile.txt")).Should(BeAnExistingFile())
+		// ["./deep/*/inui2/another*"] => "./existingfolder/deepfolder"
+		Ω(getTestPath("testbuildparams", "node", "existingfolder", "deepfolder", "anotherfile2.txt")).Should(BeAnExistingFile())
+		// ["deep/folder/inui2/somefile.txt", "*/folder/"] =>  "newfolder/newdeepfolder"
+		Ω(getTestPath("testbuildparams", "node", "newfolder", "newdeepfolder", "folder")).Should(BeADirectory())
+	})
+
+})
+
+var _ = Describe("PlatformsDefined", func() {
+	It("No platforms", func() {
+		m := mta.Module{
+			Name: "x",
+			BuildParams: map[string]interface{}{
+				SupportedPlatformsParam: []string{},
 			},
-				Entry("source", 1),
-				Entry("target", 2))
-
-		})
+		}
+		Ω(PlatformsDefined(&m)).Should(Equal(false))
 	})
-
-	var _ = Describe("Process complex list of requirements", func() {
-		AfterEach(func() {
-			os.RemoveAll(getTestPath("testbuildparams", "node", "existingfolder", "deepfolder"))
-			os.RemoveAll(getTestPath("testbuildparams", "node", "newfolder"))
-		})
-
-		It("", func() {
-			lp := dir.Loc{
-				SourcePath: getTestPath("testbuildparams"),
-				TargetPath: getTestPath("result"),
-			}
-			mtaObj, _ := dir.ParseFile(&lp)
-			for _, m := range mtaObj.Modules {
-				if m.Name == "node" {
-					for _, r := range getBuildRequires(m) {
-						ProcessRequirements(&lp, mtaObj, &r, "node")
-					}
-				}
-			}
-			// ["*"] => "newfolder"
-			Ω(getTestPath("testbuildparams", "node", "newfolder", "webapp")).Should(BeADirectory())
-			// ["deep/folder/inui2/anotherfile.txt"] => "existingfolder/deepfolder"
-			Ω(getTestPath("testbuildparams", "node", "existingfolder", "deepfolder", "anotherfile.txt")).Should(BeAnExistingFile())
-			// ["./deep/*/inui2/another*"] => "./existingfolder/deepfolder"
-			Ω(getTestPath("testbuildparams", "node", "existingfolder", "deepfolder", "anotherfile2.txt")).Should(BeAnExistingFile())
-			// ["deep/folder/inui2/somefile.txt", "*/folder/"] =>  "newfolder/newdeepfolder"
-			Ω(getTestPath("testbuildparams", "node", "newfolder", "newdeepfolder", "folder")).Should(BeADirectory())
-		})
-
+	It("All platforms", func() {
+		m := mta.Module{
+			Name:        "x",
+			BuildParams: map[string]interface{}{},
+		}
+		Ω(PlatformsDefined(&m)).Should(Equal(true))
 	})
+})
 
-	var _ = Describe("PlatformsDefined", func() {
-		It("No platforms", func() {
-			m := mta.Module{
-				Name: "x",
-				BuildParams: map[string]interface{}{
-		  		SupportedPlatformsParam: []string{},
-				},
-			}
-			Ω(PlatformsDefined(&m)).Should(Equal(false))
-		})
-		It("All platforms", func() {
-			m := mta.Module{
-				Name:        "x",
-				BuildParams: map[string]interface{}{},
-			}
-			Ω(PlatformsDefined(&m)).Should(Equal(true))
-		})
+var _ = Describe("GetBuilder", func() {
+	It("Builder defined by type", func() {
+		m := mta.Module{
+			Name: "x",
+			Type: "node-js",
+			BuildParams: map[string]interface{}{
+				SupportedPlatformsParam: []string{},
+			},
+		}
+		Ω(GetBuilder(&m)).Should(Equal("node-js"))
 	})
-
-	var _ = Describe("GetBuilder", func() {
-		It("Builder defined by type", func() {
-			m := mta.Module{
-				Name: "x",
-				Type: "node-js",
-				BuildParams: map[string]interface{}{
-			  	SupportedPlatformsParam: []string{},
-				},
-			}
-			Ω(GetBuilder(&m)).Should(Equal("node-js"))
-		})
-		It("Builder defined by build params", func() {
-			m := mta.Module{
-				Name: "x",
-				Type: "node-js",
-				BuildParams: map[string]interface{}{
-			  	builderParam: "npm",
-				},
-			}
-			Ω(GetBuilder(&m)).Should(Equal("npm"))
-		})
+	It("Builder defined by build params", func() {
+		m := mta.Module{
+			Name: "x",
+			Type: "node-js",
+			BuildParams: map[string]interface{}{
+				builderParam: "npm",
+			},
+		}
+		Ω(GetBuilder(&m)).Should(Equal("npm"))
 	})
 })
 

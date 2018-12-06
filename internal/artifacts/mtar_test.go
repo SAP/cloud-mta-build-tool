@@ -21,39 +21,51 @@ var _ = Describe("Mtar", func() {
 		It("Generate Mtar - Sanity", func() {
 			ep := dir.Loc{SourcePath: getTestPath("mtahtml5"), TargetPath: getTestPath("result")}
 			Ω(GenerateMeta(&ep, "cf")).Should(Succeed())
-			Ω(GenerateMtar(&ep)).Should(Succeed())
+			Ω(GenerateMtar(&ep, &ep)).Should(Succeed())
 			mtarPath := getTestPath("result", "mtahtml5.mtar")
 			Ω(mtarPath).Should(BeAnExistingFile())
 		})
 
 		It("Generate Mtar - Invalid mta", func() {
 			ep := dir.Loc{SourcePath: getTestPath("mtahtml5"), TargetPath: getTestPath("result"), MtaFilename: "mtaBroken.yaml"}
-			Ω(GenerateMtar(&ep)).Should(HaveOccurred())
+			Ω(GenerateMtar(&ep, &ep)).Should(HaveOccurred())
 		})
 		It("Generate Mtar - Mta not exists", func() {
 			ep := dir.Loc{SourcePath: getTestPath("mtahtml5"), TargetPath: getTestPath("result"), MtaFilename: "mtaNotExists.yaml"}
-			Ω(GenerateMtar(&ep)).Should(HaveOccurred())
+			Ω(GenerateMtar(&ep, &ep)).Should(HaveOccurred())
 		})
 
-		var _ = Describe("Failures on GetWorkingDirectory", func() {
-			AfterEach(func() {
-				dir.GetWorkingDirectory = dir.OsGetWd
-			})
-
-			var _ = DescribeTable("Invalid location", func(failOnCall int) {
-				call := 0
-				dir.GetWorkingDirectory = func() (string, error) {
-					if call >= failOnCall {
-						return "", errors.New("error")
-					}
-					call++
-					return getTestPath("mtahtml5"), nil
-				}
+		var _ = Describe("Target Failures", func() {
+			var _ = DescribeTable("Invalid location", func(loc *testMtarLoc) {
 				ep := dir.Loc{}
-				Ω(GenerateMtar(&ep)).Should(HaveOccurred())
+				Ω(GenerateMtar(loc, &ep)).Should(HaveOccurred())
 			},
-				Entry("Fails on GetTargetTmpDir", 1),
-				Entry("Fails on GetTarget", 3))
+				Entry("Fails on GetTargetTmpDir", &testMtarLoc{
+					tmpDir:    "",
+					targetDir: getTestPath("result"),
+				}),
+				Entry("Fails on GetTarget", &testMtarLoc{
+					tmpDir:    getTestPath("result", "mtahtml5", "mtahtml5"),
+					targetDir: "",
+				}))
 		})
 	})
 })
+
+type testMtarLoc struct {
+	tmpDir    string
+	targetDir string
+}
+
+func (loc *testMtarLoc) GetTarget() (string, error) {
+	if loc.targetDir == "" {
+		return "", errors.New("err")
+	}
+	return loc.targetDir, nil
+}
+func (loc *testMtarLoc) GetTargetTmpDir() (string, error) {
+	if loc.tmpDir == "" {
+		return "", errors.New("err")
+	}
+	return loc.tmpDir, nil
+}

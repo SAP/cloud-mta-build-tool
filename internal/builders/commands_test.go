@@ -188,5 +188,14 @@ modules:
 			Ω(len(cmd)).Should(Equal(0))
 
 		})
+		It("Invalid case - broken commands config", func() {
+			conf := CommandsConfig
+			CommandsConfig = []byte("wrong config")
+			wd, _ := os.Getwd()
+			ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata")}
+			_, _, err := GetModuleAndCommands(&ep, "node-js")
+			CommandsConfig = conf
+			Ω(err).Should(HaveOccurred())
+		})
 	})
 })

@@ -15,12 +15,40 @@ import (
 	"cloud-mta-build-tool/internal/fsys"
 )
 
+type testPackLoc struct {
+	targetDir string
+	sourceDir string
+	zipPath   string
+}
+
+func (loc *testPackLoc) GetSourceModuleDir(modulePath string) (string, error) {
+	if loc.sourceDir == "" {
+		return "", errors.New("err")
+	}
+	return loc.sourceDir, nil
+}
+func (loc *testPackLoc) GetTargetModuleDir(moduleName string) (string, error) {
+	if loc.targetDir == "" {
+		return "", errors.New("err")
+	}
+	return loc.targetDir, nil
+}
+func (loc *testPackLoc) GetTargetModuleZipPath(moduleName string) (string, error) {
+	if loc.zipPath == "" {
+		return "", errors.New("err")
+	}
+	return loc.zipPath, nil
+}
+
 var _ = Describe("ModuleArch", func() {
 
 	AfterEach(func() {
 		os.RemoveAll(getTestPath("result"))
 	})
-
+	m := mta.Module{
+		Name: "node-js",
+		Path: "node-js",
+	}
 	var _ = Describe("Pack", func() {
 		It("Deployment descriptor - Copy only", func() {
 			ep := dir.Loc{
@@ -28,11 +56,7 @@ var _ = Describe("ModuleArch", func() {
 				TargetPath: getTestPath("result"),
 				Descriptor: "dep",
 			}
-			m := mta.Module{
-				Name: "node-js",
-				Path: "node-js",
-			}
-			Ω(PackModule(&ep, &m, "node-js")).Should(Succeed())
+			Ω(PackModule(&ep, true, &m, "node-js")).Should(Succeed())
 			Ω(getTestPath("result", "mta_with_zipped_module", "node-js", "data.zip")).Should(BeAnExistingFile())
 		})
 
@@ -42,16 +66,30 @@ var _ = Describe("ModuleArch", func() {
 				TargetPath: getTestPath("result"),
 				Descriptor: "dep",
 			}
-			m := mta.Module{
+			mNoPlatforms := mta.Module{
 				Name: "node-js",
 				Path: "node-js",
 				BuildParams: map[string]interface{}{
-				buildops.SupportedPlatformsParam: []string{},
+					buildops.SupportedPlatformsParam: []string{},
 				},
 			}
-			Ω(PackModule(&ep, &m, "node-js")).Should(Succeed())
+			Ω(PackModule(&ep, false, &mNoPlatforms, "node-js")).Should(Succeed())
 			Ω(getTestPath("result", "mta_with_zipped_module", "node-js", "data.zip")).ShouldNot(BeAnExistingFile())
 		})
+
+		var _ = DescribeTable("Failures", func(loc *testPackLoc) {
+			Ω(PackModule(loc, false, &m, "node-js")).Should(HaveOccurred())
+		},
+			Entry("GetTargetModuleDir fails", &testPackLoc{
+				targetDir: "",
+				sourceDir: getTestPath("mta"),
+				zipPath:   "",
+			}),
+			Entry("GetBuildResultsPath fails", &testPackLoc{
+				targetDir: getTestPath("result"),
+				sourceDir: "",
+				zipPath:   "",
+			}))
 	})
 
 	var _ = Describe("Build", func() {
@@ -95,6 +133,7 @@ builders:
 
 			var _ = DescribeTable("Invalid inputs", func(projectName, mtaFilename, moduleName string) {
 				ep := dir.Loc{SourcePath: getTestPath(projectName), TargetPath: getTestPath("result"), MtaFilename: mtaFilename}
+				Ω(ep.GetTargetTmpDir()).ShouldNot(BeADirectory())
 				Ω(BuildModule(&ep, moduleName)).Should(HaveOccurred())
 				Ω(ep.GetTargetTmpDir()).ShouldNot(BeADirectory())
 			},
@@ -103,7 +142,6 @@ builders:
 				Entry("Invalid module name wrong build params", "mtahtml5", "mtaWithWrongBuildParams.yaml", "ui5app"),
 			)
 		})
-
 	})
 
 	var _ = Describe("CopyModuleArchive", func() {
@@ -120,27 +158,15 @@ builders:
 
 		var _ = Describe("Invalid - Get Source failures", func() {
 
-			AfterEach(func() {
-				dir.GetWorkingDirectory = os.Getwd
-			})
-
-			DescribeTable("Failures", func(failOnCall int) {
-				var callsCounter = 0
-				wd, _ := os.Getwd()
-				dir.GetWorkingDirectory = func() (string, error) {
-					callsCounter++
-					if callsCounter >= failOnCall {
-						return "", errors.New("err")
-					}
-					return wd, nil
-				}
-				ep := dir.Loc{}
-				Ω(CopyModuleArchive(&ep, "node-js", "node-js")).Should(HaveOccurred())
+			DescribeTable("Failures", func(loc *testPackLoc) {
+				Ω(CopyModuleArchive(loc, "node-js", "node-js")).Should(HaveOccurred())
 			},
-				Entry("Fails on first call", 1),
-				Entry("Fails on second call", 2))
+				Entry("Fails on first call", &testPackLoc{
+					sourceDir: "",
+				}),
+				Entry("Fails on second call", &testPackLoc{
+					sourceDir: getTestPath(),
+				}))
 		})
-
 	})
-
 })

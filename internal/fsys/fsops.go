@@ -275,7 +275,7 @@ func getRelativePath(fullPath, basePath string) string {
 }
 
 // Read returns mta byte slice.
-func Read(ep *Loc) ([]byte, error) {
+func Read(ep IMtaYaml) ([]byte, error) {
 	fileFullPath, err := ep.GetMtaYamlPath()
 	if err != nil {
 		return nil, errors.Wrap(err, "Read failed getting MTA Yaml path")
@@ -289,7 +289,7 @@ func Read(ep *Loc) ([]byte, error) {
 }
 
 // ReadExt returns mta extension byte slice.
-func ReadExt(ep *Loc, platform string) ([]byte, error) {
+func ReadExt(ep IMtaExtYaml, platform string) ([]byte, error) {
 	fileFullPath, err := ep.GetMtaExtYamlPath(platform)
 	if err != nil {
 		return nil, errors.Wrap(err, "Read failed getting MTA Extension Yaml path")

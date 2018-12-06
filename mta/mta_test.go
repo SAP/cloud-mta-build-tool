@@ -152,6 +152,10 @@ var _ = Describe("Mta", func() {
 			Ω(err).Should(Succeed())
 			Ω(len(m.Modules)).Should(Equal(2))
 		})
+		It("Invalid content", func() {
+			_, err := Unmarshal([]byte("wrong mta"))
+			Ω(err).Should(HaveOccurred())
+		})
 	})
 
 	var _ = Describe("UnmarshalExt", func() {
@@ -163,6 +167,10 @@ var _ = Describe("Mta", func() {
 			m, err := UnmarshalExt(content)
 			Ω(err).Should(Succeed())
 			Ω(len(m.Modules)).Should(Equal(2))
+		})
+		It("Invalid content", func() {
+			_, err := UnmarshalExt([]byte("wrong mtaExt"))
+			Ω(err).Should(HaveOccurred())
 		})
 	})
 
@@ -226,7 +234,7 @@ var _ = Describe("Mta", func() {
 			mta := MTA{
 				Modules: []*Module{&moduleA, &moduleB},
 			}
-			mtaExt := MTAExt{
+			mtaExt := EXT{
 				Modules: []*ModuleExt{&moduleAExt},
 			}
 			Merge(&mta, &mtaExt)

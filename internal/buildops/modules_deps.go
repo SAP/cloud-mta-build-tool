@@ -18,8 +18,8 @@ type graphNode struct {
 // ProcessDependencies - processes module dependencies
 // function prepares all artifacts required for module
 // copying them from required modules
-func ProcessDependencies(ep *dir.Loc, moduleName string) error {
-	m, err := dir.ParseFile(ep)
+func ProcessDependencies(ep dir.ILoc, moduleName string) error {
+	m, err := ep.ParseFile()
 	if err != nil {
 		return err
 	}

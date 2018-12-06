@@ -34,7 +34,8 @@ var _ = Describe("ModulesDeps", func() {
 
 	It("Resolve dependencies - Valid case", func() {
 		wd, _ := os.Getwd()
-		mtaStr, _ := dir.ParseFile(&dir.Loc{SourcePath: filepath.Join(wd, "testdata"), MtaFilename: "mta_multiapps.yaml"})
+		ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata"), MtaFilename: "mta_multiapps.yaml"}
+		mtaStr, _ := ep.ParseFile()
 		actual, _ := getModulesOrder(mtaStr)
 		// last module depends on others
 		Ω(actual[len(actual)-1]).Should(Equal("eb-uideployer"))
@@ -42,7 +43,8 @@ var _ = Describe("ModulesDeps", func() {
 
 	It("Resolve dependencies - cyclic dependencies", func() {
 		wd, _ := os.Getwd()
-		mtaStr, _ := dir.ParseFile(&dir.Loc{SourcePath: filepath.Join(wd, "testdata"), MtaFilename: "mta_multiapps_cyclic_deps.yaml"})
+		ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata"), MtaFilename: "mta_multiapps_cyclic_deps.yaml"}
+		mtaStr, _ := ep.ParseFile()
 		_, err := getModulesOrder(mtaStr)
 		Ω(err).Should(HaveOccurred())
 		Ω(err.Error()).Should(ContainSubstring("eb-ui-conf-eb"))

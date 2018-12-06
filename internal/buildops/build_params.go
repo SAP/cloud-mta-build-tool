@@ -87,7 +87,7 @@ func getStrParam(m map[interface{}]interface{}, param string) string {
 // 2.	Dependency on not defined module
 
 // ProcessRequirements - Processes build requirement of module (using moduleName).
-func ProcessRequirements(ep *dir.Loc, mta *mta.MTA, requires *BuildRequires, moduleName string) error {
+func ProcessRequirements(ep dir.ISourceModule, mta *mta.MTA, requires *BuildRequires, moduleName string) error {
 
 	// validate module names - both in process and required
 	module, err := mta.GetModuleByName(moduleName)
@@ -120,7 +120,7 @@ func ProcessRequirements(ep *dir.Loc, mta *mta.MTA, requires *BuildRequires, mod
 }
 
 // GetBuildResultsPath - provides path of build results
-func GetBuildResultsPath(ep *dir.Loc, module *mta.Module) (string, error) {
+func GetBuildResultsPath(ep dir.ISourceModule, module *mta.Module) (string, error) {
 	path, err := ep.GetSourceModuleDir(module.Path)
 	if err != nil {
 		return "", errors.Wrapf(err, "GetBuildResultsPath failed getting directory of module %v", module.Path)
@@ -134,7 +134,7 @@ func GetBuildResultsPath(ep *dir.Loc, module *mta.Module) (string, error) {
 }
 
 // getRequiredTargetPath - provides path of required artifacts
-func getRequiredTargetPath(ep *dir.Loc, module *mta.Module, requires *BuildRequires) (string, error) {
+func getRequiredTargetPath(ep dir.ISourceModule, module *mta.Module, requires *BuildRequires) (string, error) {
 	path, err := ep.GetSourceModuleDir(module.Path)
 	if err != nil {
 		return "", errors.Wrapf(err, "getRequiredTargetPath failed getting directory of module %v", module.Name)

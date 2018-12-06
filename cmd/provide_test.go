@@ -51,6 +51,10 @@ var _ = Describe("Provide", func() {
 		Ω(provideModules(&dir.Loc{SourcePath: filepath.Join("testdata", "mtahtml6")})).Should(HaveOccurred())
 	})
 
+	It("Invalid modules dependencies", func() {
+		Ω(provideModules(&dir.Loc{SourcePath: filepath.Join("testdata", "mtahtml5"), MtaFilename: "mtaWithWrongBuildParams.yaml"})).Should(HaveOccurred())
+	})
+
 	It("Invalid command call", func() {
 		out := executeAndProvideOutput(func() {
 			sourceBModuleFlag = ""

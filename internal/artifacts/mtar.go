@@ -14,10 +14,10 @@ const (
 )
 
 // GenerateMtar - generate mtar archive from the build artifacts
-func GenerateMtar(ep *dir.Loc) error {
+func GenerateMtar(ep dir.ITargetPath, parser dir.IMtaParser) error {
 	logs.Logger.Info("MTAR Generation started")
 	// get MTA object
-	m, err := dir.ParseFile(ep)
+	m, err := parser.ParseFile()
 	if err != nil {
 		return errors.Wrap(err, "MTAR Generation failed on MTA parsing")
 	}
