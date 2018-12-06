@@ -280,10 +280,21 @@ func Read(ep *Loc) ([]byte, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "Read failed getting MTA Yaml path")
 	}
-	// ParseFile MTA file
+	// Read MTA file
 	yamlFile, err := ioutil.ReadFile(fileFullPath)
 	if err != nil {
 		return nil, errors.Wrap(err, "Error reading the MTA file")
 	}
 	return yamlFile, nil
+}
+
+// ReadExt returns mta extension byte slice.
+func ReadExt(ep *Loc, platform string) ([]byte, error) {
+	fileFullPath, err := ep.GetMtaExtYamlPath(platform)
+	if err != nil {
+		return nil, errors.Wrap(err, "Read failed getting MTA Extension Yaml path")
+	}
+	// Read MTA extension file
+	yamlFile, err := ioutil.ReadFile(fileFullPath)
+	return yamlFile, err
 }

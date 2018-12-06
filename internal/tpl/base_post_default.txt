@@ -1,7 +1,7 @@
 {{define "base_post"}}
 # Create META-INF folder with MANIFEST.MF & mtad.yaml
 meta:
-{{"\t"}}@mbt execute meta -d={{.Dep}}
+{{"\t"}}@mbt execute meta -d={{.Dep}} -p=${p}
 
 # Pack as MTAR artifact
 mtar: execute meta

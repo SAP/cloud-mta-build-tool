@@ -45,8 +45,8 @@ var _ = Describe("ModuleArch", func() {
 			m := mta.Module{
 				Name: "node-js",
 				Path: "node-js",
-				BuildParams: mta.BuildParameters{
-					buildops.SupportedPlatformsParam: []string{},
+				BuildParams: map[string]interface{}{
+				buildops.SupportedPlatformsParam: []string{},
 				},
 			}
 			Ω(PackModule(&ep, &m, "node-js")).Should(Succeed())
@@ -100,7 +100,7 @@ builders:
 			},
 				Entry("Invalid path to application", "mta1", "mta.yaml", "node-js"),
 				Entry("Invalid module name", "mta", "mta.yaml", "xxx"),
-				Entry("Invalid module name", "mtahtml5", "mtaWithWrongBuildParams.yaml", "ui5app"),
+				Entry("Invalid module name wrong build params", "mtahtml5", "mtaWithWrongBuildParams.yaml", "ui5app"),
 			)
 		})
 

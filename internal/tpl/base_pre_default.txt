@@ -1,5 +1,8 @@
 {{define "base_pre"}}
 version={{Version.MakeFile}}
+ifndef p
+$(error Platform is not passed. p argument expected)
+endif
 # Create folder for build artifacts
 DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 BASE := $(notdir $(patsubst %/,%,$(DIR)))

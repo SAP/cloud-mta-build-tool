@@ -11,6 +11,7 @@ import (
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
 	. "github.com/onsi/gomega/types"
+	"github.com/pkg/errors"
 )
 
 func getFullPath(relPath ...string) string {
@@ -195,10 +196,42 @@ var _ = Describe("FSOPS", func() {
 	})
 
 	var _ = Describe("Read", func() {
+
+		AfterEach(func() {
+			GetWorkingDirectory = OsGetWd
+		})
 		It("Sanity", func() {
 			res, resErr := Read(&Loc{SourcePath: getFullPath("testdata", "testproject")})
 			Ω(res).ShouldNot(BeNil())
 			Ω(resErr).Should(BeNil())
+		})
+		It("GetMtaYamlPath fails", func() {
+			GetWorkingDirectory = func() (string, error) {
+				return "", errors.New("error")
+			}
+			res, resErr := Read(&Loc{})
+			Ω(res).Should(BeNil())
+			Ω(resErr).ShouldNot(BeNil())
+		})
+	})
+
+	var _ = Describe("ReadExt", func() {
+
+		AfterEach(func() {
+			GetWorkingDirectory = OsGetWd
+		})
+		It("Sanity", func() {
+			res, resErr := ReadExt(&Loc{SourcePath: getFullPath("testdata", "testproject")}, "cf")
+			Ω(res).ShouldNot(BeNil())
+			Ω(resErr).Should(BeNil())
+		})
+		It("GetMtaYamlPath fails", func() {
+			GetWorkingDirectory = func() (string, error) {
+				return "", errors.New("error")
+			}
+			res, resErr := ReadExt(&Loc{}, "cf")
+			Ω(res).Should(BeNil())
+			Ω(resErr).ShouldNot(BeNil())
 		})
 	})
 })

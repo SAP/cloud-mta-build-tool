@@ -1,4 +1,7 @@
 version=0.0.0
+ifndef p
+$(error Platform is not passed. p argument expected)
+endif
 # Create folder for build artifacts
 DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 BASE := $(notdir $(patsubst %/,%,$(DIR)))
@@ -30,7 +33,7 @@ ui:
 
 # Create META-INF folder with MANIFEST.MF & mtad.yaml
 meta:
-	@mbt execute meta -d=dep
+	@mbt execute meta -d=dep -p=${p}
 
 # Pack as MTAR artifact
 mtar: $(modules) meta

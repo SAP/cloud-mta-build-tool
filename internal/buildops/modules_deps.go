@@ -27,7 +27,7 @@ func ProcessDependencies(ep *dir.Loc, moduleName string) error {
 	if err != nil {
 		return err
 	}
-	requires := getRequires(module)
+	requires := getBuildRequires(module)
 	if requires != nil {
 		for _, req := range requires {
 			e := ProcessRequirements(ep, m, &req, module.Name)
@@ -57,7 +57,7 @@ func getModulesOrder(m *mta.MTA) ([]string, error) {
 	var graph = make(graphs)
 	for index, module := range m.Modules {
 		deps := mapset.NewSet()
-		requires := getRequires(module)
+		requires := getBuildRequires(module)
 		if requires != nil {
 			for _, req := range requires {
 				deps.Add(req.Name)

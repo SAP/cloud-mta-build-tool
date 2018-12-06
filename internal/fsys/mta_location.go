@@ -128,6 +128,15 @@ func (ep *Loc) GetMtaYamlPath() (string, error) {
 	return filepath.Join(source, ep.getMtaYamlFilename()), nil
 }
 
+// GetMtaExtYamlPath gets the MTA extension .yaml file path.
+func (ep *Loc) GetMtaExtYamlPath(platform string) (string, error) {
+	source, err := ep.GetSource()
+	if err != nil {
+		return "", errors.Wrap(err, "GetMtaExtYamlPath failed")
+	}
+	return filepath.Join(source, platform+"-mtaext.yaml"), nil
+}
+
 // GetMetaPath gets the path to the generated META-INF directory.
 func (ep *Loc) GetMetaPath() (string, error) {
 	dir, err := ep.GetTargetTmpDir()
@@ -174,6 +183,16 @@ func ParseFile(ep *Loc) (*mta.MTA, error) {
 	if err != nil {
 		return nil, err
 	}
-	// ParseFile MTA file
+	// Parse MTA file
 	return mta.Unmarshal(yamlContent)
+}
+
+// ParseExtFile returns a reference to the MTA object from a given mta.yaml file.
+func ParseExtFile(ep *Loc, platform string) (*mta.MTAExt, error) {
+	yamlContent, err := ReadExt(ep, platform)
+	if err != nil {
+		return nil, err
+	}
+	// Parse MTA extension file
+	return mta.UnmarshalExt(yamlContent)
 }

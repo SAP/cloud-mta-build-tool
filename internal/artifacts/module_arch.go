@@ -95,7 +95,7 @@ func PackModule(ep *dir.Loc, module *mta.Module, moduleName string) error {
 	// zipping the build artifacts
 	logs.Logger.Infof("Starting execute zipping module %v ", moduleName)
 	moduleZipFullPath := moduleZipPath + dataZip
-	sourceModuleDir, err := ep.GetSourceModuleDir(module.Path)
+	sourceModuleDir, err := buildops.GetBuildResultsPath(ep, module)
 	if err != nil {
 		return errors.Wrapf(err, "Pack of module %v failed on getting source module directory with relative path %v",
 			moduleName, module.Path)

@@ -116,6 +116,18 @@ var _ = Describe("Path Failures", func() {
 		_, err := lp.GetTargetTmpDir()
 		Ω(err).Should(HaveOccurred())
 	})
+	It("GetTargetTmpDir fails", func() {
+		call := 0
+		GetWorkingDirectory = func() (string, error) {
+			if call >= 1 {
+				return "", errors.New("Dummy error")
+			}
+			call++
+			return OsGetWd()
+		}
+		_, err := lp.GetTargetTmpDir()
+		Ω(err).Should(HaveOccurred())
+	})
 	It("GetTargetModuleDir", func() {
 		_, err := lp.GetTargetModuleDir("mmm")
 		Ω(err).Should(HaveOccurred())
@@ -159,4 +171,20 @@ var _ = Describe("Path Failures", func() {
 			Ω(err).ShouldNot(BeNil())
 		})
 	})
+
+	var _ = Describe("ParseExtFile MTA", func() {
+
+		wd, _ := os.Getwd()
+
+		It("Valid filename", func() {
+			mta, err := ParseExtFile(&Loc{SourcePath: filepath.Join(wd, "testdata", "testproject")}, "cf")
+			Ω(mta).ShouldNot(BeNil())
+			Ω(err).Should(BeNil())
+		})
+		It("Invalid filename", func() {
+			_, err := ParseExtFile(&Loc{SourcePath: filepath.Join(wd, "testdata", "testproject"), MtaFilename: "mtax.yaml"}, "neo")
+			Ω(err).ShouldNot(BeNil())
+		})
+	})
+
 })
