@@ -52,7 +52,7 @@ var _ = Describe("Mtad", func() {
 					Type: "javascript.nodejs",
 					Path: "app2",
 					BuildParams: map[string]interface{}{
-						buildops.SupportedPlatformsParam: nil,
+					buildops.SupportedPlatformsParam: nil,
 					},
 				},
 				{
@@ -60,7 +60,7 @@ var _ = Describe("Mtad", func() {
 					Type: "java.tomcat",
 					Path: "app3",
 					BuildParams: map[string]interface{}{
-						buildops.SupportedPlatformsParam: []string{},
+					buildops.SupportedPlatformsParam: []string{},
 					},
 				},
 			},
