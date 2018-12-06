@@ -39,7 +39,7 @@ modules:
 		It("Sanity", func() {
 			m := mta.MTA{}
 			yaml.Unmarshal(mtaSingleModule, &m)
-			Ω(GenMetaInfo(&ep, "cf", &m, []string{"htmlapp"}, func(mtaStr *mta.MTA, platform string) {})).Should(Succeed())
+			Ω(GenMetaInfo(&ep, "cf", &m, []string{"htmlapp"})).Should(Succeed())
 			Ω(ep.GetManifestPath()).Should(BeAnExistingFile())
 			Ω(ep.GetMtadPath()).Should(BeAnExistingFile())
 		})
@@ -50,7 +50,7 @@ modules:
 			}
 			m := mta.MTA{}
 			yaml.Unmarshal(mtaSingleModule, &m)
-			Ω(GenMetaInfo(&epCurrent, "cf", &m, []string{"htmlapp"}, func(mtaStr *mta.MTA, platform string) {})).Should(HaveOccurred())
+			Ω(GenMetaInfo(&epCurrent, "cf", &m, []string{"htmlapp"})).Should(HaveOccurred())
 		})
 	})
 

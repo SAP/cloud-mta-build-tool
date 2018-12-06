@@ -13,7 +13,7 @@ import (
 )
 
 // GenMtad generates an mtad.yaml file from a mta.yaml file and a platform configuration file.
-func GenMtad(mtaStr *mta.MTA, ep *dir.Loc, platform string, convertTypes func(mtaStr *mta.MTA, platform string)) error {
+func GenMtad(mtaStr *mta.MTA, ep *dir.Loc, platform string) error {
 	// Create META-INF folder under the mtar folder
 	metaPath, err := ep.GetMetaPath()
 	if err != nil {
@@ -24,7 +24,10 @@ func GenMtad(mtaStr *mta.MTA, ep *dir.Loc, platform string, convertTypes func(mt
 		return errors.Wrap(err, "mtad.yaml generation failed, not able to create dir")
 	}
 	if !ep.IsDeploymentDescriptor() {
-		convertTypes(mtaStr, platform)
+		err = ConvertTypes(*mtaStr, platform)
+		if err != nil {
+			return errors.Wrap(err, "mtad.yaml generation failed on type conversion")
+		}
 	}
 	// Create readable Yaml before writing to file
 	mtad, err := marshal(mtaStr)

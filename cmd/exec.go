@@ -162,24 +162,21 @@ var genMtadCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		err := dir.ValidateDeploymentDescriptor(descriptorMtadFlag)
 		if err != nil {
-			logErrorExt(err, "MTAD generation failed")
+			logErrorExt(err, "MTAD generation failed on deployment descriptor validation")
 			return err
 		}
 		ep := locationParameters(sourceMtadFlag, targetMtadFlag, descriptorMtadFlag)
 		mtaStr, err := dir.ParseFile(&ep)
-		if err == nil {
-			mtaExt, errExt := dir.ParseExtFile(&ep, platformMtadFlag)
-			if errExt == nil {
-				mta.Merge(mtaStr, mtaExt)
-			}
-			artifacts.AdaptMtadForDeployment(mtaStr, platformMtadFlag)
-			err = artifacts.GenMtad(mtaStr, &ep, platformMtadFlag, func(mtaStr *mta.MTA, platform string) {
-				e := artifacts.ConvertTypes(*mtaStr, platform)
-				if e != nil {
-					logErrorExt(err, "MTAD generation failed")
-				}
-			})
+		if err != nil {
+			logErrorExt(err, "MTAD generation failed on MTA parsing")
+			return err
 		}
+		mtaExt, errExt := dir.ParseExtFile(&ep, platformMtadFlag)
+		if errExt == nil {
+			mta.Merge(mtaStr, mtaExt)
+		}
+		artifacts.AdaptMtadForDeployment(mtaStr, platformMtadFlag)
+		err = artifacts.GenMtad(mtaStr, &ep, platformMtadFlag)
 		logErrorExt(err, "MTAD generation failed")
 		return err
 	},

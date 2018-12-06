@@ -1,11 +1,10 @@
 package artifacts
 
 import (
-	"cloud-mta-build-tool/internal/logs"
-
 	"github.com/pkg/errors"
 
 	"cloud-mta-build-tool/internal/fsys"
+	"cloud-mta-build-tool/internal/logs"
 	"cloud-mta-build-tool/internal/platform"
 	"cloud-mta-build-tool/mta"
 )
@@ -28,9 +27,7 @@ func GenerateMeta(ep *dir.Loc, platform string) error {
 
 	AdaptMtadForDeployment(m, platform)
 	// Generate meta info dir with required content
-	err = GenMetaInfo(ep, platform, m, []string{}, func(mtaStr *mta.MTA, platform string) {
-		err = ConvertTypes(*mtaStr, platform)
-	})
+	err = GenMetaInfo(ep, platform, m, []string{})
 	if err != nil {
 		return errors.Wrap(err, "Meta folder and related artifacts creation failed on META Info generation")
 	}
@@ -39,8 +36,8 @@ func GenerateMeta(ep *dir.Loc, platform string) error {
 }
 
 // GenMetaInfo generates a MANIFEST.MF file and updates the build artifacts paths for deployment purposes.
-func GenMetaInfo(ep *dir.Loc, platform string, mtaStr *mta.MTA, modules []string, convertTypes func(mtaStr *mta.MTA, platform string)) error {
-	err := GenMtad(mtaStr, ep, platform, convertTypes)
+func GenMetaInfo(ep *dir.Loc, platform string, mtaStr *mta.MTA, modules []string) error {
+	err := GenMtad(mtaStr, ep, platform)
 	if err != nil {
 		return errors.Wrap(err, "META INFO generation failed on MTAD generation")
 	}

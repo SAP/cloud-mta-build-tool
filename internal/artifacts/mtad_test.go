@@ -30,9 +30,7 @@ var _ = Describe("Mtad", func() {
 			Ω(err).Should(Succeed())
 			mtaStr, err := mta.Unmarshal(mtaBytes)
 			Ω(err).Should(Succeed())
-			Ω(GenMtad(mtaStr, &ep, "cf", func(mtaStr *mta.MTA, platform string) {
-
-			})).Should(HaveOccurred())
+			Ω(GenMtad(mtaStr, &ep, "cf")).Should(HaveOccurred())
 		})
 	})
 
