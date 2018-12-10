@@ -16,9 +16,31 @@ import (
 
 var _ = Describe("ModuleArch", func() {
 
+	var config []byte
+
+	BeforeEach(func() {
+		config = make([]byte, len(builders.CommandsConfig))
+		copy(config, builders.CommandsConfig)
+		// Simplified commands configuration (performance purposes). removed "npm prune --production"
+		builders.CommandsConfig = []byte(`
+builders:
+- name: html5
+  info: "installing module dependencies & execute grunt & remove dev dependencies"
+  path: "path to config file which override the following default commands"
+  type: 
+- name: nodejs
+  info: "build nodejs application"
+  path: "path to config file which override the following default commands"
+  type:
+`)
+	})
+
 	AfterEach(func() {
+		builders.CommandsConfig = make([]byte, len(config))
+		copy(builders.CommandsConfig, config)
 		os.RemoveAll(getTestPath("result"))
 	})
+
 	m := mta.Module{
 		Name: "node-js",
 		Path: "node-js",
