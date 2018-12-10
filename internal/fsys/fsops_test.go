@@ -11,7 +11,6 @@ import (
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
 	. "github.com/onsi/gomega/types"
-	"github.com/pkg/errors"
 )
 
 func getFullPath(relPath ...string) string {
@@ -29,12 +28,12 @@ func (t *testMtaYamlStr) GetMtaYamlFilename() string {
 	return t.fullpath
 }
 
-func (t *testMtaYamlStr) GetMtaYamlPath() (string, error) {
-	return t.path, t.err
+func (t *testMtaYamlStr) GetMtaYamlPath() string {
+	return t.path
 }
 
-func (t *testMtaYamlStr) GetMtaExtYamlPath(platform string) (string, error) {
-	return t.fullpath, t.err
+func (t *testMtaYamlStr) GetMtaExtYamlPath(platform string) string {
+	return t.fullpath
 }
 
 var _ = Describe("FSOPS", func() {
@@ -224,16 +223,6 @@ var _ = Describe("FSOPS", func() {
 			Ω(res).ShouldNot(BeNil())
 			Ω(resErr).Should(BeNil())
 		})
-		It("GetMtaYamlPath fails", func() {
-			test := testMtaYamlStr{
-				fullpath: getFullPath("testdata", "testproject", "mta.yaml"),
-				path:     getFullPath("testdata", "testproject", "mta.yaml"),
-				err:      errors.New("err"),
-			}
-			res, resErr := Read(&test)
-			Ω(res).Should(BeNil())
-			Ω(resErr).ShouldNot(BeNil())
-		})
 	})
 
 	var _ = Describe("ReadExt", func() {
@@ -246,16 +235,6 @@ var _ = Describe("FSOPS", func() {
 			res, resErr := ReadExt(&test, "cf")
 			Ω(res).ShouldNot(BeNil())
 			Ω(resErr).Should(BeNil())
-		})
-		It("GetMtaYamlPath fails", func() {
-			test := testMtaYamlStr{
-				fullpath: getFullPath("testdata", "testproject", "mta.yaml"),
-				path:     getFullPath("testdata", "testproject", "mta.yaml"),
-				err:      errors.New("err"),
-			}
-			res, resErr := ReadExt(&test, "cf")
-			Ω(res).Should(BeNil())
-			Ω(resErr).ShouldNot(BeNil())
 		})
 	})
 })

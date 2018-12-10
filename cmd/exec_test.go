@@ -46,7 +46,7 @@ var _ = Describe("Commands", func() {
 			pPackModuleFlag = "ui5app"
 			sourcePackFlag = getTestPath("mtahtml5")
 			ep := dir.Loc{SourcePath: sourcePackFlag, TargetPath: targetPackFlag}
-			targetTmpDir, _ := ep.GetTargetTmpDir()
+			targetTmpDir := ep.GetTargetTmpDir()
 			err := os.MkdirAll(targetTmpDir, os.ModePerm)
 			if err != nil {
 				logs.Logger.Error(err)
@@ -167,18 +167,6 @@ builders:
 			Ω(ep.GetTargetModuleZipPath(pBuildModuleNameFlag)).Should(BeAnExistingFile())
 		})
 	})
-
-	var _ = Describe("locationParameters", func() {
-		It("Dev Descritor", func() {
-			ep := locationParameters("", "", "")
-			Ω(ep.GetMtaYamlFilename()).Should(Equal("mta.yaml"))
-		})
-		It("Dep Descritor", func() {
-			ep := locationParameters("", "", "dep")
-			Ω(ep.GetMtaYamlFilename()).Should(Equal("mtad.yaml"))
-		})
-	})
-
 })
 
 func getTestPath(relPath ...string) string {

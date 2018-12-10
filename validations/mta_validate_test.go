@@ -79,7 +79,7 @@ var _ = Describe("MTA tests", func() {
 
 	var _ = Describe("Validation", func() {
 		var _ = DescribeTable("getValidationMode", func(flag string, expectedValidateSchema, expectedValidateProject, expectedSuccess bool) {
-			res1, res2, err := GetValidationMode(flag)
+			res1, res2, err := getValidationMode(flag)
 			Ω(res1).Should(Equal(expectedValidateSchema))
 			Ω(res2).Should(Equal(expectedValidateProject))
 			Ω(err == nil).Should(Equal(expectedSuccess))
@@ -91,7 +91,7 @@ var _ = Describe("MTA tests", func() {
 		)
 
 		var _ = DescribeTable("validateMtaYaml", func(projectRelPath string, validateSchema, validateProject, expectedSuccess bool) {
-			err := ValidateMtaYaml(getTestPath(projectRelPath), "mta.yaml", validateSchema, validateProject)
+			err := validateMtaYaml(getTestPath(projectRelPath), "mta.yaml", validateSchema, validateProject)
 			Ω(err == nil).Should(Equal(expectedSuccess))
 		},
 			Entry("invalid path to yaml - all", "ui5app1", true, true, false),

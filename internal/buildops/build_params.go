@@ -94,25 +94,18 @@ func ProcessRequirements(ep dir.ISourceModule, mta *mta.MTA, requires *BuildRequ
 	if err != nil {
 		return errors.Wrapf(err, "Processing requirements of module %v based on module %v failed on getting module", moduleName, requires.Name)
 	}
+
 	requiredModule, err := mta.GetModuleByName(requires.Name)
 	if err != nil {
 		return errors.Wrapf(err, "Processing requirements of module %v based on module %v failed on getting required module", moduleName, requires.Name)
 	}
-	// Get slice of artifacts
-	artifacts := requires.Artifacts
 
 	// Build paths for artifacts copying
-	sourcePath, err := GetBuildResultsPath(ep, requiredModule)
-	if err != nil {
-		return errors.Wrapf(err, "Processing requirements of module %v based on module %v failed on getting Results Path", moduleName, requiredModule.Name)
-	}
-	targetPath, err := getRequiredTargetPath(ep, module, requires)
-	if err != nil {
-		return errors.Wrapf(err, "Processing requirements of module %v based on module %v failed on getting Required Target Path", moduleName, requiredModule.Name)
-	}
-	// execute copy of artifacts
-	err = dir.CopyByPatterns(sourcePath, targetPath, artifacts)
+	sourcePath := GetBuildResultsPath(ep, requiredModule)
+	targetPath := getRequiredTargetPath(ep, module, requires)
 
+	// execute copy of artifacts
+	err = dir.CopyByPatterns(sourcePath, targetPath, requires.Artifacts)
 	if err != nil {
 		return errors.Wrapf(err, "Processing requirements of module %v based on module %v failed on artifacts copying", moduleName, requiredModule.Name)
 	}
@@ -120,30 +113,25 @@ func ProcessRequirements(ep dir.ISourceModule, mta *mta.MTA, requires *BuildRequ
 }
 
 // GetBuildResultsPath - provides path of build results
-func GetBuildResultsPath(ep dir.ISourceModule, module *mta.Module) (string, error) {
-	path, err := ep.GetSourceModuleDir(module.Path)
-	if err != nil {
-		return "", errors.Wrapf(err, "GetBuildResultsPath failed getting directory of module %v", module.Path)
-	}
+func GetBuildResultsPath(ep dir.ISourceModule, module *mta.Module) string {
+	path := ep.GetSourceModuleDir(module.Path)
+
 	// if no sub-folder provided - build results will be saved in the module folder
 	if module.BuildParams != nil && module.BuildParams[buildResultParam] != nil {
 		// if sub-folder provided - build results are located in the subfolder of the module folder
 		path = filepath.Join(path, module.BuildParams[buildResultParam].(string))
 	}
-	return path, nil
+	return path
 }
 
 // getRequiredTargetPath - provides path of required artifacts
-func getRequiredTargetPath(ep dir.ISourceModule, module *mta.Module, requires *BuildRequires) (string, error) {
-	path, err := ep.GetSourceModuleDir(module.Path)
-	if err != nil {
-		return "", errors.Wrapf(err, "getRequiredTargetPath failed getting directory of module %v", module.Name)
-	}
+func getRequiredTargetPath(ep dir.ISourceModule, module *mta.Module, requires *BuildRequires) string {
+	path := ep.GetSourceModuleDir(module.Path)
 	if requires.TargetPath != "" {
 		// if target folder provided - artifacts will be saved in the sub-folder of the module folder
 		path = filepath.Join(path, requires.TargetPath)
 	}
-	return path, nil
+	return path
 }
 
 // PlatformsDefined - if platforms defined

@@ -4,14 +4,36 @@ import (
 	"io/ioutil"
 	"path/filepath"
 
+	"cloud-mta-build-tool/internal/fsys"
+	"cloud-mta-build-tool/internal/logs"
+
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
 
 	"cloud-mta-build-tool/mta"
 )
 
-// GetValidationMode - convert validation mode flag to validation process flags
-func GetValidationMode(validationFlag string) (bool, bool, error) {
+// ExecuteValidation - executes validation of MTA
+func ExecuteValidation(source, desc, mode string) error {
+	logs.Logger.Info("MBT Validation started")
+	err := dir.ValidateDeploymentDescriptor(desc)
+	if err != nil {
+		return errors.Wrap(err, "MBT Validation failed on descriptor validation")
+	}
+	validateSchema, validateProject, err := getValidationMode(mode)
+	if err != nil {
+		return errors.Wrap(err, "MBT Validation failed on validation mode analysis")
+	}
+	err = validateMtaYaml(source, "mta.yaml", validateSchema, validateProject)
+	if err != nil {
+		return errors.Wrap(err, "MBT Validation failed")
+	}
+	logs.Logger.Info("MBT Validation successfully finished")
+	return nil
+}
+
+// getValidationMode - convert validation mode flag to validation process flags
+func getValidationMode(validationFlag string) (bool, bool, error) {
 	switch validationFlag {
 	case "":
 		return true, true, nil
@@ -23,8 +45,8 @@ func GetValidationMode(validationFlag string) (bool, bool, error) {
 	return false, false, errors.New("wrong argument of validation mode. Expected one of [all, schema, project]")
 }
 
-// ValidateMtaYaml - Validate MTA yaml
-func ValidateMtaYaml(projectPath, mtaFilename string, validateSchema bool, validateProject bool) error {
+// validateMtaYaml - Validate MTA yaml
+func validateMtaYaml(projectPath, mtaFilename string, validateSchema bool, validateProject bool) error {
 	if validateProject || validateSchema {
 
 		mtaPath := filepath.Join(projectPath, mtaFilename)

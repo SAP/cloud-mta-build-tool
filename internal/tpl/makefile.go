@@ -28,21 +28,37 @@ type tplCfg struct {
 	depDesc     string
 }
 
-// Make - Generate the makefile
-func Make(ep dir.ILoc, mode string) error {
-	tpl, err := getTplCfg(mode, ep.IsDeploymentDescriptor())
+// ExecuteMake - generate makefile
+func ExecuteMake(source, target, desc, mode string, wdGetter func() (string, error)) error {
+	logs.Logger.Info("Makefile generation started")
+	loc, err := dir.Location(source, target, desc, wdGetter)
+	if err != nil {
+		return errors.Wrap(err, "Makefile generation failed location initialization")
+	}
+	err = genMakefile(loc, loc, loc, mode)
+	if err != nil {
+		return errors.Wrap(err, "Makefile generation failed")
+	}
+	logs.Logger.Info("Makefile generation successfully finished")
+	return nil
+}
+
+// genMakefile - Generate the makefile
+func genMakefile(mtaParser dir.IMtaParser, loc dir.ITargetPath, desc dir.IDescriptor, mode string) error {
+	tpl, err := getTplCfg(mode, desc.IsDeploymentDescriptor())
 	if err != nil {
 		return err
 	}
 	if err == nil {
-		tpl.depDesc = ep.GetDescriptor()
+		tpl.depDesc = desc.GetDescriptor()
 		// Get project working directory
-		err = makeFile(ep, makefile, &tpl)
+		err = makeFile(mtaParser, loc, makefile, &tpl)
 	}
 	return err
 }
 
-func makeFile(ep dir.ILoc, makeFilename string, tpl *tplCfg) error {
+// makeFile - generate makefile form templates
+func makeFile(mtaParser dir.IMtaParser, loc dir.ITargetPath, makeFilename string, tpl *tplCfg) error {
 
 	type api map[string]string
 	// template data
@@ -51,15 +67,16 @@ func makeFile(ep dir.ILoc, makeFilename string, tpl *tplCfg) error {
 		API  api
 		Dep  string
 	}
+
 	// ParseFile file
-	m, err := ep.ParseFile()
+	m, err := mtaParser.ParseFile()
 	if err != nil {
 		return errors.Wrap(err, "makeFile failed reading MTA yaml")
 	}
 
 	// Template data
 	data.File = *m
-	data.Dep = ep.GetDescriptor()
+	data.Dep = tpl.depDesc
 
 	// Create maps of the template method's
 	t, err := mapTpl(tpl.tplContent, tpl.preContent, tpl.postContent)
@@ -67,12 +84,10 @@ func makeFile(ep dir.ILoc, makeFilename string, tpl *tplCfg) error {
 		return errors.Wrap(err, "makeFile failed mapping template")
 	}
 	// path for creating the file
-	target, err := ep.GetTarget()
-	if err != nil {
-		return errors.Wrap(err, "makeFile failed getting target")
-	}
+	target := loc.GetTarget()
+
 	path := filepath.Join(target, tpl.relPath)
-	// Create make file for the template
+	// Create genMakefile file for the template
 	mf, err := createMakeFile(path, makeFilename)
 	if err != nil {
 		return errors.Wrap(err, "makeFile failed on file creation")
@@ -141,7 +156,7 @@ func createMakeFile(path, filename string) (file *os.File, err error) {
 	fullFilename := filepath.Join(path, filename)
 	var mf *os.File
 	if _, err = os.Stat(fullFilename); err == nil {
-		logs.Logger.Warn(fmt.Sprintf("Make file %s exists", fullFilename))
+		logs.Logger.Warn(fmt.Sprintf("genMakefile file %s exists", fullFilename))
 		return nil, nil
 	}
 	mf, err = dir.CreateFile(fullFilename)

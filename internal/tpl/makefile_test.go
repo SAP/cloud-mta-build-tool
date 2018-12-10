@@ -11,6 +11,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
+	"github.com/pkg/errors"
 
 	"cloud-mta-build-tool/internal/fsys"
 	"cloud-mta-build-tool/internal/logs"
@@ -83,6 +84,21 @@ makefile_version: 0.0.0
 			os.Remove(makeFileFullPath)
 		})
 
+		var _ = Describe("ExecuteMake", func() {
+			AfterEach(func() {
+				os.Remove(filepath.Join(wd, "testdata", "Makefile.mta"))
+			})
+			It("Sanity", func() {
+				Ω(ExecuteMake(filepath.Join(wd, "testdata"), filepath.Join(wd, "testdata"), "dev", "", os.Getwd)).Should(Succeed())
+				Ω(filepath.Join(wd, "testdata", "Makefile.mta")).Should(BeAnExistingFile())
+			})
+			It("Fails on location initialization", func() {
+				Ω(ExecuteMake("", filepath.Join(wd, "testdata"), "dev", "", func() (string, error) {
+					return "", errors.New("err")
+				})).Should(HaveOccurred())
+			})
+		})
+
 		It("createMakeFile testing", func() {
 			makeFilePath := filepath.Join(wd, "testdata")
 			file, _ := createMakeFile(makeFilePath, makeFileName)
@@ -92,28 +108,32 @@ makefile_version: 0.0.0
 			Ω(createMakeFile(makeFilePath, makeFileName)).Should(BeNil())
 		})
 		It("Sanity - Dev", func() {
-			Ω(makeFile(&dir.Loc{SourcePath: filepath.Join(wd, "testdata"), Descriptor: "dev"}, makeFileName, &tpl)).Should(Succeed())
+			ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata"), TargetPath: filepath.Join(wd, "testdata"), Descriptor: "dev"}
+			Ω(makeFile(&ep, &ep, makeFileName, &tpl)).Should(Succeed())
 			Ω(makeFileFullPath).Should(BeAnExistingFile())
 			Ω(getMakeFileContent(makeFileFullPath)).Should(Equal(expectedMakeFileContent))
 		})
 		It("Sanity - Dep", func() {
-			Ω(makeFile(&dir.Loc{SourcePath: filepath.Join(wd, "testdata"), Descriptor: "dep"}, makeFileName, &tplDep)).Should(Succeed())
+			ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata"), TargetPath: filepath.Join(wd, "testdata"), Descriptor: "dep"}
+			Ω(makeFile(&ep, &ep, makeFileName, &tplDep)).Should(Succeed())
 			Ω(makeFileFullPath).Should(BeAnExistingFile())
 			Ω(getMakeFileContent(makeFileFullPath)).Should(Equal(expectedMakeFileDepContent))
 		})
-		It("Make testing with wrong mta yaml file", func() {
-			Ω(Make(&dir.Loc{SourcePath: filepath.Join(wd, "testdata"), MtaFilename: "xxx.yaml"}, "")).Should(HaveOccurred())
+		It("genMakefile testing with wrong mta yaml file", func() {
+			ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata"), TargetPath: filepath.Join(wd, "testdata"), MtaFilename: "xxx.yaml"}
+			Ω(genMakefile(&ep, &ep, &ep, "")).Should(HaveOccurred())
 		})
-		It("Make testing with wrong mode", func() {
-			Ω(Make(&dir.Loc{SourcePath: filepath.Join(wd, "testdata")}, "wrongMode")).Should(HaveOccurred())
+		It("genMakefile testing with wrong mode", func() {
+			ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata")}
+			Ω(genMakefile(&ep, &ep, &ep, "wrongMode")).Should(HaveOccurred())
 		})
 	})
 
 	var _ = DescribeTable("Makefile Generation Failed", func(testPath string, testTemplateFilename string) {
 		wd, _ := os.Getwd()
 		testTemplate, _ := ioutil.ReadFile(filepath.Join(wd, "testdata", testTemplateFilename))
-		ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata")}
-		Ω(makeFile(&ep, makeFileName, &tplCfg{relPath: testPath, tplContent: testTemplate, preContent: basePreVerbose, postContent: basePostVerbose})).Should(HaveOccurred())
+		ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata"), TargetPath: filepath.Join(wd, "testdata")}
+		Ω(makeFile(&ep, &ep, makeFileName, &tplCfg{relPath: testPath, tplContent: testTemplate, preContent: basePreVerbose, postContent: basePostVerbose, depDesc: "dev"})).Should(HaveOccurred())
 	},
 		Entry("Wrong Template", "testdata", filepath.Join("testdata", "WrongMakeTmpl.txt")),
 		Entry("Yaml not exists", "testdata1", "make_default.txt"),
@@ -126,7 +146,7 @@ makefile_version: 0.0.0
 		Entry("negative test", "test1", []string{"--test", "foo"}, false),
 	)
 
-	var _ = Describe("Make mode tests", func() {
+	var _ = Describe("genMakefile mode tests", func() {
 		DescribeTable("Positive", func(mode string, tpl tplCfg, isDep bool) {
 			Ω(getTplCfg(mode, isDep)).Should(Equal(tpl))
 		},

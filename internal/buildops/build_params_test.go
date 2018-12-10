@@ -7,26 +7,10 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
-	"github.com/pkg/errors"
 
 	"cloud-mta-build-tool/internal/fsys"
 	"cloud-mta-build-tool/mta"
 )
-
-type testLoc struct {
-	res      string
-	maxCalls int
-	calls    int
-}
-
-func (t *testLoc) GetSourceModuleDir(modulePath string) (string, error) {
-	t.calls++
-	if t.calls >= t.maxCalls {
-		return "", errors.New("err")
-	} else {
-		return t.res, nil
-	}
-}
 
 var _ = Describe("BuildParams", func() {
 
@@ -41,14 +25,6 @@ var _ = Describe("BuildParams", func() {
 					BuildParams: map[string]interface{}{buildResultParam: "bPath"},
 				},
 				"bPath"))
-
-		var _ = Describe("invalid cases", func() {
-			It("Implicit", func() {
-				module := mta.Module{Path: "mPath"}
-				_, err := GetBuildResultsPath(&testLoc{calls: 0, maxCalls: 0}, &module)
-				Ω(err).Should(HaveOccurred())
-			})
-		})
 	})
 
 	var _ = DescribeTable("getRequiredTargetPath", func(requires BuildRequires, module mta.Module, expected string) {
@@ -114,14 +90,6 @@ var _ = Describe("BuildParams", func() {
 				BuildRequires{Name: "ui1", Artifacts: []string{"*"}, TargetPath: "file.txt"},
 				mta.MTA{Modules: []*mta.Module{{Name: "ui1", Path: "ui1"}, {Name: "node", Path: "node"}}},
 				"node"))
-
-		var _ = DescribeTable("Get source/target path fails", func(failsOn int) {
-			req := BuildRequires{Name: "A", Artifacts: []string{"*"}, TargetPath: "b_copied_artifacts"}
-			mtaObj := mta.MTA{Modules: []*mta.Module{{Name: "A", Path: "ui5app"}, {Name: "B", Path: "moduleB"}}}
-			Ω(ProcessRequirements(&testLoc{calls: 0, maxCalls: failsOn}, &mtaObj, &req, "B")).Should(HaveOccurred())
-		},
-			Entry("source", 1),
-			Entry("target", 2))
 
 	})
 })

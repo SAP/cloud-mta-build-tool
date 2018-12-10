@@ -1,7 +1,6 @@
 package dir
 
 import (
-	"os"
 	"path/filepath"
 
 	"cloud-mta-build-tool/mta"
@@ -13,13 +12,6 @@ const (
 	dep  = "dep"
 	mtad = "mtad.yaml"
 )
-
-// ILoc - Location interface
-type ILoc interface {
-	ISource
-	ITarget
-	IMtaParser
-}
 
 // IMtaParser - MTA Parser interface
 type IMtaParser interface {
@@ -33,53 +25,32 @@ type IDescriptor interface {
 	GetDescriptor() string
 }
 
-// ISource - source interface
-type ISource interface {
-	GetSource() (string, error)
-	ISourceModule
-	ISourceArtifacts
-}
-
 // ISourceModule - source module interface
 type ISourceModule interface {
-	GetSourceModuleDir(modulePath string) (string, error)
-}
-
-// ISourceArtifacts - source artifacts interface
-type ISourceArtifacts interface {
-	IMtaYaml
-	IMtaExtYaml
-	IDescriptor
+	GetSourceModuleDir(modulePath string) string
 }
 
 // IMtaYaml - MTA Yaml interface
 type IMtaYaml interface {
 	GetMtaYamlFilename() string
-	GetMtaYamlPath() (string, error)
+	GetMtaYamlPath() string
 }
 
 // IMtaExtYaml - MTA Extension Yaml interface
 type IMtaExtYaml interface {
-	GetMtaExtYamlPath(platform string) (string, error)
-}
-
-// ITarget - target interface
-type ITarget interface {
-	ITargetPath
-	ITargetArtifacts
-	ITargetModule
+	GetMtaExtYamlPath(platform string) string
 }
 
 // ITargetPath - target path interface
 type ITargetPath interface {
-	GetTarget() (string, error)
-	GetTargetTmpDir() (string, error)
+	GetTarget() string
+	GetTargetTmpDir() string
 }
 
 // ITargetModule - Target Module interface
 type ITargetModule interface {
-	GetTargetModuleDir(moduleName string) (string, error)
-	GetTargetModuleZipPath(moduleName string) (string, error)
+	GetTargetModuleDir(moduleName string) string
+	GetTargetModuleZipPath(moduleName string) string
 }
 
 // IModule - module interface
@@ -90,9 +61,9 @@ type IModule interface {
 
 // ITargetArtifacts - target artifacts interface
 type ITargetArtifacts interface {
-	GetMetaPath() (string, error)
-	GetMtadPath() (string, error)
-	GetManifestPath() (string, error)
+	GetMetaPath() string
+	GetMtadPath() string
+	GetManifestPath() string
 }
 
 // Loc - MTA tool file properties
@@ -103,32 +74,17 @@ type Loc struct {
 	TargetPath string
 	// MtaFilename - MTA yaml filename "mta.yaml" by default
 	MtaFilename string
-	// IsDeploymentDescriptor - indicator of deployment descriptor usage (mtad.yaml)
+	// Descriptor - indicator of deployment descriptor usage (mtad.yaml)
 	Descriptor string
 }
 
-// osGetWd - get working dir
-var osGetWd = func() (string, error) {
-	return os.Getwd()
-}
-
-// getWorkingDirectory assignment
-var getWorkingDirectory = osGetWd
-
 // GetSource gets the processed project path;
 // if it is not provided, use the current directory.
-func (ep *Loc) GetSource() (string, error) {
-	if ep.SourcePath == "" {
-		wd, err := getWorkingDirectory()
-		if err != nil {
-			return "", errors.Wrap(err, "GetSource failed")
-		}
-		return wd, nil
-	}
-	return ep.SourcePath, nil
+func (ep *Loc) GetSource() string {
+	return ep.SourcePath
 }
 
-// GetDescriptor - gets descriptor type of location
+// GetDescriptor - gets descriptor type of Location
 func (ep *Loc) GetDescriptor() string {
 	if ep.Descriptor == "" {
 		return "dev"
@@ -139,62 +95,38 @@ func (ep *Loc) GetDescriptor() string {
 
 // GetTarget gets the target path;
 // if it is not provided, use the path of the processed project.
-func (ep *Loc) GetTarget() (string, error) {
-	if ep.TargetPath == "" {
-		source, err := ep.GetSource()
-		if err != nil {
-			return "", errors.Wrap(err, "GetTarget failed")
-		}
-		return source, nil
-	}
-	return ep.TargetPath, nil
+func (ep *Loc) GetTarget() string {
+	return ep.TargetPath
 }
 
 // GetTargetTmpDir gets the temporary target directory path.
 // The subdirectory in the target folder is named as the source project folder.
-func (ep *Loc) GetTargetTmpDir() (string, error) {
-	source, err := ep.GetSource()
-	if err != nil {
-		return "", errors.Wrap(err, "GetTargetTmpDir failed")
-	}
+func (ep *Loc) GetTargetTmpDir() string {
+	source := ep.GetSource()
 	_, file := filepath.Split(source)
-	target, err := ep.GetTarget()
-	if err != nil {
-		return "", errors.Wrap(err, "GetTargetTmpDir failed")
-	}
+	target := ep.GetTarget()
 	// append to the currentPath the file name
-	return filepath.Join(target, file), nil
+	return filepath.Join(target, file)
 }
 
 // GetTargetModuleDir gets the path to the packed module directory.
 // The subdirectory in the temporary target directory is named by the module name.
-func (ep *Loc) GetTargetModuleDir(moduleName string) (string, error) {
-	dir, err := ep.GetTargetTmpDir()
-	if err != nil {
-		return "", errors.Wrap(err, "GetTargetModuleDir failed")
-	}
+func (ep *Loc) GetTargetModuleDir(moduleName string) string {
+	dir := ep.GetTargetTmpDir()
 
-	return filepath.Join(dir, moduleName), nil
+	return filepath.Join(dir, moduleName)
 }
 
 // GetTargetModuleZipPath gets the path to the packed module data.zip file.
 // The subdirectory in temporary target directory is named by the module name.
-func (ep *Loc) GetTargetModuleZipPath(moduleName string) (string, error) {
-	dir, err := ep.GetTargetModuleDir(moduleName)
-	if err != nil {
-		return "", errors.Wrap(err, "GetTargetModuleZipPath failed")
-	}
-	return filepath.Join(dir, "data.zip"), nil
+func (ep *Loc) GetTargetModuleZipPath(moduleName string) string {
+	return filepath.Join(ep.GetTargetModuleDir(moduleName), "data.zip")
 }
 
 // GetSourceModuleDir gets the path to the module to be packed.
 // The subdirectory is in the source.
-func (ep *Loc) GetSourceModuleDir(modulePath string) (string, error) {
-	source, err := ep.GetSource()
-	if err != nil {
-		return "", errors.Wrap(err, "GetSourceModuleDir failed")
-	}
-	return filepath.Join(source, filepath.Clean(modulePath)), nil
+func (ep *Loc) GetSourceModuleDir(modulePath string) string {
+	return filepath.Join(ep.GetSource(), filepath.Clean(modulePath))
 }
 
 // GetMtaYamlFilename - Gets the MTA .yaml file name.
@@ -209,48 +141,28 @@ func (ep *Loc) GetMtaYamlFilename() string {
 }
 
 // GetMtaYamlPath gets the MTA .yaml file path.
-func (ep *Loc) GetMtaYamlPath() (string, error) {
-	source, err := ep.GetSource()
-	if err != nil {
-		return "", errors.Wrap(err, "GetMtaYamlPath failed")
-	}
-	return filepath.Join(source, ep.GetMtaYamlFilename()), nil
+func (ep *Loc) GetMtaYamlPath() string {
+	return filepath.Join(ep.GetSource(), ep.GetMtaYamlFilename())
 }
 
 // GetMtaExtYamlPath gets the MTA extension .yaml file path.
-func (ep *Loc) GetMtaExtYamlPath(platform string) (string, error) {
-	source, err := ep.GetSource()
-	if err != nil {
-		return "", errors.Wrap(err, "GetMtaExtYamlPath failed")
-	}
-	return filepath.Join(source, platform+"-mtaext.yaml"), nil
+func (ep *Loc) GetMtaExtYamlPath(platform string) string {
+	return filepath.Join(ep.GetSource(), platform+"-mtaext.yaml")
 }
 
 // GetMetaPath gets the path to the generated META-INF directory.
-func (ep *Loc) GetMetaPath() (string, error) {
-	dir, err := ep.GetTargetTmpDir()
-	if err != nil {
-		return "", errors.Wrap(err, "GetMetaPath failed")
-	}
-	return filepath.Join(dir, "META-INF"), nil
+func (ep *Loc) GetMetaPath() string {
+	return filepath.Join(ep.GetTargetTmpDir(), "META-INF")
 }
 
 // GetMtadPath gets the path to the generated MTAD file.
-func (ep *Loc) GetMtadPath() (string, error) {
-	dir, err := ep.GetMetaPath()
-	if err != nil {
-		return "", errors.Wrap(err, "GetMtadPath failed")
-	}
-	return filepath.Join(dir, mtad), nil
+func (ep *Loc) GetMtadPath() string {
+	return filepath.Join(ep.GetMetaPath(), mtad)
 }
 
 // GetManifestPath gets the path to the generated manifest file.
-func (ep *Loc) GetManifestPath() (string, error) {
-	dir, err := ep.GetMetaPath()
-	if err != nil {
-		return "", errors.Wrap(err, "GetManifestPath failed")
-	}
-	return filepath.Join(dir, "MANIFEST.MF"), nil
+func (ep *Loc) GetManifestPath() string {
+	return filepath.Join(ep.GetMetaPath(), "MANIFEST.MF")
 }
 
 // ValidateDeploymentDescriptor validates the deployment descriptor.
@@ -280,8 +192,38 @@ func (ep *Loc) ParseFile() (*mta.MTA, error) {
 func (ep *Loc) ParseExtFile(platform string) (*mta.EXT, error) {
 	yamlContent, err := ReadExt(ep, platform)
 	if err != nil {
-		return nil, err
+		// extension is not mandatory
+		return &mta.EXT{}, nil
 	}
 	// Parse MTA extension file
 	return mta.UnmarshalExt(yamlContent)
+}
+
+// Location - provides Location parameters of MTA
+func Location(source, target, descriptor string, wdGetter func() (string, error)) (*Loc, error) {
+
+	err := ValidateDeploymentDescriptor(descriptor)
+	if err != nil {
+		return &Loc{}, errors.Wrap(err, "Initialization of Location failed. Descriptor is not valid")
+	}
+
+	var mtaFilename string
+	if descriptor == "dev" || descriptor == "" {
+		mtaFilename = "mta.yaml"
+		descriptor = "dev"
+	} else {
+		mtaFilename = "mtad.yaml"
+		descriptor = "dep"
+	}
+
+	if source == "" {
+		source, err = wdGetter()
+		if err != nil {
+			return &Loc{}, errors.Wrap(err, "Initialization of Location failed. Source not defined. Error on getting working directory")
+		}
+	}
+	if target == "" {
+		target = source
+	}
+	return &Loc{SourcePath: source, TargetPath: target, MtaFilename: mtaFilename, Descriptor: descriptor}, nil
 }

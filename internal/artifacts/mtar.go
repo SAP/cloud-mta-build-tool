@@ -3,18 +3,33 @@ package artifacts
 import (
 	"path/filepath"
 
+	"github.com/pkg/errors"
+
 	"cloud-mta-build-tool/internal/fsys"
 	"cloud-mta-build-tool/internal/logs"
-
-	"github.com/pkg/errors"
 )
 
 const (
 	mtarSuffix = ".mtar"
 )
 
-// GenerateMtar - generate mtar archive from the build artifacts
-func GenerateMtar(ep dir.ITargetPath, parser dir.IMtaParser) error {
+// ExecuteGenMtar - generates MTAR
+func ExecuteGenMtar(source, target, desc string, wdGetter func() (string, error)) error {
+	logs.Logger.Info("Gen Mtar started")
+	loc, err := dir.Location(source, target, desc, wdGetter)
+	if err != nil {
+		return errors.Wrap(err, "Gen Mtar failed on location initialization")
+	}
+	err = generateMtar(loc, loc)
+	if err != nil {
+		return errors.Wrap(err, "Gen Mtar failed")
+	}
+	logs.Logger.Info("Gen Mtar successfully finished")
+	return nil
+}
+
+// generateMtar - generate mtar archive from the build artifacts
+func generateMtar(targetLoc dir.ITargetPath, parser dir.IMtaParser) error {
 	logs.Logger.Info("MTAR Generation started")
 	// get MTA object
 	m, err := parser.ParseFile()
@@ -22,15 +37,9 @@ func GenerateMtar(ep dir.ITargetPath, parser dir.IMtaParser) error {
 		return errors.Wrap(err, "MTAR Generation failed on MTA parsing")
 	}
 	// get target temporary folder to be archived
-	targetTmpDir, err := ep.GetTargetTmpDir()
-	if err != nil {
-		return errors.Wrap(err, "MTAR Generation failed on getting target temp directory")
-	}
+	targetTmpDir := targetLoc.GetTargetTmpDir()
 	// get target directory - where mtar will be saved
-	targetDir, err := ep.GetTarget()
-	if err != nil {
-		return errors.Wrap(err, "MTAR Generation failed on getting target directory")
-	}
+	targetDir := targetLoc.GetTarget()
 	// archive building artifacts to mtar
 	err = dir.Archive(targetTmpDir, filepath.Join(targetDir, m.ID+mtarSuffix))
 	if err != nil {

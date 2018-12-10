@@ -1,44 +1,18 @@
 package artifacts
 
 import (
+	"errors"
 	"os"
-
-	"cloud-mta-build-tool/internal/builders"
-	"cloud-mta-build-tool/internal/buildops"
-	"cloud-mta-build-tool/mta"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
-	"github.com/pkg/errors"
 
+	"cloud-mta-build-tool/internal/builders"
+	"cloud-mta-build-tool/internal/buildops"
 	"cloud-mta-build-tool/internal/fsys"
+	"cloud-mta-build-tool/mta"
 )
-
-type testPackLoc struct {
-	targetDir string
-	sourceDir string
-	zipPath   string
-}
-
-func (loc *testPackLoc) GetSourceModuleDir(modulePath string) (string, error) {
-	if loc.sourceDir == "" {
-		return "", errors.New("err")
-	}
-	return loc.sourceDir, nil
-}
-func (loc *testPackLoc) GetTargetModuleDir(moduleName string) (string, error) {
-	if loc.targetDir == "" {
-		return "", errors.New("err")
-	}
-	return loc.targetDir, nil
-}
-func (loc *testPackLoc) GetTargetModuleZipPath(moduleName string) (string, error) {
-	if loc.zipPath == "" {
-		return "", errors.New("err")
-	}
-	return loc.zipPath, nil
-}
 
 var _ = Describe("ModuleArch", func() {
 
@@ -49,6 +23,45 @@ var _ = Describe("ModuleArch", func() {
 		Name: "node-js",
 		Path: "node-js",
 	}
+
+	var _ = Describe("ExecuteBuild", func() {
+
+		It("Sanity", func() {
+			Ω(ExecuteBuild(getTestPath("mta"), getTestPath("result"), "dev", "node-js", os.Getwd)).Should(Succeed())
+			loc := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getTestPath("result")}
+			Ω(loc.GetTargetModuleZipPath("node-js")).Should(BeAnExistingFile())
+
+		})
+
+		It("Fails on location initialization", func() {
+			Ω(ExecuteBuild("", "", "dev", "ui5app", func() (string, error) {
+				return "", errors.New("err")
+			})).Should(HaveOccurred())
+		})
+
+		It("Fails on wrong module", func() {
+			Ω(ExecuteBuild(getTestPath("mta"), getTestPath("result"), "dev", "ui5app", os.Getwd)).Should(HaveOccurred())
+		})
+	})
+
+	var _ = Describe("ExecutePack", func() {
+		It("Sanity", func() {
+			Ω(ExecutePack(getTestPath("mta"), getTestPath("result"), "dev", "node-js", os.Getwd)).Should(Succeed())
+			loc := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getTestPath("result")}
+			Ω(loc.GetTargetModuleZipPath("node-js")).Should(BeAnExistingFile())
+		})
+
+		It("Fails on location initialization", func() {
+			Ω(ExecutePack("", "", "dev", "ui5app", func() (string, error) {
+				return "", errors.New("err")
+			})).Should(HaveOccurred())
+		})
+
+		It("Fails on wrong module", func() {
+			Ω(ExecutePack(getTestPath("mta"), getTestPath("result"), "dev", "ui5appx", os.Getwd)).Should(HaveOccurred())
+		})
+	})
+
 	var _ = Describe("Pack", func() {
 		It("Deployment descriptor - Copy only", func() {
 			ep := dir.Loc{
@@ -56,7 +69,7 @@ var _ = Describe("ModuleArch", func() {
 				TargetPath: getTestPath("result"),
 				Descriptor: "dep",
 			}
-			Ω(PackModule(&ep, true, &m, "node-js")).Should(Succeed())
+			Ω(packModule(&ep, true, &m, "node-js")).Should(Succeed())
 			Ω(getTestPath("result", "mta_with_zipped_module", "node-js", "data.zip")).Should(BeAnExistingFile())
 		})
 
@@ -73,23 +86,10 @@ var _ = Describe("ModuleArch", func() {
 					buildops.SupportedPlatformsParam: []string{},
 				},
 			}
-			Ω(PackModule(&ep, false, &mNoPlatforms, "node-js")).Should(Succeed())
+			Ω(packModule(&ep, false, &mNoPlatforms, "node-js")).Should(Succeed())
 			Ω(getTestPath("result", "mta_with_zipped_module", "node-js", "data.zip")).ShouldNot(BeAnExistingFile())
 		})
 
-		var _ = DescribeTable("Failures", func(loc *testPackLoc) {
-			Ω(PackModule(loc, false, &m, "node-js")).Should(HaveOccurred())
-		},
-			Entry("GetTargetModuleDir fails", &testPackLoc{
-				targetDir: "",
-				sourceDir: getTestPath("mta"),
-				zipPath:   "",
-			}),
-			Entry("GetBuildResultsPath fails", &testPackLoc{
-				targetDir: getTestPath("result"),
-				sourceDir: "",
-				zipPath:   "",
-			}))
 	})
 
 	var _ = Describe("Build", func() {
@@ -117,7 +117,7 @@ builders:
 
 			It("Sanity", func() {
 				ep := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getTestPath("result")}
-				Ω(BuildModule(&ep, "node-js")).Should(Succeed())
+				Ω(buildModule(&ep, &ep, false, "node-js")).Should(Succeed())
 				Ω(ep.GetTargetModuleZipPath("node-js")).Should(BeAnExistingFile())
 			})
 
@@ -127,14 +127,14 @@ builders:
 					TargetPath:  getTestPath("result"),
 					MtaFilename: "mta.yaml",
 					Descriptor:  "dep"}
-				Ω(BuildModule(&ep, "node-js")).Should(Succeed())
+				Ω(buildModule(&ep, &ep, true, "node-js")).Should(Succeed())
 				Ω(ep.GetTargetModuleZipPath("node-js")).Should(BeAnExistingFile())
 			})
 
 			var _ = DescribeTable("Invalid inputs", func(projectName, mtaFilename, moduleName string) {
 				ep := dir.Loc{SourcePath: getTestPath(projectName), TargetPath: getTestPath("result"), MtaFilename: mtaFilename}
 				Ω(ep.GetTargetTmpDir()).ShouldNot(BeADirectory())
-				Ω(BuildModule(&ep, moduleName)).Should(HaveOccurred())
+				Ω(buildModule(&ep, &ep, false, moduleName)).Should(HaveOccurred())
 				Ω(ep.GetTargetTmpDir()).ShouldNot(BeADirectory())
 			},
 				Entry("Invalid path to application", "mta1", "mta.yaml", "node-js"),
@@ -144,29 +144,16 @@ builders:
 		})
 	})
 
-	var _ = Describe("CopyModuleArchive", func() {
+	var _ = Describe("copyModuleArchive", func() {
 
 		It("Sanity", func() {
 			ep := dir.Loc{SourcePath: getTestPath("mta_with_zipped_module"), TargetPath: getTestPath("result")}
-			Ω(CopyModuleArchive(&ep, "node-js", "node-js")).Should(Succeed())
+			Ω(copyModuleArchive(&ep, "node-js", "node-js")).Should(Succeed())
 			Ω(ep.GetTargetModuleZipPath("node-js")).Should(BeAnExistingFile())
 		})
 		It("Invalid - no zip exists", func() {
 			ep := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getTestPath("result")}
-			Ω(CopyModuleArchive(&ep, "node-js", "node-js")).Should(HaveOccurred())
-		})
-
-		var _ = Describe("Invalid - Get Source failures", func() {
-
-			DescribeTable("Failures", func(loc *testPackLoc) {
-				Ω(CopyModuleArchive(loc, "node-js", "node-js")).Should(HaveOccurred())
-			},
-				Entry("Fails on first call", &testPackLoc{
-					sourceDir: "",
-				}),
-				Entry("Fails on second call", &testPackLoc{
-					sourceDir: getTestPath(),
-				}))
+			Ω(copyModuleArchive(&ep, "node-js", "node-js")).Should(HaveOccurred())
 		})
 	})
 })
