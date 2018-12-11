@@ -6,7 +6,6 @@ import (
 	"github.com/spf13/cobra"
 
 	"cloud-mta-build-tool/internal/artifacts"
-	"cloud-mta-build-tool/validations"
 )
 
 var sourceMtadFlag string
@@ -156,7 +155,7 @@ var validateCmd = &cobra.Command{
 	Long:  "MBT validation process",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		err := validate.ExecuteValidation(sourceValidateFlag, descriptorValidateFlag, pValidationFlag, os.Getwd)
+		err := artifacts.ExecuteValidation(sourceValidateFlag, descriptorValidateFlag, pValidationFlag, os.Getwd)
 		logError(err)
 		return err
 	},
