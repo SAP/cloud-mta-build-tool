@@ -156,7 +156,7 @@ var validateCmd = &cobra.Command{
 	Long:  "MBT validation process",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		err := validate.ExecuteValidation(sourceValidateFlag, descriptorValidateFlag, pValidationFlag)
+		err := validate.ExecuteValidation(sourceValidateFlag, descriptorValidateFlag, pValidationFlag, os.Getwd)
 		logError(err)
 		return err
 	},

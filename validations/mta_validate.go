@@ -14,9 +14,13 @@ import (
 )
 
 // ExecuteValidation - executes validation of MTA
-func ExecuteValidation(source, desc, mode string) error {
+func ExecuteValidation(source, desc, mode string, getWorkingDir func() (string, error)) error {
 	logs.Logger.Info("MBT Validation started")
-	err := dir.ValidateDeploymentDescriptor(desc)
+	loc, err := dir.Location(source, "", desc, getWorkingDir)
+	if err != nil {
+		return errors.Wrap(err, "MBT Validation failed on location initialization")
+	}
+	err = dir.ValidateDeploymentDescriptor(desc)
 	if err != nil {
 		return errors.Wrap(err, "MBT Validation failed on descriptor validation")
 	}
@@ -24,7 +28,7 @@ func ExecuteValidation(source, desc, mode string) error {
 	if err != nil {
 		return errors.Wrap(err, "MBT Validation failed on validation mode analysis")
 	}
-	err = validateMtaYaml(source, "mta.yaml", validateSchema, validateProject)
+	err = validateMtaYaml(source, loc.GetMtaYamlFilename(), validateSchema, validateProject)
 	if err != nil {
 		return errors.Wrap(err, "MBT Validation failed")
 	}
