@@ -36,10 +36,4 @@ var _ = Describe("Cleanup", func() {
 	AfterEach(func() {
 		os.RemoveAll(getTestPath("result1"))
 	})
-	It("Fails on cleanup open file", func() {
-		f, err := os.Create(getTestPath("result1", "mtahtml5"))
-		err = ExecuteCleanup(getTestPath("mtahtml5"), getTestPath("result1"), "dev", os.Getwd)
-		Ω(err).Should(HaveOccurred())
-		f.Close()
-	})
 })
