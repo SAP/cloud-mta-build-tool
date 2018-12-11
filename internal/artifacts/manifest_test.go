@@ -4,12 +4,14 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"os"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"
 
+	"cloud-mta-build-tool/internal/version"
 	"cloud-mta-build-tool/mta"
 )
 
@@ -85,5 +87,27 @@ var _ = Describe("setManifetDesc", func() {
 		Entry("Fails on modules printing with empty modules list", 3, []string{}),
 		Entry("Fails on modules printing with not empty modules list", 3, []string{"ui5"}),
 	)
+
+	var _ = Describe("Failure", func() {
+		var config []byte
+
+		BeforeEach(func() {
+			config = make([]byte, len(version.VersionConfig))
+			copy(config, version.VersionConfig)
+			// Simplified commands configuration (performance purposes). removed "npm prune --production"
+			version.VersionConfig = []byte(`
+cli_version:["x"]
+`)
+		})
+
+		AfterEach(func() {
+			version.VersionConfig = make([]byte, len(config))
+			copy(version.VersionConfig, config)
+		})
+
+		It("Get version fails", func() {
+			Ω(setManifetDesc(os.Stdout, simpleModulesList, []string{})).Should(HaveOccurred())
+		})
+	})
 
 })

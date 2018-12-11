@@ -39,7 +39,7 @@ func setManifetDesc(file io.Writer, mtaStr []*mta.Module, modules []string) erro
 	if err != nil {
 		return errors.Wrap(err, "META INFO generation failed")
 	}
-	v, _ := version.GetVersion()
+	v, err := version.GetVersion()
 	if err != nil {
 		return errors.Wrap(err, "META INFO generation failed on getting version")
 	}

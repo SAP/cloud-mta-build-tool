@@ -24,6 +24,10 @@ var _ = Describe("Validate", func() {
 			Ω(ExecuteValidation(getTestPath("mta"), "xx", "", os.Getwd)).Should(HaveOccurred())
 
 		})
+		It("Fails on validation mode", func() {
+			Ω(ExecuteValidation(getTestPath("mtahtml5"), "dev", "xx", os.Getwd)).Should(HaveOccurred())
+
+		})
 		It("Fails on project validation", func() {
 			Ω(ExecuteValidation(getTestPath("mtahtml5"), "dev", "", os.Getwd)).Should(HaveOccurred())
 

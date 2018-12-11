@@ -3,8 +3,7 @@ package artifacts
 import (
 	"fmt"
 	"os"
-
-	"cloud-mta-build-tool/internal/platform"
+	"path/filepath"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -12,6 +11,8 @@ import (
 	"gopkg.in/yaml.v2"
 
 	"cloud-mta-build-tool/internal/fsys"
+	"cloud-mta-build-tool/internal/platform"
+	"cloud-mta-build-tool/internal/version"
 	"cloud-mta-build-tool/mta"
 )
 
@@ -39,7 +40,7 @@ var _ = Describe("Meta", func() {
 		})
 	})
 
-	var _ = Describe("GenMetaInf", func() {
+	var _ = Describe("GenMetaInfo", func() {
 		ep := dir.Loc{SourcePath: getTestPath("testproject"), TargetPath: getTestPath("result")}
 		var mtaSingleModule = []byte(`
 _schema-version: "2.0.0"
@@ -58,6 +59,38 @@ modules:
 			Ω(GenMetaInfo(&ep, ep.IsDeploymentDescriptor(), "cf", &m, []string{"htmlapp"})).Should(Succeed())
 			Ω(ep.GetManifestPath()).Should(BeAnExistingFile())
 			Ω(ep.GetMtadPath()).Should(BeAnExistingFile())
+		})
+
+		It("Fails on create file for manifest path", func() {
+			loc := testLoc{ep}
+			m := mta.MTA{}
+			yaml.Unmarshal(mtaSingleModule, &m)
+			Ω(GenMetaInfo(&loc, ep.IsDeploymentDescriptor(), "cf", &m, []string{"htmlapp"})).Should(HaveOccurred())
+		})
+
+		var _ = Describe("Fails on setManifestDesc", func() {
+			var config []byte
+
+			BeforeEach(func() {
+				config = make([]byte, len(version.VersionConfig))
+				copy(config, version.VersionConfig)
+				// Simplified commands configuration (performance purposes). removed "npm prune --production"
+				version.VersionConfig = []byte(`
+cli_version:["x"]
+`)
+			})
+
+			AfterEach(func() {
+				version.VersionConfig = make([]byte, len(config))
+				copy(version.VersionConfig, config)
+				os.RemoveAll(getTestPath("result"))
+			})
+
+			It("Fails on get version", func() {
+				m := mta.MTA{}
+				yaml.Unmarshal(mtaSingleModule, &m)
+				Ω(GenMetaInfo(&ep, ep.IsDeploymentDescriptor(), "cf", &m, []string{"htmlapp"})).Should(HaveOccurred())
+			})
 		})
 	})
 
@@ -110,3 +143,19 @@ modules:
 		})
 	})
 })
+
+type testLoc struct {
+	loc dir.Loc
+}
+
+func (loc *testLoc) GetMetaPath() string {
+	return loc.loc.GetMetaPath()
+}
+
+func (loc *testLoc) GetMtadPath() string {
+	return loc.loc.GetMtadPath()
+}
+
+func (loc *testLoc) GetManifestPath() string {
+	return filepath.Join(loc.loc.GetManifestPath(), "folderNotExists", "MANIFEST.MF")
+}
