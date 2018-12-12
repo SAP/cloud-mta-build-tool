@@ -1,9 +1,9 @@
 package commands
 
 import (
+	// "github.com/mitchellh/go-homedir"
 	"os"
 
-	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
@@ -34,20 +34,7 @@ func Execute() {
 
 // TODO - using config file and ENV variables if set.
 func initConfig() {
-	if cfgFile != "" {
-		// TODO Use config file from the flag.
-		viper.SetConfigFile(cfgFile)
-	} else {
-		// Find home directory.
-		home, err := homedir.Dir()
-		if err != nil {
-			logs.Logger.Error(err)
-		} else {
-			// Search config in home directory with name ".mbt" (without extension).
-			viper.AddConfigPath(home)
-			viper.SetConfigName(".mbt")
-		}
-	}
+	viper.SetConfigFile(cfgFile)
 	viper.AutomaticEnv() // read in environment variables that match
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {
