@@ -1,4 +1,4 @@
-package buildops_test
+package build_ops_test
 
 import (
 	"testing"

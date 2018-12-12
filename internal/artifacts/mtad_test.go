@@ -7,8 +7,8 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"
 
-	"cloud-mta-build-tool/internal/buildops"
-	"cloud-mta-build-tool/internal/fsys"
+	"cloud-mta-build-tool/internal/build-ops"
+	"cloud-mta-build-tool/internal/fs"
 	"cloud-mta-build-tool/mta"
 )
 
@@ -67,7 +67,7 @@ var _ = Describe("Mtad", func() {
 					Type: "javascript.nodejs",
 					Path: "app",
 					BuildParams: map[string]interface{}{
-						buildops.SupportedPlatformsParam: []string{},
+						build_ops.SupportedPlatformsParam: []string{},
 					},
 				},
 				{
@@ -75,7 +75,7 @@ var _ = Describe("Mtad", func() {
 					Type: "javascript.nodejs",
 					Path: "app2",
 					BuildParams: map[string]interface{}{
-						buildops.SupportedPlatformsParam: nil,
+						build_ops.SupportedPlatformsParam: nil,
 					},
 				},
 				{
@@ -83,7 +83,7 @@ var _ = Describe("Mtad", func() {
 					Type: "java.tomcat",
 					Path: "app3",
 					BuildParams: map[string]interface{}{
-						buildops.SupportedPlatformsParam: []string{},
+						build_ops.SupportedPlatformsParam: []string{},
 					},
 				},
 			},

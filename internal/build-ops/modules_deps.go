@@ -1,9 +1,9 @@
-package buildops
+package build_ops
 
 import (
 	"fmt"
 
-	"cloud-mta-build-tool/internal/fsys"
+	"cloud-mta-build-tool/internal/fs"
 
 	"github.com/deckarep/golang-set"
 	"github.com/pkg/errors"
