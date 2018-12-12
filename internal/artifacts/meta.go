@@ -9,25 +9,40 @@ import (
 	"cloud-mta-build-tool/mta"
 )
 
-// GenerateMeta - generate build metadata artifacts
-func GenerateMeta(ep *dir.Loc, platform string) error {
+// ExecuteGenMeta - generates metadata
+func ExecuteGenMeta(source, target, desc, platform string, wdGetter func() (string, error)) error {
+	logs.Logger.Info("Gen Meta started")
+	loc, err := dir.Location(source, target, desc, wdGetter)
+	if err != nil {
+		return errors.Wrap(err, "Gen Meta failed on location initialization")
+	}
+	err = generateMeta(loc, loc, loc.IsDeploymentDescriptor(), platform)
+	if err != nil {
+		return errors.Wrap(err, "Gen Meta failed")
+	}
+	logs.Logger.Info("Gen Meta successfully finished")
+	return nil
+}
+
+// generateMeta - generate metadata artifacts
+func generateMeta(parser dir.IMtaParser, ep dir.ITargetArtifacts, deploymentDescriptor bool, platform string) error {
 	logs.Logger.Info("Starting Meta folder and related artifacts creation")
 
 	// parse MTA file
-	m, err := dir.ParseFile(ep)
+	m, err := parser.ParseFile()
 	if err != nil {
 		return errors.Wrap(err, "Meta folder and related artifacts creation failed on MTA file parsing")
 	}
 	// read MTA extension file
-	mExt, err := dir.ParseExtFile(ep, platform)
+	mExt, err := parser.ParseExtFile(platform)
 	if err == nil {
 		// merge MTA with extension
 		mta.Merge(m, mExt)
 	}
 
-	AdaptMtadForDeployment(m, platform)
+	adaptMtadForDeployment(m, platform)
 	// Generate meta info dir with required content
-	err = GenMetaInfo(ep, platform, m, []string{})
+	err = GenMetaInfo(ep, deploymentDescriptor, platform, m, []string{})
 	if err != nil {
 		return errors.Wrap(err, "Meta folder and related artifacts creation failed on META Info generation")
 	}
@@ -36,16 +51,13 @@ func GenerateMeta(ep *dir.Loc, platform string) error {
 }
 
 // GenMetaInfo generates a MANIFEST.MF file and updates the build artifacts paths for deployment purposes.
-func GenMetaInfo(ep *dir.Loc, platform string, mtaStr *mta.MTA, modules []string) error {
-	err := GenMtad(mtaStr, ep, platform)
+func GenMetaInfo(ep dir.ITargetArtifacts, deploymentDesc bool, platform string, mtaStr *mta.MTA, modules []string) error {
+	err := genMtad(mtaStr, ep, deploymentDesc, platform)
 	if err != nil {
 		return errors.Wrap(err, "META INFO generation failed on MTAD generation")
 	}
 	// Create MANIFEST.MF file
-	manifestPath, err := ep.GetManifestPath()
-	if err != nil {
-		return errors.Wrap(err, "META INFO generation failed on getting manifest path")
-	}
+	manifestPath := ep.GetManifestPath()
 	file, err := dir.CreateFile(manifestPath)
 	if err != nil {
 		return errors.Wrap(err, "META INFO generation failed on manifest creation")
@@ -66,7 +78,6 @@ func ConvertTypes(mtaStr mta.MTA, platformName string) error {
 	platformCfg, err := platform.Parse(platform.PlatformConfig)
 	if err == nil {
 		// Modify MTAD object according to platform types
-		// Todo platform should provided as command parameter
 		platform.ConvertTypes(mtaStr, platformCfg, platformName)
 	}
 	return err

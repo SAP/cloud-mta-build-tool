@@ -6,11 +6,6 @@ import (
 	"github.com/spf13/cobra"
 
 	"cloud-mta-build-tool/internal/artifacts"
-	"cloud-mta-build-tool/internal/builders"
-	"cloud-mta-build-tool/internal/fsys"
-	"cloud-mta-build-tool/internal/logs"
-	"cloud-mta-build-tool/mta"
-	"cloud-mta-build-tool/validations"
 )
 
 var sourceMtadFlag string
@@ -84,11 +79,8 @@ var bModuleCmd = &cobra.Command{
 	Long:  "Build specific module according to the module name",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		err := dir.ValidateDeploymentDescriptor(descriptorBModuleFlag)
-		if err == nil {
-			ep := locationParameters(sourceBModuleFlag, targetBModuleFlag, descriptorBModuleFlag)
-			err = artifacts.BuildModule(&ep, pBuildModuleNameFlag)
-		}
+		err := artifacts.ExecuteBuild(sourceBModuleFlag, targetBModuleFlag, descriptorBModuleFlag, pBuildModuleNameFlag, os.Getwd)
+		logError(err)
 		return err
 	},
 	SilenceUsage:  true,
@@ -96,7 +88,7 @@ var bModuleCmd = &cobra.Command{
 }
 
 // zip specific module and put the artifacts on the temp folder according
-// to the mtar structure, i.e each module have new entry as folder in the mtar folder
+// to the mtar structure, i.e each module has new entry as folder in the mtar folder
 // Note - even if the path of the module was changed in the mta.yaml in the mtar the
 // the module folder will get the module name
 var packCmd = &cobra.Command{
@@ -105,11 +97,7 @@ var packCmd = &cobra.Command{
 	Long:  "pack the module artifacts after the build process",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		ep := locationParameters(sourcePackFlag, targetPackFlag, descriptorPackFlag)
-		module, _, err := builders.GetModuleAndCommands(&ep, pPackModuleFlag)
-		if err == nil {
-			err = artifacts.PackModule(&ep, module, pPackModuleFlag)
-		}
+		err := artifacts.ExecutePack(sourcePackFlag, targetPackFlag, descriptorPackFlag, pPackModuleFlag, os.Getwd)
 		logError(err)
 		return err
 	},
@@ -122,12 +110,8 @@ var genMetaCmd = &cobra.Command{
 	Long:  "generate META-INF folder with all the required data",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		err := dir.ValidateDeploymentDescriptor(descriptorMetaFlag)
-		if err == nil {
-			ep := locationParameters(sourceMetaFlag, targetMetaFlag, descriptorMetaFlag)
-			err = artifacts.GenerateMeta(&ep, platformMetaFlag)
-		}
-		logErrorExt(err, "META generation failed")
+		err := artifacts.ExecuteGenMeta(sourceMetaFlag, targetMetaFlag, descriptorMetaFlag, platformMetaFlag, os.Getwd)
+		logError(err)
 		return err
 	},
 	SilenceUsage:  true,
@@ -141,12 +125,8 @@ var genMtarCmd = &cobra.Command{
 	Long:  "generate MTAR from the project build artifacts",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		err := dir.ValidateDeploymentDescriptor(descriptorMtarFlag)
-		if err == nil {
-			ep := locationParameters(sourceMtarFlag, targetMtarFlag, descriptorMtarFlag)
-			err = artifacts.GenerateMtar(&ep)
-		}
-		logErrorExt(err, "MTAR generation failed")
+		err := artifacts.ExecuteGenMtar(sourceMtarFlag, targetMtarFlag, descriptorMtarFlag, os.Getwd)
+		logError(err)
 		return err
 	},
 	SilenceUsage:  true,
@@ -160,24 +140,8 @@ var genMtadCmd = &cobra.Command{
 	Long:  "Provide deployment descriptor (mtad.yaml) from development descriptor (mta.yaml)",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		err := dir.ValidateDeploymentDescriptor(descriptorMtadFlag)
-		if err != nil {
-			logErrorExt(err, "MTAD generation failed on deployment descriptor validation")
-			return err
-		}
-		ep := locationParameters(sourceMtadFlag, targetMtadFlag, descriptorMtadFlag)
-		mtaStr, err := dir.ParseFile(&ep)
-		if err != nil {
-			logErrorExt(err, "MTAD generation failed on MTA parsing")
-			return err
-		}
-		mtaExt, errExt := dir.ParseExtFile(&ep, platformMtadFlag)
-		if errExt == nil {
-			mta.Merge(mtaStr, mtaExt)
-		}
-		artifacts.AdaptMtadForDeployment(mtaStr, platformMtadFlag)
-		err = artifacts.GenMtad(mtaStr, &ep, platformMtadFlag)
-		logErrorExt(err, "MTAD generation failed")
+		err := artifacts.ExecuteGenMtad(sourceMtadFlag, targetMtadFlag, descriptorMtadFlag, platformMtadFlag, os.Getwd)
+		logError(err)
 		return err
 	},
 	SilenceUsage:  true,
@@ -191,16 +155,8 @@ var validateCmd = &cobra.Command{
 	Long:  "MBT validation process",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		err := dir.ValidateDeploymentDescriptor(descriptorValidateFlag)
-		if err != nil {
-			logErrorExt(err, "MBT Validation failed")
-			return err
-		}
-		validateSchema, validateProject, err := validate.GetValidationMode(pValidationFlag)
-		if err == nil {
-			err = validate.ValidateMtaYaml(sourceValidateFlag, "mta.yaml", validateSchema, validateProject)
-		}
-		logErrorExt(err, "MBT Validation failed")
+		err := artifacts.ExecuteValidation(sourceValidateFlag, descriptorValidateFlag, pValidationFlag, os.Getwd)
+		logError(err)
 		return err
 	},
 	SilenceErrors: false,
@@ -214,34 +170,11 @@ var cleanupCmd = &cobra.Command{
 	Long:  "Remove MTA build process artifacts",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		logs.Logger.Info("Starting Cleanup process")
 		// Remove temp folder
-		ep := locationParameters(sourceCleanupFlag, targetCleanupFlag, descriptorCleanupFlag)
-		targetTmpFDir, err := ep.GetTargetTmpDir()
-		if err == nil {
-			err = os.RemoveAll(targetTmpFDir)
-		}
-		if err != nil {
-			logs.Logger.Error(err)
-		} else {
-			logs.Logger.Info("Done")
-		}
+		err := artifacts.ExecuteCleanup(sourceCleanupFlag, targetCleanupFlag, descriptorCleanupFlag, os.Getwd)
+		logError(err)
 		return err
 	},
 	SilenceUsage:  true,
 	SilenceErrors: false,
-}
-
-// locationParameters - provides location parameters of MTA
-func locationParameters(sourceFlag, targetFlag, descriptor string) dir.Loc {
-	var mtaFilename string
-	if descriptor == "dev" || descriptor == "" {
-		mtaFilename = "mta.yaml"
-		descriptor = "dev"
-	} else {
-		mtaFilename =
-			"mtad.yaml"
-		descriptor = "dep"
-	}
-	return dir.Loc{SourcePath: sourceFlag, TargetPath: targetFlag, MtaFilename: mtaFilename, Descriptor: descriptor}
 }

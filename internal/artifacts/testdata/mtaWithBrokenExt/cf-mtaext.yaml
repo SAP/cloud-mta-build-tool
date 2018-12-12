@@ -4,7 +4,7 @@ version: 0.0.1
 
 modules:
  - name: ui5app
-   type: html5
+ type: html5
    path: testapp
    parameters:
       disk-quota: 256M

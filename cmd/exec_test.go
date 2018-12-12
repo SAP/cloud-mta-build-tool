@@ -14,6 +14,7 @@ import (
 	"cloud-mta-build-tool/internal/builders"
 	"cloud-mta-build-tool/internal/fsys"
 	"cloud-mta-build-tool/internal/logs"
+	"cloud-mta-build-tool/internal/platform"
 )
 
 var _ = Describe("Commands", func() {
@@ -45,7 +46,7 @@ var _ = Describe("Commands", func() {
 			pPackModuleFlag = "ui5app"
 			sourcePackFlag = getTestPath("mtahtml5")
 			ep := dir.Loc{SourcePath: sourcePackFlag, TargetPath: targetPackFlag}
-			targetTmpDir, _ := ep.GetTargetTmpDir()
+			targetTmpDir := ep.GetTargetTmpDir()
 			err := os.MkdirAll(targetTmpDir, os.ModePerm)
 			if err != nil {
 				logs.Logger.Error(err)
@@ -68,24 +69,41 @@ var _ = Describe("Commands", func() {
 
 		var ep dir.Loc
 
+		AfterEach(func() {
+			descriptorMtadFlag = ""
+		})
+
 		It("Generate Meta", func() {
 			sourceMetaFlag = getTestPath("mtahtml5")
 			ep = dir.Loc{SourcePath: sourceMetaFlag, TargetPath: targetMetaFlag}
 			Ω(genMetaCmd.RunE(nil, []string{})).Should(Succeed())
 			Ω(ep.GetMtadPath()).Should(BeAnExistingFile())
 		})
-		It("Generate Mtad", func() {
+		It("Generate Mtad - Sanity", func() {
 			sourceMtadFlag = getTestPath("mtahtml5")
-			ep = dir.Loc{SourcePath: sourceMtadFlag, TargetPath: targetMtadFlag}
-			err := genMtadCmd.RunE(nil, []string{})
-			if err != nil {
-				fmt.Println(err)
-			}
+			platformMtadFlag = "cf"
+			Ω(genMtadCmd.RunE(nil, []string{})).Should(Succeed())
 			Ω(ep.GetMtadPath()).Should(BeAnExistingFile())
+		})
+		It("Generate Mtad - Invalid deployment descriptor", func() {
+			sourceMtadFlag = getTestPath("mtahtml5")
+			descriptorMtadFlag = "xx"
+			Ω(genMtadCmd.RunE(nil, []string{})).Should(HaveOccurred())
+		})
+		It("Generate Mtad - Invalid source", func() {
+			sourceMtadFlag = getTestPath("mtahtml6")
+			Ω(genMtadCmd.RunE(nil, []string{})).Should(HaveOccurred())
+		})
+		It("Generate Mtad - Invalid platform configuration", func() {
+			sourceMtadFlag = getTestPath("mtahtml5")
+			config := platform.PlatformConfig
+			platform.PlatformConfig = []byte("wrong config")
+			platformMtadFlag = "cf"
+			Ω(genMtadCmd.RunE(nil, []string{})).Should(HaveOccurred())
+			platform.PlatformConfig = config
 		})
 		It("Generate Mtar", func() {
 			sourceMtarFlag = getTestPath("mtahtml5")
-			ep = dir.Loc{SourcePath: sourceMtarFlag, TargetPath: targetMtarFlag}
 			Ω(genMetaCmd.RunE(nil, []string{})).Should(Succeed())
 			Ω(genMtarCmd.RunE(nil, []string{})).Should(Succeed())
 			Ω(getTestPath("result", "mtahtml5.mtar")).Should(BeAnExistingFile())
@@ -95,6 +113,11 @@ var _ = Describe("Commands", func() {
 	var _ = Describe("Validate", func() {
 		It("Invalid yaml path", func() {
 			sourceValidateFlag = getTestPath("mta1")
+			Ω(validateCmd.RunE(nil, []string{})).Should(HaveOccurred())
+		})
+		It("Invalid descriptor", func() {
+			sourceValidateFlag = getTestPath("mta")
+			descriptorValidateFlag = "x"
 			Ω(validateCmd.RunE(nil, []string{})).Should(HaveOccurred())
 		})
 	})
@@ -144,7 +167,6 @@ builders:
 			Ω(ep.GetTargetModuleZipPath(pBuildModuleNameFlag)).Should(BeAnExistingFile())
 		})
 	})
-
 })
 
 func getTestPath(relPath ...string) string {

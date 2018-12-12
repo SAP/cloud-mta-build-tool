@@ -9,21 +9,48 @@ import (
 
 	"cloud-mta-build-tool/internal/buildops"
 	"cloud-mta-build-tool/internal/fsys"
+	"cloud-mta-build-tool/internal/logs"
 	"cloud-mta-build-tool/mta"
 )
 
-// GenMtad generates an mtad.yaml file from a mta.yaml file and a platform configuration file.
-func GenMtad(mtaStr *mta.MTA, ep *dir.Loc, platform string) error {
-	// Create META-INF folder under the mtar folder
-	metaPath, err := ep.GetMetaPath()
+// ExecuteGenMtad - generates MTAD from MTA
+func ExecuteGenMtad(source, target, desc, platform string, wdGetter func() (string, error)) error {
+	logs.Logger.Info("Gen MTAR started")
+	loc, err := dir.Location(source, target, desc, wdGetter)
 	if err != nil {
-		return errors.Wrap(err, "mtad.yaml generation failed on Get Meta Path")
+		return errors.Wrap(err, "MTAD generation failed on location initialization")
 	}
-	err = dir.CreateDirIfNotExist(metaPath)
+
+	mtaStr, err := loc.ParseFile()
+	if err != nil {
+		return errors.Wrap(err, "MTAD generation failed on MTA parsing")
+	}
+
+	mtaExt, err := loc.ParseExtFile(platform)
+	if err != nil {
+		return errors.Wrap(err, "MTAD generation failed on EXT parsing")
+	}
+
+	mta.Merge(mtaStr, mtaExt)
+	adaptMtadForDeployment(mtaStr, platform)
+
+	err = genMtad(mtaStr, loc, loc.IsDeploymentDescriptor(), platform)
+	if err != nil {
+		return errors.Wrap(err, "MTAD generation failed")
+	}
+	logs.Logger.Info("Gen MTAR successfully finished")
+	return nil
+}
+
+// genMtad generates an mtad.yaml file from a mta.yaml file and a platform configuration file.
+func genMtad(mtaStr *mta.MTA, ep dir.ITargetArtifacts, deploymentDesc bool, platform string) error {
+	// Create META-INF folder under the mtar folder
+	metaPath := ep.GetMetaPath()
+	err := dir.CreateDirIfNotExist(metaPath)
 	if err != nil {
 		return errors.Wrap(err, "mtad.yaml generation failed, not able to create dir")
 	}
-	if !ep.IsDeploymentDescriptor() {
+	if !deploymentDesc {
 		err = ConvertTypes(*mtaStr, platform)
 		if err != nil {
 			return errors.Wrap(err, "mtad.yaml generation failed on type conversion")
@@ -34,13 +61,11 @@ func GenMtad(mtaStr *mta.MTA, ep *dir.Loc, platform string) error {
 	if err != nil {
 		return errors.Wrap(err, "mtad.yaml generation failed on MTAD marshaling")
 	}
-	mtadPath, err := ep.GetMtadPath()
-	if err == nil {
-		// Write back the MTAD to the META-INF folder
-		err = ioutil.WriteFile(mtadPath, mtad, os.ModePerm)
-	}
+	mtadPath := ep.GetMtadPath()
+	// Write back the MTAD to the META-INF folder
+	err = ioutil.WriteFile(mtadPath, mtad, os.ModePerm)
 	if err != nil {
-		return errors.Wrap(err, "mtad.yaml generation failed")
+		return errors.Wrap(err, "mtad.yaml generation failed of MTAD file writing")
 	}
 	return nil
 }
@@ -54,14 +79,14 @@ func marshal(in *mta.MTA) (mtads []byte, err error) {
 	return mtads, nil
 }
 
-// AdaptMtadForDeployment - remove elements from MTA that are not relevant for MTAD
+// adaptMtadForDeployment - remove elements from MTA that are not relevant for MTAD
 // Function is used in process of deployment artifacts preparation
 // SupportedPlatforms of module's build parameters indicate if module has to be deployed
 // if SupportedPlatforms property defined with empty list of properties
 // module will not be packed, not listed in MTAD yaml and in manifest
 // if module has to be deployed we clean build parameters from module,
 // as this section is not used in MTAD yaml
-func AdaptMtadForDeployment(mtaStr *mta.MTA, platform string) {
+func adaptMtadForDeployment(mtaStr *mta.MTA, platform string) {
 
 	// remove build parameters from modules with defined platforms
 	for _, m := range mtaStr.Modules {

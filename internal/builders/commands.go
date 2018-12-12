@@ -56,8 +56,8 @@ func CmdConverter(mPath string, cmdList []string) [][]string {
 
 // GetModuleAndCommands - Get module from mta.yaml and
 // commands (with resolved paths) configured for the module type
-func GetModuleAndCommands(ep *dir.Loc, module string) (*mta.Module, []string, error) {
-	mtaObj, err := dir.ParseFile(ep)
+func GetModuleAndCommands(loc dir.IMtaParser, module string) (*mta.Module, []string, error) {
+	mtaObj, err := loc.ParseFile()
 	if err != nil {
 		return nil, nil, err
 	}

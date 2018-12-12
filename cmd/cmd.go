@@ -3,7 +3,6 @@ package commands
 import (
 	"fmt"
 
-	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
 	"cloud-mta-build-tool/internal/logs"
@@ -60,12 +59,5 @@ func printCliVersion() error {
 func logError(err error) {
 	if err != nil {
 		logs.Logger.Error(err)
-	}
-}
-
-// logError - log error wrapped with new message
-func logErrorExt(err error, newMsg string) {
-	if err != nil {
-		logs.Logger.Error(errors.Wrap(err, newMsg))
 	}
 }

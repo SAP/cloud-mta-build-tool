@@ -1,6 +1,8 @@
 package buildops
 
 import (
+	"fmt"
+
 	"cloud-mta-build-tool/internal/fsys"
 
 	"github.com/deckarep/golang-set"
@@ -15,11 +17,30 @@ type graphNode struct {
 	index  int
 }
 
+// ProvideModules - provides modules in order of their dependencies
+func ProvideModules(source, desc string, wdGetter func() (string, error)) error {
+	loc, err := dir.Location(source, "", desc, wdGetter)
+	if err != nil {
+		errors.Wrap(err, "Modules provider failed on location initialization")
+	}
+	m, err := loc.ParseFile()
+	if err != nil {
+		return err
+	}
+	modules, err := GetModulesNames(m)
+	if err != nil {
+		return err
+	}
+	// Get list of modules names
+	fmt.Println(modules)
+	return nil
+}
+
 // ProcessDependencies - processes module dependencies
 // function prepares all artifacts required for module
 // copying them from required modules
-func ProcessDependencies(ep *dir.Loc, moduleName string) error {
-	m, err := dir.ParseFile(ep)
+func ProcessDependencies(mtaParser dir.IMtaParser, moduleSource dir.ISourceModule, moduleName string) error {
+	m, err := mtaParser.ParseFile()
 	if err != nil {
 		return err
 	}
@@ -30,7 +51,7 @@ func ProcessDependencies(ep *dir.Loc, moduleName string) error {
 	requires := getBuildRequires(module)
 	if requires != nil {
 		for _, req := range requires {
-			e := ProcessRequirements(ep, m, &req, module.Name)
+			e := ProcessRequirements(moduleSource, m, &req, module.Name)
 			if e != nil {
 				return e
 			}
