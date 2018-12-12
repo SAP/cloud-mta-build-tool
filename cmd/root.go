@@ -1,7 +1,6 @@
 package commands
 
 import (
-	// "github.com/mitchellh/go-homedir"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -32,7 +31,6 @@ func Execute() {
 	}
 }
 
-// TODO - using config file and ENV variables if set.
 func initConfig() {
 	viper.SetConfigFile(cfgFile)
 	viper.AutomaticEnv() // read in environment variables that match

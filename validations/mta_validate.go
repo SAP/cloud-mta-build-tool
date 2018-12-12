@@ -23,8 +23,8 @@ func GetValidationMode(validationFlag string) (bool, bool, error) {
 	return false, false, errors.New("wrong argument of validation mode. Expected one of [all, schema, project]")
 }
 
-// ValidateMtaYaml - Validate MTA yaml
-func ValidateMtaYaml(projectPath, mtaFilename string, validateSchema bool, validateProject bool) error {
+// MtaYaml - Validate MTA yaml
+func MtaYaml(projectPath, mtaFilename string, validateSchema bool, validateProject bool) error {
 	if validateProject || validateSchema {
 
 		mtaPath := filepath.Join(projectPath, mtaFilename)

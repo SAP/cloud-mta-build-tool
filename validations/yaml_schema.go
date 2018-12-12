@@ -112,13 +112,10 @@ func buildValidationsFromMap(y *simpleyaml.Yaml) ([]YamlCheck, []YamlValidationI
 // using "forEach"
 func buildValidationsFromSequence(y *simpleyaml.Yaml) ([]YamlCheck, []YamlValidationIssue) {
 	var validations []YamlCheck
-	var schemaIssues []YamlValidationIssue
 
 	sequenceInnerValidations, newIssues := buildValidationsFromSchema(y)
 	seqChecksWrapper := sequenceFailFast(typeIsArray(), forEach(sequenceInnerValidations...))
 	validations = append(validations, seqChecksWrapper)
-	schemaIssues = append(schemaIssues, newIssues...)
-
 	return validations, newIssues
 }
 

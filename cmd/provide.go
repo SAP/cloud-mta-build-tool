@@ -3,7 +3,7 @@ package commands
 import (
 	"os"
 
-	"cloud-mta-build-tool/internal/build-ops"
+	"cloud-mta-build-tool/internal/buildops"
 
 	"github.com/spf13/cobra"
 )
@@ -23,7 +23,7 @@ var pModuleCmd = &cobra.Command{
 	Long:  "Provide list of modules",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		err := build_ops.ProvideModules(sourcePModuleFlag, descriptorPModuleFlag, os.Getwd)
+		err := buildops.ProvideModules(sourcePModuleFlag, descriptorPModuleFlag, os.Getwd)
 		logError(err)
 		return err
 	},

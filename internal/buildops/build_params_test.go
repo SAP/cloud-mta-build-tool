@@ -1,4 +1,4 @@
-package build_ops
+package buildops
 
 import (
 	"os"
