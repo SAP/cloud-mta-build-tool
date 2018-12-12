@@ -27,8 +27,8 @@ var _ = Describe("Validation", func() {
 		Entry("invalid", "value", false, false, false),
 	)
 
-	var _ = DescribeTable("ValidateMtaYaml", func(projectRelPath string, validateSchema, validateProject, expectedSuccess bool) {
-		err := ValidateMtaYaml(getTestPath(projectRelPath), "mta.yaml", validateSchema, validateProject)
+	var _ = DescribeTable("MtaYaml", func(projectRelPath string, validateSchema, validateProject, expectedSuccess bool) {
+		err := MtaYaml(getTestPath(projectRelPath), "mta.yaml", validateSchema, validateProject)
 		Ω(err == nil).Should(Equal(expectedSuccess))
 	},
 		Entry("invalid path to yaml - all", "ui5app1", true, true, false),

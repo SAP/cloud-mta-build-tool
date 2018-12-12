@@ -8,7 +8,7 @@ import (
 	"github.com/pkg/errors"
 
 	"cloud-mta-build-tool/internal/builders"
-	"cloud-mta-build-tool/internal/build-ops"
+	"cloud-mta-build-tool/internal/buildops"
 	"cloud-mta-build-tool/internal/exec"
 	"cloud-mta-build-tool/internal/fs"
 	"cloud-mta-build-tool/internal/logs"
@@ -68,7 +68,7 @@ func buildModule(mtaParser dir.IMtaParser, moduleLoc dir.IModule, deploymentDesc
 
 		// Development descriptor - build includes:
 		// 1. module dependencies processing
-		e := build_ops.ProcessDependencies(mtaParser, moduleLoc, moduleName)
+		e := buildops.ProcessDependencies(mtaParser, moduleLoc, moduleName)
 		if e != nil {
 			return errors.Wrapf(e, "Module %v building failed on processing dependencies", moduleName)
 		}
@@ -91,7 +91,7 @@ func buildModule(mtaParser dir.IMtaParser, moduleLoc dir.IModule, deploymentDesc
 		if e != nil {
 			return errors.Wrapf(e, "Module %v building failed on module's packing", moduleName)
 		}
-	} else if build_ops.PlatformsDefined(module) {
+	} else if buildops.PlatformsDefined(module) {
 
 		// Deployment descriptor
 		// copy module archive to temp directory
@@ -106,7 +106,7 @@ func buildModule(mtaParser dir.IMtaParser, moduleLoc dir.IModule, deploymentDesc
 // packModule - pack build module artifacts
 func packModule(ep dir.IModule, deploymentDesc bool, module *mta.Module, moduleName string) error {
 
-	if !build_ops.PlatformsDefined(module) {
+	if !buildops.PlatformsDefined(module) {
 		return nil
 	}
 
@@ -128,7 +128,7 @@ func packModule(ep dir.IModule, deploymentDesc bool, module *mta.Module, moduleN
 	// zipping the build artifacts
 	logs.Logger.Infof("Starting execute zipping module %v ", moduleName)
 	moduleZipFullPath := moduleZipPath + dataZip
-	sourceModuleDir := build_ops.GetBuildResultsPath(ep, module)
+	sourceModuleDir := buildops.GetBuildResultsPath(ep, module)
 
 	err = dir.Archive(sourceModuleDir, moduleZipFullPath)
 	if err != nil {

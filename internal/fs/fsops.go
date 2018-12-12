@@ -20,7 +20,7 @@ func CreateDirIfNotExist(dir string) error {
 	if os.IsNotExist(err) {
 		err = os.MkdirAll(dir, os.ModePerm)
 	} else if !info.IsDir() {
-		err = errors.New(fmt.Sprintf("CreateDirIfNotExist failed - %v file exists", dir))
+		err = fmt.Errorf("CreateDirIfNotExist failed - %v file exists", dir)
 	}
 	return err
 }
