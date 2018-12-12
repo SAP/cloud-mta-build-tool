@@ -5,8 +5,8 @@ import (
 
 	"github.com/pkg/errors"
 
-	"cloud-mta-build-tool/internal/buildops"
-	"cloud-mta-build-tool/internal/fsys"
+	"cloud-mta-build-tool/internal/build-ops"
+	"cloud-mta-build-tool/internal/fs"
 	"cloud-mta-build-tool/mta"
 )
 
@@ -32,7 +32,7 @@ func mesh(module mta.Module, commands Builders) CommandList {
 	// The object support deep struct for future use, can be simplified to flat object
 	var cmds CommandList
 	for _, b := range commands.Builders {
-		moduleType := buildops.GetBuilder(&module)
+		moduleType := build_ops.GetBuilder(&module)
 		// Return only matching types
 		if moduleType == b.Name {
 			cmds.Info = b.Info

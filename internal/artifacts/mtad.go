@@ -7,8 +7,8 @@ import (
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
 
-	"cloud-mta-build-tool/internal/buildops"
-	"cloud-mta-build-tool/internal/fsys"
+	"cloud-mta-build-tool/internal/build-ops"
+	"cloud-mta-build-tool/internal/fs"
 	"cloud-mta-build-tool/internal/logs"
 	"cloud-mta-build-tool/mta"
 )
@@ -90,7 +90,7 @@ func adaptMtadForDeployment(mtaStr *mta.MTA, platform string) {
 
 	// remove build parameters from modules with defined platforms
 	for _, m := range mtaStr.Modules {
-		if buildops.PlatformsDefined(m) {
+		if build_ops.PlatformsDefined(m) {
 			m.BuildParams = map[string]interface{}{}
 		}
 	}
@@ -99,7 +99,7 @@ func adaptMtadForDeployment(mtaStr *mta.MTA, platform string) {
 	for doCleaning := true; doCleaning; {
 		doCleaning = false
 		for i, m := range mtaStr.Modules {
-			if !buildops.PlatformsDefined(m) {
+			if !build_ops.PlatformsDefined(m) {
 				// join slices before and after removed module
 				mtaStr.Modules = mtaStr.Modules[:i+copy(mtaStr.Modules[i:], mtaStr.Modules[i+1:])]
 				doCleaning = true

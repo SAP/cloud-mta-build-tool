@@ -9,8 +9,8 @@ import (
 	. "github.com/onsi/gomega"
 
 	"cloud-mta-build-tool/internal/builders"
-	"cloud-mta-build-tool/internal/buildops"
-	"cloud-mta-build-tool/internal/fsys"
+	"cloud-mta-build-tool/internal/build-ops"
+	"cloud-mta-build-tool/internal/fs"
 	"cloud-mta-build-tool/mta"
 )
 
@@ -105,7 +105,7 @@ builders:
 				Name: "node-js",
 				Path: "node-js",
 				BuildParams: map[string]interface{}{
-					buildops.SupportedPlatformsParam: []string{},
+					build_ops.SupportedPlatformsParam: []string{},
 				},
 			}
 			Ω(packModule(&ep, false, &mNoPlatforms, "node-js")).Should(Succeed())

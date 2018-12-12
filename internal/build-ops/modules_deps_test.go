@@ -1,4 +1,4 @@
-package buildops
+package build_ops
 
 import (
 	"bytes"
@@ -10,7 +10,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	"cloud-mta-build-tool/internal/fsys"
+	"cloud-mta-build-tool/internal/fs"
 	"cloud-mta-build-tool/mta"
 )
 
