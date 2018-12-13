@@ -1,4 +1,4 @@
-package builders
+package commands
 
 // Builders list of commands to execute
 type Builders struct {

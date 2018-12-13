@@ -8,26 +8,28 @@ import (
 	"cloud-mta-build-tool/internal/tpl"
 )
 
-var initModeFlag string
-var descriptorInitFlag string
-var sourceInitFlag string
-var targetInitFlag string
+// flags of init command
+var initCmdSrc string
+var initCmdTrg string
+var initCmdDesc string
+var initCmdMode string
 
+// init flags of init command
 func init() {
-	initProcessCmd.Flags().StringVarP(&initModeFlag, "mode", "m", "", "Mode of Makefile generation - default/verbose")
-	initProcessCmd.Flags().StringVarP(&descriptorInitFlag, "desc", "d", "", "Descriptor MTA - dev/dep")
-	initProcessCmd.Flags().StringVarP(&sourceInitFlag, "source", "s", "", "Provide MTA source")
-	initProcessCmd.Flags().StringVarP(&targetInitFlag, "target", "t", "", "Provide MTA target")
+	initCmd.Flags().StringVarP(&initCmdSrc, "source", "s", "", "Provide MTA source")
+	initCmd.Flags().StringVarP(&initCmdTrg, "target", "t", "", "Provide MTA target")
+	initCmd.Flags().StringVarP(&initCmdDesc, "desc", "d", "", "Descriptor MTA - dev/dep")
+	initCmd.Flags().StringVarP(&initCmdMode, "mode", "m", "", "Mode of Makefile generation - default/verbose")
 }
 
-var initProcessCmd = &cobra.Command{
+var initCmd = &cobra.Command{
 	Use:   "init",
 	Short: "Generate Makefile",
 	Long:  "Generate Makefile as manifest which describe's the build process",
 	Args:  cobra.NoArgs,
 	Run: func(cmd *cobra.Command, args []string) {
 		// Generate build script
-		err := tpl.ExecuteMake(sourceInitFlag, targetInitFlag, descriptorInitFlag, initModeFlag, os.Getwd)
+		err := tpl.ExecuteMake(initCmdSrc, initCmdTrg, initCmdDesc, initCmdMode, os.Getwd)
 		logError(err)
 	},
 }

@@ -16,17 +16,17 @@ var _ = Describe("Init", func() {
 		os.RemoveAll(getTestPath("result"))
 	})
 	It("Sanity", func() {
-		descriptorInitFlag = "dev"
-		sourceInitFlag = getTestPath("mta")
-		targetInitFlag = getTestPath("result")
-		initProcessCmd.Run(nil, []string{})
+		initCmdDesc = "dev"
+		initCmdSrc = getTestPath("mta")
+		initCmdTrg = getTestPath("result")
+		initCmd.Run(nil, []string{})
 		Ω(getTestPath("result", "Makefile.mta")).Should(BeAnExistingFile())
 	})
 	It("Invalid descriptor", func() {
-		descriptorInitFlag = "xx"
-		sourceInitFlag = getTestPath("mta")
-		targetInitFlag = getTestPath("result")
-		initProcessCmd.Run(nil, []string{})
+		initCmdDesc = "xx"
+		initCmdSrc = getTestPath("mta")
+		initCmdTrg = getTestPath("result")
+		initCmd.Run(nil, []string{})
 		Ω(getTestPath("result", "Makefile.mta")).ShouldNot(BeAnExistingFile())
 	})
 })

@@ -3,8 +3,8 @@ modules := $(shell mbt provide modules -d={{.Dep}})
 modules := $(subst ],,$(subst [,,$(modules)))
 
 ##Execute module build
-execute:
+gen:
 {{"\t"}}@for module in $(modules) ; do \
-{{"\t"}} mbt execute module -m=$$module -d={{.Dep}}; \
+{{"\t"}} mbt module build -m=$$module -d={{.Dep}}; \
 {{"\t"}}done
 {{template "base_post" .}}
