@@ -21,6 +21,10 @@ BUILD  = $(CURDIR)/release
 format :
 	go fmt ./...
 
+tools:
+	curl -L https://git.io/vp6lP | bash -s -- -b $(GOPATH)/bin/ v2.0.11
+	gometalinter --version
+
 lint:
 	@echo "Start project linting"
 	gometalinter --config=gometalinter.json ./...
