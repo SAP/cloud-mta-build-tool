@@ -51,7 +51,7 @@ func generateMeta(parser dir.IMtaParser, ep dir.ITargetArtifacts, deploymentDesc
 }
 
 // GenMetaInfo generates a MANIFEST.MF file and updates the build artifacts paths for deployment purposes.
-func GenMetaInfo(ep dir.ITargetArtifacts, deploymentDesc bool, platform string, mtaStr *mta.MTA, modules []string) error {
+func GenMetaInfo(ep dir.ITargetArtifacts, deploymentDesc bool, platform string, mtaStr *mta.MTA, modules []string) (rerr error) {
 	err := genMtad(mtaStr, ep, deploymentDesc, platform)
 	if err != nil {
 		return errors.Wrap(err, "META INFO generation failed on MTAD generation")
@@ -62,7 +62,12 @@ func GenMetaInfo(ep dir.ITargetArtifacts, deploymentDesc bool, platform string, 
 	if err != nil {
 		return errors.Wrap(err, "META INFO generation failed on manifest creation")
 	}
-	defer file.Close()
+	defer func() {
+		errClose := file.Close()
+		if errClose != nil {
+			rerr = errClose
+		}
+	}()
 	// Set the MANIFEST.MF file
 	err = setManifetDesc(file, mtaStr.Modules, modules)
 	if err != nil {

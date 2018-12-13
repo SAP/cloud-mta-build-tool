@@ -18,19 +18,19 @@ var _ = Describe("Embed", func() {
 
 	AfterEach(func() {
 		wd, _ := os.Getwd()
-		os.RemoveAll(filepath.Join(wd, "testdata", "cfg.go"))
+		os.RemoveAll(filepath.Join(wd, "testdata", "cfg.txt"))
 	})
 
 	It("sanity", func() {
-		os.Args = []string{"app", "-source=./testdata/cfg.yaml", "-target=./testdata/cfg.go", "-package=testpackage", "-name=Config"}
+		os.Args = []string{"app", "-source=./testdata/cfg.yaml", "-target=./testdata/cfg.txt", "-package=testpackage", "-name=Config"}
 		main()
-		actualContent, _ := ioutil.ReadFile("./testdata/cfg.go")
-		expectedContent, _ := ioutil.ReadFile("./testdata/goldenCfg.go")
+		actualContent, _ := ioutil.ReadFile("./testdata/cfg.txt")
+		expectedContent, _ := ioutil.ReadFile("./testdata/goldenCfg.txt")
 		Ω(removeSpecialSymbols(actualContent)).Should(Equal(removeSpecialSymbols(expectedContent)))
 	})
 
 	It("negative", func() {
-		os.Args = []string{"app", "-source=./testdata/cfgNotExisting.yaml", "-target=./testdata/cfg.go", "-package=testpackage", "-name=Config"}
+		os.Args = []string{"app", "-source=./testdata/cfgNotExisting.yaml", "-target=./testdata/cfg.txt", "-package=testpackage", "-name=Config"}
 		Ω(main).Should(Panic())
 	})
 
