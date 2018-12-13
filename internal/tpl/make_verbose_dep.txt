@@ -7,6 +7,6 @@ modules = {{- range .File.Modules}} {{.Name}}{{end}}
 # build module {{.Name}}
 {{.Name}}:
 # Pack module build artifacts
-{{"\t"}}@mbt execute pack -m={{.Name}} -d=dep
+{{"\t"}}@mbt module pack -m={{.Name}} -d=dep
 {{end}}
 {{template "base_post" .}}

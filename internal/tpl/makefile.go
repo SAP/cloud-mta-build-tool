@@ -8,7 +8,7 @@ import (
 
 	"github.com/pkg/errors"
 
-	"cloud-mta-build-tool/internal/builders"
+	"cloud-mta-build-tool/internal/commands"
 	"cloud-mta-build-tool/internal/fsys"
 	"cloud-mta-build-tool/internal/logs"
 	"cloud-mta-build-tool/internal/proc"
@@ -109,7 +109,7 @@ func makeFile(mtaParser dir.IMtaParser, loc dir.ITargetPath, makeFilename string
 //noinspection GoUnusedParameter
 func mapTpl(templateContent []byte, BasePreContent []byte, BasePostContent []byte) (*template.Template, error) {
 	funcMap := template.FuncMap{
-		"CommandProvider": builders.CommandProvider,
+		"CommandProvider": commands.CommandProvider,
 		"OsCore":          proc.OsCore,
 		"Version":         version.GetVersion,
 	}

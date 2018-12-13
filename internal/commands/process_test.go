@@ -1,4 +1,4 @@
-package builders
+package commands
 
 import (
 	. "github.com/onsi/ginkgo"

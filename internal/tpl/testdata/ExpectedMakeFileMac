@@ -18,7 +18,7 @@ tdir:
 	@mkdir -p "$(MTR_DIR)"
 # Validate mta.yaml
 validate:
-	@mbt execute validate -d=dev
+	@mbt validate -d=dev
 # Set the current project repository path for general mta process
   PROJ_DIR := $(CURDIR)
 
@@ -30,17 +30,17 @@ modules = ui
 ui:
 	@cd $(PROJ_DIR)/ui && grunt
 # Pack module build artifacts
-	@mbt execute pack -m=ui
+	@mbt module pack -m=ui
 
 
 # Create META-INF folder with MANIFEST.MF & mtad.yaml
 meta:
-	@mbt execute meta -d=dev -p=${p}
+	@mbt gen meta -d=dev -p=${p}
 
 # Pack as MTAR artifact
 mtar: $(modules) meta
-	@mbt execute mtar -d=dev
+	@mbt gen mtar -d=dev
 
 cleanup: mtar
 # Remove tmp folder
-	@mbt execute cleanup
+	@mbt cleanup

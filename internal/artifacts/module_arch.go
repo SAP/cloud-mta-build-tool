@@ -7,8 +7,8 @@ import (
 
 	"github.com/pkg/errors"
 
-	"cloud-mta-build-tool/internal/builders"
 	"cloud-mta-build-tool/internal/buildops"
+	"cloud-mta-build-tool/internal/commands"
 	"cloud-mta-build-tool/internal/exec"
 	"cloud-mta-build-tool/internal/fsys"
 	"cloud-mta-build-tool/internal/logs"
@@ -39,7 +39,7 @@ func ExecutePack(source, target, desc, moduleName string, wdGetter func() (strin
 		return errors.Wrapf(err, "Pack of module <%v> failed on location initialization", moduleName)
 	}
 
-	module, _, err := builders.GetModuleAndCommands(loc, moduleName)
+	module, _, err := commands.GetModuleAndCommands(loc, moduleName)
 	if err != nil {
 		return errors.Wrapf(err, "Pack of module <%v> failed on getting modules and commands", moduleName)
 	}
@@ -59,7 +59,7 @@ func buildModule(mtaParser dir.IMtaParser, moduleLoc dir.IModule, deploymentDesc
 	logs.Logger.Infof("Module %v building started", moduleName)
 
 	// Get module respective command's to execute
-	module, mCmd, err := builders.GetModuleAndCommands(mtaParser, moduleName)
+	module, mCmd, err := commands.GetModuleAndCommands(mtaParser, moduleName)
 	if err != nil {
 		return errors.Wrapf(err, "Module %v building failed on getting relative path and commands", moduleName)
 	}
@@ -77,7 +77,7 @@ func buildModule(mtaParser dir.IMtaParser, moduleLoc dir.IModule, deploymentDesc
 		modulePath := moduleLoc.GetSourceModuleDir(module.Path)
 
 		// Get module commands
-		commands := builders.CmdConverter(modulePath, mCmd)
+		commands := commands.CmdConverter(modulePath, mCmd)
 
 		// Execute child-process with module respective commands
 		e = exec.Execute(commands)

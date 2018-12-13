@@ -10,7 +10,7 @@ MTR_DIR := $(DIR)$(BASE)
 # List of all the recipes to be executed during the build process
 .PHONY: {{- range .File.Modules}} {{.Name}}{{end}} meta mtar cleanup
 # Default target compile all
-all: tdir validate execute meta mtar cleanup
+all: tdir validate gen meta mtar cleanup
 cores:
 # Determine OS cores
 {{"\t"}}{{ OsCore.NPROCS  }}
@@ -20,5 +20,5 @@ tdir:
 {{"\t"}}@mkdir -p "$(MTR_DIR)"
 # Validate mta.yaml
 validate:
-{{"\t"}}@mbt execute validate -d={{.Dep}}
+{{"\t"}}@mbt validate -d={{.Dep}}
 {{end}}

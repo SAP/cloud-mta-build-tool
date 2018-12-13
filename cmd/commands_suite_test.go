@@ -9,12 +9,18 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+
+	"cloud-mta-build-tool/internal/logs"
 )
 
 func TestCommands(t *testing.T) {
 	RegisterFailHandler(Fail)
 	RunSpecs(t, "Commands Suite")
 }
+
+var _ = BeforeSuite(func() {
+	logs.Logger = logs.NewLogger()
+})
 
 func executeAndProvideOutput(execute func()) string {
 	old := os.Stdout // keep backup of the real stdout

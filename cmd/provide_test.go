@@ -5,8 +5,8 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("pModuleCmd", func() {
+var _ = Describe("provideModuleCmd", func() {
 	It("Invalid command call", func() {
-		Ω(pModuleCmd.RunE(nil, []string{})).Should(HaveOccurred())
+		Ω(provideModuleCmd.RunE(nil, []string{})).Should(HaveOccurred())
 	})
 })
