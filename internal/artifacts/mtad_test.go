@@ -8,7 +8,7 @@ import (
 	"github.com/pkg/errors"
 
 	"cloud-mta-build-tool/internal/buildops"
-	"cloud-mta-build-tool/internal/fsys"
+	"cloud-mta-build-tool/internal/fs"
 	"cloud-mta-build-tool/mta"
 )
 

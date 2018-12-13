@@ -10,7 +10,7 @@ import (
 	"cloud-mta-build-tool/internal/buildops"
 	"cloud-mta-build-tool/internal/commands"
 	"cloud-mta-build-tool/internal/exec"
-	"cloud-mta-build-tool/internal/fsys"
+	"cloud-mta-build-tool/internal/fs"
 	"cloud-mta-build-tool/internal/logs"
 	"cloud-mta-build-tool/mta"
 )

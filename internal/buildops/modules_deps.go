@@ -3,11 +3,10 @@ package buildops
 import (
 	"fmt"
 
-	"cloud-mta-build-tool/internal/fsys"
-
 	"github.com/deckarep/golang-set"
 	"github.com/pkg/errors"
 
+	"cloud-mta-build-tool/internal/fs"
 	"cloud-mta-build-tool/mta"
 )
 
@@ -21,7 +20,7 @@ type graphNode struct {
 func ProvideModules(source, desc string, wdGetter func() (string, error)) error {
 	loc, err := dir.Location(source, "", desc, wdGetter)
 	if err != nil {
-		errors.Wrap(err, "Modules provider failed on location initialization")
+		return errors.Wrap(err, "Modules provider failed on location initialization")
 	}
 	m, err := loc.ParseFile()
 	if err != nil {
@@ -109,13 +108,11 @@ func resolveGraph(graph *graphs, m *mta.MTA) ([]string, error) {
 				readyModulesSet.Add(node.module)
 			}
 		}
-
 		// If there aren't any ready nodes, then we have a circular dependency
 		if readyNodesSet.Cardinality() == 0 {
 			module1, module2 := provideCyclicModules(&overleft)
 			return nil, errors.Errorf("Circular dependency found. Check modules %v and %v", module1, module2)
 		}
-
 		// Remove the ready nodes and add them to the resolved graphs
 		readyModulesIndexes := mapset.NewSet()
 		for node := range readyNodesSet.Iter() {

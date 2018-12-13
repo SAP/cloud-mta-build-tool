@@ -10,7 +10,7 @@ import (
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
 
-	"cloud-mta-build-tool/internal/fsys"
+	"cloud-mta-build-tool/internal/fs"
 	"cloud-mta-build-tool/internal/platform"
 	"cloud-mta-build-tool/internal/version"
 	"cloud-mta-build-tool/mta"

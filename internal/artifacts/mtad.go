@@ -8,7 +8,7 @@ import (
 	"gopkg.in/yaml.v2"
 
 	"cloud-mta-build-tool/internal/buildops"
-	"cloud-mta-build-tool/internal/fsys"
+	"cloud-mta-build-tool/internal/fs"
 	"cloud-mta-build-tool/internal/logs"
 	"cloud-mta-build-tool/mta"
 )

@@ -3,7 +3,7 @@ package artifacts
 import (
 	"github.com/pkg/errors"
 
-	"cloud-mta-build-tool/internal/fsys"
+	"cloud-mta-build-tool/internal/fs"
 	"cloud-mta-build-tool/internal/logs"
 	"cloud-mta-build-tool/validations"
 )
@@ -19,7 +19,7 @@ func ExecuteValidation(source, desc, mode string, getWorkingDir func() (string, 
 	if err != nil {
 		return errors.Wrap(err, "MBT Validation failed on validation mode analysis")
 	}
-	err = validate.ValidateMtaYaml(source, loc.GetMtaYamlFilename(), validateSchema, validateProject)
+	err = validate.MtaYaml(source, loc.GetMtaYamlFilename(), validateSchema, validateProject)
 	if err != nil {
 		return errors.Wrap(err, "MBT Validation failed")
 	}

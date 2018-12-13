@@ -12,7 +12,7 @@ import (
 	"github.com/onsi/gomega/types"
 
 	"cloud-mta-build-tool/internal/commands"
-	"cloud-mta-build-tool/internal/fsys"
+	"cloud-mta-build-tool/internal/fs"
 	"cloud-mta-build-tool/internal/logs"
 )
 

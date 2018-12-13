@@ -2,7 +2,7 @@ project_name: mbt
 release:
   github:
     owner: ShimiT
-    name: mbt
+    name: cloud-mta-build-tool
   name_template: '{{.Tag}}'
 brew:
   commit_author:
