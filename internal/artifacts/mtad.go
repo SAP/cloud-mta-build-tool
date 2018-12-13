@@ -15,7 +15,7 @@ import (
 
 // ExecuteGenMtad - generates MTAD from MTA
 func ExecuteGenMtad(source, target, desc, platform string, wdGetter func() (string, error)) error {
-	logs.Logger.Info("Gen MTAR started")
+	logs.Logger.Info("Gen MTAD started")
 	loc, err := dir.Location(source, target, desc, wdGetter)
 	if err != nil {
 		return errors.Wrap(err, "MTAD generation failed on location initialization")
@@ -38,7 +38,7 @@ func ExecuteGenMtad(source, target, desc, platform string, wdGetter func() (stri
 	if err != nil {
 		return errors.Wrap(err, "MTAD generation failed")
 	}
-	logs.Logger.Info("Gen MTAR successfully finished")
+	logs.Logger.Info("Gen MTAD successfully finished")
 	return nil
 }
 

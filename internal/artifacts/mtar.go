@@ -15,16 +15,16 @@ const (
 
 // ExecuteGenMtar - generates MTAR
 func ExecuteGenMtar(source, target, desc string, wdGetter func() (string, error)) error {
-	logs.Logger.Info("Gen Mtar started")
+	logs.Logger.Info("Gen MTAR started")
 	loc, err := dir.Location(source, target, desc, wdGetter)
 	if err != nil {
-		return errors.Wrap(err, "Gen Mtar failed on location initialization")
+		return errors.Wrap(err, "Gen MTAR failed on location initialization")
 	}
 	err = generateMtar(loc, loc)
 	if err != nil {
-		return errors.Wrap(err, "Gen Mtar failed")
+		return errors.Wrap(err, "Gen MTAR failed")
 	}
-	logs.Logger.Info("Gen Mtar successfully finished")
+	logs.Logger.Info("Gen MTAR successfully finished")
 	return nil
 }
 

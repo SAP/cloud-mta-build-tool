@@ -11,27 +11,27 @@ import (
 
 // ExecuteGenMeta - generates metadata
 func ExecuteGenMeta(source, target, desc, platform string, wdGetter func() (string, error)) error {
-	logs.Logger.Info("Gen Meta started")
+	logs.Logger.Info("Gen META started")
 	loc, err := dir.Location(source, target, desc, wdGetter)
 	if err != nil {
-		return errors.Wrap(err, "Gen Meta failed on location initialization")
+		return errors.Wrap(err, "Gen META failed on location initialization")
 	}
 	err = generateMeta(loc, loc, loc.IsDeploymentDescriptor(), platform)
 	if err != nil {
-		return errors.Wrap(err, "Gen Meta failed")
+		return errors.Wrap(err, "Gen META failed")
 	}
-	logs.Logger.Info("Gen Meta successfully finished")
+	logs.Logger.Info("Gen META successfully finished")
 	return nil
 }
 
 // generateMeta - generate metadata artifacts
 func generateMeta(parser dir.IMtaParser, ep dir.ITargetArtifacts, deploymentDescriptor bool, platform string) error {
-	logs.Logger.Info("Starting Meta folder and related artifacts creation")
+	logs.Logger.Info("Starting META folder and related artifacts creation")
 
 	// parse MTA file
 	m, err := parser.ParseFile()
 	if err != nil {
-		return errors.Wrap(err, "Meta folder and related artifacts creation failed on MTA file parsing")
+		return errors.Wrap(err, "META folder and related artifacts creation failed on MTA file parsing")
 	}
 	// read MTA extension file
 	mExt, err := parser.ParseExtFile(platform)
@@ -44,9 +44,9 @@ func generateMeta(parser dir.IMtaParser, ep dir.ITargetArtifacts, deploymentDesc
 	// Generate meta info dir with required content
 	err = GenMetaInfo(ep, deploymentDescriptor, platform, m, []string{})
 	if err != nil {
-		return errors.Wrap(err, "Meta folder and related artifacts creation failed on META Info generation")
+		return errors.Wrap(err, "META folder and related artifacts creation failed on META Info generation")
 	}
-	logs.Logger.Info("Meta folder and related artifacts creation finished successfully ")
+	logs.Logger.Info("META folder and related artifacts creation finished successfully ")
 	return nil
 }
 
