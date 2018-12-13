@@ -48,7 +48,7 @@ func genMtad(mtaStr *mta.MTA, ep dir.ITargetArtifacts, deploymentDesc bool, plat
 	metaPath := ep.GetMetaPath()
 	err := dir.CreateDirIfNotExist(metaPath)
 	if err != nil {
-		return errors.Wrap(err, "mtad.yaml generation failed, not able to create dir")
+		logs.Logger.Infof("Directory <%v> exists", metaPath)
 	}
 	if !deploymentDesc {
 		err = ConvertTypes(*mtaStr, platform)
