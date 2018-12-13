@@ -11,27 +11,27 @@ import (
 
 // ExecuteGenMeta - generates metadata
 func ExecuteGenMeta(source, target, desc, platform string, wdGetter func() (string, error)) error {
-	logs.Logger.Info("Gen Meta started")
+	logs.Logger.Info("Gen META started")
 	loc, err := dir.Location(source, target, desc, wdGetter)
 	if err != nil {
-		return errors.Wrap(err, "Gen Meta failed on location initialization")
+		return errors.Wrap(err, "Gen META failed on location initialization")
 	}
 	err = generateMeta(loc, loc, loc.IsDeploymentDescriptor(), platform)
 	if err != nil {
-		return errors.Wrap(err, "Gen Meta failed")
+		return errors.Wrap(err, "Gen META failed")
 	}
-	logs.Logger.Info("Gen Meta successfully finished")
+	logs.Logger.Info("Gen META successfully finished")
 	return nil
 }
 
 // generateMeta - generate metadata artifacts
 func generateMeta(parser dir.IMtaParser, ep dir.ITargetArtifacts, deploymentDescriptor bool, platform string) error {
-	logs.Logger.Info("Starting Meta folder and related artifacts creation")
+	logs.Logger.Info("Starting META folder and related artifacts creation")
 
 	// parse MTA file
 	m, err := parser.ParseFile()
 	if err != nil {
-		return errors.Wrap(err, "Meta folder and related artifacts creation failed on MTA file parsing")
+		return errors.Wrap(err, "META folder and related artifacts creation failed on MTA file parsing")
 	}
 	// read MTA extension file
 	mExt, err := parser.ParseExtFile(platform)
@@ -44,14 +44,14 @@ func generateMeta(parser dir.IMtaParser, ep dir.ITargetArtifacts, deploymentDesc
 	// Generate meta info dir with required content
 	err = GenMetaInfo(ep, deploymentDescriptor, platform, m, []string{})
 	if err != nil {
-		return errors.Wrap(err, "Meta folder and related artifacts creation failed on META Info generation")
+		return errors.Wrap(err, "META folder and related artifacts creation failed on META Info generation")
 	}
-	logs.Logger.Info("Meta folder and related artifacts creation finished successfully ")
+	logs.Logger.Info("META folder and related artifacts creation finished successfully ")
 	return nil
 }
 
 // GenMetaInfo generates a MANIFEST.MF file and updates the build artifacts paths for deployment purposes.
-func GenMetaInfo(ep dir.ITargetArtifacts, deploymentDesc bool, platform string, mtaStr *mta.MTA, modules []string) error {
+func GenMetaInfo(ep dir.ITargetArtifacts, deploymentDesc bool, platform string, mtaStr *mta.MTA, modules []string) (rerr error) {
 	err := genMtad(mtaStr, ep, deploymentDesc, platform)
 	if err != nil {
 		return errors.Wrap(err, "META INFO generation failed on MTAD generation")
@@ -62,7 +62,12 @@ func GenMetaInfo(ep dir.ITargetArtifacts, deploymentDesc bool, platform string, 
 	if err != nil {
 		return errors.Wrap(err, "META INFO generation failed on manifest creation")
 	}
-	defer file.Close()
+	defer func() {
+		errClose := file.Close()
+		if errClose != nil {
+			rerr = errClose
+		}
+	}()
 	// Set the MANIFEST.MF file
 	err = setManifetDesc(file, mtaStr.Modules, modules)
 	if err != nil {

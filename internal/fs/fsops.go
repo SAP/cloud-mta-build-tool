@@ -30,7 +30,7 @@ func CreateDirIfNotExist(dir string) error {
 // to support the spec requirements
 // Source Path to be zipped
 // Target artifact
-func Archive(sourcePath, targetArchivePath string) error {
+func Archive(sourcePath, targetArchivePath string) (rerr error) {
 
 	// check that folder to be packed exist
 	info, err := os.Stat(sourcePath)
@@ -43,11 +43,21 @@ func Archive(sourcePath, targetArchivePath string) error {
 	if err != nil {
 		return err
 	}
-	defer zipfile.Close()
+	defer func() {
+		errClose := zipfile.Close()
+		if errClose != nil {
+			rerr = errClose
+		}
+	}()
 
 	// create archive writer
 	archive := zip.NewWriter(zipfile)
-	defer archive.Close()
+	defer func() {
+		errClose := archive.Close()
+		if errClose != nil {
+			rerr = errClose
+		}
+	}()
 
 	// Skip headers to support jar archive structure
 	var baseDir string
@@ -68,7 +78,7 @@ func Archive(sourcePath, targetArchivePath string) error {
 	return err
 }
 
-func walk(sourcePath string, baseDir string, archive *zip.Writer) error {
+func walk(sourcePath string, baseDir string, archive *zip.Writer) (rerr error) {
 	// pack files of source into archive
 	return filepath.Walk(sourcePath, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -97,7 +107,12 @@ func walk(sourcePath string, baseDir string, archive *zip.Writer) error {
 		if err == nil {
 			file, e := os.Open(path)
 			if e == nil {
-				defer file.Close()
+				defer func() {
+					errClose := file.Close()
+					if errClose != nil {
+						rerr = errClose
+					}
+				}()
 				_, err = io.Copy(writer, file)
 				return err
 			}
@@ -239,12 +254,16 @@ func copyEntries(entries []os.FileInfo, src, dst string) error {
 }
 
 // CopyFile - copy file content
-func CopyFile(src, dst string) (err error) {
+func CopyFile(src, dst string) (rerr error) {
 	in, err := os.Open(src)
 	if err != nil {
 		return err
 	}
-	defer in.Close()
+	defer func() {
+		if e := in.Close(); e != nil {
+			rerr = e
+		}
+	}()
 
 	out, err := os.Create(dst)
 	if err != nil {
@@ -252,7 +271,7 @@ func CopyFile(src, dst string) (err error) {
 	}
 	defer func() {
 		if e := out.Close(); e != nil {
-			err = e
+			rerr = e
 		}
 	}()
 
@@ -266,7 +285,7 @@ func CopyFile(src, dst string) (err error) {
 		return err
 	}
 	err = os.Chmod(dst, si.Mode())
-	return
+	return err
 }
 
 // getRelativePath - Remove the basePath from the fullPath and get only the relative

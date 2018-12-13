@@ -15,7 +15,7 @@ import (
 
 // ExecuteGenMtad - generates MTAD from MTA
 func ExecuteGenMtad(source, target, desc, platform string, wdGetter func() (string, error)) error {
-	logs.Logger.Info("Gen MTAR started")
+	logs.Logger.Info("Gen MTAD started")
 	loc, err := dir.Location(source, target, desc, wdGetter)
 	if err != nil {
 		return errors.Wrap(err, "MTAD generation failed on location initialization")
@@ -38,7 +38,7 @@ func ExecuteGenMtad(source, target, desc, platform string, wdGetter func() (stri
 	if err != nil {
 		return errors.Wrap(err, "MTAD generation failed")
 	}
-	logs.Logger.Info("Gen MTAR successfully finished")
+	logs.Logger.Info("Gen MTAD successfully finished")
 	return nil
 }
 
@@ -48,7 +48,7 @@ func genMtad(mtaStr *mta.MTA, ep dir.ITargetArtifacts, deploymentDesc bool, plat
 	metaPath := ep.GetMetaPath()
 	err := dir.CreateDirIfNotExist(metaPath)
 	if err != nil {
-		return errors.Wrap(err, "mtad.yaml generation failed, not able to create dir")
+		logs.Logger.Infof("Directory <%v> exists", metaPath)
 	}
 	if !deploymentDesc {
 		err = ConvertTypes(*mtaStr, platform)
