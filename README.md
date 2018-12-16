@@ -62,7 +62,7 @@ For background and detailed information, see The [Multi-Target Application Model
  
 ### Milestone 1  - (Q1 - 2019)
  
- - [ ] Supports build of HTML5 applications 
+ - [ ] Supports build of HTML5 applications (non repo)
  - [ ] Supports build of node applications
  - [ ] Partial support of build parameters (first phase)
     - [ ] Supports build dependencies
