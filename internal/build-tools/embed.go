@@ -33,6 +33,7 @@ func main() {
 		handleError(e)
 		t := template.Must(template.New("config.tpl").ParseFiles(filepath.Join(templatePath, "config.tpl")))
 		err = t.Execute(out, configInfo{PackageName: *pkg, VarName: *name, Data: fmt.Sprintf("%#v", inData)})
+		out.Close()
 		handleError(err)
 	} else {
 		handleError(err)

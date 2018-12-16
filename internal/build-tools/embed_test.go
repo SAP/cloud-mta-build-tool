@@ -19,6 +19,7 @@ var _ = Describe("Embed", func() {
 	AfterEach(func() {
 		wd, _ := os.Getwd()
 		os.RemoveAll(filepath.Join(wd, "testdata", "cfg.txt"))
+		os.RemoveAll(filepath.Join(wd, "testdata", "cfg1.txt"))
 	})
 
 	It("sanity", func() {
@@ -30,7 +31,7 @@ var _ = Describe("Embed", func() {
 	})
 
 	It("negative", func() {
-		os.Args = []string{"app", "-source=./testdata/cfgNotExisting.yaml", "-target=./testdata/cfg.txt", "-package=testpackage", "-name=Config"}
+		os.Args = []string{"app", "-source=./testdata/cfgNotExisting.yaml", "-target=./testdata/cfg1.txt", "-package=testpackage", "-name=Config"}
 		Ω(main).Should(Panic())
 	})
 

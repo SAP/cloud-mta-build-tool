@@ -47,17 +47,21 @@ var _ = Describe("Mtad", func() {
 			metaPath := ep.GetMetaPath()
 			tmpDir := ep.GetTargetTmpDir()
 			os.MkdirAll(tmpDir, os.ModePerm)
-			_, err := os.Create(metaPath)
+			file, err := os.Create(metaPath)
 			Ω(err).Should(Succeed())
 			mtaBytes, err := dir.Read(&ep)
 			Ω(err).Should(Succeed())
 			mtaStr, err := mta.Unmarshal(mtaBytes)
 			Ω(err).Should(Succeed())
 			Ω(genMtad(mtaStr, &ep, ep.IsDeploymentDescriptor(), "cf")).Should(HaveOccurred())
+			file.Close()
 		})
 	})
 
-	It("adaptMtadForDeployment", func() {
+})
+
+var _ = Describe("adaptMtadForDeployment", func() {
+	It("Sanity", func() {
 		mta := mta.MTA{
 			ID:      "mta_proj",
 			Version: "1.0.0",
@@ -93,5 +97,4 @@ var _ = Describe("Mtad", func() {
 		Ω(mta.Modules[0].Name).Should(Equal("htmlapp2"))
 		Ω(mta.Parameters["hcp-deployer-version"]).ShouldNot(BeNil())
 	})
-
 })
