@@ -60,11 +60,11 @@ For background and detailed information, see The [Multi-Target Application Model
 
 ## Roadmap
  
-### Milestone 1 
+### Milestone 1 Q1 - 2019
  
  - [ ] Supports build of HTML5 applications 
  - [ ] Supports build of node applications
- - [ ] Supports build parameters (first phase)
+ - [ ] Partial support of build parameters (first phase)
     - [ ] Supports build dependencies
     - [ ] Supports the copying of build results from other modules
     - [ ] Supports the build results from a different location
@@ -75,11 +75,11 @@ For background and detailed information, see The [Multi-Target Application Model
  - [ ] Supports packaging based on a `mtad.yaml` file
  
  
-### Milestone 2 
+### Milestone 2 Q2 - 2019
  
   - [ ] Generates a verbose `Makefile`
-  - [ ] Supports incremental build (one module at a time)
   - [ ] Supports MTA extension
+  - [ ] Supports build of Java/Maven applications
   - [ ] Supports ZIP builds
   - [ ] Supports fetcher build 
   - [ ] Supports build parameters
@@ -90,17 +90,20 @@ For background and detailed information, see The [Multi-Target Application Model
   - [ ] Supports multi-schema
   - [ ] Supports enhancing schema validations
   - [ ] Supports semantic validations
+  - [ ] Partial supports advanced `mta.yaml` (3.1, > 3.2) schema
   
  
- ### Milestone 3 
+ ### Milestone 3 Q3 - 2019
  
-  - [ ] Supports build of Java/Maven applications
   - [ ] Supports parallel execution for default `Makefile` 
+  - [ ] Supports incremental build (one module at a time)
  
- ### Milestone 4  
+ ### Milestone 4 Q3 - 2019
 
  - [ ] Supports extensibility framework
- - [ ] Supports advanced `mta.yaml` (3.1, >3.2) schema
+ - [ ] Full supports advanced `mta.yaml` (3.1, > 3.2) schema
+
+
  
  
  ## License
