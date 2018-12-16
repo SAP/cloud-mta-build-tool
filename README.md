@@ -60,7 +60,7 @@ For background and detailed information, see The [Multi-Target Application Model
 
 ## Roadmap
  
-### Milestone 1 Q1 - 2019
+### Milestone 1  - (Q1 - 2019)
  
  - [ ] Supports build of HTML5 applications 
  - [ ] Supports build of node applications
@@ -75,7 +75,7 @@ For background and detailed information, see The [Multi-Target Application Model
  - [ ] Supports packaging based on a `mtad.yaml` file
  
  
-### Milestone 2 Q2 - 2019
+### Milestone 2 - (Q2 - 2019)
  
   - [ ] Generates a verbose `Makefile`
   - [ ] Supports MTA extension
@@ -93,12 +93,12 @@ For background and detailed information, see The [Multi-Target Application Model
   - [ ] Partial supports advanced `mta.yaml` (3.1, > 3.2) schema
   
  
- ### Milestone 3 Q3 - 2019
+ ### Milestone 3 - (Q3 - 2019)
  
   - [ ] Supports parallel execution for default `Makefile` 
   - [ ] Supports incremental build (one module at a time)
  
- ### Milestone 4 Q3 - 2019
+ ### Milestone 4 - (Q3 - 2019)
 
  - [ ] Supports extensibility framework
  - [ ] Full supports advanced `mta.yaml` (3.1, > 3.2) schema
