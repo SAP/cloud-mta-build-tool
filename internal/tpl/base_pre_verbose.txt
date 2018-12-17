@@ -1,7 +1,7 @@
 {{define "base_pre"}}
 version={{Version.MakeFile}}
 ifndef p
-$(error Platform is not passed. p argument expected)
+$(error platform flag is expected. e.g. use make -f makefile.mta p=cf)
 endif
 # Create folder for build artifacts
 DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))

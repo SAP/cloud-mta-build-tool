@@ -30,7 +30,7 @@ func CreateDirIfNotExist(dir string) error {
 // to support the spec requirements
 // Source Path to be zipped
 // Target artifact
-func Archive(sourcePath, targetArchivePath string) (rerr error) {
+func Archive(sourcePath, targetArchivePath string) (e error) {
 
 	// check that folder to be packed exist
 	info, err := os.Stat(sourcePath)
@@ -46,7 +46,7 @@ func Archive(sourcePath, targetArchivePath string) (rerr error) {
 	defer func() {
 		errClose := zipfile.Close()
 		if errClose != nil {
-			rerr = errClose
+			e = errClose
 		}
 	}()
 
@@ -55,7 +55,7 @@ func Archive(sourcePath, targetArchivePath string) (rerr error) {
 	defer func() {
 		errClose := archive.Close()
 		if errClose != nil {
-			rerr = errClose
+			e = errClose
 		}
 	}()
 
@@ -78,7 +78,7 @@ func Archive(sourcePath, targetArchivePath string) (rerr error) {
 	return err
 }
 
-func walk(sourcePath string, baseDir string, archive *zip.Writer) (rerr error) {
+func walk(sourcePath string, baseDir string, archive *zip.Writer) (e error) {
 	// pack files of source into archive
 	return filepath.Walk(sourcePath, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -110,7 +110,7 @@ func walk(sourcePath string, baseDir string, archive *zip.Writer) (rerr error) {
 				defer func() {
 					errClose := file.Close()
 					if errClose != nil {
-						rerr = errClose
+						e = errClose
 					}
 				}()
 				_, err = io.Copy(writer, file)
