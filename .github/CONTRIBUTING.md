@@ -37,8 +37,10 @@ request changes to it, or close it with an explanation.
 3. If you’ve fixed a bug or added code that should be tested, add tests!
 4. See commit prefix section
 5. Ensure the test suite passes via `go test -v ./... ` Tip: you can use command `make test`.
-6. Format your code with `go fmt` and run [linter](https://github.com/golang/lint) on your changes.
-7. If you haven’t already, complete the CLA.
+6. You can test the binary by using command `make` which will build the binary for each target OS.
+7. If you change some config file you should run `go generate` command, this will create equivalent byte content file. 
+8. Format your code with `go fmt` and run [linter](https://github.com/golang/lint) or better use `make tools` `make lint` on your changes.
+9. If you haven’t already, complete the CLA.
 
 
 ## Contribution Prerequisites
