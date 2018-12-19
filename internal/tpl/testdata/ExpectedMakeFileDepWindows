@@ -29,7 +29,7 @@ modules = ui
 # build module ui
 ui:
 # Pack module build artifacts
-	@mbt module pack -m=ui -d=dep
+	@mbt module pack -m=ui -d=dep -p=${p}
 
 # Create META-INF folder with MANIFEST.MF & mtad.yaml
 meta:

@@ -30,7 +30,7 @@ modules = ui
 ui:
 	@cd $(PROJ_DIR)/ui && grunt
 # Pack module build artifacts
-	@mbt module pack -m=ui
+	@mbt module pack -m=ui -p=${p}
 
 
 # Create META-INF folder with MANIFEST.MF & mtad.yaml

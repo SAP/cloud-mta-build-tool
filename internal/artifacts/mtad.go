@@ -57,7 +57,7 @@ func genMtad(mtaStr *mta.MTA, ep dir.ITargetArtifacts, deploymentDesc bool, plat
 		}
 	}
 	// Create readable Yaml before writing to file
-	mtad, err := marshal(mtaStr)
+	mtad, err := yaml.Marshal(mtaStr)
 	if err != nil {
 		return errors.Wrap(err, "mtad.yaml generation failed on MTAD marshaling")
 	}
@@ -68,15 +68,6 @@ func genMtad(mtaStr *mta.MTA, ep dir.ITargetArtifacts, deploymentDesc bool, plat
 		return errors.Wrap(err, "mtad.yaml generation failed of MTAD file writing")
 	}
 	return nil
-}
-
-// marshal - serializes the MTA into an encoded YAML document.
-func marshal(in *mta.MTA) (mtads []byte, err error) {
-	mtads, err = yaml.Marshal(in)
-	if err != nil {
-		return nil, err
-	}
-	return mtads, nil
 }
 
 // adaptMtadForDeployment - remove elements from MTA that are not relevant for MTAD
@@ -90,7 +81,7 @@ func adaptMtadForDeployment(mtaStr *mta.MTA, platform string) {
 
 	// remove build parameters from modules with defined platforms
 	for _, m := range mtaStr.Modules {
-		if buildops.PlatformsDefined(m) {
+		if buildops.PlatformDefined(m, platform) {
 			m.BuildParams = map[string]interface{}{}
 		}
 	}
@@ -99,7 +90,7 @@ func adaptMtadForDeployment(mtaStr *mta.MTA, platform string) {
 	for doCleaning := true; doCleaning; {
 		doCleaning = false
 		for i, m := range mtaStr.Modules {
-			if !buildops.PlatformsDefined(m) {
+			if !buildops.PlatformDefined(m, platform) {
 				// join slices before and after removed module
 				mtaStr.Modules = mtaStr.Modules[:i+copy(mtaStr.Modules[i:], mtaStr.Modules[i+1:])]
 				doCleaning = true

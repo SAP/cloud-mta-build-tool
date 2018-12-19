@@ -18,7 +18,7 @@ tdir:
 	@mkdir -p "$(MTR_DIR)"
 # Validate mta.yaml
 validate:
-	@mbt validate -d=dev
+	@mbt validate -d=dev -p=${p}
 # Set the current project repository path for general mta process
   PROJ_DIR := $(CURDIR)
 
