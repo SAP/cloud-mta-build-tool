@@ -16,13 +16,13 @@ import (
 )
 
 // ExecuteBuild - executes build of module
-func ExecuteBuild(source, target, desc, moduleName, platfrom string, wdGetter func() (string, error)) error {
+func ExecuteBuild(source, target, desc, moduleName, platform string, wdGetter func() (string, error)) error {
 	logs.Logger.Infof("Build of module  <%v> started", moduleName)
 	loc, err := dir.Location(source, target, desc, wdGetter)
 	if err != nil {
 		return errors.Wrapf(err, "Build of module <%v> failed on location initialization", moduleName)
 	}
-	err = buildModule(loc, loc, loc.IsDeploymentDescriptor(), moduleName, platfrom)
+	err = buildModule(loc, loc, loc.IsDeploymentDescriptor(), moduleName, platform)
 	if err != nil {
 		return errors.Wrapf(err, "Build of module <%v> failed", moduleName)
 	}
