@@ -2,20 +2,13 @@ version=0.0.0
 ifndef p
 $(error platform flag is expected. e.g. use make -f makefile.mta p=cf)
 endif
-# Create folder for build artifacts
-DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
-BASE := $(notdir $(patsubst %/,%,$(DIR)))
-MTR_DIR := $(DIR)$(BASE)
 # Determine OS cores
 NPROCS = $(shell echo %NUMBER_OF_PROCESSORS%)
 MAKEFLAGS += -j$(NPROCS)
 # List of all the recipes to be executed during the build process
 .PHONY: ui meta mtar cleanup
 # Default target compile all
-all: tdir validate ui meta mtar cleanup
-# Create folder for build artifacts
-tdir:
-	@mkdir -p "$(MTR_DIR)"
+all: validate ui meta mtar cleanup
 # Validate mta.yaml
 validate:
 	@mbt validate -d=dev
