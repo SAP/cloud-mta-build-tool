@@ -2,13 +2,30 @@ package exec
 
 import (
 	"os"
+	"os/exec"
 	"path/filepath"
 	"time"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
+	"github.com/pkg/errors"
 )
+
+type testStr struct {
+}
+
+func (s *testStr) Read(p []byte) (n int, err error) {
+	return 0, errors.New("err")
+}
+
+func (s *testStr) Write(p []byte) (n int, err error) {
+	return 0, errors.New("err")
+}
+
+func (s *testStr) Close() error {
+	return errors.New("err")
+}
 
 var _ = Describe("Execute", func() {
 
@@ -27,6 +44,15 @@ var _ = Describe("Execute", func() {
 			Entry("Invalid command", [][]string{{"", "dateXXX"}}),
 		)
 	})
+
+	var _ = DescribeTable("executeCommand Failures",
+		func(cmd *exec.Cmd) {
+			Ω(executeCommand(cmd, []string{})).Should(HaveOccurred())
+		},
+
+		Entry("fails on StdoutPipe", &exec.Cmd{Stdout: &testStr{}}),
+		Entry("fails on StderrPipe", &exec.Cmd{Stderr: &testStr{}}),
+	)
 
 	It("Indicator", func() {
 		// var wg sync.WaitGroup
