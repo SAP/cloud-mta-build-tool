@@ -11,7 +11,7 @@ MAKEFLAGS += -j$(NPROCS)
 all: validate ui meta mtar cleanup
 # Validate mta.yaml
 validate:
-	@mbt validate -d=dev -p=${p}
+	@mbt validate -d=dev
 # Set the current project repository path for general mta process
   PROJ_DIR := $(CURDIR)
 
@@ -23,7 +23,7 @@ modules = ui
 ui:
 	@cd $(PROJ_DIR)/ui && grunt
 # Pack module build artifacts
-	@mbt module pack -m=ui
+	@mbt module pack -m=ui -p=${p}
 
 
 # Create META-INF folder with MANIFEST.MF & mtad.yaml
@@ -37,3 +37,4 @@ mtar: $(modules) meta
 cleanup: mtar
 # Remove tmp folder
 	@mbt cleanup
+

@@ -16,7 +16,10 @@
     "ineffassign",
     "misspell",
     "gotypex",
-    "vetshadow"
+    "vetshadow",
+    "maligned",
+    "goconst",
+    "interfacer"
   ],
   "Cyclo": 10,
   "LineLength": 120

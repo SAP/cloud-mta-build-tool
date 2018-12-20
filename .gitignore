@@ -6,6 +6,7 @@
 cmd/internal/
 vendor
 release
+config.json
 
 # Binaries for programs and plugins
 *.so
