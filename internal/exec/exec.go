@@ -85,7 +85,7 @@ func executeCommand(cmd *exec.Cmd, params []string) error {
 	return nil
 }
 
-func scanner(stdout io.ReadCloser, stderr io.ReadCloser) (*bufio.Scanner, *bufio.Scanner) {
+func scanner(stdout io.Reader, stderr io.Reader) (*bufio.Scanner, *bufio.Scanner) {
 	scanout := bufio.NewScanner(stdout)
 	scanerr := bufio.NewScanner(stderr)
 	// instructs the scanner to read the input by runes instead of the default by-lines.

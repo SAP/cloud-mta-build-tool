@@ -11,6 +11,7 @@ import (
 const (
 	dep  = "dep"
 	mtad = "mtad.yaml"
+	dev  = "dev"
 )
 
 // IMtaParser - MTA Parser interface
@@ -87,7 +88,7 @@ func (ep *Loc) GetSource() string {
 // GetDescriptor - gets descriptor type of Location
 func (ep *Loc) GetDescriptor() string {
 	if ep.Descriptor == "" {
-		return "dev"
+		return dev
 	}
 
 	return ep.Descriptor
@@ -167,7 +168,7 @@ func (ep *Loc) GetManifestPath() string {
 
 // ValidateDeploymentDescriptor validates the deployment descriptor.
 func ValidateDeploymentDescriptor(descriptor string) error {
-	if descriptor != "" && descriptor != "dev" && descriptor != dep {
+	if descriptor != "" && descriptor != dev && descriptor != dep {
 		return errors.New("Wrong descriptor value. Expected one of [dev, dep]. Default is dev")
 	}
 	return nil
@@ -208,9 +209,9 @@ func Location(source, target, descriptor string, wdGetter func() (string, error)
 	}
 
 	var mtaFilename string
-	if descriptor == "dev" || descriptor == "" {
+	if descriptor == dev || descriptor == "" {
 		mtaFilename = "mta.yaml"
-		descriptor = "dev"
+		descriptor = dev
 	} else {
 		mtaFilename = "mtad.yaml"
 		descriptor = "dep"

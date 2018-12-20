@@ -2,7 +2,6 @@
 
 package integration_test
 
-
 import (
 	"bytes"
 	"fmt"
