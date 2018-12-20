@@ -44,6 +44,7 @@ var _ = Describe("Commands", func() {
 			// Target path has to be dir, but is currently created and opened as file
 			packCmdModule = "ui5app"
 			packCmdSrc = getTestPath("mtahtml5")
+			packCmdPlatform = "cf"
 			ep := dir.Loc{SourcePath: packCmdSrc, TargetPath: packCmdTrg}
 			targetTmpDir := ep.GetTargetTmpDir()
 			err := os.MkdirAll(targetTmpDir, os.ModePerm)

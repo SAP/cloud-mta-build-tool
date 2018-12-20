@@ -49,38 +49,40 @@ builders:
 	var _ = Describe("ExecuteBuild", func() {
 
 		It("Sanity", func() {
-			Ω(ExecuteBuild(getTestPath("mta"), getTestPath("result"), "dev", "node-js", os.Getwd)).Should(Succeed())
+			Ω(ExecuteBuild(getTestPath("mta"), getTestPath("result"), "dev", "node-js", "cf", os.Getwd)).Should(Succeed())
 			loc := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getTestPath("result")}
 			Ω(loc.GetTargetModuleZipPath("node-js")).Should(BeAnExistingFile())
 
 		})
 
 		It("Fails on location initialization", func() {
-			Ω(ExecuteBuild("", "", "dev", "ui5app", func() (string, error) {
+			Ω(ExecuteBuild("", "", "dev", "ui5app", "cf", func() (string, error) {
 				return "", errors.New("err")
 			})).Should(HaveOccurred())
 		})
 
 		It("Fails on wrong module", func() {
-			Ω(ExecuteBuild(getTestPath("mta"), getTestPath("result"), "dev", "ui5app", os.Getwd)).Should(HaveOccurred())
+			Ω(ExecuteBuild(getTestPath("mta"), getTestPath("result"), "dev", "ui5app", "cf", os.Getwd)).Should(HaveOccurred())
 		})
 	})
 
 	var _ = Describe("ExecutePack", func() {
 		It("Sanity", func() {
-			Ω(ExecutePack(getTestPath("mta"), getTestPath("result"), "dev", "node-js", os.Getwd)).Should(Succeed())
+			Ω(ExecutePack(getTestPath("mta"), getTestPath("result"), "dev", "node-js",
+				"cf", os.Getwd)).Should(Succeed())
 			loc := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getTestPath("result")}
 			Ω(loc.GetTargetModuleZipPath("node-js")).Should(BeAnExistingFile())
 		})
 
 		It("Fails on location initialization", func() {
-			Ω(ExecutePack("", "", "dev", "ui5app", func() (string, error) {
+			Ω(ExecutePack("", "", "dev", "ui5app", "cf", func() (string, error) {
 				return "", errors.New("err")
 			})).Should(HaveOccurred())
 		})
 
 		It("Fails on wrong module", func() {
-			Ω(ExecutePack(getTestPath("mta"), getTestPath("result"), "dev", "ui5appx", os.Getwd)).Should(HaveOccurred())
+			Ω(ExecutePack(getTestPath("mta"), getTestPath("result"), "dev", "ui5appx",
+				"cf", os.Getwd)).Should(HaveOccurred())
 		})
 	})
 
@@ -91,7 +93,7 @@ builders:
 				TargetPath: getTestPath("result"),
 				Descriptor: "dep",
 			}
-			Ω(packModule(&ep, true, &m, "node-js")).Should(Succeed())
+			Ω(packModule(&ep, true, &m, "node-js", "cf")).Should(Succeed())
 			Ω(getTestPath("result", "mta_with_zipped_module", "node-js", "data.zip")).Should(BeAnExistingFile())
 		})
 
@@ -108,8 +110,9 @@ builders:
 					buildops.SupportedPlatformsParam: []string{},
 				},
 			}
-			Ω(packModule(&ep, false, &mNoPlatforms, "node-js")).Should(Succeed())
-			Ω(getTestPath("result", "mta_with_zipped_module", "node-js", "data.zip")).ShouldNot(BeAnExistingFile())
+			Ω(packModule(&ep, false, &mNoPlatforms, "node-js", "cf")).Should(Succeed())
+			Ω(getTestPath("result", "mta_with_zipped_module", "node-js", "data.zip")).
+				ShouldNot(BeAnExistingFile())
 		})
 
 	})
@@ -139,7 +142,7 @@ builders:
 
 			It("Sanity", func() {
 				ep := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getTestPath("result")}
-				Ω(buildModule(&ep, &ep, false, "node-js")).Should(Succeed())
+				Ω(buildModule(&ep, &ep, false, "node-js", "cf")).Should(Succeed())
 				Ω(ep.GetTargetModuleZipPath("node-js")).Should(BeAnExistingFile())
 			})
 
@@ -149,14 +152,14 @@ builders:
 					TargetPath:  getTestPath("result"),
 					MtaFilename: "mta.yaml",
 					Descriptor:  "dep"}
-				Ω(buildModule(&ep, &ep, true, "node-js")).Should(Succeed())
+				Ω(buildModule(&ep, &ep, true, "node-js", "cf")).Should(Succeed())
 				Ω(ep.GetTargetModuleZipPath("node-js")).Should(BeAnExistingFile())
 			})
 
 			var _ = DescribeTable("Invalid inputs", func(projectName, mtaFilename, moduleName string) {
 				ep := dir.Loc{SourcePath: getTestPath(projectName), TargetPath: getTestPath("result"), MtaFilename: mtaFilename}
 				Ω(ep.GetTargetTmpDir()).ShouldNot(BeADirectory())
-				Ω(buildModule(&ep, &ep, false, moduleName)).Should(HaveOccurred())
+				Ω(buildModule(&ep, &ep, false, moduleName, "cf")).Should(HaveOccurred())
 				Ω(ep.GetTargetTmpDir()).ShouldNot(BeADirectory())
 			},
 				Entry("Invalid path to application", "mta1", "mta.yaml", "node-js"),

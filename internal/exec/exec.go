@@ -33,45 +33,55 @@ func Execute(cmdParams [][]string) error {
 		cmd = makeCommand(cp[1:])
 		cmd.Dir = cp[0]
 
-		// During the running process get the standard output
-		stdout, err := cmd.StdoutPipe()
+		err := executeCommand(cmd, cp[1:])
 		if err != nil {
-			return errors.Wrapf(err, "%s cmd.StdoutPipe() error", cp[1:])
+			return err
 		}
-		// During the running process get the standard output
-		stderr, err := cmd.StderrPipe()
-		if err != nil {
-			return errors.Wrapf(err, "%s cmd.StderrPipe() error", cp[1:])
-		}
-
-		// Start indicator
-		shutdownCh := make(chan struct{})
-		go indicator(shutdownCh)
-
-		// Execute the process immediately
-		if err = cmd.Start(); err != nil {
-			return errors.Wrapf(err, "%s command start error", cp[1:])
-		}
-		// Stream command output:
-		// Creates a bufio.Scanner that will read from the pipe
-		// that supplies the output written by the process.
-		scanout, scanerr := scanner(stdout, stderr)
-
-		if scanout.Err() != nil {
-			return errors.Wrapf(err, "%s scanout error", cp[1:])
-		}
-
-		if scanerr.Err() != nil {
-			return errors.Wrapf(err, "Reading %s stderr error", cp[1:])
-		}
-		// Get execution success or failure:
-		if err = cmd.Wait(); err != nil {
-			return errors.Wrapf(err, "Error running %s", cp[1:])
-		}
-		close(shutdownCh) // Signal indicator() to terminate
-		logs.Logger.Infof("Finished %s", cp[1:])
 
 	}
+	return nil
+}
+
+// executeCommand - executes individual command
+func executeCommand(cmd *exec.Cmd, params []string) error {
+
+	// During the running process get the standard output
+	stdout, err := cmd.StdoutPipe()
+	if err != nil {
+		return errors.Wrapf(err, "%s cmd.StdoutPipe() error", params)
+	}
+	// During the running process get the standard output
+	stderr, err := cmd.StderrPipe()
+	if err != nil {
+		return errors.Wrapf(err, "%s cmd.StderrPipe() error", params)
+	}
+
+	// Start indicator
+	shutdownCh := make(chan struct{})
+	go indicator(shutdownCh)
+
+	// Execute the process immediately
+	if err = cmd.Start(); err != nil {
+		return errors.Wrapf(err, "%s command start error", params)
+	}
+	// Stream command output:
+	// Creates a bufio.Scanner that will read from the pipe
+	// that supplies the output written by the process.
+	scanout, scanerr := scanner(stdout, stderr)
+
+	if scanout.Err() != nil {
+		return errors.Wrapf(err, "%s scanout error", params)
+	}
+
+	if scanerr.Err() != nil {
+		return errors.Wrapf(err, "Reading %s stderr error", params)
+	}
+	// Get execution success or failure:
+	if err = cmd.Wait(); err != nil {
+		return errors.Wrapf(err, "Error running %s", params)
+	}
+	close(shutdownCh) // Signal indicator() to terminate
+	logs.Logger.Infof("Finished %s", params)
 	return nil
 }
 

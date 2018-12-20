@@ -134,15 +134,28 @@ func getRequiredTargetPath(ep dir.ISourceModule, module *mta.Module, requires *B
 	return path
 }
 
-// PlatformsDefined - if platforms defined
-// Only empty list of platforms indicates no platforms defined
-func PlatformsDefined(module *mta.Module) bool {
+// PlatformDefined - if platform defined
+// If platforms parameter not defined then no limitations on platform, method returns true
+// Non empty list of platforms has to contain specific platform
+func PlatformDefined(module *mta.Module, platform string) bool {
 	if module.BuildParams == nil || module.BuildParams[SupportedPlatformsParam] == nil {
 		return true
 	}
 	supportedPlatforms := module.BuildParams[SupportedPlatformsParam]
 	if reflect.TypeOf(supportedPlatforms).Elem().Kind() == reflect.String {
-		return len(supportedPlatforms.([]string)) > 0
+		sp := supportedPlatforms.([]string)
+		for _, p := range sp {
+			if p == platform {
+				return true
+			}
+		}
+		return false
 	}
-	return len(supportedPlatforms.([]interface{})) > 0
+	sp := supportedPlatforms.([]interface{})
+	for _, p := range sp {
+		if p.(string) == platform {
+			return true
+		}
+	}
+	return false
 }

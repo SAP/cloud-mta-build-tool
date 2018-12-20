@@ -125,7 +125,7 @@ var _ = Describe("Process complex list of requirements", func() {
 
 })
 
-var _ = Describe("PlatformsDefined", func() {
+var _ = Describe("PlatformDefined", func() {
 	It("No platforms", func() {
 		m := mta.Module{
 			Name: "x",
@@ -133,14 +133,50 @@ var _ = Describe("PlatformsDefined", func() {
 				SupportedPlatformsParam: []string{},
 			},
 		}
-		Ω(PlatformsDefined(&m)).Should(Equal(false))
+		Ω(PlatformDefined(&m, "cf")).Should(Equal(false))
 	})
 	It("All platforms", func() {
 		m := mta.Module{
 			Name:        "x",
 			BuildParams: map[string]interface{}{},
 		}
-		Ω(PlatformsDefined(&m)).Should(Equal(true))
+		Ω(PlatformDefined(&m, "cf")).Should(Equal(true))
+	})
+	It("Matching platform", func() {
+		m := mta.Module{
+			Name: "x",
+			BuildParams: map[string]interface{}{
+				SupportedPlatformsParam: []string{"cf"},
+			},
+		}
+		Ω(PlatformDefined(&m, "cf")).Should(Equal(true))
+	})
+	It("Not Matching platform", func() {
+		m := mta.Module{
+			Name: "x",
+			BuildParams: map[string]interface{}{
+				SupportedPlatformsParam: []string{"neo"},
+			},
+		}
+		Ω(PlatformDefined(&m, "cf")).Should(Equal(false))
+	})
+	It("Matching platform - interface", func() {
+		m := mta.Module{
+			Name: "x",
+			BuildParams: map[string]interface{}{
+				SupportedPlatformsParam: []interface{}{"cf"},
+			},
+		}
+		Ω(PlatformDefined(&m, "cf")).Should(Equal(true))
+	})
+	It("Not Matching platform - interface", func() {
+		m := mta.Module{
+			Name: "x",
+			BuildParams: map[string]interface{}{
+				SupportedPlatformsParam: []interface{}{"neo"},
+			},
+		}
+		Ω(PlatformDefined(&m, "cf")).Should(Equal(false))
 	})
 })
 

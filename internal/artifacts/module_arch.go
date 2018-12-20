@@ -16,13 +16,13 @@ import (
 )
 
 // ExecuteBuild - executes build of module
-func ExecuteBuild(source, target, desc, moduleName string, wdGetter func() (string, error)) error {
+func ExecuteBuild(source, target, desc, moduleName, platform string, wdGetter func() (string, error)) error {
 	logs.Logger.Infof("Build of module  <%v> started", moduleName)
 	loc, err := dir.Location(source, target, desc, wdGetter)
 	if err != nil {
 		return errors.Wrapf(err, "Build of module <%v> failed on location initialization", moduleName)
 	}
-	err = buildModule(loc, loc, loc.IsDeploymentDescriptor(), moduleName)
+	err = buildModule(loc, loc, loc.IsDeploymentDescriptor(), moduleName, platform)
 	if err != nil {
 		return errors.Wrapf(err, "Build of module <%v> failed", moduleName)
 	}
@@ -31,7 +31,7 @@ func ExecuteBuild(source, target, desc, moduleName string, wdGetter func() (stri
 }
 
 // ExecutePack - executes packing of module
-func ExecutePack(source, target, desc, moduleName string, wdGetter func() (string, error)) error {
+func ExecutePack(source, target, desc, moduleName, platform string, wdGetter func() (string, error)) error {
 	logs.Logger.Infof("Pack of module  <%v> started", moduleName)
 
 	loc, err := dir.Location(source, target, desc, wdGetter)
@@ -44,7 +44,7 @@ func ExecutePack(source, target, desc, moduleName string, wdGetter func() (strin
 		return errors.Wrapf(err, "Pack of module <%v> failed on getting modules and commands", moduleName)
 	}
 
-	err = packModule(loc, loc.IsDeploymentDescriptor(), module, moduleName)
+	err = packModule(loc, loc.IsDeploymentDescriptor(), module, moduleName, platform)
 	if err != nil {
 		return errors.Wrapf(err, "Pack of module <%v> failed on module packing", moduleName)
 	}
@@ -54,7 +54,7 @@ func ExecutePack(source, target, desc, moduleName string, wdGetter func() (strin
 }
 
 // buildModule - builds module
-func buildModule(mtaParser dir.IMtaParser, moduleLoc dir.IModule, deploymentDesc bool, moduleName string) error {
+func buildModule(mtaParser dir.IMtaParser, moduleLoc dir.IModule, deploymentDesc bool, moduleName, platform string) error {
 
 	logs.Logger.Infof("Module %v building started", moduleName)
 
@@ -87,11 +87,11 @@ func buildModule(mtaParser dir.IMtaParser, moduleLoc dir.IModule, deploymentDesc
 
 		// 3. Packing the modules build artifacts (include node modules)
 		// into the artifactsPath dir as data zip
-		e = packModule(moduleLoc, false, module, moduleName)
+		e = packModule(moduleLoc, false, module, moduleName, platform)
 		if e != nil {
 			return errors.Wrapf(e, "Module %v building failed on module's packing", moduleName)
 		}
-	} else if buildops.PlatformsDefined(module) {
+	} else if buildops.PlatformDefined(module, platform) {
 
 		// Deployment descriptor
 		// copy module archive to temp directory
@@ -104,9 +104,9 @@ func buildModule(mtaParser dir.IMtaParser, moduleLoc dir.IModule, deploymentDesc
 }
 
 // packModule - pack build module artifacts
-func packModule(ep dir.IModule, deploymentDesc bool, module *mta.Module, moduleName string) error {
+func packModule(ep dir.IModule, deploymentDesc bool, module *mta.Module, moduleName, platform string) error {
 
-	if !buildops.PlatformsDefined(module) {
+	if !buildops.PlatformDefined(module, platform) {
 		return nil
 	}
 
