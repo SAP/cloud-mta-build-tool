@@ -11,17 +11,17 @@ import (
 
 // ExecuteCleanup - cleanups temp artifacts
 func ExecuteCleanup(source, target, desc string, wdGetter func() (string, error)) error {
-	logs.Logger.Info("Cleanup started")
+	logs.Logger.Info("Cleanup started.")
 	// Remove temp folder
 	loc, err := dir.Location(source, target, desc, wdGetter)
 	if err != nil {
-		return errors.Wrap(err, "Cleanup failed on location initialization")
+		return errors.Wrap(err, "Cleanup failed on location initialization.")
 	}
 	targetTmpDir := loc.GetTargetTmpDir()
 	err = os.RemoveAll(targetTmpDir)
 	if err != nil {
-		return errors.Wrap(err, "Cleanup failed on target temp directory removing")
+		return errors.Wrap(err, "Cleanup failed when removing the target temp directory.")
 	}
-	logs.Logger.Info("Cleanup successfully finished")
+	logs.Logger.Info("Cleanup successfully finished.")
 	return nil
 }
