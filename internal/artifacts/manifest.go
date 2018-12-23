@@ -33,6 +33,7 @@ const (
 )
 
 // setManifetDesc - Set the MANIFEST.MF file
+//TODO should be setManifestDesc and check issue with mtad file or manifest?
 func setManifetDesc(file io.Writer, mtaStr []*mta.Module, modules []string) error {
 	// TODO create dynamically
 	_, err := fmt.Fprint(file, manifestVersion+newLine)
@@ -41,25 +42,25 @@ func setManifetDesc(file io.Writer, mtaStr []*mta.Module, modules []string) erro
 	}
 	v, err := version.GetVersion()
 	if err != nil {
-		return errors.Wrap(err, "META INFO generation failed on getting version")
+		return errors.Wrap(err, "Failed to generate the MANIFEST.MF file when getting the version")
 	}
 	_, err = fmt.Fprintf(file, "Created-By: SAP Application Archive Builder %v", v.CliVersion)
 	if err != nil {
-		return errors.Wrap(err, "META INFO generation failed")
+		return errors.Wrap(err, "Failed to generate the MANIFEST.MF file")
 	}
 	for _, mod := range mtaStr {
 		// Print only the required module to support the partial build
 		if len(modules) > 0 && mod.Name == modules[0] {
 			err := printToFile(file, mod)
 			if err != nil {
-				return errors.Wrap(err, "Error while printing values to mtad file")
+				return errors.Wrap(err, "Failed to generate the MANIFEST.MF file when printing values to the .mtad file")
 			}
 			break
 		} else if len(modules) == 0 {
 			// Print all the modules
 			err := printToFile(file, mod)
 			if err != nil {
-				return errors.Wrap(err, "Error while printing values to mtad file")
+				return errors.Wrap(err, "Failed to generate the MANIFEST.MF file when printing values to the .mtad file")
 			}
 		}
 	}
