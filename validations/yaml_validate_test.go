@@ -103,7 +103,7 @@ lastName: duck
 		Entry("required", `
 firstName: Donald
 lastName: duck
-`, `Missing required property <age> in <root>`,
+`, `missing required property <age> in <root>`,
 			property("age", required())),
 
 		Entry("required", `
@@ -144,7 +144,7 @@ lastName:
 		Entry("sequenceFailFast", `
 firstName: Hello
 lastName: World
-`, `Missing required property <missing> in <root>`,
+`, `missing required property <missing> in <root>`,
 			property("missing", sequenceFailFast(
 				required(),
 				// This second validation should not be executed as sequence breaks early.
@@ -192,7 +192,7 @@ classes:
 		expectMultipleValidationError(validateIssues,
 			[]string{
 				"property <classes[0].room> with value: <oops> must match pattern: <^[0-9]+$>",
-				"Missing required property <name> in <classes[1]>"})
+				"missing required property <name> in <classes[1]>"})
 	})
 })
 

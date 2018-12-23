@@ -25,63 +25,63 @@ type: map
 
 		Entry("Mapping", `
 type: map
-mapping: NotAMap`, `YAML Schema Error: <mapping> node must be a map`),
+mapping: NotAMap`, `invalid yaml schema: <mapping> node must be a map`),
 
 		Entry("SchemaSequenceIssue", `
 type: seq
 sequence: NotASequence
-`, `YAML Schema Error: <sequence> node must be an array`),
+`, `invalid yaml schema: <sequence> node must be an array`),
 
 		Entry("sequence One Item", `
 type: seq
 sequence:
 - 1
 - 2
-`, `YAML Schema Error: <sequence> node can only have one item`),
+`, `invalid yaml schema: <sequence> node can only have one item`),
 
 		Entry("required value not bool", `
 type: map
 mapping:
   firstName:  {required: 123}
-`, `YAML Schema Error: <required> node must be a boolean but found <123>`),
+`, `invalid yaml schema: <required> node must be a boolean but found <123>`),
 
 		Entry("sequence NestedTypeNotString", `
 type: map
 mapping:
   firstName:  {type: [1,2] }
-`, `YAML Schema Error: <type> node must be a string`),
+`, `invalid yaml schema: <type> node must be a string`),
 
 		Entry("Pattern NotString", `
 type: map
 mapping:
   firstName:  {pattern: [1,2] }
-`, `YAML Schema Error: <pattern> node must be a string`),
+`, `invalid yaml schema: <pattern> node must be a string`),
 
 		Entry("Pattern InvalidRegex", `
 type: map
 mapping:
   firstName:  {required: true, pattern: '/[a-zA-Z+/'}
-`, "YAML Schema Error: <pattern> node not valid: error parsing regexp: missing closing ]: `[a-zA-Z+`"),
+`, "invalid yaml schema: <pattern> node not valid: error parsing regexp: missing closing ]: `[a-zA-Z+`"),
 
 		Entry("Enum NotString", `
 type: enum
 enums:
   duck : 1
   dog  : 2
-`, `YAML Schema Error: enums values must be listed as array`),
+`, `invalid yaml schema: enums values must be listed as array`),
 
 		Entry("Enum NoEnumsNode", `
 type: enum
 enumos:
   - duck
   - dog
-`, `YAML Schema Error: enums values must be listed`),
+`, `invalid yaml schema: enums values must be listed`),
 
 		Entry("Enum ValueNotSimple", `
 type: enum
 enums:
   [duck, [dog, cat]]
-`, `YAML Schema Error: enum values must be simple`),
+`, `invalid yaml schema: enum values must be simple`),
 	)
 
 	var _ = DescribeTable("Valid input",
@@ -159,7 +159,7 @@ mapping:
 `, `
 firstName: Donald
 lastName: duck
-`, "Missing required property <age> in <root>"),
+`, "missing required property <age> in <root>"),
 
 		Entry("Enum", `
 type: enum
@@ -169,7 +169,7 @@ enums:
    - cat
    - mouse
    - elephant
-`, `bird`, "Enum property <root> has invalid value. Expecting one of [duck,dog,cat,mouse]"),
+`, `bird`, "enum property <root> has invalid value. expecting one of [duck,dog,cat,mouse]"),
 
 		Entry("sequence", `
 type: seq
@@ -183,7 +183,7 @@ sequence:
 
 - age: 80
   lastName: Bunny
-`, "Missing required property <name> in <root[1]>"),
+`, "missing required property <name> in <root[1]>"),
 
 		Entry("Pattern", `
 type: map

@@ -33,7 +33,7 @@ func Execute(cmdParams [][]string) error {
 		cmd = makeCommand(cp[1:])
 		cmd.Dir = cp[0]
 
-		err := executeCommand(cmd, cp[1:])
+		err := executeCommand(cmd)
 		if err != nil {
 			return err
 		}
@@ -43,17 +43,18 @@ func Execute(cmdParams [][]string) error {
 }
 
 // executeCommand - executes individual command
-func executeCommand(cmd *exec.Cmd, params []string) error {
+func executeCommand(cmd *exec.Cmd) error {
+	logs.Logger.Infof("execution of command <%v> started", cmd.Path)
 
 	// During the running process get the standard output
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
-		return errors.Wrapf(err, "%s cmd.StdoutPipe() error", params)
+		return errors.Wrapf(err, "execution of command <%v> failed when getting stdout pipe", cmd.Path)
 	}
 	// During the running process get the standard output
 	stderr, err := cmd.StderrPipe()
 	if err != nil {
-		return errors.Wrapf(err, "%s cmd.StderrPipe() error", params)
+		return errors.Wrapf(err, "execution of command <%v> failed when getting stderr pipe", cmd.Path)
 	}
 
 	// Start indicator
@@ -62,26 +63,27 @@ func executeCommand(cmd *exec.Cmd, params []string) error {
 
 	// Execute the process immediately
 	if err = cmd.Start(); err != nil {
-		return errors.Wrapf(err, "%s command start error", params)
+		return errors.Wrapf(err, "execution of command <%v> failed when starting", cmd.Path)
 	}
 	// Stream command output:
 	// Creates a bufio.Scanner that will read from the pipe
 	// that supplies the output written by the process.
 	scanout, scanerr := scanner(stdout, stderr)
 
-	if scanout.Err() != nil {
-		return errors.Wrapf(err, "%s scanout error", params)
+	if scanerr.Err() != nil {
+		return errors.Wrapf(err, "execution of command <%v> failed when scanning stdout and stderr pipes", cmd.Path)
 	}
 
-	if scanerr.Err() != nil {
-		return errors.Wrapf(err, "Reading %s stderr error", params)
+	if scanout.Err() != nil {
+		return errors.Wrapf(err, "execution of command <%v> failed when receiving error from scanout", cmd.Path)
 	}
+
 	// Get execution success or failure:
 	if err = cmd.Wait(); err != nil {
-		return errors.Wrapf(err, "Error running %s", params)
+		return errors.Wrapf(err, "execution of command <%v> failed when waiting for execution finish", cmd.Path)
 	}
 	close(shutdownCh) // Signal indicator() to terminate
-	logs.Logger.Infof("Finished %s", params)
+	logs.Logger.Infof("execution of command <%v> finished successfully", cmd.Path)
 	return nil
 }
 

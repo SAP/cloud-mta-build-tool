@@ -114,7 +114,7 @@ func forEach(checks ...YamlCheck) YamlCheck {
 func required() YamlCheck {
 	return func(yProp *simpleyaml.Yaml, path []string) YamlValidationIssues {
 		if !yProp.IsFound() {
-			return []YamlValidationIssue{{Msg: fmt.Sprintf("Missing required property <%s> in <%s>",
+			return []YamlValidationIssue{{Msg: fmt.Sprintf("missing required property <%s> in <%s>",
 				last(path),
 				buildPathString(dropRight(path)))}}
 		}
@@ -239,7 +239,7 @@ func matchesEnumValues(enumValues []string) YamlCheck {
 			}
 		}
 		if !found {
-			return []YamlValidationIssue{{Msg: fmt.Sprintf("Enum property <%s> has invalid value. Expecting one of [%s]",
+			return []YamlValidationIssue{{Msg: fmt.Sprintf("enum property <%s> has invalid value. expecting one of [%s]",
 				buildPathString(path), expectedSubset)}}
 		}
 

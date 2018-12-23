@@ -19,13 +19,13 @@ func expectSingleValidationError(actual []YamlValidationIssue, expectedMsg strin
 	Ω(numOfErrors).Should(Equal(1), "A single validation issue expected but found: <%d>", numOfErrors)
 
 	actualMsg := actual[0].Msg
-	Ω(actual[0].Msg).Should(Equal(expectedMsg), "Expecting <%s>.\n\t But found <%s>.", expectedMsg, actualMsg)
+	Ω(actual[0].Msg).Should(Equal(expectedMsg), "expecting <%s>.\n\t but found <%s>.", expectedMsg, actualMsg)
 }
 
 func expectMultipleValidationError(actualIssues []YamlValidationIssue, expectedMsgs []string) {
 	expectedNumOfErrors := len(expectedMsgs)
 	actualNumOfErrors := len(actualIssues)
-	Ω(actualNumOfErrors).Should(Equal(expectedNumOfErrors), "Wrong number of issues found expected <%d> but found: <%d>", expectedNumOfErrors, actualNumOfErrors)
+	Ω(actualNumOfErrors).Should(Equal(expectedNumOfErrors), "wrong number of issues found expected <%d> but found: <%d>", expectedNumOfErrors, actualNumOfErrors)
 
 	for _, issue := range actualIssues {
 		Ω(expectedMsgs).Should(ContainElement(issue.Msg))
@@ -34,8 +34,8 @@ func expectMultipleValidationError(actualIssues []YamlValidationIssue, expectedM
 
 func expectSingleSchemaIssue(actual []YamlValidationIssue, expectedMsg string) {
 	numOfErrors := len(actual)
-	Ω(numOfErrors).Should(Equal(1), "A single validation issue expected but found: <%d>", numOfErrors)
+	Ω(numOfErrors).Should(Equal(1), "a single validation issue expected but found: <%d>", numOfErrors)
 
 	actualMsg := actual[0]
-	Ω(actual[0].Msg).Should(Equal(expectedMsg), "Expecting <%s>.\n\t But found <%s>.", expectedMsg, actualMsg)
+	Ω(actual[0].Msg).Should(Equal(expectedMsg), "expecting <%s>.\n\t but found <%s>.", expectedMsg, actualMsg)
 }

@@ -1,6 +1,7 @@
 package logs
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/sirupsen/logrus"
@@ -65,6 +66,6 @@ func logLevel(lvl string) logrus.Level {
 	case "panic":
 		return logrus.PanicLevel
 	default:
-		panic("The specified log level is not supported.")
+		panic(fmt.Sprintf("the specified log level <%v> is not supported", lvl))
 	}
 }

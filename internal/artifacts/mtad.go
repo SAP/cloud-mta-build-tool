@@ -15,20 +15,20 @@ import (
 
 // ExecuteGenMtad - generates MTAD from MTA
 func ExecuteGenMtad(source, target, desc, platform string, wdGetter func() (string, error)) error {
-	logs.Logger.Info("Gen MTAD started")
+	logs.Logger.Info("generation of .mtad started")
 	loc, err := dir.Location(source, target, desc, wdGetter)
 	if err != nil {
-		return errors.Wrap(err, "MTAD generation failed on location initialization")
+		return errors.Wrap(err, "generation of .mtad failed when initializing the location")
 	}
 
 	mtaStr, err := loc.ParseFile()
 	if err != nil {
-		return errors.Wrap(err, "MTAD generation failed on MTA parsing")
+		return errors.Wrapf(err, "generation of .mtad failed when parsing <%v>", loc.GetMtaYamlFilename())
 	}
 
 	mtaExt, err := loc.ParseExtFile(platform)
 	if err != nil {
-		return errors.Wrap(err, "MTAD generation failed on EXT parsing")
+		return errors.Wrapf(err, "generation of .mtad failed when parsing <%v>", loc.GetMtaExtYamlPath(platform))
 	}
 
 	mta.Merge(mtaStr, mtaExt)
@@ -36,9 +36,9 @@ func ExecuteGenMtad(source, target, desc, platform string, wdGetter func() (stri
 
 	err = genMtad(mtaStr, loc, loc.IsDeploymentDescriptor(), platform)
 	if err != nil {
-		return errors.Wrap(err, "MTAD generation failed")
+		return err
 	}
-	logs.Logger.Info("Gen MTAD successfully finished")
+	logs.Logger.Info("generation of .mtad finished successfully")
 	return nil
 }
 
@@ -48,24 +48,24 @@ func genMtad(mtaStr *mta.MTA, ep dir.ITargetArtifacts, deploymentDesc bool, plat
 	metaPath := ep.GetMetaPath()
 	err := dir.CreateDirIfNotExist(metaPath)
 	if err != nil {
-		logs.Logger.Infof("Directory <%v> exists", metaPath)
+		logs.Logger.Infof("folder <%v> exists", metaPath)
 	}
 	if !deploymentDesc {
 		err = ConvertTypes(*mtaStr, platform)
 		if err != nil {
-			return errors.Wrap(err, "mtad.yaml generation failed on type conversion")
+			return errors.Wrapf(err, "generation of .mtad failed when converting types by platform <%v>", platform)
 		}
 	}
 	// Create readable Yaml before writing to file
 	mtad, err := yaml.Marshal(mtaStr)
 	if err != nil {
-		return errors.Wrap(err, "mtad.yaml generation failed on MTAD marshaling")
+		return errors.Wrap(err, "generation of .mtad failed when marshaling")
 	}
 	mtadPath := ep.GetMtadPath()
 	// Write back the MTAD to the META-INF folder
 	err = ioutil.WriteFile(mtadPath, mtad, os.ModePerm)
 	if err != nil {
-		return errors.Wrap(err, "mtad.yaml generation failed of MTAD file writing")
+		return errors.Wrap(err, "generation of .mtad failed when file writing")
 	}
 	return nil
 }

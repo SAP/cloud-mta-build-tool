@@ -15,26 +15,25 @@ const (
 
 // ExecuteGenMtar - generates MTAR
 func ExecuteGenMtar(source, target, desc string, wdGetter func() (string, error)) error {
-	logs.Logger.Info("Gen MTAR started")
+	logs.Logger.Info("generation of .mtar started")
 	loc, err := dir.Location(source, target, desc, wdGetter)
 	if err != nil {
-		return errors.Wrap(err, "Gen MTAR failed on location initialization")
+		return errors.Wrap(err, "generation of .mtar failed when initializing location")
 	}
 	err = generateMtar(loc, loc)
 	if err != nil {
-		return errors.Wrap(err, "Gen MTAR failed")
+		return err
 	}
-	logs.Logger.Info("Gen MTAR successfully finished")
+	logs.Logger.Info("generation of .mtar finished successfully")
 	return nil
 }
 
 // generateMtar - generate mtar archive from the build artifacts
 func generateMtar(targetLoc dir.ITargetPath, parser dir.IMtaParser) error {
-	logs.Logger.Info("MTAR Generation started")
 	// get MTA object
 	m, err := parser.ParseFile()
 	if err != nil {
-		return errors.Wrap(err, "MTAR Generation failed on MTA parsing")
+		return errors.Wrap(err, "generation of .mtar failed when parsing mta")
 	}
 	// get target temporary folder to be archived
 	targetTmpDir := targetLoc.GetTargetTmpDir()
@@ -43,8 +42,7 @@ func generateMtar(targetLoc dir.ITargetPath, parser dir.IMtaParser) error {
 	// archive building artifacts to mtar
 	err = dir.Archive(targetTmpDir, filepath.Join(targetDir, m.ID+mtarSuffix))
 	if err != nil {
-		return errors.Wrap(err, "MTAR Generation failed on MTAR archiving")
+		return errors.Wrap(err, "generation of .mtar failed when archiving")
 	}
-	logs.Logger.Info("MTAR Generation successfully finished")
 	return nil
 }

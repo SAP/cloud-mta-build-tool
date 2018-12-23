@@ -36,10 +36,10 @@ func (writer *testWriter) Write(p []byte) (n int, err error) {
 	return 0, errors.New("error")
 }
 
-var _ = Describe("setManifetDesc", func() {
+var _ = Describe("setManifestDesc", func() {
 	var _ = DescribeTable("Sanity", func(args []*mta.Module, expected string, modules []string) {
 		b := &bytes.Buffer{}
-		setManifetDesc(b, args, modules)
+		setManifestDesc(b, args, modules)
 		fmt.Println(b.String())
 		Ω(b.String()).Should(Equal(expected))
 	},
@@ -80,7 +80,7 @@ var _ = Describe("setManifetDesc", func() {
 			call:       0,
 			writer:     &bytes.Buffer{},
 		}
-		Ω(setManifetDesc(&w, simpleModulesList, modules)).Should(HaveOccurred())
+		Ω(setManifestDesc(&w, simpleModulesList, modules)).Should(HaveOccurred())
 	},
 		Entry("Fails on 1st line", 1, []string{}),
 		Entry("Fails on version line", 2, []string{}),
@@ -106,7 +106,7 @@ cli_version:["x"]
 		})
 
 		It("Get version fails", func() {
-			Ω(setManifetDesc(os.Stdout, simpleModulesList, []string{})).Should(HaveOccurred())
+			Ω(setManifestDesc(os.Stdout, simpleModulesList, []string{})).Should(HaveOccurred())
 		})
 	})
 
