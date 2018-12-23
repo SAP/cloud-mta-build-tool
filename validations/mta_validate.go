@@ -21,7 +21,7 @@ func GetValidationMode(validationFlag string) (bool, bool, error) {
 	case "project":
 		return false, true, nil
 	}
-	return false, false, errors.New(fmt.Sprintf("wrong validation mode <%v> (expected one of [all, schema, project])", validationFlag))
+	return false, false, fmt.Errorf("wrong validation mode <%v> (expected one of [all, schema, project])", validationFlag)
 }
 
 // MtaYaml - Validate MTA yaml

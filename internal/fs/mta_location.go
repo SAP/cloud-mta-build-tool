@@ -170,8 +170,7 @@ func (ep *Loc) GetManifestPath() string {
 // ValidateDeploymentDescriptor validates the deployment descriptor.
 func ValidateDeploymentDescriptor(descriptor string) error {
 	if descriptor != "" && descriptor != dev && descriptor != dep {
-		return errors.New(
-			fmt.Sprintf("unexpected descriptor value <%v> (expected one of [dev, dep])", descriptor))
+		return fmt.Errorf("unexpected descriptor value <%v> (expected one of [dev, dep])", descriptor)
 	}
 	return nil
 }
