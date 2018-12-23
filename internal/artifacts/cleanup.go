@@ -15,12 +15,12 @@ func ExecuteCleanup(source, target, desc string, wdGetter func() (string, error)
 	// Remove temp folder
 	loc, err := dir.Location(source, target, desc, wdGetter)
 	if err != nil {
-		return errors.Wrap(err, "Cleanup failed on location initialization.")
+		return errors.Wrap(err, "Cleanup failed when initializing the location")
 	}
 	targetTmpDir := loc.GetTargetTmpDir()
 	err = os.RemoveAll(targetTmpDir)
 	if err != nil {
-		return errors.Wrap(err, "Cleanup failed when removing the target temp directory.")
+		return errors.Wrapf(err, "Cleanup failed when removing the <%v> folder", targetTmpDir)
 	}
 	logs.Logger.Info("Cleanup successfully finished.")
 	return nil
