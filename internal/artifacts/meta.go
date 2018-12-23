@@ -11,27 +11,27 @@ import (
 
 // ExecuteGenMeta - generates metadata
 func ExecuteGenMeta(source, target, desc, platform string, wdGetter func() (string, error)) error {
-	logs.Logger.Info("Gen META started")
+	logs.Logger.Info("Generation of metadata information started")
 	loc, err := dir.Location(source, target, desc, wdGetter)
 	if err != nil {
-		return errors.Wrap(err, "Gen META failed on location initialization")
+		return errors.Wrap(err, "Generation of metadata information failed when initializing location")
 	}
 	err = generateMeta(loc, loc, loc.IsDeploymentDescriptor(), platform)
 	if err != nil {
-		return errors.Wrap(err, "Gen META failed")
+		return errors.Wrap(err, "Generation of metadata information failed")
 	}
-	logs.Logger.Info("Gen META successfully finished")
+	logs.Logger.Info("Generation of metadata information finished successfully")
 	return nil
 }
 
 // generateMeta - generate metadata artifacts
 func generateMeta(parser dir.IMtaParser, ep dir.ITargetArtifacts, deploymentDescriptor bool, platform string) error {
-	logs.Logger.Info("Starting META folder and related artifacts creation")
+	logs.Logger.Info("Starting to create the META INFO folder and its artifacts")
 
 	// parse MTA file
 	m, err := parser.ParseFile()
 	if err != nil {
-		return errors.Wrap(err, "META folder and related artifacts creation failed on MTA file parsing")
+		return errors.Wrap(err, "Creation of the META INFO folder and its artifacts failed when parsing the MTA file")
 	}
 	// read MTA extension file
 	mExt, err := parser.ParseExtFile(platform)
