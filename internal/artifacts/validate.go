@@ -10,19 +10,19 @@ import (
 
 // ExecuteValidation - executes validation of MTA
 func ExecuteValidation(source, desc, mode string, getWorkingDir func() (string, error)) error {
-	logs.Logger.Info("MBT Validation started")
+	logs.Logger.Info("validation started")
 	loc, err := dir.Location(source, "", desc, getWorkingDir)
 	if err != nil {
-		return errors.Wrap(err, "MBT Validation failed on location initialization")
+		return errors.Wrap(err, "validation failed when initializing location")
 	}
 	validateSchema, validateProject, err := validate.GetValidationMode(mode)
 	if err != nil {
-		return errors.Wrap(err, "MBT Validation failed on validation mode analysis")
+		return errors.Wrap(err, "validation failed when analyzing validation mode")
 	}
 	err = validate.MtaYaml(source, loc.GetMtaYamlFilename(), validateSchema, validateProject)
 	if err != nil {
-		return errors.Wrap(err, "MBT Validation failed")
+		return err
 	}
-	logs.Logger.Info("MBT Validation successfully finished")
+	logs.Logger.Info("validation finished successfully")
 	return nil
 }

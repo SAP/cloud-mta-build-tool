@@ -1,6 +1,7 @@
 package dir
 
 import (
+	"fmt"
 	"path/filepath"
 
 	"cloud-mta-build-tool/mta"
@@ -169,7 +170,7 @@ func (ep *Loc) GetManifestPath() string {
 // ValidateDeploymentDescriptor validates the deployment descriptor.
 func ValidateDeploymentDescriptor(descriptor string) error {
 	if descriptor != "" && descriptor != dev && descriptor != dep {
-		return errors.New("Wrong descriptor value. Expected one of [dev, dep]. Default is dev")
+		return fmt.Errorf("unexpected descriptor value <%v> (expected one of [dev, dep])", descriptor)
 	}
 	return nil
 }
@@ -205,7 +206,7 @@ func Location(source, target, descriptor string, wdGetter func() (string, error)
 
 	err := ValidateDeploymentDescriptor(descriptor)
 	if err != nil {
-		return &Loc{}, errors.Wrap(err, "Initialization of Location failed. Descriptor is not valid")
+		return &Loc{}, errors.Wrap(err, "initialization of location failed when validating descriptor")
 	}
 
 	var mtaFilename string
@@ -220,7 +221,7 @@ func Location(source, target, descriptor string, wdGetter func() (string, error)
 	if source == "" {
 		source, err = wdGetter()
 		if err != nil {
-			return &Loc{}, errors.Wrap(err, "Initialization of Location failed. Source not defined. Error on getting working directory")
+			return &Loc{}, errors.Wrap(err, "initialization of location failed when getting working directory")
 		}
 	}
 	if target == "" {

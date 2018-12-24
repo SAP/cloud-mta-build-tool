@@ -92,12 +92,16 @@ func ProcessRequirements(ep dir.ISourceModule, mta *mta.MTA, requires *BuildRequ
 	// validate module names - both in process and required
 	module, err := mta.GetModuleByName(moduleName)
 	if err != nil {
-		return errors.Wrapf(err, "Processing requirements of module %v based on module %v failed on getting module", moduleName, requires.Name)
+		return errors.Wrapf(err,
+			"processing requirements of module <%v> based on module <%v> failed when getting module",
+			moduleName, requires.Name)
 	}
 
 	requiredModule, err := mta.GetModuleByName(requires.Name)
 	if err != nil {
-		return errors.Wrapf(err, "Processing requirements of module %v based on module %v failed on getting required module", moduleName, requires.Name)
+		return errors.Wrapf(err,
+			"processing requirements of module <%v> based on module <%v> failed when getting required module",
+			moduleName, requires.Name)
 	}
 
 	// Build paths for artifacts copying
@@ -107,7 +111,9 @@ func ProcessRequirements(ep dir.ISourceModule, mta *mta.MTA, requires *BuildRequ
 	// execute copy of artifacts
 	err = dir.CopyByPatterns(sourcePath, targetPath, requires.Artifacts)
 	if err != nil {
-		return errors.Wrapf(err, "Processing requirements of module %v based on module %v failed on artifacts copying", moduleName, requiredModule.Name)
+		return errors.Wrapf(err,
+			"processing requirements of module <%v> based on module <%v> failed when copying artifacts",
+			moduleName, requiredModule.Name)
 	}
 	return nil
 }

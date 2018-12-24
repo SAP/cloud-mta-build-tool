@@ -11,27 +11,26 @@ import (
 
 // ExecuteGenMeta - generates metadata
 func ExecuteGenMeta(source, target, desc, platform string, wdGetter func() (string, error)) error {
-	logs.Logger.Info("Generation of metadata information started")
+	logs.Logger.Info("generation of metadata started")
 	loc, err := dir.Location(source, target, desc, wdGetter)
 	if err != nil {
-		return errors.Wrap(err, "Generation of metadata information failed when initializing location")
+		return errors.Wrap(err, "generation of metadata failed when initializing location")
 	}
 	err = generateMeta(loc, loc, loc.IsDeploymentDescriptor(), platform)
 	if err != nil {
-		return errors.Wrap(err, "Generation of metadata information failed")
+		return errors.Wrap(err, "generation of metadata failed")
 	}
-	logs.Logger.Info("Generation of metadata information finished successfully")
+	logs.Logger.Info("generation of metadata finished successfully")
 	return nil
 }
 
 // generateMeta - generate metadata artifacts
 func generateMeta(parser dir.IMtaParser, ep dir.ITargetArtifacts, deploymentDescriptor bool, platform string) error {
-	logs.Logger.Info("Starting to create the META INFO folder and its artifacts")
 
 	// parse MTA file
 	m, err := parser.ParseFile()
 	if err != nil {
-		return errors.Wrap(err, "Creation of the META INFO folder and its artifacts failed when parsing the MTA file")
+		return errors.Wrap(err, "generation of metadata failed when parsing the MTA file")
 	}
 	// read MTA extension file
 	mExt, err := parser.ParseExtFile(platform)
@@ -44,9 +43,8 @@ func generateMeta(parser dir.IMtaParser, ep dir.ITargetArtifacts, deploymentDesc
 	// Generate meta info dir with required content
 	err = GenMetaInfo(ep, deploymentDescriptor, platform, m, []string{})
 	if err != nil {
-		return errors.Wrap(err, "META folder and related artifacts creation failed on META Info generation")
+		return err
 	}
-	logs.Logger.Info("META folder and related artifacts creation finished successfully ")
 	return nil
 }
 
@@ -54,13 +52,13 @@ func generateMeta(parser dir.IMtaParser, ep dir.ITargetArtifacts, deploymentDesc
 func GenMetaInfo(ep dir.ITargetArtifacts, deploymentDesc bool, platform string, mtaStr *mta.MTA, modules []string) (rerr error) {
 	err := genMtad(mtaStr, ep, deploymentDesc, platform)
 	if err != nil {
-		return errors.Wrap(err, "META INFO generation failed on MTAD generation")
+		return errors.Wrap(err, "generation of metadata failed when generating .mtad")
 	}
 	// Create MANIFEST.MF file
 	manifestPath := ep.GetManifestPath()
 	file, err := dir.CreateFile(manifestPath)
 	if err != nil {
-		return errors.Wrap(err, "META INFO generation failed on manifest creation")
+		return errors.Wrap(err, "generation of metadata failed when creating manifest")
 	}
 	defer func() {
 		errClose := file.Close()
@@ -69,9 +67,9 @@ func GenMetaInfo(ep dir.ITargetArtifacts, deploymentDesc bool, platform string, 
 		}
 	}()
 	// Set the MANIFEST.MF file
-	err = setManifetDesc(file, mtaStr.Modules, modules)
+	err = setManifestDesc(file, mtaStr.Modules, modules)
 	if err != nil {
-		return errors.Wrap(err, "META INFO generation failed on manifest generation")
+		return errors.Wrap(err, "generation of metadata failed when filling manifest")
 	}
 
 	return nil

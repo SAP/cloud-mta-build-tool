@@ -54,6 +54,6 @@ resources:
 `)
 		mta, _ := mta.Unmarshal(mtaContent)
 		issues := validateYamlProject(mta, filepath.Join(wd, "testdata", "testproject"))
-		Ω(issues[0].Msg).Should(Equal("Module <ui5app2> not found in project. Expected path: <ui5app2>"))
+		Ω(issues[0].Msg).Should(Equal("modules validation failed when checking path <ui5app2> of module <ui5app2>"))
 	})
 })

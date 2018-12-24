@@ -32,39 +32,43 @@ const (
 	dataZip         = pathSep + "data.zip"
 )
 
-// setManifetDesc - Set the MANIFEST.MF file
-//TODO should be setManifestDesc and check issue with mtad file or manifest?
-func setManifetDesc(file io.Writer, mtaStr []*mta.Module, modules []string) error {
+// setManifestDesc - Set the MANIFEST.MF file
+func setManifestDesc(file io.Writer, mtaStr []*mta.Module, modules []string) error {
 	// TODO create dynamically
 	_, err := fmt.Fprint(file, manifestVersion+newLine)
 	if err != nil {
-		return errors.Wrap(err, "META INFO generation failed")
+		return errors.Wrap(err, "failed to generate the manifest file when printing manifest version")
 	}
 	v, err := version.GetVersion()
 	if err != nil {
-		return errors.Wrap(err, "Failed to generate the MANIFEST.MF file when getting the version")
+		return errors.Wrap(err, "failed to generate the manifest file when getting the CLI version")
 	}
 	_, err = fmt.Fprintf(file, "Created-By: SAP Application Archive Builder %v", v.CliVersion)
 	if err != nil {
-		return errors.Wrap(err, "Failed to generate the MANIFEST.MF file")
+		return errors.Wrap(err, "failed to generate the manifest file when printing the CLI version")
 	}
 	for _, mod := range mtaStr {
-		// Print only the required module to support the partial build
-		if len(modules) > 0 && mod.Name == modules[0] {
+		if moduleDefined(mod.Name, modules) {
 			err := printToFile(file, mod)
 			if err != nil {
-				return errors.Wrap(err, "Failed to generate the MANIFEST.MF file when printing values to the .mtad file")
-			}
-			break
-		} else if len(modules) == 0 {
-			// Print all the modules
-			err := printToFile(file, mod)
-			if err != nil {
-				return errors.Wrap(err, "Failed to generate the MANIFEST.MF file when printing values to the .mtad file")
+				return errors.Wrapf(err, "failed to generate the manifest file when printing module <%v>", mod.Name)
 			}
 		}
 	}
 	return nil
+}
+
+// moduleDefined - checks if module defined in the list
+func moduleDefined(module string, modules []string) bool {
+	if modules == nil || len(modules) == 0 {
+		return true
+	}
+	for _, m := range modules {
+		if m == module {
+			return true
+		}
+	}
+	return false
 }
 
 // printToFile - Print to manifest.mf file

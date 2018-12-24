@@ -54,7 +54,7 @@ var _ = Describe("Commands", func() {
 			f, _ := os.Create(filepath.Join(targetTmpDir, "ui5app"))
 			Ω(packModuleCmd.RunE(nil, []string{})).Should(HaveOccurred())
 			fmt.Println(str.String())
-			Ω(str.String()).Should(ContainSubstring("Pack of module ui5app failed on making directory"))
+			Ω(str.String()).Should(ContainSubstring("pack of module <ui5app> failed when creating folder"))
 
 			f.Close()
 			// cleanup command used for test temp file removal
