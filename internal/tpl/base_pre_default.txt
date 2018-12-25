@@ -3,10 +3,12 @@ version={{Version.MakeFile}}
 ifndef p
 $(error platform flag is expected. e.g. use make -f makefile.mta p=cf)
 endif
+modules := $(shell mbt provide modules -d={{.Dep}})
+modules := $(subst ],,$(subst [,,$(modules)))
 # List of all the recipes to be executed during the build process
-.PHONY: {{- range .File.Modules}} {{.Name}}{{end}} meta mtar cleanup
+.PHONY: all validate $(modules) meta mtar cleanup
 # Default target compile all
-all: validate gen meta mtar cleanup
+all: validate $(modules) meta mtar cleanup
 cores:
 # Determine OS cores
 {{"\t"}}{{ OsCore.NPROCS  }}

@@ -13,7 +13,6 @@ all:format clean dir gen build-linux build-darwin build-windows copy test
 GOCMD=go
 GOBUILD=$(GOCMD) build
 
-
 # Binary names
 BINARY_NAME=mbt
 BUILD  = $(CURDIR)/release
@@ -61,7 +60,7 @@ build-windows:
 # use for local development - > copy the new bin to go/bin path to use new compiled version
 copy:
 ifeq ($(OS),Windows_NT)
-	cp $(CURDIR)/release/$(BINARY_NAME)_windows $(MBT_PATH)/$(BINARY_NAME).exe
+	cp $(CURDIR)/release/$(BINARY_NAME)_windows $(GOPATH)/bin/$(BINARY_NAME).exe
 else
 	cp $(CURDIR)/release/$(BINARY_NAME) $(GOPATH)/bin/
 	cp $(CURDIR)/release/$(BINARY_NAME) $~/usr/local/bin/
