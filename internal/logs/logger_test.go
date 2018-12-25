@@ -48,4 +48,11 @@ var _ = Describe("logger", func() {
 		Expect(Logger).To(Equal(logger))
 	})
 
+	It("getLogLevel from os", func() {
+		osLevel := os.Getenv(MbtLogLevel)
+		os.Setenv(MbtLogLevel, logrus.DebugLevel.String())
+		Ω(getLogLevel()).Should(Equal(logrus.DebugLevel.String()))
+		os.Setenv(MbtLogLevel, osLevel)
+	})
+
 })

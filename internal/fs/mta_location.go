@@ -221,7 +221,7 @@ func Location(source, target, descriptor string, wdGetter func() (string, error)
 	if source == "" {
 		source, err = wdGetter()
 		if err != nil {
-			return &Loc{}, errors.Wrap(err, "initialization of location failed when getting working directory")
+			return &Loc{}, errors.Wrap(err, "failed to initialize location when getting working directory")
 		}
 	}
 	if target == "" {

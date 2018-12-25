@@ -23,7 +23,7 @@ func validateModules(mta *mta.MTA, projectPath string) []YamlValidationIssue {
 		_, err := ioutil.ReadDir(dirName)
 		if err != nil {
 			issues = append(issues, []YamlValidationIssue{
-				{Msg: fmt.Sprintf("modules validation failed when checking path <%s> of module <%s>",
+				{Msg: fmt.Sprintf("modules validation failed because the %s path of the %s module does not exist",
 					modulePath, module.Name)}}...)
 		}
 	}

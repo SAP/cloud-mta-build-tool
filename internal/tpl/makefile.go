@@ -30,16 +30,16 @@ type tplCfg struct {
 
 // ExecuteMake - generate makefile
 func ExecuteMake(source, target, desc, mode string, wdGetter func() (string, error)) error {
-	logs.Logger.Info("Makefile generation started")
+	logs.Logger.Info("generation of the make file started")
 	loc, err := dir.Location(source, target, desc, wdGetter)
 	if err != nil {
-		return errors.Wrap(err, "Makefile generation failed location initialization")
+		return errors.Wrap(err, "generation of the make file failed location initialization")
 	}
 	err = genMakefile(loc, loc, loc, mode)
 	if err != nil {
-		return errors.Wrap(err, "Makefile generation failed")
+		return err
 	}
-	logs.Logger.Info("Makefile generation successfully finished")
+	logs.Logger.Info("generation of the make file successfully finished")
 	return nil
 }
 
@@ -71,7 +71,7 @@ func makeFile(mtaParser dir.IMtaParser, loc dir.ITargetPath, makeFilename string
 	// ParseFile file
 	m, err := mtaParser.ParseFile()
 	if err != nil {
-		return errors.Wrap(err, "makeFile failed reading MTA yaml")
+		return errors.Wrap(err, "generation of the make file failed when reading the mta file")
 	}
 
 	// Template data
@@ -81,7 +81,7 @@ func makeFile(mtaParser dir.IMtaParser, loc dir.ITargetPath, makeFilename string
 	// Create maps of the template method's
 	t, err := mapTpl(tpl.tplContent, tpl.preContent, tpl.postContent)
 	if err != nil {
-		return errors.Wrap(err, "makeFile failed mapping template")
+		return errors.Wrap(err, "generation of the make file failed when mapping the template")
 	}
 	// path for creating the file
 	target := loc.GetTarget()
@@ -90,7 +90,7 @@ func makeFile(mtaParser dir.IMtaParser, loc dir.ITargetPath, makeFilename string
 	// Create genMakefile file for the template
 	mf, err := createMakeFile(path, makeFilename)
 	if err != nil {
-		return errors.Wrap(err, "makeFile failed on file creation")
+		return errors.Wrap(err, "generation of the make file failed when creating the file")
 	}
 	if mf != nil {
 		// Execute the template
@@ -98,9 +98,9 @@ func makeFile(mtaParser dir.IMtaParser, loc dir.ITargetPath, makeFilename string
 
 		errClose := mf.Close()
 		if err != nil && errClose != nil {
-			err = errors.Wrapf(err, "Makefile creation failed. Closing failed with %s", errClose)
+			err = errors.Wrapf(err, "generation of the make file failed. the file closing failed with the error: %s", errClose)
 		} else if errClose != nil {
-			err = errors.Wrap(errClose, "Makefile close process failed")
+			err = errors.Wrap(errClose, "generation of the make file failed when closing the file")
 		}
 	}
 	return err
@@ -136,7 +136,7 @@ func getTplCfg(mode string, isDep bool) (tplCfg, error) {
 		tpl.preContent = basePreDefault
 		tpl.postContent = basePostDefault
 	} else {
-		return tplCfg{}, errors.New("command is not supported")
+		return tplCfg{}, errors.New(fmt.Sprintf("the %s command is not supported", mode))
 	}
 	return tpl, nil
 }
@@ -156,7 +156,7 @@ func createMakeFile(path, filename string) (file *os.File, err error) {
 	fullFilename := filepath.Join(path, filename)
 	var mf *os.File
 	if _, err = os.Stat(fullFilename); err == nil {
-		logs.Logger.Warn(fmt.Sprintf("genMakefile file %s exists", fullFilename))
+		logs.Logger.Warn(fmt.Sprintf("generation of the make file failed because the %s file exists", fullFilename))
 		return nil, nil
 	}
 	mf, err = dir.CreateFile(fullFilename)

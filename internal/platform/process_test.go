@@ -48,7 +48,7 @@ platform:
    - native-type: java
      platform-type: "java.tomcat"
 `)
-		Ω(Parse(platformsCfg)).Should(Equal(platforms))
+		Ω(Unmarshal(platformsCfg)).Should(Equal(platforms))
 
 	})
 

@@ -18,17 +18,17 @@ func ExecuteGenMtad(source, target, desc, platform string, wdGetter func() (stri
 	logs.Logger.Info("generation of the .mtad file started")
 	loc, err := dir.Location(source, target, desc, wdGetter)
 	if err != nil {
-		return errors.Wrap(err, "generation of .mtad failed when initializing the location")
+		return errors.Wrap(err, "generation of the .mtad file failed when initializing the location")
 	}
 
 	mtaStr, err := loc.ParseFile()
 	if err != nil {
-		return errors.Wrapf(err, "generation of .mtad failed when parsing the %v file", loc.GetMtaYamlFilename())
+		return errors.Wrapf(err, "generation of the .mtad file failed when parsing the %v file", loc.GetMtaYamlFilename())
 	}
 
 	mtaExt, err := loc.ParseExtFile(platform)
 	if err != nil {
-		return errors.Wrapf(err, "generation of .mtad failed when parsing <%v>", loc.GetMtaExtYamlPath(platform))
+		return errors.Wrapf(err, "generation of the .mtad file failed when parsing the %v file", loc.GetMtaExtYamlPath(platform))
 	}
 
 	mta.Merge(mtaStr, mtaExt)
@@ -38,7 +38,7 @@ func ExecuteGenMtad(source, target, desc, platform string, wdGetter func() (stri
 	if err != nil {
 		return err
 	}
-	logs.Logger.Info("generation of .mtad finished successfully")
+	logs.Logger.Info("generation of the .mtad file finished successfully")
 	return nil
 }
 
@@ -48,7 +48,7 @@ func genMtad(mtaStr *mta.MTA, ep dir.ITargetArtifacts, deploymentDesc bool, plat
 	metaPath := ep.GetMetaPath()
 	err := dir.CreateDirIfNotExist(metaPath)
 	if err != nil {
-		logs.Logger.Infof("folder <%v> exists", metaPath)
+		logs.Logger.Infof("the %v folder exists", metaPath)
 	}
 	if !deploymentDesc {
 		err = ConvertTypes(*mtaStr, platform)
@@ -59,7 +59,7 @@ func genMtad(mtaStr *mta.MTA, ep dir.ITargetArtifacts, deploymentDesc bool, plat
 	// Create readable Yaml before writing to file
 	mtad, err := yaml.Marshal(mtaStr)
 	if err != nil {
-		return errors.Wrap(err, "generation of .mtad failed when marshalling")
+		return errors.Wrap(err, "generation of the .mtad file failed when marshalling the mtad object")
 	}
 	mtadPath := ep.GetMtadPath()
 	// Write back the MTAD to the META-INF folder

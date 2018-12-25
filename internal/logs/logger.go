@@ -66,6 +66,6 @@ func logLevel(lvl string) logrus.Level {
 	case "panic":
 		return logrus.PanicLevel
 	default:
-		panic(fmt.Sprintf("the specified log level <%v> is not supported", lvl))
+		panic(fmt.Sprintf("the specified %v log level is not supported", lvl))
 	}
 }
