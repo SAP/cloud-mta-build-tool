@@ -93,7 +93,7 @@ func ProcessRequirements(ep dir.ISourceModule, mta *mta.MTA, requires *BuildRequ
 	module, err := mta.GetModuleByName(moduleName)
 	if err != nil {
 		return errors.Wrapf(err,
-			"processing requirements of module <%v> based on module <%v> failed when getting module",
+			"processing requirements of the %v module based on the %v module failed when getting the %v module",
 			moduleName, requires.Name)
 	}
 
