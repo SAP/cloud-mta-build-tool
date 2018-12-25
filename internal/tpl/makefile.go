@@ -136,7 +136,7 @@ func getTplCfg(mode string, isDep bool) (tplCfg, error) {
 		tpl.preContent = basePreDefault
 		tpl.postContent = basePostDefault
 	} else {
-		return tplCfg{}, errors.New(fmt.Sprintf("the %s command is not supported", mode))
+		return tplCfg{}, fmt.Errorf("the %s command is not supported", mode)
 	}
 	return tpl, nil
 }
