@@ -20,7 +20,7 @@ func ExecuteBuild(source, target, desc, moduleName, platform string, wdGetter fu
 	logs.Logger.Infof("build of module <%v> started", moduleName)
 	loc, err := dir.Location(source, target, desc, wdGetter)
 	if err != nil {
-		return errors.Wrapf(err, "build of module <%v> failed when initializing location", moduleName)
+		return errors.Wrapf(err, "build of the %v module failed when initializing location", moduleName)
 	}
 	err = buildModule(loc, loc, loc.IsDeploymentDescriptor(), moduleName, platform)
 	if err != nil {
@@ -56,7 +56,7 @@ func ExecutePack(source, target, desc, moduleName, platform string, wdGetter fun
 // buildModule - builds module
 func buildModule(mtaParser dir.IMtaParser, moduleLoc dir.IModule, deploymentDesc bool, moduleName, platform string) error {
 
-	logs.Logger.Infof("Module %v building started", moduleName)
+	logs.Logger.Infof("build of the %v module started", moduleName)
 
 	// Get module respective command's to execute
 	module, mCmd, err := commands.GetModuleAndCommands(mtaParser, moduleName)
@@ -114,11 +114,11 @@ func packModule(ep dir.IModule, deploymentDesc bool, module *mta.Module, moduleN
 		return copyModuleArchive(ep, module.Path, moduleName)
 	}
 
-	logs.Logger.Infof("pack of module <%v> started", moduleName)
+	logs.Logger.Infof("the packing of the %v module started", moduleName)
 	// Get module relative path
 	moduleZipPath := ep.GetTargetModuleDir(moduleName)
 
-	logs.Logger.Info(fmt.Sprintf("module <%v> will be packed and saved in folder %v", moduleName, moduleZipPath))
+	logs.Logger.Info(fmt.Sprintf("the %v module will be packed and saved in the %v folder", moduleName, moduleZipPath))
 	// Create empty folder with name as before the zip process
 	// to put the file such as data.zip inside
 	err := os.MkdirAll(moduleZipPath, os.ModePerm)
@@ -140,7 +140,7 @@ func packModule(ep dir.IModule, deploymentDesc bool, module *mta.Module, moduleN
 
 // copyModuleArchive - copies module archive to temp directory
 func copyModuleArchive(ep dir.IModule, modulePath, moduleName string) error {
-	logs.Logger.Infof("copy of archive of module <%v> started", moduleName)
+	logs.Logger.Infof("the copying of the %v module's archive started", moduleName)
 	srcModulePath := ep.GetSourceModuleDir(modulePath)
 	moduleSrcZip := filepath.Join(srcModulePath, "data.zip")
 	moduleTrgZipPath := ep.GetTargetModuleDir(moduleName)
@@ -153,7 +153,7 @@ func copyModuleArchive(ep dir.IModule, modulePath, moduleName string) error {
 	moduleTrgZip := filepath.Join(moduleTrgZipPath, "data.zip")
 	err = dir.CopyFile(moduleSrcZip, filepath.Join(moduleTrgZipPath, "data.zip"))
 	if err != nil {
-		return errors.Wrapf(err, "copy of archive of module <%v> failed when copying <%v> to <%v>", moduleName, moduleSrcZip, moduleTrgZip)
+		return errors.Wrapf(err, "the copying of the %v module's archive failed when copying %v to %v", moduleName, moduleSrcZip, moduleTrgZip)
 	}
 	return nil
 }
