@@ -30,7 +30,7 @@ func generateMeta(parser dir.IMtaParser, ep dir.ITargetArtifacts, deploymentDesc
 	// parse MTA file
 	m, err := parser.ParseFile()
 	if err != nil {
-		return errors.Wrap(err, "generation of metadata failed when parsing the MTA file")
+		return errors.Wrap(err, "generation of metadata failed when parsing the mta file")
 	}
 	// read MTA extension file
 	mExt, err := parser.ParseExtFile(platform)
@@ -52,13 +52,13 @@ func generateMeta(parser dir.IMtaParser, ep dir.ITargetArtifacts, deploymentDesc
 func GenMetaInfo(ep dir.ITargetArtifacts, deploymentDesc bool, platform string, mtaStr *mta.MTA, modules []string) (rerr error) {
 	err := genMtad(mtaStr, ep, deploymentDesc, platform)
 	if err != nil {
-		return errors.Wrap(err, "generation of metadata failed when generating .mtad")
+		return errors.Wrap(err, "generation of metadata failed when generating the .mtad file")
 	}
 	// Create MANIFEST.MF file
 	manifestPath := ep.GetManifestPath()
 	file, err := dir.CreateFile(manifestPath)
 	if err != nil {
-		return errors.Wrap(err, "generation of metadata failed when creating manifest")
+		return errors.Wrap(err, "generation of metadata failed when creating the manifest file")
 	}
 	defer func() {
 		errClose := file.Close()
@@ -69,7 +69,7 @@ func GenMetaInfo(ep dir.ITargetArtifacts, deploymentDesc bool, platform string, 
 	// Set the MANIFEST.MF file
 	err = setManifestDesc(file, mtaStr.Modules, modules)
 	if err != nil {
-		return errors.Wrap(err, "generation of metadata failed when filling manifest")
+		return errors.Wrap(err, "generation of metadata failed when filling the manifest")
 	}
 
 	return nil
@@ -78,7 +78,7 @@ func GenMetaInfo(ep dir.ITargetArtifacts, deploymentDesc bool, platform string, 
 // ConvertTypes - convert types to appropriate target platform types
 func ConvertTypes(mtaStr mta.MTA, platformName string) error {
 	// Load platform configuration file
-	platformCfg, err := platform.Parse(platform.PlatformConfig)
+	platformCfg, err := platform.Unmarshal(platform.PlatformConfig)
 	if err == nil {
 		// Modify MTAD object according to platform types
 		platform.ConvertTypes(mtaStr, platformCfg, platformName)

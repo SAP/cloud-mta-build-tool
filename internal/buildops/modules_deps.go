@@ -111,7 +111,7 @@ func resolveGraph(graph *graphs, m *mta.MTA) ([]string, error) {
 		// If there aren't any ready nodes, then we have a circular dependency
 		if readyNodesSet.Cardinality() == 0 {
 			module1, module2 := provideCyclicModules(&overleft)
-			return nil, errors.Errorf("circular dependency found between modules <%v> and <%v>", module1, module2)
+			return nil, errors.Errorf("circular dependency found between modules %v and %v", module1, module2)
 		}
 		// Remove the ready nodes and add them to the resolved graphs
 		readyModulesIndexes := mapset.NewSet()

@@ -157,7 +157,7 @@ makefile_version: 0.0.0
 		)
 		It("unknown mode", func() {
 			_, err := getTplCfg("test", false)
-			Ω(err).Should(MatchError("command is not supported"))
+			Ω(err).Should(MatchError("the test command is not supported"))
 		})
 	})
 })

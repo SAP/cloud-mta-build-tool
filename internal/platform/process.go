@@ -7,12 +7,12 @@ import (
 	"cloud-mta-build-tool/mta"
 )
 
-// Parse - parse platform config
-func Parse(data []byte) (Platforms, error) {
+// Unmarshal - unmarshal platform config
+func Unmarshal(data []byte) (Platforms, error) {
 	platforms := Platforms{}
 	err := yaml.Unmarshal(data, &platforms)
 	if err != nil {
-		return platforms, errors.Wrap(err, "Yaml file is not valid")
+		return platforms, errors.Wrap(err, "unmarshalling of the platforms failed")
 	}
 	return platforms, nil
 }

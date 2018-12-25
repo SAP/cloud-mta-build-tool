@@ -49,12 +49,12 @@ func executeCommand(cmd *exec.Cmd) error {
 	// During the running process get the standard output
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
-		return errors.Wrapf(err, "execution of command <%v> failed when getting stdout pipe", cmd.Path)
+		return errors.Wrapf(err, "execution of the %v command failed when getting the stdout pipe", cmd.Path)
 	}
 	// During the running process get the standard output
 	stderr, err := cmd.StderrPipe()
 	if err != nil {
-		return errors.Wrapf(err, "execution of command <%v> failed when getting stderr pipe", cmd.Path)
+		return errors.Wrapf(err, "execution of the %v command failed when getting the stderr pipe", cmd.Path)
 	}
 
 	// Start indicator
@@ -63,7 +63,7 @@ func executeCommand(cmd *exec.Cmd) error {
 
 	// Execute the process immediately
 	if err = cmd.Start(); err != nil {
-		return errors.Wrapf(err, "execution of command <%v> failed when starting", cmd.Path)
+		return errors.Wrapf(err, "execution of the %v command failed when starting", cmd.Path)
 	}
 	// Stream command output:
 	// Creates a bufio.Scanner that will read from the pipe
@@ -71,7 +71,7 @@ func executeCommand(cmd *exec.Cmd) error {
 	scanout, scanerr := scanner(stdout, stderr)
 
 	if scanerr.Err() != nil {
-		return errors.Wrapf(err, "execution of command <%v> failed when scanning stdout and stderr pipes", cmd.Path)
+		return errors.Wrapf(err, "execution of the %v command failed when scanning the stdout and stderr pipes", cmd.Path)
 	}
 
 	if scanout.Err() != nil {
@@ -83,7 +83,7 @@ func executeCommand(cmd *exec.Cmd) error {
 		return errors.Wrapf(err, "execution of the %v command failed when waiting for the execution to finish", cmd.Path)
 	}
 	close(shutdownCh) // Signal indicator() to terminate
-	logs.Logger.Infof("execution of command <%v> finished successfully", cmd.Path)
+	logs.Logger.Infof("execution of the %v command finished successfully", cmd.Path)
 	return nil
 }
 

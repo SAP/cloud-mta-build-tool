@@ -9,6 +9,7 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"github.com/pkg/errors"
 
 	"cloud-mta-build-tool/internal/fs"
 	"cloud-mta-build-tool/mta"
@@ -22,8 +23,12 @@ var _ = Describe("ModulesDeps", func() {
 		})
 
 		It("Sanity", func() {
-			ep := dir.Loc{SourcePath: getTestPath("mtahtml5"), MtaFilename: "mtaWithBuildParams.yaml"}
+			ep := dir.Loc{SourcePath: getTestPath("mtahtml5"), TargetPath: getTestPath("result"), MtaFilename: "mtaWithBuildParams.yaml"}
 			Ω(ProcessDependencies(&ep, &ep, "ui5app")).Should(Succeed())
+		})
+		It("Invalid artifacts", func() {
+			ep := dir.Loc{SourcePath: getTestPath("mtahtml5"), TargetPath: getTestPath("result"), MtaFilename: "mtaWithBuildParamsWithWrongArtifacts.yaml"}
+			Ω(ProcessDependencies(&ep, &ep, "ui5app")).Should(HaveOccurred())
 		})
 		It("Invalid mta", func() {
 			ep := dir.Loc{SourcePath: getTestPath("mtahtml5"), MtaFilename: "mta1.yaml"}
@@ -106,6 +111,12 @@ var _ = Describe("Provide", func() {
 
 	It("Invalid modules dependencies", func() {
 		Ω(ProvideModules(filepath.Join("testdata", "testWithWrongBuildParams"), "dev", os.Getwd)).Should(HaveOccurred())
+	})
+
+	It("Invalid working folder getter", func() {
+		Ω(ProvideModules("", "dev", func() (string, error) {
+			return "", errors.New("err")
+		})).Should(HaveOccurred())
 	})
 
 })

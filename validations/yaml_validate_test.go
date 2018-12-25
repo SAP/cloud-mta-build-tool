@@ -97,13 +97,13 @@ lastName: duck
 		Entry("matchesRegExp", `
 firstName: Donald
 lastName: duck
-`, `property <root.firstName> with value: <Donald> must match pattern: <^[0-9_\-\.]+$>`,
+`, `the root.firstName property with the Donald value does not match the ^[0-9_\-\.]+$ pattern`,
 			property("firstName", matchesRegExp("^[0-9_\\-\\.]+$"))),
 
 		Entry("required", `
 firstName: Donald
 lastName: duck
-`, `missing required property <age> in <root>`,
+`, `missing the age required property in root`,
 			property("age", required())),
 
 		Entry("required", `
@@ -112,13 +112,13 @@ firstName:
    - 2
    - 3
 lastName: duck
-`, `property <root.firstName> must be of type <string>`,
+`, `the root.firstName property must be of the string type`,
 			property("firstName", typeIsNotMapArray())),
 
 		Entry("TypeIsBool", `
 name: bamba
 registered: 123
-`, `property <root.registered> must be of type <Boolean>`,
+`, `the root.registered property must be of the boolean type`,
 			property("registered", typeIsBoolean())),
 
 		Entry("typeIsArray", `
@@ -127,7 +127,7 @@ firstName:
    - 2
    - 3
 lastName: duck
-`, `property <root.lastName> must be of type <Array>`,
+`, `the root.lastName property must be of the array type`,
 			property("lastName", typeIsArray())),
 
 		Entry("typeIsMap", `
@@ -138,13 +138,13 @@ firstName:
 lastName:
    a : 1
    b : 2
-`, `property <root.firstName> must be of type <Map>`,
+`, `the root.firstName property must be of the map type`,
 			property("firstName", typeIsMap())),
 
 		Entry("sequenceFailFast", `
 firstName: Hello
 lastName: World
-`, `missing required property <missing> in <root>`,
+`, `missing the missing required property in root`,
 			property("missing", sequenceFailFast(
 				required(),
 				// This second validation should not be executed as sequence breaks early.
@@ -155,7 +155,7 @@ firstName:
   - 1
   - 2
 lastName: duck
-`, `property <root.firstName> must be of type <string>`,
+`, `the root.firstName property must be of the string type`,
 			property("firstName", optional(typeIsNotMapArray()))),
 	)
 
@@ -191,8 +191,8 @@ classes:
 		assertNoParsingErrors(parseErr)
 		expectMultipleValidationError(validateIssues,
 			[]string{
-				"property <classes[0].room> with value: <oops> must match pattern: <^[0-9]+$>",
-				"missing required property <name> in <classes[1]>"})
+				"the classes[0].room property with the oops value does not match the ^[0-9]+$ pattern",
+				"missing the name required property in classes[1]"})
 	})
 })
 

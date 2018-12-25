@@ -25,43 +25,43 @@ type: map
 
 		Entry("Mapping", `
 type: map
-mapping: NotAMap`, `invalid yaml schema: <mapping> node must be a map`),
+mapping: NotAMap`, `invalid yaml schema: the mapping node must be a map`),
 
 		Entry("SchemaSequenceIssue", `
 type: seq
 sequence: NotASequence
-`, `invalid yaml schema: <sequence> node must be an array`),
+`, `invalid yaml schema: the sequence node must be an array`),
 
 		Entry("sequence One Item", `
 type: seq
 sequence:
 - 1
 - 2
-`, `invalid yaml schema: <sequence> node can only have one item`),
+`, `invalid yaml schema: the sequence node can have only one item`),
 
 		Entry("required value not bool", `
 type: map
 mapping:
   firstName:  {required: 123}
-`, `invalid yaml schema: <required> node must be a boolean but found <123>`),
+`, `invalid yaml schema: the required node must be a boolean but found 123`),
 
 		Entry("sequence NestedTypeNotString", `
 type: map
 mapping:
   firstName:  {type: [1,2] }
-`, `invalid yaml schema: <type> node must be a string`),
+`, `invalid yaml schema: the type node must be a string`),
 
 		Entry("Pattern NotString", `
 type: map
 mapping:
   firstName:  {pattern: [1,2] }
-`, `invalid yaml schema: <pattern> node must be a string`),
+`, `invalid yaml schema: the pattern node must be a string`),
 
 		Entry("Pattern InvalidRegex", `
 type: map
 mapping:
   firstName:  {required: true, pattern: '/[a-zA-Z+/'}
-`, "invalid yaml schema: <pattern> node not valid: error parsing regexp: missing closing ]: `[a-zA-Z+`"),
+`, "invalid yaml schema: the pattern node is invalid: error parsing regexp: missing closing ]: `[a-zA-Z+`"),
 
 		Entry("Enum NotString", `
 type: enum
@@ -159,7 +159,7 @@ mapping:
 `, `
 firstName: Donald
 lastName: duck
-`, "missing required property <age> in <root>"),
+`, "missing the age required property in root"),
 
 		Entry("Enum", `
 type: enum
@@ -169,7 +169,7 @@ enums:
    - cat
    - mouse
    - elephant
-`, `bird`, "enum property <root> has invalid value. expecting one of [duck,dog,cat,mouse]"),
+`, `bird`, "the root enum property has invalid value bird. expecting one of [duck,dog,cat,mouse]"),
 
 		Entry("sequence", `
 type: seq
@@ -183,7 +183,7 @@ sequence:
 
 - age: 80
   lastName: Bunny
-`, "missing required property <name> in <root[1]>"),
+`, "missing the name required property in root[1]"),
 
 		Entry("Pattern", `
 type: map
@@ -192,7 +192,7 @@ mapping:
 `, `
 name: Bamba
 age: NaN
-`, "property <root.age> with value: <NaN> must match pattern: <^[0-9]+$>"),
+`, "the root.age property with the NaN value does not match the ^[0-9]+$ pattern"),
 
 		Entry("optional With Pattern", `
 type: map
@@ -201,7 +201,7 @@ mapping:
 `, `
 firstName: Donald123
 lastName: duck
-`, "property <root.firstName> with value: <Donald123> must match pattern: <^[a-zA-Z]+$>"),
+`, "the root.firstName property with the Donald123 value does not match the ^[a-zA-Z]+$ pattern"),
 
 		Entry("Type Is Bool", `
 type: map
@@ -210,6 +210,6 @@ mapping:
 `, `
 firstName: John
 isHappy: 123
-`, "property <root.isHappy> must be of type <Boolean>"),
+`, "the root.isHappy property must be of the boolean type"),
 	)
 })
