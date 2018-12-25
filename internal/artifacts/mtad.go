@@ -15,7 +15,7 @@ import (
 
 // ExecuteGenMtad - generates MTAD from MTA
 func ExecuteGenMtad(source, target, desc, platform string, wdGetter func() (string, error)) error {
-	logs.Logger.Info("generation of .mtad started")
+	logs.Logger.Info("generation of the .mtad file started")
 	loc, err := dir.Location(source, target, desc, wdGetter)
 	if err != nil {
 		return errors.Wrap(err, "generation of .mtad failed when initializing the location")
@@ -23,7 +23,7 @@ func ExecuteGenMtad(source, target, desc, platform string, wdGetter func() (stri
 
 	mtaStr, err := loc.ParseFile()
 	if err != nil {
-		return errors.Wrapf(err, "generation of .mtad failed when parsing <%v>", loc.GetMtaYamlFilename())
+		return errors.Wrapf(err, "generation of .mtad failed when parsing the %v file", loc.GetMtaYamlFilename())
 	}
 
 	mtaExt, err := loc.ParseExtFile(platform)
@@ -53,19 +53,19 @@ func genMtad(mtaStr *mta.MTA, ep dir.ITargetArtifacts, deploymentDesc bool, plat
 	if !deploymentDesc {
 		err = ConvertTypes(*mtaStr, platform)
 		if err != nil {
-			return errors.Wrapf(err, "generation of .mtad failed when converting types by platform <%v>", platform)
+			return errors.Wrapf(err, "generation of the .mtad file failed when converting types according to the %v platform", platform)
 		}
 	}
 	// Create readable Yaml before writing to file
 	mtad, err := yaml.Marshal(mtaStr)
 	if err != nil {
-		return errors.Wrap(err, "generation of .mtad failed when marshaling")
+		return errors.Wrap(err, "generation of .mtad failed when marshalling")
 	}
 	mtadPath := ep.GetMtadPath()
 	// Write back the MTAD to the META-INF folder
 	err = ioutil.WriteFile(mtadPath, mtad, os.ModePerm)
 	if err != nil {
-		return errors.Wrap(err, "generation of .mtad failed when file writing")
+		return errors.Wrap(err, "generation of the .mtad file failed when writing")
 	}
 	return nil
 }
