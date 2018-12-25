@@ -103,7 +103,14 @@ For background and detailed information, see The [Multi-Target Application Model
  - [ ] Supports extensibility framework
  - [ ] Full supports advanced `mta.yaml` (3.1, > 3.2) schema
 
+## Contributions
 
+Contributions are greatly appreciated.
+See [CONTRIBUTING.md](./.github/CONTRIBUTING.md) for details.
+
+### How can I obtain support?
+
+Please follow our [issue template](./.github/ISSUE_TEMPLATE/bug_report.md) on how to report an issue.
  
  
  ## License
