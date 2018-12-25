@@ -4,7 +4,7 @@ meta:
 {{"\t"}}@mbt gen meta -d={{.Dep}} -p=${p}
 
 # Pack as MTAR artifact
-mtar: gen meta
+mtar: $(modules) meta
 {{"\t"}}@mbt gen mtar -d={{.Dep}}
 
 cleanup: mtar

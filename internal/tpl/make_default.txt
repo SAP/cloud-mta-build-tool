@@ -1,10 +1,10 @@
 {{template "base_pre" .}}
-modules := $(shell mbt provide modules -d={{.Dep}})
-modules := $(subst ],,$(subst [,,$(modules)))
 
 ##Execute module build
-gen:
-{{"\t"}}@for module in $(modules) ; do \
-{{"\t"}} mbt module build -m=$$module -d={{.Dep}} -p=${p}; \
-{{"\t"}}done
+define build_rule
+$(1):
+	@mbt module build -m=$(1) -d=dev -p=${p}
+endef
+
+$(foreach mod,$(modules),$(eval $(call build_rule,$(mod))))
 {{template "base_post" .}}
