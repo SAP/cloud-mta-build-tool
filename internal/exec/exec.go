@@ -75,12 +75,12 @@ func executeCommand(cmd *exec.Cmd) error {
 	}
 
 	if scanout.Err() != nil {
-		return errors.Wrapf(err, "execution of command <%v> failed when receiving error from scanout", cmd.Path)
+		return errors.Wrapf(err, "execution of the %v command failed when receiving an error from the scanout object", cmd.Path)
 	}
 
 	// Get execution success or failure:
 	if err = cmd.Wait(); err != nil {
-		return errors.Wrapf(err, "execution of command <%v> failed when waiting for execution finish", cmd.Path)
+		return errors.Wrapf(err, "execution of the %v command failed when waiting for the execution to finish", cmd.Path)
 	}
 	close(shutdownCh) // Signal indicator() to terminate
 	logs.Logger.Infof("execution of command <%v> finished successfully", cmd.Path)
