@@ -33,7 +33,7 @@ func generateMtar(targetLoc dir.ITargetPath, parser dir.IMtaParser) error {
 	// get MTA object
 	m, err := parser.ParseFile()
 	if err != nil {
-		return errors.Wrap(err, "generation of .mtar failed when parsing mta")
+		return errors.Wrap(err, "generation of the .mtar file failed when parsing the mta file")
 	}
 	// get target temporary folder to be archived
 	targetTmpDir := targetLoc.GetTargetTmpDir()
