@@ -18,7 +18,7 @@ func ExecuteGenMtad(source, target, desc, platform string, wdGetter func() (stri
 	logs.Logger.Info("generation of the .mtad file started")
 	loc, err := dir.Location(source, target, desc, wdGetter)
 	if err != nil {
-		return errors.Wrap(err, "generation of the .mtad file failed when initializing the location")
+		return errors.Wrap(err, "generation of the .mtad file failed when initializing location")
 	}
 
 	mtaStr, err := loc.ParseFile()
@@ -48,7 +48,7 @@ func genMtad(mtaStr *mta.MTA, ep dir.ITargetArtifacts, deploymentDesc bool, plat
 	metaPath := ep.GetMetaPath()
 	err := dir.CreateDirIfNotExist(metaPath)
 	if err != nil {
-		logs.Logger.Infof("the %v folder exists", metaPath)
+		logs.Logger.Infof("the %v folder already exists", metaPath)
 	}
 	if !deploymentDesc {
 		err = ConvertTypes(*mtaStr, platform)

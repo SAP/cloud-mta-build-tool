@@ -33,13 +33,13 @@ func ExecuteMake(source, target, desc, mode string, wdGetter func() (string, err
 	logs.Logger.Info("generation of the make file started")
 	loc, err := dir.Location(source, target, desc, wdGetter)
 	if err != nil {
-		return errors.Wrap(err, "generation of the make file failed location initialization")
+		return errors.Wrap(err, "generation of the make file failed when initializing location")
 	}
 	err = genMakefile(loc, loc, loc, mode)
 	if err != nil {
 		return err
 	}
-	logs.Logger.Info("generation of the make file successfully finished")
+	logs.Logger.Info("generation of the make file finished successfully")
 	return nil
 }
 
@@ -71,7 +71,7 @@ func makeFile(mtaParser dir.IMtaParser, loc dir.ITargetPath, makeFilename string
 	// ParseFile file
 	m, err := mtaParser.ParseFile()
 	if err != nil {
-		return errors.Wrap(err, "generation of the make file failed when reading the mta file")
+		return errors.Wrap(err, "generation of the make file failed when reading the .mta file")
 	}
 
 	// Template data
@@ -98,7 +98,7 @@ func makeFile(mtaParser dir.IMtaParser, loc dir.ITargetPath, makeFilename string
 
 		errClose := mf.Close()
 		if err != nil && errClose != nil {
-			err = errors.Wrapf(err, "generation of the make file failed. the file closing failed with the error: %s", errClose)
+			err = errors.Wrapf(err, "generation of the make file failed; failed to close the file because: %s", errClose)
 		} else if errClose != nil {
 			err = errors.Wrap(errClose, "generation of the make file failed when closing the file")
 		}
@@ -156,7 +156,7 @@ func createMakeFile(path, filename string) (file *os.File, err error) {
 	fullFilename := filepath.Join(path, filename)
 	var mf *os.File
 	if _, err = os.Stat(fullFilename); err == nil {
-		logs.Logger.Warn(fmt.Sprintf("generation of the make file failed because the %s file exists", fullFilename))
+		logs.Logger.Warn(fmt.Sprintf("generation of the make file failed because the %s file already exists", fullFilename))
 		return nil, nil
 	}
 	mf, err = dir.CreateFile(fullFilename)

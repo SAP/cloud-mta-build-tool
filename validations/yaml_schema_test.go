@@ -25,63 +25,63 @@ type: map
 
 		Entry("Mapping", `
 type: map
-mapping: NotAMap`, `invalid yaml schema: the mapping node must be a map`),
+mapping: NotAMap`, `invalid .yaml file schema: the mapping node must be a map`),
 
 		Entry("SchemaSequenceIssue", `
 type: seq
 sequence: NotASequence
-`, `invalid yaml schema: the sequence node must be an array`),
+`, `invalid .yaml file schema: the sequence node must be an array`),
 
 		Entry("sequence One Item", `
 type: seq
 sequence:
 - 1
 - 2
-`, `invalid yaml schema: the sequence node can have only one item`),
+`, `invalid .yaml file schema: the sequence node can have only one item`),
 
 		Entry("required value not bool", `
 type: map
 mapping:
   firstName:  {required: 123}
-`, `invalid yaml schema: the required node must be a boolean but found 123`),
+`, `invalid .yaml file schema: the required node must be a boolean but found the 123 value`),
 
 		Entry("sequence NestedTypeNotString", `
 type: map
 mapping:
   firstName:  {type: [1,2] }
-`, `invalid yaml schema: the type node must be a string`),
+`, `invalid .yaml file schema: the type node must be a string`),
 
 		Entry("Pattern NotString", `
 type: map
 mapping:
   firstName:  {pattern: [1,2] }
-`, `invalid yaml schema: the pattern node must be a string`),
+`, `invalid .yaml file schema: the pattern node must be a string`),
 
 		Entry("Pattern InvalidRegex", `
 type: map
 mapping:
   firstName:  {required: true, pattern: '/[a-zA-Z+/'}
-`, "invalid yaml schema: the pattern node is invalid: error parsing regexp: missing closing ]: `[a-zA-Z+`"),
+`, "invalid .yaml file schema: the pattern node is invalid because: error parsing regexp: missing closing ]: `[a-zA-Z+`"),
 
 		Entry("Enum NotString", `
 type: enum
 enums:
   duck : 1
   dog  : 2
-`, `invalid yaml schema: enums values must be listed as array`),
+`, `invalid .yaml file schema: enums values must be listed as an array`),
 
 		Entry("Enum NoEnumsNode", `
 type: enum
 enumos:
   - duck
   - dog
-`, `invalid yaml schema: enums values must be listed`),
+`, `invalid .yaml file schema: enums values must be listed`),
 
 		Entry("Enum ValueNotSimple", `
 type: enum
 enums:
   [duck, [dog, cat]]
-`, `invalid yaml schema: enum values must be simple`),
+`, `invalid .yaml file schema: enum values must be simple`),
 	)
 
 	var _ = DescribeTable("Valid input",
@@ -159,7 +159,7 @@ mapping:
 `, `
 firstName: Donald
 lastName: duck
-`, "missing the age required property in root"),
+`, "missing the age required property in the root .yaml node"),
 
 		Entry("Enum", `
 type: enum
@@ -169,7 +169,7 @@ enums:
    - cat
    - mouse
    - elephant
-`, `bird`, "the root enum property has invalid value bird. expecting one of [duck,dog,cat,mouse]"),
+`, `bird`, "the birdalue of the root enum property is invalid; expected one of the following: duck,dog,cat,mouse"),
 
 		Entry("sequence", `
 type: seq
@@ -183,7 +183,7 @@ sequence:
 
 - age: 80
   lastName: Bunny
-`, "missing the name required property in root[1]"),
+`, "missing the name required property in the root[1] .yaml node"),
 
 		Entry("Pattern", `
 type: map
@@ -192,7 +192,7 @@ mapping:
 `, `
 name: Bamba
 age: NaN
-`, "the root.age property with the NaN value does not match the ^[0-9]+$ pattern"),
+`, "the NaN value of the root.age property does not match the ^[0-9]+$ pattern"),
 
 		Entry("optional With Pattern", `
 type: map
@@ -201,7 +201,7 @@ mapping:
 `, `
 firstName: Donald123
 lastName: duck
-`, "the root.firstName property with the Donald123 value does not match the ^[a-zA-Z]+$ pattern"),
+`, "the Donald123 value of the root.firstName property does not match the ^[a-zA-Z]+$ pattern"),
 
 		Entry("Type Is Bool", `
 type: map
@@ -210,6 +210,6 @@ mapping:
 `, `
 firstName: John
 isHappy: 123
-`, "the root.isHappy property must be of the boolean type"),
+`, "the root.isHappy property must be a boolean"),
 	)
 })

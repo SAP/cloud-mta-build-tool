@@ -21,7 +21,7 @@ func GetValidationMode(validationFlag string) (bool, bool, error) {
 	case "project":
 		return false, true, nil
 	}
-	return false, false, fmt.Errorf("wrong validation mode <%v> (expected one of [all, schema, project])", validationFlag)
+	return false, false, fmt.Errorf("the %s validation mode is incorrect; expected one of the following: all, schema, project", validationFlag)
 }
 
 // MtaYaml - Validate MTA yaml
@@ -33,12 +33,12 @@ func MtaYaml(projectPath, mtaFilename string, validateSchema bool, validateProje
 		yamlContent, err := ioutil.ReadFile(mtaPath)
 
 		if err != nil {
-			return errors.Wrapf(err, "validation of %v failed when reading the file", mtaPath)
+			return errors.Wrapf(err, "could not read the %v file; the validation failed", mtaPath)
 		}
 		// validate mta content
 		issues, err := validate(yamlContent, projectPath, validateSchema, validateProject)
 		if len(issues) > 0 {
-			return errors.Errorf("validation of %v failed with the following issues: \n%v %s", mtaPath, issues.String(), err)
+			return errors.Errorf("validation of the %v file failed with the following issues: \n%v %s", mtaPath, issues.String(), err)
 		}
 	}
 
@@ -56,7 +56,7 @@ func validate(yamlContent []byte, projectPath string, validateSchema bool, valid
 		}
 		yamlValidationLog, err := Yaml(yamlContent, validations...)
 		if err != nil && len(yamlValidationLog) == 0 {
-			yamlValidationLog = append(yamlValidationLog, []YamlValidationIssue{{Msg: "validation failed with error: " + err.Error()}}...)
+			yamlValidationLog = append(yamlValidationLog, []YamlValidationIssue{{Msg: "validation failed because: " + err.Error()}}...)
 		}
 		issues = append(issues, yamlValidationLog...)
 
@@ -66,7 +66,7 @@ func validate(yamlContent []byte, projectPath string, validateSchema bool, valid
 		Unmarshal := yaml.Unmarshal
 		err := Unmarshal(yamlContent, &mtaStr)
 		if err != nil {
-			return nil, errors.Wrap(err, "validation failed when unmarshalling mta")
+			return nil, errors.Wrap(err, "validation failed when unmarshalling the .mta file")
 		}
 		projectIssues := validateYamlProject(&mtaStr, projectPath)
 		issues = append(issues, projectIssues...)

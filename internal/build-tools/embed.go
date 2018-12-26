@@ -23,8 +23,8 @@ func main() {
 	// define commands for execution
 	inFile := flag.String("source", "", "source")
 	outFile := flag.String("target", "", "target")
-	pkg := flag.String("package", "main", "Package name")
-	name := flag.String("name", "File", "Identifier to use for the embedded data")
+	pkg := flag.String("package", "main", "package name")
+	name := flag.String("name", "File", "identifier to use for the embedded data")
 	flag.Parse()
 	// Read the config file
 	inData, err := ioutil.ReadFile(*inFile)
