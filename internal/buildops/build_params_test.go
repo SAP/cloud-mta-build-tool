@@ -8,9 +8,8 @@ import (
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
 
+	"github.com/SAP/cloud-mta-build-tool/internal/fs"
 	"github.com/SAP/cloud-mta/mta"
-
-	"cloud-mta-build-tool/internal/fs"
 )
 
 var _ = Describe("BuildParams", func() {

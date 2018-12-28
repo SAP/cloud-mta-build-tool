@@ -6,9 +6,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"cloud-mta-build-tool/internal/artifacts"
-	"cloud-mta-build-tool/internal/logs"
-	"cloud-mta-build-tool/internal/version"
+	"github.com/SAP/cloud-mta-build-tool/internal/artifacts"
+	"github.com/SAP/cloud-mta-build-tool/internal/logs"
+	"github.com/SAP/cloud-mta-build-tool/internal/version"
 )
 
 var cleanupCmdSrc string

@@ -5,13 +5,13 @@ import (
 	"path/filepath"
 	"text/template"
 
-	"github.com/pkg/errors"
+	"github.com/SAP/cloud-mta-build-tool/internal/tpl"
+	"github.com/SAP/cloud-mta-build-tool/internal/version"
+	"github.com/SAP/cloud-mta-build-tool/mta"
 
 	"github.com/SAP/cloud-mta/mta"
 
-	"cloud-mta-build-tool/internal/fs"
-	"cloud-mta-build-tool/internal/tpl"
-	"cloud-mta-build-tool/internal/version"
+	"github.com/pkg/errors"
 )
 
 // The deployment descriptor should be located within the META-INF folder of the JAR.

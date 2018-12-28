@@ -4,7 +4,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"cloud-mta-build-tool/internal/fs"
+	"github.com/SAP/cloud-mta-build-tool/internal/fs"
 
 	"github.com/SAP/cloud-mta/mta"
 

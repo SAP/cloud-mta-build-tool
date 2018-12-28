@@ -9,11 +9,10 @@ import (
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
 
+	"github.com/SAP/cloud-mta-build-tool/internal/buildops"
+	"github.com/SAP/cloud-mta-build-tool/internal/commands"
+	"github.com/SAP/cloud-mta-build-tool/internal/fs"
 	"github.com/SAP/cloud-mta/mta"
-
-	"cloud-mta-build-tool/internal/buildops"
-	"cloud-mta-build-tool/internal/commands"
-	"cloud-mta-build-tool/internal/fs"
 )
 
 var _ = Describe("ModuleArch", func() {
