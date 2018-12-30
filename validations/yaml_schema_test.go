@@ -173,7 +173,7 @@ enums:
 
 		Entry("sequence", `
 type: seq
-sequence:                                                                                                                               git
+sequence:
 - type: map
   mapping:
     name: {required: true}
