@@ -26,9 +26,9 @@ func Execute(cmdParams [][]string) error {
 	for _, cp := range cmdParams {
 		var cmd *exec.Cmd
 		if cp[0] != "" {
-			logs.Logger.Infof("Executing %s for module %s...", cp[1:], filepath.Base(cp[0]))
+			logs.Logger.Infof("executing the %s command for the %s module ...", cp[1:], filepath.Base(cp[0]))
 		} else {
-			logs.Logger.Infof("Executing %s", cp[1:])
+			logs.Logger.Infof("executing the %s command ...", cp[1:])
 		}
 		cmd = makeCommand(cp[1:])
 		cmd.Dir = cp[0]
@@ -44,7 +44,7 @@ func Execute(cmdParams [][]string) error {
 
 // executeCommand - executes individual command
 func executeCommand(cmd *exec.Cmd) error {
-	logs.Logger.Infof("execution of command <%v> started", cmd.Path)
+	logs.Logger.Infof("execution of the %v command started", cmd.Path)
 
 	// During the running process get the standard output
 	stdout, err := cmd.StdoutPipe()
@@ -71,16 +71,19 @@ func executeCommand(cmd *exec.Cmd) error {
 	scanout, scanerr := scanner(stdout, stderr)
 
 	if scanerr.Err() != nil {
-		return errors.Wrapf(err, "execution of the %v command failed when scanning the stdout and stderr pipes", cmd.Path)
+		return errors.Wrapf(err,
+			"execution of the %v command failed when scanning the stdout and stderr pipes", cmd.Path)
 	}
 
 	if scanout.Err() != nil {
-		return errors.Wrapf(err, "execution of the %v command failed when receiving an error from the scanout object", cmd.Path)
+		return errors.Wrapf(err,
+			"execution of the %v command failed when receiving an error from the scanout object", cmd.Path)
 	}
 
 	// Get execution success or failure:
 	if err = cmd.Wait(); err != nil {
-		return errors.Wrapf(err, "execution of the %v command failed when waiting for the execution to finish", cmd.Path)
+		return errors.Wrapf(err,
+			"execution of the %v command failed when waiting for finish", cmd.Path)
 	}
 	close(shutdownCh) // Signal indicator() to terminate
 	logs.Logger.Infof("execution of the %v command finished successfully", cmd.Path)

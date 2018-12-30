@@ -125,7 +125,7 @@ func walk(sourcePath string, baseDir string, archive *zip.Writer) (e error) {
 func CreateFile(path string) (file *os.File, err error) {
 	file, err = os.Create(path) // Truncates if file already exists
 	if err != nil {
-		return nil, fmt.Errorf("creation of the %s file failed", err)
+		return nil, errors.Wrapf(err, fmt.Sprintf("creation of the %s file failed", path))
 	}
 	// The caller needs to use defer.close
 	return file, err
@@ -182,11 +182,11 @@ func CopyByPatterns(source, target string, patterns []string) error {
 				"copying the patterns [%v,...] from the %v folder to the %v folder failed when creating the target folder",
 				patterns[0], source, target)
 		}
-		logs.Logger.Infof("Directory <%v> created", target)
+		logs.Logger.Infof("the %v folder created", target)
 
 	} else if !infoTargetDir.IsDir() {
 		return errors.Errorf(
-			"copying the patterns [%v,...] from the %v folder to the %v folder failed because target is not a folder",
+			"copying the patterns [%v,...] from the %v folder to the %v folder failed because the target is not a folder",
 			patterns[0], source, target)
 	}
 
@@ -220,7 +220,7 @@ func copyByPattern(source, target, pattern string) error {
 		info, err := os.Stat(sourceEntry)
 		if err != nil {
 			return errors.Wrapf(err,
-				"copy by pattern <%v> from <%v> to <%v> failed when getting the status of the source entry: %v",
+				"copying the %v pattern from the %v folder to the %v folder failed when getting the status of the source entry: %v",
 				pattern, source, target, sourceEntry)
 		}
 		targetEntry := filepath.Join(target, filepath.Base(sourceEntry))

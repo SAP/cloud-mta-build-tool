@@ -14,7 +14,7 @@ func (ext *EXT) GetModuleByName(name string) (*ModuleExt, error) {
 			return m, nil
 		}
 	}
-	return nil, fmt.Errorf("module %s , not found ", name)
+	return nil, fmt.Errorf("the %s module is not defined", name)
 }
 
 // UnmarshalExt - returns a reference to the EXT object from a byte array.
@@ -23,7 +23,7 @@ func UnmarshalExt(content []byte) (*EXT, error) {
 	// Unmarshal MTA file
 	err := yaml.Unmarshal([]byte(content), &m)
 	if err != nil {
-		err = errors.Wrap(err, "Error parsing the MTA")
+		err = errors.Wrap(err, "failed to unmarshal the mta extension object")
 	}
 	return m, err
 }

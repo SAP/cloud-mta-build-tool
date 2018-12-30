@@ -18,7 +18,7 @@ func ExecuteGenMeta(source, target, desc, platform string, wdGetter func() (stri
 	}
 	err = generateMeta(loc, loc, loc.IsDeploymentDescriptor(), platform)
 	if err != nil {
-		return errors.Wrap(err, "generation of metadata failed")
+		return err
 	}
 	logs.Logger.Info("generation of metadata finished successfully")
 	return nil

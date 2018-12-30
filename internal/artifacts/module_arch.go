@@ -56,8 +56,6 @@ func ExecutePack(source, target, desc, moduleName, platform string, wdGetter fun
 // buildModule - builds module
 func buildModule(mtaParser dir.IMtaParser, moduleLoc dir.IModule, deploymentDesc bool, moduleName, platform string) error {
 
-	logs.Logger.Infof("build of the %v module started", moduleName)
-
 	// Get module respective command's to execute
 	module, mCmd, err := commands.GetModuleAndCommands(mtaParser, moduleName)
 	if err != nil {
@@ -114,11 +112,10 @@ func packModule(ep dir.IModule, deploymentDesc bool, module *mta.Module, moduleN
 		return copyModuleArchive(ep, module.Path, moduleName)
 	}
 
-	logs.Logger.Infof("the packing of the %v module started", moduleName)
 	// Get module relative path
 	moduleZipPath := ep.GetTargetModuleDir(moduleName)
 
-	logs.Logger.Info(fmt.Sprintf("the packing %v module will be packed and saved in the %v folder", moduleName, moduleZipPath))
+	logs.Logger.Info(fmt.Sprintf("the %v module will be packed and saved in the %v folder", moduleName, moduleZipPath))
 	// Create empty folder with name as before the zip process
 	// to put the file such as data.zip inside
 	err := os.MkdirAll(moduleZipPath, os.ModePerm)
@@ -134,7 +131,6 @@ func packModule(ep dir.IModule, deploymentDesc bool, module *mta.Module, moduleN
 	if err != nil {
 		return errors.Wrapf(err, "the packing of the %v module failed when archiving", moduleName)
 	}
-	logs.Logger.Infof("the packing of the %v module finished successfully", moduleName)
 	return nil
 }
 
@@ -155,5 +151,6 @@ func copyModuleArchive(ep dir.IModule, modulePath, moduleName string) error {
 	if err != nil {
 		return errors.Wrapf(err, "the copying of the %v module's archive failed when copying %v to %v", moduleName, moduleSrcZip, moduleTrgZip)
 	}
+	logs.Logger.Infof("the copying of the %v module's archive finished successfully", moduleName)
 	return nil
 }
