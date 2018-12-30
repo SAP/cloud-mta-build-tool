@@ -1,10 +1,9 @@
-// +build integration
-
 package integration_test
 
 import (
 	"bytes"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -19,14 +18,14 @@ var _ = Describe("Integration - CloudMtaBuildTool", func() {
 
 	var mbtName = ""
 
-	BeforeEach(func() {
+	BeforeSuite(func() {
 		By("Building MBT")
 		if runtime.GOOS == "linux" || runtime.GOOS == "darwin" {
 			mbtName = "mbt"
 		} else {
 			mbtName = "mbt.exe"
 		}
-		cmd := exec.Command("go", "build", "-o", filepath.FromSlash("./integration/testdata/"+mbtName), ".")
+		cmd := exec.Command("go", "build", "-o", filepath.FromSlash("./integration/testdata/mtahtml5/"+mbtName), ".")
 		cmd.Dir = filepath.FromSlash("../")
 		err := cmd.Run()
 		fmt.Println("finish to execute process", err)
@@ -35,8 +34,10 @@ var _ = Describe("Integration - CloudMtaBuildTool", func() {
 		}
 	})
 
-	AfterEach(func() {
-		os.Remove("./testdata/" + mbtName)
+	AfterSuite(func() {
+		os.Remove("./testdata/mtahtml5/" + mbtName)
+		os.Remove("./testdata/mtahtml5/Makefile.mta")
+		os.Remove("./testdata/mtahtml5/mtahtml5.mtar")
 	})
 
 	var _ = Describe("Command to provide the list of modules", func() {
@@ -45,7 +46,7 @@ var _ = Describe("Integration - CloudMtaBuildTool", func() {
 			dir, _ := os.Getwd()
 			args := "provide modules"
 
-			path := dir + filepath.FromSlash("/testdata/")
+			path := dir + filepath.FromSlash("/testdata/mtahtml5")
 			bin := filepath.FromSlash("./mbt")
 
 			cmdOut, err := execute(bin, args, path)
@@ -53,7 +54,7 @@ var _ = Describe("Integration - CloudMtaBuildTool", func() {
 				fmt.Println(err)
 			}
 			Ω(cmdOut).ShouldNot(BeNil())
-			Ω(cmdOut).Should(BeEquivalentTo("[eb-java eb-db eb-ui-conf-eb eb-ui-conf-extensionfunction eb-ui-conf-movementcategory eb-ui-conf-stockledgercharacteristic eb-ui-conf-taxrate eb-ui-conf-taxwarehouse eb-ui-md-materialmaster eb-ui-md-shiptomaster eb-ui-stockledgerlineitem eb-ui-stockledgerlineitem-alp eb-ui-stockledgerprocessingerror eb-approuter eb-ftp-content eb-sb eb-msahaa eb-uideployer]" + "\n"))
+			Ω(cmdOut).Should(BeEquivalentTo("[ui5app]" + "\n"))
 		})
 
 		It("Command name error", func() {
@@ -70,7 +71,63 @@ var _ = Describe("Integration - CloudMtaBuildTool", func() {
 			Ω(err).ShouldNot(BeNil())
 			Ω(cmdOut).Should(BeEmpty())
 		})
+	})
+	var _ = Describe("Generate the Makefile according to the mta.yaml file", func() {
 
+		It("Generate Makefile", func() {
+			dir, _ := os.Getwd()
+			args := "init"
+
+			path := dir + filepath.FromSlash("/testdata/mtahtml5")
+			bin := filepath.FromSlash("./mbt")
+
+			cmdOut, err := execute(bin, args, path)
+			if len(err) > 0 {
+				fmt.Println(err)
+			}
+			Ω(cmdOut).ShouldNot(BeNil())
+
+			//Read the MakeFile was generated
+			out, error := ioutil.ReadFile(filepath.Join(dir, "testdata", "mtahtml5", "MakeFile.mta"))
+			Ω(error).Should(Succeed())
+
+			//Read the expected MakeFile
+			expected, error := ioutil.ReadFile(filepath.Join(dir, "testdata", "ExpectedMakeFileWindows"))
+			Ω(error).Should(Succeed())
+
+			Ω(bytes.Equal(out, expected)).Should(BeTrue())
+		})
+
+		It("Command name error", func() {
+			dir, _ := os.Getwd()
+			args := "init 2"
+
+			path := dir + filepath.FromSlash("/testdata/mtahtml5")
+			bin := filepath.FromSlash("./mbt")
+
+			cmdOut, err := execute(bin, args, path)
+			if len(err) > 0 {
+				fmt.Println(err)
+			}
+			Ω(err).ShouldNot(BeNil())
+			Ω(cmdOut).Should(BeEmpty())
+		})
+	})
+
+	var _ = Describe("Generate MTAR", func() {
+		It("Generate MTAR", func() {
+			dir, _ := os.Getwd()
+			args := "-f Makefile.mta p=cf"
+			fmt.Println(dir)
+			path := dir + filepath.FromSlash("/testdata/mtahtml5")
+			bin := filepath.FromSlash("make")
+			cmdOut, err := execute(bin, args, path)
+			if len(err) > 0 {
+				fmt.Println(err)
+			}
+			Ω(err).Should(Equal(""))
+			Ω(cmdOut).ShouldNot(BeEmpty())
+		})
 	})
 })
 

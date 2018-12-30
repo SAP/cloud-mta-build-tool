@@ -1,0 +1,40 @@
+
+version=0.0.1
+ifndef p
+$(error platform flag is expected. e.g. use make -f makefile.mta p=cf)
+endif
+modules := $(shell mbt provide modules -d=dev)
+modules := $(subst ],,$(subst [,,$(modules)))
+# List of all the recipes to be executed during the build process
+.PHONY: all validate $(modules) meta mtar cleanup
+# Default target compile all
+all: validate $(modules) meta mtar cleanup
+cores:
+# Determine OS cores
+	NPROCS = $(shell echo %NUMBER_OF_PROCESSORS%)
+	MAKEFLAGS += -j$(NPROCS)
+# Validate mta.yaml
+validate:
+	@mbt validate -d=dev
+
+
+##Execute module build
+define build_rule
+$(1):
+	@mbt module build -m=$(1) -d=dev -p=${p}
+endef
+
+$(foreach mod,$(modules),$(eval $(call build_rule,$(mod))))
+
+# Create META-INF folder with MANIFEST.MF & mtad.yaml
+meta:
+	@mbt gen meta -d=dev -p=${p}
+
+# Pack as MTAR artifact
+mtar: $(modules) meta
+	@mbt gen mtar -d=dev
+
+cleanup: mtar
+# Remove tmp folder
+	@mbt cleanup
+
