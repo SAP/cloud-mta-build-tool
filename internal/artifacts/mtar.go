@@ -18,7 +18,7 @@ func ExecuteGenMtar(source, target, desc string, wdGetter func() (string, error)
 	logs.Logger.Info("generation of the .mtar file started")
 	loc, err := dir.Location(source, target, desc, wdGetter)
 	if err != nil {
-		return errors.Wrap(err, "generation of the .mtar file failed when initializing location")
+		return errors.Wrap(err, "generation of the .mtar file failed when initializing the location")
 	}
 	err = generateMtar(loc, loc)
 	if err != nil {

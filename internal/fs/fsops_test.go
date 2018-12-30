@@ -140,12 +140,12 @@ var _ = Describe("FSOPS", func() {
 			for i, file := range files {
 				filesWrapped[i] = testFile{file: file}
 			}
-			Ω(copyEntries(filesWrapped[:], sourcePath, targetPath)).Should(Succeed())
+			Ω(CopyEntries(filesWrapped[:], sourcePath, targetPath)).Should(Succeed())
 			Ω(countFilesInDir(sourcePath) - 1).Should(Equal(countFilesInDir(targetPath)))
 			os.RemoveAll(targetPath)
 
 			targetPath = getFullPath("testdata", "//")
-			Ω(copyEntries(filesWrapped[:], getFullPath("testdata", "level2", "levelx"), targetPath)).Should(HaveOccurred())
+			Ω(CopyEntries(filesWrapped[:], getFullPath("testdata", "level2", "levelx"), targetPath)).Should(HaveOccurred())
 		})
 	})
 

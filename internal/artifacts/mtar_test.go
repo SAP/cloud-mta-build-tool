@@ -43,6 +43,12 @@ var _ = Describe("Mtar", func() {
 			Ω(getTestPath("result", "mtahtml5.mtar")).Should(BeAnExistingFile())
 		})
 
+		It("Generate Mtar - Fails on wrong source", func() {
+			ep := dir.Loc{SourcePath: getTestPath("not_existing"), TargetPath: getTestPath("result")}
+			ep1 := dir.Loc{SourcePath: getTestPath("mtahtml5"), TargetPath: getTestPath("result")}
+			Ω(generateMtar(&ep, &ep1)).Should(HaveOccurred())
+		})
+
 		It("Generate Mtar - Invalid mta", func() {
 			ep := dir.Loc{SourcePath: getTestPath("mtahtml5"), TargetPath: getTestPath("result"), MtaFilename: "mtaBroken.yaml"}
 			Ω(generateMtar(&ep, &ep)).Should(HaveOccurred())

@@ -1,8 +1,6 @@
 package commands
 
 import (
-	"os"
-
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
@@ -26,9 +24,8 @@ var rootCmd = &cobra.Command{
 
 // Execute command adds all child commands to the root command and sets flags appropriately.
 func Execute() {
-	if err := rootCmd.Execute(); err != nil {
-		os.Exit(1)
-	}
+	err := rootCmd.Execute()
+	logError(err)
 }
 
 func initConfig() {

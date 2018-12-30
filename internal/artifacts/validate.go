@@ -13,7 +13,7 @@ func ExecuteValidation(source, desc, mode string, getWorkingDir func() (string, 
 	logs.Logger.Info("validation started")
 	loc, err := dir.Location(source, "", desc, getWorkingDir)
 	if err != nil {
-		return errors.Wrap(err, "validation failed when initializing location")
+		return errors.Wrap(err, "validation failed when initializing the location")
 	}
 	validateSchema, validateProject, err := validate.GetValidationMode(mode)
 	if err != nil {

@@ -26,6 +26,13 @@ var _ = Describe("Cleanup", func() {
 			return "", errors.New("err")
 		})).Should(HaveOccurred())
 	})
+	It("Sanity", func() {
+		file, err := os.Create(getTestPath("result", "mtahtml5", "file.txt"))
+		Ω(err).Should(Succeed())
+		Ω(ExecuteCleanup(getTestPath("mtahtml5"), getTestPath("result"), "dev", os.Getwd)).Should(HaveOccurred())
+		Ω(getTestPath("result", "mtahtml5")).Should(BeADirectory())
+		file.Close()
+	})
 
 })
 

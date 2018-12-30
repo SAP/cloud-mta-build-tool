@@ -18,7 +18,7 @@ func ExecuteGenMtad(source, target, desc, platform string, wdGetter func() (stri
 	logs.Logger.Info("generation of the .mtad file started")
 	loc, err := dir.Location(source, target, desc, wdGetter)
 	if err != nil {
-		return errors.Wrap(err, "generation of the .mtad file failed when initializing location")
+		return errors.Wrap(err, "generation of the .mtad file failed when initializing the location")
 	}
 
 	mtaStr, err := loc.ParseFile()
@@ -59,7 +59,7 @@ func genMtad(mtaStr *mta.MTA, ep dir.ITargetArtifacts, deploymentDesc bool, plat
 	// Create readable Yaml before writing to file
 	mtad, err := yaml.Marshal(mtaStr)
 	if err != nil {
-		return errors.Wrap(err, "generation of the .mtad file failed when marshalling the mtad object")
+		return errors.Wrap(err, "generation of the .mtad file failed when marshalling the .mtad object")
 	}
 	mtadPath := ep.GetMtadPath()
 	// Write back the MTAD to the META-INF folder

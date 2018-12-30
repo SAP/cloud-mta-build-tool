@@ -76,5 +76,5 @@ func moduleCmd(mta *mta.MTA, moduleName string) (*mta.Module, []string, error) {
 			return m, commandProvider.Command, nil
 		}
 	}
-	return nil, nil, errors.Errorf("the %v module not defined in the .mta file", moduleName)
+	return nil, nil, errors.Errorf("the %v module is not defined in the .mta file", moduleName)
 }

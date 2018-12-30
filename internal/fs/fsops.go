@@ -159,7 +159,7 @@ func CopyDir(src string, dst string) error {
 		return err
 	}
 
-	return copyEntries(entries, src, dst)
+	return CopyEntries(entries, src, dst)
 }
 
 // CopyByPatterns - copy files/directories according to patterns
@@ -182,7 +182,7 @@ func CopyByPatterns(source, target string, patterns []string) error {
 				"copying the patterns [%v,...] from the %v folder to the %v folder failed when creating the target folder",
 				patterns[0], source, target)
 		}
-		logs.Logger.Infof("the %v folder created", target)
+		logs.Logger.Infof("the %v folder has been created", target)
 
 	} else if !infoTargetDir.IsDir() {
 		return errors.Errorf(
@@ -241,8 +241,8 @@ func copyByPattern(source, target, pattern string) error {
 	return nil
 }
 
-// copyEntries - copies entries (files and directories) from source to destination folder
-func copyEntries(entries []os.FileInfo, src, dst string) error {
+// CopyEntries - copies entries (files and directories) from source to destination folder
+func CopyEntries(entries []os.FileInfo, src, dst string) error {
 
 	var err error
 	for _, entry := range entries {
