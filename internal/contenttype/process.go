@@ -26,6 +26,7 @@ func unmarshal(data []byte) (ContentTypes, error) {
 	return contentTypes, nil
 }
 
+// GetContentType - get content type by file extension
 func GetContentType(cfg *ContentTypes, extension string) (string, error) {
 	for _, ct := range cfg.ContentTypes {
 		if ct.Extension == extension {
