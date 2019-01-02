@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -22,27 +23,42 @@ func CommandProvider(modules mta.Module) (CommandList, error) {
 	// Get config from ./commands_cfg.yaml as generated artifacts from source
 	commands, err := parse(CommandsConfig)
 	if err != nil {
-		return CommandList{}, err
+		return CommandList{}, errors.Wrap(err, "failed to parse the commands configuration file")
 	}
-	return mesh(modules, commands), nil
+	customCommands, err := parse(CustomCommandsConfig)
+	if err != nil {
+		return CommandList{}, errors.Wrap(err, "failed to parse the custom commands configuration file")
+	}
+	return mesh(modules, commands, customCommands)
 }
 
 // Match the object according to type and provide the respective command
-func mesh(module mta.Module, commands Builders) CommandList {
+func mesh(module mta.Module, commands Builders, customCommands Builders) (CommandList, error) {
 	// The object support deep struct for future use, can be simplified to flat object
 	var cmds CommandList
-	for _, b := range commands.Builders {
-		moduleType := buildops.GetBuilder(&module)
+	builder, custom := buildops.GetBuilder(&module)
+
+	var actualCommands Builders
+	var configStr string
+	if custom {
+		actualCommands = customCommands
+		configStr = "custom commands"
+	} else {
+		actualCommands = commands
+		configStr = "commands"
+	}
+	for _, b := range actualCommands.Builders {
 		// Return only matching types
-		if moduleType == b.Name {
+		if builder == b.Name {
 			cmds.Info = b.Info
 			for _, cmd := range b.Type {
 				cmds.Command = append(cmds.Command, cmd.Command)
 			}
-			break
+			return cmds, nil
 		}
 	}
-	return cmds
+
+	return cmds, fmt.Errorf("the %s builder is not defined in the %s configuration", builder, configStr)
 }
 
 // CmdConverter - path and commands to execute

@@ -199,7 +199,9 @@ var _ = Describe("GetBuilder", func() {
 				builderParam: "npm",
 			},
 		}
-		Ω(GetBuilder(&m)).Should(Equal("npm"))
+		builder, custom := GetBuilder(&m)
+		Ω(builder).Should(Equal("npm"))
+		Ω(custom).Should(Equal(true))
 	})
 })
 
