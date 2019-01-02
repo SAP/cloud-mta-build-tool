@@ -1,19 +1,16 @@
 package artifacts
 
 import (
-	"html/template"
 	"os"
 	"path"
 	"path/filepath"
-
-	"cloud-mta-build-tool/mta"
 
 	"github.com/pkg/errors"
 
 	"cloud-mta-build-tool/internal/contenttype"
 	"cloud-mta-build-tool/internal/fs"
 	"cloud-mta-build-tool/internal/logs"
-	"cloud-mta-build-tool/internal/tpl"
+	"cloud-mta-build-tool/mta"
 )
 
 const (
@@ -71,7 +68,7 @@ func Assembly(source, target string, wdGetter func() (string, error)) error {
 	logs.Logger.Info("the .mtad file copied into META-INF folder of the temporary folder")
 
 	// generate the manifest file
-	err = genAssemblyManifest(loc, entries)
+	err = genManifest(loc, entries)
 	if err != nil {
 		return errors.Wrap(err, "assembly failed when generating the manifest file")
 	}
@@ -128,44 +125,12 @@ func getAssembledEntries(loc dir.ISourceModule, mta *mta.MTA) ([]entry, error) {
 	return entries, nil
 }
 
-type entry struct {
-	EntryName   string
-	EntryType   string
-	file        *os.FileInfo
-	ContentType string
-	EntryPath   string
-}
-
 func getEntriesInfo(entries []entry) []os.FileInfo {
 	var filesInfos []os.FileInfo
 	for _, e := range entries {
 		filesInfos = append(filesInfos, *e.file)
 	}
 	return filesInfos
-}
-
-func genAssemblyManifest(loc dir.ITargetArtifacts, entries []entry) (rerr error) {
-	funcMap := template.FuncMap{
-		"Entries": entries,
-	}
-	manifestPath := loc.GetManifestPath()
-	out, err := os.Create(manifestPath)
-	defer func() {
-		errClose := out.Close()
-		if errClose != nil {
-			rerr = errors.Wrap(err, "assembly failed when closing the manifest file")
-		}
-	}()
-	if err != nil {
-		return errors.Wrap(err, "assembly failed when creating the manifest file")
-	}
-	t := template.Must(template.New("template").Parse(string(tpl.AssemblyManifest)))
-	err = t.Execute(out, funcMap)
-	if err != nil {
-		return errors.Wrap(err, "assembly failed when populating the manifest file")
-	}
-
-	return nil
 }
 
 func getPathError(err error, path string) error {

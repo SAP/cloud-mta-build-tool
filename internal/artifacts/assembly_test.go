@@ -94,10 +94,10 @@ content-types:
 		contenttype.ContentTypeConfig = config
 	})
 
-	var _ = Describe("genAssemblyManifest", func() {
+	var _ = Describe("genManifest", func() {
 		It("Fails on wrong location", func() {
 			loc := dir.Loc{}
-			Ω(genAssemblyManifest(&loc, []entry{})).Should(HaveOccurred())
+			Ω(genManifest(&loc, []entry{})).Should(HaveOccurred())
 		})
 	})
 })

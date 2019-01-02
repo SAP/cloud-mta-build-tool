@@ -54,20 +54,8 @@ func GenMetaInfo(ep dir.ITargetArtifacts, deploymentDesc bool, platform string, 
 	if err != nil {
 		return errors.Wrap(err, "generation of metadata failed when generating the .mtad file")
 	}
-	// Create MANIFEST.MF file
-	manifestPath := ep.GetManifestPath()
-	file, err := dir.CreateFile(manifestPath)
-	if err != nil {
-		return errors.Wrap(err, "generation of metadata failed when creating the manifest file")
-	}
-	defer func() {
-		errClose := file.Close()
-		if errClose != nil {
-			rerr = errClose
-		}
-	}()
 	// Set the MANIFEST.MF file
-	err = setManifestDesc(file, mtaStr.Modules, modules)
+	err = setManifestDesc(ep, mtaStr.Modules, modules)
 	if err != nil {
 		return errors.Wrap(err, "generation of metadata failed when populating the manifest file")
 	}

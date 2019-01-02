@@ -1,8 +1,9 @@
 Manifest-Version: 1.0
+Created-By: SAP Application Archive Builder {{.CliVersion}}
 
 {{- range .Entries}}
-Name: {{.EntryName}}
-{{.EntryType}}: {{.EntryPath}}
+Name: {{.EntryPath}}
+{{.EntryType}}: {{.EntryName}}
 Content-Type: {{.ContentType}}
 {{end}}
 
