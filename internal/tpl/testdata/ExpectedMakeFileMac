@@ -21,7 +21,7 @@ modules = ui
 # Execute all modules builds
 # build module ui
 ui:
-	@cd $(PROJ_DIR)/ui && grunt
+	@cd $(PROJ_DIR)/ui && npm install && grunt
 # Pack module build artifacts
 	@mbt module pack -m=ui -p=${p}
 
