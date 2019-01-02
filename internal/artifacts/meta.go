@@ -14,7 +14,7 @@ func ExecuteGenMeta(source, target, desc, platform string, wdGetter func() (stri
 	logs.Logger.Info("generation of metadata started")
 	loc, err := dir.Location(source, target, desc, wdGetter)
 	if err != nil {
-		return errors.Wrap(err, "generation of metadata failed when initializing location")
+		return errors.Wrap(err, "generation of metadata failed when initializing the location")
 	}
 	err = generateMeta(loc, loc, loc.IsDeploymentDescriptor(), platform)
 	if err != nil {
@@ -69,7 +69,7 @@ func GenMetaInfo(ep dir.ITargetArtifacts, deploymentDesc bool, platform string, 
 	// Set the MANIFEST.MF file
 	err = setManifestDesc(file, mtaStr.Modules, modules)
 	if err != nil {
-		return errors.Wrap(err, "generation of metadata failed when filling the manifest")
+		return errors.Wrap(err, "generation of metadata failed when populating the manifest file")
 	}
 
 	return nil

@@ -20,7 +20,7 @@ type graphNode struct {
 func ProvideModules(source, desc string, wdGetter func() (string, error)) error {
 	loc, err := dir.Location(source, "", desc, wdGetter)
 	if err != nil {
-		return errors.Wrap(err, "modules provider failed when initializing location")
+		return errors.Wrap(err, "modules provider failed when initializing the location")
 	}
 	m, err := loc.ParseFile()
 	if err != nil {

@@ -37,15 +37,15 @@ func setManifestDesc(file io.Writer, mtaStr []*mta.Module, modules []string) err
 	// TODO create dynamically
 	_, err := fmt.Fprint(file, manifestVersion+newLine)
 	if err != nil {
-		return errors.Wrap(err, "failed to generate the manifest file when printing manifest version")
+		return errors.Wrap(err, "failed to generate the manifest file when printing the manifest version")
 	}
 	v, err := version.GetVersion()
 	if err != nil {
-		return errors.Wrap(err, "failed to generate the manifest file when getting the cli version")
+		return errors.Wrap(err, "failed to generate the manifest file when getting the CLI version")
 	}
 	_, err = fmt.Fprintf(file, "Created-By: SAP Application Archive Builder %v", v.CliVersion)
 	if err != nil {
-		return errors.Wrap(err, "failed to generate the manifest file when printing the cli version")
+		return errors.Wrap(err, "failed to generate the manifest file when printing the CLI version")
 	}
 	for _, mod := range mtaStr {
 		if moduleDefined(mod.Name, modules) {

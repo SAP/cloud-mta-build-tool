@@ -33,7 +33,7 @@ func ExecuteMake(source, target, desc, mode string, wdGetter func() (string, err
 	logs.Logger.Info("generation of the make file started")
 	loc, err := dir.Location(source, target, desc, wdGetter)
 	if err != nil {
-		return errors.Wrap(err, "generation of the make file failed when initializing location")
+		return errors.Wrap(err, "generation of the make file failed when initializing the location")
 	}
 	err = genMakefile(loc, loc, loc, mode)
 	if err != nil {

@@ -83,7 +83,7 @@ func executeCommand(cmd *exec.Cmd) error {
 	// Get execution success or failure:
 	if err = cmd.Wait(); err != nil {
 		return errors.Wrapf(err,
-			"execution of the %v command failed when waiting for finish", cmd.Path)
+			"execution of the %v command failed while waiting for finish", cmd.Path)
 	}
 	close(shutdownCh) // Signal indicator() to terminate
 	logs.Logger.Infof("execution of the %v command finished successfully", cmd.Path)

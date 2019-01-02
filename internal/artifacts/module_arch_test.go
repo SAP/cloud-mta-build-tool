@@ -3,6 +3,7 @@ package artifacts
 import (
 	"errors"
 	"os"
+	"path/filepath"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
@@ -67,6 +68,7 @@ builders:
 	})
 
 	var _ = Describe("ExecutePack", func() {
+
 		It("Sanity", func() {
 			Ω(ExecutePack(getTestPath("mta"), getTestPath("result"), "dev", "node-js",
 				"cf", os.Getwd)).Should(Succeed())
@@ -84,17 +86,47 @@ builders:
 			Ω(ExecutePack(getTestPath("mta"), getTestPath("result"), "dev", "ui5appx",
 				"cf", os.Getwd)).Should(HaveOccurred())
 		})
+
+		It("Target folder exists as file", func() {
+			os.MkdirAll(getTestPath("result", "mta"), os.ModePerm)
+			createFile("result", "mta", "node-js")
+			Ω(ExecutePack(getTestPath("mta"), getTestPath("result"), "dev", "node-js",
+				"cf", os.Getwd)).Should(HaveOccurred())
+		})
 	})
 
 	var _ = Describe("Pack", func() {
-		It("Deployment descriptor - Copy only", func() {
-			ep := dir.Loc{
-				SourcePath: getTestPath("mta_with_zipped_module"),
-				TargetPath: getTestPath("result"),
-				Descriptor: "dep",
-			}
-			Ω(packModule(&ep, true, &m, "node-js", "cf")).Should(Succeed())
-			Ω(getTestPath("result", "mta_with_zipped_module", "node-js", "data.zip")).Should(BeAnExistingFile())
+		var _ = Describe("Sanity", func() {
+
+			It("Deployment descriptor - Copy only", func() {
+				ep := dir.Loc{
+					SourcePath: getTestPath("mta_with_zipped_module"),
+					TargetPath: getTestPath("result"),
+					Descriptor: "dep",
+				}
+				Ω(packModule(&ep, true, &m, "node-js", "cf")).Should(Succeed())
+				Ω(getTestPath("result", "mta_with_zipped_module", "node-js", "data.zip")).Should(BeAnExistingFile())
+			})
+
+			//ep.GetTargetModuleDir(moduleName)
+			It("Wrong source", func() {
+				ep := dir.Loc{
+					SourcePath: getTestPath("mta_unknown"),
+					TargetPath: getTestPath("result"),
+					Descriptor: "dev",
+				}
+				Ω(packModule(&ep, false, &m, "node-js", "cf")).Should(HaveOccurred())
+			})
+			It("Target directory exists as a file", func() {
+				ep := dir.Loc{
+					SourcePath: getTestPath("mta_with_zipped_module"),
+					TargetPath: getTestPath("result"),
+					Descriptor: "dev",
+				}
+				os.MkdirAll(filepath.Join(ep.GetTarget(), "mta_with_zipped_module"), os.ModePerm)
+				createFile("result", "mta_with_zipped_module", "node-js")
+				Ω(packModule(&ep, false, &m, "node-js", "cf")).Should(HaveOccurred())
+			})
 		})
 
 		It("No platforms - no pack", func() {
@@ -146,6 +178,44 @@ builders:
 				Ω(ep.GetTargetModuleZipPath("node-js")).Should(BeAnExistingFile())
 			})
 
+			It("Commands fail", func() {
+				commands.CommandsConfig = []byte(`
+builders:
+- name: html5
+  info: "installing module dependencies & execute grunt & remove dev dependencies"
+  path: "path to config file which override the following default commands"
+  type:
+    - command: go test exec_unknownTest.go
+- name: nodejs
+  info: "build nodejs application"
+  path: "path to config file which override the following default commands"
+  type:
+    - command: go test exec_unknownTest.go
+`)
+
+				ep := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getTestPath("result")}
+				Ω(buildModule(&ep, &ep, false, "node-js", "cf")).Should(HaveOccurred())
+			})
+
+			It("Target folder exists as a file - dev", func() {
+				os.MkdirAll(getTestPath("result", "mta"), os.ModePerm)
+				ep := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getTestPath("result")}
+				createFile("result", "mta", "node-js")
+				Ω(buildModule(&ep, &ep, false, "node-js", "cf")).Should(HaveOccurred())
+			})
+
+			It("Target folder exists as a file - dep", func() {
+				os.MkdirAll(getTestPath("result", "mta"), os.ModePerm)
+				ep := dir.Loc{
+					SourcePath:  getTestPath("mta"),
+					TargetPath:  getTestPath("result"),
+					Descriptor:  "dep",
+					MtaFilename: "mta.yaml",
+				}
+				createFile("result", "mta", "node-js")
+				Ω(buildModule(&ep, &ep, true, "node-js", "cf")).Should(HaveOccurred())
+			})
+
 			It("Deployment Descriptor", func() {
 				ep := dir.Loc{
 					SourcePath:  getTestPath("mta_with_zipped_module"),
@@ -180,5 +250,17 @@ builders:
 			ep := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getTestPath("result")}
 			Ω(copyModuleArchive(&ep, "node-js", "node-js")).Should(HaveOccurred())
 		})
+		It("Target directory exists as file", func() {
+			ep := dir.Loc{SourcePath: getTestPath("mta_with_zipped_module"), TargetPath: getTestPath("result")}
+			os.MkdirAll(getTestPath("result", "mta_with_zipped_module"), os.ModePerm)
+			createFile("result", "mta_with_zipped_module", "node-js")
+			Ω(copyModuleArchive(&ep, "node-js", "node-js")).Should(HaveOccurred())
+		})
 	})
 })
+
+func createFile(path ...string) {
+	file, err := os.Create(getTestPath(path...))
+	Ω(err).Should(Succeed())
+	file.Close()
+}

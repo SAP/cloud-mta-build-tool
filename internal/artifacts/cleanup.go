@@ -20,7 +20,7 @@ func ExecuteCleanup(source, target, desc string, wdGetter func() (string, error)
 	targetTmpDir := loc.GetTargetTmpDir()
 	err = os.RemoveAll(targetTmpDir)
 	if err != nil {
-		return errors.Wrapf(err, "cleanup failed when removing the <%v> folder", targetTmpDir)
+		return errors.Wrapf(err, "cleanup failed when removing the %v folder", targetTmpDir)
 	}
 	logs.Logger.Info("cleanup finished successfully")
 	return nil

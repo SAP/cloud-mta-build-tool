@@ -169,7 +169,7 @@ enums:
    - cat
    - mouse
    - elephant
-`, `bird`, "the birdalue of the root enum property is invalid; expected one of the following: duck,dog,cat,mouse"),
+`, `bird`, "the bird value of the root enum property is invalid; expected one of the following: duck,dog,cat,mouse"),
 
 		Entry("sequence", `
 type: seq

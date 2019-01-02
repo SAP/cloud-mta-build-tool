@@ -245,7 +245,7 @@ func matchesEnumValues(enumValues []string) YamlCheck {
 		}
 		if !found {
 			return []YamlValidationIssue{{
-				Msg: fmt.Sprintf("the %value of the %s enum property is invalid; expected one of the following: %s",
+				Msg: fmt.Sprintf("the %s value of the %s enum property is invalid; expected one of the following: %s",
 					value, buildPathString(path), expectedSubset)}}
 		}
 
