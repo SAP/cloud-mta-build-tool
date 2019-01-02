@@ -1,0 +1,40 @@
+
+version=0.0.0
+ifndef p
+$(error platform flag is expected. e.g. use make -f makefile.mta p=cf)
+endif
+# Determine OS cores
+NPROCS = $(sysctl -n hw.ncpu)
+MAKEFLAGS += -j$(NPROCS)
+# List of all the recipes to be executed during the build process
+.PHONY: ui meta mtar cleanup
+# Default target compile all
+all: validate ui meta mtar cleanup
+# Validate mta.yaml
+validate:
+	@mbt validate -d=dev
+# Set the current project repository path for general mta process
+  PROJ_DIR := $(CURDIR)
+
+# List of modules
+modules = ui
+
+# Execute all modules builds
+# build module ui
+ui:
+	@cd $(PROJ_DIR)/ui && npm install && grunt
+# Pack module build artifacts
+	@mbt module pack -m=ui -p=${p}
+
+
+# Create META-INF folder with MANIFEST.MF & mtad.yaml
+meta:
+	@mbt gen meta -d=dev -p=${p}
+
+# Pack as MTAR artifact
+mtar: $(modules) meta
+	@mbt gen mtar -d=dev
+
+cleanup: mtar
+# Remove tmp folder
+	@mbt cleanup
