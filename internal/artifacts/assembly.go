@@ -10,7 +10,7 @@ import (
 
 	"github.com/pkg/errors"
 
-	"cloud-mta-build-tool/internal/content-type"
+	"cloud-mta-build-tool/internal/contenttype"
 	"cloud-mta-build-tool/internal/fs"
 	"cloud-mta-build-tool/internal/logs"
 	"cloud-mta-build-tool/internal/tpl"
@@ -93,7 +93,7 @@ func Assembly(source, target string, wdGetter func() (string, error)) error {
 
 func getAssembledEntries(loc dir.ISourceModule, mta *mta.MTA) ([]entry, error) {
 
-	contentTypes, err := content_type.GetContentTypes()
+	contentTypes, err := contenttype.GetContentTypes()
 	if err != nil {
 		return nil, errors.Wrap(err, "assembly failed when unmarshalling content types")
 	}
@@ -169,7 +169,7 @@ func getPathError(err error, path string) error {
 	return errors.Wrapf(err, "assembly failed when searching the %s path", path)
 }
 
-func addPathFromParameters(loc dir.ISourceModule, name, entryType string, entries []entry, contentTypes *content_type.ContentTypes,
+func addPathFromParameters(loc dir.ISourceModule, name, entryType string, entries []entry, contentTypes *contenttype.ContentTypes,
 	params map[string]interface{}) ([]entry, error) {
 
 	if params != nil {
@@ -184,7 +184,7 @@ func addPathFromParameters(loc dir.ISourceModule, name, entryType string, entrie
 	return entries, nil
 }
 
-func getFileInfo(loc dir.ISourceModule, entryName, entryPath, entryType string, contentTypes *content_type.ContentTypes) (*entry, error) {
+func getFileInfo(loc dir.ISourceModule, entryName, entryPath, entryType string, contentTypes *contenttype.ContentTypes) (*entry, error) {
 	fullPath := loc.GetSourceModuleDir(entryPath)
 	file, err := os.Stat(fullPath)
 	if err != nil {
@@ -195,7 +195,7 @@ func getFileInfo(loc dir.ISourceModule, entryName, entryPath, entryType string, 
 		contentType = dirContentType
 	} else {
 		ext := path.Ext(entryPath)
-		contentType, err = content_type.GetContentType(contentTypes, ext)
+		contentType, err = contenttype.GetContentType(contentTypes, ext)
 		if err != nil {
 			return nil, err
 		}

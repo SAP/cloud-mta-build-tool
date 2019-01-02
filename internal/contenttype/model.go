@@ -1,4 +1,4 @@
-package content_type
+package contenttype
 
 // ContentTypes - data structure for content types configuration
 type ContentTypes struct {

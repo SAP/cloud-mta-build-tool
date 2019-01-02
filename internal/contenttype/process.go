@@ -1,4 +1,4 @@
-package content_type
+package contenttype
 
 import (
 	"fmt"

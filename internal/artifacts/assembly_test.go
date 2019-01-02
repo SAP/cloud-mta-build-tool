@@ -3,7 +3,7 @@ package artifacts
 import (
 	"os"
 
-	"cloud-mta-build-tool/internal/content-type"
+	"cloud-mta-build-tool/internal/contenttype"
 	"cloud-mta-build-tool/internal/fs"
 
 	. "github.com/onsi/ginkgo"
@@ -68,18 +68,18 @@ var _ = Describe("Assembly", func() {
 			Entry("Broken path of resources", "mtadBrokenPathInResources.yaml"))
 	})
 	It("Wrong content types", func() {
-		config := content_type.ContentTypeConfig
-		content_type.ContentTypeConfig = []byte("Wrong content type config")
+		config := contenttype.ContentTypeConfig
+		contenttype.ContentTypeConfig = []byte("Wrong content type config")
 		loc := dir.Loc{SourcePath: getTestPath("assembly-sample"), Descriptor: "dep"}
 		mta, err := loc.ParseFile()
 		Ω(err).Should(Succeed())
 		_, err = getAssembledEntries(&loc, mta)
 		Ω(err).Should(HaveOccurred())
-		content_type.ContentTypeConfig = config
+		contenttype.ContentTypeConfig = config
 	})
 	It("Missing content types", func() {
-		config := content_type.ContentTypeConfig
-		content_type.ContentTypeConfig = []byte(`
+		config := contenttype.ContentTypeConfig
+		contenttype.ContentTypeConfig = []byte(`
 content-types:
 - extension: .war
   content-type: "application/zip"
@@ -91,7 +91,7 @@ content-types:
 		Ω(err).Should(Succeed())
 		_, err = getAssembledEntries(&loc, mta)
 		Ω(err).Should(HaveOccurred())
-		content_type.ContentTypeConfig = config
+		contenttype.ContentTypeConfig = config
 	})
 
 	var _ = Describe("genAssemblyManifest", func() {
