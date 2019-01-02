@@ -24,3 +24,7 @@ func getTestPath(relPath ...string) string {
 	wd, _ := os.Getwd()
 	return filepath.Join(wd, "testdata", filepath.Join(relPath...))
 }
+
+func getResultPath() string {
+	return getTestPath("result")
+}

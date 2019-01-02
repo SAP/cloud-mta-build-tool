@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+
+{{- range .Entries}}
+Name: {{.EntryName}}
+{{.EntryType}}: {{.EntryPath}}
+Content-Type: {{.ContentType}}
+{{end}}
+
+Name: META-INF/mtad.yaml
+Content-Type: text/plain
+
