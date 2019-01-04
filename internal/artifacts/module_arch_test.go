@@ -2,8 +2,11 @@ package artifacts
 
 import (
 	"errors"
+	"fmt"
+	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strconv"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
@@ -13,6 +16,7 @@ import (
 	"github.com/SAP/cloud-mta-build-tool/internal/commands"
 	"github.com/SAP/cloud-mta-build-tool/internal/fs"
 	"github.com/SAP/cloud-mta/mta"
+	"gopkg.in/yaml.v2"
 )
 
 var _ = Describe("ModuleArch", func() {
@@ -257,10 +261,201 @@ builders:
 			Ω(copyModuleArchive(&ep, "node-js", "node-js")).Should(HaveOccurred())
 		})
 	})
+
+	var _ = Describe("CopyMtaContent", func() {
+		var source string
+		defaultDeploymentDescriptorParam := "dep"
+		defaultDeploymentDescriptorName := "mtad.yaml"
+		BeforeEach(func() {
+			source, _ = ioutil.TempDir("", "testing-mta-content")
+		})
+		It("Without no deployment descriptor in the source directory", func() {
+			err := CopyMtaContent(source, source, defaultDeploymentDescriptorParam, os.Getwd)
+			Ω(err).Should(Not(BeNil()))
+			fmt.Println(err.Error())
+			Ω(err.Error()).Should(Equal(fmt.Sprintf("error while parsing MTA: failed to read the %s/mtad.yaml file: open %s/mtad.yaml: no such file or directory", source, source)))
+		})
+		It("With a deployment descriptor in the source directory with only modules paths as zip archives", func() {
+			createFileInGivenPath(filepath.Join(source, defaultDeploymentDescriptorName))
+			mta := generateTestMta(source, 2, 0, map[string]string{}, map[string]string{"test-module-0": "zip", "test-module-1": "folder"})
+			mtaBytes, _ := yaml.Marshal(mta)
+			ioutil.WriteFile(filepath.Join(source, defaultDeploymentDescriptorName), mtaBytes, os.ModePerm)
+			err := CopyMtaContent(source, source, defaultDeploymentDescriptorParam, os.Getwd)
+			Ω(err).Should((BeNil()))
+			info, _ := os.Stat(source)
+			Ω(dirContainsAllElements(source, map[string]bool{info.Name(): true}, false)).Should(Equal(true))
+			Ω(dirContainsAllElements(filepath.Join(source, info.Name()), map[string]bool{"test.zip": true, "test-content": true}, true)).Should(Equal(true))
+		})
+		It("With a deployment descriptor in the source directory with one module path and one resource path as zip archuve and a folder", func() {
+			createFileInGivenPath(filepath.Join(source, defaultDeploymentDescriptorName))
+			mta := generateTestMta(source, 1, 1, map[string]string{}, map[string]string{"test-resource-0": "zip", "test-module-0": "folder"})
+			mtaBytes, _ := yaml.Marshal(mta)
+			ioutil.WriteFile(filepath.Join(source, defaultDeploymentDescriptorName), mtaBytes, os.ModePerm)
+			err := CopyMtaContent(source, source, defaultDeploymentDescriptorParam, os.Getwd)
+			Ω(err).Should((BeNil()))
+			info, _ := os.Stat(source)
+			Ω(dirContainsAllElements(source, map[string]bool{info.Name(): true}, false)).Should(Equal(true))
+			Ω(dirContainsAllElements(filepath.Join(source, info.Name()), map[string]bool{"test.zip": true, "test-content": true}, true)).Should(Equal(true))
+		})
+		It("With a deployment descriptor in the source directory with only resources with zip and module archives", func() {
+			createFileInGivenPath(filepath.Join(source, defaultDeploymentDescriptorName))
+			mta := generateTestMta(source, 0, 2, map[string]string{}, map[string]string{"test-resource-0": "zip", "test-resource-1": "folder"})
+			mtaBytes, _ := yaml.Marshal(mta)
+			ioutil.WriteFile(filepath.Join(source, defaultDeploymentDescriptorName), mtaBytes, os.ModePerm)
+			err := CopyMtaContent(source, source, defaultDeploymentDescriptorParam, os.Getwd)
+			Ω(err).Should((BeNil()))
+			info, _ := os.Stat(source)
+			Ω(dirContainsAllElements(source, map[string]bool{info.Name(): true}, false)).Should(Equal(true))
+			Ω(dirContainsAllElements(filepath.Join(source, info.Name()), map[string]bool{"test.zip": true, "test-content": true}, true)).Should(Equal(true))
+		})
+		It("With a deployment descriptor in the source directory with only resources with zip and module archives", func() {
+			createFileInGivenPath(filepath.Join(source, defaultDeploymentDescriptorName))
+			mta := generateTestMta(source, 2, 2, map[string]string{}, map[string]string{"test-resource-0": "zip", "test-resource-1": "zip", "test-module-0": "zip", "test-module-1": "zip"})
+			mtaBytes, _ := yaml.Marshal(mta)
+			ioutil.WriteFile(filepath.Join(source, defaultDeploymentDescriptorName), mtaBytes, os.ModePerm)
+			err := CopyMtaContent(source, source, defaultDeploymentDescriptorParam, os.Getwd)
+			Ω(err).Should((BeNil()))
+			info, _ := os.Stat(source)
+			Ω(dirContainsAllElements(source, map[string]bool{info.Name(): true}, false)).Should(Equal(true))
+			Ω(dirContainsAllElements(filepath.Join(source, info.Name()), map[string]bool{"test.zip": true}, true)).Should(Equal(true))
+		})
+
+		It("With a deployment descriptor in the source directory with only one module with zip and one requiredDependency with folder", func() {
+			createFileInGivenPath(filepath.Join(source, defaultDeploymentDescriptorName))
+			mta := generateTestMta(source, 1, 0, map[string]string{"test-module-0": "test-required"}, map[string]string{"test-module-0": "folder", "test-required": "zip"})
+			mtaBytes, _ := yaml.Marshal(mta)
+			ioutil.WriteFile(filepath.Join(source, defaultDeploymentDescriptorName), mtaBytes, os.ModePerm)
+			err := CopyMtaContent(source, source, defaultDeploymentDescriptorParam, os.Getwd)
+			Ω(err).Should((BeNil()))
+			info, _ := os.Stat(source)
+			Ω(dirContainsAllElements(source, map[string]bool{info.Name(): true}, false)).Should(Equal(true))
+			Ω(dirContainsAllElements(filepath.Join(source, info.Name()), map[string]bool{"test.zip": true, "test-content": true}, true)).Should(Equal(true))
+		})
+
+		It("With a deployment descriptor in the source directory with only one module with non-existing content", func() {
+			createFileInGivenPath(filepath.Join(source, defaultDeploymentDescriptorName))
+			mta := generateTestMta(source, 1, 0, map[string]string{}, map[string]string{"test-module-0": "not-existing-contet"})
+			mtaBytes, _ := yaml.Marshal(mta)
+			ioutil.WriteFile(filepath.Join(source, defaultDeploymentDescriptorName), mtaBytes, os.ModePerm)
+			err := CopyMtaContent(source, source, defaultDeploymentDescriptorParam, os.Getwd)
+			Ω(err).Should(Not(BeNil()))
+			Ω(err.Error()).Should(Equal("not-existing-content does not exists in the current location " + source))
+			info, _ := os.Stat(source)
+			Ω(dirContainsAllElements(source, map[string]bool{info.Name(): true}, false)).Should(Equal(false))
+			Ω(dirContainsAllElements(filepath.Join(source, info.Name()), map[string]bool{}, true)).Should(Equal(true))
+		})
+
+		It("With a deployment descriptor in the source directory with a module with non-existing content and another which has content", func() {
+			createFileInGivenPath(filepath.Join(source, defaultDeploymentDescriptorName))
+			mta := generateTestMta(source, 2, 0, map[string]string{}, map[string]string{"test-module-0": "not-existing-contet", "test-module-1": "zip"})
+			mtaBytes, _ := yaml.Marshal(mta)
+			ioutil.WriteFile(filepath.Join(source, defaultDeploymentDescriptorName), mtaBytes, os.ModePerm)
+			err := CopyMtaContent(source, source, defaultDeploymentDescriptorParam, os.Getwd)
+			Ω(err).Should(Not(BeNil()))
+			Ω(err.Error()).Should(Equal("not-existing-content does not exists in the current location " + source))
+			info, _ := os.Stat(source)
+			Ω(dirContainsAllElements(source, map[string]bool{info.Name(): true}, false)).Should(Equal(false))
+			Ω(dirContainsAllElements(filepath.Join(source, info.Name()), map[string]bool{}, true)).Should(Equal(true))
+		})
+
+		It("With a deployment descriptor in the source directory with a lot of modules with zip contentt", func() {
+			createFileInGivenPath(filepath.Join(source, defaultDeploymentDescriptorName))
+			modulesWithSameContent := make(map[string]string)
+			for index := 0; index < 10; index++ {
+				modulesWithSameContent["test-module-"+strconv.Itoa(index)] = "zip"
+			}
+			mta := generateTestMta(source, 10, 0, map[string]string{}, modulesWithSameContent)
+			mtaBytes, _ := yaml.Marshal(mta)
+			ioutil.WriteFile(filepath.Join(source, defaultDeploymentDescriptorName), mtaBytes, os.ModePerm)
+			err := CopyMtaContent(source, source, defaultDeploymentDescriptorParam, os.Getwd)
+			Ω(err).Should((BeNil()))
+			info, _ := os.Stat(source)
+			Ω(dirContainsAllElements(source, map[string]bool{info.Name(): true}, false)).Should(Equal(true))
+			Ω(dirContainsAllElements(filepath.Join(source, info.Name()), map[string]bool{"test.zip": true}, true)).Should(Equal(true))
+		})
+
+		AfterEach(func() {
+			os.RemoveAll(source)
+		})
+	})
 })
 
-func createFile(path ...string) {
-	file, err := os.Create(getTestPath(path...))
+func dirContainsAllElements(source string, elements map[string]bool, validateEntitiesCount bool) bool {
+	sourceElements, _ := ioutil.ReadDir(source)
+	if validateEntitiesCount {
+		Ω(len(sourceElements)).Should(Equal(len(elements)))
+	}
+	for _, el := range sourceElements {
+		if elements[el.Name()] {
+			delete(elements, el.Name())
+		}
+	}
+
+	return len(elements) == 0
+}
+
+func generateTestMta(source string, numberOfModules, numberOfResources int, moduleWithReqDependencies, moduleAndResourcesAndRequiredDependenciesContentTypes map[string]string) mta.MTA {
+	mta := mta.MTA{SchemaVersion: &[]string{"3.0.0"}[0], ID: "test-mta-id"}
+	// populate modules
+	for index := 0; index < numberOfModules; index++ {
+		moduleName := "test-module-" + strconv.Itoa(index)
+		mta.Modules = append(mta.Modules, generateTestModule(moduleName, moduleAndResourcesAndRequiredDependenciesContentTypes[moduleName], source))
+	}
+
+	for index := 0; index < numberOfResources; index++ {
+		resourceName := "test-resource-" + strconv.Itoa(index)
+		mta.Resources = append(mta.Resources, generateTestResource(resourceName, moduleAndResourcesAndRequiredDependenciesContentTypes[resourceName], source))
+	}
+
+	for moduleName, requiredDependencyName := range moduleWithReqDependencies {
+		for _, module := range mta.Modules {
+			if module.Name == moduleName {
+				module.Requires = append(module.Requires, generateRequiredDependency(requiredDependencyName, moduleAndResourcesAndRequiredDependenciesContentTypes[requiredDependencyName], source))
+			}
+		}
+	}
+	return mta
+}
+
+func generateRequiredDependency(name, contentType, source string) mta.Requires {
+	requiredDep := mta.Requires{Name: name}
+	requiredDep.Parameters = make(map[string]interface{})
+	requiredDep.Parameters["path"] = getContentPath(contentType, source)
+	return requiredDep
+}
+
+func generateTestResource(resourceName, contentType, source string) *mta.Resource {
+	resource := mta.Resource{Name: resourceName, Type: "test-resource-type"}
+	resource.Parameters = make(map[string]interface{})
+	resource.Parameters["path"] = getContentPath(contentType, source)
+	return &resource
+}
+
+func generateTestModule(moduleName, contentType, source string) *mta.Module {
+	module := mta.Module{Name: moduleName, Type: "test-module-type"}
+	module.Path = getContentPath(contentType, source)
+	return &module
+}
+
+func getContentPath(contentType, source string) string {
+	if contentType == "zip" {
+		dir.CopyFile(getTestPath("mta_content_copy_test", "test.zip"), filepath.Join(source, "test.zip"))
+		return "test.zip"
+	}
+	if contentType == "folder" {
+		dir.CopyDir(getTestPath("mta_content_copy_test", "test-content"), filepath.Join(source, "test-content"))
+		return "test-content"
+	}
+
+	return "not-existing-content"
+}
+
+func createFileInGivenPath(path string) {
+	file, err := os.Create(path)
 	Ω(err).Should(Succeed())
 	file.Close()
+}
+
+func createFile(path ...string) {
+	createFileInGivenPath(getTestPath(path...))
 }

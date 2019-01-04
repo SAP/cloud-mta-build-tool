@@ -16,7 +16,7 @@ func ExecuteGenMeta(source, target, desc, platform string, wdGetter func() (stri
 	if err != nil {
 		return errors.Wrap(err, "generation of metadata failed when initializing the location")
 	}
-	err = generateMeta(loc, loc, loc.IsDeploymentDescriptor(), platform)
+	err = generateMeta(loc, loc, loc, loc.IsDeploymentDescriptor(), platform)
 	if err != nil {
 		return err
 	}
@@ -25,7 +25,7 @@ func ExecuteGenMeta(source, target, desc, platform string, wdGetter func() (stri
 }
 
 // generateMeta - generate metadata artifacts
-func generateMeta(parser dir.IMtaParser, ep dir.ITargetArtifacts, deploymentDescriptor bool, platform string) error {
+func generateMeta(parser dir.IMtaParser, ep dir.ITargetArtifacts, targetPathGetter dir.ITargetPath, deploymentDescriptor bool, platform string) error {
 
 	// parse MTA file
 	m, err := parser.ParseFile()
@@ -41,7 +41,7 @@ func generateMeta(parser dir.IMtaParser, ep dir.ITargetArtifacts, deploymentDesc
 
 	adaptMtadForDeployment(m, platform)
 	// Generate meta info dir with required content
-	err = GenMetaInfo(ep, deploymentDescriptor, platform, m, []string{})
+	err = GenMetaInfo(ep, targetPathGetter, deploymentDescriptor, platform, m, []string{})
 	if err != nil {
 		return err
 	}
@@ -49,13 +49,13 @@ func generateMeta(parser dir.IMtaParser, ep dir.ITargetArtifacts, deploymentDesc
 }
 
 // GenMetaInfo generates a MANIFEST.MF file and updates the build artifacts paths for deployment purposes.
-func GenMetaInfo(ep dir.ITargetArtifacts, deploymentDesc bool, platform string, mtaStr *mta.MTA, modules []string) (rerr error) {
+func GenMetaInfo(ep dir.ITargetArtifacts, targetPathGetter dir.ITargetPath, deploymentDesc bool, platform string, mtaStr *mta.MTA, modules []string) (rerr error) {
 	err := genMtad(mtaStr, ep, deploymentDesc, platform)
 	if err != nil {
 		return errors.Wrap(err, "generation of metadata failed when generating the .mtad file")
 	}
 	// Set the MANIFEST.MF file
-	err = setManifestDesc(ep, mtaStr.Modules, modules)
+	err = setManifestDesc(ep, targetPathGetter, mtaStr.Modules, mtaStr.Resources, modules)
 	if err != nil {
 		return errors.Wrap(err, "generation of metadata failed when populating the manifest file")
 	}

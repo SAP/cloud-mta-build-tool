@@ -23,7 +23,7 @@ var validateCmdMode string
 func init() {
 
 	// Add command to the root
-	rootCmd.AddCommand(versionCmd, initCmd, validateCmd, cleanupCmd, provideCmd, generateCmd, moduleCmd)
+	rootCmd.AddCommand(versionCmd, initCmd, validateCmd, cleanupCmd, provideCmd, generateCmd, moduleCmd, assemblyCommand)
 	// Build module
 	provideCmd.AddCommand(provideModuleCmd)
 	// generate immutable commands

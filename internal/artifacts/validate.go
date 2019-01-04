@@ -5,6 +5,7 @@ import (
 
 	"github.com/SAP/cloud-mta-build-tool/internal/fs"
 	"github.com/SAP/cloud-mta-build-tool/internal/logs"
+	"github.com/SAP/cloud-mta/validations"
 )
 
 // ExecuteValidation - executes validation of MTA

@@ -7,11 +7,10 @@ import (
 
 	"github.com/pkg/errors"
 
+	"github.com/SAP/cloud-mta-build-tool/internal/contenttype"
+	"github.com/SAP/cloud-mta-build-tool/internal/fs"
+	"github.com/SAP/cloud-mta-build-tool/internal/logs"
 	"github.com/SAP/cloud-mta/mta"
-
-	"cloud-mta-build-tool/internal/contenttype"
-	"cloud-mta-build-tool/internal/fs"
-	"cloud-mta-build-tool/internal/logs"
 )
 
 const (

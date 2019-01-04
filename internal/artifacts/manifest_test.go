@@ -1,13 +1,15 @@
 package artifacts
 
 import (
+	"fmt"
+	"io/ioutil"
 	"os"
+	"path/filepath"
+
+	"github.com/SAP/cloud-mta-build-tool/internal/fs"
+	"github.com/SAP/cloud-mta/mta"
 
 	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
-
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
 )
 
@@ -23,12 +25,20 @@ var _ = Describe("manifest", func() {
 
 	var _ = Describe("setManifestDesc", func() {
 		It("Sanity", func() {
+			os.Mkdir(filepath.Join(getTestPath("result", "mta"), "node-js"), os.ModePerm)
+			os.Create(filepath.Join(getTestPath("result", "mta"), "node-js", "data.zip"))
+			dirC, _ := ioutil.ReadDir(getTestPath("result", "mta"))
+			for _, c := range dirC {
+				fmt.Println(c.Name())
+			}
 			loc := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath()}
 			mtaObj, err := loc.ParseFile()
 			Ω(err).Should(Succeed())
-			Ω(setManifestDesc(&loc, mtaObj.Modules, []string{})).Should(Succeed())
+			Ω(setManifestDesc(&loc, &loc, mtaObj.Modules, []*mta.Resource{}, []string{})).Should(Succeed())
 			actual := getFileContent(getTestPath("result", "mta", "META-INF", "MANIFEST.MF"))
 			golden := getFileContent(getTestPath("golden_manifest.mf"))
+			fmt.Println(actual)
+			fmt.Println(golden)
 			Ω(actual).Should(Equal(golden))
 		})
 	})
