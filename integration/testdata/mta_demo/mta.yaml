@@ -11,19 +11,6 @@ modules:
       properties:
          url: ${default-url}
 
- - name: ui5
-   type: html5
-   path: ui5
-   parameters:
-      disk-quota: 256M
-      memory: 256M
-   build-parameters:
-      builder: grunt
-   requires:
-    - name: uaa_mta_demo2
-    - name: dest_mta_demo2
-
-
 resources:
  - name: uaa_mta_demo2
    parameters:
