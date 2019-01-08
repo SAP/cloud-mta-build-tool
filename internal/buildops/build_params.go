@@ -28,14 +28,14 @@ type BuildRequires struct {
 	TargetPath string   `yaml:"target-path,omitempty"`
 }
 
-// GetBuilder - gets builder type of the module
-func GetBuilder(module *mta.Module) string {
+// GetBuilder - gets builder type of the module and indicator of custom builder
+func GetBuilder(module *mta.Module) (string, bool) {
 	// builder defined in build params is prioritised
 	if module.BuildParams != nil && module.BuildParams[builderParam] != nil {
-		return module.BuildParams[builderParam].(string)
+		return module.BuildParams[builderParam].(string), true
 	}
 	// default builder is defined by type property of the module
-	return module.Type
+	return module.Type, false
 }
 
 // getBuildRequires - gets Requires property of module's build-params property

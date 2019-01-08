@@ -48,7 +48,7 @@ builders:
 		}
 		commands := Builders{}
 		Ω(yaml.Unmarshal(buildersCfg, &commands)).Should(Succeed())
-		Ω(mesh(modules, commands)).Should(Equal(expected))
+		Ω(mesh(modules, commands, commands)).Should(Equal(expected))
 	})
 
 	It("CommandProvider", func() {

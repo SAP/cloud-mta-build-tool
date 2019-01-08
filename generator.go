@@ -2,6 +2,8 @@ package main
 
 //go:generate go run ./internal/build-tools/embed.go -source=./configs/platform_cfg.yaml -target=./internal/platform/platform_cfg.go -name=PlatformConfig -package=platform
 //go:generate go run ./internal/build-tools/embed.go -source=./configs/commands_cfg.yaml -target=./internal/commands/commands_cfg.go -name=CommandsConfig -package=commands
+//go:generate go run ./internal/build-tools/embed.go -source=./configs/content_type_cfg.yaml -target=./internal/contenttype/content_type_cfg.go -name=ContentTypeConfig -package=contenttype
+//go:generate go run ./internal/build-tools/embed.go -source=./internal/tpl/manifest.txt -target=./internal/tpl/manifest.go -name=Manifest -package=tpl
 //go:generate go run ./internal/build-tools/embed.go -source=./configs/custom_commands_cfg.yaml -target=./internal/commands/custom_commands_cfg.go -name=CustomCommandsConfig -package=commands
 //go:generate go run ./internal/build-tools/embed.go -source=./configs/version.yaml -target=./internal/version/version_cfg.go -name=VersionConfig -package=version
 //go:generate go run ./internal/build-tools/embed.go -source=./validations/schema.yaml -target=./validations/mta_schema.go -name=schemaDef -package=validate

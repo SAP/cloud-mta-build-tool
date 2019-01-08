@@ -1,0 +1,44 @@
+_schema-version: "2.0.0"
+ID: com.sap.xs2.samples.javahelloworld
+version: 0.1.0
+
+modules:
+  - name: java-hello-world
+    type: javascript.nodejs
+    path: web/
+    requires:
+      - name: java-uaa
+      - name: java
+        group: destinations
+        properties:
+          name: java
+          url: ~{url}
+          forwardAuthToken: true
+    
+  - name: java-hello-world-backend
+    type: java.tomee
+    provides: 
+      - name: java
+        properties:
+          url: "${default-url}"
+    properties:
+      JBP_CONFIG_RESOURCE_CONFIGURATION: "['tomee/webapps/ROOT/WEB-INF/resources.xml': {'service_name_for_DefaultDB' : 'java-hdi-container'}]"
+    requires:
+      - name: java-uaa
+      - name: java-hdi-container
+      - name: java-hello-world-db
+      - name: java-site-host
+        parameters:
+          path: config-site-host.json
+
+resources:
+  - name: java-hdi-container
+    type: com.sap.xs.hdi-container
+    
+  - name: java-uaa
+    type: com.sap.xs.uaa-space
+    parameters:
+      path: xs-security1.json
+
+  - name: java-site-host
+    type: com.sap.portal.site-host

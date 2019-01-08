@@ -19,13 +19,13 @@ import (
 var _ = Describe("Meta", func() {
 
 	AfterEach(func() {
-		os.RemoveAll(getTestPath("result"))
+		os.RemoveAll(getResultPath())
 	})
 
 	var _ = Describe("ExecuteGenMeta", func() {
 
 		It("Sanity", func() {
-			Ω(ExecuteGenMeta(getTestPath("mtahtml5"), getTestPath("result"), "dev", "cf", os.Getwd)).Should(Succeed())
+			Ω(ExecuteGenMeta(getTestPath("mtahtml5"), getResultPath(), "dev", "cf", os.Getwd)).Should(Succeed())
 			Ω(getTestPath("result", "mtahtml5", "META-INF", "MANIFEST.MF")).Should(BeAnExistingFile())
 			Ω(getTestPath("result", "mtahtml5", "META-INF", "mtad.yaml")).Should(BeAnExistingFile())
 		})
@@ -36,12 +36,12 @@ var _ = Describe("Meta", func() {
 			})).Should(HaveOccurred())
 		})
 		It("generateMeta fails on wrong source path - parse mta fails", func() {
-			Ω(ExecuteGenMeta(getTestPath("mtahtml6"), getTestPath("result"), "dev", "cf", os.Getwd)).Should(HaveOccurred())
+			Ω(ExecuteGenMeta(getTestPath("mtahtml6"), getResultPath(), "dev", "cf", os.Getwd)).Should(HaveOccurred())
 		})
 	})
 
 	var _ = Describe("GenMetaInfo", func() {
-		ep := dir.Loc{SourcePath: getTestPath("testproject"), TargetPath: getTestPath("result")}
+		ep := dir.Loc{SourcePath: getTestPath("testproject"), TargetPath: getResultPath()}
 		var mtaSingleModule = []byte(`
 _schema-version: "2.0.0"
 ID: mta_proj
@@ -83,7 +83,7 @@ cli_version:["x"]
 			AfterEach(func() {
 				version.VersionConfig = make([]byte, len(config))
 				copy(version.VersionConfig, config)
-				os.RemoveAll(getTestPath("result"))
+				os.RemoveAll(getResultPath())
 			})
 
 			It("Fails on get version", func() {
@@ -102,13 +102,14 @@ cli_version:["x"]
 		}
 
 		It("Generate Meta", func() {
-			ep := dir.Loc{SourcePath: getTestPath("mtahtml5"), TargetPath: getTestPath("result")}
+			ep := dir.Loc{SourcePath: getTestPath("mtahtml5"), TargetPath: getResultPath()}
 			generateMeta(&ep, &ep, false, "cf")
-			Ω(readFileContent(&dir.Loc{SourcePath: getTestPath("result", "mtahtml5", "META-INF"), Descriptor: "dep"})).Should(Equal(readFileContent(&dir.Loc{SourcePath: getTestPath("golden"), Descriptor: "dep"})))
+			Ω(readFileContent(&dir.Loc{SourcePath: getTestPath("result", "mtahtml5", "META-INF"), Descriptor: "dep"})).
+				Should(Equal(readFileContent(&dir.Loc{SourcePath: getTestPath("golden"), Descriptor: "dep"})))
 		})
 
 		It("Generate Meta - with extension file", func() {
-			ep := dir.Loc{SourcePath: getTestPath("mtahtml5"), TargetPath: getTestPath("result")}
+			ep := dir.Loc{SourcePath: getTestPath("mtahtml5"), TargetPath: getResultPath()}
 			Ω(generateMeta(&ep, &ep, false, "cf")).Should(Succeed())
 			actual := readFileContent(&dir.Loc{SourcePath: getTestPath("result", "mtahtml5", "META-INF"), Descriptor: "dep"})
 			golden := readFileContent(&dir.Loc{SourcePath: getTestPath("golden"), Descriptor: "dep"})
@@ -116,20 +117,21 @@ cli_version:["x"]
 		})
 
 		It("Generate Meta - mta not exists", func() {
-			ep := dir.Loc{SourcePath: getTestPath("mtahtml5"), TargetPath: getTestPath("result"), MtaFilename: "mtaNotExists.yaml"}
+			ep := dir.Loc{SourcePath: getTestPath("mtahtml5"), TargetPath: getResultPath(),
+				MtaFilename: "mtaNotExists.yaml"}
 			Ω(generateMeta(&ep, &ep, false, "cf")).Should(HaveOccurred())
 		})
 
 		It("Generate Meta fails on platform parsing", func() {
 			platformConfig := platform.PlatformConfig
 			platform.PlatformConfig = []byte("wrong")
-			ep := dir.Loc{SourcePath: getTestPath("mtahtml5"), TargetPath: getTestPath("result")}
+			ep := dir.Loc{SourcePath: getTestPath("mtahtml5"), TargetPath: getResultPath()}
 			Ω(generateMeta(&ep, &ep, false, "cf")).Should(HaveOccurred())
 			platform.PlatformConfig = platformConfig
 		})
 
 		It("Generate Mtar", func() {
-			ep := dir.Loc{SourcePath: getTestPath("mtahtml5"), TargetPath: getTestPath("result")}
+			ep := dir.Loc{SourcePath: getTestPath("mtahtml5"), TargetPath: getResultPath()}
 			err := generateMeta(&ep, &ep, false, "cf")
 			if err != nil {
 				fmt.Println(err)

@@ -1,11 +1,12 @@
 package artifacts
 
 import (
-	"fmt"
-	"io"
 	"os"
 	"path/filepath"
+	"text/template"
 
+	"cloud-mta-build-tool/internal/fs"
+	"cloud-mta-build-tool/internal/tpl"
 	"cloud-mta-build-tool/internal/version"
 	"cloud-mta-build-tool/mta"
 
@@ -22,39 +23,64 @@ import (
 // This is used by the deploy service to track the build project.
 
 const (
-	newLine         = "\n"
-	contentType     = "Content-Type: "
-	mtaModule       = "MTA-Module: "
-	moduleName      = "Name: "
-	applicationZip  = "application/zip"
-	manifestVersion = "manifest-Version: 1.0"
-	pathSep         = string(os.PathSeparator)
-	dataZip         = pathSep + "data.zip"
+	applicationZip = "application/zip"
+	pathSep        = string(os.PathSeparator)
+	dataZip        = pathSep + "data.zip"
 )
 
+type entry struct {
+	EntryName   string
+	EntryType   string
+	file        *os.FileInfo
+	ContentType string
+	EntryPath   string
+}
+
 // setManifestDesc - Set the MANIFEST.MF file
-func setManifestDesc(file io.Writer, mtaStr []*mta.Module, modules []string) error {
-	// TODO create dynamically
-	_, err := fmt.Fprint(file, manifestVersion+newLine)
-	if err != nil {
-		return errors.Wrap(err, "failed to generate the manifest file when printing the manifest version")
+func setManifestDesc(ep dir.ITargetArtifacts, mtaStr []*mta.Module, modules []string) error {
+
+	var entries []entry
+	for _, mod := range mtaStr {
+		if moduleDefined(mod.Name, modules) {
+			moduleEntry := entry{
+				EntryName:   mod.Name,
+				EntryPath:   filepath.ToSlash(mod.Name + dataZip),
+				ContentType: applicationZip,
+				EntryType:   moduleEntry,
+			}
+			entries = append(entries, moduleEntry)
+		}
 	}
+	return genManifest(ep.GetManifestPath(), entries)
+}
+
+func genManifest(manifestPath string, entries []entry) (rerr error) {
+
 	v, err := version.GetVersion()
 	if err != nil {
 		return errors.Wrap(err, "failed to generate the manifest file when getting the CLI version")
 	}
-	_, err = fmt.Fprintf(file, "Created-By: SAP Application Archive Builder %v", v.CliVersion)
-	if err != nil {
-		return errors.Wrap(err, "failed to generate the manifest file when printing the CLI version")
+
+	funcMap := template.FuncMap{
+		"Entries":    entries,
+		"CliVersion": v.CliVersion,
 	}
-	for _, mod := range mtaStr {
-		if moduleDefined(mod.Name, modules) {
-			err := printToFile(file, mod)
-			if err != nil {
-				return errors.Wrapf(err, "failed to generate the manifest file when printing the %v module", mod.Name)
-			}
+	out, err := os.Create(manifestPath)
+	defer func() {
+		errClose := out.Close()
+		if errClose != nil {
+			rerr = errors.Wrap(err, "failed to generate the manifest file when closing the manifest file")
 		}
+	}()
+	if err != nil {
+		return errors.Wrap(err, "failed to generate the manifest file when creating the manifest file")
 	}
+	t := template.Must(template.New("template").Parse(string(tpl.Manifest)))
+	err = t.Execute(out, funcMap)
+	if err != nil {
+		return errors.Wrap(err, "failed to generate the manifest file when populating the content")
+	}
+
 	return nil
 }
 
@@ -69,11 +95,4 @@ func moduleDefined(module string, modules []string) bool {
 		}
 	}
 	return false
-}
-
-// printToFile - Print to manifest.mf file
-func printToFile(file io.Writer, mtaStr *mta.Module) error {
-	_, err := fmt.Fprint(file, newLine+newLine, filepath.ToSlash(moduleName+mtaStr.Name+dataZip),
-		newLine, mtaModule+mtaStr.Name, newLine, contentType+applicationZip)
-	return err
 }
