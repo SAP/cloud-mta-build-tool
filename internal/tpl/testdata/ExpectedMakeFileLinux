@@ -2,6 +2,9 @@ version=0.0.0
 ifndef p
 $(error platform flag is expected. e.g. use make -f makefile.mta p=cf)
 endif
+ifndef t
+t=$(CURDIR)
+endif
 # Determine OS cores
 NPROCS = $(shell grep -c 'processor' /proc/cpuinfo)
 MAKEFLAGS += -j$(NPROCS)
@@ -23,17 +26,17 @@ modules = ui
 ui:
 	@cd $(PROJ_DIR)/ui && npm install && grunt
 # Pack module build artifacts
-	@mbt module pack -m=ui -p=${p}
+	@mbt module pack -m=ui -p=${p} -t=${t}
 
 
 # Create META-INF folder with MANIFEST.MF & mtad.yaml
 meta:
-	@mbt gen meta -d=dev -p=${p}
+	@mbt gen meta -d=dev -p=${p} -t=${t}
 
 # Pack as MTAR artifact
 mtar: $(modules) meta
-	@mbt gen mtar -d=dev
+	@mbt gen mtar -d=dev -t=${t}
 
 cleanup: mtar
 # Remove tmp folder
-	@mbt cleanup
+	@mbt cleanup -t=${t}

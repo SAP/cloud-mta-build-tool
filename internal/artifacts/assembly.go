@@ -68,7 +68,7 @@ func Assembly(source, target string, wdGetter func() (string, error)) error {
 	logs.Logger.Info("the .mtad file copied into META-INF folder of the temporary folder")
 
 	// generate the manifest file
-	err = genManifest(loc, entries)
+	err = genManifest(loc.GetManifestPath(), entries)
 	if err != nil {
 		return errors.Wrap(err, "assembly failed when generating the manifest file")
 	}

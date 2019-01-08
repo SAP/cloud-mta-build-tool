@@ -9,5 +9,5 @@ mtar: $(modules) meta
 
 cleanup: mtar
 # Remove tmp folder
-{{"\t"}}@mbt cleanup
+{{"\t"}}@mbt cleanup -t=${t}
 {{end}}

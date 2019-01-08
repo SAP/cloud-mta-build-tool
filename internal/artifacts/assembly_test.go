@@ -97,7 +97,7 @@ content-types:
 	var _ = Describe("genManifest", func() {
 		It("Fails on wrong location", func() {
 			loc := dir.Loc{}
-			Ω(genManifest(&loc, []entry{})).Should(HaveOccurred())
+			Ω(genManifest(loc.GetManifestPath(), []entry{})).Should(HaveOccurred())
 		})
 	})
 })
