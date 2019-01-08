@@ -2,6 +2,7 @@ package artifacts
 
 import (
 	"os"
+	"path/filepath"
 	"text/template"
 
 	"cloud-mta-build-tool/internal/fs"
@@ -41,14 +42,19 @@ func setManifestDesc(ep dir.ITargetArtifacts, mtaStr []*mta.Module, modules []st
 	var entries []entry
 	for _, mod := range mtaStr {
 		if moduleDefined(mod.Name, modules) {
-			moduleEntry := entry{ContentType: moduleEntry, EntryPath: mod.Path, EntryType: applicationZip, EntryName: mod.Name}
+			moduleEntry := entry{
+				EntryName:   mod.Name,
+				EntryPath:   filepath.ToSlash(mod.Name + dataZip),
+				ContentType: applicationZip,
+				EntryType:   moduleEntry,
+			}
 			entries = append(entries, moduleEntry)
 		}
 	}
-	return genManifest(ep, entries)
+	return genManifest(ep.GetManifestPath(), entries)
 }
 
-func genManifest(loc dir.ITargetArtifacts, entries []entry) (rerr error) {
+func genManifest(manifestPath string, entries []entry) (rerr error) {
 
 	v, err := version.GetVersion()
 	if err != nil {
@@ -59,7 +65,6 @@ func genManifest(loc dir.ITargetArtifacts, entries []entry) (rerr error) {
 		"Entries":    entries,
 		"CliVersion": v.CliVersion,
 	}
-	manifestPath := loc.GetManifestPath()
 	out, err := os.Create(manifestPath)
 	defer func() {
 		errClose := out.Close()
