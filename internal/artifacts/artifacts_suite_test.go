@@ -1,8 +1,11 @@
 package artifacts
 
 import (
+	"io/ioutil"
 	"os"
 	"path/filepath"
+	"regexp"
+	"strings"
 	"testing"
 
 	. "github.com/onsi/ginkgo"
@@ -27,4 +30,17 @@ func getTestPath(relPath ...string) string {
 
 func getResultPath() string {
 	return getTestPath("result")
+}
+
+func removeSpecialSymbols(b []byte) string {
+	reg, _ := regexp.Compile("[^a-zA-Z0-9]+")
+	s := string(b)
+	s = strings.Replace(s, "0xd, ", "", -1)
+	s = reg.ReplaceAllString(s, "")
+	return s
+}
+
+func getFileContent(filePath string) string {
+	expected, _ := ioutil.ReadFile(filePath)
+	return removeSpecialSymbols(expected)
 }

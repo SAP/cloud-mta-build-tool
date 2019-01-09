@@ -45,7 +45,7 @@ func Archive(sourcePath, targetArchivePath string) (e error) {
 	}
 	defer func() {
 		errClose := zipfile.Close()
-		if errClose != nil {
+		if errClose != nil && e == nil {
 			e = errClose
 		}
 	}()
@@ -54,7 +54,7 @@ func Archive(sourcePath, targetArchivePath string) (e error) {
 	archive := zip.NewWriter(zipfile)
 	defer func() {
 		errClose := archive.Close()
-		if errClose != nil {
+		if errClose != nil && e == nil {
 			e = errClose
 		}
 	}()
@@ -109,7 +109,7 @@ func walk(sourcePath string, baseDir string, archive *zip.Writer) (e error) {
 			if e == nil {
 				defer func() {
 					errClose := file.Close()
-					if errClose != nil {
+					if errClose != nil && e == nil {
 						e = errClose
 					}
 				}()
@@ -279,7 +279,7 @@ func CopyFile(src, dst string) (rerr error) {
 		return err
 	}
 	defer func() {
-		if e := in.Close(); e != nil {
+		if e := in.Close(); e != nil && rerr == nil {
 			rerr = e
 		}
 	}()
@@ -289,7 +289,7 @@ func CopyFile(src, dst string) (rerr error) {
 		return err
 	}
 	defer func() {
-		if e := out.Close(); e != nil {
+		if e := out.Close(); e != nil && rerr == nil {
 			rerr = e
 		}
 	}()
