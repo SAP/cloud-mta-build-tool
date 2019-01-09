@@ -3,13 +3,13 @@ package artifacts
 import (
 	"os"
 
-	"cloud-mta-build-tool/internal/contenttype"
-	"cloud-mta-build-tool/internal/fs"
-
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"
+
+	"cloud-mta-build-tool/internal/contenttype"
+	"cloud-mta-build-tool/internal/fs"
 )
 
 var _ = Describe("Assembly", func() {
@@ -94,10 +94,4 @@ content-types:
 		contenttype.ContentTypeConfig = config
 	})
 
-	var _ = Describe("genManifest", func() {
-		It("Fails on wrong location", func() {
-			loc := dir.Loc{}
-			Ω(genManifest(loc.GetManifestPath(), []entry{})).Should(HaveOccurred())
-		})
-	})
 })

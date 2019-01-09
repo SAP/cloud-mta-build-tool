@@ -5,12 +5,12 @@ import (
 	"path/filepath"
 	"text/template"
 
+	"github.com/pkg/errors"
+
 	"cloud-mta-build-tool/internal/fs"
 	"cloud-mta-build-tool/internal/tpl"
 	"cloud-mta-build-tool/internal/version"
 	"cloud-mta-build-tool/mta"
-
-	"github.com/pkg/errors"
 )
 
 // The deployment descriptor should be located within the META-INF folder of the JAR.
@@ -68,8 +68,8 @@ func genManifest(manifestPath string, entries []entry) (rerr error) {
 	out, err := os.Create(manifestPath)
 	defer func() {
 		errClose := out.Close()
-		if errClose != nil {
-			rerr = errors.Wrap(err, "failed to generate the manifest file when closing the manifest file")
+		if errClose != nil && rerr == nil {
+			rerr = errors.Wrap(errClose, "failed to generate the manifest file when closing the manifest file")
 		}
 	}()
 	if err != nil {
