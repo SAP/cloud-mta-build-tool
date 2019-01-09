@@ -19,6 +19,18 @@ var _ = Describe("manifest", func() {
 		os.RemoveAll(getTestPath("result"))
 	})
 
+	var _ = Describe("setManifestDesc", func() {
+		It("Sanity", func() {
+			loc := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath()}
+			mtaObj, err := loc.ParseFile()
+			Ω(err).Should(Succeed())
+			Ω(setManifestDesc(&loc, mtaObj.Modules, []string{})).Should(Succeed())
+			actual := getFileContent(getTestPath("result", "mta", "META-INF", "MANIFEST.MF"))
+			golden := getFileContent(getTestPath("golden_manifest.mf"))
+			Ω(actual).Should(Equal(golden))
+		})
+	})
+
 	var _ = Describe("genManifest", func() {
 		It("Sanity", func() {
 			loc := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath()}
