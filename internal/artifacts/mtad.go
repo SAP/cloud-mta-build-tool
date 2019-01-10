@@ -7,10 +7,11 @@ import (
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
 
+	"github.com/SAP/cloud-mta/mta"
+
 	"cloud-mta-build-tool/internal/buildops"
 	"cloud-mta-build-tool/internal/fs"
 	"cloud-mta-build-tool/internal/logs"
-	"cloud-mta-build-tool/mta"
 )
 
 // ExecuteGenMtad - generates MTAD from MTA

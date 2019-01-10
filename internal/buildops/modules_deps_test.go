@@ -11,8 +11,9 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"
 
+	"github.com/SAP/cloud-mta/mta"
+
 	"cloud-mta-build-tool/internal/fs"
-	"cloud-mta-build-tool/mta"
 )
 
 var _ = Describe("ModulesDeps", func() {

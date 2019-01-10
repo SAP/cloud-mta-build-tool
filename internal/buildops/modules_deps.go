@@ -6,8 +6,9 @@ import (
 	"github.com/deckarep/golang-set"
 	"github.com/pkg/errors"
 
+	"github.com/SAP/cloud-mta/mta"
+
 	"cloud-mta-build-tool/internal/fs"
-	"cloud-mta-build-tool/mta"
 )
 
 type graphNode struct {
