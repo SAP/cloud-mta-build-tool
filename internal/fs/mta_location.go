@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"path/filepath"
 
-	"cloud-mta-build-tool/mta"
-
 	"github.com/pkg/errors"
+
+	"github.com/SAP/cloud-mta/mta"
 )
 
 const (

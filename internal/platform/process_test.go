@@ -5,7 +5,7 @@ import (
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
 
-	"cloud-mta-build-tool/mta"
+	"github.com/SAP/cloud-mta/mta"
 )
 
 var _ = Describe("Process", func() {

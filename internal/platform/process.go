@@ -4,7 +4,7 @@ import (
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
 
-	"cloud-mta-build-tool/mta"
+	"github.com/SAP/cloud-mta/mta"
 )
 
 // Unmarshal - unmarshal platform config

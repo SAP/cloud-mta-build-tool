@@ -5,10 +5,10 @@ import (
 	"os"
 	"path/filepath"
 
-	"cloud-mta-build-tool/mta"
-
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+
+	"github.com/SAP/cloud-mta/mta"
 )
 
 func getPath(relPath ...string) string {

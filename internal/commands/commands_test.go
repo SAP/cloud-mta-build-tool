@@ -6,11 +6,11 @@ import (
 
 	"cloud-mta-build-tool/internal/fs"
 
+	"github.com/SAP/cloud-mta/mta"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"gopkg.in/yaml.v2"
-
-	"cloud-mta-build-tool/mta"
 )
 
 var _ = Describe("Commands tests", func() {
