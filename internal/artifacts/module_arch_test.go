@@ -273,7 +273,15 @@ builders:
 			err := CopyMtaContent(source, source, defaultDeploymentDescriptorParam, os.Getwd)
 			Ω(err).Should(Not(BeNil()))
 			fmt.Println(err.Error())
-			Ω(err.Error()).Should(Equal(fmt.Sprintf("error while parsing MTA: failed to read the %s/mtad.yaml file: open %s/mtad.yaml: no such file or directory", source, source)))
+			Ω(err.Error()).Should(Equal(fmt.Sprintf("error while parsing MTA: failed to read the %s%smtad.yaml file: open %s%smtad.yaml: The system cannot find the file specified.", source, pathSep, source, pathSep)))
+		})
+		It("Location initialization fails", func() {
+			err := CopyMtaContent("", source, defaultDeploymentDescriptorParam, func() (string, error) {
+				return "", errors.New("error")
+			})
+			Ω(err).Should(Not(BeNil()))
+			fmt.Println(err.Error())
+			Ω(err.Error()).Should(Equal("copying mta content failed during initialization of deployment descriptor location: failed to initialize the location when getting working directory: error"))
 		})
 		It("With a deployment descriptor in the source directory with only modules paths as zip archives", func() {
 			createFileInGivenPath(filepath.Join(source, defaultDeploymentDescriptorName))

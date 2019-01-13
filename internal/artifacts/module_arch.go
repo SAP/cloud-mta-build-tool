@@ -214,15 +214,21 @@ func copyMtaContent(source, target string, mtaPaths []string) error {
 	for _, mtaPath := range mtaPaths {
 		mtaContent := filepath.Join(source, mtaPath)
 		if doesNotExist(mtaContent) {
-			cleanUpCopiedContent(target, copiendMtaContents)
-			return fmt.Errorf("%s does not exists in the current location %s", mtaPath, source)
+			errCleanup := cleanUpCopiedContent(target, copiendMtaContents)
+			if errCleanup == nil {
+				return fmt.Errorf("%s does not exists in the current location %s", mtaPath, source)
+			}
+			return fmt.Errorf("%s does not exists in the current location %s; cleanup failed", mtaPath, source)
 		}
 		copiendMtaContents = append(copiendMtaContents, mtaPath)
 		destinationMtaContent := filepath.Join(target, mtaPath)
 		err := copyMtaContentFromPath(mtaContent, destinationMtaContent, mtaPath, target)
 		if err != nil {
-			cleanUpCopiedContent(target, copiendMtaContents)
-			return fmt.Errorf("Error copying mta content %s to target directory %s: %s", mtaContent, destinationMtaContent, err.Error())
+			errCleanup := cleanUpCopiedContent(target, copiendMtaContents)
+			if errCleanup == nil {
+				return fmt.Errorf("Error copying mta content %s to target directory %s: %s", mtaContent, destinationMtaContent, err.Error())
+			}
+			return fmt.Errorf("Error copying mta content %s to target directory %s: %s; cleanup failed", mtaContent, destinationMtaContent, err.Error())
 		}
 	}
 
@@ -232,23 +238,29 @@ func copyMtaContent(source, target string, mtaPaths []string) error {
 func copyMtaContentFromPath(mtaContent, destinationMtaContent, mtaContentPath, target string) error {
 	mtaContentInfo, _ := os.Stat(mtaContent)
 	if mtaContentInfo.IsDir() {
-		os.MkdirAll(destinationMtaContent, os.ModePerm)
+		err := os.MkdirAll(destinationMtaContent, os.ModePerm)
+		if err != nil {
+			return err
+		}
 		return dir.CopyDir(mtaContent, destinationMtaContent)
 	}
 
 	mtaContentParentDir := filepath.Dir(mtaContentPath)
-	os.MkdirAll(filepath.Join(target, mtaContentParentDir), os.ModePerm)
+	err := os.MkdirAll(filepath.Join(target, mtaContentParentDir), os.ModePerm)
+	if err != nil {
+		return err
+	}
 	return dir.CopyFile(mtaContent, destinationMtaContent)
 }
 
-func cleanUpCopiedContent(targetLocation string, copiendMtaContents []string) {
+func cleanUpCopiedContent(targetLocation string, copiendMtaContents []string) error{
 	for _, copiedMtaContent := range copiendMtaContents {
 		err := os.RemoveAll(filepath.Join(targetLocation, copiedMtaContent))
 		if err != nil {
-//TODO error handling
-			break
+			return err
 		}
 	}
+	return nil
 }
 
 func doesNotExist(path string) bool {
