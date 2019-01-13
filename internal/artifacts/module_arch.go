@@ -243,7 +243,11 @@ func copyMtaContentFromPath(mtaContent, destinationMtaContent, mtaContentPath, t
 
 func cleanUpCopiedContent(targetLocation string, copiendMtaContents []string) {
 	for _, copiedMtaContent := range copiendMtaContents {
-		os.RemoveAll(filepath.Join(targetLocation, copiedMtaContent))
+		err := os.RemoveAll(filepath.Join(targetLocation, copiedMtaContent))
+		if err != nil {
+//TODO error handling
+			break
+		}
 	}
 }
 
