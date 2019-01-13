@@ -24,3 +24,8 @@ builders:
   type:
   - command: npm install
   - command: grunt
+- name: golang
+  info: "build golang application"
+  path: "path to config file which override the following default commands"
+  type:
+  - command: go build *.go
