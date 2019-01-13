@@ -11,7 +11,7 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/SAP/cloud-mta-build-tool/internal/logs"
+	"cloud-mta-build-tool/internal/logs"
 )
 
 // CreateDirIfNotExist - Create new dir

@@ -4,7 +4,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"github.com/SAP/cloud-mta-build-tool/internal/logs"
+	"cloud-mta-build-tool/internal/logs"
 )
 
 var cfgFile string

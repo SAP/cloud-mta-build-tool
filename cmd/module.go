@@ -5,7 +5,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/SAP/cloud-mta-build-tool/internal/artifacts"
+	"cloud-mta-build-tool/internal/artifacts"
 )
 
 // flags of pack command

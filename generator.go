@@ -6,7 +6,6 @@ package main
 //go:generate go run ./internal/build-tools/embed.go -source=./internal/tpl/manifest.txt -target=./internal/tpl/manifest.go -name=Manifest -package=tpl
 //go:generate go run ./internal/build-tools/embed.go -source=./configs/custom_commands_cfg.yaml -target=./internal/commands/custom_commands_cfg.go -name=CustomCommandsConfig -package=commands
 //go:generate go run ./internal/build-tools/embed.go -source=./configs/version.yaml -target=./internal/version/version_cfg.go -name=VersionConfig -package=version
-//go:generate go run ./internal/build-tools/embed.go -source=./validations/schema.yaml -target=./validations/mta_schema.go -name=schemaDef -package=validate
 //go:generate go run ./internal/build-tools/embed.go -source=./internal/tpl/base_post_default.txt -target=./internal/tpl/base_post_default.go -name=basePostDefault -package=tpl
 //go:generate go run ./internal/build-tools/embed.go -source=./internal/tpl/base_post_verbose.txt -target=./internal/tpl/base_post_verbose.go -name=basePostVerbose -package=tpl
 //go:generate go run ./internal/build-tools/embed.go -source=./internal/tpl/base_pre_default.txt -target=./internal/tpl/base_pre_default.go -name=basePreDefault -package=tpl

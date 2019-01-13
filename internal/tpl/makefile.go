@@ -8,11 +8,11 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/SAP/cloud-mta-build-tool/internal/commands"
-	"github.com/SAP/cloud-mta-build-tool/internal/fs"
-	"github.com/SAP/cloud-mta-build-tool/internal/logs"
-	"github.com/SAP/cloud-mta-build-tool/internal/proc"
-	"github.com/SAP/cloud-mta-build-tool/internal/version"
+	"cloud-mta-build-tool/internal/commands"
+	"cloud-mta-build-tool/internal/fs"
+	"cloud-mta-build-tool/internal/logs"
+	"cloud-mta-build-tool/internal/proc"
+	"cloud-mta-build-tool/internal/version"
 	"github.com/SAP/cloud-mta/mta"
 )
 

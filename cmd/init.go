@@ -5,7 +5,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/SAP/cloud-mta-build-tool/internal/tpl"
+	"cloud-mta-build-tool/internal/tpl"
 )
 
 // flags of init command

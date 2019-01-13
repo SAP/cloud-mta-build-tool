@@ -1,6 +1,6 @@
 package main
 
-import "github.com/SAP/cloud-mta-build-tool/cmd"
+import "cloud-mta-build-tool/cmd"
 
 func main() {
 	// Execute CLI Root commands

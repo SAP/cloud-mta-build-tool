@@ -6,7 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/SAP/cloud-mta-build-tool/internal/fs"
+	"cloud-mta-build-tool/internal/fs"
 	"github.com/SAP/cloud-mta/mta"
 
 	. "github.com/onsi/ginkgo"

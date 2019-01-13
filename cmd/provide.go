@@ -3,7 +3,7 @@ package commands
 import (
 	"os"
 
-	"github.com/SAP/cloud-mta-build-tool/internal/buildops"
+	"cloud-mta-build-tool/internal/buildops"
 
 	"github.com/spf13/cobra"
 )

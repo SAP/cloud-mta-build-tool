@@ -5,8 +5,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/SAP/cloud-mta-build-tool/internal/logs"
-	"github.com/SAP/cloud-mta-build-tool/internal/version"
+	"cloud-mta-build-tool/internal/logs"
+	"cloud-mta-build-tool/internal/version"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
