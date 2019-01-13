@@ -48,8 +48,6 @@ The MBT supports the following commands:
 | ------  | ------       |  ----------                                            |
 | version | `mbt -v`     | Prints the MBT version.                                 |
 | help    | `mbt -h`     | Prints all the available commands.                     | 
-| init    | `mbt init`   | Generates the `Makefile` according to the `mta.yaml` file.             |
-| TBD     |              | Additional commands will be added as they become available.
 
 
 
@@ -61,7 +59,8 @@ For background and detailed information, see The [Multi-Target Application Model
 ## Roadmap
  
 ### Milestone 1  - (Q1 - 2019)
- 
+
+ - [ ] Supports project assembly 
  - [ ] Supports build of HTML5 applications (non repo)
  - [ ] Supports build of node applications
  - [ ] Partial support of build parameters (first phase)
@@ -103,18 +102,25 @@ For background and detailed information, see The [Multi-Target Application Model
  - [ ] Supports extensibility framework
  - [ ] Full supports advanced `mta.yaml` (3.1, > 3.2) schema
 
+## Usage
+
+  TBD.
+  
 ## Contributions
 
 Contributions are greatly appreciated.
 See [CONTRIBUTING.md](./.github/CONTRIBUTING.md) for details.
 
-### How can I obtain support?
+## Known Issues
+
+No known major issues.  To report a new issue, please use our GitHub bug tracking system.
+
+## Support
 
 Please follow our [issue template](./.github/ISSUE_TEMPLATE/bug_report.md) on how to report an issue.
  
- 
  ## License
  
-Copyright (c) 2018 SAP SE or an SAP affiliate company. All rights reserved.
+Copyright (c) 2019 SAP SE or an SAP affiliate company. All rights reserved.
 
 This file is licensed under the Apache 2.0 License [except as noted otherwise in the LICENSE file](/LICENSE).
