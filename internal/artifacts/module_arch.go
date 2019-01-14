@@ -253,7 +253,7 @@ func copyMtaContentFromPath(mtaContent, destinationMtaContent, mtaContentPath, t
 	return dir.CopyFile(mtaContent, destinationMtaContent)
 }
 
-func cleanUpCopiedContent(targetLocation string, copiendMtaContents []string) error{
+func cleanUpCopiedContent(targetLocation string, copiendMtaContents []string) error {
 	for _, copiedMtaContent := range copiendMtaContents {
 		err := os.RemoveAll(filepath.Join(targetLocation, copiedMtaContent))
 		if err != nil {

@@ -273,7 +273,7 @@ builders:
 			err := CopyMtaContent(source, source, defaultDeploymentDescriptorParam, os.Getwd)
 			Ω(err).Should(Not(BeNil()))
 			fmt.Println(err.Error())
-			Ω(err.Error()).Should(Equal(fmt.Sprintf("error while parsing MTA: failed to read the %s%smtad.yaml file: open %s%smtad.yaml: The system cannot find the file specified.", source, pathSep, source, pathSep)))
+			Ω(err.Error()).Should(ContainSubstring(fmt.Sprintf("error while parsing MTA: failed to read the %s%smtad.yaml file: open %s%smtad.yaml:", source, pathSep, source, pathSep)))
 		})
 		It("Location initialization fails", func() {
 			err := CopyMtaContent("", source, defaultDeploymentDescriptorParam, func() (string, error) {
