@@ -67,15 +67,11 @@ func Archive(sourcePath, targetArchivePath string) (e error) {
 		baseDir = filepath.Base(sourcePath)
 	}
 
-	if baseDir != "" {
+	if !strings.HasSuffix(baseDir, string(os.PathSeparator)) {
 		baseDir += string(os.PathSeparator)
 	}
 
-	err = walk(sourcePath, baseDir, archive)
-	if err != nil {
-		return err
-	}
-	return err
+	return walk(sourcePath, baseDir, archive)
 }
 
 func walk(sourcePath string, baseDir string, archive *zip.Writer) (e error) {
@@ -104,20 +100,24 @@ func walk(sourcePath string, baseDir string, archive *zip.Writer) (e error) {
 
 		// add new header and file to archive
 		writer, err := archive.CreateHeader(header)
-		if err == nil {
-			file, e := os.Open(path)
-			if e == nil {
-				defer func() {
-					errClose := file.Close()
-					if errClose != nil && e == nil {
-						e = errClose
-					}
-				}()
-				_, err = io.Copy(writer, file)
-				return err
-			}
+		if err != nil {
+			return err
 		}
+
+		file, err := os.Open(path)
+		if err != nil {
+			return err
+		}
+		defer func() {
+			errClose := file.Close()
+			if errClose != nil && e == nil {
+				e = errClose
+			}
+		}()
+
+		_, err = io.Copy(writer, file)
 		return err
+
 	})
 }
 

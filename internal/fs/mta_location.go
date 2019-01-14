@@ -206,7 +206,7 @@ func Location(source, target, descriptor string, wdGetter func() (string, error)
 
 	err := ValidateDeploymentDescriptor(descriptor)
 	if err != nil {
-		return &Loc{}, errors.Wrap(err, "failed to initialize the location when validating descriptor")
+		return nil, errors.Wrap(err, "failed to initialize the location when validating descriptor")
 	}
 
 	var mtaFilename string
@@ -221,7 +221,7 @@ func Location(source, target, descriptor string, wdGetter func() (string, error)
 	if source == "" {
 		source, err = wdGetter()
 		if err != nil {
-			return &Loc{}, errors.Wrap(err, "failed to initialize the location when getting working directory")
+			return nil, errors.Wrap(err, "failed to initialize the location when getting working directory")
 		}
 	}
 	if target == "" {

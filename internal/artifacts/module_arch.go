@@ -7,13 +7,12 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/SAP/cloud-mta/mta"
-
 	"cloud-mta-build-tool/internal/buildops"
 	"cloud-mta-build-tool/internal/commands"
 	"cloud-mta-build-tool/internal/exec"
 	"cloud-mta-build-tool/internal/fs"
 	"cloud-mta-build-tool/internal/logs"
+	"github.com/SAP/cloud-mta/mta"
 )
 
 // ExecuteBuild - executes build of module
@@ -154,4 +153,137 @@ func copyModuleArchive(ep dir.IModule, modulePath, moduleName string) error {
 	}
 	logs.Logger.Infof("copying of the %v module's archive finished successfully", moduleName)
 	return nil
+}
+
+// CopyMtaContent copies the content of all modules and resources which are presented in the deployment descriptor,
+// in the source directory, to the target directory
+func CopyMtaContent(source, target, desc string, wdGetter func() (string, error)) error {
+	loc, err := dir.Location(source, target, desc, wdGetter)
+	if err != nil {
+		return errors.Wrap(err, "copying mta content failed during initialization of deployment descriptor location")
+	}
+	mta, err := loc.ParseFile()
+	if err != nil {
+		return errors.Wrap(err, "error while parsing MTA")
+	}
+	err = copyModuleContent(source, loc.GetTargetTmpDir(), mta)
+	if err != nil {
+		return err
+	}
+
+	err = copyRequiredDependencyContent(source, loc.GetTargetTmpDir(), mta)
+	if err != nil {
+		return err
+	}
+
+	return copyResourceContent(source, loc.GetTargetTmpDir(), mta)
+}
+
+func copyModuleContent(source, target string, mta *mta.MTA) error {
+	return copyMtaContent(source, target, getModulesWithPaths(mta.Modules))
+}
+
+func copyResourceContent(source, target string, mta *mta.MTA) error {
+	return copyMtaContent(source, target, getResourcesPaths(mta.Resources))
+}
+
+func copyRequiredDependencyContent(source, target string, mta *mta.MTA) error {
+	return copyMtaContent(source, target, getRequiredDependencyPaths(mta.Modules))
+}
+
+func getRequiredDependencyPaths(mtaModules []*mta.Module) []string {
+	result := make([]string, 0)
+	for _, module := range mtaModules {
+		requiredDependenciesWithPaths := getRequiredDependenciesWithPathsForModule(module)
+		result = append(result, requiredDependenciesWithPaths...)
+	}
+	return result
+}
+
+func getRequiredDependenciesWithPathsForModule(module *mta.Module) []string {
+	result := make([]string, 0)
+	for _, requiredDependency := range module.Requires {
+		if requiredDependency.Parameters["path"] != nil {
+			result = append(result, requiredDependency.Parameters["path"].(string))
+		}
+	}
+	return result
+}
+func copyMtaContent(source, target string, mtaPaths []string) error {
+	copiendMtaContents := make([]string, 0)
+	for _, mtaPath := range mtaPaths {
+		mtaContent := filepath.Join(source, mtaPath)
+		if doesNotExist(mtaContent) {
+			errCleanup := cleanUpCopiedContent(target, copiendMtaContents)
+			if errCleanup == nil {
+				return fmt.Errorf("%s does not exists in the current location %s", mtaPath, source)
+			}
+			return fmt.Errorf("%s does not exists in the current location %s; cleanup failed", mtaPath, source)
+		}
+		copiendMtaContents = append(copiendMtaContents, mtaPath)
+		destinationMtaContent := filepath.Join(target, mtaPath)
+		err := copyMtaContentFromPath(mtaContent, destinationMtaContent, mtaPath, target)
+		if err != nil {
+			errCleanup := cleanUpCopiedContent(target, copiendMtaContents)
+			if errCleanup == nil {
+				return fmt.Errorf("Error copying mta content %s to target directory %s: %s", mtaContent, destinationMtaContent, err.Error())
+			}
+			return fmt.Errorf("Error copying mta content %s to target directory %s: %s; cleanup failed", mtaContent, destinationMtaContent, err.Error())
+		}
+	}
+
+	return nil
+}
+
+func copyMtaContentFromPath(mtaContent, destinationMtaContent, mtaContentPath, target string) error {
+	mtaContentInfo, _ := os.Stat(mtaContent)
+	if mtaContentInfo.IsDir() {
+		err := os.MkdirAll(destinationMtaContent, os.ModePerm)
+		if err != nil {
+			return err
+		}
+		return dir.CopyDir(mtaContent, destinationMtaContent)
+	}
+
+	mtaContentParentDir := filepath.Dir(mtaContentPath)
+	err := os.MkdirAll(filepath.Join(target, mtaContentParentDir), os.ModePerm)
+	if err != nil {
+		return err
+	}
+	return dir.CopyFile(mtaContent, destinationMtaContent)
+}
+
+func cleanUpCopiedContent(targetLocation string, copiendMtaContents []string) error {
+	for _, copiedMtaContent := range copiendMtaContents {
+		err := os.RemoveAll(filepath.Join(targetLocation, copiedMtaContent))
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func doesNotExist(path string) bool {
+	_, err := os.Stat(path)
+	return os.IsNotExist(err)
+}
+
+func getModulesWithPaths(mtaModules []*mta.Module) []string {
+	result := make([]string, 0)
+	for _, module := range mtaModules {
+		if module.Path != "" {
+			result = append(result, module.Path)
+		}
+	}
+	return result
+}
+
+func getResourcesPaths(resources []*mta.Resource) []string {
+	result := make([]string, 0)
+	for _, resource := range resources {
+		if resource.Parameters["path"] != nil {
+			result = append(result, resource.Parameters["path"].(string))
+		}
+	}
+	return result
 }
