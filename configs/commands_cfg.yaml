@@ -19,18 +19,6 @@ builders:
   - command: npm install
   - command: grunt
   - command: npm prune --production
-- name: npm
-  info: "installing module dependencies & remove dev dependencies"
-  path: "path to config file which override the following default commands"
-  type:
-  - command: npm install
-  - command: npm prune --production
-- name: grunt
-  info: "execute grunt"
-  path: "path to config file which override the following default commands"
-  type:
-  - command: npm install
-  - command: grunt
 - name: java
   info: "build java application"
   path: "path to config file which override the following default commands"
@@ -41,8 +29,3 @@ builders:
   path: "path to config file which override the following default commands"
   type:
   - command: npm prune --production
-- name: golang
-  info: "build golang application"
-  path: "path to config file which override the following default commands"
-  type:
-  - command: go build *.go

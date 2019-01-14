@@ -49,6 +49,23 @@ builders:
 		commands := Builders{}
 		Ω(yaml.Unmarshal(buildersCfg, &commands)).Should(Succeed())
 		Ω(mesh(modules, commands, commands)).Should(Equal(expected))
+		modules = mta.Module{
+			Name: "uiapp1",
+			Type: "html5",
+			Path: "./",
+		}
+		_, err := mesh(modules, commands, commands)
+		Ω(err).Should(Succeed())
+		modules = mta.Module{
+			Name: "uiapp1",
+			Type: "html5",
+			Path: "./",
+			BuildParams: map[string]interface{}{
+				"builder": "html5x",
+			},
+		}
+		_, err = mesh(modules, commands, commands)
+		Ω(err).Should(HaveOccurred())
 	})
 
 	It("CommandProvider", func() {

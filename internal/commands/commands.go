@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -28,11 +29,11 @@ func CommandProvider(modules mta.Module) (CommandList, error) {
 	if err != nil {
 		return CommandList{}, errors.Wrap(err, "failed to parse the custom commands configuration file")
 	}
-	return mesh(modules, commands, customCommands), nil
+	return mesh(modules, commands, customCommands)
 }
 
 // Match the object according to type and provide the respective command
-func mesh(module mta.Module, commands Builders, customCommands Builders) CommandList {
+func mesh(module mta.Module, commands Builders, customCommands Builders) (CommandList, error) {
 	// The object support deep struct for future use, can be simplified to flat object
 	var cmds CommandList
 	builder, custom := buildops.GetBuilder(&module)
@@ -50,11 +51,14 @@ func mesh(module mta.Module, commands Builders, customCommands Builders) Command
 			for _, cmd := range b.Type {
 				cmds.Command = append(cmds.Command, cmd.Command)
 			}
-			return cmds
+			return cmds, nil
 		}
 	}
 
-	return cmds
+	if custom {
+		return cmds, fmt.Errorf("the %s builder is not defined in the custom commands configuration", builder)
+	}
+	return cmds, nil
 }
 
 // CmdConverter - path and commands to execute
