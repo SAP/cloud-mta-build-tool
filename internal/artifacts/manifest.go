@@ -5,13 +5,13 @@ import (
 	"path/filepath"
 	"text/template"
 
-	"github.com/pkg/errors"
-
-	"github.com/SAP/cloud-mta/mta"
-
 	"cloud-mta-build-tool/internal/fs"
 	"cloud-mta-build-tool/internal/tpl"
 	"cloud-mta-build-tool/internal/version"
+
+	"github.com/SAP/cloud-mta/mta"
+
+	"github.com/pkg/errors"
 )
 
 // The deployment descriptor should be located within the META-INF folder of the JAR.
@@ -38,21 +38,106 @@ type entry struct {
 }
 
 // setManifestDesc - Set the MANIFEST.MF file
-func setManifestDesc(ep dir.ITargetArtifacts, mtaStr []*mta.Module, modules []string) error {
-
+func setManifestDesc(ep dir.ITargetArtifacts, targetPathGetter dir.ITargetPath, mtaStr []*mta.Module, mtaResources []*mta.Resource, modules []string) error {
 	var entries []entry
 	for _, mod := range mtaStr {
 		if moduleDefined(mod.Name, modules) {
 			moduleEntry := entry{
 				EntryName:   mod.Name,
-				EntryPath:   filepath.ToSlash(mod.Name + dataZip),
-				ContentType: applicationZip,
+				EntryPath:   getModulePath(mod, targetPathGetter),
+				ContentType: getContentType(targetPathGetter, getModulePath(mod, targetPathGetter)),
 				EntryType:   moduleEntry,
 			}
 			entries = append(entries, moduleEntry)
 		}
 	}
+
+	for _, resource := range mtaResources {
+		if resource.Parameters["path"] == nil {
+			continue
+		}
+		resourceEntry := entry{
+			EntryName:   resource.Name,
+			EntryPath:   getResourcePath(resource),
+			ContentType: getContentType(targetPathGetter, getResourcePath(resource)),
+			EntryType:   resourceEntry,
+		}
+		entries = append(entries, resourceEntry)
+	}
+
+	for _, mod := range mtaStr {
+		if moduleDefined(mod.Name, modules) {
+			requiredDependenciesWithPath := getRequiredDependencies(mod)
+			requiredDependencyEntries := buildEntries(targetPathGetter, mod, requiredDependenciesWithPath)
+			entries = append(entries, requiredDependencyEntries...)
+		}
+	}
+
 	return genManifest(ep.GetManifestPath(), entries)
+}
+
+func buildEntries(targetPathGetter dir.ITargetPath, module *mta.Module, requiredDependencies []mta.Requires) []entry {
+	result := make([]entry, 0)
+	for _, requiredDependency := range requiredDependencies {
+		requiredDependencyEntry := entry{
+			EntryName:   module.Name + "/" + requiredDependency.Name,
+			EntryPath:   requiredDependency.Parameters["path"].(string),
+			ContentType: getContentType(targetPathGetter, requiredDependency.Parameters["path"].(string)),
+			EntryType:   requiredEntry,
+		}
+		result = append(result, requiredDependencyEntry)
+	}
+	return result
+}
+
+func getContentType(targetPathGetter dir.ITargetPath, path string) string {
+	if targetPathGetter == nil {
+		return applicationZip
+	}
+	info, err := os.Stat(filepath.Join(targetPathGetter.GetTargetTmpDir(), path))
+	if err != nil {
+		return ""
+	}
+
+	if info.IsDir() {
+		return dirContentType
+	}
+
+	return applicationZip
+}
+
+func getRequiredDependencies(module *mta.Module) []mta.Requires {
+	result := make([]mta.Requires, 0)
+	for _, requiredDependency := range module.Requires {
+		if requiredDependency.Parameters["path"] != nil {
+			result = append(result, requiredDependency)
+		}
+	}
+	return result
+}
+
+func getResourcePath(resource *mta.Resource) string {
+	return resource.Parameters["path"].(string)
+}
+
+func getModulePath(module *mta.Module, targetPathGetter dir.ITargetPath) string {
+	if targetPathGetter == nil {
+		return filepath.ToSlash(module.Name + dataZip)
+	}
+	loc := targetPathGetter.(*dir.Loc)
+	if existsModuleZipInDirectories(module, []string{loc.GetSource(), loc.GetTargetTmpDir()}) {
+		return filepath.ToSlash(module.Name + dataZip)
+	}
+	return module.Path
+}
+
+func existsModuleZipInDirectories(module *mta.Module, directories []string) bool {
+	for _, directory := range directories {
+		if _, err := os.Stat(filepath.Join(directory, filepath.ToSlash(module.Name+dataZip))); !os.IsNotExist(err) {
+			return true
+		}
+	}
+	return false
 }
 
 func genManifest(manifestPath string, entries []entry) (rerr error) {
