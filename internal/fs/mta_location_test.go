@@ -51,7 +51,7 @@ var _ = Describe("Path", func() {
 		Ω(location.GetMtaYamlFilename()).Should(Equal("mta.yaml"))
 	})
 	It("getMtaYamlFilename - Implicit- MTAD", func() {
-		location := Loc{Descriptor: "dep"}
+		location := Loc{Descriptor: Dep}
 		Ω(location.GetMtaYamlFilename()).Should(Equal("mtad.yaml"))
 	})
 	It("GetMtaYamlPath", func() {
@@ -122,25 +122,25 @@ var _ = Describe("Location", func() {
 		Ω(ep.GetMtaYamlFilename()).Should(Equal("mta.yaml"))
 	})
 	It("Dep Descriptor", func() {
-		ep, err := Location("", "", "dep", os.Getwd)
+		ep, err := Location("", "", Dep, os.Getwd)
 		Ω(err).Should(Succeed())
 		Ω(ep.GetMtaYamlFilename()).Should(Equal("mtad.yaml"))
 	})
 	It("Dev Descriptor - Explicit", func() {
-		ep, err := Location("", "", "dep", os.Getwd)
+		ep, err := Location("", "", Dep, os.Getwd)
 		Ω(err).Should(Succeed())
-		Ω(ep.GetDescriptor()).Should(Equal("dep"))
+		Ω(ep.GetDescriptor()).Should(Equal(Dep))
 	})
 	It("Dev Descriptor - Implicit", func() {
 		ep := &Loc{Descriptor: ""}
-		Ω(ep.GetDescriptor()).Should(Equal("dev"))
+		Ω(ep.GetDescriptor()).Should(Equal(Dev))
 	})
 	It("Fails on descriptor validation", func() {
 		_, err := Location("", "", "xx", os.Getwd)
 		Ω(err).Should(HaveOccurred())
 	})
 	It("Fails on implicit source", func() {
-		_, err := Location("", "", "dev", func() (string, error) {
+		_, err := Location("", "", Dev, func() (string, error) {
 			return "", errors.New("err")
 		})
 		Ω(err).Should(HaveOccurred())

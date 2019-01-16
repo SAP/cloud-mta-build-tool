@@ -1,0 +1,26 @@
+manifest-Version: 1.0
+Created-By: SAP Application Archive Builder 0.0.1
+
+Name: web/
+MTA-Module: java-hello-world
+Content-Type: text/directory
+
+
+Name: 
+MTA-Module: java-hello-world-backend
+Content-Type: text/directory
+
+
+Name: config-site-host.json
+MTA-Requires: java-hello-world-backend/java-site-host
+Content-Type: application/zip
+
+
+Name: xs-security.json
+MTA-Resource: java-uaa
+Content-Type: application/zip
+
+
+Name: META-INF/mtad.yaml
+Content-Type: text/plain
+

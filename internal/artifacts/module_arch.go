@@ -12,6 +12,7 @@ import (
 	"cloud-mta-build-tool/internal/exec"
 	"cloud-mta-build-tool/internal/fs"
 	"cloud-mta-build-tool/internal/logs"
+
 	"github.com/SAP/cloud-mta/mta"
 )
 
@@ -166,17 +167,17 @@ func CopyMtaContent(source, target, desc string, wdGetter func() (string, error)
 	if err != nil {
 		return errors.Wrap(err, "error while parsing MTA")
 	}
-	err = copyModuleContent(source, loc.GetTargetTmpDir(), mta)
+	err = copyModuleContent(loc.GetSource(), loc.GetTargetTmpDir(), mta)
 	if err != nil {
 		return err
 	}
 
-	err = copyRequiredDependencyContent(source, loc.GetTargetTmpDir(), mta)
+	err = copyRequiredDependencyContent(loc.GetSource(), loc.GetTargetTmpDir(), mta)
 	if err != nil {
 		return err
 	}
 
-	return copyResourceContent(source, loc.GetTargetTmpDir(), mta)
+	return copyResourceContent(loc.GetSource(), loc.GetTargetTmpDir(), mta)
 }
 
 func copyModuleContent(source, target string, mta *mta.MTA) error {
@@ -210,29 +211,32 @@ func getRequiredDependenciesWithPathsForModule(module *mta.Module) []string {
 	return result
 }
 func copyMtaContent(source, target string, mtaPaths []string) error {
-	copiendMtaContents := make([]string, 0)
+	copiedMtaContents := make([]string, 0)
 	for _, mtaPath := range mtaPaths {
 		mtaContent := filepath.Join(source, mtaPath)
 		if doesNotExist(mtaContent) {
-			errCleanup := cleanUpCopiedContent(target, copiendMtaContents)
-			if errCleanup == nil {
-				return fmt.Errorf("%s does not exists in the current location %s", mtaPath, source)
-			}
-			return fmt.Errorf("%s does not exists in the current location %s; cleanup failed", mtaPath, source)
+			return handleCopyMtaContentFailure(target, copiedMtaContents,
+				"%s does not exists in the current location %s", []interface{}{mtaPath, source})
 		}
-		copiendMtaContents = append(copiendMtaContents, mtaPath)
+		copiedMtaContents = append(copiedMtaContents, mtaPath)
 		destinationMtaContent := filepath.Join(target, mtaPath)
 		err := copyMtaContentFromPath(mtaContent, destinationMtaContent, mtaPath, target)
 		if err != nil {
-			errCleanup := cleanUpCopiedContent(target, copiendMtaContents)
-			if errCleanup == nil {
-				return fmt.Errorf("Error copying mta content %s to target directory %s: %s", mtaContent, destinationMtaContent, err.Error())
-			}
-			return fmt.Errorf("Error copying mta content %s to target directory %s: %s; cleanup failed", mtaContent, destinationMtaContent, err.Error())
+			return handleCopyMtaContentFailure(target, copiedMtaContents,
+				"Error copying mta content %s to target directory %s: %s", []interface{}{mtaPath, source, err.Error()})
 		}
 	}
 
 	return nil
+}
+
+func handleCopyMtaContentFailure(targetLocation string, copiedMtaContents []string,
+	message string, messageArguments []interface{}) error {
+	errCleanup := cleanUpCopiedContent(targetLocation, copiedMtaContents)
+	if errCleanup == nil {
+		return fmt.Errorf(message, messageArguments...)
+	}
+	return fmt.Errorf(message+"; cleanup failed", messageArguments...)
 }
 
 func copyMtaContentFromPath(mtaContent, destinationMtaContent, mtaContentPath, target string) error {

@@ -4,14 +4,15 @@ import (
 	"os"
 
 	"cloud-mta-build-tool/internal/artifacts"
+	"cloud-mta-build-tool/internal/fs"
+
 	"github.com/spf13/cobra"
 )
 
 const (
-	defaultDeploymentDescriptor string = "dep"
-	defaultPlatform             string = "cf"
-	defaultMtaLocation          string = ""
-	defaultMtaAssemblyLocation  string = ""
+	defaultPlatform            string = "cf"
+	defaultMtaLocation         string = ""
+	defaultMtaAssemblyLocation string = ""
 )
 
 func init() {}
@@ -24,31 +25,29 @@ var assemblyCommand = &cobra.Command{
 	ValidArgs: []string{"Deployment descriptor location"},
 	Args:      cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
-
-		err := artifacts.CopyMtaContent(defaultMtaLocation, defaultMtaAssemblyLocation, defaultDeploymentDescriptor, os.Getwd)
-		if err != nil {
-			logError(err)
-			return err
-		}
-		err = artifacts.ExecuteGenMeta(defaultMtaLocation, defaultMtaAssemblyLocation, defaultDeploymentDescriptor, defaultPlatform, os.Getwd)
-		if err != nil {
-			logError(err)
-			return err
-		}
-		err = artifacts.ExecuteGenMtar(defaultMtaLocation, defaultMtaAssemblyLocation, defaultDeploymentDescriptor, os.Getwd)
-		if err != nil {
-			logError(err)
-			return err
-		}
-
-		err = artifacts.ExecuteCleanup(defaultMtaLocation, defaultMtaAssemblyLocation, defaultDeploymentDescriptor, os.Getwd)
-		if err != nil {
-			logError(err)
-			return err
-		}
-
-		return nil
+		err := assembly(defaultMtaLocation, defaultMtaAssemblyLocation, defaultPlatform, os.Getwd)
+		logError(err)
+		return err
 	},
 	SilenceUsage:  true,
 	SilenceErrors: false,
+}
+
+func assembly(source, target, platform string, getWd func() (string, error)) error {
+	err := artifacts.CopyMtaContent(source, target, dir.Dep, getWd)
+	if err != nil {
+		return err
+	}
+
+	err = artifacts.ExecuteGenMeta(source, target, dir.Dep, platform, false, getWd)
+	if err != nil {
+		return err
+	}
+
+	err = artifacts.ExecuteGenMtar(source, target, dir.Dep, getWd)
+	if err != nil {
+		return err
+	}
+
+	return artifacts.ExecuteCleanup(source, target, dir.Dep, getWd)
 }

@@ -1,17 +1,19 @@
 package artifacts
 
 import (
+	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"text/template"
 
-	"cloud-mta-build-tool/internal/fs"
-	"cloud-mta-build-tool/internal/tpl"
-	"cloud-mta-build-tool/internal/version"
+	"github.com/pkg/errors"
 
 	"github.com/SAP/cloud-mta/mta"
 
-	"github.com/pkg/errors"
+	"cloud-mta-build-tool/internal/fs"
+	"cloud-mta-build-tool/internal/tpl"
+	"cloud-mta-build-tool/internal/version"
 )
 
 // The deployment descriptor should be located within the META-INF folder of the JAR.
@@ -27,83 +29,109 @@ const (
 	applicationZip = "application/zip"
 	pathSep        = string(os.PathSeparator)
 	dataZip        = pathSep + "data.zip"
+	moduleEntry    = "MTA-Module"
+	requiredEntry  = "MTA-Requires"
+	resourceEntry  = "MTA-Resource"
+	dirContentType = "text/directory"
 )
 
 type entry struct {
 	EntryName   string
 	EntryType   string
-	file        *os.FileInfo
 	ContentType string
 	EntryPath   string
 }
 
 // setManifestDesc - Set the MANIFEST.MF file
-func setManifestDesc(ep dir.ITargetArtifacts, targetPathGetter dir.ITargetPath, mtaStr []*mta.Module, mtaResources []*mta.Resource, modules []string) error {
+func setManifestDesc(ep dir.ITargetArtifacts, targetPathGetter dir.ITargetPath, mtaStr []*mta.Module,
+	mtaResources []*mta.Resource, modules []string, onlyModules bool) error {
 	var entries []entry
 	for _, mod := range mtaStr {
 		if moduleDefined(mod.Name, modules) {
+			contentType, err := getContentType(targetPathGetter, getModulePath(mod, targetPathGetter))
+			if err != nil {
+				return errors.Wrapf(err,
+					"generation of the manifest failed when getting the %s module content type", mod.Name)
+			}
 			moduleEntry := entry{
 				EntryName:   mod.Name,
 				EntryPath:   getModulePath(mod, targetPathGetter),
-				ContentType: getContentType(targetPathGetter, getModulePath(mod, targetPathGetter)),
+				ContentType: contentType,
 				EntryType:   moduleEntry,
 			}
 			entries = append(entries, moduleEntry)
-		}
-	}
 
-	for _, resource := range mtaResources {
-		if resource.Parameters["path"] == nil {
-			continue
-		}
-		resourceEntry := entry{
-			EntryName:   resource.Name,
-			EntryPath:   getResourcePath(resource),
-			ContentType: getContentType(targetPathGetter, getResourcePath(resource)),
-			EntryType:   resourceEntry,
-		}
-		entries = append(entries, resourceEntry)
-	}
-
-	for _, mod := range mtaStr {
-		if moduleDefined(mod.Name, modules) {
+			if onlyModules {
+				continue
+			}
 			requiredDependenciesWithPath := getRequiredDependencies(mod)
-			requiredDependencyEntries := buildEntries(targetPathGetter, mod, requiredDependenciesWithPath)
+			requiredDependencyEntries, err := buildEntries(targetPathGetter, mod, requiredDependenciesWithPath)
+			if err != nil {
+				return errors.Wrapf(err,
+					"generation of the manifest failed when building required entries of the %s module",
+					mod.Name)
+			}
 			entries = append(entries, requiredDependencyEntries...)
+		}
+	}
+
+	if !onlyModules {
+		for _, resource := range mtaResources {
+			if resource.Parameters["path"] == nil {
+				continue
+			}
+			contentType, err := getContentType(targetPathGetter, getResourcePath(resource))
+			if err != nil {
+				return errors.Wrapf(err,
+					"generation of the manifest failed when getting the %s resource content type", resource.Name)
+			}
+			resourceEntry := entry{
+				EntryName:   resource.Name,
+				EntryPath:   getResourcePath(resource),
+				ContentType: contentType,
+				EntryType:   resourceEntry,
+			}
+			entries = append(entries, resourceEntry)
 		}
 	}
 
 	return genManifest(ep.GetManifestPath(), entries)
 }
 
-func buildEntries(targetPathGetter dir.ITargetPath, module *mta.Module, requiredDependencies []mta.Requires) []entry {
+func buildEntries(targetPathGetter dir.ITargetPath, module *mta.Module,
+	requiredDependencies []mta.Requires) ([]entry, error) {
 	result := make([]entry, 0)
 	for _, requiredDependency := range requiredDependencies {
+		contentType, err := getContentType(targetPathGetter, requiredDependency.Parameters["path"].(string))
+		if err != nil {
+			return nil, err
+		}
 		requiredDependencyEntry := entry{
 			EntryName:   module.Name + "/" + requiredDependency.Name,
 			EntryPath:   requiredDependency.Parameters["path"].(string),
-			ContentType: getContentType(targetPathGetter, requiredDependency.Parameters["path"].(string)),
+			ContentType: contentType,
 			EntryType:   requiredEntry,
 		}
 		result = append(result, requiredDependencyEntry)
 	}
-	return result
+	return result, nil
 }
 
-func getContentType(targetPathGetter dir.ITargetPath, path string) string {
+func getContentType(targetPathGetter dir.ITargetPath, path string) (string, error) {
 	if targetPathGetter == nil {
-		return applicationZip
+		return applicationZip, nil
 	}
+	targetPath := filepath.Join(targetPathGetter.GetTargetTmpDir(), path)
 	info, err := os.Stat(filepath.Join(targetPathGetter.GetTargetTmpDir(), path))
 	if err != nil {
-		return ""
+		return "", fmt.Errorf("the %s path does not exist, content type not defined", targetPath)
 	}
 
 	if info.IsDir() {
-		return dirContentType
+		return dirContentType, nil
 	}
 
-	return applicationZip
+	return applicationZip, nil
 }
 
 func getRequiredDependencies(module *mta.Module) []mta.Requires {
@@ -153,16 +181,17 @@ func genManifest(manifestPath string, entries []entry) (rerr error) {
 	}
 	out, err := os.Create(manifestPath)
 	defer func() {
-		errClose := out.Close()
-		if errClose != nil && rerr == nil {
-			rerr = errors.Wrap(errClose, "failed to generate the manifest file when closing the manifest file")
-		}
+		rerr = dir.CloseFile(out, rerr)
 	}()
 	if err != nil {
 		return errors.Wrap(err, "failed to generate the manifest file when creating the manifest file")
 	}
+	return populateManifest(out, funcMap)
+}
+
+func populateManifest(file io.Writer, funcMap template.FuncMap) error {
 	t := template.Must(template.New("template").Parse(string(tpl.Manifest)))
-	err = t.Execute(out, funcMap)
+	err := t.Execute(file, funcMap)
 	if err != nil {
 		return errors.Wrap(err, "failed to generate the manifest file when populating the content")
 	}

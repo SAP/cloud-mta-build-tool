@@ -3,6 +3,8 @@ package artifacts
 import (
 	"os"
 
+	"cloud-mta-build-tool/internal/platform"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"
@@ -37,6 +39,12 @@ var _ = Describe("Mtad", func() {
 		})
 		It("Fails on broken extension file - parse ext fails", func() {
 			Ω(ExecuteGenMtad(getTestPath("mtaWithBrokenExt"), getTestPath("resultMtad"), "dev", "cf", os.Getwd)).Should(HaveOccurred())
+		})
+		It("Fails on broken platforms configuration", func() {
+			cfg := platform.PlatformConfig
+			platform.PlatformConfig = []byte("abc abc")
+			Ω(ExecuteGenMtad(getTestPath("mta"), getTestPath("resultMtad"), "dev", "cf", os.Getwd)).Should(HaveOccurred())
+			platform.PlatformConfig = cfg
 		})
 	})
 
