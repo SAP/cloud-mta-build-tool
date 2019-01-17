@@ -1,6 +1,7 @@
 package dir
 
 import (
+	"errors"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -212,6 +213,16 @@ var _ = Describe("FSOPS", func() {
 			filepath.Join(getFullPath()))).Should(Equal(string(filepath.Separator) + filepath.Join("abc", "xyz", "fff")))
 	})
 
+	It("copyByPattern - fails because target is file", func() {
+		Ω(copyByPattern(getPath("testdata", "mtahtml5"),
+			getFullPath("testdata", "level2", "level2_one.txt"), "m*")).Should(HaveOccurred())
+	})
+
+	It("changeTargetMode - fails if source does not exist", func() {
+		Ω(changeTargetMode(getPath("testdata", "not-exists"), getPath("testdata", "not-exists-2"))).
+			Should(HaveOccurred())
+	})
+
 	var _ = Describe("Read", func() {
 		It("Sanity", func() {
 			test := testMtaYamlStr{
@@ -237,6 +248,20 @@ var _ = Describe("FSOPS", func() {
 			Ω(resErr).Should(BeNil())
 		})
 	})
+
+	var _ = DescribeTable("CloseFile", func(toFail bool, errorArg error, expectedErr error) {
+		testFile := testCloser{fail: toFail}
+		if expectedErr == nil {
+			Ω(CloseFile(&testFile, errorArg)).Should(BeNil())
+		} else {
+			Ω(CloseFile(&testFile, errorArg).Error()).Should(Equal(expectedErr.Error()))
+		}
+	},
+		Entry("No error", false, nil, nil),
+		Entry("Original error only", false, errors.New("original error"), errors.New("original error")),
+		Entry("New error", true, nil, errors.New("failed to close")),
+		Entry("Original and new errors", true, errors.New("original error"), errors.New("original error")),
+	)
 })
 
 func countFilesInDir(name string) int {
@@ -272,5 +297,16 @@ func (file testFile) IsDir() bool {
 }
 
 func (file testFile) Sys() interface{} {
+	return nil
+}
+
+type testCloser struct {
+	fail bool
+}
+
+func (f *testCloser) Close() error {
+	if f.fail {
+		return errors.New("failed to close")
+	}
 	return nil
 }

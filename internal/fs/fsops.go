@@ -44,19 +44,13 @@ func Archive(sourcePath, targetArchivePath string) (e error) {
 		return err
 	}
 	defer func() {
-		errClose := zipfile.Close()
-		if errClose != nil && e == nil {
-			e = errClose
-		}
+		e = CloseFile(zipfile, e)
 	}()
 
 	// create archive writer
 	archive := zip.NewWriter(zipfile)
 	defer func() {
-		errClose := archive.Close()
-		if errClose != nil && e == nil {
-			e = errClose
-		}
+		e = CloseFile(archive, e)
 	}()
 
 	// Skip headers to support jar archive structure
@@ -74,9 +68,19 @@ func Archive(sourcePath, targetArchivePath string) (e error) {
 	return walk(sourcePath, baseDir, archive)
 }
 
+// CloseFile - closes file
+// error handling takes into account error of the calling function
+func CloseFile(file io.Closer, err error) error {
+	errClose := file.Close()
+	if errClose != nil && err == nil {
+		return errClose
+	}
+	return err
+}
+
 func walk(sourcePath string, baseDir string, archive *zip.Writer) (e error) {
 	// pack files of source into archive
-	return filepath.Walk(sourcePath, func(path string, info os.FileInfo, err error) error {
+	return filepath.Walk(sourcePath, func(path string, info os.FileInfo, err error) (e error) {
 		if err != nil {
 			return err
 		}
@@ -109,10 +113,7 @@ func walk(sourcePath string, baseDir string, archive *zip.Writer) (e error) {
 			return err
 		}
 		defer func() {
-			errClose := file.Close()
-			if errClose != nil && e == nil {
-				e = errClose
-			}
+			e = CloseFile(file, e)
 		}()
 
 		_, err = io.Copy(writer, file)
@@ -279,9 +280,7 @@ func CopyFile(src, dst string) (rerr error) {
 		return err
 	}
 	defer func() {
-		if e := in.Close(); e != nil && rerr == nil {
-			rerr = e
-		}
+		rerr = CloseFile(in, rerr)
 	}()
 
 	out, err := os.Create(dst)
@@ -289,9 +288,7 @@ func CopyFile(src, dst string) (rerr error) {
 		return err
 	}
 	defer func() {
-		if e := out.Close(); e != nil && rerr == nil {
-			rerr = e
-		}
+		rerr = CloseFile(out, rerr)
 	}()
 
 	_, err = io.Copy(out, in)
@@ -299,12 +296,15 @@ func CopyFile(src, dst string) (rerr error) {
 		return err
 	}
 
-	si, err := os.Stat(src)
+	return changeTargetMode(src, dst)
+}
+
+func changeTargetMode(source, target string) error {
+	si, err := os.Stat(source)
 	if err != nil {
 		return err
 	}
-	err = os.Chmod(dst, si.Mode())
-	return err
+	return os.Chmod(target, si.Mode())
 }
 
 // getRelativePath - Remove the basePath from the fullPath and get only the relative

@@ -10,9 +10,11 @@ import (
 )
 
 const (
-	dep  = "dep"
+	//Dep - deployment descriptor
+	Dep = "dep"
+	//Dev - development descriptor
+	Dev  = "dev"
 	mtad = "mtad.yaml"
-	dev  = "dev"
 )
 
 // IMtaParser - MTA Parser interface
@@ -89,7 +91,7 @@ func (ep *Loc) GetSource() string {
 // GetDescriptor - gets descriptor type of Location
 func (ep *Loc) GetDescriptor() string {
 	if ep.Descriptor == "" {
-		return dev
+		return Dev
 	}
 
 	return ep.Descriptor
@@ -134,7 +136,7 @@ func (ep *Loc) GetSourceModuleDir(modulePath string) string {
 // GetMtaYamlFilename - Gets the MTA .yaml file name.
 func (ep *Loc) GetMtaYamlFilename() string {
 	if ep.MtaFilename == "" {
-		if ep.Descriptor == dep {
+		if ep.Descriptor == Dep {
 			return mtad
 		}
 		return "mta.yaml"
@@ -169,15 +171,15 @@ func (ep *Loc) GetManifestPath() string {
 
 // ValidateDeploymentDescriptor validates the deployment descriptor.
 func ValidateDeploymentDescriptor(descriptor string) error {
-	if descriptor != "" && descriptor != dev && descriptor != dep {
-		return fmt.Errorf("the %v descriptor is invalid; expected one of the following values: dev, dep", descriptor)
+	if descriptor != "" && descriptor != Dev && descriptor != Dep {
+		return fmt.Errorf("the %v descriptor is invalid; expected one of the following values: Dev, Dep", descriptor)
 	}
 	return nil
 }
 
 // IsDeploymentDescriptor checks whether the flag is related to the deployment descriptor.
 func (ep *Loc) IsDeploymentDescriptor() bool {
-	return ep.Descriptor == dep
+	return ep.Descriptor == Dep
 }
 
 // ParseFile returns a reference to the MTA object from a given mta.yaml file.
@@ -210,12 +212,12 @@ func Location(source, target, descriptor string, wdGetter func() (string, error)
 	}
 
 	var mtaFilename string
-	if descriptor == dev || descriptor == "" {
+	if descriptor == Dev || descriptor == "" {
 		mtaFilename = "mta.yaml"
-		descriptor = dev
+		descriptor = Dev
 	} else {
 		mtaFilename = "mtad.yaml"
-		descriptor = "dep"
+		descriptor = Dep
 	}
 
 	if source == "" {

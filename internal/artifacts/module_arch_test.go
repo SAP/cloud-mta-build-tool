@@ -339,6 +339,15 @@ builders:
 			Ω(dirContainsAllElements(source, map[string]bool{info.Name(): true}, false)).Should(Equal(true))
 			Ω(dirContainsAllElements(filepath.Join(source, info.Name()), map[string]bool{"test.zip": true, "test-content": true}, true)).Should(Equal(true))
 		})
+		It("With a deployment descriptor in the source directory with only one module with zip and missing requiredDependency", func() {
+			createFileInGivenPath(filepath.Join(source, defaultDeploymentDescriptorName))
+			mta := generateTestMta(source, 1, 0, map[string]string{"test-module-0": "test-required"}, map[string]string{"test-module-0": "folder", "test-required": "zip"})
+			mta.Modules[0].Requires[0].Parameters["path"] = "zip1"
+			mtaBytes, _ := yaml.Marshal(mta)
+			ioutil.WriteFile(filepath.Join(source, defaultDeploymentDescriptorName), mtaBytes, os.ModePerm)
+			err := CopyMtaContent(source, source, defaultDeploymentDescriptorParam, os.Getwd)
+			Ω(err).Should(HaveOccurred())
+		})
 
 		It("With a deployment descriptor in the source directory with only one module with non-existing content", func() {
 			createFileInGivenPath(filepath.Join(source, defaultDeploymentDescriptorName))
@@ -384,6 +393,13 @@ builders:
 
 		AfterEach(func() {
 			os.RemoveAll(source)
+		})
+	})
+
+	var _ = Describe("cleanUpCopiedContent", func() {
+		It("Sanity", func() {
+			err := cleanUpCopiedContent(getTestPath(), []string{"result"})
+			Ω(err).Should(Succeed())
 		})
 	})
 })
