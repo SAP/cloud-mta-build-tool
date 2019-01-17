@@ -141,11 +141,10 @@ cli_version:["x"]
 			if err != nil {
 				fmt.Println(err)
 			}
-			err = generateMtar(&ep, &ep)
+			mtarPath, err := generateMtar(&ep, &ep)
 			if err != nil {
 				fmt.Println(err)
 			}
-			mtarPath := getTestPath("result", "mtahtml5.mtar")
 			Ω(mtarPath).Should(BeAnExistingFile())
 		})
 	})

@@ -34,20 +34,20 @@ var assemblyCommand = &cobra.Command{
 }
 
 func assembly(source, target, platform string, getWd func() (string, error)) error {
+	// copy from source to target
 	err := artifacts.CopyMtaContent(source, target, dir.Dep, getWd)
 	if err != nil {
 		return err
 	}
-
+	// Generate meta artifacts
 	err = artifacts.ExecuteGenMeta(source, target, dir.Dep, platform, false, getWd)
 	if err != nil {
 		return err
 	}
-
+	// generate mtar
 	err = artifacts.ExecuteGenMtar(source, target, dir.Dep, getWd)
 	if err != nil {
 		return err
 	}
-
 	return artifacts.ExecuteCleanup(source, target, dir.Dep, getWd)
 }
