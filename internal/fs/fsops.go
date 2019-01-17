@@ -217,28 +217,37 @@ func copyByPattern(source, target, pattern string) error {
 			pattern, source, target)
 	}
 
-	for _, sourceEntry := range sourceEntries {
-		info, err := os.Stat(sourceEntry)
+	err = copyEntries(sourceEntries, source, target, pattern)
+	if err != nil {
+		return err
+	}
+
+	logs.Logger.Infof(
+		"copying the %v pattern from the %v folder to the %v folder finished successfully",
+		pattern, source, target)
+	return nil
+}
+
+func copyEntries(entries []string, source, target, pattern string) error {
+	for _, entry := range entries {
+		info, err := os.Stat(entry)
 		if err != nil {
 			return errors.Wrapf(err,
 				"copying the %v pattern from the %v folder to the %v folder failed when getting the status of the source entry: %v",
-				pattern, source, target, sourceEntry)
+				pattern, source, target, entry)
 		}
-		targetEntry := filepath.Join(target, filepath.Base(sourceEntry))
+		targetEntry := filepath.Join(target, filepath.Base(entry))
 		if info.IsDir() {
-			err = CopyDir(sourceEntry, targetEntry)
+			err = CopyDir(entry, targetEntry)
 		} else {
-			err = CopyFile(sourceEntry, targetEntry)
+			err = CopyFile(entry, targetEntry)
 		}
 		if err != nil {
 			return errors.Wrapf(err,
 				"copying the %v pattern from the %v folder to the %v folder failed when copying the %v entry to the %v entry",
-				pattern, source, target, sourceEntry, targetEntry)
+				pattern, source, target, entry, targetEntry)
 		}
 	}
-	logs.Logger.Infof(
-		"copying the %v pattern from the %v folder to the %v folder finished successfully",
-		pattern, source, target)
 	return nil
 }
 

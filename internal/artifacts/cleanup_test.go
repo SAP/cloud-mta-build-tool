@@ -26,7 +26,6 @@ var _ = Describe("Cleanup", func() {
 			return "", errors.New("err")
 		})).Should(HaveOccurred())
 	})
-
 })
 
 var _ = Describe("Cleanup", func() {

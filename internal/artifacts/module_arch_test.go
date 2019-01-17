@@ -184,7 +184,7 @@ builders:
 
 			It("Commands fail", func() {
 				commands.CommandsConfig = []byte(`
-builders:
+module-types:
 - name: html5
   info: "installing module dependencies & execute grunt & remove dev dependencies"
   path: "path to config file which override the following default commands"
