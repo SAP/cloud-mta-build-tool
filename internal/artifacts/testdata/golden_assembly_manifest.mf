@@ -13,12 +13,12 @@ Content-Type: text/directory
 
 Name: config-site-host.json
 MTA-Requires: java-hello-world-backend/java-site-host
-Content-Type: application/zip
+Content-Type: application/json
 
 
 Name: xs-security.json
 MTA-Resource: java-uaa
-Content-Type: application/zip
+Content-Type: application/json
 
 
 Name: META-INF/mtad.yaml

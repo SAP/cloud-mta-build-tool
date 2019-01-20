@@ -26,13 +26,15 @@ import (
 // This is used by the deploy service to track the build project.
 
 const (
-	applicationZip = "application/zip"
-	pathSep        = string(os.PathSeparator)
-	dataZip        = pathSep + "data.zip"
-	moduleEntry    = "MTA-Module"
-	requiredEntry  = "MTA-Requires"
-	resourceEntry  = "MTA-Resource"
-	dirContentType = "text/directory"
+	applicationZip  = "application/zip"
+	applicationJson = "application/json"
+	pathSep         = string(os.PathSeparator)
+	dataZip         = pathSep + "data.zip"
+	moduleEntry     = "MTA-Module"
+	requiredEntry   = "MTA-Requires"
+	resourceEntry   = "MTA-Resource"
+	dirContentType  = "text/directory"
+	jsonExt         = ".json"
 )
 
 type entry struct {
@@ -122,13 +124,19 @@ func getContentType(targetPathGetter dir.ITargetPath, path string) (string, erro
 		return applicationZip, nil
 	}
 	targetPath := filepath.Join(targetPathGetter.GetTargetTmpDir(), path)
-	info, err := os.Stat(filepath.Join(targetPathGetter.GetTargetTmpDir(), path))
+	fullPath := filepath.Join(targetPathGetter.GetTargetTmpDir(), path)
+	info, err := os.Stat(fullPath)
 	if err != nil {
 		return "", fmt.Errorf("the %s path does not exist, content type not defined", targetPath)
 	}
 
 	if info.IsDir() {
 		return dirContentType, nil
+	}
+
+	extension := filepath.Ext(fullPath)
+	if extension == jsonExt {
+		return applicationJson, nil
 	}
 
 	return applicationZip, nil

@@ -10,21 +10,22 @@ import (
 )
 
 const (
-	mtarSuffix = ".mtar"
+	mtarExtension = ".mtar"
+	mtar_folder   = "mta_archives"
 )
 
 // ExecuteGenMtar - generates MTAR
 func ExecuteGenMtar(source, target, desc string, wdGetter func() (string, error)) error {
-	logs.Logger.Info("generation of the .mtar file started")
+	logs.Logger.Info("generation of the MTA archive started")
 	loc, err := dir.Location(source, target, desc, wdGetter)
 	if err != nil {
-		return errors.Wrap(err, "generation of the .mtar file failed when initializing the location")
+		return errors.Wrap(err, "generation of the MTA archive failed when initializing the location")
 	}
 	path, err := generateMtar(loc, loc)
 	if err != nil {
 		return err
 	}
-	logs.Logger.Info("generation of the .mtar file finished successfully at: ", path)
+	logs.Logger.Info("generation of the MTA archive finished successfully at: ", path)
 	return nil
 }
 
@@ -33,17 +34,23 @@ func generateMtar(targetLoc dir.ITargetPath, parser dir.IMtaParser) (string, err
 	// get MTA object
 	m, err := parser.ParseFile()
 	if err != nil {
-		return "", errors.Wrap(err, "generation of the the .mtar file failed when parsing the mta file")
+		return "", errors.Wrap(err, "generation of the the MTA archive failed when parsing the mta file")
 	}
 	// get target temporary folder to be archived
 	targetTmpDir := targetLoc.GetTargetTmpDir()
-	// get target directory - where mtar will be saved
-	targetDir := targetLoc.GetTarget()
-	// archive building artifacts to mtar
-	path := filepath.Join(targetDir, m.ID+mtarSuffix)
-	err = dir.Archive(targetTmpDir, path)
+
+	// create the mta_archives folder
+	// get directory - where mtar will be saved
+	mtarFolderPath := filepath.Join(targetLoc.GetTarget(), mtar_folder)
+	err = dir.CreateDirIfNotExist(mtarFolderPath)
 	if err != nil {
-		return "", errors.Wrap(err, "generation of the .mtar file failed when archiving")
+		return "", errors.Wrap(err, "generation of the MTA archive failed when creating the mta_archives folder")
 	}
-	return path, nil
+	// archive building artifacts to mtar
+	mtarPath := filepath.Join(mtarFolderPath, m.ID+"_"+m.Version+mtarExtension)
+	err = dir.Archive(targetTmpDir, mtarPath)
+	if err != nil {
+		return "", errors.Wrap(err, "generation of the MTA archive failed when archiving")
+	}
+	return mtarPath, nil
 }

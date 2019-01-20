@@ -13,6 +13,7 @@ import (
 	"cloud-mta-build-tool/internal/logs"
 	"cloud-mta-build-tool/internal/proc"
 	"cloud-mta-build-tool/internal/version"
+
 	"github.com/SAP/cloud-mta/mta"
 )
 
@@ -58,7 +59,7 @@ func genMakefile(mtaParser dir.IMtaParser, loc dir.ITargetPath, desc dir.IDescri
 }
 
 // makeFile - generate makefile form templates
-func makeFile(mtaParser dir.IMtaParser, loc dir.ITargetPath, makeFilename string, tpl *tplCfg) error {
+func makeFile(mtaParser dir.IMtaParser, loc dir.ITargetPath, makeFilename string, tpl *tplCfg) (e error) {
 
 	type api map[string]string
 	// template data
@@ -89,19 +90,15 @@ func makeFile(mtaParser dir.IMtaParser, loc dir.ITargetPath, makeFilename string
 	path := filepath.Join(target, tpl.relPath)
 	// Create genMakefile file for the template
 	mf, err := createMakeFile(path, makeFilename)
+	defer func() {
+		e = dir.CloseFile(mf, e)
+	}()
 	if err != nil {
 		return errors.Wrap(err, "generation of the make file failed when creating the file")
 	}
 	if mf != nil {
 		// Execute the template
 		err = t.Execute(mf, data)
-
-		errClose := mf.Close()
-		if err != nil && errClose != nil {
-			err = errors.Wrapf(err, "generation of the make file failed; failed to close the file because: %s", errClose)
-		} else if errClose != nil {
-			err = errors.Wrap(errClose, "generation of the make file failed when closing the file")
-		}
 	}
 	return err
 }

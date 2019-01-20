@@ -24,7 +24,7 @@ var _ = Describe("Mtar", func() {
 				os.MkdirAll(getTestPath("result", "mtahtml5", "ui5app2"), os.ModePerm)
 				Ω(ExecuteGenMeta(getTestPath("mtahtml5"), getResultPath(), "dev", "cf", true, os.Getwd)).Should(Succeed())
 				Ω(ExecuteGenMtar(getTestPath("mtahtml5"), getResultPath(), "dev", os.Getwd)).Should(Succeed())
-				Ω(getTestPath("result", "mtahtml5.mtar")).Should(BeAnExistingFile())
+				Ω(getTestPath("result", "mta_archives", "mtahtml5_0.0.1.mtar")).Should(BeAnExistingFile())
 			})
 
 			It("Fails on location initialization", func() {
