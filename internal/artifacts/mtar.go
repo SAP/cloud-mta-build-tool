@@ -11,7 +11,7 @@ import (
 
 const (
 	mtarExtension = ".mtar"
-	mtar_folder   = "mta_archives"
+	mtarFolder    = "mta_archives"
 )
 
 // ExecuteGenMtar - generates MTAR
@@ -41,7 +41,7 @@ func generateMtar(targetLoc dir.ITargetPath, parser dir.IMtaParser) (string, err
 
 	// create the mta_archives folder
 	// get directory - where mtar will be saved
-	mtarFolderPath := filepath.Join(targetLoc.GetTarget(), mtar_folder)
+	mtarFolderPath := filepath.Join(targetLoc.GetTarget(), mtarFolder)
 	err = dir.CreateDirIfNotExist(mtarFolderPath)
 	if err != nil {
 		return "", errors.Wrap(err, "generation of the MTA archive failed when creating the mta_archives folder")

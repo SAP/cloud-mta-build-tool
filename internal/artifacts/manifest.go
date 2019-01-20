@@ -27,7 +27,7 @@ import (
 
 const (
 	applicationZip  = "application/zip"
-	applicationJson = "application/json"
+	applicationJSON = "application/json"
 	pathSep         = string(os.PathSeparator)
 	dataZip         = pathSep + "data.zip"
 	moduleEntry     = "MTA-Module"
@@ -136,7 +136,7 @@ func getContentType(targetPathGetter dir.ITargetPath, path string) (string, erro
 
 	extension := filepath.Ext(fullPath)
 	if extension == jsonExt {
-		return applicationJson, nil
+		return applicationJSON, nil
 	}
 
 	return applicationZip, nil
