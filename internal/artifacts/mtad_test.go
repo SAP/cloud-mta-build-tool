@@ -8,6 +8,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"
+	"gopkg.in/yaml.v2"
 
 	"cloud-mta-build-tool/internal/buildops"
 	"cloud-mta-build-tool/internal/fs"
@@ -61,8 +62,18 @@ var _ = Describe("Mtad", func() {
 			Ω(err).Should(Succeed())
 			mtaStr, err := mta.Unmarshal(mtaBytes)
 			Ω(err).Should(Succeed())
-			Ω(genMtad(mtaStr, &ep, ep.IsDeploymentDescriptor(), "cf")).Should(HaveOccurred())
+			Ω(genMtad(mtaStr, &ep, ep.IsDeploymentDescriptor(), "cf", yaml.Marshal)).Should(HaveOccurred())
 			file.Close()
+		})
+		It("Fails on mtad marshalling", func() {
+			ep := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getTestPath("resultMtad")}
+			mtaBytes, err := dir.Read(&ep)
+			Ω(err).Should(Succeed())
+			mtaStr, err := mta.Unmarshal(mtaBytes)
+			Ω(err).Should(Succeed())
+			Ω(genMtad(mtaStr, &ep, ep.IsDeploymentDescriptor(), "cf", func(i interface{}) (out []byte, err error) {
+				return nil, errors.New("err")
+			})).Should(HaveOccurred())
 		})
 	})
 

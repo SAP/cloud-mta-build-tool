@@ -2,6 +2,7 @@ package artifacts
 
 import (
 	"github.com/pkg/errors"
+	"gopkg.in/yaml.v2"
 
 	"cloud-mta-build-tool/internal/fs"
 	"cloud-mta-build-tool/internal/logs"
@@ -52,7 +53,7 @@ func generateMeta(parser dir.IMtaParser, ep dir.ITargetArtifacts, targetPathGett
 // GenMetaInfo generates a MANIFEST.MF file and updates the build artifacts paths for deployment purposes.
 func GenMetaInfo(ep dir.ITargetArtifacts, targetPathGetter dir.ITargetPath, deploymentDesc bool,
 	platform string, mtaStr *mta.MTA, modules []string, onlyModules bool) (rerr error) {
-	err := genMtad(mtaStr, ep, deploymentDesc, platform)
+	err := genMtad(mtaStr, ep, deploymentDesc, platform, yaml.Marshal)
 	if err != nil {
 		return errors.Wrap(err, "generation of metadata failed when generating the .mtad file")
 	}

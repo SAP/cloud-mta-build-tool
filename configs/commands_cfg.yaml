@@ -11,7 +11,7 @@
 # The command should be executed on the root project level to regenerate the file that contain the binary (see generator.go file)
 
 
-builders:
+module-types:
 - name: html5
   info: "installing module dependencies & execute grunt & remove dev dependencies"
   path: "path to config file which override the following default commands"

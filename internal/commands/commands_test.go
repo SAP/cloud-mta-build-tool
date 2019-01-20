@@ -15,9 +15,9 @@ import (
 
 var _ = Describe("Commands tests", func() {
 	It("Mesh", func() {
-		var buildersCfg = []byte(`
+		var moduleTypesCfg = []byte(`
 version: 1
-builders:
+module-types:
   - name: html5
     info: "build UI application"
     type:
@@ -46,15 +46,16 @@ builders:
 			Info:    "build UI application",
 			Command: []string{"npm install", "grunt", "npm prune --production"},
 		}
-		commands := Builders{}
-		Ω(yaml.Unmarshal(buildersCfg, &commands)).Should(Succeed())
-		Ω(mesh(modules, commands, commands)).Should(Equal(expected))
+		commands := ModuleTypes{}
+		customCommands := Builders{}
+		Ω(yaml.Unmarshal(moduleTypesCfg, &commands)).Should(Succeed())
+		Ω(mesh(&modules, &commands, customCommands)).Should(Equal(expected))
 		modules = mta.Module{
 			Name: "uiapp1",
 			Type: "html5",
 			Path: "./",
 		}
-		_, err := mesh(modules, commands, commands)
+		_, err := mesh(&modules, &commands, customCommands)
 		Ω(err).Should(Succeed())
 		modules = mta.Module{
 			Name: "uiapp1",
@@ -64,7 +65,64 @@ builders:
 				"builder": "html5x",
 			},
 		}
-		_, err = mesh(modules, commands, commands)
+		_, err = mesh(&modules, &commands, customCommands)
+		Ω(err).Should(HaveOccurred())
+	})
+
+	It("Mesh - with builder in module types config", func() {
+		var moduleTypesCfg = []byte(`
+version: 1
+module-types:
+  - name: html5
+    info: "build UI application"
+    builder: npm
+`)
+		var buildersCfg = []byte(`
+version: 1
+builders:
+  - name: npm
+    info: "build UI application"
+    type:
+    - command: npm install
+    - command: npm prune --production
+`)
+		var modules = mta.Module{
+			Name: "uiapp",
+			Type: "html5",
+			Path: "./",
+		}
+		var expected = CommandList{
+			Info:    "build UI application",
+			Command: []string{"npm install", "npm prune --production"},
+		}
+		commands := ModuleTypes{}
+		customCommands := Builders{}
+		Ω(yaml.Unmarshal(moduleTypesCfg, &commands)).Should(Succeed())
+		Ω(yaml.Unmarshal(buildersCfg, &customCommands)).Should(Succeed())
+		Ω(mesh(&modules, &commands, customCommands)).Should(Equal(expected))
+	})
+
+	It("Mesh - fails on usage both builder and commands in one module type", func() {
+		var moduleTypesCfg = []byte(`
+version: 1
+module-types:
+  - name: html5
+    info: "build UI application"
+    builder: npm
+    type:
+    - command: npm install
+    - command: grunt
+    - command: npm prune --production
+`)
+		var modules = mta.Module{
+			Name: "uiapp",
+			Type: "html5",
+			Path: "./",
+		}
+		commands := ModuleTypes{}
+		customCommands := Builders{}
+		Ω(yaml.Unmarshal(moduleTypesCfg, &commands)).Should(Succeed())
+		_, err := mesh(&modules, &commands, customCommands)
 		Ω(err).Should(HaveOccurred())
 	})
 
@@ -76,7 +134,7 @@ builders:
 		Ω(CommandProvider(mta.Module{Type: "html5"})).Should(Equal(expected))
 	})
 
-	var _ = Describe("CommandProvider - Invalid cfg", func() {
+	var _ = Describe("CommandProvider - Invalid module types cfg", func() {
 		var config []byte
 
 		BeforeEach(func() {
@@ -84,7 +142,7 @@ builders:
 			copy(config, CommandsConfig)
 			// Simplified commands configuration (performance purposes). removed "npm prune --production"
 			CommandsConfig = []byte(`
-builders:
+module-types:
 - name: html5
   info: "installing module dependencies & execute grunt & remove dev dependencies"
   path: "path to config file which override the following default commands"
@@ -99,6 +157,46 @@ builders:
 		AfterEach(func() {
 			CommandsConfig = make([]byte, len(config))
 			copy(CommandsConfig, config)
+		})
+
+		It("test", func() {
+			_, err := CommandProvider(mta.Module{Type: "html5"})
+			Ω(err).Should(HaveOccurred())
+		})
+	})
+
+	var _ = Describe("CommandProvider - Invalid builders cfg", func() {
+		var moduleTypesConfig []byte
+		var buildersConfig []byte
+
+		BeforeEach(func() {
+			moduleTypesConfig = make([]byte, len(CommandsConfig))
+			copy(moduleTypesConfig, CommandsConfig)
+			// Simplified commands configuration (performance purposes). removed "npm prune --production"
+			CommandsConfig = []byte(`
+module-types:
+- name: html5
+  info: "installing module dependencies & execute grunt & remove dev dependencies"
+  path: "path to config file which override the following default commands"
+  type:
+`)
+
+			buildersConfig = make([]byte, len(CustomCommandsConfig))
+			copy(buildersConfig, CustomCommandsConfig)
+			CustomCommandsConfig = []byte(`
+builders:
+- name: html5
+  info: "installing module dependencies & execute grunt & remove dev dependencies"
+  path: "path to config file which override the following default commands"
+  type: [xxx]	
+`)
+		})
+
+		AfterEach(func() {
+			CommandsConfig = make([]byte, len(moduleTypesConfig))
+			copy(CommandsConfig, moduleTypesConfig)
+			CustomCommandsConfig = make([]byte, len(buildersConfig))
+			copy(CustomCommandsConfig, buildersConfig)
 		})
 
 		It("test", func() {

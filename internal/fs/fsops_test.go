@@ -52,6 +52,12 @@ var _ = Describe("FSOPS", func() {
 			Entry("Sanity", getFullPath("testdata", "level2", "result")),
 			Entry("DirectoryExists", getFullPath("testdata", "level2", "level3")),
 		)
+		It("Fails because file with the same name exists", func() {
+			CreateDirIfNotExist(getFullPath("testdata", "level2", "result"))
+			file, _ := os.Create(getFullPath("testdata", "level2", "result", "file"))
+			file.Close()
+			Ω(CreateDirIfNotExist(getFullPath("testdata", "level2", "result", "file"))).Should(HaveOccurred())
+		})
 	})
 
 	var _ = Describe("Archive", func() {
@@ -61,18 +67,23 @@ var _ = Describe("FSOPS", func() {
 			os.RemoveAll(targetFilePath)
 		})
 
-		var _ = DescribeTable("Archive", func(sourceFolderPath string, matcher GomegaMatcher, created bool) {
+		var _ = DescribeTable("Archive", func(source, target string, matcher GomegaMatcher, created bool) {
 
-			Ω(Archive(sourceFolderPath, targetFilePath)).Should(matcher)
+			Ω(Archive(source, target)).Should(matcher)
 			if created {
-				Ω(targetFilePath).Should(BeAnExistingFile())
+				Ω(target).Should(BeAnExistingFile())
 			} else {
-				Ω(targetFilePath).ShouldNot(BeAnExistingFile())
+				Ω(target).ShouldNot(BeAnExistingFile())
 			}
 		},
-			Entry("Sanity", getFullPath("testdata", "mtahtml5"), Succeed(), true),
-			Entry("SourceIsNotFolder", getFullPath("testdata", "level2", "level2_one.txt"), Succeed(), true),
-			Entry("SourceNotExists", getFullPath("testdata", "level3"), HaveOccurred(), false),
+			Entry("Sanity",
+				getFullPath("testdata", "mtahtml5"), targetFilePath, Succeed(), true),
+			Entry("SourceIsNotFolder",
+				getFullPath("testdata", "level2", "level2_one.txt"), targetFilePath, Succeed(), true),
+			Entry("SourceNotExists",
+				getFullPath("testdata", "level3"), targetFilePath, HaveOccurred(), false),
+			Entry("Target is empty string",
+				getFullPath("testdata", "mtahtml5"), "", HaveOccurred(), false),
 		)
 	})
 
@@ -85,6 +96,10 @@ var _ = Describe("FSOPS", func() {
 			Ω(getFullPath("testdata", "result.txt")).Should(BeAnExistingFile())
 			file.Close()
 			Ω(err).Should(BeNil())
+		})
+		It("Fails on empty path", func() {
+			_, err := CreateFile("")
+			Ω(err).Should(HaveOccurred())
 		})
 	})
 
@@ -201,10 +216,12 @@ var _ = Describe("FSOPS", func() {
 			err := CopyByPatterns(sourcePath, targetPath, patterns)
 			Ω(err).Should(HaveOccurred())
 		},
-			Entry("Target path relates to file ", getFullPath("testdata", "testbuildparams", "mta.yaml"), "ui2",
+			Entry("Target path relates to file ",
+				getFullPath("testdata", "testbuildparams", "mta.yaml"), "ui2",
 				[]string{"deep/folder/inui2/somefile.txt"}),
-			Entry("Wrong pattern ", getFullPath("testdata", "result"), "ui2",
-				[]string{"[a,b"}),
+			Entry("Wrong pattern ",
+				getFullPath("testdata", "result"), "ui2", []string{"[a,b"}),
+			Entry("Empty target path", "", "ui2", []string{"[a,b"}),
 		)
 	})
 
@@ -215,6 +232,11 @@ var _ = Describe("FSOPS", func() {
 
 	It("copyByPattern - fails because target is file", func() {
 		Ω(copyByPattern(getPath("testdata", "mtahtml5"),
+			getFullPath("testdata", "level2", "level2_one.txt"), "m*")).Should(HaveOccurred())
+	})
+
+	It("copyEntries - fails on entry with empty name", func() {
+		Ω(copyEntries([]string{""}, getPath("testdata", "mtahtml5"),
 			getFullPath("testdata", "level2", "level2_one.txt"), "m*")).Should(HaveOccurred())
 	})
 

@@ -10,6 +10,7 @@ import (
 	"cloud-mta-build-tool/internal/buildops"
 	"cloud-mta-build-tool/internal/fs"
 	"cloud-mta-build-tool/internal/logs"
+
 	"github.com/SAP/cloud-mta/mta"
 )
 
@@ -34,7 +35,7 @@ func ExecuteGenMtad(source, target, desc, platform string, wdGetter func() (stri
 	mta.Merge(mtaStr, mtaExt)
 	adaptMtadForDeployment(mtaStr, platform)
 
-	err = genMtad(mtaStr, loc, loc.IsDeploymentDescriptor(), platform)
+	err = genMtad(mtaStr, loc, loc.IsDeploymentDescriptor(), platform, yaml.Marshal)
 	if err != nil {
 		return err
 	}
@@ -43,7 +44,8 @@ func ExecuteGenMtad(source, target, desc, platform string, wdGetter func() (stri
 }
 
 // genMtad generates an mtad.yaml file from a mta.yaml file and a platform configuration file.
-func genMtad(mtaStr *mta.MTA, ep dir.ITargetArtifacts, deploymentDesc bool, platform string) error {
+func genMtad(mtaStr *mta.MTA, ep dir.ITargetArtifacts, deploymentDesc bool, platform string,
+	marshal func(interface{}) (out []byte, err error)) error {
 	// Create META-INF folder under the mtar folder
 	metaPath := ep.GetMetaPath()
 	err := dir.CreateDirIfNotExist(metaPath)
@@ -57,7 +59,7 @@ func genMtad(mtaStr *mta.MTA, ep dir.ITargetArtifacts, deploymentDesc bool, plat
 		}
 	}
 	// Create readable Yaml before writing to file
-	mtad, err := yaml.Marshal(mtaStr)
+	mtad, err := marshal(mtaStr)
 	if err != nil {
 		return errors.Wrap(err, "generation of the .mtad file failed when marshalling the .mtad object")
 	}
