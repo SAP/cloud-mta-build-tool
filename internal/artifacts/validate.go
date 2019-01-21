@@ -10,7 +10,7 @@ import (
 
 // ExecuteValidation - executes validation of MTA
 func ExecuteValidation(source, desc, mode string, getWorkingDir func() (string, error)) error {
-	logs.Logger.Info("validation started")
+	logs.Logger.Info("validating the MTA project")
 	loc, err := dir.Location(source, "", desc, getWorkingDir)
 	if err != nil {
 		return errors.Wrap(err, "validation failed when initializing the location")
@@ -23,6 +23,5 @@ func ExecuteValidation(source, desc, mode string, getWorkingDir func() (string, 
 	if err != nil {
 		return err
 	}
-	logs.Logger.Info("validation finished successfully")
 	return nil
 }

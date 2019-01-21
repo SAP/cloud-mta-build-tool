@@ -3,6 +3,7 @@ package commands
 import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"github.com/x-cray/logrus-prefixed-formatter"
 
 	"cloud-mta-build-tool/internal/logs"
 )
@@ -10,7 +11,11 @@ import (
 var cfgFile string
 
 func init() {
-	logs.NewLogger()
+	logs.Logger = logs.NewLogger()
+	formatter, ok := logs.Logger.Formatter.(*prefixed.TextFormatter)
+	if ok {
+		formatter.DisableColors = true
+	}
 	cobra.OnInitialize(initConfig)
 }
 

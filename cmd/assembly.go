@@ -36,7 +36,7 @@ var assemblyCommand = &cobra.Command{
 }
 
 func assembly(source, target, platform string, getWd func() (string, error)) error {
-	logs.Logger.Info("assemble started")
+	logs.Logger.Infof("assembling the project at %s", source)
 	// copy from source to target
 	err := artifacts.CopyMtaContent(source, target, dir.Dep, getWd)
 	if err != nil {
@@ -56,6 +56,5 @@ func assembly(source, target, platform string, getWd func() (string, error)) err
 	if err != nil {
 		return errors.Wrap(err, "assemble failed when executing cleanup")
 	}
-	logs.Logger.Info("assemble finished successfully")
 	return nil
 }

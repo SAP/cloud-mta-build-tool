@@ -44,7 +44,7 @@ func Execute(cmdParams [][]string) error {
 
 // executeCommand - executes individual command
 func executeCommand(cmd *exec.Cmd) error {
-	logs.Logger.Infof("execution of the %v command started", cmd.Path)
+	logs.Logger.Infof("executing the %v command", cmd.Path)
 
 	// During the running process get the standard output
 	stdout, err := cmd.StdoutPipe()
@@ -86,7 +86,6 @@ func executeCommand(cmd *exec.Cmd) error {
 			"execution of the %v command failed while waiting for finish", cmd.Path)
 	}
 	close(shutdownCh) // Signal indicator() to terminate
-	logs.Logger.Infof("execution of the %v command finished successfully", cmd.Path)
 	return nil
 }
 

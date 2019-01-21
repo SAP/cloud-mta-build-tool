@@ -16,7 +16,7 @@ const (
 
 // ExecuteGenMtar - generates MTAR
 func ExecuteGenMtar(source, target, desc string, wdGetter func() (string, error)) error {
-	logs.Logger.Info("generation of the MTA archive started")
+	logs.Logger.Info("generating the MTA archive")
 	loc, err := dir.Location(source, target, desc, wdGetter)
 	if err != nil {
 		return errors.Wrap(err, "generation of the MTA archive failed when initializing the location")
@@ -25,7 +25,7 @@ func ExecuteGenMtar(source, target, desc string, wdGetter func() (string, error)
 	if err != nil {
 		return err
 	}
-	logs.Logger.Info("generation of the MTA archive finished successfully at: ", path)
+	logs.Logger.Info("the MTA archive generated at: ", path)
 	return nil
 }
 
