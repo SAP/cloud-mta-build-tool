@@ -48,6 +48,7 @@ The MBT supports the following commands:
 | ------  | ------       |  ----------                                            |
 | version | `mbt -v`     | Prints the MBT version.                                 |
 | help    | `mbt -h`     | Prints all the available commands.                     | 
+| assemble    | `mbt assemble`     | Assemble MTA project according to deployment descriptor.                     | 
 
 
 
@@ -60,7 +61,7 @@ For background and detailed information, see The [Multi-Target Application Model
  
 ### Milestone 1  - (Q1 - 2019)
 
- - [ ] Supports project assembly 
+ - [x] Supports project assembly based deployment descriptor 
  - [ ] Supports build of HTML5 applications (non repo)
  - [ ] Supports build of node applications
  - [ ] Partial support of build parameters (first phase)
@@ -70,9 +71,7 @@ For background and detailed information, see The [Multi-Target Application Model
     - [ ] Supports target platforms
  - [ ] Generates a default `Makefile`
  - [ ] Generates a `mtad.yaml` file from a `mta.yaml` file
- - [ ] Supports builds for `XSA` / `CF` targets
- - [ ] Supports packaging based on a `mtad.yaml` file
- 
+ - [ ] Supports builds for `XSA` / `CF` targets 
  
 ### Milestone 2 - (Q2 - 2019)
  
@@ -102,9 +101,9 @@ For background and detailed information, see The [Multi-Target Application Model
  - [ ] Supports extensibility framework
  - [ ] Full supports advanced `mta.yaml` (3.1, > 3.2) schema
 
-## Usage
+## Download and Installation
 
-  TBD.
+Download the binary according to your operating system, unzip it and add it to your `~/bin` path.
   
 ## Contributions
 
