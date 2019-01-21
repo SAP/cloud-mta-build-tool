@@ -7,7 +7,7 @@
 
 # Note: in the future this file will be removed from the tool
 
-# usage: to add new command to the file, execute command `go:generate`
+# usage: to add new extensions to the file, execute command `go:generate`
 # The command should be executed on the root project level to regenerate the file that contain the binary (see generator.go file)
 
 # Types for cloudfoundry platform
@@ -16,6 +16,9 @@ content-types:
   content-type: "application/json"
 
 - extension: .war
+  content-type: "application/zip"
+
+- extension: .zip
   content-type: "application/zip"
 
 - extension: .yaml

@@ -73,7 +73,7 @@ var _ = Describe("Commands", func() {
 			mtarCmdSrc = getTestPath("mtahtml5")
 			Ω(metaCmd.RunE(nil, []string{})).Should(Succeed())
 			Ω(mtarCmd.RunE(nil, []string{})).Should(Succeed())
-			Ω(getTestPath("result", "mtahtml5.mtar")).Should(BeAnExistingFile())
+			Ω(getTestPath("result", "mta_archives", "mtahtml5_0.0.1.mtar")).Should(BeAnExistingFile())
 		})
 	})
 

@@ -172,7 +172,7 @@ func CopyByPatterns(source, target string, patterns []string) error {
 		return nil
 	}
 
-	logs.Logger.Infof("copying the patterns [%v,...] from the %v folder to the %v folder started",
+	logs.Logger.Infof("copying the patterns [%v,...] from the %v folder to the %v folder",
 		patterns[0], source, target)
 
 	infoTargetDir, err := os.Stat(target)
@@ -198,14 +198,12 @@ func CopyByPatterns(source, target string, patterns []string) error {
 		}
 	}
 
-	logs.Logger.Infof("copying the patterns [%v,...] from the %v folder to the %v folder finished successfully",
-		patterns[0], source, target)
 	return nil
 }
 
 // copyByPattern - copy files/directories according to pattern
 func copyByPattern(source, target, pattern string) error {
-	logs.Logger.Infof("copying the %v pattern from the %v folder to the %v folder started",
+	logs.Logger.Infof("copying the %v pattern from the %v folder to the %v folder",
 		pattern, source, target)
 	// build full pattern concatenating source path and pattern
 	fullPattern := filepath.Join(source, strings.Replace(pattern, "./", "", -1))
@@ -222,9 +220,6 @@ func copyByPattern(source, target, pattern string) error {
 		return err
 	}
 
-	logs.Logger.Infof(
-		"copying the %v pattern from the %v folder to the %v folder finished successfully",
-		pattern, source, target)
 	return nil
 }
 

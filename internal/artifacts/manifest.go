@@ -7,6 +7,8 @@ import (
 	"path/filepath"
 	"text/template"
 
+	"cloud-mta-build-tool/internal/contenttype"
+
 	"github.com/pkg/errors"
 
 	"github.com/SAP/cloud-mta/mta"
@@ -26,7 +28,6 @@ import (
 // This is used by the deploy service to track the build project.
 
 const (
-	applicationZip = "application/zip"
 	pathSep        = string(os.PathSeparator)
 	dataZip        = pathSep + "data.zip"
 	moduleEntry    = "MTA-Module"
@@ -45,64 +46,85 @@ type entry struct {
 // setManifestDesc - Set the MANIFEST.MF file
 func setManifestDesc(ep dir.ITargetArtifacts, targetPathGetter dir.ITargetPath, mtaStr []*mta.Module,
 	mtaResources []*mta.Resource, modules []string, onlyModules bool) error {
+
+	contentTypes, err := contenttype.GetContentTypes()
+	if err != nil {
+		return errors.Wrap(err,
+			"generation of the manifest failed when getting content types from configuration")
+	}
+
 	var entries []entry
 	for _, mod := range mtaStr {
-		if moduleDefined(mod.Name, modules) {
-			contentType, err := getContentType(targetPathGetter, getModulePath(mod, targetPathGetter))
-			if err != nil {
-				return errors.Wrapf(err,
-					"generation of the manifest failed when getting the %s module content type", mod.Name)
-			}
-			moduleEntry := entry{
-				EntryName:   mod.Name,
-				EntryPath:   getModulePath(mod, targetPathGetter),
-				ContentType: contentType,
-				EntryType:   moduleEntry,
-			}
-			entries = append(entries, moduleEntry)
-
-			if onlyModules {
-				continue
-			}
-			requiredDependenciesWithPath := getRequiredDependencies(mod)
-			requiredDependencyEntries, err := buildEntries(targetPathGetter, mod, requiredDependenciesWithPath)
-			if err != nil {
-				return errors.Wrapf(err,
-					"generation of the manifest failed when building required entries of the %s module",
-					mod.Name)
-			}
-			entries = append(entries, requiredDependencyEntries...)
+		if !moduleDefined(mod.Name, modules) {
+			continue
 		}
+		contentType, err := getContentType(targetPathGetter, getModulePath(mod, targetPathGetter), contentTypes)
+		if err != nil {
+			return errors.Wrapf(err,
+				"generation of the manifest failed when getting the %s module content type", mod.Name)
+		}
+		moduleEntry := entry{
+			EntryName:   mod.Name,
+			EntryPath:   getModulePath(mod, targetPathGetter),
+			ContentType: contentType,
+			EntryType:   moduleEntry,
+		}
+		entries = append(entries, moduleEntry)
+
+		if onlyModules {
+			continue
+		}
+		requiredDependenciesWithPath := getRequiredDependencies(mod)
+		requiredDependencyEntries, err :=
+			buildEntries(targetPathGetter, mod, requiredDependenciesWithPath, contentTypes)
+		if err != nil {
+			return errors.Wrapf(err,
+				"generation of the manifest failed when building required entries of the %s module",
+				mod.Name)
+		}
+		entries = append(entries, requiredDependencyEntries...)
 	}
 
 	if !onlyModules {
-		for _, resource := range mtaResources {
-			if resource.Parameters["path"] == nil {
-				continue
-			}
-			contentType, err := getContentType(targetPathGetter, getResourcePath(resource))
-			if err != nil {
-				return errors.Wrapf(err,
-					"generation of the manifest failed when getting the %s resource content type", resource.Name)
-			}
-			resourceEntry := entry{
-				EntryName:   resource.Name,
-				EntryPath:   getResourcePath(resource),
-				ContentType: contentType,
-				EntryType:   resourceEntry,
-			}
-			entries = append(entries, resourceEntry)
+		resourcesEntries, err := getResourcesEntries(targetPathGetter, mtaResources, contentTypes)
+		if err != nil {
+			return err
 		}
+		entries = append(entries, resourcesEntries...)
 	}
 
 	return genManifest(ep.GetManifestPath(), entries)
 }
 
+func getResourcesEntries(targetPathGetter dir.ITargetPath, resources []*mta.Resource,
+	contentTypes *contenttype.ContentTypes) ([]entry, error) {
+	var entries []entry
+	for _, resource := range resources {
+		if resource.Parameters["path"] == nil {
+			continue
+		}
+		contentType, err := getContentType(targetPathGetter, getResourcePath(resource), contentTypes)
+		if err != nil {
+			return nil, errors.Wrapf(err,
+				"generation of the manifest failed when getting the %s resource content type", resource.Name)
+		}
+		resourceEntry := entry{
+			EntryName:   resource.Name,
+			EntryPath:   getResourcePath(resource),
+			ContentType: contentType,
+			EntryType:   resourceEntry,
+		}
+		entries = append(entries, resourceEntry)
+	}
+	return entries, nil
+}
+
 func buildEntries(targetPathGetter dir.ITargetPath, module *mta.Module,
-	requiredDependencies []mta.Requires) ([]entry, error) {
+	requiredDependencies []mta.Requires, contentTypes *contenttype.ContentTypes) ([]entry, error) {
 	result := make([]entry, 0)
 	for _, requiredDependency := range requiredDependencies {
-		contentType, err := getContentType(targetPathGetter, requiredDependency.Parameters["path"].(string))
+		contentType, err :=
+			getContentType(targetPathGetter, requiredDependency.Parameters["path"].(string), contentTypes)
 		if err != nil {
 			return nil, err
 		}
@@ -117,12 +139,10 @@ func buildEntries(targetPathGetter dir.ITargetPath, module *mta.Module,
 	return result, nil
 }
 
-func getContentType(targetPathGetter dir.ITargetPath, path string) (string, error) {
-	if targetPathGetter == nil {
-		return applicationZip, nil
-	}
+func getContentType(targetPathGetter dir.ITargetPath, path string, contentTypes *contenttype.ContentTypes) (string, error) {
 	targetPath := filepath.Join(targetPathGetter.GetTargetTmpDir(), path)
-	info, err := os.Stat(filepath.Join(targetPathGetter.GetTargetTmpDir(), path))
+	fullPath := filepath.Join(targetPathGetter.GetTargetTmpDir(), path)
+	info, err := os.Stat(fullPath)
 	if err != nil {
 		return "", fmt.Errorf("the %s path does not exist, content type not defined", targetPath)
 	}
@@ -131,7 +151,8 @@ func getContentType(targetPathGetter dir.ITargetPath, path string) (string, erro
 		return dirContentType, nil
 	}
 
-	return applicationZip, nil
+	extension := filepath.Ext(fullPath)
+	return contenttype.GetContentType(contentTypes, extension)
 }
 
 func getRequiredDependencies(module *mta.Module) []mta.Requires {

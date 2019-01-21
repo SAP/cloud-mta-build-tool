@@ -11,7 +11,7 @@ import (
 
 // ExecuteCleanup - cleanups temp artifacts
 func ExecuteCleanup(source, target, desc string, wdGetter func() (string, error)) error {
-	logs.Logger.Info("cleanup started")
+	logs.Logger.Info("cleaning temporary generated files")
 	// Remove temp folder
 	loc, err := dir.Location(source, target, desc, wdGetter)
 	if err != nil {
@@ -22,6 +22,5 @@ func ExecuteCleanup(source, target, desc string, wdGetter func() (string, error)
 	if err != nil {
 		return errors.Wrapf(err, "cleanup failed when removing the %v folder", targetTmpDir)
 	}
-	logs.Logger.Info("cleanup finished successfully")
 	return nil
 }

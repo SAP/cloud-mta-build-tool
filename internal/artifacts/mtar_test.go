@@ -24,7 +24,7 @@ var _ = Describe("Mtar", func() {
 				os.MkdirAll(getTestPath("result", "mtahtml5", "ui5app2"), os.ModePerm)
 				Ω(ExecuteGenMeta(getTestPath("mtahtml5"), getResultPath(), "dev", "cf", true, os.Getwd)).Should(Succeed())
 				Ω(ExecuteGenMtar(getTestPath("mtahtml5"), getResultPath(), "dev", os.Getwd)).Should(Succeed())
-				Ω(getTestPath("result", "mtahtml5.mtar")).Should(BeAnExistingFile())
+				Ω(getTestPath("result", "mta_archives", "mtahtml5_0.0.1.mtar")).Should(BeAnExistingFile())
 			})
 
 			It("Fails on location initialization", func() {
@@ -40,7 +40,9 @@ var _ = Describe("Mtar", func() {
 
 		It("Generate Mtar - Sanity", func() {
 			ep := dir.Loc{SourcePath: getTestPath("mtahtml5"), TargetPath: getResultPath()}
-			Ω(generateMeta(&ep, &ep, nil, false, "cf", true)).Should(Succeed())
+			os.MkdirAll(getTestPath("result", "mtahtml5", "testapp"), os.ModePerm)
+			os.MkdirAll(getTestPath("result", "mtahtml5", "ui5app2"), os.ModePerm)
+			Ω(generateMeta(&ep, &ep, &ep, false, "cf", true)).Should(Succeed())
 			mtarPath, err := generateMtar(&ep, &ep)
 			Ω(err).Should(Succeed())
 			Ω(mtarPath).Should(BeAnExistingFile())

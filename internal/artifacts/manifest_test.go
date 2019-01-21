@@ -6,12 +6,13 @@ import (
 	"os"
 	"text/template"
 
-	"cloud-mta-build-tool/internal/fs"
-
 	"github.com/SAP/cloud-mta/mta"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"
+
+	"cloud-mta-build-tool/internal/contenttype"
+	"cloud-mta-build-tool/internal/fs"
 )
 
 var _ = Describe("manifest", func() {
@@ -101,7 +102,7 @@ var _ = Describe("manifest", func() {
 					EntryName:   "node-js",
 					EntryPath:   "node-js/data.zip",
 					EntryType:   moduleEntry,
-					ContentType: applicationZip,
+					ContentType: "application/zip",
 				},
 			}
 			Ω(genManifest(loc.GetManifestPath(), entries)).Should(Succeed())
@@ -146,7 +147,7 @@ var _ = Describe("manifest", func() {
 					},
 				},
 			}
-			entries, err := buildEntries(loc, &mod, requires)
+			entries, err := buildEntries(loc, &mod, requires, &contenttype.ContentTypes{})
 			Ω(len(entries)).Should(Equal(1))
 			Ω(err).Should(Succeed())
 			e := entries[0]

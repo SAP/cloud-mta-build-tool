@@ -41,6 +41,14 @@ var _ = Describe("Embed", func() {
 		Ω(main).Should(Panic())
 	})
 
+	It("getConf fails on empty source", func() {
+		Ω(genConf("", "", "package", "var")).Should(HaveOccurred())
+	})
+
+	It("getConf fails on empty target", func() {
+		Ω(genConf("./testdata/cfg.yaml", "", "package", "var")).Should(HaveOccurred())
+	})
+
 })
 
 func removeSpecialSymbols(b []byte) string {

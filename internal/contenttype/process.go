@@ -8,22 +8,13 @@ import (
 )
 
 // GetContentTypes - gets content types associated with files extensions from the configuration config_type_cgf.yaml
-func GetContentTypes() (ContentTypes, error) {
-	contentTypes, err := unmarshal(ContentTypeConfig)
-	if err != nil {
-		return ContentTypes{}, errors.Wrap(err, "assembly failed when unmarshalling content types")
-	}
-	return contentTypes, nil
-}
-
-// unmarshal - unmarshal content types config
-func unmarshal(data []byte) (ContentTypes, error) {
+func GetContentTypes() (*ContentTypes, error) {
 	contentTypes := ContentTypes{}
-	err := yaml.Unmarshal(data, &contentTypes)
+	err := yaml.Unmarshal(ContentTypeConfig, &contentTypes)
 	if err != nil {
-		return contentTypes, errors.Wrap(err, "unmarshalling of the content types failed")
+		return &contentTypes, errors.Wrap(err, "unmarshalling of the content types failed")
 	}
-	return contentTypes, nil
+	return &contentTypes, nil
 }
 
 // GetContentType - get content type by file extension
