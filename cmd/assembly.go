@@ -12,12 +12,18 @@ import (
 )
 
 const (
-	defaultPlatform            string = "cf"
-	defaultMtaLocation         string = ""
-	defaultMtaAssemblyLocation string = ""
+	defaultPlatform string = "cf"
 )
 
-func init() {}
+var assembleCmdSrc string
+var assembleCmdTrg string
+
+func init() {
+	assemblyCommand.Flags().StringVarP(&assembleCmdSrc,
+		"source", "s", "", "Provide MTA source ")
+	assemblyCommand.Flags().StringVarP(&assembleCmdTrg,
+		"target", "t", "", "Provide MTA target ")
+}
 
 // Generate mtar from build artifacts
 var assemblyCommand = &cobra.Command{
@@ -27,7 +33,7 @@ var assemblyCommand = &cobra.Command{
 	ValidArgs: []string{"Deployment descriptor location"},
 	Args:      cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		err := assembly(defaultMtaLocation, defaultMtaAssemblyLocation, defaultPlatform, os.Getwd)
+		err := assembly(assembleCmdSrc, assembleCmdTrg, defaultPlatform, os.Getwd)
 		logError(err)
 		return err
 	},
