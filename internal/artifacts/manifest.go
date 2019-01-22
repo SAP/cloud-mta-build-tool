@@ -50,7 +50,7 @@ func setManifestDesc(ep dir.ITargetArtifacts, targetPathGetter dir.ITargetPath, 
 	contentTypes, err := contenttype.GetContentTypes()
 	if err != nil {
 		return errors.Wrap(err,
-			"generation of the manifest failed when getting content types from configuration")
+			"failed to generate the manifest file when getting content types from the configuration")
 	}
 
 	var entries []entry
@@ -61,7 +61,7 @@ func setManifestDesc(ep dir.ITargetArtifacts, targetPathGetter dir.ITargetPath, 
 		contentType, err := getContentType(targetPathGetter, getModulePath(mod, targetPathGetter), contentTypes)
 		if err != nil {
 			return errors.Wrapf(err,
-				"generation of the manifest failed when getting the %s module content type", mod.Name)
+				"failed to generate the manifest file when getting the %s module content type", mod.Name)
 		}
 		moduleEntry := entry{
 			EntryName:   mod.Name,
@@ -79,7 +79,7 @@ func setManifestDesc(ep dir.ITargetArtifacts, targetPathGetter dir.ITargetPath, 
 			buildEntries(targetPathGetter, mod, requiredDependenciesWithPath, contentTypes)
 		if err != nil {
 			return errors.Wrapf(err,
-				"generation of the manifest failed when building required entries of the %s module",
+				"failed to generate the manifest file when building required entries of the %s module",
 				mod.Name)
 		}
 		entries = append(entries, requiredDependencyEntries...)
