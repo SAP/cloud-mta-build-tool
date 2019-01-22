@@ -106,7 +106,7 @@ func getResourcesEntries(targetPathGetter dir.ITargetPath, resources []*mta.Reso
 		contentType, err := getContentType(targetPathGetter, getResourcePath(resource), contentTypes)
 		if err != nil {
 			return nil, errors.Wrapf(err,
-				"generation of the manifest failed when getting the %s resource content type", resource.Name)
+				"failed to generate the manifest file when getting the %s resource content type", resource.Name)
 		}
 		resourceEntry := entry{
 			EntryName:   resource.Name,
