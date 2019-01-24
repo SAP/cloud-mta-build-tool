@@ -468,7 +468,7 @@ func getContentPath(contentType, source string) string {
 	}
 	if contentType == "folder" {
 		dir.CopyDir(getTestPath("mta_content_copy_test", "test-content"),
-			filepath.Join(source, "test-content"), false)
+			filepath.Join(source, "test-content"), true)
 		return "test-content"
 	}
 
