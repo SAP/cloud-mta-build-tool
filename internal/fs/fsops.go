@@ -254,11 +254,10 @@ func CopyEntries(entries []os.FileInfo, src, dst string) (rerr error) {
 
 		go func(e os.FileInfo) {
 
-			var err error
-
 			if rerr != nil {
 				return
 			}
+			var err error
 			defer wg.Done()
 			srcPath := filepath.Join(src, e.Name())
 			dstPath := filepath.Join(dst, e.Name())

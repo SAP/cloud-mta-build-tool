@@ -159,9 +159,6 @@ var _ = Describe("FSOPS", func() {
 			Ω(CopyEntries(filesWrapped, sourcePath, targetPath)).Should(Succeed())
 			Ω(countFilesInDir(sourcePath) - 1).Should(Equal(countFilesInDir(targetPath)))
 			os.RemoveAll(targetPath)
-
-			targetPath = getFullPath("testdata", "//")
-			Ω(CopyEntries(filesWrapped, getFullPath("testdata", "level2", "levelx"), targetPath)).Should(HaveOccurred())
 		})
 	})
 
