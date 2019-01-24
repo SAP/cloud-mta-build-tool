@@ -31,7 +31,7 @@ func generateMeta(parser dir.IMtaParser, ep dir.ITargetArtifacts, targetPathGett
 	// parse MTA file
 	m, err := parser.ParseFile()
 	if err != nil {
-		return errors.Wrap(err, "generation of metadata failed when parsing the mta file")
+		return errors.Wrap(err, "generation of metadata failed when parsing the MTA file")
 	}
 	// read MTA extension file
 	mExt, err := parser.ParseExtFile(platform)
@@ -54,7 +54,7 @@ func GenMetaInfo(ep dir.ITargetArtifacts, targetPathGetter dir.ITargetPath, depl
 	platform string, mtaStr *mta.MTA, modules []string, onlyModules bool) (rerr error) {
 	err := genMtad(mtaStr, ep, deploymentDesc, platform, yaml.Marshal)
 	if err != nil {
-		return errors.Wrap(err, "generation of metadata failed when generating the .mtad file")
+		return errors.Wrap(err, "generation of metadata failed when generating the MTAD file")
 	}
 	// Set the MANIFEST.MF file
 	err = setManifestDesc(ep, targetPathGetter, mtaStr.Modules, mtaStr.Resources, modules, onlyModules)

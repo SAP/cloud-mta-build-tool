@@ -71,7 +71,7 @@ func makeFile(mtaParser dir.IMtaParser, loc dir.ITargetPath, makeFilename string
 	// ParseFile file
 	m, err := mtaParser.ParseFile()
 	if err != nil {
-		return errors.Wrap(err, "generation of the make file failed when reading the .mta file")
+		return errors.Wrap(err, "generation of the make file failed when reading the MTA file")
 	}
 
 	// Template data

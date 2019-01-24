@@ -46,7 +46,7 @@ func assembly(source, target, platform string, getWd func() (string, error)) err
 	// copy from source to target
 	err := artifacts.CopyMtaContent(source, target, dir.Dep, getWd)
 	if err != nil {
-		return errors.Wrap(err, "assemble failed when copying the mta content")
+		return errors.Wrap(err, "assemble failed when copying the MTA content")
 	}
 	// Generate meta artifacts
 	err = artifacts.ExecuteGenMeta(source, target, dir.Dep, platform, false, getWd)

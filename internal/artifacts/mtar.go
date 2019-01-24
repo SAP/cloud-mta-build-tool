@@ -25,7 +25,7 @@ func ExecuteGenMtar(source, target, desc string, wdGetter func() (string, error)
 	if err != nil {
 		return err
 	}
-	logs.Logger.Info("the MTA archive generated at: ", path)
+	logs.Logger.Infof("the MTA archive generated at: %s", path)
 	return nil
 }
 
