@@ -66,7 +66,9 @@ func Archive(sourcePath, targetArchivePath string) (e error) {
 		baseDir += string(os.PathSeparator)
 	}
 
-	return walk(sourcePath, baseDir, archive)
+	err = walk(sourcePath, baseDir, archive)
+	wg.Wait()
+	return err
 }
 
 // CloseFile - closes file
@@ -79,7 +81,10 @@ func CloseFile(file io.Closer, err error) error {
 	return err
 }
 
-func walk(sourcePath string, baseDir string, archive *zip.Writer) (e error) {
+var wg sync.WaitGroup
+
+func walk(sourcePath string, baseDir string, archive *zip.Writer) error {
+
 	// pack files of source into archive
 	return filepath.Walk(sourcePath, func(path string, info os.FileInfo, err error) (e error) {
 		if err != nil {
@@ -87,12 +92,13 @@ func walk(sourcePath string, baseDir string, archive *zip.Writer) (e error) {
 		}
 
 		if info.IsDir() {
-			return nil
+			return
 		}
 
 		header, err := zip.FileInfoHeader(info)
 		if err != nil {
-			return err
+			e = err
+			return
 		}
 
 		if baseDir != "" {
@@ -106,20 +112,29 @@ func walk(sourcePath string, baseDir string, archive *zip.Writer) (e error) {
 		// add new header and file to archive
 		writer, err := archive.CreateHeader(header)
 		if err != nil {
-			return err
+			e = err
+			return
 		}
 
-		file, err := os.Open(path)
-		if err != nil {
-			return err
-		}
-		defer func() {
-			e = CloseFile(file, e)
-		}()
+		wg.Add(1)
+		go func(wr io.Writer, p string) {
+			defer wg.Done()
 
-		_, err = io.Copy(writer, file)
-		return err
+			file, err := os.Open(p)
+			if err != nil {
+				e = err
+				return
+			}
+			defer func() {
+				e = CloseFile(file, e)
+			}()
 
+			_, err = io.Copy(wr, file)
+			if err != nil {
+				e = err
+			}
+		}(writer, path)
+		return
 	})
 }
 
@@ -254,11 +269,11 @@ func CopyEntries(entries []os.FileInfo, src, dst string) (rerr error) {
 
 		go func(e os.FileInfo) {
 
+			defer wg.Done()
 			if rerr != nil {
 				return
 			}
 			var err error
-			defer wg.Done()
 			srcPath := filepath.Join(src, e.Name())
 			dstPath := filepath.Join(dst, e.Name())
 

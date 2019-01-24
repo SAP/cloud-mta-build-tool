@@ -80,10 +80,10 @@ var _ = Describe("FSOPS", func() {
 				getFullPath("testdata", "mtahtml5"), targetFilePath, Succeed(), true),
 			Entry("SourceIsNotFolder",
 				getFullPath("testdata", "level2", "level2_one.txt"), targetFilePath, Succeed(), true),
-			//Entry("SourceNotExists",
-			//	getFullPath("testdata", "level3"), targetFilePath, HaveOccurred(), false),
 			Entry("Target is empty string",
 				getFullPath("testdata", "mtahtml5"), "", HaveOccurred(), false),
+			Entry("Source is empty string",
+				"", "", HaveOccurred(), false),
 		)
 	})
 
@@ -138,6 +138,13 @@ var _ = Describe("FSOPS", func() {
 			Entry("WrongDestinationName", getFullPath("testdata", "level2", "level2_one.txt"), getFullPath("testdata", "level2", "/"), HaveOccurred()),
 			Entry("DestinationExists", getFullPath("testdata", "level2", "level3", "level3_one.txt"), getFullPath("testdata", "level2", "level3", "level3_two.txt"), Succeed()),
 		)
+		var _ = DescribeTable("Copy File - Invalid", func(source, target string, matcher GomegaMatcher) {
+			Ω(CopyFileWithMode(source, target, os.ModePerm)).Should(matcher)
+		},
+			Entry("TargetPathEmpty", getFullPath("testdata", "fileSrc"), "", HaveOccurred()),
+			Entry("SourceIsDirectory", getFullPath("testdata", "level2"), targetPath, HaveOccurred()),
+			Entry("DestinationExists", getFullPath("testdata", "level2", "level3", "level3_one.txt"), getFullPath("testdata", "level2", "level3", "level3_two.txt"), Succeed()),
+		)
 	})
 
 	var _ = Describe("Copy Entries", func() {
@@ -153,6 +160,7 @@ var _ = Describe("FSOPS", func() {
 			files, _ := ioutil.ReadDir(sourcePath)
 			// Files wrapped to overwrite their methods
 			var filesWrapped []os.FileInfo
+			Ω(CopyEntries(filesWrapped, sourcePath, targetPath)).Should(Succeed())
 			for _, file := range files {
 				filesWrapped = append(filesWrapped, testFile{file: file})
 			}
