@@ -300,7 +300,7 @@ func CopyFileWithMode(src, dst string, mode os.FileMode) (rerr error) {
 		rerr = CloseFile(in, rerr)
 	}()
 
-	out, err := os.OpenFile(dst, os.O_CREATE, mode)
+	out, err := os.OpenFile(dst, os.O_RDWR|os.O_CREATE|os.O_TRUNC, mode)
 	if err != nil {
 		return err
 	}
