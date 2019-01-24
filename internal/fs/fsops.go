@@ -67,7 +67,6 @@ func Archive(sourcePath, targetArchivePath string) (e error) {
 	}
 
 	err = walk(sourcePath, baseDir, archive)
-	wg.Wait()
 	return err
 }
 
@@ -80,8 +79,6 @@ func CloseFile(file io.Closer, err error) error {
 	}
 	return err
 }
-
-var wg sync.WaitGroup
 
 func walk(sourcePath string, baseDir string, archive *zip.Writer) error {
 
@@ -97,8 +94,7 @@ func walk(sourcePath string, baseDir string, archive *zip.Writer) error {
 
 		header, err := zip.FileInfoHeader(info)
 		if err != nil {
-			e = err
-			return
+			return err
 		}
 
 		if baseDir != "" {
@@ -112,29 +108,20 @@ func walk(sourcePath string, baseDir string, archive *zip.Writer) error {
 		// add new header and file to archive
 		writer, err := archive.CreateHeader(header)
 		if err != nil {
-			e = err
-			return
+			return err
 		}
 
-		wg.Add(1)
-		go func(wr io.Writer, p string) {
-			defer wg.Done()
+		file, err := os.Open(path)
+		if err != nil {
+			return err
+		}
+		defer func() {
+			e = CloseFile(file, e)
+		}()
 
-			file, err := os.Open(p)
-			if err != nil {
-				e = err
-				return
-			}
-			defer func() {
-				e = CloseFile(file, e)
-			}()
+		_, err = io.Copy(writer, file)
 
-			_, err = io.Copy(wr, file)
-			if err != nil {
-				e = err
-			}
-		}(writer, path)
-		return
+		return err
 	})
 }
 
