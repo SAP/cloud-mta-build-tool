@@ -156,13 +156,15 @@ func copyModuleArchive(ep dir.IModule, modulePath, moduleName string) error {
 // CopyMtaContent copies the content of all modules and resources which are presented in the deployment descriptor,
 // in the source directory, to the target directory
 func CopyMtaContent(source, target, desc string, wdGetter func() (string, error)) error {
+
+	logs.Logger.Info("copying the MTA content")
 	loc, err := dir.Location(source, target, desc, wdGetter)
 	if err != nil {
-		return errors.Wrap(err, "copying mta content failed during initialization of deployment descriptor location")
+		return errors.Wrap(err, "copying the MTA content failed during initialization of deployment descriptor location")
 	}
 	mta, err := loc.ParseFile()
 	if err != nil {
-		return errors.Wrap(err, "error while parsing MTA")
+		return errors.Wrap(err, "error while parsing the MTA file")
 	}
 	err = copyModuleContent(loc.GetSource(), loc.GetTargetTmpDir(), mta)
 	if err != nil {
@@ -210,17 +212,18 @@ func getRequiredDependenciesWithPathsForModule(module *mta.Module) []string {
 func copyMtaContent(source, target string, mtaPaths []string) error {
 	copiedMtaContents := make([]string, 0)
 	for _, mtaPath := range mtaPaths {
-		mtaContent := filepath.Join(source, mtaPath)
-		if doesNotExist(mtaContent) {
+		// logs.Logger.Infof("copying the %s", mtaPath)
+		sourceMtaContent := filepath.Join(source, mtaPath)
+		if doesNotExist(sourceMtaContent) {
 			return handleCopyMtaContentFailure(target, copiedMtaContents,
-				"%s does not exists in the current location %s", []interface{}{mtaPath, source})
+				"%s does not exist in the current location %s", []interface{}{mtaPath, source})
 		}
 		copiedMtaContents = append(copiedMtaContents, mtaPath)
-		destinationMtaContent := filepath.Join(target, mtaPath)
-		err := copyMtaContentFromPath(mtaContent, destinationMtaContent, mtaPath, target)
+		targetMtaContent := filepath.Join(target, mtaPath)
+		err := copyMtaContentFromPath(sourceMtaContent, targetMtaContent, mtaPath, target)
 		if err != nil {
 			return handleCopyMtaContentFailure(target, copiedMtaContents,
-				"Error copying mta content %s to target directory %s: %s", []interface{}{mtaPath, source, err.Error()})
+				"Error copying the MTA content %s to target directory %s: %s", []interface{}{mtaPath, source, err.Error()})
 		}
 	}
 
@@ -236,14 +239,11 @@ func handleCopyMtaContentFailure(targetLocation string, copiedMtaContents []stri
 	return fmt.Errorf(message+"; cleanup failed", messageArguments...)
 }
 
-func copyMtaContentFromPath(mtaContent, destinationMtaContent, mtaContentPath, target string) error {
-	mtaContentInfo, _ := os.Stat(mtaContent)
+func copyMtaContentFromPath(sourceMtaContent, targetMtaContent, mtaContentPath, target string) error {
+	mtaContentInfo, _ := os.Stat(sourceMtaContent)
 	if mtaContentInfo.IsDir() {
-		err := os.MkdirAll(destinationMtaContent, os.ModePerm)
-		if err != nil {
-			return err
-		}
-		return dir.CopyDir(mtaContent, destinationMtaContent)
+		//return dir.CopyDir1(sourceMtaContent, targetMtaContent, false)
+		return dir.CopyDir(sourceMtaContent, targetMtaContent, true)
 	}
 
 	mtaContentParentDir := filepath.Dir(mtaContentPath)
@@ -251,7 +251,8 @@ func copyMtaContentFromPath(mtaContent, destinationMtaContent, mtaContentPath, t
 	if err != nil {
 		return err
 	}
-	return dir.CopyFile(mtaContent, destinationMtaContent)
+	//return dir.CopyFile1(sourceMtaContent, targetMtaContent, mtaContentInfo.Mode())
+	return dir.CopyFileWithMode(sourceMtaContent, targetMtaContent, mtaContentInfo.Mode())
 }
 
 func cleanUpCopiedContent(targetLocation string, copiendMtaContents []string) error {

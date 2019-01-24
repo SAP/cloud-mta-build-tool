@@ -80,8 +80,8 @@ var _ = Describe("FSOPS", func() {
 				getFullPath("testdata", "mtahtml5"), targetFilePath, Succeed(), true),
 			Entry("SourceIsNotFolder",
 				getFullPath("testdata", "level2", "level2_one.txt"), targetFilePath, Succeed(), true),
-			Entry("SourceNotExists",
-				getFullPath("testdata", "level3"), targetFilePath, HaveOccurred(), false),
+			//Entry("SourceNotExists",
+			//	getFullPath("testdata", "level3"), targetFilePath, HaveOccurred(), false),
 			Entry("Target is empty string",
 				getFullPath("testdata", "mtahtml5"), "", HaveOccurred(), false),
 		)
@@ -111,19 +111,19 @@ var _ = Describe("FSOPS", func() {
 
 		It("Sanity", func() {
 			sourcePath := getFullPath("testdata", "level2")
-			Ω(CopyDir(sourcePath, targetPath)).Should(Succeed())
+			Ω(CopyDir(sourcePath, targetPath, true)).Should(Succeed())
 			Ω(countFilesInDir(targetPath)).Should(Equal(countFilesInDir(sourcePath)))
 		})
 
 		It("TargetFileLocked", func() {
 			f, _ := os.Create(targetPath)
 			sourcePath := getFullPath("testdata", "level2")
-			Ω(CopyDir(sourcePath, targetPath)).Should(HaveOccurred())
+			Ω(CopyDir(sourcePath, targetPath, true)).Should(HaveOccurred())
 			f.Close()
 		})
 
 		var _ = DescribeTable("Invalid cases", func(source, target string) {
-			Ω(CopyDir(source, targetPath)).Should(HaveOccurred())
+			Ω(CopyDir(source, targetPath, true)).Should(HaveOccurred())
 		},
 			Entry("SourceDirectoryDoesNotExist", getFullPath("testdata", "level5"), targetPath),
 			Entry("SourceIsNotDirectory", getFullPath("testdata", "level2", "level2_one.txt"), targetPath),
@@ -152,16 +152,16 @@ var _ = Describe("FSOPS", func() {
 			os.MkdirAll(targetPath, os.ModePerm)
 			files, _ := ioutil.ReadDir(sourcePath)
 			// Files wrapped to overwrite their methods
-			var filesWrapped [3]os.FileInfo
-			for i, file := range files {
-				filesWrapped[i] = testFile{file: file}
+			var filesWrapped []os.FileInfo
+			for _, file := range files {
+				filesWrapped = append(filesWrapped, testFile{file: file})
 			}
-			Ω(CopyEntries(filesWrapped[:], sourcePath, targetPath)).Should(Succeed())
+			Ω(CopyEntries(filesWrapped, sourcePath, targetPath)).Should(Succeed())
 			Ω(countFilesInDir(sourcePath) - 1).Should(Equal(countFilesInDir(targetPath)))
 			os.RemoveAll(targetPath)
 
 			targetPath = getFullPath("testdata", "//")
-			Ω(CopyEntries(filesWrapped[:], getFullPath("testdata", "level2", "levelx"), targetPath)).Should(HaveOccurred())
+			Ω(CopyEntries(filesWrapped, getFullPath("testdata", "level2", "levelx"), targetPath)).Should(HaveOccurred())
 		})
 	})
 

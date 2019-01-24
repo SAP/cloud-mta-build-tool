@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 
 	"github.com/pkg/errors"
 
@@ -133,24 +134,20 @@ func CreateFile(path string) (file *os.File, err error) {
 }
 
 // CopyDir - copy directory content
-func CopyDir(src string, dst string) error {
+func CopyDir(src string, dst string, withParents bool) error {
 	src = filepath.Clean(src)
 	dst = filepath.Clean(dst)
 
-	si, err := os.Stat(src)
-	if err != nil {
-		return err
-	}
-	if !si.IsDir() {
-		return fmt.Errorf("copying of the %v folder to the %v folder failed because the source is not a folder", src, dst)
-	}
-
-	_, err = os.Stat(dst)
+	_, err := os.Stat(dst)
 	if err != nil && !os.IsNotExist(err) {
 		return err
 	}
 
-	err = os.MkdirAll(dst, os.ModePerm)
+	if !withParents {
+		err = os.Mkdir(dst, os.ModePerm)
+	} else {
+		err = os.MkdirAll(dst, os.ModePerm)
+	}
 	if err != nil {
 		return err
 	}
@@ -159,7 +156,6 @@ func CopyDir(src string, dst string) error {
 	if err != nil {
 		return err
 	}
-
 	return CopyEntries(entries, src, dst)
 }
 
@@ -233,9 +229,9 @@ func copyEntries(entries []string, source, target, pattern string) error {
 		}
 		targetEntry := filepath.Join(target, filepath.Base(entry))
 		if info.IsDir() {
-			err = CopyDir(entry, targetEntry)
+			err = CopyDir(entry, targetEntry, true)
 		} else {
-			err = CopyFile(entry, targetEntry)
+			err = CopyFileWithMode(entry, targetEntry, info.Mode())
 		}
 		if err != nil {
 			return errors.Wrapf(err,
@@ -247,34 +243,78 @@ func copyEntries(entries []string, source, target, pattern string) error {
 }
 
 // CopyEntries - copies entries (files and directories) from source to destination folder
-func CopyEntries(entries []os.FileInfo, src, dst string) error {
+func CopyEntries(entries []os.FileInfo, src, dst string) (rerr error) {
 
-	var err error
-	for _, entry := range entries {
-		srcPath := filepath.Join(src, entry.Name())
-		dstPath := filepath.Join(dst, entry.Name())
-
-		if entry.IsDir() {
-			// execute recursively
-			err = CopyDir(srcPath, dstPath)
-		} else {
-			// Todo check posix compatibility
-			if entry.Mode()&os.ModeSymlink != 0 {
-				fmt.Println(
-					fmt.Sprintf(
-						"copying of the entries from the %v folder to the %v folder skipped the %v entry because its mode is a symbolic link",
-						src, dst, entry.Name()),
-					src, dst, entry.Name())
-				continue
-			}
-
-			err = CopyFile(srcPath, dstPath)
-		}
-		if err != nil {
-			break
-		}
+	if len(entries) == 0 {
+		return nil
 	}
+	var wg sync.WaitGroup
+	wg.Add(len(entries))
+	for _, entry := range entries {
+
+		go func(e os.FileInfo) {
+
+			var err error
+
+			if rerr != nil {
+				return
+			}
+			defer wg.Done()
+			srcPath := filepath.Join(src, e.Name())
+			dstPath := filepath.Join(dst, e.Name())
+
+			if e.IsDir() {
+				// execute recursively
+				//err = CopyDir1(srcPath, dstPath, true)
+				err = CopyDir(srcPath, dstPath, false)
+			} else {
+				// Todo check posix compatibility
+				if e.Mode()&os.ModeSymlink != 0 {
+					fmt.Println(
+						fmt.Sprintf(
+							"copying of the entries from the %v folder to the %v folder skipped the %v entry because its mode is a symbolic link",
+							src, dst, e.Name()),
+						src, dst, e.Name())
+					//continue
+					//return
+				} else {
+					err = CopyFileWithMode(srcPath, dstPath, e.Mode())
+				}
+			}
+			if err != nil {
+				rerr = err
+			}
+		}(entry)
+	}
+	wg.Wait()
+	return
+}
+
+// CopyFileWithMode - copy file content using file mode parameter
+func CopyFileWithMode(src, dst string, mode os.FileMode) (rerr error) {
+	in, err := os.Open(src)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		rerr = CloseFile(in, rerr)
+	}()
+
+	out, err := os.OpenFile(dst, os.O_CREATE, mode)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		rerr = CloseFile(out, rerr)
+	}()
+
+	_, err = io.Copy(out, in)
+	if err != nil {
+		return err
+	}
+
 	return err
+
 }
 
 // CopyFile - copy file content
@@ -299,8 +339,10 @@ func CopyFile(src, dst string) (rerr error) {
 	if err != nil {
 		return err
 	}
+	err = changeTargetMode(src, dst)
 
-	return changeTargetMode(src, dst)
+	return err
+
 }
 
 func changeTargetMode(source, target string) error {
