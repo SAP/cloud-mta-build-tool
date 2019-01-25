@@ -18,7 +18,7 @@ For background and detailed information, see The [Multi-Target Application Model
 
 ## Description
 
-The MTA archive builder tool will provide a clear separation between the generation of the build manifest (see [Makefile](#makefile) section)and the user application build process as follows:
+The MTA archive builder tool will provide a clear separation between the generation of the build manifest (see [Makefile](#makefile) section) and the user application build process as follows:
 
 ### CLI 
 
