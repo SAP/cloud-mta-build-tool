@@ -16,9 +16,9 @@ A multi-target application is a package comprised of multiple application and re
 For background and detailed information, see The [Multi-Target Application Model](http://help.sap.com/disclaimer?site=http://www.sap.com/documents/2016/06/e2f618e4-757c-0010-82c7-eda71af511fa.html) information published on the SAP website.
 
 
-## MTA Archive Builder Tool V2
+## MTA Archive Builder Tool v2
 
-The MTA archive builder tool (MBT V2) will provide a clear separation between the generation of the build manifest (see [Makefile](#makefile) )and the user application build process as follows:
+The MTA archive builder tool will provide a clear separation between the generation of the build manifest (see [Makefile](#makefile) section)and the user application build process as follows:
 
 ### CLI 
 
