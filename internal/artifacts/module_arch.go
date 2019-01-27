@@ -242,7 +242,6 @@ func handleCopyMtaContentFailure(targetLocation string, copiedMtaContents []stri
 func copyMtaContentFromPath(sourceMtaContent, targetMtaContent, mtaContentPath, target string) error {
 	mtaContentInfo, _ := os.Stat(sourceMtaContent)
 	if mtaContentInfo.IsDir() {
-		//return dir.CopyDir1(sourceMtaContent, targetMtaContent, false)
 		return dir.CopyDir(sourceMtaContent, targetMtaContent, true)
 	}
 
@@ -251,7 +250,6 @@ func copyMtaContentFromPath(sourceMtaContent, targetMtaContent, mtaContentPath, 
 	if err != nil {
 		return err
 	}
-	//return dir.CopyFile1(sourceMtaContent, targetMtaContent, mtaContentInfo.Mode())
 	return dir.CopyFileWithMode(sourceMtaContent, targetMtaContent, mtaContentInfo.Mode())
 }
 

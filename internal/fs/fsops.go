@@ -266,7 +266,6 @@ func CopyEntries(entries []os.FileInfo, src, dst string) (rerr error) {
 
 			if e.IsDir() {
 				// execute recursively
-				//err = CopyDir1(srcPath, dstPath, true)
 				err = CopyDir(srcPath, dstPath, false)
 			} else {
 				// Todo check posix compatibility
@@ -276,8 +275,6 @@ func CopyEntries(entries []os.FileInfo, src, dst string) (rerr error) {
 							"copying of the entries from the %v folder to the %v folder skipped the %v entry because its mode is a symbolic link",
 							src, dst, e.Name()),
 						src, dst, e.Name())
-					//continue
-					//return
 				} else {
 					err = CopyFileWithMode(srcPath, dstPath, e.Mode())
 				}
