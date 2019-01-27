@@ -12,12 +12,18 @@ import (
 )
 
 const (
-	defaultPlatform            string = "cf"
-	defaultMtaLocation         string = ""
-	defaultMtaAssemblyLocation string = ""
+	defaultPlatform string = "cf"
 )
 
-func init() {}
+var assembleCmdSrc string
+var assembleCmdTrg string
+
+func init() {
+	assemblyCommand.Flags().StringVarP(&assembleCmdSrc,
+		"source", "s", "", "Provide MTA source ")
+	assemblyCommand.Flags().StringVarP(&assembleCmdTrg,
+		"target", "t", "", "Provide MTA target ")
+}
 
 // Generate mtar from build artifacts
 var assemblyCommand = &cobra.Command{
@@ -27,7 +33,7 @@ var assemblyCommand = &cobra.Command{
 	ValidArgs: []string{"Deployment descriptor location"},
 	Args:      cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		err := assembly(defaultMtaLocation, defaultMtaAssemblyLocation, defaultPlatform, os.Getwd)
+		err := assembly(assembleCmdSrc, assembleCmdTrg, defaultPlatform, os.Getwd)
 		logError(err)
 		return err
 	},
@@ -40,7 +46,7 @@ func assembly(source, target, platform string, getWd func() (string, error)) err
 	// copy from source to target
 	err := artifacts.CopyMtaContent(source, target, dir.Dep, getWd)
 	if err != nil {
-		return errors.Wrap(err, "assemble failed when copying the mta content")
+		return errors.Wrap(err, "assemble failed when copying the MTA content")
 	}
 	// Generate meta artifacts
 	err = artifacts.ExecuteGenMeta(source, target, dir.Dep, platform, false, getWd)

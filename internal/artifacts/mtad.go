@@ -16,20 +16,20 @@ import (
 
 // ExecuteGenMtad - generates MTAD from MTA
 func ExecuteGenMtad(source, target, desc, platform string, wdGetter func() (string, error)) error {
-	logs.Logger.Info("generating the .mtad file")
+	logs.Logger.Info("generating the MTAD file")
 	loc, err := dir.Location(source, target, desc, wdGetter)
 	if err != nil {
-		return errors.Wrap(err, "generation of the .mtad file failed when initializing the location")
+		return errors.Wrap(err, "generation of the MTAD file failed when initializing the location")
 	}
 
 	mtaStr, err := loc.ParseFile()
 	if err != nil {
-		return errors.Wrapf(err, "generation of the .mtad file failed when parsing the %v file", loc.GetMtaYamlFilename())
+		return errors.Wrapf(err, "generation of the MTAD file failed when parsing the %v file", loc.GetMtaYamlFilename())
 	}
 
 	mtaExt, err := loc.ParseExtFile(platform)
 	if err != nil {
-		return errors.Wrapf(err, "generation of the .mtad file failed when parsing the %v file", loc.GetMtaExtYamlPath(platform))
+		return errors.Wrapf(err, "generation of the MTAD file failed when parsing the %v file", loc.GetMtaExtYamlPath(platform))
 	}
 
 	mta.Merge(mtaStr, mtaExt)
@@ -54,19 +54,19 @@ func genMtad(mtaStr *mta.MTA, ep dir.ITargetArtifacts, deploymentDesc bool, plat
 	if !deploymentDesc {
 		err = ConvertTypes(*mtaStr, platform)
 		if err != nil {
-			return errors.Wrapf(err, "generation of the .mtad file failed when converting types according to the %v platform", platform)
+			return errors.Wrapf(err, "generation of the MTAD file failed when converting types according to the %v platform", platform)
 		}
 	}
 	// Create readable Yaml before writing to file
 	mtad, err := marshal(mtaStr)
 	if err != nil {
-		return errors.Wrap(err, "generation of the .mtad file failed when marshalling the .mtad object")
+		return errors.Wrap(err, "generation of the MTAD file failed when marshalling the MTAD object")
 	}
 	mtadPath := ep.GetMtadPath()
 	// Write back the MTAD to the META-INF folder
 	err = ioutil.WriteFile(mtadPath, mtad, os.ModePerm)
 	if err != nil {
-		return errors.Wrap(err, "generation of the .mtad file failed when writing")
+		return errors.Wrap(err, "generation of the MTAD file failed when writing")
 	}
 	return nil
 }

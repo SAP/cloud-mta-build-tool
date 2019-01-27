@@ -12,7 +12,7 @@ func GetContentTypes() (*ContentTypes, error) {
 	contentTypes := ContentTypes{}
 	err := yaml.Unmarshal(ContentTypeConfig, &contentTypes)
 	if err != nil {
-		return &contentTypes, errors.Wrap(err, "unmarshalling of the content types failed")
+		return &contentTypes, errors.Wrap(err, "unmarshalling of the content types configuration failed")
 	}
 	return &contentTypes, nil
 }
