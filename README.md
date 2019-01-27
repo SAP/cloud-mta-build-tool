@@ -12,25 +12,27 @@ The MTA command-line archive builder provides a convenient way to bundle an MTA 
 ### Multi-Target Applications
 
 A multi-target application is a package comprised of multiple application and resource modules that have been created using different technologies and deployed to different runtimes; however, they have a common life cycle. A user can bundle the modules together along with their interdependencies to other modules, services, and interfaces, and package them in an MTA project, describing them using the `mta.yaml` file.
- 
 
-## MTA Archive Builder Tool 
+For background and detailed information, see The [Multi-Target Application Model](http://help.sap.com/disclaimer?site=http://www.sap.com/documents/2016/06/e2f618e4-757c-0010-82c7-eda71af511fa.html) information published on the SAP website.
 
-The MTA archive builder tool (MBT) will provide a clear separation between the generation process and the build process as follows:
+
+## Description
+
+The MTA archive builder tool will provide a clear separation between the generation of the build manifest (see [Makefile](#makefile) section) and the user application build process as follows:
 
 ### CLI 
 
 The CLI tool will:
-- Parse and analyze the development descriptor, a.k.a `mta.yaml` file, and generate a `Makefile` accordingly. 
-- Provide atomic commands that can be executed as an isolated process.
+- Parse and analyse the development descriptor, a.k.a `mta.yaml` file, and generate a `Makefile` accordingly. 
+- Provide atomic commands that can be executed as an isolated process. (commands which also used by the generated `Makefile`)
 - Build a `META-INF` folder containing the following content:
   - Translation of the `mta.yaml` source file into the `mtad.yaml` deployment descriptor.
   - A `META-INFO` file that describe the build artifact structure.
   
   
-#### [Makefile](https://www.gnu.org/software/make/)
+#### [Makefile](https://www.gnu.org/software/make/)<a name="makefile"></a>
 
-The generated `Makefile` (GNU Make) will describe and execute the build process in two flavors:
+The generated `Makefile` (GNU Make) will describe and execute the build process in two flavours:
 - default - Provides a generic build process that can be modified according to the project needs.
 - verbose - Provides a verbose build file as a manifest that describes each step in a separate target (experimental).
 
@@ -44,17 +46,12 @@ During the build process the generated `Makefile` is responsible for the followi
 The MBT supports the following commands:
 
 
-| Command | usage        | description                                            |
-| ------  | ------       |  ----------                                            |
-| version | `mbt -v`     | Prints the MBT version.                                 |
-| help    | `mbt -h`     | Prints all the available commands.                     | 
-| assemble    | `mbt assemble`     | Assemble MTA project according to deployment descriptor.                     | 
-
-
-
-## What is an MTA Project
-
-For background and detailed information, see The [Multi-Target Application Model](http://help.sap.com/disclaimer?site=http://www.sap.com/documents/2016/06/e2f618e4-757c-0010-82c7-eda71af511fa.html) information published on the SAP website.
+| Command | usage        | description                                                    | supported 
+| ------  | ------       |  ----------                                                    |  ---------- 
+| version | `mbt -v`     | Prints the MBT version.                                        | x
+| help    | `mbt -h`     | Prints all the available commands.                             | x
+| assemble    | `mbt assemble`     | Assemble MTA project according to deployment descriptor. | x
+| additional commands  | `tbd`              | `tbd`                                 | 
 
 
 ## Roadmap
@@ -103,7 +100,7 @@ For background and detailed information, see The [Multi-Target Application Model
 
 ## Download and Installation
 
-Download the binary according to your operating system, unzip it and add it to your `~/bin` path.
+Soon.
   
 ## Contributions
 
@@ -112,7 +109,7 @@ See [CONTRIBUTING.md](./.github/CONTRIBUTING.md) for details.
 
 ## Known Issues
 
-No known major issues.  To report a new issue, please use our GitHub bug tracking system.
+No known major issues.  To report a new [issue](https://github.com/SAP/cloud-mta-build-tool/issues/new/choose), please use our GitHub bug tracking system.
 
 ## Support
 
