@@ -212,7 +212,6 @@ func getRequiredDependenciesWithPathsForModule(module *mta.Module) []string {
 func copyMtaContent(source, target string, mtaPaths []string) error {
 	copiedMtaContents := make([]string, 0)
 	for _, mtaPath := range mtaPaths {
-		// logs.Logger.Infof("copying the %s", mtaPath)
 		sourceMtaContent := filepath.Join(source, mtaPath)
 		if doesNotExist(sourceMtaContent) {
 			return handleCopyMtaContentFailure(target, copiedMtaContents,
