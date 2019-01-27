@@ -46,12 +46,20 @@ During the build process the generated `Makefile` is responsible for the followi
 The MBT supports the following commands:
 
 
+
+
+
+## What is an MTA Project
+
+For background and detailed information, see The [Multi-Target Application Model](http://help.sap.com/disclaimer?site=http://www.sap.com/documents/2016/06/e2f618e4-757c-0010-82c7-eda71af511fa.html) information published on the SAP website.
+
 | Command | usage        | description                                                    | supported 
 | ------  | ------       |  ----------                                                    |  ---------- 
 | version | `mbt -v`     | Prints the MBT version.                                        | x
 | help    | `mbt -h`     | Prints all the available commands.                             | x
 | assemble    | `mbt assemble`     | Assemble MTA project according to deployment descriptor. | x
 | additional commands  | `tbd`              | `tbd`                                 | 
+
 
 
 ## Roadmap
