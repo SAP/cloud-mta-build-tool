@@ -9,16 +9,16 @@
 # Prerequisite
 
 You are familiar with the multi-target application concept and terminology. 
-For background and detailed information, see The Multi-Target Application Model  guide.                   
+For background and detailed information, see The [Multi-Target Application Model](https://www.sap.com/documents/2016/06/e2f618e4-757c-0010-82c7-eda71af511fa.html)  guide.                   
                    
 
-#Description
+## Description
 
 The multi-target application archive builder is a standalone command-line tool that builds a deployment-ready 
 multi-target application (MTA) archive .mtar file from the artifacts of an MTA project according to the project’s MTA 
 development descriptor (mta.yaml file) or from module build artifacts according to MTA deployment descriptor (mtad.yaml file)
                   
-#Usage
+# Usage
 
 ## Commands
 
@@ -26,7 +26,7 @@ development descriptor (mta.yaml file) or from module build artifacts according 
 | ------  | ------       |  ----------                                                    |  ---------- 
 | version | `mbt -v`     | Prints the MBT version.                                        | x
 | help    | `mbt -h`     | Prints all the available commands.                             | x
-| assemble    | `mbt assemble`     | Creates (MTA) archive .mtar file from module build artifacts according to MTA deployment descriptor (mtad.yaml file). Run the command in the directory where the mtad.yaml file is located. Make sure the path property of each modules in mtad.yaml points to the module build artifacts that should be packaged into the target mta archive. | x
+| assemble    | `mbt assemble`     | Creates (MTA) archive `.mtar` file from module build artifacts according to MTA deployment descriptor (mtad.yaml file). Run the command in the directory where the `mtad.yaml` file is located. `note:` Make sure the path property of each modules in mtad.yaml points to the module build artifacts that should be packaged into the target mta archive. | x
 | additional commands  | `tbd`              | `tbd`                                 | 
          
 ## Roadmap
