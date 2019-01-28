@@ -25,25 +25,35 @@ var buildCmdPlatform string
 func init() {
 
 	// set flags of command pack Module
-	packModuleCmd.Flags().StringVarP(&packCmdSrc, "source", "s", "", "Provide MTA source ")
-	packModuleCmd.Flags().StringVarP(&packCmdTrg, "target", "t", "", "Provide MTA target ")
-	packModuleCmd.Flags().StringVarP(&packCmdDesc, "desc", "d", "", "Descriptor MTA - dev/dep")
-	packModuleCmd.Flags().StringVarP(&packCmdModule, "module", "m", "", "Provide Module name ")
-	packModuleCmd.Flags().StringVarP(&packCmdPlatform, "platform", "p", "", "Provide MTA platform ")
+	packModuleCmd.Flags().StringVarP(&packCmdSrc, "source", "s", "",
+		"the path to the MTA project; the current path is default")
+	packModuleCmd.Flags().StringVarP(&packCmdTrg, "target", "t", "",
+		"the path to the MBT results folder; the current path is default")
+	packModuleCmd.Flags().StringVarP(&packCmdDesc, "desc", "d", "",
+		"the MTA descriptor; supported values: dev (development descriptor, default value) and dep (deployment descriptor)")
+	packModuleCmd.Flags().StringVarP(&packCmdModule, "module", "m", "",
+		"the name of the module")
+	packModuleCmd.Flags().StringVarP(&packCmdPlatform, "platform", "p", "",
+		"the deployment platform; supported plaforms: cf, xsa")
 
 	// set flags of command build Module
-	buildModuleCmd.Flags().StringVarP(&buildCmdSrc, "source", "s", "", "Provide MTA source ")
-	buildModuleCmd.Flags().StringVarP(&buildCmdTrg, "target", "t", "", "Provide MTA target ")
-	buildModuleCmd.Flags().StringVarP(&buildCmdDesc, "desc", "d", "", "Descriptor MTA - dev/dep")
-	buildModuleCmd.Flags().StringVarP(&buildCmdModule, "module", "m", "", "Provide Module name ")
-	buildModuleCmd.Flags().StringVarP(&buildCmdPlatform, "platform", "p", "", "Provide MTA platform ")
+	buildModuleCmd.Flags().StringVarP(&buildCmdSrc, "source", "s", "",
+		"the path to the MTA project; the current path is default")
+	buildModuleCmd.Flags().StringVarP(&buildCmdTrg, "target", "t", "",
+		"the path to the MBT results folder; the current path is default")
+	buildModuleCmd.Flags().StringVarP(&buildCmdDesc, "desc", "d", "",
+		"the MTA descriptor; supported values: dev (development descriptor, default value) and dep (deployment descriptor)")
+	buildModuleCmd.Flags().StringVarP(&buildCmdModule, "module", "m", "",
+		"the name of the module")
+	buildModuleCmd.Flags().StringVarP(&buildCmdPlatform, "platform", "p", "",
+		"the deployment platform; supported plaforms: cf, xsa")
 }
 
 // buildModuleCmd - Build module
 var buildModuleCmd = &cobra.Command{
 	Use:   "build",
-	Short: "Build module",
-	Long:  "Build specific module according to the module name",
+	Short: "builds module",
+	Long:  "builds module and archives its artifacts",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		err := artifacts.ExecuteBuild(buildCmdSrc, buildCmdTrg, buildCmdDesc, buildCmdModule, buildCmdPlatform, os.Getwd)
@@ -60,8 +70,8 @@ var buildModuleCmd = &cobra.Command{
 // the module folder will get the module name
 var packModuleCmd = &cobra.Command{
 	Use:   "pack",
-	Short: "pack module artifacts",
-	Long:  "pack the module artifacts after the build process",
+	Short: "packs module artifacts",
+	Long:  "packs the module artifacts after the build process",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		err := artifacts.ExecutePack(packCmdSrc, packCmdTrg, packCmdDesc, packCmdModule, packCmdPlatform, os.Getwd)

@@ -89,7 +89,7 @@ var _ = Describe("manifest", func() {
 			err = setManifestDesc(&loc, &loc, mtaObj.Modules, mtaObj.Resources, []string{}, false)
 			Ω(err).Should(HaveOccurred())
 			Ω(err.Error()).Should(
-				ContainSubstring("failed to generate the manifest file when building required entries of the java-hello-world-backend module"))
+				ContainSubstring("failed to generate the manifest file when building the required entries of the java-hello-world-backend module"))
 
 		})
 	})

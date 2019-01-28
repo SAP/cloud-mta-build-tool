@@ -12,7 +12,7 @@ import (
 
 // ExecuteGenMeta - generates metadata
 func ExecuteGenMeta(source, target, desc, platform string, onlyModules bool, wdGetter func() (string, error)) error {
-	logs.Logger.Info("generating the metadata")
+	logs.Logger.Info("generating the metadata...")
 	loc, err := dir.Location(source, target, desc, wdGetter)
 	if err != nil {
 		return errors.Wrap(err, "generation of metadata failed when initializing the location")

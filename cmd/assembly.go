@@ -20,16 +20,16 @@ var assembleCmdTrg string
 
 func init() {
 	assemblyCommand.Flags().StringVarP(&assembleCmdSrc,
-		"source", "s", "", "Provide MTA source ")
+		"source", "s", "", "the path to the MTA project; the current path is default")
 	assemblyCommand.Flags().StringVarP(&assembleCmdTrg,
-		"target", "t", "", "Provide MTA target ")
+		"target", "t", "", "the path to the MBT results folder; the current path is default")
 }
 
 // Generate mtar from build artifacts
 var assemblyCommand = &cobra.Command{
 	Use:       "assemble",
-	Short:     "Assemble MTA Archive",
-	Long:      "Assemble MTA Archive",
+	Short:     "assembles MTA Archive",
+	Long:      "assembles MTA Archive",
 	ValidArgs: []string{"Deployment descriptor location"},
 	Args:      cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
@@ -42,25 +42,25 @@ var assemblyCommand = &cobra.Command{
 }
 
 func assembly(source, target, platform string, getWd func() (string, error)) error {
-	logs.Logger.Info("assembling the MTA project")
+	logs.Logger.Info("assembling the MTA project...")
 	// copy from source to target
 	err := artifacts.CopyMtaContent(source, target, dir.Dep, getWd)
 	if err != nil {
-		return errors.Wrap(err, "assemble failed when copying the MTA content")
+		return errors.Wrap(err, "assembly of the MTA project failed when copying the MTA content")
 	}
 	// Generate meta artifacts
 	err = artifacts.ExecuteGenMeta(source, target, dir.Dep, platform, false, getWd)
 	if err != nil {
-		return errors.Wrap(err, "assemble failed when generating the meta info")
+		return errors.Wrap(err, "assembly of the MTA project failed when generating the meta info")
 	}
 	// generate mtar
 	err = artifacts.ExecuteGenMtar(source, target, dir.Dep, getWd)
 	if err != nil {
-		return errors.Wrap(err, "assemble failed when generating the MTA archive")
+		return errors.Wrap(err, "assembly of the MTA project failed when generating the MTA archive")
 	}
 	err = artifacts.ExecuteCleanup(source, target, dir.Dep, getWd)
 	if err != nil {
-		return errors.Wrap(err, "assemble failed when executing cleanup")
+		return errors.Wrap(err, "assembly of the MTA project failed when executing cleanup")
 	}
 	return nil
 }

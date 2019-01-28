@@ -50,7 +50,7 @@ func setManifestDesc(ep dir.ITargetArtifacts, targetPathGetter dir.ITargetPath, 
 	contentTypes, err := contenttype.GetContentTypes()
 	if err != nil {
 		return errors.Wrap(err,
-			"failed to generate the manifest file when getting content types from the configuration")
+			"failed to generate the manifest file when getting the content types from the configuration")
 	}
 
 	var entries []entry
@@ -79,7 +79,7 @@ func setManifestDesc(ep dir.ITargetArtifacts, targetPathGetter dir.ITargetPath, 
 			buildEntries(targetPathGetter, mod, requiredDependenciesWithPath, contentTypes)
 		if err != nil {
 			return errors.Wrapf(err,
-				"failed to generate the manifest file when building required entries of the %s module",
+				"failed to generate the manifest file when building the required entries of the %s module",
 				mod.Name)
 		}
 		entries = append(entries, requiredDependencyEntries...)
@@ -144,7 +144,7 @@ func getContentType(targetPathGetter dir.ITargetPath, path string, contentTypes 
 	fullPath := filepath.Join(targetPathGetter.GetTargetTmpDir(), path)
 	info, err := os.Stat(fullPath)
 	if err != nil {
-		return "", fmt.Errorf("the %s path does not exist, content type not defined", targetPath)
+		return "", fmt.Errorf("the %s path does not exist; the content type was not defined", targetPath)
 	}
 
 	if info.IsDir() {
