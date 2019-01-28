@@ -5,63 +5,30 @@
 <b>Disclaimer</b>: The MTA build tool is under heavy development and is currently in a `pre-alpha` stage.
                    Some functionality is still missing and the APIs are subject to change; use at your own risk.
                    
-# Multi-Target Application (MTA) Archive Builder
 
-The MTA command-line archive builder provides a convenient way to bundle an MTA project into an MTAR file (Multi Target Application aRchive).
+# Prerequisite
 
-### Multi-Target Applications
-
-A multi-target application is a package comprised of multiple application and resource modules that have been created using different technologies and deployed to different runtimes; however, they have a common life cycle. A user can bundle the modules together along with their interdependencies to other modules, services, and interfaces, and package them in an MTA project, describing them using the `mta.yaml` file.
-
-For background and detailed information, see The [Multi-Target Application Model](http://help.sap.com/disclaimer?site=http://www.sap.com/documents/2016/06/e2f618e4-757c-0010-82c7-eda71af511fa.html) information published on the SAP website.
-
+You are familiar with the multi-target application concept and terminology. 
+For background and detailed information, see The [Multi-Target Application Model](https://www.sap.com/documents/2016/06/e2f618e4-757c-0010-82c7-eda71af511fa.html)  guide.                   
+                   
 
 ## Description
 
-The MTA archive builder tool will provide a clear separation between the generation of the build manifest (see [Makefile](#makefile) section) and the user application build process as follows:
+The multi-target application archive builder is a standalone command-line tool that builds a deployment-ready 
+multi-target application (MTA) archive .mtar file from the artifacts of an MTA project according to the project’s MTA 
+development descriptor (mta.yaml file) or from module build artifacts according to MTA deployment descriptor (mtad.yaml file)
+                  
+# Usage
 
-### CLI 
-
-The CLI tool will:
-- Parse and analyse the development descriptor, a.k.a `mta.yaml` file, and generate a `Makefile` accordingly. 
-- Provide atomic commands that can be executed as an isolated process. (commands which also used by the generated `Makefile`)
-- Build a `META-INF` folder containing the following content:
-  - Translation of the `mta.yaml` source file into the `mtad.yaml` deployment descriptor.
-  - A `META-INFO` file that describe the build artifact structure.
-  
-  
-#### [Makefile](https://www.gnu.org/software/make/)<a name="makefile"></a>
-
-The generated `Makefile` (GNU Make) will describe and execute the build process in two flavours:
-- default - Provides a generic build process that can be modified according to the project needs.
-- verbose - Provides a verbose build file as a manifest that describes each step in a separate target (experimental).
-
-During the build process the generated `Makefile` is responsible for the following:
-- Building each of the modules in the MTA project.
-- Invoking the CLI commands in the right order. 
-- Providing an MTA archive that is ready for deployment.
-
-## Commands <a id='commands'></a>
-
-The MBT supports the following commands:
-
-
-
-
-
-## What is an MTA Project
-
-For background and detailed information, see The [Multi-Target Application Model](http://help.sap.com/disclaimer?site=http://www.sap.com/documents/2016/06/e2f618e4-757c-0010-82c7-eda71af511fa.html) information published on the SAP website.
+## Commands
 
 | Command | usage        | description                                                    | supported 
 | ------  | ------       |  ----------                                                    |  ---------- 
 | version | `mbt -v`     | Prints the MBT version.                                        | x
 | help    | `mbt -h`     | Prints all the available commands.                             | x
-| assemble    | `mbt assemble`     | Assemble MTA project according to deployment descriptor. | x
+| assemble    | `mbt assemble`     | Creates (MTA) archive `.mtar` file from module build artifacts according to MTA deployment descriptor (mtad.yaml file). Run the command in the directory where the `mtad.yaml` file is located. `note:` Make sure the path property of each modules in mtad.yaml points to the module build artifacts that should be packaged into the target mta archive. | x
 | additional commands  | `tbd`              | `tbd`                                 | 
-
-
-
+         
 ## Roadmap
  
 ### Milestone 1  - (Q1 - 2019)
