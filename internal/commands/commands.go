@@ -52,7 +52,9 @@ func mesh(module *mta.Module, moduleTypes *ModuleTypes, customCommands Builders)
 					// custom builder defined
 					// check that no commands defined for module type
 					if m.Type != nil && len(m.Type) > 0 {
-						return cmds, fmt.Errorf("the module type definition can include builder or commands exclusively; the %s module type includes both", m.Name)
+						return cmds, fmt.Errorf(
+							"the module type definition can include either the builder or the commands; the %s module type includes both",
+							m.Name)
 					}
 					// continue with custom builders search
 					builder = m.Builder

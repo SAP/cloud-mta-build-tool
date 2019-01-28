@@ -32,7 +32,7 @@ func ExecuteBuild(source, target, desc, moduleName, platform string, wdGetter fu
 
 // ExecutePack - executes packing of module
 func ExecutePack(source, target, desc, moduleName, platform string, wdGetter func() (string, error)) error {
-	logs.Logger.Infof("packing the %v module", moduleName)
+	logs.Logger.Infof("packing the %v module...", moduleName)
 
 	loc, err := dir.Location(source, target, desc, wdGetter)
 	if err != nil {
@@ -157,14 +157,14 @@ func copyModuleArchive(ep dir.IModule, modulePath, moduleName string) error {
 // in the source directory, to the target directory
 func CopyMtaContent(source, target, desc string, wdGetter func() (string, error)) error {
 
-	logs.Logger.Info("copying the MTA content")
+	logs.Logger.Info("copying the MTA content...")
 	loc, err := dir.Location(source, target, desc, wdGetter)
 	if err != nil {
-		return errors.Wrap(err, "copying the MTA content failed during initialization of deployment descriptor location")
+		return errors.Wrap(err, "copying the MTA content failed during the initialization of deployment descriptor location")
 	}
 	mta, err := loc.ParseFile()
 	if err != nil {
-		return errors.Wrap(err, "error while parsing the MTA file")
+		return errors.Wrapf(err, "copying the MTA content failed when parsing the %v file", loc.GetMtaYamlPath())
 	}
 	err = copyModuleContent(loc.GetSource(), loc.GetTargetTmpDir(), mta)
 	if err != nil {
@@ -222,7 +222,7 @@ func copyMtaContent(source, target string, mtaPaths []string) error {
 		err := copyMtaContentFromPath(sourceMtaContent, targetMtaContent, mtaPath, target)
 		if err != nil {
 			return handleCopyMtaContentFailure(target, copiedMtaContents,
-				"Error copying the MTA content %s to target directory %s: %s", []interface{}{mtaPath, source, err.Error()})
+				"error copying the %s MTA content to the %s target directory because: %s", []interface{}{mtaPath, source, err.Error()})
 		}
 	}
 

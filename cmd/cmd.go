@@ -32,21 +32,27 @@ func init() {
 	moduleCmd.AddCommand(buildModuleCmd, packModuleCmd)
 
 	// set flags of cleanup command
-	cleanupCmd.Flags().StringVarP(&cleanupCmdSrc, "source", "s", "", "Provide MTA source ")
-	cleanupCmd.Flags().StringVarP(&cleanupCmdTrg, "target", "t", "", "Provide MTA target ")
-	cleanupCmd.Flags().StringVarP(&cleanupCmdDesc, "desc", "d", "", "Descriptor MTA - dev/dep")
+	cleanupCmd.Flags().StringVarP(&cleanupCmdSrc, "source", "s", "",
+		"the path to the MTA project; the current path is default")
+	cleanupCmd.Flags().StringVarP(&cleanupCmdTrg, "target", "t", "",
+		"the path to the MBT results folder; the current path is default")
+	cleanupCmd.Flags().StringVarP(&cleanupCmdDesc, "desc", "d", "",
+		"the MTA descriptor; supported values: dev (development descriptor, default value) and dep (deployment descriptor)")
 
 	// set flags of validation command
-	validateCmd.Flags().StringVarP(&validateCmdSrc, "source", "s", "", "Provide MTA source  ")
-	validateCmd.Flags().StringVarP(&validateCmdMode, "mode", "m", "", "Provide Validation mode ")
-	validateCmd.Flags().StringVarP(&validateCmdDesc, "desc", "d", "", "Descriptor MTA - dev/dep")
+	validateCmd.Flags().StringVarP(&validateCmdSrc, "source", "s", "",
+		"the path to the MTA project; the current path is default")
+	validateCmd.Flags().StringVarP(&validateCmdMode, "mode", "m", "",
+		"the validation mode; supported values: all (default), schema, project")
+	validateCmd.Flags().StringVarP(&validateCmdDesc, "desc", "d", "",
+		"the MTA descriptor; supported values: dev (development descriptor, default value) and dep (deployment descriptor)")
 }
 
 // generateCmd - Parent of all generation commands
 var generateCmd = &cobra.Command{
 	Use:   "gen",
-	Short: "Generation step",
-	Long:  "Execute standalone step as part of the build process",
+	Short: "generation commands",
+	Long:  "generation commands",
 	Run:   nil,
 }
 
@@ -62,7 +68,7 @@ var provideCmd = &cobra.Command{
 var moduleCmd = &cobra.Command{
 	Use:   "module",
 	Short: "MBT module commands",
-	Long:  "MBT data provider",
+	Long:  "MBT module commands",
 	Run:   nil,
 }
 
@@ -81,7 +87,7 @@ var versionCmd = &cobra.Command{
 var validateCmd = &cobra.Command{
 	Use:   "validate",
 	Short: "MBT validation",
-	Long:  "MBT validation process",
+	Long:  "MBT validation",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		err := artifacts.ExecuteValidation(validateCmdSrc, validateCmdDesc, validateCmdMode, os.Getwd)
@@ -95,8 +101,8 @@ var validateCmd = &cobra.Command{
 // Cleanup temp artifacts
 var cleanupCmd = &cobra.Command{
 	Use:   "cleanup",
-	Short: "Remove process artifacts",
-	Long:  "Remove MTA build process artifacts",
+	Short: "cleanups MBT artifacts",
+	Long:  "cleanups MBT temporary creeted artifacts",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		// Remove temp folder

@@ -26,9 +26,9 @@ func Execute(cmdParams [][]string) error {
 	for _, cp := range cmdParams {
 		var cmd *exec.Cmd
 		if cp[0] != "" {
-			logs.Logger.Infof("executing the %s command for the %s module ...", cp[1:], filepath.Base(cp[0]))
+			logs.Logger.Infof("executing the %s command for the %s module...", cp[1:], filepath.Base(cp[0]))
 		} else {
-			logs.Logger.Infof("executing the %s command ...", cp[1:])
+			logs.Logger.Infof("executing the %s command...", cp[1:])
 		}
 		cmd = makeCommand(cp[1:])
 		cmd.Dir = cp[0]
@@ -44,17 +44,17 @@ func Execute(cmdParams [][]string) error {
 
 // executeCommand - executes individual command
 func executeCommand(cmd *exec.Cmd) error {
-	logs.Logger.Infof("executing the %v command", cmd.Path)
+	logs.Logger.Infof("executing the %s command...", cmd.Path)
 
 	// During the running process get the standard output
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
-		return errors.Wrapf(err, "execution of the %v command failed when getting the stdout pipe", cmd.Path)
+		return errors.Wrapf(err, "execution of the %s command failed when getting the stdout pipe", cmd.Path)
 	}
 	// During the running process get the standard output
 	stderr, err := cmd.StderrPipe()
 	if err != nil {
-		return errors.Wrapf(err, "execution of the %v command failed when getting the stderr pipe", cmd.Path)
+		return errors.Wrapf(err, "execution of the %s command failed when getting the stderr pipe", cmd.Path)
 	}
 
 	// Start indicator

@@ -29,28 +29,38 @@ var mtarCmdDesc string
 func init() {
 
 	// set flags of mtad command
-	mtadCmd.Flags().StringVarP(&mtadCmdSrc, "source", "s", "", "Provide MTA source ")
-	mtadCmd.Flags().StringVarP(&mtadCmdTrg, "target", "t", "", "Provide MTA target ")
-	mtadCmd.Flags().StringVarP(&mtadCmdDesc, "desc", "d", "", "Descriptor MTA - dev/dep")
+	mtadCmd.Flags().StringVarP(&mtadCmdSrc, "source", "s", "",
+		"the path to the MTA project; the current path is default")
+	mtadCmd.Flags().StringVarP(&mtadCmdTrg, "target", "t",
+		"", "the path to the MBT results folder; the current path is default")
+	mtadCmd.Flags().StringVarP(&mtadCmdDesc, "desc", "d", "",
+		"the MTA descriptor; supported values: dev (development descriptor, default value) and dep (deployment descriptor)")
 	mtadCmd.Flags().StringVarP(&mtadCmdPlatform, "platform", "p", "", "Provide MTA platform ")
 
 	// set flags of meta command
-	metaCmd.Flags().StringVarP(&metaCmdSrc, "source", "s", "", "Provide MTA source ")
-	metaCmd.Flags().StringVarP(&metaCmdTrg, "target", "t", "", "Provide MTA target ")
-	metaCmd.Flags().StringVarP(&metaCmdDesc, "desc", "d", "", "Descriptor MTA - dev/dep")
-	metaCmd.Flags().StringVarP(&metaCmdPlatform, "platform", "p", "", "Provide MTA platform ")
+	metaCmd.Flags().StringVarP(&metaCmdSrc, "source", "s", "",
+		"the path to the MTA project; the current path is default")
+	metaCmd.Flags().StringVarP(&metaCmdTrg, "target", "t", "",
+		"the path to the MBT results folder; the current path is default")
+	metaCmd.Flags().StringVarP(&metaCmdDesc, "desc", "d", "",
+		"the MTA descriptor; supported values: dev (development descriptor, default value) and dep (deployment descriptor)")
+	metaCmd.Flags().StringVarP(&metaCmdPlatform, "platform", "p", "",
+		"the deployment platform; supported plaforms: cf, xsa")
 
 	// set flags of mtar command
-	mtarCmd.Flags().StringVarP(&mtarCmdSrc, "source", "s", "", "Provide MTA source ")
-	mtarCmd.Flags().StringVarP(&mtarCmdTrg, "target", "t", "", "Provide MTA target ")
-	mtarCmd.Flags().StringVarP(&mtarCmdDesc, "desc", "d", "", "Descriptor MTA - dev/dep")
+	mtarCmd.Flags().StringVarP(&mtarCmdSrc, "source", "s", "",
+		"the path to the MTA project; the current path is default")
+	mtarCmd.Flags().StringVarP(&mtarCmdTrg, "target", "t", "",
+		"the path to the MBT results folder; the current path is default")
+	mtarCmd.Flags().StringVarP(&mtarCmdDesc, "desc", "d", "",
+		"the MTA descriptor; supported values: dev (development descriptor, default value) and dep (deployment descriptor)")
 }
 
 // Provide mtad.yaml from mta.yaml
 var mtadCmd = &cobra.Command{
 	Use:   "mtad",
-	Short: "Provide mtad",
-	Long:  "Provide deployment descriptor (mtad.yaml) from development descriptor (mta.yaml)",
+	Short: "generates MTAD",
+	Long:  "generates deployment descriptor (mtad.yaml) from development descriptor (mta.yaml)",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		err := artifacts.ExecuteGenMtad(mtadCmdSrc, mtadCmdTrg, mtadCmdDesc, mtadCmdPlatform, os.Getwd)
@@ -64,8 +74,8 @@ var mtadCmd = &cobra.Command{
 // Generate metadata info from deployment
 var metaCmd = &cobra.Command{
 	Use:   "meta",
-	Short: "generate meta folder",
-	Long:  "generate META-INF folder with all the required data",
+	Short: "generates the META-INF folder",
+	Long:  "generates META-INF folder with manifest and MTAD files",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		err := artifacts.ExecuteGenMeta(metaCmdSrc, metaCmdTrg, metaCmdDesc, metaCmdPlatform, true, os.Getwd)
@@ -79,8 +89,8 @@ var metaCmd = &cobra.Command{
 // Generate mtar from build artifacts
 var mtarCmd = &cobra.Command{
 	Use:   "mtar",
-	Short: "generate MTAR",
-	Long:  "generate MTAR from the project build artifacts",
+	Short: "generates MTA archive",
+	Long:  "generates MTA archive from the folder with all artifacts",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		err := artifacts.ExecuteGenMtar(mtarCmdSrc, mtarCmdTrg, mtarCmdDesc, os.Getwd)
