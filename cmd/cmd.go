@@ -102,7 +102,7 @@ var validateCmd = &cobra.Command{
 var cleanupCmd = &cobra.Command{
 	Use:   "cleanup",
 	Short: "cleanups MBT artifacts",
-	Long:  "cleanups MBT temporary creeted artifacts",
+	Long:  "cleanups MBT temporary created artifacts",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		// Remove temp folder
