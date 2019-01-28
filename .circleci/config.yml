@@ -1,10 +1,9 @@
-# Golang CircleCI 2.0 configuration file
+# Golang CircleCI 2.0 configuration
 version: 2
 jobs:
   build:
     docker:
-      # specify the version
-      - image: circleci/golang:1.11
+      - image: circleci/golang:1.11.3
     environment:
       - DEP_VERSION: 0.5.0
     working_directory: /go/src/cloud-mta-build-tool
@@ -18,3 +17,25 @@ jobs:
       - run: make tools
       - run: make lint
 
+  integration_test:
+    docker:
+      - image: shimit/mbt_multi:0.1.0
+    working_directory: /go/src/cloud-mta-build-tool
+    steps:
+      - checkout
+      - run: go get -v -t -d ./...
+      - run: cf login -a $CF_API -o $ORG -s $SPACE -u $TECH_USER -p $TECH_PASS
+      - run: cd integration &&  go test -tags=integration
+
+workflows:
+  version: 2
+  build_integration:
+    jobs:
+      - build
+
+  integration-test:
+    jobs:
+      - integration_test:
+          filters:
+            branches:
+              only: master

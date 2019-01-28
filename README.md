@@ -2,109 +2,76 @@
 ![GitHub license](https://img.shields.io/badge/license-Apache_2.0-blue.svg)
 ![pre-alpha](https://img.shields.io/badge/Release-pre--alpha-orange.svg)
 
-<b>Disclaimer</b>: The MTA build tool is under heavy development and is currently in a `pre-alpha` stage.
+<b>Disclaimer</b>: The multi-target application archive build tool is under heavy development and is currently in a `pre-alpha` stage.
                    Some functionality is still missing and the APIs are subject to change; use at your own risk.
                    
-# Multi-Target Application (MTA) Archive Builder
 
-The MTA command-line archive builder provides a convenient way to bundle an MTA project into an MTAR file (Multi Target Application aRchive).
+# Prerequisite
 
-### Multi-Target Applications
-
-A multi-target application is a package comprised of multiple application and resource modules that have been created using different technologies and deployed to different runtimes; however, they have a common life cycle. A user can bundle the modules together along with their interdependencies to other modules, services, and interfaces, and package them in an MTA project, describing them using the `mta.yaml` file.
-
-For background and detailed information, see The [Multi-Target Application Model](http://help.sap.com/disclaimer?site=http://www.sap.com/documents/2016/06/e2f618e4-757c-0010-82c7-eda71af511fa.html) information published on the SAP website.
-
+You are familiar with the multi-target application concept and terminology. 
+For background and detailed information, see The [Multi-Target Application Model](https://www.sap.com/documents/2016/06/e2f618e4-757c-0010-82c7-eda71af511fa.html)  guide.                   
+                   
 
 ## Description
 
-The MTA archive builder tool will provide a clear separation between the generation of the build manifest (see [Makefile](#makefile) section) and the user application build process as follows:
+The multi-target application archive builder is a standalone command-line tool that builds a deployment-ready 
+multi-target application (MTA) archive `.mtar` file from the artifacts of an MTA project according to the project’s MTA 
+development descriptor (`mta.yaml` file) or from module build artifacts according to the MTA deployment descriptor (`mtad.yaml` file).
+                  
+# Usage
 
-### CLI 
+## Commands
 
-The CLI tool will:
-- Parse and analyse the development descriptor, a.k.a `mta.yaml` file, and generate a `Makefile` accordingly. 
-- Provide atomic commands that can be executed as an isolated process. (commands which also used by the generated `Makefile`)
-- Build a `META-INF` folder containing the following content:
-  - Translation of the `mta.yaml` source file into the `mtad.yaml` deployment descriptor.
-  - A `META-INFO` file that describe the build artifact structure.
-  
-  
-#### [Makefile](https://www.gnu.org/software/make/)<a name="makefile"></a>
-
-The generated `Makefile` (GNU Make) will describe and execute the build process in two flavours:
-- default - Provides a generic build process that can be modified according to the project needs.
-- verbose - Provides a verbose build file as a manifest that describes each step in a separate target (experimental).
-
-During the build process the generated `Makefile` is responsible for the following:
-- Building each of the modules in the MTA project.
-- Invoking the CLI commands in the right order. 
-- Providing an MTA archive that is ready for deployment.
-
-## Commands <a id='commands'></a>
-
-The MBT supports the following commands:
-
-
-
-
-
-## What is an MTA Project
-
-For background and detailed information, see The [Multi-Target Application Model](http://help.sap.com/disclaimer?site=http://www.sap.com/documents/2016/06/e2f618e4-757c-0010-82c7-eda71af511fa.html) information published on the SAP website.
-
-| Command | usage        | description                                                    | supported 
+| Command | Usage        | Description                                                    | Supported 
 | ------  | ------       |  ----------                                                    |  ---------- 
-| version | `mbt -v`     | Prints the MBT version.                                        | x
+| version | `mbt -v`     | Prints the multi-target application archive builder version.                                        | x
 | help    | `mbt -h`     | Prints all the available commands.                             | x
-| assemble    | `mbt assemble`     | Assemble MTA project according to deployment descriptor. | x
+| assemble    | `mbt assemble`     | Creates an MTA archive `.mtar` file from the module build artifacts according to the MTA deployment descriptor (`mtad.yaml` file). Runs the command in the directory where the `mtad.yaml` file is located. `Note:` Make sure the path property of each module's `mtad.yaml` file points to the module's build artifacts you want to package into the target MTA archive. | x
 | additional commands  | `tbd`              | `tbd`                                 | 
-
-
-
+         
 ## Roadmap
  
 ### Milestone 1  - (Q1 - 2019)
 
- - [x] Supports project assembly based deployment descriptor 
- - [ ] Supports build of HTML5 applications (non repo)
- - [ ] Supports build of node applications
- - [ ] Partial support of build parameters (first phase)
-    - [ ] Supports build dependencies
-    - [ ] Supports the copying of build results from other modules
-    - [ ] Supports the build results from a different location
-    - [ ] Supports target platforms
- - [ ] Generates a default `Makefile`
- - [ ] Generates a `mtad.yaml` file from a `mta.yaml` file
- - [ ] Supports builds for `XSA` / `CF` targets 
+ - [x] Supports project-assembly-based deployment descriptors. 
+ - [ ] Supports the building of HTML5 applications (non repo).
+ - [ ] Supports the building of node applications.
+ - [ ] Partially supports build parameters (first phase):
+    - [ ] Supports build dependencies.
+    - [ ] Supports the copying of build results from other modules.
+    - [ ] Supports the build results from a different location.
+    - [ ] Supports target platforms.
+ - [ ] Supports the generation of a default `Makefile` file.
+ - [ ] Supports the generation of an `mtad.yaml` file from an `mta.yaml` file.
+ - [ ] Supports the building of `XSA` and `CF` (Cloud Foundry) targets. 
  
 ### Milestone 2 - (Q2 - 2019)
  
-  - [ ] Generates a verbose `Makefile`
-  - [ ] Supports MTA extension
-  - [ ] Supports build of Java/Maven applications
-  - [ ] Supports ZIP builds
-  - [ ] Supports fetcher build 
-  - [ ] Supports build parameters
-    - [ ] Supports build options
-    - [ ] Supports ignore files/folders
-    - [ ] Supports the definition of timeouts
-    - [ ] Supports build artifact naming
-  - [ ] Supports multi-schema
-  - [ ] Supports enhancing schema validations
-  - [ ] Supports semantic validations
-  - [ ] Partial supports advanced `mta.yaml` (3.1, > 3.2) schema
+  - [ ] Supports the generation of verbose `Makefile` files.
+  - [ ] Supports MTA extensions.
+  - [ ] Supports the building of Java and Maven applications.
+  - [ ] Supports ZIP builds.
+  - [ ] Supports fetcher builds.
+  - [ ] Supports build parameters:
+    - [ ] Supports build options.
+    - [ ] Supports `ignore` files and folders.
+    - [ ] Supports the definition of timeouts.
+    - [ ] Supports the naming of build artifacts.
+  - [ ] Supports multi-schema.
+  - [ ] Supports the enhancing of schema validations.
+  - [ ] Supports semantic validations.
+  - [ ] Partially supports the advanced `mta.yaml` (3.1 > 3.2) schema.
   
  
  ### Milestone 3 - (Q3 - 2019)
  
-  - [ ] Supports parallel execution for default `Makefile` 
-  - [ ] Supports incremental build (one module at a time)
+  - [ ] Supports parallel execution for the default `Makefile` file. 
+  - [ ] Supports incremental builds; in other words, one module at a time.
  
  ### Milestone 4 - (Q3 - 2019)
 
- - [ ] Supports extensibility framework
- - [ ] Full supports advanced `mta.yaml` (3.1, > 3.2) schema
+ - [ ] Supports the extensibility framework.
+ - [ ] Fully supports the advanced `mta.yaml` (3.1 > 3.2) schema.
 
 ## Download and Installation
 
@@ -113,11 +80,11 @@ Soon.
 ## Contributions
 
 Contributions are greatly appreciated.
-See [CONTRIBUTING.md](./.github/CONTRIBUTING.md) for details.
+See the [CONTRIBUTING.md](./.github/CONTRIBUTING.md) file for details.
 
 ## Known Issues
 
-No known major issues.  To report a new [issue](https://github.com/SAP/cloud-mta-build-tool/issues/new/choose), please use our GitHub bug tracking system.
+No known major issues. To report a new [issue](https://github.com/SAP/cloud-mta-build-tool/issues/new/choose), please use our GitHub bug tracking system.
 
 ## Support
 
