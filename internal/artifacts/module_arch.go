@@ -164,7 +164,7 @@ func CopyMtaContent(source, target, desc string, wdGetter func() (string, error)
 	}
 	mta, err := loc.ParseFile()
 	if err != nil {
-		return errors.Wrapf(err, "copying the MTA content failed when parsing the %v file", loc.GetMtaYamlPath())
+		return errors.Wrapf(err, "copying the MTA content failed when parsing the %s file", loc.GetMtaYamlPath())
 	}
 	err = copyModuleContent(loc.GetSource(), loc.GetTargetTmpDir(), mta)
 	if err != nil {
@@ -215,7 +215,7 @@ func copyMtaContent(source, target string, mtaPaths []string) error {
 		sourceMtaContent := filepath.Join(source, mtaPath)
 		if doesNotExist(sourceMtaContent) {
 			return handleCopyMtaContentFailure(target, copiedMtaContents,
-				"%s does not exist in the current location %s", []interface{}{mtaPath, source})
+				"%s does not exist in the %s location", []interface{}{mtaPath, source})
 		}
 		copiedMtaContents = append(copiedMtaContents, mtaPath)
 		targetMtaContent := filepath.Join(target, mtaPath)

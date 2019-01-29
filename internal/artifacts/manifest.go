@@ -205,7 +205,7 @@ func genManifest(manifestPath string, entries []entry) (rerr error) {
 		rerr = dir.CloseFile(out, rerr)
 	}()
 	if err != nil {
-		return errors.Wrap(err, "failed to generate the manifest file when creating the manifest file")
+		return errors.Wrap(err, "failed to generate the manifest file when initializing it")
 	}
 	return populateManifest(out, funcMap)
 }
