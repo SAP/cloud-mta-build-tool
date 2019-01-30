@@ -2,32 +2,34 @@
 ![GitHub license](https://img.shields.io/badge/license-Apache_2.0-blue.svg)
 ![pre-alpha](https://img.shields.io/badge/Release-pre--alpha-orange.svg)
 
-<b>Disclaimer</b>: The multi-target application archive build tool is under heavy development and is currently in a `pre-alpha` stage.
+> <b>Disclaimer</b>: The multi-target application archive build tool is under heavy development and is currently in a `pre-alpha` stage.
                    Some functionality is still missing and the APIs are subject to change; use at your own risk.
                    
 
-# Prerequisite
-
-You are familiar with the multi-target application concept and terminology. 
-For background and detailed information, see The [Multi-Target Application Model](https://www.sap.com/documents/2016/06/e2f618e4-757c-0010-82c7-eda71af511fa.html)  guide.                   
-                   
 
 ## Description
 
 The multi-target application archive builder is a standalone command-line tool that builds a deployment-ready 
 multi-target application (MTA) archive `.mtar` file from the artifacts of an MTA project according to the project’s MTA 
 development descriptor (`mta.yaml` file) or from module build artifacts according to the MTA deployment descriptor (`mtad.yaml` file).
-                  
-# Usage
 
-## Commands
+### Multi-Target Application
+
+Before using this pagckage, be sure you are familiar with the multi-target application concept and terminology. 
+For background and detailed information, see The [Multi-Target Application Model](https://www.sap.com/documents/2016/06/e2f618e4-757c-0010-82c7-eda71af511fa.html)  guide.                   
+                   
+
+                  
+## Usage
+
+### Commands
 
 | Command | Usage        | Description                                                    | Supported 
 | ------  | ------       |  ----------                                                    |  ---------- 
 | version | `mbt -v`     | Prints the multi-target application archive builder version.                                        | x
 | help    | `mbt -h`     | Prints all the available commands.                             | x
 | assemble    | `mbt assemble`     | Creates an MTA archive `.mtar` file from the module build artifacts according to the MTA deployment descriptor (`mtad.yaml` file). Runs the command in the directory where the `mtad.yaml` file is located. `Note:` Make sure the path property of each module's `mtad.yaml` file points to the module's build artifacts you want to package into the target MTA archive. | x
-| additional commands  | `tbd`              | `tbd`                                 | 
+                                 
          
 For more information, see the command help output available via `mbt [command] --help` or `mbt [command] -h`.
 
@@ -86,11 +88,11 @@ See the [CONTRIBUTING.md](./.github/CONTRIBUTING.md) file for details.
 
 ## Known Issues
 
-No known major issues. To report a new [issue](https://github.com/SAP/cloud-mta-build-tool/issues/new/choose), please use our GitHub bug tracking system.
+No known major issues. 
 
 ## Support
 
-Please follow our [issue template](./.github/ISSUE_TEMPLATE/bug_report.md) on how to report an issue.
+Please follow our [issue template](https://github.com/SAP/cloud-mta-build-tool/issues/new/choose) on how to report an issue.
  
  ## License
  
