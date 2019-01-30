@@ -215,7 +215,7 @@ func copyMtaContent(source, target string, mtaPaths []string) error {
 		sourceMtaContent := filepath.Join(source, mtaPath)
 		if doesNotExist(sourceMtaContent) {
 			return handleCopyMtaContentFailure(target, copiedMtaContents,
-				"%s does not exist in the %s location", []interface{}{mtaPath, source})
+				"%s does not exist in the MTA project location", []interface{}{mtaPath})
 		}
 		copiedMtaContents = append(copiedMtaContents, mtaPath)
 		targetMtaContent := filepath.Join(target, mtaPath)
@@ -224,6 +224,7 @@ func copyMtaContent(source, target string, mtaPaths []string) error {
 			return handleCopyMtaContentFailure(target, copiedMtaContents,
 				"error copying the %s MTA content to the %s target directory because: %s", []interface{}{mtaPath, source, err.Error()})
 		}
+		logs.Logger.Debugf("copied %s", mtaPath)
 	}
 
 	return nil

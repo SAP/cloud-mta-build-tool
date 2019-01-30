@@ -43,7 +43,7 @@ func init() {
 	validateCmd.Flags().StringVarP(&validateCmdSrc, "source", "s", "",
 		"the path to the MTA project; the current path is default")
 	validateCmd.Flags().StringVarP(&validateCmdMode, "mode", "m", "",
-		"the validation mode; supported values: all (default), schema, project")
+		"the validation mode; supported values: schema, semantic (default)")
 	validateCmd.Flags().StringVarP(&validateCmdDesc, "desc", "d", "",
 		"the MTA descriptor; supported values: dev (development descriptor, default value) and dep (deployment descriptor)")
 }

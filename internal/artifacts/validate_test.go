@@ -11,11 +11,11 @@ import (
 var _ = Describe("Validate", func() {
 	var _ = Describe("ExecuteValidation", func() {
 		It("Sanity", func() {
-			Ω(ExecuteValidation(getTestPath("mta"), "dev", "", os.Getwd)).Should(Succeed())
+			Ω(ExecuteValidation(getTestPath("mta"), "dev", "semantic", os.Getwd)).Should(Succeed())
 
 		})
 		It("Fails on location initialization", func() {
-			Ω(ExecuteValidation("", "dev", "", func() (string, error) {
+			Ω(ExecuteValidation("", "dev", "semantic", func() (string, error) {
 				return "", errors.New("err")
 			})).Should(HaveOccurred())
 
