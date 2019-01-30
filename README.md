@@ -29,7 +29,7 @@ For background and detailed information, see The [Multi-Target Application Model
 | version | `mbt -v`     | Prints the multi-target application archive builder version.                                        | x
 | help    | `mbt -h`     | Prints all the available commands.                             | x
 | assemble    | `mbt assemble`     | Creates an MTA archive `.mtar` file from the module build artifacts according to the MTA deployment descriptor (`mtad.yaml` file). Runs the command in the directory where the `mtad.yaml` file is located. `Note:` Make sure the path property of each module's `mtad.yaml` file points to the module's build artifacts you want to package into the target MTA archive. | x
-                                 | 
+                                 
          
 For more information, see the command help output available via `mbt [command] --help` or `mbt [command] -h`.
 
