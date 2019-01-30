@@ -2,7 +2,7 @@
 ![GitHub license](https://img.shields.io/badge/license-Apache_2.0-blue.svg)
 ![pre-alpha](https://img.shields.io/badge/Release-pre--alpha-orange.svg)
 
-<b>Disclaimer</b>: The multi-target application archive build tool is under heavy development and is currently in a `pre-alpha` stage.
+> <b>Disclaimer</b>: The multi-target application archive build tool is under heavy development and is currently in a `pre-alpha` stage.
                    Some functionality is still missing and the APIs are subject to change; use at your own risk.
                    
 
