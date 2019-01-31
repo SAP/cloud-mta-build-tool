@@ -3,6 +3,7 @@
 package integration_test
 
 import (
+	"archive/zip"
 	"bufio"
 	"bytes"
 	"fmt"
@@ -138,7 +139,65 @@ var _ = Describe("Integration - CloudMtaBuildTool", func() {
 			Ω(cmdOut).Should(Equal("'200'"))
 		})
 	})
+
+	var _ = Describe("Assemble MTAR", func() {
+		var currentWorkingDirectory string
+		var mtaAssemblePath string
+		It("Assemble MTAR", func() {
+			currentWorkingDirectory, _ = os.Getwd()
+			mtaAssemblePath = currentWorkingDirectory + filepath.FromSlash("/testdata/mta_assemble")
+
+			bin := filepath.FromSlash(binPath)
+			cmdOut, err, _ := execute(bin, "assemble", mtaAssemblePath)
+			Ω(err).Should(Equal(""))
+			Ω(cmdOut).ShouldNot(BeNil())
+			Ω(cmdOut).Should(ContainSubstring("assembling the MTA project..." + "\n"))
+			Ω(cmdOut).Should(ContainSubstring("copying the MTA content..." + "\n"))
+			Ω(cmdOut).Should(ContainSubstring("generating the metadata..." + "\n"))
+			Ω(cmdOut).Should(ContainSubstring("generating the MTA archive" + "\n"))
+			Ω(cmdOut).Should(ContainSubstring("the MTA archive generated at: " + filepath.Join(mtaAssemblePath, "mta_archives", "mta.assembly.example_1.3.3.mtar") + "\n"))
+			Ω(cmdOut).Should(ContainSubstring("cleaning temporary generated files" + "\n"))
+			Ω(exists("mta.assembly.example_1.3.3.mtar", mtaAssemblePath+filepath.FromSlash("/mta_archives/"))).Should(BeTrue())
+			validateMtaArchiveContents([]string{"META-INF/mtad.yaml", "META-INF/MANIFEST.MF", "node.zip", "xs-security.json"}, filepath.Join(mtaAssemblePath, "mta_archives", "mta.assembly.example_1.3.3.mtar"))
+			os.Remove(filepath.Join(mtaAssemblePath, "mta.assembly.example.mtar"))
+			os.Chdir(currentWorkingDirectory)
+		})
+	})
 })
+
+func validateMtaArchiveContents(expectedFilesInArchive []string, archiveLocation string) {
+	archiveReader, err := zip.OpenReader(archiveLocation)
+	Ω(err).Should(BeNil())
+	defer archiveReader.Close()
+	var filesInArchive []string
+	for _, file := range archiveReader.File {
+		filesInArchive = append(filesInArchive, file.Name)
+	}
+	for _, expectedFile := range expectedFilesInArchive {
+		Ω(contains(expectedFile, filesInArchive)).Should(BeTrue())
+	}
+
+}
+
+func contains(element string, elements []string) bool {
+	for _, el := range elements {
+		if el == element {
+			return true
+		}
+	}
+	return false
+}
+
+func exists(fileName, location string) bool {
+	files, err := ioutil.ReadDir(location)
+	Ω(err).Should(BeNil())
+	for _, file := range files {
+		if file.Name() == fileName {
+			return true
+		}
+	}
+	return false
+}
 
 // execute with live output
 func executeWithOutput(bin string, args string, path string) {
