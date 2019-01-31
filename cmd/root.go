@@ -6,7 +6,6 @@ import (
 	"github.com/x-cray/logrus-prefixed-formatter"
 
 	"github.com/SAP/cloud-mta-build-tool/internal/logs"
-	"os"
 )
 
 var cfgFile string
