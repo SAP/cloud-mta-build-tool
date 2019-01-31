@@ -1,9 +1,4 @@
-project_name: github.com/SAP/cloud-mta-build-tool
-release:
-  github:
-    owner: shimon.tal@sap.com
-    name: github.com/SAP/cloud-mta-build-tool
-  name_template: '{{.Tag}}'
+project_name: cloud-mta-build-tool
 before:
   hooks:
     - go generate ./...
