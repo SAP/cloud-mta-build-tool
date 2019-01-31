@@ -1,53 +1,56 @@
 project_name: mbt
 release:
   github:
-    owner: ShimiT
-    name: cloud-mta-build-tool
+    owner: shimon.tal@sap.com
+    name: mbt
   name_template: '{{.Tag}}'
-brew:
-  commit_author:
-    name: ShimiT
-    email: shimon.tal@sap.com
-  install: bin.install "mbt"
+before:
+  hooks:
+    - go generate ./...
 builds:
-- main: main.go
-- goos:
-  - linux
-  - darwin
-  goarch:
-  - amd64
-  - "386"
-  goarm:
-  - "6"
-  main: .
-  ldflags: -s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{.Date}}
-  binary: mbt
+  - goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+    goarm:
+      - "6"
+    main: .
+    ldflags: -s -w -X main.Version={{.Version}}  -X main.BuildDate={{.Date}}
+    binary: mbt
 archive:
+  replacements:
+    darwin: Darwin
+    linux: Linux
+    windows: Windows
   format: tar.gz
-  name_template: '{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ if .Arm
-    }}v{{ .Arm }}{{ end }}'
   files:
-  - licence*
-  - LICENCE*
-  - license*
-  - LICENSE*
-  - readme*
-  - README*
-  - changelog*
-  - CHANGELOG*
-fpm:
-  bindir: /usr/local/bin
-snapshot:
-  name_template: SNAPSHOT-{{ .Commit }}
-checksum:
-  name_template: '{{ .ProjectName }}_{{ .Version }}_checksums.txt'
+    - licence*
+    - LICENCE*
+    - license*
+    - LICENSE*
+    - readme*
+    - README*
+    - changelog*
+    - CHANGELOG*
 dist: dist
+checksum:
+  name_template: 'checksums.txt'
+snapshot:
+  name_template: "{{ .Tag }}-next"
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
 sign:
   cmd: gpg
   args:
-  - --output
-  - $signature
-  - --detach-sig
-  - $artifact
+    - --output
+    - $signature
+    - --detach-sig
+    - $artifact
   signature: ${artifact}.sig
   artifacts: none
