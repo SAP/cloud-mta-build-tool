@@ -94,8 +94,8 @@ var validateCmd = &cobra.Command{
 		logError(err)
 		return err
 	},
-	SilenceErrors: false,
-	SilenceUsage:  true,
+	SilenceUsage:  false,
+	SilenceErrors: true,
 }
 
 // Cleanup temp artifacts
@@ -110,8 +110,8 @@ var cleanupCmd = &cobra.Command{
 		logError(err)
 		return err
 	},
-	SilenceUsage:  true,
-	SilenceErrors: false,
+	SilenceUsage:  false,
+	SilenceErrors: true,
 }
 
 func printCliVersion() error {
