@@ -19,5 +19,9 @@ func ExecuteValidation(source, desc, mode string, getWorkingDir func() (string, 
 	if err != nil {
 		return errors.Wrap(err, "validation failed when analyzing the validation mode")
 	}
-	return validate.MtaYaml(source, loc.GetMtaYamlFilename(), validateSchema, validateProject)
+	err = validate.MtaYaml(source, loc.GetMtaYamlFilename(), validateSchema, validateProject)
+	if err != nil {
+		return err
+	}
+	return nil
 }

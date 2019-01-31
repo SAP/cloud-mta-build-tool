@@ -18,7 +18,7 @@ development descriptor (`mta.yaml` file) or from module build artifacts accordin
 ### Multi-Target Application
 
 Before using this package, be sure you are familiar with the multi-target application concept and terminology. 
-For background and detailed information, see The [Multi-Target Application Model](https://www.sap.com/documents/2016/06/e2f618e4-757c-0010-82c7-eda71af511fa.html)  guide.                   
+For background and detailed information, see the [Multi-Target Application Model](https://www.sap.com/documents/2016/06/e2f618e4-757c-0010-82c7-eda71af511fa.html) guide.                   
                    
 
                   
@@ -30,7 +30,7 @@ For background and detailed information, see The [Multi-Target Application Model
 | ------  | ------       |  ----------                                                    |  ---------- 
 | version | `mbt -v`     | Prints the multi-target application archive builder version.                                        | x
 | help    | `mbt -h`     | Prints all the available commands.                             | x
-| assemble    | `mbt assemble`     | Creates an MTA archive `.mtar` file from the module build artifacts according to the MTA deployment descriptor (`mtad.yaml` file). Runs the command in the directory where the `mtad.yaml` file is located. `Note:` Make sure the path property of each module's `mtad.yaml` file points to the module's build artifacts you want to package into the target MTA archive. | x
+| assemble    | `mbt assemble`     | Creates an MTA archive `.mtar` file from the module build artifacts according to the MTA deployment descriptor (`mtad.yaml` file). Runs the command in the directory where the `mtad.yaml` file is located. **Note:** Make sure the path property of each module's `mtad.yaml` file points to the module's build artifacts you want to package into the target MTA archive. | x
                                  
          
 For more information, see the command help output available via `mbt [command] --help` or `mbt [command] -h`.
@@ -81,7 +81,11 @@ For more information, see the command help output available via `mbt [command] -
 
 ## Download and Installation
 
-[Download](https://github.com/SAP/cloud-mta-build-tool/releases) the latest binary according to your operating system, unzip it and add it to your `~/bin` path.
+ To install the multi-target application archive builder (MBT) tool:
+  1. [Download](https://github.com/SAP/cloud-mta-build-tool/releases) the **latest** binary file according to your operating system.
+  2. Extract the archive file to the folder where you want to install the tool.
+  3. Add the binary file to your `~/bin` path according to your operating system. 
+     
   
 ## Contributions
 
