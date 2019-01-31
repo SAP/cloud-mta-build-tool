@@ -69,7 +69,6 @@ var _ = Describe("Integration - CloudMtaBuildTool", func() {
 			bin := filepath.FromSlash(binPath)
 			cmdOut, err, _ := execute(bin, "provide modules 2", path)
 			Ω(err).ShouldNot(BeNil())
-			Ω(cmdOut).Should(BeEmpty())
 		})
 	})
 	var _ = Describe("Generate the Makefile according to the mta.yaml file", func() {
@@ -95,7 +94,6 @@ var _ = Describe("Integration - CloudMtaBuildTool", func() {
 			bin := filepath.FromSlash(binPath)
 			cmdOut, err, _ := execute(bin, "init 2", path)
 			Ω(err).ShouldNot(BeNil())
-			Ω(cmdOut).ShouldNot(BeEmpty())
 		})
 	})
 
