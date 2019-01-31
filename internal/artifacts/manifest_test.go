@@ -11,8 +11,8 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"
 
-	"cloud-mta-build-tool/internal/contenttype"
-	"cloud-mta-build-tool/internal/fs"
+	"github.com/SAP/cloud-mta-build-tool/internal/contenttype"
+	"github.com/SAP/cloud-mta-build-tool/internal/fs"
 )
 
 var _ = Describe("manifest", func() {

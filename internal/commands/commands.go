@@ -6,10 +6,10 @@ import (
 
 	"github.com/pkg/errors"
 
-	"cloud-mta-build-tool/internal/buildops"
-	"cloud-mta-build-tool/internal/fs"
-
 	"github.com/SAP/cloud-mta/mta"
+
+	"github.com/SAP/cloud-mta-build-tool/internal/buildops"
+	"github.com/SAP/cloud-mta-build-tool/internal/fs"
 )
 
 // CommandList - list of command to execute

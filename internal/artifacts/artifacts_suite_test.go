@@ -11,7 +11,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	"cloud-mta-build-tool/internal/logs"
+	"github.com/SAP/cloud-mta-build-tool/internal/logs"
 )
 
 func TestArtifacts(t *testing.T) {

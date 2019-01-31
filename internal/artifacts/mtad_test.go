@@ -3,16 +3,15 @@ package artifacts
 import (
 	"os"
 
-	"cloud-mta-build-tool/internal/platform"
-
+	"github.com/SAP/cloud-mta/mta"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
 
-	"cloud-mta-build-tool/internal/buildops"
-	"cloud-mta-build-tool/internal/fs"
-	"github.com/SAP/cloud-mta/mta"
+	"github.com/SAP/cloud-mta-build-tool/internal/buildops"
+	"github.com/SAP/cloud-mta-build-tool/internal/fs"
+	"github.com/SAP/cloud-mta-build-tool/internal/platform"
 )
 
 var _ = Describe("Mtad", func() {

@@ -3,12 +3,12 @@ package commands
 import (
 	"os"
 
-	"cloud-mta-build-tool/internal/artifacts"
-	"cloud-mta-build-tool/internal/fs"
-	"cloud-mta-build-tool/internal/logs"
-
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
+
+	"github.com/SAP/cloud-mta-build-tool/internal/artifacts"
+	"github.com/SAP/cloud-mta-build-tool/internal/fs"
+	"github.com/SAP/cloud-mta-build-tool/internal/logs"
 )
 
 const (

@@ -4,10 +4,11 @@ import (
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
 
-	"cloud-mta-build-tool/internal/fs"
-	"cloud-mta-build-tool/internal/logs"
-	"cloud-mta-build-tool/internal/platform"
 	"github.com/SAP/cloud-mta/mta"
+
+	"github.com/SAP/cloud-mta-build-tool/internal/fs"
+	"github.com/SAP/cloud-mta-build-tool/internal/logs"
+	"github.com/SAP/cloud-mta-build-tool/internal/platform"
 )
 
 // ExecuteGenMeta - generates metadata

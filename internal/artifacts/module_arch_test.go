@@ -12,11 +12,12 @@ import (
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
 
-	"cloud-mta-build-tool/internal/buildops"
-	"cloud-mta-build-tool/internal/commands"
-	"cloud-mta-build-tool/internal/fs"
 	"github.com/SAP/cloud-mta/mta"
 	"gopkg.in/yaml.v2"
+
+	"github.com/SAP/cloud-mta-build-tool/internal/buildops"
+	"github.com/SAP/cloud-mta-build-tool/internal/commands"
+	"github.com/SAP/cloud-mta-build-tool/internal/fs"
 )
 
 var _ = Describe("ModuleArch", func() {
@@ -112,7 +113,7 @@ builders:
 				Ω(getTestPath("result", "mta_with_zipped_module", "node-js", "data.zip")).Should(BeAnExistingFile())
 			})
 
-			//ep.GetTargetModuleDir(moduleName)
+			// ep.GetTargetModuleDir(moduleName)
 			It("Wrong source", func() {
 				ep := dir.Loc{
 					SourcePath: getTestPath("mta_unknown"),

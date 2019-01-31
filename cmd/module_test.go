@@ -11,9 +11,9 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/types"
 
-	"cloud-mta-build-tool/internal/commands"
-	"cloud-mta-build-tool/internal/fs"
-	"cloud-mta-build-tool/internal/logs"
+	"github.com/SAP/cloud-mta-build-tool/internal/commands"
+	"github.com/SAP/cloud-mta-build-tool/internal/fs"
+	"github.com/SAP/cloud-mta-build-tool/internal/logs"
 )
 
 var _ = Describe("Commands", func() {
