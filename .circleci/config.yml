@@ -24,6 +24,9 @@ jobs:
             go get github.com/modocache/gover
             go install github.com/mattn/goveralls
             go install github.com/modocache/gover
+      - run: go test -v github.com/SAP/cloud-mta-build-tool/cmd -coverprofile=cmd.coverprofile
+      - run: go test -v github.com/SAP/cloud-mta-build-tool/internal -coverprofile=internal.coverprofile
+      - run: go test -v github.com/SAP/cloud-mta-build-tool/integration -coverprofile=integration.coverprofile
       - run: go test -v github.com/SAP/cloud-mta-build-tool -coverprofile=mbt.coverprofile
       - run: gover
       - run: goveralls -v -service=circle-ci -coverprofile=gover.coverprofile -repotoken $COVERALLS_TOKEN
