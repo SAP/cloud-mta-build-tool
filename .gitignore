@@ -24,7 +24,7 @@ fmt
 docker*
 .dockerignore
 .DS_Store
-
+dist
 
 cover.html
 cover.out
