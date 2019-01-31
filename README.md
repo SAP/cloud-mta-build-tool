@@ -81,7 +81,11 @@ For more information, see the command help output available via `mbt [command] -
 
 ## Download and Installation
 
-[Download](https://github.com/SAP/cloud-mta-build-tool/releases) the latest binary according to your operating system, unzip it, and add it to your `~/bin` path.
+ To install the multi-target application archive builder (MBT) tool:
+  1. [Download](https://github.com/SAP/cloud-mta-build-tool/releases) the **latest** binary file according to your operating system.
+  2. Extract the archive file to the folder where you want to install the tool.
+  3. Add the binary file to your `~/bin` path according to your operating system. 
+     
   
 ## Contributions
 
