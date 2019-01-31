@@ -67,7 +67,7 @@ var mtadCmd = &cobra.Command{
 		logError(err)
 		return err
 	},
-	SilenceUsage:  false,
+	SilenceUsage:  true,
 	SilenceErrors: true,
 }
 
@@ -82,7 +82,7 @@ var metaCmd = &cobra.Command{
 		logError(err)
 		return err
 	},
-	SilenceUsage:  false,
+	SilenceUsage:  true,
 	SilenceErrors: true,
 }
 
@@ -97,6 +97,6 @@ var mtarCmd = &cobra.Command{
 		logError(err)
 		return err
 	},
-	SilenceUsage:  false,
+	SilenceUsage:  true,
 	SilenceErrors: true,
 }

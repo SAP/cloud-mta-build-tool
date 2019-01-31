@@ -60,7 +60,7 @@ var buildModuleCmd = &cobra.Command{
 		logError(err)
 		return err
 	},
-	SilenceUsage:  false,
+	SilenceUsage:  true,
 	SilenceErrors: true,
 }
 
@@ -78,6 +78,6 @@ var packModuleCmd = &cobra.Command{
 		logError(err)
 		return err
 	},
-	SilenceUsage:  false,
+	SilenceUsage:  true,
 	SilenceErrors: true,
 }

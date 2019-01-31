@@ -94,7 +94,7 @@ var validateCmd = &cobra.Command{
 		logError(err)
 		return err
 	},
-	SilenceUsage:  false,
+	SilenceUsage:  true,
 	SilenceErrors: true,
 }
 
@@ -110,7 +110,7 @@ var cleanupCmd = &cobra.Command{
 		logError(err)
 		return err
 	},
-	SilenceUsage:  false,
+	SilenceUsage:  true,
 	SilenceErrors: true,
 }
 

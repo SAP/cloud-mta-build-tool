@@ -37,7 +37,7 @@ var assemblyCommand = &cobra.Command{
 		logError(err)
 		return err
 	},
-	SilenceUsage:  false,
+	SilenceUsage:  true,
 	SilenceErrors: true,
 }
 
