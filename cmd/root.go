@@ -28,8 +28,9 @@ var rootCmd = &cobra.Command{
 }
 
 // Execute command adds all child commands to the root command and sets flags appropriately.
-func Execute() error {
-	return rootCmd.Execute()
+func Execute() {
+	err := rootCmd.Execute()
+	logError(err)
 }
 
 func initConfig() {
