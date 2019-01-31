@@ -16,6 +16,17 @@ jobs:
       - run: sudo chown circleci:circleci /go/bin
       - run: make tools
       - run: make lint
+      - run:
+          name: cov install deps
+          command: |
+            go get golang.org/x/tools/cmd/cover
+            go get github.com/mattn/goveralls
+            go get github.com/modocache/gover
+            go install github.com/mattn/goveralls
+            go install github.com/modocache/gover
+      - run: go test -v github.com/SAP/cloud-mta-build-tool -coverprofile=mbt.coverprofile
+      - run: gover
+      - run: goveralls -v -service=circle-ci -coverprofile=gover.coverprofile -repotoken $COVERALLS_TOKEN
 
   integration_test:
     docker:
