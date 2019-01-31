@@ -16,7 +16,7 @@ development descriptor (`mta.yaml` file) or from module build artifacts accordin
 
 ### Multi-Target Application
 
-Before using this pagckage, be sure you are familiar with the multi-target application concept and terminology. 
+Before using this package, be sure you are familiar with the multi-target application concept and terminology. 
 For background and detailed information, see The [Multi-Target Application Model](https://www.sap.com/documents/2016/06/e2f618e4-757c-0010-82c7-eda71af511fa.html)  guide.                   
                    
 
