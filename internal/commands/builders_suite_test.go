@@ -3,10 +3,10 @@ package commands
 import (
 	"testing"
 
-	"cloud-mta-build-tool/internal/logs"
-
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+
+	"github.com/SAP/cloud-mta-build-tool/internal/logs"
 )
 
 func TestBuilders(t *testing.T) {

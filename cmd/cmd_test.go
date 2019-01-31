@@ -5,11 +5,11 @@ import (
 	"os"
 	"path/filepath"
 
-	"cloud-mta-build-tool/internal/logs"
-	"cloud-mta-build-tool/internal/version"
-
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+
+	"github.com/SAP/cloud-mta-build-tool/internal/logs"
+	"github.com/SAP/cloud-mta-build-tool/internal/version"
 )
 
 var _ = Describe("Cmd", func() {

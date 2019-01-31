@@ -13,9 +13,9 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"
 
-	"cloud-mta-build-tool/internal/fs"
-	"cloud-mta-build-tool/internal/logs"
-	"cloud-mta-build-tool/internal/version"
+	"github.com/SAP/cloud-mta-build-tool/internal/fs"
+	"github.com/SAP/cloud-mta-build-tool/internal/logs"
+	"github.com/SAP/cloud-mta-build-tool/internal/version"
 )
 
 var _ = BeforeSuite(func() {

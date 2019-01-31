@@ -8,9 +8,9 @@ import (
 	"path/filepath"
 	"text/template"
 
-	"cloud-mta-build-tool/internal/fs"
-
 	"github.com/pkg/errors"
+
+	"github.com/SAP/cloud-mta-build-tool/internal/fs"
 )
 
 type configInfo struct {

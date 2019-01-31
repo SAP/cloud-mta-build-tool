@@ -5,7 +5,7 @@ import (
 	"github.com/spf13/viper"
 	"github.com/x-cray/logrus-prefixed-formatter"
 
-	"cloud-mta-build-tool/internal/logs"
+	"github.com/SAP/cloud-mta-build-tool/internal/logs"
 )
 
 var cfgFile string

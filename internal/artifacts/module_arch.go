@@ -7,13 +7,13 @@ import (
 
 	"github.com/pkg/errors"
 
-	"cloud-mta-build-tool/internal/buildops"
-	"cloud-mta-build-tool/internal/commands"
-	"cloud-mta-build-tool/internal/exec"
-	"cloud-mta-build-tool/internal/fs"
-	"cloud-mta-build-tool/internal/logs"
-
 	"github.com/SAP/cloud-mta/mta"
+
+	"github.com/SAP/cloud-mta-build-tool/internal/buildops"
+	"github.com/SAP/cloud-mta-build-tool/internal/commands"
+	"github.com/SAP/cloud-mta-build-tool/internal/exec"
+	"github.com/SAP/cloud-mta-build-tool/internal/fs"
+	"github.com/SAP/cloud-mta-build-tool/internal/logs"
 )
 
 // ExecuteBuild - executes build of module

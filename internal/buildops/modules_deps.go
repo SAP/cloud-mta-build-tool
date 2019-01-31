@@ -6,7 +6,7 @@ import (
 	"github.com/deckarep/golang-set"
 	"github.com/pkg/errors"
 
-	"cloud-mta-build-tool/internal/fs"
+	"github.com/SAP/cloud-mta-build-tool/internal/fs"
 	"github.com/SAP/cloud-mta/mta"
 )
 

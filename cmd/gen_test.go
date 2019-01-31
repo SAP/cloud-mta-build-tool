@@ -7,8 +7,8 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	"cloud-mta-build-tool/internal/fs"
-	"cloud-mta-build-tool/internal/platform"
+	"github.com/SAP/cloud-mta-build-tool/internal/fs"
+	"github.com/SAP/cloud-mta-build-tool/internal/platform"
 )
 
 var _ = Describe("Commands", func() {

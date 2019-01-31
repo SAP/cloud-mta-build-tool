@@ -10,7 +10,7 @@ import (
 
 	"github.com/pkg/errors"
 
-	"cloud-mta-build-tool/internal/logs"
+	"github.com/SAP/cloud-mta-build-tool/internal/logs"
 )
 
 func makeCommand(params []string) *exec.Cmd {
