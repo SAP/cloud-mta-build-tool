@@ -6,6 +6,7 @@ import (
 	"github.com/x-cray/logrus-prefixed-formatter"
 
 	"github.com/SAP/cloud-mta-build-tool/internal/logs"
+	"os"
 )
 
 var cfgFile string
@@ -30,7 +31,9 @@ var rootCmd = &cobra.Command{
 // Execute command adds all child commands to the root command and sets flags appropriately.
 func Execute() {
 	err := rootCmd.Execute()
-	logError(err)
+	if err != nil {
+		os.Exit(1)
+	}
 }
 
 func initConfig() {

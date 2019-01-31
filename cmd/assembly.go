@@ -38,7 +38,7 @@ var assemblyCommand = &cobra.Command{
 		return err
 	},
 	SilenceUsage:  true,
-	SilenceErrors: false,
+	SilenceErrors: true,
 }
 
 func assembly(source, target, platform string, getWd func() (string, error)) error {
