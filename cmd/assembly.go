@@ -44,7 +44,7 @@ var assemblyCommand = &cobra.Command{
 func assembly(source, target, platform string, getWd func() (string, error)) error {
 	logs.Logger.Info("assembling the MTA project...")
 
-	err := artifacts.ExecuteValidation(source, dir.Dep, "semantic", os.Getwd)
+	err := artifacts.ExecuteValidation(source, dir.Dep, "semantic", getWd)
 	if err != nil {
 		return errors.Wrap(err, "assembly of the MTA project failed on the MTA descriptor validation")
 	}
