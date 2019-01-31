@@ -61,7 +61,7 @@ var buildModuleCmd = &cobra.Command{
 		return err
 	},
 	SilenceUsage:  true,
-	SilenceErrors: false,
+	SilenceErrors: true,
 }
 
 // zip specific module and put the artifacts on the temp folder according
@@ -78,4 +78,6 @@ var packModuleCmd = &cobra.Command{
 		logError(err)
 		return err
 	},
+	SilenceUsage:  true,
+	SilenceErrors: true,
 }

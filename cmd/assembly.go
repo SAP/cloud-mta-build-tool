@@ -38,11 +38,12 @@ var assemblyCommand = &cobra.Command{
 		return err
 	},
 	SilenceUsage:  true,
-	SilenceErrors: false,
+	SilenceErrors: true,
 }
 
 func assembly(source, target, platform string, getWd func() (string, error)) error {
 	logs.Logger.Info("assembling the MTA project...")
+
 	// copy from source to target
 	err := artifacts.CopyMtaContent(source, target, dir.Dep, getWd)
 	if err != nil {

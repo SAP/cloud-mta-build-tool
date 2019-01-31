@@ -68,7 +68,7 @@ var mtadCmd = &cobra.Command{
 		return err
 	},
 	SilenceUsage:  true,
-	SilenceErrors: false,
+	SilenceErrors: true,
 }
 
 // Generate metadata info from deployment
@@ -83,7 +83,7 @@ var metaCmd = &cobra.Command{
 		return err
 	},
 	SilenceUsage:  true,
-	SilenceErrors: false,
+	SilenceErrors: true,
 }
 
 // Generate mtar from build artifacts
@@ -98,5 +98,5 @@ var mtarCmd = &cobra.Command{
 		return err
 	},
 	SilenceUsage:  true,
-	SilenceErrors: false,
+	SilenceErrors: true,
 }
