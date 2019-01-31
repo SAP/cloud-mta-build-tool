@@ -81,7 +81,7 @@ For more information, see the command help output available via `mbt [command] -
 
 ## Download and Installation
 
-Soon.
+[Download](https://github.com/SAP/cloud-mta-build-tool/releases) the latest binary according to your operating system, unzip it and add it to your `~/bin` path.
   
 ## Contributions
 
