@@ -18,6 +18,9 @@ content-types:
 - extension: .war
   content-type: "application/zip"
 
+- extension: .jar
+  content-type: "application/zip"
+
 - extension: .zip
   content-type: "application/zip"
 
