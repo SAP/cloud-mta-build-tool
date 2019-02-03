@@ -54,7 +54,7 @@ func setManifestDesc(ep dir.ITargetArtifacts, targetPathGetter dir.ITargetPath, 
 
 	var entries []entry
 	for _, mod := range mtaStr {
-		if !moduleDefined(mod.Name, modules) {
+		if !moduleDefined(mod.Name, modules) || mod.Name == "" {
 			continue
 		}
 		contentType, err := getContentType(targetPathGetter, getModulePath(mod, targetPathGetter), contentTypes)
@@ -99,7 +99,7 @@ func getResourcesEntries(targetPathGetter dir.ITargetPath, resources []*mta.Reso
 	contentTypes *contenttype.ContentTypes) ([]entry, error) {
 	var entries []entry
 	for _, resource := range resources {
-		if resource.Parameters["path"] == nil {
+		if resource.Name == "" || resource.Parameters["path"] == nil {
 			continue
 		}
 		contentType, err := getContentType(targetPathGetter, getResourcePath(resource), contentTypes)
@@ -157,7 +157,7 @@ func getContentType(targetPathGetter dir.ITargetPath, path string, contentTypes 
 func getRequiredDependencies(module *mta.Module) []mta.Requires {
 	result := make([]mta.Requires, 0)
 	for _, requiredDependency := range module.Requires {
-		if requiredDependency.Parameters["path"] != nil {
+		if requiredDependency.Parameters["path"] != nil && requiredDependency.Name != ""{
 			result = append(result, requiredDependency)
 		}
 	}
@@ -169,9 +169,6 @@ func getResourcePath(resource *mta.Resource) string {
 }
 
 func getModulePath(module *mta.Module, targetPathGetter dir.ITargetPath) string {
-	if targetPathGetter == nil {
-		return filepath.ToSlash(module.Name + dataZip)
-	}
 	loc := targetPathGetter.(*dir.Loc)
 	if existsModuleZipInDirectories(module, []string{loc.GetSource(), loc.GetTargetTmpDir()}) {
 		return filepath.ToSlash(module.Name + dataZip)
