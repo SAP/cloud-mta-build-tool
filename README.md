@@ -86,7 +86,14 @@ For more information, see the command help output available via `mbt [command] -
   2. Extract the archive file to the folder where you want to install the tool.
   3. Add the binary file to your `~/bin` path according to your operating system. 
      
+   - Darwin / Linux
   
+     - Copy the binary file to `~/usr/local/bin/` folder e.g. `cp mbt /usr/local/bin/`
+  
+   - Windows
+  
+     -  Copy the binary file to  `C:/Windows/mbt.exe` 
+    
 ## Contributions
 
 Contributions are greatly appreciated.
