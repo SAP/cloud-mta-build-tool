@@ -1,7 +1,8 @@
 project_name: cloud-mta-build-tool
-before:
-  hooks:
-    - go generate ./...
+# the following needed when changing config files
+#before:
+#  hooks:
+#    - go generate ./...
 builds:
   - goos:
       - linux
