@@ -157,7 +157,7 @@ func getContentType(targetPathGetter dir.ITargetPath, path string, contentTypes 
 func getRequiredDependencies(module *mta.Module) []mta.Requires {
 	result := make([]mta.Requires, 0)
 	for _, requiredDependency := range module.Requires {
-		if requiredDependency.Parameters["path"] != nil && requiredDependency.Name != ""{
+		if requiredDependency.Parameters["path"] != nil && requiredDependency.Name != "" {
 			result = append(result, requiredDependency)
 		}
 	}
