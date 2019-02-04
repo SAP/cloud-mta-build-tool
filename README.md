@@ -88,7 +88,7 @@ For more information, see the command help output available via `mbt [command] -
         - Darwin / Linux
           - Copy the binary file to the `~/usr/local/bin/` folder, for example: `cp mbt /usr/local/bin/`
         - Windows
-          -  Copy the binary file 'mbt.exe` to the `C:/Windows/` folder.
+          -  Copy the binary file `mbt.exe` to the `C:/Windows/` folder.
     
 ## Contributions
 
