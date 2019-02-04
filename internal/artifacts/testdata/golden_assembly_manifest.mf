@@ -5,12 +5,6 @@ Name: web/
 MTA-Module: java-hello-world
 Content-Type: text/directory
 
-
-Name: 
-MTA-Module: java-hello-world-backend
-Content-Type: text/directory
-
-
 Name: config-site-host.json
 MTA-Requires: java-hello-world-backend/java-site-host
 Content-Type: application/json

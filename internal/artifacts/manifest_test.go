@@ -45,6 +45,18 @@ var _ = Describe("manifest", func() {
 			fmt.Println(golden)
 			Ω(actual).Should(Equal(golden))
 		})
+		It("Sanity - no paths", func() {
+			os.Mkdir(getTestPath("result", "mta", "node-js"), os.ModePerm)
+			loc := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath(), MtaFilename: "mta_no_paths.yaml"}
+			mtaObj, err := loc.ParseFile()
+			Ω(err).Should(Succeed())
+			Ω(setManifestDesc(&loc, &loc, mtaObj.Modules, []*mta.Resource{}, []string{}, false)).Should(Succeed())
+			actual := getFileContent(getTestPath("result", "mta", "META-INF", "MANIFEST.MF"))
+			golden := getFileContent(getTestPath("golden_assembly_manifest_no_paths.mf"))
+			fmt.Println(actual)
+			fmt.Println(golden)
+			Ω(actual).Should(Equal(golden))
+		})
 		It("With resources", func() {
 			os.MkdirAll(getTestPath("result", "assembly-sample", "META-INF"), os.ModePerm)
 			os.MkdirAll(getTestPath("result", "assembly-sample", "web"), os.ModePerm)
@@ -56,6 +68,8 @@ var _ = Describe("manifest", func() {
 			Ω(setManifestDesc(&loc, &loc, mtaObj.Modules, mtaObj.Resources, []string{}, false)).Should(Succeed())
 			actual := getFileContent(getTestPath("result", "assembly-sample", "META-INF", "MANIFEST.MF"))
 			golden := getFileContent(getTestPath("golden_assembly_manifest.mf"))
+			fmt.Println(actual)
+			fmt.Println(golden)
 			Ω(actual).Should(Equal(golden))
 		})
 		It("With missing module path", func() {
