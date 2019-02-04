@@ -62,13 +62,16 @@ func setManifestDesc(ep dir.ITargetArtifacts, targetPathGetter dir.ITargetPath, 
 			return errors.Wrapf(err,
 				"failed to generate the manifest file when getting the %s module content type", mod.Name)
 		}
-		moduleEntry := entry{
-			EntryName:   mod.Name,
-			EntryPath:   getModulePath(mod, targetPathGetter),
-			ContentType: contentType,
-			EntryType:   moduleEntry,
+		modulePath := getModulePath(mod, targetPathGetter)
+		if modulePath != "" {
+			moduleEntry := entry{
+				EntryName:   mod.Name,
+				EntryPath:   modulePath,
+				ContentType: contentType,
+				EntryType:   moduleEntry,
+			}
+			entries = append(entries, moduleEntry)
 		}
-		entries = append(entries, moduleEntry)
 
 		if onlyModules {
 			continue
