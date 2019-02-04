@@ -84,15 +84,11 @@ For more information, see the command help output available via `mbt [command] -
  To install the multi-target application archive builder (MBT) tool:
   1. [Download](https://github.com/SAP/cloud-mta-build-tool/releases) the **latest** binary file according to your operating system.
   2. Extract the archive file to the folder where you want to install the tool.
-  3. Add the binary file to your `~/bin` path according to your operating system. 
-     
-   - Darwin / Linux
-  
-     - Copy the binary file to `~/usr/local/bin/` folder e.g. `cp mbt /usr/local/bin/`
-  
-   - Windows
-  
-     -  Copy the binary file to  `C:/Windows/mbt.exe` 
+  3. Add the binary file to your `~/bin` path according to your operating system:     
+        - Darwin / Linux
+          - Copy the binary file to the `~/usr/local/bin/` folder, for example: `cp mbt /usr/local/bin/`
+        - Windows
+          -  Copy the binary file to this location:  `C:/Windows/mbt.exe` 
     
 ## Contributions
 
