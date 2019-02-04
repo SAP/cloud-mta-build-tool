@@ -62,16 +62,8 @@ func setManifestDesc(ep dir.ITargetArtifacts, targetPathGetter dir.ITargetPath, 
 			return errors.Wrapf(err,
 				"failed to generate the manifest file when getting the %s module content type", mod.Name)
 		}
-		modulePath := getModulePath(mod, targetPathGetter)
-		if modulePath != "" {
-			moduleEntry := entry{
-				EntryName:   mod.Name,
-				EntryPath:   modulePath,
-				ContentType: contentType,
-				EntryType:   moduleEntry,
-			}
-			entries = append(entries, moduleEntry)
-		}
+
+		entries = addModuleEntry(targetPathGetter, entries, mod, contentType)
 
 		if onlyModules {
 			continue
@@ -96,6 +88,21 @@ func setManifestDesc(ep dir.ITargetArtifacts, targetPathGetter dir.ITargetPath, 
 	}
 
 	return genManifest(ep.GetManifestPath(), entries)
+}
+
+func addModuleEntry(targetPathGetter dir.ITargetPath, entries []entry, module *mta.Module, contentType string) []entry {
+	result := entries
+	modulePath := getModulePath(module, targetPathGetter)
+	if modulePath != "" {
+		moduleEntry := entry{
+			EntryName:   module.Name,
+			EntryPath:   modulePath,
+			ContentType: contentType,
+			EntryType:   moduleEntry,
+		}
+		result = append(entries, moduleEntry)
+	}
+	return result
 }
 
 func getResourcesEntries(targetPathGetter dir.ITargetPath, resources []*mta.Resource,
