@@ -137,10 +137,10 @@ module-types:
 		var config []byte
 
 		BeforeEach(func() {
-			config = make([]byte, len(CommandsConfig))
-			copy(config, CommandsConfig)
+			config = make([]byte, len(ModuleTypeConfig))
+			copy(config, ModuleTypeConfig)
 			// Simplified commands configuration (performance purposes). removed "npm prune --production"
-			CommandsConfig = []byte(`
+			ModuleTypeConfig = []byte(`
 module-types:
 - name: html5
   info: "installing module dependencies & execute grunt & remove dev dependencies"
@@ -154,8 +154,8 @@ module-types:
 		})
 
 		AfterEach(func() {
-			CommandsConfig = make([]byte, len(config))
-			copy(CommandsConfig, config)
+			ModuleTypeConfig = make([]byte, len(config))
+			copy(ModuleTypeConfig, config)
 		})
 
 		It("test", func() {
@@ -169,10 +169,10 @@ module-types:
 		var buildersConfig []byte
 
 		BeforeEach(func() {
-			moduleTypesConfig = make([]byte, len(CommandsConfig))
-			copy(moduleTypesConfig, CommandsConfig)
+			moduleTypesConfig = make([]byte, len(ModuleTypeConfig))
+			copy(moduleTypesConfig, ModuleTypeConfig)
 			// Simplified commands configuration (performance purposes). removed "npm prune --production"
-			CommandsConfig = []byte(`
+			ModuleTypeConfig = []byte(`
 module-types:
 - name: html5
   info: "installing module dependencies & execute grunt & remove dev dependencies"
@@ -180,9 +180,9 @@ module-types:
   type:
 `)
 
-			buildersConfig = make([]byte, len(CustomCommandsConfig))
-			copy(buildersConfig, CustomCommandsConfig)
-			CustomCommandsConfig = []byte(`
+			buildersConfig = make([]byte, len(BuilderTypeConfig))
+			copy(buildersConfig, BuilderTypeConfig)
+			BuilderTypeConfig = []byte(`
 builders:
 - name: html5
   info: "installing module dependencies & execute grunt & remove dev dependencies"
@@ -192,10 +192,10 @@ builders:
 		})
 
 		AfterEach(func() {
-			CommandsConfig = make([]byte, len(moduleTypesConfig))
-			copy(CommandsConfig, moduleTypesConfig)
-			CustomCommandsConfig = make([]byte, len(buildersConfig))
-			copy(CustomCommandsConfig, buildersConfig)
+			ModuleTypeConfig = make([]byte, len(moduleTypesConfig))
+			copy(ModuleTypeConfig, moduleTypesConfig)
+			BuilderTypeConfig = make([]byte, len(buildersConfig))
+			copy(BuilderTypeConfig, buildersConfig)
 		})
 
 		It("test", func() {
@@ -303,12 +303,12 @@ modules:
 
 		})
 		It("Invalid case - broken commands config", func() {
-			conf := CommandsConfig
-			CommandsConfig = []byte("wrong config")
+			conf := ModuleTypeConfig
+			ModuleTypeConfig = []byte("wrong config")
 			wd, _ := os.Getwd()
 			ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata")}
 			_, _, err := GetModuleAndCommands(&ep, "node-js")
-			CommandsConfig = conf
+			ModuleTypeConfig = conf
 			Ω(err).Should(HaveOccurred())
 		})
 	})
