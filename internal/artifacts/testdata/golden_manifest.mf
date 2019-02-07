@@ -1,5 +1,5 @@
 manifest-Version: 1.0
-Created-By: SAP Application Archive Builder 0.0.1
+Created-By: SAP Application Archive Builder 0.0.5
 
 Name: node-js/data.zip
 MTA-Module: node-js
