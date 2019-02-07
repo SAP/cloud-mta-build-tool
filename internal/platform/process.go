@@ -10,7 +10,7 @@ import (
 // Unmarshal - unmarshal platform config
 func Unmarshal(data []byte) (Platforms, error) {
 	platforms := Platforms{}
-	err := yaml.Unmarshal(data, &platforms)
+	err := yaml.UnmarshalStrict(data, &platforms)
 	if err != nil {
 		return platforms, errors.Wrap(err, "unmarshalling of the platforms failed")
 	}

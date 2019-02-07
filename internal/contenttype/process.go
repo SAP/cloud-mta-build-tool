@@ -10,7 +10,7 @@ import (
 // GetContentTypes - gets content types associated with files extensions from the configuration config_type_cgf.yaml
 func GetContentTypes() (*ContentTypes, error) {
 	contentTypes := ContentTypes{}
-	err := yaml.Unmarshal(ContentTypeConfig, &contentTypes)
+	err := yaml.UnmarshalStrict(ContentTypeConfig, &contentTypes)
 	if err != nil {
 		return &contentTypes, errors.Wrap(err, "unmarshalling of the content types configuration failed")
 	}

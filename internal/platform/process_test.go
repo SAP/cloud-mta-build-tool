@@ -52,6 +52,26 @@ platform:
 
 	})
 
+	It("Unmarshal - wrong elements", func() {
+		var platformsCfg = []byte(`
+platform:
+ - name: cf
+   modules:
+   - native-type: html5
+     platform-type: "javascript.nodejs"
+   - native-type: nodejs
+     platform-type: "javascript.nodejs"
+   - native-type: java
+     platform-type: "java.tomcat"
+   - native-type: hdb
+     platform-typex: "dbtype"
+`)
+		_, err := Unmarshal(platformsCfg)
+		Ω(err).Should(HaveOccurred())
+
+	})
+
+
 	var _ = DescribeTable("ConvertTypes", func(platform string) {
 		schemaVersion := "2.0.0"
 		mtaObj := mta.MTA{

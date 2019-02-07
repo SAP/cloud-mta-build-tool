@@ -145,9 +145,9 @@ func CopyDir(src string, dst string, withParents bool) error {
 		return err
 	}
 
-	if !withParents {
+	if !withParents && err != nil {
 		err = os.Mkdir(dst, os.ModePerm)
-	} else {
+	} else if err != nil {
 		err = os.MkdirAll(dst, os.ModePerm)
 	}
 	if err != nil {
