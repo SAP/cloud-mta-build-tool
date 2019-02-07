@@ -71,7 +71,6 @@ platform:
 
 	})
 
-
 	var _ = DescribeTable("ConvertTypes", func(platform string) {
 		schemaVersion := "2.0.0"
 		mtaObj := mta.MTA{

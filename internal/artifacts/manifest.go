@@ -153,7 +153,7 @@ func getContentType(targetPathGetter dir.ITargetPath, path string, contentTypes 
 	fullPath := filepath.Join(targetPathGetter.GetTargetTmpDir(), path)
 	info, err := os.Stat(fullPath)
 	if err != nil {
-		return "", fmt.Errorf("the %s path does not exist; the content type was not defined\n", targetPath)
+		return "", fmt.Errorf("the %s path does not exist; the content type was not defined", targetPath)
 	}
 
 	if info.IsDir() {

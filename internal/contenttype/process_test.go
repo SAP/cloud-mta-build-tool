@@ -12,7 +12,7 @@ var _ = Describe("Process", func() {
 		Ω(GetContentType(contentTypes, ".json")).Should(Equal("application/json"))
 		_, err = GetContentType(contentTypes, ".unknown")
 		Ω(err).Should(HaveOccurred())
-	}) 
+	})
 
 	It("content types - wrong config", func() {
 
