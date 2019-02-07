@@ -152,8 +152,7 @@ func createMakeFile(path, filename string) (file *os.File, err error) {
 	fullFilename := filepath.Join(path, filename)
 	var mf *os.File
 	if _, err = os.Stat(fullFilename); err == nil {
-		logs.Logger.Warn(fmt.Sprintf("generation of the make file failed because the %s file already exists", fullFilename))
-		return nil, nil
+		return nil, fmt.Errorf("generation of the make file failed because the %s file already exists", fullFilename)
 	}
 	mf, err = dir.CreateFile(fullFilename)
 	return mf, err
