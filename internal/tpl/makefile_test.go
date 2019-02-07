@@ -105,7 +105,8 @@ makefile_version: 0.0.0
 			Ω(file).ShouldNot(BeNil())
 			file.Close()
 			Ω(makeFilePath).Should(BeAnExistingFile())
-			Ω(createMakeFile(makeFilePath, makeFileName)).Should(BeNil())
+			_, err := createMakeFile(makeFilePath, makeFileName)
+			Ω(err).Should(HaveOccurred())
 		})
 		It("Sanity - Dev", func() {
 			ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata"), TargetPath: filepath.Join(wd, "testdata"), Descriptor: "dev"}
