@@ -40,6 +40,7 @@ func ExecuteMake(source, target, desc, mode string, wdGetter func() (string, err
 	if err != nil {
 		return err
 	}
+	logs.Logger.Info("done")
 	return nil
 }
 
