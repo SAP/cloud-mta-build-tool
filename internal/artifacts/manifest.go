@@ -49,7 +49,7 @@ func setManifestDesc(ep dir.ITargetArtifacts, targetPathGetter dir.ITargetPath, 
 	contentTypes, err := contenttype.GetContentTypes()
 	if err != nil {
 		return errors.Wrap(err,
-			"failed to generate the manifest file when getting the content types from the configuration")
+			"failed to generate the manifest file when getting the content types from the configuration\n")
 	}
 
 	var entries []entry
@@ -60,7 +60,7 @@ func setManifestDesc(ep dir.ITargetArtifacts, targetPathGetter dir.ITargetPath, 
 		contentType, err := getContentType(targetPathGetter, getModulePath(mod, targetPathGetter), contentTypes)
 		if err != nil {
 			return errors.Wrapf(err,
-				"failed to generate the manifest file when getting the %s module content type", mod.Name)
+				"failed to generate the manifest file when getting the %s module content type\n", mod.Name)
 		}
 
 		entries = addModuleEntry(targetPathGetter, entries, mod, contentType)
@@ -73,7 +73,7 @@ func setManifestDesc(ep dir.ITargetArtifacts, targetPathGetter dir.ITargetPath, 
 			buildEntries(targetPathGetter, mod, requiredDependenciesWithPath, contentTypes)
 		if err != nil {
 			return errors.Wrapf(err,
-				"failed to generate the manifest file when building the required entries of the %s module",
+				"failed to generate the manifest file when building the required entries of the %s module\n",
 				mod.Name)
 		}
 		entries = append(entries, requiredDependencyEntries...)
@@ -115,7 +115,7 @@ func getResourcesEntries(targetPathGetter dir.ITargetPath, resources []*mta.Reso
 		contentType, err := getContentType(targetPathGetter, getResourcePath(resource), contentTypes)
 		if err != nil {
 			return nil, errors.Wrapf(err,
-				"failed to generate the manifest file when getting the %s resource content type", resource.Name)
+				"failed to generate the manifest file when getting the %s resource content type\n", resource.Name)
 		}
 		resourceEntry := entry{
 			EntryName:   resource.Name,
@@ -153,7 +153,7 @@ func getContentType(targetPathGetter dir.ITargetPath, path string, contentTypes 
 	fullPath := filepath.Join(targetPathGetter.GetTargetTmpDir(), path)
 	info, err := os.Stat(fullPath)
 	if err != nil {
-		return "", fmt.Errorf("the %s path does not exist; the content type was not defined", targetPath)
+		return "", fmt.Errorf("the %s path does not exist; the content type was not defined\n", targetPath)
 	}
 
 	if info.IsDir() {
@@ -199,7 +199,7 @@ func genManifest(manifestPath string, entries []entry) (rerr error) {
 
 	v, err := version.GetVersion()
 	if err != nil {
-		return errors.Wrap(err, "failed to generate the manifest file when getting the CLI version")
+		return errors.Wrap(err, "failed to generate the manifest file when getting the CLI version\n")
 	}
 
 	funcMap := template.FuncMap{
@@ -211,7 +211,7 @@ func genManifest(manifestPath string, entries []entry) (rerr error) {
 		rerr = dir.CloseFile(out, rerr)
 	}()
 	if err != nil {
-		return errors.Wrap(err, "failed to generate the manifest file when initializing it")
+		return errors.Wrap(err, "failed to generate the manifest file when initializing it\n")
 	}
 	return populateManifest(out, funcMap)
 }
@@ -220,7 +220,7 @@ func populateManifest(file io.Writer, funcMap template.FuncMap) error {
 	t := template.Must(template.New("template").Parse(string(tpl.Manifest)))
 	err := t.Execute(file, funcMap)
 	if err != nil {
-		return errors.Wrap(err, "failed to generate the manifest file when populating the content")
+		return errors.Wrap(err, "failed to generate the manifest file when populating the content\n")
 	}
 
 	return nil
