@@ -80,10 +80,10 @@ var _ = Describe("Commands", func() {
 		var config []byte
 
 		BeforeEach(func() {
-			config = make([]byte, len(commands.CommandsConfig))
-			copy(config, commands.CommandsConfig)
+			config = make([]byte, len(commands.ModuleTypeConfig))
+			copy(config, commands.ModuleTypeConfig)
 			// Simplified commands configuration (performance purposes). removed "npm prune --production"
-			commands.CommandsConfig = []byte(`
+			commands.ModuleTypeConfig = []byte(`
 builders:
 - name: html5
   info: "installing module dependencies & execute grunt & remove dev dependencies"
@@ -98,8 +98,8 @@ builders:
 
 		AfterEach(func() {
 			os.RemoveAll(getTestPath("result"))
-			commands.CommandsConfig = make([]byte, len(config))
-			copy(commands.CommandsConfig, config)
+			commands.ModuleTypeConfig = make([]byte, len(config))
+			copy(commands.ModuleTypeConfig, config)
 		})
 
 		It("build Command", func() {

@@ -22,19 +22,19 @@ type CommandList struct {
 //noinspection GoExportedFuncWithUnexportedType
 func CommandProvider(modules mta.Module) (CommandList, error) {
 	// Get config from ./commands_cfg.yaml as generated artifacts from source
-	commands, err := parseModuleTypes(CommandsConfig)
+	moduleTypes, err := parseModuleTypes(ModuleTypeConfig)
 	if err != nil {
-		return CommandList{}, errors.Wrap(err, "failed to parse the commands configuration file")
+		return CommandList{}, errors.Wrap(err, "failed to parse the module types configuration")
 	}
-	customCommands, err := parseBuilders(CustomCommandsConfig)
+	builderTypes, err := parseBuilders(BuilderTypeConfig)
 	if err != nil {
-		return CommandList{}, errors.Wrap(err, "failed to parse the custom commands configuration file")
+		return CommandList{}, errors.Wrap(err, "failed to parse the builder types configuration")
 	}
-	return mesh(&modules, &commands, customCommands)
+	return mesh(&modules, &moduleTypes, builderTypes)
 }
 
 // Match the object according to type and provide the respective command
-func mesh(module *mta.Module, moduleTypes *ModuleTypes, customCommands Builders) (CommandList, error) {
+func mesh(module *mta.Module, moduleTypes *ModuleTypes, builderTypes Builders) (CommandList, error) {
 	// The object support deep struct for future use, can be simplified to flat object
 	var cmds CommandList
 	var commands []Commands
@@ -70,7 +70,7 @@ func mesh(module *mta.Module, moduleTypes *ModuleTypes, customCommands Builders)
 
 	if custom {
 		// custom builder used => get commands and info
-		commands, cmds.Info, err = getCustomCommandsByBuilder(customCommands, builder)
+		commands, cmds.Info, err = getCustomCommandsByBuilder(builderTypes, builder)
 		if err != nil {
 			return cmds, err
 		}

@@ -25,10 +25,10 @@ var _ = Describe("ModuleArch", func() {
 	var config []byte
 
 	BeforeEach(func() {
-		config = make([]byte, len(commands.CommandsConfig))
-		copy(config, commands.CommandsConfig)
+		config = make([]byte, len(commands.ModuleTypeConfig))
+		copy(config, commands.ModuleTypeConfig)
 		// Simplified commands configuration (performance purposes). removed "npm prune --production"
-		commands.CommandsConfig = []byte(`
+		commands.ModuleTypeConfig = []byte(`
 builders:
 - name: html5
   info: "installing module dependencies & execute grunt & remove dev dependencies"
@@ -42,8 +42,8 @@ builders:
 	})
 
 	AfterEach(func() {
-		commands.CommandsConfig = make([]byte, len(config))
-		copy(commands.CommandsConfig, config)
+		commands.ModuleTypeConfig = make([]byte, len(config))
+		copy(commands.ModuleTypeConfig, config)
 		os.RemoveAll(getResultPath())
 	})
 
@@ -161,10 +161,10 @@ builders:
 			var config []byte
 
 			BeforeEach(func() {
-				config = make([]byte, len(commands.CommandsConfig))
-				copy(config, commands.CommandsConfig)
+				config = make([]byte, len(commands.ModuleTypeConfig))
+				copy(config, commands.ModuleTypeConfig)
 				// Simplified commands configuration (performance purposes). removed "npm prune --production"
-				commands.CommandsConfig = []byte(`
+				commands.ModuleTypeConfig = []byte(`
 builders:
 - name: html5
   info: "installing module dependencies & execute grunt & remove dev dependencies"
@@ -184,7 +184,7 @@ builders:
 			})
 
 			It("Commands fail", func() {
-				commands.CommandsConfig = []byte(`
+				commands.ModuleTypeConfig = []byte(`
 module-types:
 - name: html5
   info: "installing module dependencies & execute grunt & remove dev dependencies"
