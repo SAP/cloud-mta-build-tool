@@ -37,7 +37,7 @@ For more information, see the command help output available via `mbt [command] -
 
 ## Roadmap
  
-### Milestone 1  - (Q1 - 2019)
+### Milestone 1  - (Q1-Q2 - 2019)
 
  - [x] Supports project-assembly-based deployment descriptors. 
  - [ ] Supports the building of HTML5 applications (non repo).
