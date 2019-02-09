@@ -13,4 +13,17 @@ var _ = Describe("Process", func() {
 		_, err = GetContentType(contentTypes, ".unknown")
 		Ω(err).Should(HaveOccurred())
 	})
+
+	It("content types - wrong config", func() {
+
+		cfg := ContentTypeConfig
+		ContentTypeConfig = []byte(`
+content-types:
+- extension: .json
+  content-typex: "application/json"
+`)
+		_, err := GetContentTypes()
+		Ω(err).Should(HaveOccurred())
+		ContentTypeConfig = cfg
+	})
 })
