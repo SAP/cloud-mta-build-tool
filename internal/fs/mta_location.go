@@ -14,6 +14,8 @@ const (
 	Dep = "dep"
 	//Dev - development descriptor
 	Dev  = "dev"
+	// TempFolderSuffix - temporary folder suffix
+	TempFolderSuffix = "_mta_build_tmp"
 	mtad = "mtad.yaml"
 )
 
@@ -108,6 +110,7 @@ func (ep *Loc) GetTarget() string {
 func (ep *Loc) GetTargetTmpDir() string {
 	source := ep.GetSource()
 	_, file := filepath.Split(source)
+	file = file + TempFolderSuffix
 	target := ep.GetTarget()
 	// append to the currentPath the file name
 	return filepath.Join(target, file)
