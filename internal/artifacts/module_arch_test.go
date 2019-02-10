@@ -292,7 +292,7 @@ module-types:
 			err := CopyMtaContent(source, source, defaultDeploymentDescriptorParam, os.Getwd)
 			Ω(err).Should((BeNil()))
 			info, _ := os.Stat(source)
-			Ω(dirContainsAllElements(source, map[string]bool{info.Name()+dir.TempFolderSuffix: true}, false)).Should(Equal(true))
+			Ω(dirContainsAllElements(source, map[string]bool{info.Name() + dir.TempFolderSuffix: true}, false)).Should(Equal(true))
 			Ω(dirContainsAllElements(filepath.Join(source, info.Name()+dir.TempFolderSuffix), map[string]bool{"test.zip": true, "test-content": true}, true)).Should(Equal(true))
 		})
 		It("With a deployment descriptor in the source directory with one module path and one resource path as zip archuve and a folder", func() {
@@ -303,7 +303,7 @@ module-types:
 			err := CopyMtaContent(source, source, defaultDeploymentDescriptorParam, os.Getwd)
 			Ω(err).Should((BeNil()))
 			info, _ := os.Stat(source)
-			Ω(dirContainsAllElements(source, map[string]bool{info.Name()+dir.TempFolderSuffix: true}, false)).Should(Equal(true))
+			Ω(dirContainsAllElements(source, map[string]bool{info.Name() + dir.TempFolderSuffix: true}, false)).Should(Equal(true))
 			Ω(dirContainsAllElements(filepath.Join(source, info.Name()+dir.TempFolderSuffix), map[string]bool{"test.zip": true, "test-content": true}, true)).Should(Equal(true))
 		})
 		It("With a deployment descriptor in the source directory with only resources with zip and module archives", func() {
@@ -314,7 +314,7 @@ module-types:
 			err := CopyMtaContent(source, source, defaultDeploymentDescriptorParam, os.Getwd)
 			Ω(err).Should((BeNil()))
 			info, _ := os.Stat(source)
-			Ω(dirContainsAllElements(source, map[string]bool{info.Name()+dir.TempFolderSuffix: true}, false)).Should(Equal(true))
+			Ω(dirContainsAllElements(source, map[string]bool{info.Name() + dir.TempFolderSuffix: true}, false)).Should(Equal(true))
 			Ω(dirContainsAllElements(filepath.Join(source, info.Name()+dir.TempFolderSuffix), map[string]bool{"test.zip": true, "test-content": true}, true)).Should(Equal(true))
 		})
 		It("With a deployment descriptor in the source directory with only resources with zip and module archives", func() {
@@ -325,7 +325,7 @@ module-types:
 			err := CopyMtaContent(source, source, defaultDeploymentDescriptorParam, os.Getwd)
 			Ω(err).Should((BeNil()))
 			info, _ := os.Stat(source)
-			Ω(dirContainsAllElements(source, map[string]bool{info.Name()+dir.TempFolderSuffix: true}, false)).Should(Equal(true))
+			Ω(dirContainsAllElements(source, map[string]bool{info.Name() + dir.TempFolderSuffix: true}, false)).Should(Equal(true))
 			Ω(dirContainsAllElements(filepath.Join(source, info.Name()+dir.TempFolderSuffix), map[string]bool{"test.zip": true}, true)).Should(Equal(true))
 		})
 
@@ -337,7 +337,7 @@ module-types:
 			err := CopyMtaContent(source, source, defaultDeploymentDescriptorParam, os.Getwd)
 			Ω(err).Should((BeNil()))
 			info, _ := os.Stat(source)
-			Ω(dirContainsAllElements(source, map[string]bool{info.Name()+dir.TempFolderSuffix: true}, false)).Should(Equal(true))
+			Ω(dirContainsAllElements(source, map[string]bool{info.Name() + dir.TempFolderSuffix: true}, false)).Should(Equal(true))
 			Ω(dirContainsAllElements(filepath.Join(source, info.Name()+dir.TempFolderSuffix), map[string]bool{"test.zip": true, "test-content": true}, true)).Should(Equal(true))
 		})
 		It("With a deployment descriptor in the source directory with only one module with zip and missing requiredDependency", func() {
@@ -359,7 +359,7 @@ module-types:
 			Ω(err).Should(Not(BeNil()))
 			Ω(err.Error()).Should(Equal("not-existing-content does not exist in the MTA project location"))
 			info, _ := os.Stat(source)
-			Ω(dirContainsAllElements(source, map[string]bool{info.Name()+dir.TempFolderSuffix: true}, false)).Should(Equal(false))
+			Ω(dirContainsAllElements(source, map[string]bool{info.Name() + dir.TempFolderSuffix: true}, false)).Should(Equal(false))
 			Ω(dirContainsAllElements(filepath.Join(source, info.Name()+dir.TempFolderSuffix), map[string]bool{}, true)).Should(Equal(true))
 		})
 
@@ -372,7 +372,7 @@ module-types:
 			Ω(err).Should(Not(BeNil()))
 			Ω(err.Error()).Should(Equal("not-existing-content does not exist in the MTA project location"))
 			info, _ := os.Stat(source)
-			Ω(dirContainsAllElements(source, map[string]bool{info.Name()+dir.TempFolderSuffix: true}, false)).Should(Equal(false))
+			Ω(dirContainsAllElements(source, map[string]bool{info.Name() + dir.TempFolderSuffix: true}, false)).Should(Equal(false))
 			Ω(dirContainsAllElements(filepath.Join(source, info.Name()+dir.TempFolderSuffix), map[string]bool{}, true)).Should(Equal(true))
 		})
 
@@ -388,7 +388,7 @@ module-types:
 			err := CopyMtaContent(source, source, defaultDeploymentDescriptorParam, os.Getwd)
 			Ω(err).Should((BeNil()))
 			info, _ := os.Stat(source)
-			Ω(dirContainsAllElements(source, map[string]bool{info.Name()+dir.TempFolderSuffix: true}, false)).Should(Equal(true))
+			Ω(dirContainsAllElements(source, map[string]bool{info.Name() + dir.TempFolderSuffix: true}, false)).Should(Equal(true))
 			Ω(dirContainsAllElements(filepath.Join(source, info.Name()+dir.TempFolderSuffix), map[string]bool{"test.zip": true}, true)).Should(Equal(true))
 		})
 

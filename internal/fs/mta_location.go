@@ -13,10 +13,10 @@ const (
 	//Dep - deployment descriptor
 	Dep = "dep"
 	//Dev - development descriptor
-	Dev  = "dev"
+	Dev = "dev"
 	// TempFolderSuffix - temporary folder suffix
 	TempFolderSuffix = "_mta_build_tmp"
-	mtad = "mtad.yaml"
+	mtad             = "mtad.yaml"
 )
 
 // IMtaParser - MTA Parser interface
