@@ -1,6 +1,5 @@
 [![CircleCI](https://circleci.com/gh/SAP/cloud-mta-build-tool.svg?style=svg&circle-token=ecedd1dce3592adcd72ee4c61481972c32dcfad7)](https://circleci.com/gh/SAP/cloud-mta-build-tool)
 [![Go Report Card](https://goreportcard.com/badge/github.com/SAP/cloud-mta-build-tool)](https://goreportcard.com/report/github.com/SAP/cloud-mta-build-tool)
-[![Coverage Status](https://coveralls.io/repos/github/SAP/cloud-mta-build-tool/badge.svg?branch=cover)](https://coveralls.io/github/SAP/cloud-mta-build-tool?branch=cover)
 ![GitHub license](https://img.shields.io/badge/license-Apache_2.0-blue.svg)
 ![pre-alpha](https://img.shields.io/badge/Release-pre--alpha-orange.svg)
 
@@ -35,9 +34,8 @@ For background and detailed information, see the [Multi-Target Application Model
 
 For more information, see the command help output available via `mbt [command] --help` or `mbt [command] -h`.
 
-## Roadmap
 
-### Milestone 1  - (Q1 - 2019)
+### Milestone 1  - (Q1-Q2 - 2019)
 
  - [x] Supports project-assembly-based deployment descriptors.
  - [ ] Supports the building of HTML5 applications (non repo).

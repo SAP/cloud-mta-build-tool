@@ -19,7 +19,7 @@ var _ = Describe("Cleanup", func() {
 	})
 	It("Sanity", func() {
 		Ω(ExecuteCleanup(getTestPath("mtahtml5"), getResultPath(), "dev", os.Getwd)).Should(Succeed())
-		Ω(getTestPath("result", "mtahtml5")).ShouldNot(BeADirectory())
+		Ω(getTestPath("result", "mtahtml5_mta_build_tmp")).ShouldNot(BeADirectory())
 	})
 	It("Fails on location initialization", func() {
 		Ω(ExecuteCleanup("", getTestPath("result"), "dev", func() (string, error) {
