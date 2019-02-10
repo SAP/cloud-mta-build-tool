@@ -27,7 +27,7 @@ var _ = Describe("Mtad", func() {
 	var _ = Describe("ExecuteGenMtad", func() {
 		It("Sanity", func() {
 			Ω(ExecuteGenMtad(getTestPath("mta"), getTestPath("resultMtad"), "dev", "cf", os.Getwd)).Should(Succeed())
-			Ω(getTestPath("resultMtad", "mta", "META-INF", "mtad.yaml")).Should(BeAnExistingFile())
+			Ω(getTestPath("resultMtad", "mta_mta_build_tmp", "META-INF", "mtad.yaml")).Should(BeAnExistingFile())
 		})
 		It("Fails on location initialization", func() {
 			Ω(ExecuteGenMtad("", getTestPath("resultMtad"), "dev", "cf", func() (string, error) {

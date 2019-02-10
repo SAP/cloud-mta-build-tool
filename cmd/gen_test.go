@@ -37,8 +37,8 @@ var _ = Describe("Commands", func() {
 		})
 
 		It("Generate Meta", func() {
-			os.MkdirAll(getTestPath("result", "mtahtml5", "testapp"), os.ModePerm)
-			os.MkdirAll(getTestPath("result", "mtahtml5", "ui5app2"), os.ModePerm)
+			os.MkdirAll(getTestPath("result", "mtahtml5_mta_build_tmp", "testapp"), os.ModePerm)
+			os.MkdirAll(getTestPath("result", "mtahtml5_mta_build_tmp", "ui5app2"), os.ModePerm)
 			metaCmdSrc = getTestPath("mtahtml5")
 			ep = dir.Loc{SourcePath: metaCmdSrc, TargetPath: metaCmdTrg}
 			Ω(metaCmd.RunE(nil, []string{})).Should(Succeed())
@@ -68,8 +68,8 @@ var _ = Describe("Commands", func() {
 			platform.PlatformConfig = config
 		})
 		It("Generate Mtar", func() {
-			os.MkdirAll(getTestPath("result", "mtahtml5", "testapp"), os.ModePerm)
-			os.MkdirAll(getTestPath("result", "mtahtml5", "ui5app2"), os.ModePerm)
+			os.MkdirAll(getTestPath("result", "mtahtml5_mta_build_tmp", "testapp"), os.ModePerm)
+			os.MkdirAll(getTestPath("result", "mtahtml5_mta_build_tmp", "ui5app2"), os.ModePerm)
 			mtarCmdSrc = getTestPath("mtahtml5")
 			Ω(metaCmd.RunE(nil, []string{})).Should(Succeed())
 			Ω(mtarCmd.RunE(nil, []string{})).Should(Succeed())
