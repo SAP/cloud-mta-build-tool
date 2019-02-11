@@ -79,7 +79,7 @@ var _ = Describe("manifest", func() {
 			Ω(err).Should(Succeed())
 			err = setManifestDesc(&loc, &loc, mtaObj.Modules, mtaObj.Resources, []string{}, false)
 			Ω(err).Should(HaveOccurred())
-			Ω(err.Error()).Should(ContainSubstring("failed to generate the manifest file when getting the java-hello-world module content type"))
+			Ω(err.Error()).Should(ContainSubstring(`failed to generate the manifest file when getting the "java-hello-world" module content type`))
 		})
 		It("With missing resource", func() {
 			os.MkdirAll(getTestPath("result1", "assembly-sample_mta_build_tmp", "META-INF"), os.ModePerm)
@@ -90,7 +90,7 @@ var _ = Describe("manifest", func() {
 			Ω(err).Should(Succeed())
 			err = setManifestDesc(&loc, &loc, mtaObj.Modules, mtaObj.Resources, []string{}, false)
 			Ω(err).Should(HaveOccurred())
-			Ω(err.Error()).Should(ContainSubstring("failed to generate the manifest file when getting the java-uaa resource content type"))
+			Ω(err.Error()).Should(ContainSubstring(`failed to generate the manifest file when getting the "java-uaa" resource content type`))
 
 		})
 		It("With missing requirement", func() {
@@ -103,7 +103,7 @@ var _ = Describe("manifest", func() {
 			err = setManifestDesc(&loc, &loc, mtaObj.Modules, mtaObj.Resources, []string{}, false)
 			Ω(err).Should(HaveOccurred())
 			Ω(err.Error()).Should(
-				ContainSubstring("failed to generate the manifest file when building the required entries of the java-hello-world-backend module"))
+				ContainSubstring(`failed to generate the manifest file when building the required entries of the "java-hello-world-backend" module`))
 
 		})
 	})

@@ -274,7 +274,7 @@ module-types:
 			err := CopyMtaContent(source, source, defaultDeploymentDescriptorParam, os.Getwd)
 			Ω(err).Should(Not(BeNil()))
 			fmt.Println(err.Error())
-			Ω(err.Error()).Should(ContainSubstring(fmt.Sprintf("failed to read the %s%smtad.yaml file: open %s%smtad.yaml", source, pathSep, source, pathSep)))
+			Ω(err.Error()).Should(ContainSubstring(fmt.Sprintf(`failed to read the "%s%smtad.yaml" file: open %s%smtad.yaml`, source, pathSep, source, pathSep)))
 		})
 		It("Location initialization fails", func() {
 			err := CopyMtaContent("", source, defaultDeploymentDescriptorParam, func() (string, error) {
@@ -357,7 +357,7 @@ module-types:
 			ioutil.WriteFile(filepath.Join(source, defaultDeploymentDescriptorName), mtaBytes, os.ModePerm)
 			err := CopyMtaContent(source, source, defaultDeploymentDescriptorParam, os.Getwd)
 			Ω(err).Should(Not(BeNil()))
-			Ω(err.Error()).Should(Equal("not-existing-content does not exist in the MTA project location"))
+			Ω(err.Error()).Should(Equal(`"not-existing-content" does not exist in the MTA project location`))
 			info, _ := os.Stat(source)
 			Ω(dirContainsAllElements(source, map[string]bool{info.Name() + dir.TempFolderSuffix: true}, false)).Should(Equal(false))
 			Ω(dirContainsAllElements(filepath.Join(source, info.Name()+dir.TempFolderSuffix), map[string]bool{}, true)).Should(Equal(true))
@@ -370,7 +370,7 @@ module-types:
 			ioutil.WriteFile(filepath.Join(source, defaultDeploymentDescriptorName), mtaBytes, os.ModePerm)
 			err := CopyMtaContent(source, source, defaultDeploymentDescriptorParam, os.Getwd)
 			Ω(err).Should(Not(BeNil()))
-			Ω(err.Error()).Should(Equal("not-existing-content does not exist in the MTA project location"))
+			Ω(err.Error()).Should(Equal(`"not-existing-content" does not exist in the MTA project location`))
 			info, _ := os.Stat(source)
 			Ω(dirContainsAllElements(source, map[string]bool{info.Name() + dir.TempFolderSuffix: true}, false)).Should(Equal(false))
 			Ω(dirContainsAllElements(filepath.Join(source, info.Name()+dir.TempFolderSuffix), map[string]bool{}, true)).Should(Equal(true))

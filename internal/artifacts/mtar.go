@@ -16,7 +16,7 @@ const (
 
 // ExecuteGenMtar - generates MTAR
 func ExecuteGenMtar(source, target, desc string, wdGetter func() (string, error)) error {
-	logs.Logger.Info("generating the MTA archive")
+	logs.Logger.Info("generating the MTA archive...")
 	loc, err := dir.Location(source, target, desc, wdGetter)
 	if err != nil {
 		return errors.Wrap(err, "generation of the MTA archive failed when initializing the location")
@@ -44,7 +44,8 @@ func generateMtar(targetLoc dir.ITargetPath, parser dir.IMtaParser) (string, err
 	mtarFolderPath := filepath.Join(targetLoc.GetTarget(), mtarFolder)
 	err = dir.CreateDirIfNotExist(mtarFolderPath)
 	if err != nil {
-		return "", errors.Wrap(err, "generation of the MTA archive failed when creating the mta_archives folder")
+		return "", errors.Wrap(err,
+			`generation of the MTA archive failed when creating the "mta_archives" folder`)
 	}
 	// archive building artifacts to mtar
 	mtarPath := filepath.Join(mtarFolderPath, m.ID+"_"+m.Version+mtarExtension)

@@ -93,14 +93,14 @@ func ProcessRequirements(ep dir.ISourceModule, mta *mta.MTA, requires *BuildRequ
 	module, err := mta.GetModuleByName(moduleName)
 	if err != nil {
 		return errors.Wrapf(err,
-			"processing requirements of the %v module based on the %v module failed when getting the %v module",
+			`processing requirements of the "%v" module based on the "%v" module failed when getting the "%v" module`,
 			moduleName, requires.Name, moduleName)
 	}
 
 	requiredModule, err := mta.GetModuleByName(requires.Name)
 	if err != nil {
 		return errors.Wrapf(err,
-			"processing requirements of the %v module based on the %v module failed when getting the %v module",
+			`processing requirements of the "%v" module based on the "%v" module failed when getting the "%v" module`,
 			moduleName, requires.Name, requires.Name)
 	}
 
@@ -112,7 +112,7 @@ func ProcessRequirements(ep dir.ISourceModule, mta *mta.MTA, requires *BuildRequ
 	err = dir.CopyByPatterns(sourcePath, targetPath, requires.Artifacts)
 	if err != nil {
 		return errors.Wrapf(err,
-			"processing requirements of the %v module based on the %v module failed when copying artifacts",
+			`processing requirements of the "%v" module based on the "%v" module failed when copying artifacts`,
 			moduleName, requiredModule.Name)
 	}
 	return nil
