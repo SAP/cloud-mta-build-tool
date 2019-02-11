@@ -73,7 +73,7 @@ func setManifestDesc(ep dir.ITargetArtifacts, targetPathGetter dir.ITargetPath, 
 			buildEntries(targetPathGetter, mod, requiredDependenciesWithPath, contentTypes)
 		if err != nil {
 			return errors.Wrapf(err,
-					`failed to generate the manifest file when building the required entries of the "%s" module`,
+				`failed to generate the manifest file when building the required entries of the "%s" module`,
 				mod.Name)
 		}
 		entries = append(entries, requiredDependencyEntries...)

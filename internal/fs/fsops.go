@@ -271,8 +271,8 @@ func CopyEntries(entries []os.FileInfo, src, dst string) (rerr error) {
 				// Todo check posix compatibility
 				if e.Mode()&os.ModeSymlink != 0 {
 					logs.Logger.Infof(
-							`copying of the entries from the "%v" folder to the "%v" folder skipped the "%v" entry because its mode is a symbolic link`,
-							src, dst, e.Name())
+						`copying of the entries from the "%v" folder to the "%v" folder skipped the "%v" entry because its mode is a symbolic link`,
+						src, dst, e.Name())
 				} else {
 					err = CopyFileWithMode(srcPath, dstPath, e.Mode())
 				}
