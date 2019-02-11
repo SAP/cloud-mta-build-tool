@@ -38,14 +38,14 @@ func genConf(source string, target, packageName, varName string) (e error) {
 	// Read the config file
 	inData, err := ioutil.ReadFile(source)
 	if err != nil {
-		return errors.Wrapf(err, "configuration generation failed when reading the %s file", source)
+		return errors.Wrapf(err, `configuration generation failed when reading the "%s" file`, source)
 	}
 	out, err := os.Create(target)
 	defer func() {
 		e = dir.CloseFile(out, e)
 	}()
 	if err != nil {
-		return errors.Wrapf(err, "configuration generation failed when creating the %s file\n", target)
+		return errors.Wrapf(err, `configuration generation failed when creating the "%s" file`, target)
 	}
 	t := template.Must(template.New("config.tpl").ParseFiles(filepath.Join(templatePath, "config.tpl")))
 	err = t.Execute(out, configInfo{PackageName: packageName, VarName: varName, Data: fmt.Sprintf("%#v", inData)})

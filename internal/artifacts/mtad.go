@@ -24,12 +24,12 @@ func ExecuteGenMtad(source, target, desc, platform string, wdGetter func() (stri
 
 	mtaStr, err := loc.ParseFile()
 	if err != nil {
-		return errors.Wrapf(err, "generation of the MTAD file failed when parsing the %v file", loc.GetMtaYamlFilename())
+		return errors.Wrapf(err, `generation of the MTAD file failed when parsing the "%v" file`, loc.GetMtaYamlFilename())
 	}
 
 	mtaExt, err := loc.ParseExtFile(platform)
 	if err != nil {
-		return errors.Wrapf(err, "generation of the MTAD file failed when parsing the %v file", loc.GetMtaExtYamlPath(platform))
+		return errors.Wrapf(err, `generation of the MTAD file failed when parsing the "%v" file`, loc.GetMtaExtYamlPath(platform))
 	}
 
 	mta.Merge(mtaStr, mtaExt)
@@ -49,12 +49,14 @@ func genMtad(mtaStr *mta.MTA, ep dir.ITargetArtifacts, deploymentDesc bool, plat
 	metaPath := ep.GetMetaPath()
 	err := dir.CreateDirIfNotExist(metaPath)
 	if err != nil {
-		logs.Logger.Infof("the %v folder already exists", metaPath)
+		logs.Logger.Infof(`the "%v" folder already exists`, metaPath)
 	}
 	if !deploymentDesc {
 		err = ConvertTypes(*mtaStr, platform)
 		if err != nil {
-			return errors.Wrapf(err, "generation of the MTAD file failed when converting types according to the %v platform", platform)
+			return errors.Wrapf(err,
+				`generation of the MTAD file failed when converting types according to the "%v" platform`,
+				platform)
 		}
 	}
 	// Create readable Yaml before writing to file

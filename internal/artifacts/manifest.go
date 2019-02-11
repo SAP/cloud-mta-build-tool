@@ -60,7 +60,7 @@ func setManifestDesc(ep dir.ITargetArtifacts, targetPathGetter dir.ITargetPath, 
 		contentType, err := getContentType(targetPathGetter, getModulePath(mod, targetPathGetter), contentTypes)
 		if err != nil {
 			return errors.Wrapf(err,
-				"failed to generate the manifest file when getting the %s module content type", mod.Name)
+				`failed to generate the manifest file when getting the "%s" module content type`, mod.Name)
 		}
 
 		entries = addModuleEntry(targetPathGetter, entries, mod, contentType)
@@ -73,7 +73,7 @@ func setManifestDesc(ep dir.ITargetArtifacts, targetPathGetter dir.ITargetPath, 
 			buildEntries(targetPathGetter, mod, requiredDependenciesWithPath, contentTypes)
 		if err != nil {
 			return errors.Wrapf(err,
-				"failed to generate the manifest file when building the required entries of the %s module",
+					`failed to generate the manifest file when building the required entries of the "%s" module`,
 				mod.Name)
 		}
 		entries = append(entries, requiredDependencyEntries...)
@@ -115,7 +115,7 @@ func getResourcesEntries(targetPathGetter dir.ITargetPath, resources []*mta.Reso
 		contentType, err := getContentType(targetPathGetter, getResourcePath(resource), contentTypes)
 		if err != nil {
 			return nil, errors.Wrapf(err,
-				"failed to generate the manifest file when getting the %s resource content type", resource.Name)
+				`failed to generate the manifest file when getting the "%s" resource content type`, resource.Name)
 		}
 		resourceEntry := entry{
 			EntryName:   resource.Name,
@@ -149,11 +149,10 @@ func buildEntries(targetPathGetter dir.ITargetPath, module *mta.Module,
 }
 
 func getContentType(targetPathGetter dir.ITargetPath, path string, contentTypes *contenttype.ContentTypes) (string, error) {
-	targetPath := filepath.Join(targetPathGetter.GetTargetTmpDir(), path)
 	fullPath := filepath.Join(targetPathGetter.GetTargetTmpDir(), path)
 	info, err := os.Stat(fullPath)
 	if err != nil {
-		return "", fmt.Errorf("the %s path does not exist; the content type was not defined", targetPath)
+		return "", fmt.Errorf(`the "%s" path does not exist; the content type was not defined`, fullPath)
 	}
 
 	if info.IsDir() {

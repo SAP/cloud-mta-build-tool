@@ -24,5 +24,5 @@ func GetContentType(cfg *ContentTypes, extension string) (string, error) {
 			return ct.ContentType, nil
 		}
 	}
-	return "", fmt.Errorf("content type for the %s extension is not defined", extension)
+	return "", fmt.Errorf(`content type for the "%s" extension is not defined`, extension)
 }
