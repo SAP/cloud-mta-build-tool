@@ -1,0 +1,29 @@
+{
+  "name": "cloud-mta-build-tool",
+  "version": "0.0.5",
+  "description": "[![CircleCI](https://circleci.com/gh/SAP/cloud-mta-build-tool.svg?style=svg&circle-token=ecedd1dce3592adcd72ee4c61481972c32dcfad7)](https://circleci.com/gh/SAP/cloud-mta-build-tool) [![Go Report Card](https://goreportcard.com/badge/github.com/SAP/cloud-mta-build-tool)](https://goreportcard.com/report/github.com/SAP/cloud-mta-build-tool) [![Coverage Status](https://coveralls.io/repos/github/SAP/cloud-mta-build-tool/badge.svg?branch=cover)](https://coveralls.io/github/SAP/cloud-mta-build-tool?branch=cover) ![GitHub license](https://img.shields.io/badge/license-Apache_2.0-blue.svg) ![pre-alpha](https://img.shields.io/badge/Release-pre--alpha-orange.svg)",
+  "main": "index.js",
+  "files": [],
+  "goBinary": {
+    "name": "mbt",
+    "path": "./bin",
+    "url": "https://github.com/SAP/cloud-mta-build-tool/releases/download/v{{version}}/cloud-mta-build-tool_{{version}}_{{platform}}_{{arch}}.tar.gz"
+  },
+  "scripts": {
+    "postinstall": "go-npm install",
+    "preuninstall": "go-npm uninstall"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SAP/cloud-mta-build-tool.git"
+  },
+  "author": "SAP SE",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/SAP/cloud-mta-build-tool/issues"
+  },
+  "homepage": "https://github.com/SAP/cloud-mta-build-tool#readme",
+  "dependencies": {
+    "go-npm": "^0.1.9"
+  }
+}
