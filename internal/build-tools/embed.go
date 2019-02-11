@@ -38,7 +38,7 @@ func genConf(source string, target, packageName, varName string) (e error) {
 	// Read the config file
 	inData, err := ioutil.ReadFile(source)
 	if err != nil {
-		return errors.Wrapf(err, "configuration generation failed when reading the %s file\n", source)
+		return errors.Wrapf(err, "configuration generation failed when reading the %s file", source)
 	}
 	out, err := os.Create(target)
 	defer func() {
@@ -50,7 +50,7 @@ func genConf(source string, target, packageName, varName string) (e error) {
 	t := template.Must(template.New("config.tpl").ParseFiles(filepath.Join(templatePath, "config.tpl")))
 	err = t.Execute(out, configInfo{PackageName: packageName, VarName: varName, Data: fmt.Sprintf("%#v", inData)})
 	if err != nil {
-		return errors.Wrapf(err, "configuration generation failed when populating the content\n")
+		return errors.Wrapf(err, "configuration generation failed when populating the content")
 	}
 	return nil
 }

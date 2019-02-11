@@ -49,12 +49,12 @@ func executeCommand(cmd *exec.Cmd) error {
 	// During the running process get the standard output
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
-		return errors.Wrapf(err, "execution of the %s command failed when getting the stdout pipe\n", cmd.Path)
+		return errors.Wrapf(err, "execution of the %s command failed when getting the stdout pipe", cmd.Path)
 	}
 	// During the running process get the standard output
 	stderr, err := cmd.StderrPipe()
 	if err != nil {
-		return errors.Wrapf(err, "execution of the %s command failed when getting the stderr pipe\n", cmd.Path)
+		return errors.Wrapf(err, "execution of the %s command failed when getting the stderr pipe", cmd.Path)
 	}
 
 	// Start indicator
@@ -63,7 +63,7 @@ func executeCommand(cmd *exec.Cmd) error {
 
 	// Execute the process immediately
 	if err = cmd.Start(); err != nil {
-		return errors.Wrapf(err, "execution of the %v command failed when starting\n", cmd.Path)
+		return errors.Wrapf(err, "execution of the %v command failed when starting", cmd.Path)
 	}
 	// Stream command output:
 	// Creates a bufio.Scanner that will read from the pipe
@@ -72,18 +72,18 @@ func executeCommand(cmd *exec.Cmd) error {
 
 	if scanerr.Err() != nil {
 		return errors.Wrapf(err,
-			"execution of the %v command failed when scanning the stdout and stderr pipes\n", cmd.Path)
+			"execution of the %v command failed when scanning the stdout and stderr pipes", cmd.Path)
 	}
 
 	if scanout.Err() != nil {
 		return errors.Wrapf(err,
-			"execution of the %v command failed when receiving an error from the scanout object\n", cmd.Path)
+			"execution of the %v command failed when receiving an error from the scanout object", cmd.Path)
 	}
 
 	// Get execution success or failure:
 	if err = cmd.Wait(); err != nil {
 		return errors.Wrapf(err,
-			"execution of the %v command failed while waiting for finish\n", cmd.Path)
+			"execution of the %v command failed while waiting for finish", cmd.Path)
 	}
 	close(shutdownCh) // Signal indicator() to terminate
 	return nil
