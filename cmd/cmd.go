@@ -83,6 +83,22 @@ var versionCmd = &cobra.Command{
 	},
 }
 
+// Cleanup temp artifacts
+var cleanupCmd = &cobra.Command{
+	Use:   "clean",
+	Short: "clean MBT artifacts",
+	Long:  "clean MBT temporary created artifacts",
+	Args:  cobra.NoArgs,
+	RunE: func(cmd *cobra.Command, args []string) error {
+		// Remove temp folder
+		err := artifacts.ExecuteCleanup(cleanupCmdSrc, cleanupCmdTrg, cleanupCmdDesc, os.Getwd)
+		logError(err)
+		return err
+	},
+	SilenceUsage:  true,
+	SilenceErrors: true,
+}
+
 // Validate mta.yaml
 var validateCmd = &cobra.Command{
 	Use:   "validate",
@@ -91,22 +107,6 @@ var validateCmd = &cobra.Command{
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		err := artifacts.ExecuteValidation(validateCmdSrc, validateCmdDesc, validateCmdMode, os.Getwd)
-		logError(err)
-		return err
-	},
-	SilenceUsage:  true,
-	SilenceErrors: true,
-}
-
-// Cleanup temp artifacts
-var cleanupCmd = &cobra.Command{
-	Use:   "cleanup",
-	Short: "cleanups MBT artifacts",
-	Long:  "cleanups MBT temporary created artifacts",
-	Args:  cobra.NoArgs,
-	RunE: func(cmd *cobra.Command, args []string) error {
-		// Remove temp folder
-		err := artifacts.ExecuteCleanup(cleanupCmdSrc, cleanupCmdTrg, cleanupCmdDesc, os.Getwd)
 		logError(err)
 		return err
 	},
