@@ -3,7 +3,7 @@
 ##Execute module build
 define build_rule
 $(1):
-	@mbt module build -m=$(1) -d=dev -p=${p} -t=${t}
+	@mbt module build -m=$(1) -d=dev -p=${p} -t="${t}"
 endef
 
 $(foreach mod,$(modules),$(eval $(call build_rule,$(mod))))
