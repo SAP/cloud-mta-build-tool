@@ -8,6 +8,6 @@ modules = {{- range .File.Modules}} {{.Name}}{{end}}
 {{.Name}}:
 {{"\t"}}@cd $(PROJ_DIR)/{{.Path}} && {{with $cmds := CommandProvider .}}{{range $i, $cmd:=$cmds.Command}}{{if gt $i 0 }} && {{end}}{{.}}{{end}}{{end}}
 # Pack module build artifacts
-{{"\t"}}@mbt module pack -m={{.Name}} -p=${p} -t=${t}
+{{"\t"}}@mbt module pack -m={{.Name}} -p=${p} -t="${t}"
 {{end}}
 {{template "base_post" .}}
