@@ -114,7 +114,7 @@ func packModule(ep dir.IModule, deploymentDesc bool, module *mta.Module, moduleN
 	// Get module relative path
 	moduleZipPath := ep.GetTargetModuleDir(moduleName)
 
-	logs.Logger.Info(fmt.Sprintf(`the "%v" module will be packed and saved in the "%v" folder`, moduleName, moduleZipPath))
+	logs.Logger.Info(fmt.Sprintf(`the build results of the "%v" module will be packed and saved in the "%v" folder`, moduleName, moduleZipPath))
 	// Create empty folder with name as before the zip process
 	// to put the file such as data.zip inside
 	err := os.MkdirAll(moduleZipPath, os.ModePerm)

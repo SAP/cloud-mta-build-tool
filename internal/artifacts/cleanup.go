@@ -11,7 +11,7 @@ import (
 
 // ExecuteCleanup - cleanups temp artifacts
 func ExecuteCleanup(source, target, desc string, wdGetter func() (string, error)) error {
-	logs.Logger.Info("cleaning temporary generated files...")
+	logs.Logger.Info("cleaning temporary files...")
 	// Remove temp folder
 	loc, err := dir.Location(source, target, desc, wdGetter)
 	if err != nil {
