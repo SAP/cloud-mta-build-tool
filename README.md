@@ -92,7 +92,7 @@ For more information, see the command help output available via `mbt [command] -
 
 **Use npm**:
 ```
-npm install -g cloud-mta-build-tool
+npm install -g mbt
 ```
 
 ## Contributions
