@@ -13,6 +13,7 @@ import (
 
 	"github.com/SAP/cloud-mta-build-tool/internal/fs"
 	"github.com/SAP/cloud-mta/mta"
+	"io/ioutil"
 )
 
 var _ = Describe("ModulesDeps", func() {
@@ -67,8 +68,13 @@ var _ = Describe("ModulesDeps", func() {
 			mtaStr := &mta.MTA{Modules: []*mta.Module{{Name: "someproj-db"}, {Name: "someproj-java"}}}
 			Ω(GetModulesNames(mtaStr)).Should(Equal([]string{"someproj-db", "someproj-java"}))
 		})
+		It("Required module not defined", func() {
+			mtaContent, _ := ioutil.ReadFile(getTestPath("mtahtml5", "mtaRequiredModuleNotDefined.yaml"))
+			mtaStr, _ := mta.Unmarshal(mtaContent)
+			_, err := GetModulesNames(mtaStr)
+			Ω(err.Error()).Should(Equal("the abc module is not defined "))
+		})
 	})
-
 })
 
 func executeAndProvideOutput(execute func()) string {
