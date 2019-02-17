@@ -18,7 +18,7 @@ import (
 
 var _ = Describe("ModulesDeps", func() {
 
-	var _ = Describe("Process Dependencies", func() {
+	var _ = Describe("Process Dependencies test", func() {
 		AfterEach(func() {
 			os.RemoveAll(getTestPath("result"))
 		})
