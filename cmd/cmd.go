@@ -18,6 +18,7 @@ var cleanupCmdDesc string
 var validateCmdSrc string
 var validateCmdDesc string
 var validateCmdMode string
+var validateCmdStrict string
 
 // init - init commands tree and first level commands flags
 func init() {
@@ -46,6 +47,8 @@ func init() {
 		"the validation mode; supported values: schema, semantic (default)")
 	validateCmd.Flags().StringVarP(&validateCmdDesc, "desc", "d", "",
 		"the MTA descriptor; supported values: dev (development descriptor, default value) and dep (deployment descriptor)")
+	validateCmd.Flags().StringVarP(&validateCmdStrict, "strict", "r", "",
+		"the strictness indicator; supported values: true (strict, default value) and false (not strict)")
 }
 
 // generateCmd - Parent of all generation commands
@@ -106,7 +109,7 @@ var validateCmd = &cobra.Command{
 	Long:  "MBT validation",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		err := artifacts.ExecuteValidation(validateCmdSrc, validateCmdDesc, validateCmdMode, os.Getwd)
+		err := artifacts.ExecuteValidation(validateCmdSrc, validateCmdDesc, validateCmdMode, validateCmdStrict, os.Getwd)
 		logError(err)
 		return err
 	},

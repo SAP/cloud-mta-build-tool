@@ -5,6 +5,9 @@ endif
 ifndef t
 t=$(CURDIR)
 endif
+ifndef strict
+strict=true
+endif
 # Determine OS cores
 NPROCS = $(shell echo %NUMBER_OF_PROCESSORS%)
 MAKEFLAGS += -j$(NPROCS)
@@ -14,7 +17,7 @@ MAKEFLAGS += -j$(NPROCS)
 all: validate ui meta mtar cleanup
 # Validate mta.yaml
 validate:
-	@mbt validate -d=dev
+	@mbt validate -d=dev -strict=${strict}
 # Set the current project repository path for general mta process
   PROJ_DIR := $(CURDIR)
 
