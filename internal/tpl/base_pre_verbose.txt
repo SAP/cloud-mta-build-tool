@@ -18,7 +18,7 @@ endif
 all: validate {{- range .File.Modules}} {{.Name}}{{end}} meta mtar cleanup
 # Validate mta.yaml
 validate:
-{{"\t"}}@mbt validate -d={{.Dep}} -strict=${strict}
+{{"\t"}}@mbt validate -d={{.Dep}} -r=${strict}
 # Set the current project repository path for general mta process
   PROJ_DIR := $(CURDIR)
 {{end}}
