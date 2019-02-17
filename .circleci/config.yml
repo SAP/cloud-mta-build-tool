@@ -3,7 +3,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/golang:1.11.3
+      - image: circleci/golang:1.11.4
     environment:
       - DEP_VERSION: 0.5.0
     working_directory: /go/src/github.com/SAP/cloud-mta-build-tool
@@ -11,7 +11,12 @@ jobs:
       - checkout
       - run: go version
       - run: go env
-      - run: go get -v -t -d ./...
+      - run:
+          name: Install dependencies
+          command: |
+            apk update && apk add curl git build-base bash
+            curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+            dep ensure
       - run: go test -v ./...
       - run: sudo chown circleci:circleci /go/bin
       - run: make tools
