@@ -80,6 +80,10 @@ func getModulesOrder(m *mta.MTA) ([]string, error) {
 		requires := getBuildRequires(module)
 		if requires != nil {
 			for _, req := range requires {
+				_, err := m.GetModuleByName(req.Name)
+				if err != nil {
+					return nil, err
+				}
 				deps.Add(req.Name)
 			}
 		}

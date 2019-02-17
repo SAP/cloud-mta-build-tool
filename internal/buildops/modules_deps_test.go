@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 
@@ -17,7 +18,7 @@ import (
 
 var _ = Describe("ModulesDeps", func() {
 
-	var _ = Describe("Process Dependencies", func() {
+	var _ = Describe("Process Dependencies test", func() {
 		AfterEach(func() {
 			os.RemoveAll(getTestPath("result"))
 		})
@@ -67,8 +68,13 @@ var _ = Describe("ModulesDeps", func() {
 			mtaStr := &mta.MTA{Modules: []*mta.Module{{Name: "someproj-db"}, {Name: "someproj-java"}}}
 			Ω(GetModulesNames(mtaStr)).Should(Equal([]string{"someproj-db", "someproj-java"}))
 		})
+		It("Required module not defined", func() {
+			mtaContent, _ := ioutil.ReadFile(getTestPath("mtahtml5", "mtaRequiredModuleNotDefined.yaml"))
+			mtaStr, _ := mta.Unmarshal(mtaContent)
+			_, err := GetModulesNames(mtaStr)
+			Ω(err.Error()).Should(Equal("the abc module is not defined "))
+		})
 	})
-
 })
 
 func executeAndProvideOutput(execute func()) string {
