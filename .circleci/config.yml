@@ -11,13 +11,12 @@ jobs:
       - checkout
       - run: go version
       - run: go env
-      - run: go get -v -t ./...
-#      - run:
-#          name: install dependencies
-#          command: |
-#            apk update && apk add curl git build-base bash
-#            curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
-#            dep ensure
+      - run:
+          name: install dep
+          command: |
+            apk update && apk add curl git build-base bash
+            curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+            dep ensure
       - run: go test -v ./...
       - run: sudo chown circleci:circleci /go/bin
       - run: make tools
@@ -31,9 +30,6 @@ jobs:
             go install github.com/mattn/goveralls
             go install github.com/modocache/gover
       - run: go test -v ./... -coverprofile=mta.coverprofile
-      #      - run: go test -v github.com/SAP/cloud-mta-build-tool/internal -coverprofile=internal.coverprofile
-      #      - run: go test -v github.com/SAP/cloud-mta-build-tool/integration -coverprofile=integration.coverprofile
-      #      - run: go test -v github.com/SAP/cloud-mta-build-tool -coverprofile=mbt.coverprofile
       - run: gover
       - run: goveralls -v -service=circle-ci -coverprofile=gover.coverprofile -repotoken $COVERALLS_TOKEN
 
@@ -43,7 +39,12 @@ jobs:
     working_directory: /go/src/github.com/SAP/cloud-mta-build-tool
     steps:
       - checkout
-      - run: go get -v -t -d ./...
+      - run:
+          name: install dep
+          command: |
+            apk update && apk add curl git build-base bash
+            curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+            dep ensure
       - run: cf login -a $CF_API -o $ORG -s $SPACE -u $TECH_USER -p $TECH_PASS
       - run: cd integration &&  go test -tags=integration
 
