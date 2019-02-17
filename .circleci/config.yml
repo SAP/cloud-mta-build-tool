@@ -11,12 +11,13 @@ jobs:
       - checkout
       - run: go version
       - run: go env
-      - run:
-          name: install dependencies
-          command: |
-            apk update && apk add curl git build-base bash
-            curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
-            dep ensure
+      - run: go get -v -t ./...
+#      - run:
+#          name: install dependencies
+#          command: |
+#            apk update && apk add curl git build-base bash
+#            curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+#            dep ensure
       - run: go test -v ./...
       - run: sudo chown circleci:circleci /go/bin
       - run: make tools
