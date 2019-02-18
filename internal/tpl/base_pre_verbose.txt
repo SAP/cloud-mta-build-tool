@@ -6,6 +6,9 @@ endif
 ifndef t
 t=$(CURDIR)
 endif
+ifndef strict
+strict=true
+endif
 # Determine OS cores
 {{ OsCore.NPROCS  }}
 {{ OsCore.MAKEFLAGS  }}
@@ -15,7 +18,7 @@ endif
 all: validate {{- range .File.Modules}} {{.Name}}{{end}} meta mtar cleanup
 # Validate mta.yaml
 validate:
-{{"\t"}}@mbt validate -d={{.Dep}}
+{{"\t"}}@mbt validate -d={{.Dep}} -r=${strict}
 # Set the current project repository path for general mta process
   PROJ_DIR := $(CURDIR)
 {{end}}
