@@ -15,7 +15,7 @@ MAKEFLAGS += -j
 .PHONY: validate ui meta mtar cleanup
 # Default target compile all
 all: validate ui meta mtar cleanup
-# Validate mta.yaml
+# Validatgit guie mta.yaml
 validate:
 	@mbt validate -d=dev -r=${strict}
 # Set the current project repository path for general mta process

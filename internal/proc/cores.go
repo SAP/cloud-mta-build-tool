@@ -11,8 +11,8 @@ type Proc struct {
 // OsCore - Get available cores according to the running OS
 func OsCore() Proc {
 	osProcMap := map[string]Proc{
-		"linux":   {`NPROCS = $(shell grep -c 'processor' /proc/cpuinfo)`, `MAKEFLAGS += -j$(NPROCS)`},
-		"darwin":  {`NPROCS = $(sysctl -n hw.ncpu)`, `MAKEFLAGS += -j$(NPROCS)`},
+		"linux":   {`NPROCS = $(shell grep -c 'processor' /proc/cpuinfo)`, `MAKEFLAGS += -j`},
+		"darwin":  {`NPROCS = $(sysctl -n hw.ncpu)`, `MAKEFLAGS += -j`},
 		"windows": {`NPROCS = $(shell echo %NUMBER_OF_PROCESSORS%)`, `MAKEFLAGS += -j`},
 	}
 	return osProcMap[runtime.GOOS]
