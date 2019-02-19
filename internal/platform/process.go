@@ -19,13 +19,8 @@ func Unmarshal(data []byte) (Platforms, error) {
 
 // ConvertTypes - convert schema type
 func ConvertTypes(iCfg mta.MTA, eCfg Platforms, targetPlatform string) {
-	// todo get from config
-	const (
-		SchemaVersion = "3.1"
-	)
 	tpl := platformConfig(eCfg, targetPlatform)
 	for i, v := range iCfg.Modules {
-		*iCfg.SchemaVersion = SchemaVersion
 		for _, em := range tpl.Modules {
 			if v.Type == em.NativeType {
 				iCfg.Modules[i].Type = em.PlatformType
