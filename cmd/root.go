@@ -24,6 +24,7 @@ var rootCmd = &cobra.Command{
 	Use:   "MBT",
 	Short: "MTA Build tool",
 	Long:  "MTA Build tool V2",
+	Version: cliVersion(),
 	Args:  cobra.MaximumNArgs(1),
 }
 

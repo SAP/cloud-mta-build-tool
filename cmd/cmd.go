@@ -33,6 +33,9 @@ func init() {
 	moduleCmd.AddCommand(buildModuleCmd, packModuleCmd)
 
 	// set flags of cleanup command
+	rootCmd.Flags().BoolP("version", "v", false, "version for MBT")
+
+	// set flags of cleanup command
 	cleanupCmd.Flags().StringVarP(&cleanupCmdSrc, "source", "s", "",
 		"the path to the MTA project; the current path is default")
 	cleanupCmd.Flags().StringVarP(&cleanupCmdTrg, "target", "t", "",
@@ -130,4 +133,9 @@ func logError(err error) {
 	if err != nil {
 		logs.Logger.Error(err)
 	}
+}
+
+func cliVersion() string {
+	v, _ := version.GetVersion()
+	return v.CliVersion
 }
