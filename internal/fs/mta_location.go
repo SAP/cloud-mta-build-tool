@@ -16,7 +16,8 @@ const (
 	Dev = "dev"
 	// TempFolderSuffix - temporary folder suffix
 	TempFolderSuffix = "_mta_build_tmp"
-	mtad             = "mtad.yaml"
+	// Mtad - deployment descriptor file name
+	Mtad             = "mtad.yaml"
 )
 
 // IMtaParser - MTA Parser interface
@@ -140,7 +141,7 @@ func (ep *Loc) GetSourceModuleDir(modulePath string) string {
 func (ep *Loc) GetMtaYamlFilename() string {
 	if ep.MtaFilename == "" {
 		if ep.Descriptor == Dep {
-			return mtad
+			return Mtad
 		}
 		return "mta.yaml"
 	}
@@ -164,7 +165,7 @@ func (ep *Loc) GetMetaPath() string {
 
 // GetMtadPath gets the path to the generated MTAD file.
 func (ep *Loc) GetMtadPath() string {
-	return filepath.Join(ep.GetMetaPath(), mtad)
+	return filepath.Join(ep.GetMetaPath(), Mtad)
 }
 
 // GetManifestPath gets the path to the generated manifest file.

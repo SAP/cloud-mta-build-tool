@@ -9,6 +9,7 @@ import (
 
 	"github.com/SAP/cloud-mta-build-tool/internal/fs"
 	"github.com/SAP/cloud-mta-build-tool/internal/platform"
+	"path/filepath"
 )
 
 var _ = Describe("Commands", func() {
@@ -32,7 +33,6 @@ var _ = Describe("Commands", func() {
 		var ep dir.Loc
 
 		AfterEach(func() {
-			mtadCmdDesc = ""
 			os.RemoveAll(getTestPath("result"))
 		})
 
@@ -48,12 +48,7 @@ var _ = Describe("Commands", func() {
 			mtadCmdSrc = getTestPath("mtahtml5")
 			mtadCmdPlatform = "cf"
 			Ω(mtadCmd.RunE(nil, []string{})).Should(Succeed())
-			Ω(ep.GetMtadPath()).Should(BeAnExistingFile())
-		})
-		It("Generate Mtad - Invalid deployment descriptor", func() {
-			mtadCmdSrc = getTestPath("mtahtml5")
-			mtadCmdDesc = "xx"
-			Ω(mtadCmd.RunE(nil, []string{})).Should(HaveOccurred())
+			Ω(filepath.Join(getTestPath("result"), "mtad.yaml")).Should(BeAnExistingFile())
 		})
 		It("Generate Mtad - Invalid source", func() {
 			mtadCmdSrc = getTestPath("mtahtml6")
