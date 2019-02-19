@@ -1,7 +1,6 @@
 package commands
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -24,7 +23,7 @@ var validateCmdStrict string
 func init() {
 
 	// Add command to the root
-	rootCmd.AddCommand(versionCmd, initCmd, validateCmd, cleanupCmd, provideCmd, generateCmd, moduleCmd, assemblyCommand)
+	rootCmd.AddCommand(initCmd, validateCmd, cleanupCmd, provideCmd, generateCmd, moduleCmd, assemblyCommand)
 	// Build module
 	provideCmd.AddCommand(provideModuleCmd)
 	// generate immutable commands
@@ -78,17 +77,6 @@ var moduleCmd = &cobra.Command{
 	Run:   nil,
 }
 
-// Parent command - CLI Version provider
-var versionCmd = &cobra.Command{
-	Use:   "version",
-	Short: "MBT version",
-	Long:  "MBT version",
-	Run: func(cmd *cobra.Command, args []string) {
-		err := printCliVersion()
-		logError(err)
-	},
-}
-
 // Cleanup temp artifacts
 var cleanupCmd = &cobra.Command{
 	Use:   "clean",
@@ -118,14 +106,6 @@ var validateCmd = &cobra.Command{
 	},
 	SilenceUsage:  true,
 	SilenceErrors: true,
-}
-
-func printCliVersion() error {
-	v, err := version.GetVersion()
-	if err == nil {
-		fmt.Println(v.CliVersion)
-	}
-	return err
 }
 
 // logError - log errors if any
