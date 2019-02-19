@@ -15,8 +15,7 @@ import (
 	"path/filepath"
 )
 
-
-type mtadLoc struct{
+type mtadLoc struct {
 	path string
 }
 
