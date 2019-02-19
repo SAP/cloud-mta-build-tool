@@ -48,6 +48,7 @@ var _ = Describe("Integration - CloudMtaBuildTool", func() {
 	AfterSuite(func() {
 		os.Remove("./testdata/mta_demo/" + mbtName)
 		os.Remove("./testdata/mta_demo/Makefile.mta")
+		os.Remove("./testdata/mta_demo/mtad.yaml")
 		os.Remove("./testdata/mta_demo/" + archiveName)
 		resourceCleanup("node")
 	})
@@ -94,7 +95,8 @@ var _ = Describe("Integration - CloudMtaBuildTool", func() {
 			path := dir + filepath.FromSlash("/testdata/mta_demo")
 			bin := filepath.FromSlash(binPath)
 			_, err, _ := execute(bin, "init 2", path)
-			Ω(err).ShouldNot(BeNil())
+			Ω(err).Should(Equal(""))
+
 		})
 	})
 
@@ -114,6 +116,17 @@ var _ = Describe("Integration - CloudMtaBuildTool", func() {
 			out, error := ioutil.ReadFile(filepath.Join(dir, "testdata", "mta_demo", "mta_archives", archiveName))
 			Ω(error).Should(BeNil())
 			Ω(out).ShouldNot(BeNil())
+		})
+	})
+
+	var _ = Describe("MBT gen commands", func() {
+		It("Generate mtad", func() {
+			dir, _ := os.Getwd()
+			path := filepath.Join(dir, "testdata", "mta_demo")
+			bin := filepath.FromSlash(binPath)
+			_, err, _ := execute(bin, "gen mtad", path)
+			Ω(err).Should(BeNil())
+			Ω(filepath.Join(path, "mtad.yaml")).Should(BeAnExistingFile())
 		})
 	})
 
