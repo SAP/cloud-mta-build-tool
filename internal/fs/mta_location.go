@@ -17,7 +17,7 @@ const (
 	// TempFolderSuffix - temporary folder suffix
 	TempFolderSuffix = "_mta_build_tmp"
 	// Mtad - deployment descriptor file name
-	Mtad             = "mtad.yaml"
+	Mtad = "mtad.yaml"
 )
 
 // IMtaParser - MTA Parser interface
