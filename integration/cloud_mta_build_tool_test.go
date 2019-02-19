@@ -95,7 +95,7 @@ var _ = Describe("Integration - CloudMtaBuildTool", func() {
 			path := dir + filepath.FromSlash("/testdata/mta_demo")
 			bin := filepath.FromSlash(binPath)
 			_, err, _ := execute(bin, "init 2", path)
-			Ω(err).Should(Equal(""))
+			Ω(err).ShouldNot(BeNil())
 
 		})
 	})
