@@ -125,7 +125,7 @@ var _ = Describe("Integration - CloudMtaBuildTool", func() {
 			path := filepath.Join(dir, "testdata", "mta_demo")
 			bin := filepath.FromSlash(binPath)
 			_, err, _ := execute(bin, "gen mtad", path)
-			Ω(err).Should(BeNil())
+			Ω(err).Should(Equal(""))
 			Ω(filepath.Join(path, "mtad.yaml")).Should(BeAnExistingFile())
 		})
 	})
