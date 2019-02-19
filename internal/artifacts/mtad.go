@@ -12,12 +12,29 @@ import (
 	"github.com/SAP/cloud-mta-build-tool/internal/logs"
 
 	"github.com/SAP/cloud-mta/mta"
+	"path/filepath"
 )
 
+type mtadLoc struct {
+	path string
+}
+
+func (loc *mtadLoc) GetMtadPath() string {
+	return filepath.Join(loc.path, dir.Mtad)
+}
+
+func (loc *mtadLoc) GetMetaPath() string {
+	return loc.path
+}
+
+func (loc *mtadLoc) GetManifestPath() string {
+	return ""
+}
+
 // ExecuteGenMtad - generates MTAD from MTA
-func ExecuteGenMtad(source, target, desc, platform string, wdGetter func() (string, error)) error {
+func ExecuteGenMtad(source, target, platform string, wdGetter func() (string, error)) error {
 	logs.Logger.Info("generating the MTAD file...")
-	loc, err := dir.Location(source, target, desc, wdGetter)
+	loc, err := dir.Location(source, target, dir.Dev, wdGetter)
 	if err != nil {
 		return errors.Wrap(err, "generation of the MTAD file failed when initializing the location")
 	}
@@ -35,11 +52,7 @@ func ExecuteGenMtad(source, target, desc, platform string, wdGetter func() (stri
 	mta.Merge(mtaStr, mtaExt)
 	adaptMtadForDeployment(mtaStr, platform)
 
-	err = genMtad(mtaStr, loc, loc.IsDeploymentDescriptor(), platform, yaml.Marshal)
-	if err != nil {
-		return err
-	}
-	return nil
+	return genMtad(mtaStr, &mtadLoc{target}, false, platform, yaml.Marshal)
 }
 
 // genMtad generates an mtad.yaml file from a mta.yaml file and a platform configuration file.

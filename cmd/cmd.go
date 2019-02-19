@@ -50,7 +50,7 @@ func init() {
 	validateCmd.Flags().StringVarP(&validateCmdDesc, "desc", "d", "",
 		"the MTA descriptor; supported values: dev (development descriptor, default value) and dep (deployment descriptor)")
 	validateCmd.Flags().StringVarP(&validateCmdStrict, "strict", "r", "",
-		"the strictness indicator; supported values: true (strict, default value) and false (not strict)")
+		`if set to true, duplicated fields and fields not defined in the "mta.yaml" schema are reported as errors; if set to false, they are reported as warnings`)
 }
 
 // generateCmd - Parent of all generation commands

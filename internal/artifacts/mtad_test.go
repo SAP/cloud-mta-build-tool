@@ -26,24 +26,24 @@ var _ = Describe("Mtad", func() {
 
 	var _ = Describe("ExecuteGenMtad", func() {
 		It("Sanity", func() {
-			Ω(ExecuteGenMtad(getTestPath("mta"), getTestPath("resultMtad"), "dev", "cf", os.Getwd)).Should(Succeed())
-			Ω(getTestPath("resultMtad", "mta_mta_build_tmp", "META-INF", "mtad.yaml")).Should(BeAnExistingFile())
+			Ω(ExecuteGenMtad(getTestPath("mta"), getTestPath("resultMtad"), "cf", os.Getwd)).Should(Succeed())
+			Ω(getTestPath("resultMtad", "mtad.yaml")).Should(BeAnExistingFile())
 		})
 		It("Fails on location initialization", func() {
-			Ω(ExecuteGenMtad("", getTestPath("resultMtad"), "dev", "cf", func() (string, error) {
+			Ω(ExecuteGenMtad("", getTestPath("resultMtad"), "cf", func() (string, error) {
 				return "", errors.New("err")
 			})).Should(HaveOccurred())
 		})
 		It("Fails on wrong source path - parse fails", func() {
-			Ω(ExecuteGenMtad(getTestPath("mtax"), getTestPath("resultMtad"), "dev", "cf", os.Getwd)).Should(HaveOccurred())
+			Ω(ExecuteGenMtad(getTestPath("mtax"), getTestPath("resultMtad"), "cf", os.Getwd)).Should(HaveOccurred())
 		})
 		It("Fails on broken extension file - parse ext fails", func() {
-			Ω(ExecuteGenMtad(getTestPath("mtaWithBrokenExt"), getTestPath("resultMtad"), "dev", "cf", os.Getwd)).Should(HaveOccurred())
+			Ω(ExecuteGenMtad(getTestPath("mtaWithBrokenExt"), getTestPath("resultMtad"), "cf", os.Getwd)).Should(HaveOccurred())
 		})
 		It("Fails on broken platforms configuration", func() {
 			cfg := platform.PlatformConfig
 			platform.PlatformConfig = []byte("abc abc")
-			Ω(ExecuteGenMtad(getTestPath("mta"), getTestPath("resultMtad"), "dev", "cf", os.Getwd)).Should(HaveOccurred())
+			Ω(ExecuteGenMtad(getTestPath("mta"), getTestPath("resultMtad"), "cf", os.Getwd)).Should(HaveOccurred())
 			platform.PlatformConfig = cfg
 		})
 	})

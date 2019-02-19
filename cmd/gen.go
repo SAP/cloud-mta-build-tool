@@ -11,7 +11,6 @@ import (
 // mtad command flags
 var mtadCmdSrc string
 var mtadCmdTrg string
-var mtadCmdDesc string
 var mtadCmdPlatform string
 
 // meta command flags
@@ -33,8 +32,6 @@ func init() {
 		"the path to the MTA project; the current path is default")
 	mtadCmd.Flags().StringVarP(&mtadCmdTrg, "target", "t",
 		"", "the path to the MBT results folder; the current path is default")
-	mtadCmd.Flags().StringVarP(&mtadCmdDesc, "desc", "d", "",
-		"the MTA descriptor; supported values: dev (development descriptor, default value) and dep (deployment descriptor)")
 	mtadCmd.Flags().StringVarP(&mtadCmdPlatform, "platform", "p", "", "Provide MTA platform ")
 
 	// set flags of meta command
@@ -63,7 +60,7 @@ var mtadCmd = &cobra.Command{
 	Long:  "generates deployment descriptor (mtad.yaml) from development descriptor (mta.yaml)",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		err := artifacts.ExecuteGenMtad(mtadCmdSrc, mtadCmdTrg, mtadCmdDesc, mtadCmdPlatform, os.Getwd)
+		err := artifacts.ExecuteGenMtad(mtadCmdSrc, mtadCmdTrg, mtadCmdPlatform, os.Getwd)
 		logError(err)
 		return err
 	},
