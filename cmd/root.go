@@ -21,10 +21,11 @@ func init() {
 
 // rootCmd represents the base command
 var rootCmd = &cobra.Command{
-	Use:   "MBT",
-	Short: "MTA Build tool",
-	Long:  "MTA Build tool V2",
-	Args:  cobra.MaximumNArgs(1),
+	Use:     "MBT",
+	Short:   "MTA Build tool",
+	Long:    "MTA Build tool V2",
+	Version: cliVersion(),
+	Args:    cobra.MaximumNArgs(1),
 }
 
 // Execute command adds all child commands to the root command and sets flags appropriately.

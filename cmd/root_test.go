@@ -41,6 +41,7 @@ var _ = Describe("Root", func() {
 				Execute()
 			})
 			Ω(out).Should(ContainSubstring("help"))
+			Ω(out).Should(ContainSubstring("version"))
 		})
 	})
 
