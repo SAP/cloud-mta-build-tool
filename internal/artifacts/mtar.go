@@ -11,7 +11,6 @@ import (
 
 const (
 	mtarExtension = ".mtar"
-	mtarFolder    = "mta_archives"
 )
 
 // ExecuteGenMtar - generates MTAR
@@ -21,7 +20,7 @@ func ExecuteGenMtar(source, target, desc string, wdGetter func() (string, error)
 	if err != nil {
 		return errors.Wrap(err, "generation of the MTA archive failed when initializing the location")
 	}
-	path, err := generateMtar(loc, loc)
+	path, err := generateMtar(loc, loc, loc)
 	if err != nil {
 		return err
 	}
@@ -30,7 +29,7 @@ func ExecuteGenMtar(source, target, desc string, wdGetter func() (string, error)
 }
 
 // generateMtar - generate mtar archive from the build artifacts
-func generateMtar(targetLoc dir.ITargetPath, parser dir.IMtaParser) (string, error) {
+func generateMtar(targetLoc dir.ITargetPath, targetArtifacts dir.ITargetArtifacts, parser dir.IMtaParser) (string, error) {
 	// get MTA object
 	m, err := parser.ParseFile()
 	if err != nil {
@@ -41,11 +40,11 @@ func generateMtar(targetLoc dir.ITargetPath, parser dir.IMtaParser) (string, err
 
 	// create the mta_archives folder
 	// get directory - where mtar will be saved
-	mtarFolderPath := filepath.Join(targetLoc.GetTarget(), mtarFolder)
+	mtarFolderPath := targetArtifacts.GetMtarDir()
 	err = dir.CreateDirIfNotExist(mtarFolderPath)
 	if err != nil {
-		return "", errors.Wrap(err,
-			`generation of the MTA archive failed when creating the "mta_archives" folder`)
+		return "", errors.Wrapf(err,
+			`generation of the MTA archive failed when creating the "%s" folder`, mtarFolderPath)
 	}
 	// archive building artifacts to mtar
 	mtarPath := filepath.Join(mtarFolderPath, m.ID+"_"+m.Version+mtarExtension)

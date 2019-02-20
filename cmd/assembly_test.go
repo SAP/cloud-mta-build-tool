@@ -18,7 +18,7 @@ var _ = Describe("Assembly", func() {
 		err := assembly(getTestPath("assembly-sample"),
 			getTestPath("result"), "cf", os.Getwd)
 		Ω(err).Should(Succeed())
-		Ω(getTestPath("result", "mta_archives", "com.sap.xs2.samples.javahelloworld_0.1.0.mtar")).Should(BeAnExistingFile())
+		Ω(getTestPath("result", "com.sap.xs2.samples.javahelloworld_0.1.0.mtar")).Should(BeAnExistingFile())
 	})
 	var _ = DescribeTable("Fails on location initialization", func(maxCalls int) {
 		calls := 0

@@ -144,7 +144,7 @@ cli_version:["x"]
 			if err != nil {
 				fmt.Println(err)
 			}
-			mtarPath, err := generateMtar(&ep, &ep)
+			mtarPath, err := generateMtar(&ep, &ep, &ep)
 			if err != nil {
 				fmt.Println(err)
 			}
@@ -168,3 +168,8 @@ func (loc *testLoc) GetMtadPath() string {
 func (loc *testLoc) GetManifestPath() string {
 	return filepath.Join(loc.loc.GetManifestPath(), "folderNotExists", "MANIFEST.MF")
 }
+
+func (loc *testLoc) GetMtarDir() string {
+	return loc.GetMtarDir()
+}
+
