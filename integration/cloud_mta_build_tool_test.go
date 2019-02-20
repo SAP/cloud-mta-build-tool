@@ -84,10 +84,9 @@ var _ = Describe("Integration - CloudMtaBuildTool", func() {
 				fmt.Println(err)
 			}
 			Ω(cmdOut).ShouldNot(BeNil())
-			// Read the MakeFile was generated
-			out, error := ioutil.ReadFile(filepath.Join(dir, "testdata", "mta_demo", "Makefile.mta"))
-			Ω(error).Should(BeNil())
-			Ω(out).ShouldNot(BeEmpty())
+
+			// Check the MakeFile was generated
+			Ω(filepath.Join(dir, "testdata", "mta_demo", "Makefile.mta")).Should(BeAnExistingFile())
 		})
 
 		It("Command name error", func() {
@@ -112,11 +111,33 @@ var _ = Describe("Integration - CloudMtaBuildTool", func() {
 			}
 			Ω(err).Should(Equal(""))
 			Ω(cmdOut).ShouldNot(BeEmpty())
-			// Read the MakeFile was generated
-			out, error := ioutil.ReadFile(filepath.Join(dir, "testdata", "mta_demo", "mta_archives", archiveName))
-			Ω(error).Should(BeNil())
-			Ω(out).ShouldNot(BeNil())
+			// Check the MakeFile was generated
+			Ω(filepath.Join(dir, "testdata", "mta_demo", "mta_archives", archiveName)).Should(BeAnExistingFile())
 		})
+	})
+
+	var _ = Describe("Generate the Verbose Makefile and use it for mtar generation", func() {
+
+		It("Generate Verbose Makefile", func() {
+			dir, _ := os.Getwd()
+			os.RemoveAll(filepath.Join(dir, "testdata", "mta_demo", "Makefile.mta"))
+			os.RemoveAll(filepath.Join(dir, "testdata", "mta_demo", "mta_archives", archiveName))
+			path := filepath.Join(dir, "testdata", "mta_demo")
+			bin := filepath.FromSlash(binPath)
+			cmdOut, err, _ := execute(bin, "init -m=verbose", path)
+			if len(err) > 0 {
+				fmt.Println(err)
+			}
+			Ω(cmdOut).ShouldNot(BeNil())
+			// Read the MakeFile was generated
+			Ω(filepath.Join(dir, "testdata", "mta_demo", "Makefile.mta")).Should(BeAnExistingFile())
+			// generate mtar
+			bin = filepath.FromSlash("make")
+			execute(bin, "-f Makefile.mta p=cf", path)
+			//check mtar existence
+			Ω(filepath.Join(dir, "testdata", "mta_demo", "mta_archives", archiveName)).Should(BeAnExistingFile())
+		})
+
 	})
 
 	var _ = Describe("MBT gen commands", func() {
