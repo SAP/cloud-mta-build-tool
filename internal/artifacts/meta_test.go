@@ -172,4 +172,3 @@ func (loc *testLoc) GetManifestPath() string {
 func (loc *testLoc) GetMtarDir() string {
 	return loc.GetMtarDir()
 }
-
