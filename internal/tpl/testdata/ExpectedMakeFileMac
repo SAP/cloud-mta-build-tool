@@ -33,7 +33,7 @@ ui:
 
 
 # Create META-INF folder with MANIFEST.MF & mtad.yaml
-meta:
+meta: $(modules)
 	@mbt gen meta -d=dev -p=${p} -t=${t}
 
 # Pack as MTAR artifact
