@@ -10,9 +10,9 @@ strict=true
 endif
 # Determine OS cores
 NPROCS = $(shell echo %NUMBER_OF_PROCESSORS%)
-MAKEFLAGS += -j$(NPROCS)
+MAKEFLAGS += -j
 # List of all the recipes to be executed during the build process
-.PHONY: ui meta mtar cleanup
+.PHONY: validate ui meta mtar cleanup
 # Default target compile all
 all: validate ui meta mtar cleanup
 # Validate mta.yaml

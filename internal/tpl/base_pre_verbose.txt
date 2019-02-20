@@ -4,7 +4,7 @@ ifndef p
 $(error platform flag is expected. e.g. use make -f makefile.mta p=cf)
 endif
 ifndef t
-t=$(CURDIR)
+t="$(CURDIR)"
 endif
 ifndef strict
 strict=true
@@ -13,7 +13,7 @@ endif
 {{ OsCore.NPROCS  }}
 {{ OsCore.MAKEFLAGS  }}
 # List of all the recipes to be executed during the build process
-.PHONY: {{- range .File.Modules}} {{.Name}}{{end}} meta mtar cleanup
+.PHONY: validate {{- range .File.Modules}} {{.Name}}{{end}} meta mtar cleanup
 # Default target compile all
 all: validate {{- range .File.Modules}} {{.Name}}{{end}} meta mtar cleanup
 # Validate mta.yaml
