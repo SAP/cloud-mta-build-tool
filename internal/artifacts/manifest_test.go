@@ -18,7 +18,7 @@ import (
 var _ = Describe("manifest", func() {
 
 	BeforeEach(func() {
-		os.MkdirAll(getTestPath("result", "mta_mta_build_tmp", "META-INF"), os.ModePerm)
+		os.MkdirAll(getTestPath("result", ".mta_mta_build_tmp", "META-INF"), os.ModePerm)
 	})
 
 	AfterEach(func() {
@@ -29,9 +29,9 @@ var _ = Describe("manifest", func() {
 
 	var _ = Describe("setManifestDesc", func() {
 		It("Sanity", func() {
-			os.Mkdir(getTestPath("result", "mta_mta_build_tmp", "node-js"), os.ModePerm)
-			os.Create(getTestPath("result", "mta_mta_build_tmp", "node-js", "data.zip"))
-			dirC, _ := ioutil.ReadDir(getTestPath("result", "mta_mta_build_tmp"))
+			os.Mkdir(getTestPath("result", ".mta_mta_build_tmp", "node-js"), os.ModePerm)
+			os.Create(getTestPath("result", ".mta_mta_build_tmp", "node-js", "data.zip"))
+			dirC, _ := ioutil.ReadDir(getTestPath("result", ".mta_mta_build_tmp"))
 			for _, c := range dirC {
 				fmt.Println(c.Name())
 			}
@@ -39,34 +39,34 @@ var _ = Describe("manifest", func() {
 			mtaObj, err := loc.ParseFile()
 			Ω(err).Should(Succeed())
 			Ω(setManifestDesc(&loc, &loc, mtaObj.Modules, []*mta.Resource{}, []string{}, false)).Should(Succeed())
-			actual := getFileContent(getTestPath("result", "mta_mta_build_tmp", "META-INF", "MANIFEST.MF"))
+			actual := getFileContent(getTestPath("result", ".mta_mta_build_tmp", "META-INF", "MANIFEST.MF"))
 			golden := getFileContent(getTestPath("golden_manifest.mf"))
 			fmt.Println(actual)
 			fmt.Println(golden)
 			Ω(actual).Should(Equal(golden))
 		})
 		It("Sanity - no paths", func() {
-			os.Mkdir(getTestPath("result", "mta_mta_build_tmp", "node-js"), os.ModePerm)
+			os.Mkdir(getTestPath("result", ".mta_mta_build_tmp", "node-js"), os.ModePerm)
 			loc := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath(), MtaFilename: "mta_no_paths.yaml"}
 			mtaObj, err := loc.ParseFile()
 			Ω(err).Should(Succeed())
 			Ω(setManifestDesc(&loc, &loc, mtaObj.Modules, []*mta.Resource{}, []string{}, false)).Should(Succeed())
-			actual := getFileContent(getTestPath("result", "mta_mta_build_tmp", "META-INF", "MANIFEST.MF"))
+			actual := getFileContent(getTestPath("result", ".mta_mta_build_tmp", "META-INF", "MANIFEST.MF"))
 			golden := getFileContent(getTestPath("golden_assembly_manifest_no_paths.mf"))
 			fmt.Println(actual)
 			fmt.Println(golden)
 			Ω(actual).Should(Equal(golden))
 		})
 		It("With resources", func() {
-			os.MkdirAll(getTestPath("result", "assembly-sample_mta_build_tmp", "META-INF"), os.ModePerm)
-			os.MkdirAll(getTestPath("result", "assembly-sample_mta_build_tmp", "web"), os.ModePerm)
-			os.Create(getTestPath("result", "assembly-sample_mta_build_tmp", "config-site-host.json"))
-			os.Create(getTestPath("result", "assembly-sample_mta_build_tmp", "xs-security.json"))
+			os.MkdirAll(getTestPath("result", ".assembly-sample_mta_build_tmp", "META-INF"), os.ModePerm)
+			os.MkdirAll(getTestPath("result", ".assembly-sample_mta_build_tmp", "web"), os.ModePerm)
+			os.Create(getTestPath("result", ".assembly-sample_mta_build_tmp", "config-site-host.json"))
+			os.Create(getTestPath("result", ".assembly-sample_mta_build_tmp", "xs-security.json"))
 			loc := dir.Loc{SourcePath: getTestPath("assembly-sample"), TargetPath: getResultPath(), Descriptor: "dep"}
 			mtaObj, err := loc.ParseFile()
 			Ω(err).Should(Succeed())
 			Ω(setManifestDesc(&loc, &loc, mtaObj.Modules, mtaObj.Resources, []string{}, false)).Should(Succeed())
-			actual := getFileContent(getTestPath("result", "assembly-sample_mta_build_tmp", "META-INF", "MANIFEST.MF"))
+			actual := getFileContent(getTestPath("result", ".assembly-sample_mta_build_tmp", "META-INF", "MANIFEST.MF"))
 			golden := getFileContent(getTestPath("golden_assembly_manifest.mf"))
 			fmt.Println(actual)
 			fmt.Println(golden)
@@ -82,9 +82,9 @@ var _ = Describe("manifest", func() {
 			Ω(err.Error()).Should(ContainSubstring(`failed to generate the manifest file when getting the "java-hello-world" module content type`))
 		})
 		It("With missing resource", func() {
-			os.MkdirAll(getTestPath("result1", "assembly-sample_mta_build_tmp", "META-INF"), os.ModePerm)
-			os.MkdirAll(getTestPath("result1", "assembly-sample_mta_build_tmp", "web"), os.ModePerm)
-			os.Create(getTestPath("result1", "assembly-sample_mta_build_tmp", "config-site-host.json"))
+			os.MkdirAll(getTestPath("result1", ".assembly-sample_mta_build_tmp", "META-INF"), os.ModePerm)
+			os.MkdirAll(getTestPath("result1", ".assembly-sample_mta_build_tmp", "web"), os.ModePerm)
+			os.Create(getTestPath("result1", ".assembly-sample_mta_build_tmp", "config-site-host.json"))
 			loc := dir.Loc{SourcePath: getTestPath("assembly-sample"), TargetPath: getTestPath("result1"), Descriptor: "dep"}
 			mtaObj, err := loc.ParseFile()
 			Ω(err).Should(Succeed())
@@ -94,9 +94,9 @@ var _ = Describe("manifest", func() {
 
 		})
 		It("With missing requirement", func() {
-			os.MkdirAll(getTestPath("result2", "assembly-sample_mta_build_tmp", "META-INF"), os.ModePerm)
-			os.MkdirAll(getTestPath("result2", "assembly-sample_mta_build_tmp", "web"), os.ModePerm)
-			os.Create(getTestPath("result2", "assembly-sample", "xs-security.json"))
+			os.MkdirAll(getTestPath("result2", ".assembly-sample_mta_build_tmp", "META-INF"), os.ModePerm)
+			os.MkdirAll(getTestPath("result2", ".assembly-sample_mta_build_tmp", "web"), os.ModePerm)
+			os.Create(getTestPath("result2", ".assembly-sample", "xs-security.json"))
 			loc := dir.Loc{SourcePath: getTestPath("assembly-sample"), TargetPath: getTestPath("result2"), Descriptor: "dep"}
 			mtaObj, err := loc.ParseFile()
 			Ω(err).Should(Succeed())
@@ -120,7 +120,7 @@ var _ = Describe("manifest", func() {
 				},
 			}
 			Ω(genManifest(loc.GetManifestPath(), entries)).Should(Succeed())
-			actual := getFileContent(getTestPath("result", "mta_mta_build_tmp", "META-INF", "MANIFEST.MF"))
+			actual := getFileContent(getTestPath("result", ".mta_mta_build_tmp", "META-INF", "MANIFEST.MF"))
 			golden := getFileContent(getTestPath("golden_manifest.mf"))
 			Ω(actual).Should(Equal(golden))
 		})

@@ -28,17 +28,17 @@ var _ = Describe("Path", func() {
 	})
 	It("GetTargetTmpDir", func() {
 		location := Loc{SourcePath: getPath("xyz"), TargetPath: getPath("abc")}
-		Ω(location.GetTargetTmpDir()).Should(Equal(getPath("abc", "xyz_mta_build_tmp")))
+		Ω(location.GetTargetTmpDir()).Should(Equal(getPath("abc", ".xyz_mta_build_tmp")))
 	})
 	It("GetTargetModuleDir", func() {
 		location := Loc{SourcePath: getPath("xyz"), TargetPath: getPath("abc")}
 		Ω(location.GetTargetModuleDir("mmm")).Should(
-			Equal(getPath("abc", "xyz_mta_build_tmp", "mmm")))
+			Equal(getPath("abc", ".xyz_mta_build_tmp", "mmm")))
 	})
 	It("GetTargetModuleZipPath", func() {
 		location := Loc{SourcePath: getPath("xyz"), TargetPath: getPath("abc")}
 		Ω(location.GetTargetModuleZipPath("mmm")).Should(
-			Equal(getPath("abc", "xyz_mta_build_tmp", "mmm", "data.zip")))
+			Equal(getPath("abc", ".xyz_mta_build_tmp", "mmm", "data.zip")))
 	})
 	It("GetSourceModuleDir", func() {
 		location := Loc{SourcePath: getPath("xyz"), TargetPath: getPath("abc")}
@@ -62,15 +62,15 @@ var _ = Describe("Path", func() {
 	})
 	It("GetMetaPath", func() {
 		location := Loc{SourcePath: getPath("xyz"), TargetPath: getPath("abc")}
-		Ω(location.GetMetaPath()).Should(Equal(getPath("abc", "xyz_mta_build_tmp", "META-INF")))
+		Ω(location.GetMetaPath()).Should(Equal(getPath("abc", ".xyz_mta_build_tmp", "META-INF")))
 	})
 	It("GetMtadPath", func() {
 		location := Loc{SourcePath: getPath("xyz"), TargetPath: getPath("abc")}
-		Ω(location.GetMtadPath()).Should(Equal(getPath("abc", "xyz_mta_build_tmp", "META-INF", "mtad.yaml")))
+		Ω(location.GetMtadPath()).Should(Equal(getPath("abc", ".xyz_mta_build_tmp", "META-INF", "mtad.yaml")))
 	})
 	It("GetManifestPath", func() {
 		location := Loc{SourcePath: getPath("xyz"), TargetPath: getPath("abc")}
-		Ω(location.GetManifestPath()).Should(Equal(getPath("abc", "xyz_mta_build_tmp", "META-INF", "MANIFEST.MF")))
+		Ω(location.GetManifestPath()).Should(Equal(getPath("abc", ".xyz_mta_build_tmp", "META-INF", "MANIFEST.MF")))
 	})
 	It("ValidateDeploymentDescriptor - Valid", func() {
 		Ω(ValidateDeploymentDescriptor("")).Should(Succeed())
