@@ -293,7 +293,7 @@ module-types:
 			Ω(err).Should((BeNil()))
 			info, _ := os.Stat(source)
 			Ω(dirContainsAllElements(source, map[string]bool{"." + info.Name() + dir.TempFolderSuffix: true}, false)).Should(Equal(true))
-			Ω(dirContainsAllElements(filepath.Join(source, "." + info.Name()+dir.TempFolderSuffix), map[string]bool{"test.zip": true, "test-content": true}, true)).Should(Equal(true))
+			Ω(dirContainsAllElements(filepath.Join(source, "."+info.Name()+dir.TempFolderSuffix), map[string]bool{"test.zip": true, "test-content": true}, true)).Should(Equal(true))
 		})
 		It("With a deployment descriptor in the source directory with one module path and one resource path as zip archuve and a folder", func() {
 			createFileInGivenPath(filepath.Join(source, defaultDeploymentDescriptorName))
@@ -304,7 +304,7 @@ module-types:
 			Ω(err).Should((BeNil()))
 			info, _ := os.Stat(source)
 			Ω(dirContainsAllElements(source, map[string]bool{"." + info.Name() + dir.TempFolderSuffix: true}, false)).Should(Equal(true))
-			Ω(dirContainsAllElements(filepath.Join(source, "." + info.Name()+dir.TempFolderSuffix), map[string]bool{"test.zip": true, "test-content": true}, true)).Should(Equal(true))
+			Ω(dirContainsAllElements(filepath.Join(source, "."+info.Name()+dir.TempFolderSuffix), map[string]bool{"test.zip": true, "test-content": true}, true)).Should(Equal(true))
 		})
 		It("With a deployment descriptor in the source directory with only resources with zip and module archives", func() {
 			createFileInGivenPath(filepath.Join(source, defaultDeploymentDescriptorName))
@@ -315,7 +315,7 @@ module-types:
 			Ω(err).Should((BeNil()))
 			info, _ := os.Stat(source)
 			Ω(dirContainsAllElements(source, map[string]bool{"." + info.Name() + dir.TempFolderSuffix: true}, false)).Should(Equal(true))
-			Ω(dirContainsAllElements(filepath.Join(source, "." + info.Name()+dir.TempFolderSuffix), map[string]bool{"test.zip": true, "test-content": true}, true)).Should(Equal(true))
+			Ω(dirContainsAllElements(filepath.Join(source, "."+info.Name()+dir.TempFolderSuffix), map[string]bool{"test.zip": true, "test-content": true}, true)).Should(Equal(true))
 		})
 		It("With a deployment descriptor in the source directory with only resources with zip and module archives", func() {
 			createFileInGivenPath(filepath.Join(source, defaultDeploymentDescriptorName))
@@ -326,7 +326,7 @@ module-types:
 			Ω(err).Should((BeNil()))
 			info, _ := os.Stat(source)
 			Ω(dirContainsAllElements(source, map[string]bool{"." + info.Name() + dir.TempFolderSuffix: true}, false)).Should(Equal(true))
-			Ω(dirContainsAllElements(filepath.Join(source, "." + info.Name()+dir.TempFolderSuffix), map[string]bool{"test.zip": true}, true)).Should(Equal(true))
+			Ω(dirContainsAllElements(filepath.Join(source, "."+info.Name()+dir.TempFolderSuffix), map[string]bool{"test.zip": true}, true)).Should(Equal(true))
 		})
 
 		It("With a deployment descriptor in the source directory with only one module with zip and one requiredDependency with folder", func() {
@@ -338,7 +338,7 @@ module-types:
 			Ω(err).Should((BeNil()))
 			info, _ := os.Stat(source)
 			Ω(dirContainsAllElements(source, map[string]bool{"." + info.Name() + dir.TempFolderSuffix: true}, false)).Should(Equal(true))
-			Ω(dirContainsAllElements(filepath.Join(source, "." + info.Name()+dir.TempFolderSuffix), map[string]bool{"test.zip": true, "test-content": true}, true)).Should(Equal(true))
+			Ω(dirContainsAllElements(filepath.Join(source, "."+info.Name()+dir.TempFolderSuffix), map[string]bool{"test.zip": true, "test-content": true}, true)).Should(Equal(true))
 		})
 		It("With a deployment descriptor in the source directory with only one module with zip and missing requiredDependency", func() {
 			createFileInGivenPath(filepath.Join(source, defaultDeploymentDescriptorName))
@@ -389,7 +389,7 @@ module-types:
 			Ω(err).Should((BeNil()))
 			info, _ := os.Stat(source)
 			Ω(dirContainsAllElements(source, map[string]bool{"." + info.Name() + dir.TempFolderSuffix: true}, false)).Should(Equal(true))
-			Ω(dirContainsAllElements(filepath.Join(source, "." + info.Name()+dir.TempFolderSuffix), map[string]bool{"test.zip": true}, true)).Should(Equal(true))
+			Ω(dirContainsAllElements(filepath.Join(source, "."+info.Name()+dir.TempFolderSuffix), map[string]bool{"test.zip": true}, true)).Should(Equal(true))
 		})
 
 		AfterEach(func() {
