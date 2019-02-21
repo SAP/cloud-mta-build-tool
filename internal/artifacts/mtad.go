@@ -44,7 +44,7 @@ func ExecuteGenMtad(source, target, platform string, wdGetter func() (string, er
 		return errors.Wrap(err, "generation of the MTAD file failed when initializing the location")
 	}
 
-    // get mta object
+	// get mta object
 	mtaStr, err := loc.ParseFile()
 	if err != nil {
 		return errors.Wrapf(err, `generation of the MTAD file failed when parsing the "%v" file`, loc.GetMtaYamlFilename())
