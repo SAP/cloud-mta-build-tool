@@ -63,18 +63,20 @@ var generateCmd = &cobra.Command{
 
 // Parent command - MTA info provider
 var provideCmd = &cobra.Command{
-	Use:   "provide",
-	Short: "MBT data provider",
-	Long:  "MBT data provider",
-	Run:   nil,
+	Use:    "provide",
+	Short:  "MBT data provider",
+	Long:   "MBT data provider",
+	Hidden: true,
+	Run:    nil,
 }
 
 // moduleCmd - Parent of all module commands
 var moduleCmd = &cobra.Command{
-	Use:   "module",
-	Short: "MBT module commands",
-	Long:  "MBT module commands",
-	Run:   nil,
+	Use:    "module",
+	Short:  "MBT module commands",
+	Long:   "MBT module commands",
+	Hidden: true,
+	Run:    nil,
 }
 
 // Cleanup temp artifacts
@@ -90,6 +92,7 @@ var cleanupCmd = &cobra.Command{
 		return err
 	},
 	SilenceUsage:  true,
+	Hidden:        true,
 	SilenceErrors: true,
 }
 
