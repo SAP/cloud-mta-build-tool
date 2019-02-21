@@ -34,7 +34,7 @@ func init() {
 	packModuleCmd.Flags().StringVarP(&packCmdModule, "module", "m", "",
 		"the name of the module")
 	packModuleCmd.Flags().StringVarP(&packCmdPlatform, "platform", "p", "",
-		"the deployment platform; supported plaforms: cf, xsa")
+		"the deployment platform; supported plaforms: cf, xsa, neo")
 
 	// set flags of command build Module
 	buildModuleCmd.Flags().StringVarP(&buildCmdSrc, "source", "s", "",
@@ -46,7 +46,7 @@ func init() {
 	buildModuleCmd.Flags().StringVarP(&buildCmdModule, "module", "m", "",
 		"the name of the module")
 	buildModuleCmd.Flags().StringVarP(&buildCmdPlatform, "platform", "p", "",
-		"the deployment platform; supported plaforms: cf, xsa")
+		"the deployment platform; supported plaforms: cf, xsa, neo")
 }
 
 // buildModuleCmd - Build module

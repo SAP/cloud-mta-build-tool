@@ -1,18 +1,19 @@
 package artifacts
 
 import (
+	"fmt"
+	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 
 	"github.com/pkg/errors"
-	"gopkg.in/yaml.v2"
+
+	"github.com/SAP/cloud-mta/mta"
 
 	"github.com/SAP/cloud-mta-build-tool/internal/buildops"
 	"github.com/SAP/cloud-mta-build-tool/internal/fs"
 	"github.com/SAP/cloud-mta-build-tool/internal/logs"
-
-	"github.com/SAP/cloud-mta/mta"
-	"path/filepath"
 )
 
 type mtadLoc struct {
@@ -43,33 +44,56 @@ func ExecuteGenMtad(source, target, platform string, wdGetter func() (string, er
 		return errors.Wrap(err, "generation of the MTAD file failed when initializing the location")
 	}
 
+	// get mta object
 	mtaStr, err := loc.ParseFile()
 	if err != nil {
 		return errors.Wrapf(err, `generation of the MTAD file failed when parsing the "%v" file`, loc.GetMtaYamlFilename())
 	}
 
+	// get extension object if defined
 	mtaExt, err := loc.ParseExtFile(platform)
 	if err != nil {
 		return errors.Wrapf(err, `generation of the MTAD file failed when parsing the "%v" file`, loc.GetMtaExtYamlPath(platform))
 	}
 
+	// merge mta and extension objects
 	mta.Merge(mtaStr, mtaExt)
+	// init mtad object from the extended mta
 	adaptMtadForDeployment(mtaStr, platform)
 
 	return genMtad(mtaStr, &mtadLoc{target}, false, platform, yaml.Marshal)
 }
 
+func validatePlatform(platform string) error {
+	if platform != "xsa" && platform != "cf" && platform != "neo" {
+		return fmt.Errorf("the %s deployment platform is not supported; supported values: cf, xsa, neo", platform)
+	}
+	return nil
+}
+
 // genMtad generates an mtad.yaml file from a mta.yaml file and a platform configuration file.
 func genMtad(mtaStr *mta.MTA, ep dir.ITargetArtifacts, deploymentDesc bool, platform string,
 	marshal func(interface{}) (out []byte, err error)) error {
+
+	// validate platform
+	err := validatePlatform(platform)
+	if err != nil {
+		return err
+	}
+
 	// Create META-INF folder under the mtar folder
 	metaPath := ep.GetMetaPath()
-	err := dir.CreateDirIfNotExist(metaPath)
-	if err != nil {
-		logs.Logger.Infof(`the "%v" folder already exists`, metaPath)
+
+	// if meta folder provided, mtad will be saved in this folder, so we create it if not exists
+	if metaPath != "" {
+		err := dir.CreateDirIfNotExist(metaPath)
+		if err != nil {
+			logs.Logger.Infof(`the "%v" folder already exists`, metaPath)
+		}
 	}
 	if !deploymentDesc {
-		err = ConvertTypes(*mtaStr, platform)
+		// convert modules types according to platform
+		err := ConvertTypes(*mtaStr, platform)
 		if err != nil {
 			return errors.Wrapf(err,
 				`generation of the MTAD file failed when converting types according to the "%v" platform`,
