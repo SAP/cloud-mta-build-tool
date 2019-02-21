@@ -2,18 +2,18 @@ package artifacts
 
 import (
 	"io/ioutil"
+	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
 
+	"github.com/SAP/cloud-mta/mta"
+
 	"github.com/SAP/cloud-mta-build-tool/internal/buildops"
 	"github.com/SAP/cloud-mta-build-tool/internal/fs"
 	"github.com/SAP/cloud-mta-build-tool/internal/logs"
-
-	"github.com/SAP/cloud-mta/mta"
-	"path/filepath"
-	"fmt"
 )
 
 type mtadLoc struct {
