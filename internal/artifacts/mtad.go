@@ -44,12 +44,6 @@ func ExecuteGenMtad(source, target, platform string, wdGetter func() (string, er
 		return errors.Wrap(err, "generation of the MTAD file failed when initializing the location")
 	}
 
-	// validate platform
-	err = validatePlatform(platform)
-	if err != nil {
-		return err
-	}
-
     // get mta object
 	mtaStr, err := loc.ParseFile()
 	if err != nil {
@@ -80,6 +74,13 @@ func validatePlatform(platform string) error {
 // genMtad generates an mtad.yaml file from a mta.yaml file and a platform configuration file.
 func genMtad(mtaStr *mta.MTA, ep dir.ITargetArtifacts, deploymentDesc bool, platform string,
 	marshal func(interface{}) (out []byte, err error)) error {
+
+	// validate platform
+	err := validatePlatform(platform)
+	if err != nil {
+		return err
+	}
+
 	// Create META-INF folder under the mtar folder
 	metaPath := ep.GetMetaPath()
 
