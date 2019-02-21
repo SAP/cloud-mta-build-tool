@@ -40,7 +40,7 @@ meta: $(modules)
 
 # Pack as MTAR artifact
 mtar: $(modules) meta
-	@mbt gen mtar -d=dev -t=${t} -target_provided=${target_provided}
+	@mbt gen mtar -d=dev -t=${t} --target_provided=${target_provided}
 
 cleanup: mtar
 # Remove tmp folder
