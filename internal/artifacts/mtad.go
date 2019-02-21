@@ -1,9 +1,9 @@
 package artifacts
 
 import (
+	"fmt"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
-	"fmt"
 	"os"
 	"path/filepath"
 
