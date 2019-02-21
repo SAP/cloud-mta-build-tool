@@ -30,6 +30,7 @@ var provideModuleCmd = &cobra.Command{
 		logError(err)
 		return err
 	},
+	Hidden:        true,
 	SilenceUsage:  true,
 	SilenceErrors: true,
 }
