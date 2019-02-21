@@ -69,12 +69,12 @@ var _ = Describe("Path", func() {
 		Ω(location.GetMtadPath()).Should(Equal(getPath("abc", ".xyz_mta_build_tmp", "META-INF", "mtad.yaml")))
 	})
 	It("GetMtarDir - mta_archives subfolder", func() {
-		location := Loc{SourcePath: getPath("xyz"), TargetPath: getPath("abc"), targetProvided: false}
-		Ω(location.GetMtarDir()).Should(Equal(getPath("xyz", "mta_archives")))
+		location := Loc{SourcePath: getPath("xyz"), TargetPath: getPath("abc")}
+		Ω(location.GetMtarDir(false)).Should(Equal(getPath("xyz", "mta_archives")))
 	})
 	It("GetMtarDir - target folder", func() {
-		location := Loc{SourcePath: getPath("xyz"), TargetPath: getPath("xyz"), targetProvided: true}
-		Ω(location.GetMtarDir()).Should(Equal(getPath("xyz")))
+		location := Loc{SourcePath: getPath("xyz"), TargetPath: getPath("abc")}
+		Ω(location.GetMtarDir(true)).Should(Equal(getPath("abc")))
 	})
 	It("GetManifestPath", func() {
 		location := Loc{SourcePath: getPath("xyz"), TargetPath: getPath("abc")}

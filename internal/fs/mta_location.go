@@ -73,7 +73,7 @@ type ITargetArtifacts interface {
 	GetMetaPath() string
 	GetMtadPath() string
 	GetManifestPath() string
-	GetMtarDir() string
+	GetMtarDir(targetProvided bool) string
 }
 
 // Loc - MTA tool file properties
@@ -86,7 +86,6 @@ type Loc struct {
 	MtaFilename string
 	// Descriptor - indicator of deployment descriptor usage (mtad.yaml)
 	Descriptor     string
-	targetProvided bool
 }
 
 // GetSource gets the processed project path;
@@ -105,10 +104,10 @@ func (ep *Loc) GetDescriptor() string {
 }
 
 // GetMtarDir - gets archive folder
-// if the target folder provided archive will be saved in the targte folder
+// if the target folder provided archive will be saved in the target folder
 // otherwise archives folder - "mta_archives" subfolder in the project folder
-func (ep *Loc) GetMtarDir() string {
-	if !ep.targetProvided {
+func (ep *Loc) GetMtarDir(targetProvided bool) string {
+	if !targetProvided {
 		return filepath.Join(ep.SourcePath, MtarFolder)
 	}
 
@@ -231,8 +230,6 @@ func Location(source, target, descriptor string, wdGetter func() (string, error)
 		return nil, errors.Wrap(err, "failed to initialize the location when validating descriptor")
 	}
 
-	targetProvided := target != ""
-
 	var mtaFilename string
 	if descriptor == Dev || descriptor == "" {
 		mtaFilename = "mta.yaml"
@@ -256,6 +253,5 @@ func Location(source, target, descriptor string, wdGetter func() (string, error)
 		TargetPath:     filepath.Join(target),
 		MtaFilename:    mtaFilename,
 		Descriptor:     descriptor,
-		targetProvided: targetProvided,
 	}, nil
 }
