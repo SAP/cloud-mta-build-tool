@@ -397,6 +397,15 @@ module-types:
 		})
 	})
 
+	var _ = Describe("copyMtaContentFromPath", func() {
+		It("content is file; fails because target folder exists and it's not a folder, but a file", func() {
+			file, _ := os.Create(getTestPath("result"))
+			defer file.Close()
+			Ω(copyMtaContentFromPath(getTestPath("mta", "mta.yaml"), getTestPath("result", "mta.yaml"),
+				getTestPath("result", "mta.yaml"), getTestPath("result"))).Should(HaveOccurred())
+		})
+	})
+
 	var _ = Describe("cleanUpCopiedContent", func() {
 		It("Sanity", func() {
 			err := cleanUpCopiedContent(getTestPath(), []string{"result"})

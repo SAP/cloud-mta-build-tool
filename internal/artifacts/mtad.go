@@ -31,6 +31,10 @@ func (loc *mtadLoc) GetManifestPath() string {
 	return ""
 }
 
+func (loc *mtadLoc) GetMtarDir() string {
+	return ""
+}
+
 // ExecuteGenMtad - generates MTAD from MTA
 func ExecuteGenMtad(source, target, platform string, wdGetter func() (string, error)) error {
 	logs.Logger.Info("generating the MTAD file...")

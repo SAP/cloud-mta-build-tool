@@ -18,6 +18,8 @@ const (
 	TempFolderSuffix = "_mta_build_tmp"
 	// Mtad - deployment descriptor file name
 	Mtad = "mtad.yaml"
+	// MtarFolder - default archives folder
+	MtarFolder = "mta_archives"
 )
 
 // IMtaParser - MTA Parser interface
@@ -71,6 +73,7 @@ type ITargetArtifacts interface {
 	GetMetaPath() string
 	GetMtadPath() string
 	GetManifestPath() string
+	GetMtarDir() string
 }
 
 // Loc - MTA tool file properties
@@ -98,6 +101,17 @@ func (ep *Loc) GetDescriptor() string {
 	}
 
 	return ep.Descriptor
+}
+
+// GetMtarDir - gets archive folder
+// if the target folder differs from the source folder archive folder is target folder
+// otherwise archives folder - "mta_archives" subfolder in the project folder
+func (ep *Loc) GetMtarDir() string {
+	if ep.SourcePath == ep.TargetPath {
+		return filepath.Join(ep.SourcePath, MtarFolder)
+	}
+
+	return ep.TargetPath
 }
 
 // GetTarget gets the target path;
