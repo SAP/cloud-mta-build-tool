@@ -19,6 +19,8 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+
+	"github.com/SAP/cloud-mta/mta"
 )
 
 const (
@@ -50,6 +52,7 @@ var _ = Describe("Integration - CloudMtaBuildTool", func() {
 		os.Remove("./testdata/mta_demo/Makefile.mta")
 		os.Remove("./testdata/mta_demo/mtad.yaml")
 		os.Remove("./testdata/mta_demo/" + archiveName)
+		os.Remove("./testdata/mta_demo/mta_archives")
 		resourceCleanup("node")
 	})
 
@@ -110,8 +113,9 @@ var _ = Describe("Integration - CloudMtaBuildTool", func() {
 				fmt.Println(err)
 			}
 			Ω(err).Should(Equal(""))
+			fmt.Println(cmdOut)
 			Ω(cmdOut).ShouldNot(BeEmpty())
-			// Check the MakeFile was generated
+			// Check the archive was generated
 			Ω(filepath.Join(dir, "testdata", "mta_demo", "mta_archives", archiveName)).Should(BeAnExistingFile())
 		})
 	})
@@ -134,7 +138,7 @@ var _ = Describe("Integration - CloudMtaBuildTool", func() {
 			// generate mtar
 			bin = filepath.FromSlash("make")
 			execute(bin, "-f Makefile.mta p=cf", path)
-			//check mtar existence
+			// Check the archive was generated
 			Ω(filepath.Join(dir, "testdata", "mta_demo", "mta_archives", archiveName)).Should(BeAnExistingFile())
 		})
 
@@ -147,7 +151,11 @@ var _ = Describe("Integration - CloudMtaBuildTool", func() {
 			bin := filepath.FromSlash(binPath)
 			_, err, _ := execute(bin, "gen mtad", path)
 			Ω(err).Should(Equal(""))
-			Ω(filepath.Join(path, "mtad.yaml")).Should(BeAnExistingFile())
+			mtadPath := filepath.Join(path, "mtad.yaml")
+			Ω(mtadPath).Should(BeAnExistingFile())
+			content, _ := ioutil.ReadFile(mtadPath)
+			mtadObj, _ := mta.Unmarshal(content)
+			Ω(mtadObj.Modules[0].Type).Should(Equal("javascript.nodejs"))
 		})
 	})
 
