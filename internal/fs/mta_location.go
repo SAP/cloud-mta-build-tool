@@ -107,11 +107,12 @@ func (ep *Loc) GetTarget() string {
 }
 
 // GetTargetTmpDir gets the temporary target directory path.
-// The subdirectory in the target folder is named as the source project folder.
+// The subdirectory in the target folder is named as the source project folder suffixed with "_mta_build_tmp".
+// Subdirectory name is prefixed with "." as a hidden folder
 func (ep *Loc) GetTargetTmpDir() string {
 	source := ep.GetSource()
 	_, file := filepath.Split(source)
-	file = file + TempFolderSuffix
+	file = "." + file + TempFolderSuffix
 	target := ep.GetTarget()
 	// append to the currentPath the file name
 	return filepath.Join(target, file)

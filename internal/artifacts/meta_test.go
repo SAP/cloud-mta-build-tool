@@ -25,11 +25,11 @@ var _ = Describe("Meta", func() {
 	var _ = Describe("ExecuteGenMeta", func() {
 
 		It("Sanity", func() {
-			os.MkdirAll(getTestPath("result", "mtahtml5_mta_build_tmp", "ui5app2"), os.ModePerm)
-			os.MkdirAll(getTestPath("result", "mtahtml5_mta_build_tmp", "testapp"), os.ModePerm)
+			os.MkdirAll(getTestPath("result", ".mtahtml5_mta_build_tmp", "ui5app2"), os.ModePerm)
+			os.MkdirAll(getTestPath("result", ".mtahtml5_mta_build_tmp", "testapp"), os.ModePerm)
 			Ω(ExecuteGenMeta(getTestPath("mtahtml5"), getResultPath(), "dev", "cf", true, os.Getwd)).Should(Succeed())
-			Ω(getTestPath("result", "mtahtml5_mta_build_tmp", "META-INF", "MANIFEST.MF")).Should(BeAnExistingFile())
-			Ω(getTestPath("result", "mtahtml5_mta_build_tmp", "META-INF", "mtad.yaml")).Should(BeAnExistingFile())
+			Ω(getTestPath("result", ".mtahtml5_mta_build_tmp", "META-INF", "MANIFEST.MF")).Should(BeAnExistingFile())
+			Ω(getTestPath("result", ".mtahtml5_mta_build_tmp", "META-INF", "mtad.yaml")).Should(BeAnExistingFile())
 		})
 
 		It("Wrong location - fails on Working directory get", func() {
@@ -58,7 +58,7 @@ modules:
 		It("Sanity", func() {
 			m := mta.MTA{}
 			yaml.Unmarshal(mtaSingleModule, &m)
-			os.MkdirAll(getTestPath("result", "testproject_mta_build_tmp", "app"), os.ModePerm)
+			os.MkdirAll(getTestPath("result", ".testproject_mta_build_tmp", "app"), os.ModePerm)
 			Ω(GenMetaInfo(&ep, &ep, ep.IsDeploymentDescriptor(), "cf",
 				&m, []string{"htmlapp"}, true)).Should(Succeed())
 			Ω(ep.GetManifestPath()).Should(BeAnExistingFile())
@@ -110,16 +110,16 @@ cli_version:["x"]
 		It("Generate Meta", func() {
 			ep := dir.Loc{SourcePath: getTestPath("mtahtml5"), TargetPath: getResultPath()}
 			generateMeta(&ep, &ep, &ep, false, "cf", true)
-			Ω(readFileContent(&dir.Loc{SourcePath: getTestPath("result", "mtahtml5_mta_build_tmp", "META-INF"), Descriptor: "dep"})).
+			Ω(readFileContent(&dir.Loc{SourcePath: getTestPath("result", ".mtahtml5_mta_build_tmp", "META-INF"), Descriptor: "dep"})).
 				Should(Equal(readFileContent(&dir.Loc{SourcePath: getTestPath("golden"), Descriptor: "dep"})))
 		})
 
 		It("Generate Meta - with extension file", func() {
 			ep := dir.Loc{SourcePath: getTestPath("mtahtml5"), TargetPath: getResultPath()}
-			os.MkdirAll(getTestPath("result", "mtahtml5_mta_build_tmp", "testapp"), os.ModePerm)
-			os.MkdirAll(getTestPath("result", "mtahtml5_mta_build_tmp", "ui5app2"), os.ModePerm)
+			os.MkdirAll(getTestPath("result", ".mtahtml5_mta_build_tmp", "testapp"), os.ModePerm)
+			os.MkdirAll(getTestPath("result", ".mtahtml5_mta_build_tmp", "ui5app2"), os.ModePerm)
 			Ω(generateMeta(&ep, &ep, &ep, false, "cf", true)).Should(Succeed())
-			actual := readFileContent(&dir.Loc{SourcePath: getTestPath("result", "mtahtml5_mta_build_tmp", "META-INF"), Descriptor: "dep"})
+			actual := readFileContent(&dir.Loc{SourcePath: getTestPath("result", ".mtahtml5_mta_build_tmp", "META-INF"), Descriptor: "dep"})
 			golden := readFileContent(&dir.Loc{SourcePath: getTestPath("golden"), Descriptor: "dep"})
 			Ω(actual).Should(Equal(golden))
 		})
