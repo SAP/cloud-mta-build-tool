@@ -248,5 +248,10 @@ func Location(source, target, descriptor string, wdGetter func() (string, error)
 	if target == "" {
 		target = source
 	}
-	return &Loc{SourcePath: source, TargetPath: target, MtaFilename: mtaFilename, Descriptor: descriptor}, nil
+	return &Loc{
+		SourcePath:  filepath.Join(source),
+		TargetPath:  filepath.Join(target),
+		MtaFilename: mtaFilename,
+		Descriptor:  descriptor,
+	}, nil
 }

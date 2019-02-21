@@ -1,8 +1,9 @@
 package main
 
 import (
-	"github.com/SAP/cloud-mta-build-tool/cmd"
 	"os"
+
+	"github.com/SAP/cloud-mta-build-tool/cmd"
 )
 
 func main() {
