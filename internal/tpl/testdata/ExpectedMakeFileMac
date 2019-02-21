@@ -3,7 +3,7 @@ ifndef p
 $(error platform flag is expected. e.g. use make -f makefile.mta p=cf)
 endif
 ifndef t
-t=$(CURDIR)
+t=""
 endif
 ifndef strict
 strict=true
