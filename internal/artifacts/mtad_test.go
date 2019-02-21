@@ -34,6 +34,11 @@ var _ = Describe("Mtad", func() {
 				return "", errors.New("err")
 			})).Should(HaveOccurred())
 		})
+		It("Fails on platform validation", func() {
+			Ω(ExecuteGenMtad(getTestPath("mta"), getTestPath("resultMtad"), "ab", func() (string, error) {
+				return "", errors.New("err")
+			})).Should(HaveOccurred())
+		})
 		It("Fails on wrong source path - parse fails", func() {
 			Ω(ExecuteGenMtad(getTestPath("mtax"), getTestPath("resultMtad"), "cf", os.Getwd)).Should(HaveOccurred())
 		})
@@ -114,5 +119,16 @@ var _ = Describe("adaptMtadForDeployment", func() {
 		Ω(len(mta.Modules)).Should(Equal(1))
 		Ω(mta.Modules[0].Name).Should(Equal("htmlapp2"))
 		Ω(mta.Parameters["hcp-deployer-version"]).ShouldNot(BeNil())
+	})
+})
+
+var _ = Describe("mtadLoc", func() {
+	It("GetManifestPath", func() {
+		loc := mtadLoc{"anyPath"}
+		Ω(loc.GetManifestPath()).Should(Equal(""))
+	})
+	It("GetMtarDir", func() {
+		loc := mtadLoc{"anyPath"}
+		Ω(loc.GetMtarDir()).Should(Equal(""))
 	})
 })
