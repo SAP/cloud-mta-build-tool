@@ -1,4 +1,4 @@
-package contenttype
+package conttype
 
 import (
 	"testing"

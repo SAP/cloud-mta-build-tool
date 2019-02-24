@@ -11,8 +11,8 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"
 
-	"github.com/SAP/cloud-mta-build-tool/internal/contenttype"
-	"github.com/SAP/cloud-mta-build-tool/internal/fs"
+	"github.com/SAP/cloud-mta-build-tool/internal/conttype"
+	"github.com/SAP/cloud-mta-build-tool/internal/archive"
 )
 
 var _ = Describe("manifest", func() {
@@ -161,7 +161,7 @@ var _ = Describe("manifest", func() {
 					},
 				},
 			}
-			entries, err := buildEntries(loc, &mod, requires, &contenttype.ContentTypes{})
+			entries, err := buildEntries(loc, &mod, requires, &conttype.ContentTypes{})
 			Ω(len(entries)).Should(Equal(1))
 			Ω(err).Should(Succeed())
 			e := entries[0]

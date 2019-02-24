@@ -10,7 +10,7 @@ import (
 	"gopkg.in/yaml.v2"
 
 	"github.com/SAP/cloud-mta-build-tool/internal/buildops"
-	"github.com/SAP/cloud-mta-build-tool/internal/fs"
+	"github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta-build-tool/internal/platform"
 )
 

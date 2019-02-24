@@ -17,7 +17,7 @@ import (
 
 	"github.com/SAP/cloud-mta-build-tool/internal/buildops"
 	"github.com/SAP/cloud-mta-build-tool/internal/commands"
-	"github.com/SAP/cloud-mta-build-tool/internal/fs"
+	"github.com/SAP/cloud-mta-build-tool/internal/archive"
 )
 
 var _ = Describe("ModuleArch", func() {
