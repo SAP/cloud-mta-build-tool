@@ -15,9 +15,9 @@ import (
 	"github.com/SAP/cloud-mta/mta"
 	"gopkg.in/yaml.v2"
 
+	"github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta-build-tool/internal/buildops"
 	"github.com/SAP/cloud-mta-build-tool/internal/commands"
-	"github.com/SAP/cloud-mta-build-tool/internal/archive"
 )
 
 var _ = Describe("ModuleArch", func() {

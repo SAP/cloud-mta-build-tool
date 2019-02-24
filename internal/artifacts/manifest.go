@@ -11,8 +11,8 @@ import (
 
 	"github.com/SAP/cloud-mta/mta"
 
-	"github.com/SAP/cloud-mta-build-tool/internal/conttype"
 	"github.com/SAP/cloud-mta-build-tool/internal/archive"
+	"github.com/SAP/cloud-mta-build-tool/internal/conttype"
 	"github.com/SAP/cloud-mta-build-tool/internal/tpl"
 	"github.com/SAP/cloud-mta-build-tool/internal/version"
 )
