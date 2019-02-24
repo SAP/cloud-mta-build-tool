@@ -14,6 +14,7 @@ import (
 	"github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta-build-tool/internal/conttype"
 	"github.com/SAP/cloud-mta-build-tool/internal/version"
+	"strings"
 )
 
 var _ = Describe("manifest", func() {
@@ -42,6 +43,8 @@ var _ = Describe("manifest", func() {
 			Ω(setManifestDesc(&loc, &loc, mtaObj.Modules, []*mta.Resource{}, []string{}, false)).Should(Succeed())
 			actual := getFileContent(getTestPath("result", ".mta_mta_build_tmp", "META-INF", "MANIFEST.MF"))
 			golden := getFileContent(getTestPath("golden_manifest.mf"))
+			v, _ := version.GetVersion()
+			golden = strings.Replace( golden, "{{cli_version}}", v.CliVersion, -1)
 			fmt.Println(actual)
 			fmt.Println(golden)
 			Ω(actual).Should(Equal(golden))
@@ -59,6 +62,8 @@ var _ = Describe("manifest", func() {
 			Ω(setManifestDesc(&loc, &loc, mtaObj.Modules, []*mta.Resource{}, []string{"node-js"}, false)).Should(Succeed())
 			actual := getFileContent(getTestPath("result", ".mta_mta_build_tmp", "META-INF", "MANIFEST.MF"))
 			golden := getFileContent(getTestPath("golden_manifest.mf"))
+			v, _ := version.GetVersion()
+			golden = strings.Replace( golden, "{{cli_version}}", v.CliVersion, -1)
 			fmt.Println(actual)
 			fmt.Println(golden)
 			Ω(actual).Should(Equal(golden))
@@ -87,6 +92,8 @@ var _ = Describe("manifest", func() {
 			Ω(setManifestDesc(&loc, &loc, mtaObj.Modules, []*mta.Resource{}, []string{}, false)).Should(Succeed())
 			actual := getFileContent(getTestPath("result", ".mta_mta_build_tmp", "META-INF", "MANIFEST.MF"))
 			golden := getFileContent(getTestPath("golden_assembly_manifest_no_paths.mf"))
+			v, _ := version.GetVersion()
+			golden = strings.Replace( golden, "{{cli_version}}", v.CliVersion, -1)
 			fmt.Println(actual)
 			fmt.Println(golden)
 			Ω(actual).Should(Equal(golden))
@@ -102,6 +109,8 @@ var _ = Describe("manifest", func() {
 			Ω(setManifestDesc(&loc, &loc, mtaObj.Modules, mtaObj.Resources, []string{}, false)).Should(Succeed())
 			actual := getFileContent(getTestPath("result", ".assembly-sample_mta_build_tmp", "META-INF", "MANIFEST.MF"))
 			golden := getFileContent(getTestPath("golden_assembly_manifest.mf"))
+			v, _ := version.GetVersion()
+			golden = strings.Replace( golden, "{{cli_version}}", v.CliVersion, -1)
 			fmt.Println(actual)
 			fmt.Println(golden)
 			Ω(actual).Should(Equal(golden))
@@ -156,6 +165,8 @@ var _ = Describe("manifest", func() {
 			Ω(genManifest(loc.GetManifestPath(), entries)).Should(Succeed())
 			actual := getFileContent(getTestPath("result", ".mta_mta_build_tmp", "META-INF", "MANIFEST.MF"))
 			golden := getFileContent(getTestPath("golden_manifest.mf"))
+			v, _ := version.GetVersion()
+			golden = strings.Replace( golden, "{{cli_version}}", v.CliVersion, -1)
 			Ω(actual).Should(Equal(golden))
 		})
 		It("Fails on wrong location", func() {
