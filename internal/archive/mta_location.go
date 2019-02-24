@@ -85,7 +85,7 @@ type Loc struct {
 	// MtaFilename - MTA yaml filename "mta.yaml" by default
 	MtaFilename string
 	// Descriptor - indicator of deployment descriptor usage (mtad.yaml)
-	Descriptor     string
+	Descriptor string
 }
 
 // GetSource gets the processed project path;
@@ -249,9 +249,9 @@ func Location(source, target, descriptor string, wdGetter func() (string, error)
 		target = source
 	}
 	return &Loc{
-		SourcePath:     filepath.Join(source),
-		TargetPath:     filepath.Join(target),
-		MtaFilename:    mtaFilename,
-		Descriptor:     descriptor,
+		SourcePath:  filepath.Join(source),
+		TargetPath:  filepath.Join(target),
+		MtaFilename: mtaFilename,
+		Descriptor:  descriptor,
 	}, nil
 }
