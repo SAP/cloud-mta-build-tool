@@ -108,10 +108,10 @@ func (ep *Loc) GetDescriptor() string {
 // otherwise archives folder - "mta_archives" subfolder in the project folder
 func (ep *Loc) GetMtarDir(targetProvided bool) string {
 	if !targetProvided {
-		return filepath.Join(ep.SourcePath, MtarFolder)
+		return filepath.Join(ep.GetTarget(), MtarFolder)
 	}
 
-	return ep.TargetPath
+	return ep.GetTarget()
 }
 
 // GetTarget gets the target path;

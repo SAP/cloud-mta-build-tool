@@ -70,7 +70,7 @@ var _ = Describe("Path", func() {
 	})
 	It("GetMtarDir - mta_archives subfolder", func() {
 		location := Loc{SourcePath: getPath("xyz"), TargetPath: getPath("abc")}
-		Ω(location.GetMtarDir(false)).Should(Equal(getPath("xyz", "mta_archives")))
+		Ω(location.GetMtarDir(false)).Should(Equal(getPath("abc", "mta_archives")))
 	})
 	It("GetMtarDir - target folder", func() {
 		location := Loc{SourcePath: getPath("xyz"), TargetPath: getPath("abc")}

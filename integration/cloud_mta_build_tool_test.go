@@ -103,6 +103,22 @@ var _ = Describe("Integration - CloudMtaBuildTool", func() {
 	})
 
 	var _ = Describe("Generate MTAR", func() {
+		It("Generate MTAR with provided target", func() {
+			dir, _ := os.Getwd()
+			os.RemoveAll(filepath.Join(dir, "testdata", "mta_demo", archiveName))
+			path := dir + filepath.FromSlash("/testdata/mta_demo")
+			bin := filepath.FromSlash("make")
+			cmdOut, err, _ := execute(bin, "-f Makefile.mta p=cf t="+path, path)
+			if len(err) > 0 {
+				fmt.Println(err)
+			}
+			Ω(err).Should(Equal(""))
+			fmt.Println(cmdOut)
+			Ω(cmdOut).ShouldNot(BeEmpty())
+			// Check the archive was generated
+			Ω(filepath.Join(dir, "testdata", "mta_demo", archiveName)).Should(BeAnExistingFile())
+		})
+
 		It("Generate MTAR", func() {
 
 			dir, _ := os.Getwd()
@@ -197,7 +213,7 @@ var _ = Describe("Integration - CloudMtaBuildTool", func() {
 			Ω(cmdOut).Should(ContainSubstring("generating the MTA archive..." + "\n"))
 			Ω(cmdOut).Should(ContainSubstring("the MTA archive generated at: " + filepath.Join(mtaAssemblePath, "mta_archives", "mta.assembly.example_1.3.3.mtar") + "\n"))
 			Ω(cmdOut).Should(ContainSubstring("cleaning temporary files..." + "\n"))
-			Ω(exists("mta.assembly.example_1.3.3.mtar", mtaAssemblePath+filepath.FromSlash("/mta_archives/"))).Should(BeTrue())
+			Ω(filepath.Join(mtaAssemblePath, "mta_archives", "mta.assembly.example_1.3.3.mtar")).Should(BeAnExistingFile())
 			validateMtaArchiveContents([]string{"META-INF/mtad.yaml", "META-INF/MANIFEST.MF", "node.zip", "xs-security.json"}, filepath.Join(mtaAssemblePath, "mta_archives", "mta.assembly.example_1.3.3.mtar"))
 			os.Remove(filepath.Join(mtaAssemblePath, "mta.assembly.example.mtar"))
 			os.Chdir(currentWorkingDirectory)
@@ -222,17 +238,6 @@ func validateMtaArchiveContents(expectedFilesInArchive []string, archiveLocation
 func contains(element string, elements []string) bool {
 	for _, el := range elements {
 		if el == element {
-			return true
-		}
-	}
-	return false
-}
-
-func exists(fileName, location string) bool {
-	files, err := ioutil.ReadDir(location)
-	Ω(err).Should(BeNil())
-	for _, file := range files {
-		if file.Name() == fileName {
 			return true
 		}
 	}

@@ -13,6 +13,6 @@ type Version struct {
 // GetVersion - get versions
 func GetVersion() (Version, error) {
 	v := Version{}
-	err := yaml.Unmarshal(VersionConfig, &v)
+	err := yaml.UnmarshalStrict(VersionConfig, &v)
 	return v, err
 }

@@ -21,7 +21,7 @@ func ExecuteGenMtar(source, target, targetProvided, desc string, wdGetter func()
 	if err != nil {
 		return errors.Wrap(err, "generation of the MTA archive failed when initializing the location")
 	}
-	path, err := generateMtar(loc, loc, loc, isTargetProvided(source, target, targetProvided))
+	path, err := generateMtar(loc, loc, loc, isTargetProvided(target, targetProvided))
 	if err != nil {
 		return err
 	}
@@ -29,7 +29,7 @@ func ExecuteGenMtar(source, target, targetProvided, desc string, wdGetter func()
 	return nil
 }
 
-func isTargetProvided(source, target, provided string) bool {
+func isTargetProvided(target, provided string) bool {
 	if provided == "" {
 		return target != ""
 	}

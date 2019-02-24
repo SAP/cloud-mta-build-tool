@@ -97,6 +97,9 @@ makefile_version: 0.0.0
 					return "", errors.New("err")
 				})).Should(HaveOccurred())
 			})
+			It("Fails on wrong mode", func() {
+				Ω(ExecuteMake(filepath.Join(wd, "testdata"), filepath.Join(wd, "testdata"), "dev", "wrong", os.Getwd)).Should(HaveOccurred())
+			})
 		})
 
 		It("createMakeFile testing", func() {
