@@ -57,8 +57,8 @@ func init() {
 // Provide mtad.yaml from mta.yaml
 var mtadCmd = &cobra.Command{
 	Use:   "mtad",
-	Short: "generates MTAD",
-	Long:  "generates deployment descriptor (mtad.yaml) from development descriptor (mta.yaml)",
+	Short: "Generates MTAD",
+	Long:  "Generates deployment descriptor (mtad.yaml) from development descriptor (mta.yaml)",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		err := artifacts.ExecuteGenMtad(mtadCmdSrc, mtadCmdTrg, mtadCmdPlatform, os.Getwd)
@@ -72,8 +72,8 @@ var mtadCmd = &cobra.Command{
 // Generate metadata info from deployment
 var metaCmd = &cobra.Command{
 	Use:   "meta",
-	Short: "generates the META-INF folder",
-	Long:  "generates META-INF folder with manifest and MTAD files",
+	Short: "Generates the META-INF folder",
+	Long:  "Generates META-INF folder with manifest and MTAD files",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		err := artifacts.ExecuteGenMeta(metaCmdSrc, metaCmdTrg, metaCmdDesc, metaCmdPlatform, true, os.Getwd)
@@ -88,8 +88,8 @@ var metaCmd = &cobra.Command{
 // Generate mtar from build artifacts
 var mtarCmd = &cobra.Command{
 	Use:   "mtar",
-	Short: "generates MTA archive",
-	Long:  "generates MTA archive from the folder with all artifacts",
+	Short: "Generates MTA archive",
+	Long:  "Generates MTA archive from the folder with all artifacts",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		err := artifacts.ExecuteGenMtar(mtarCmdSrc, mtarCmdTrg, mtarCmdDesc, os.Getwd)
