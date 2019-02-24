@@ -29,8 +29,8 @@ func init() {
 // Generate mtar from build artifacts
 var assemblyCommand = &cobra.Command{
 	Use:       "assemble",
-	Short:     "assembles MTA Archive",
-	Long:      "assembles MTA Archive",
+	Short:     "Assembles MTA Archive",
+	Long:      "Assembles MTA Archive",
 	ValidArgs: []string{"Deployment descriptor location"},
 	Args:      cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {

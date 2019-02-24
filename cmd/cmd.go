@@ -56,8 +56,8 @@ func init() {
 // generateCmd - Parent of all generation commands
 var generateCmd = &cobra.Command{
 	Use:   "gen",
-	Short: "generation commands",
-	Long:  "generation commands",
+	Short: "Generation commands",
+	Long:  "Generation commands",
 	Run:   nil,
 }
 
@@ -82,8 +82,8 @@ var moduleCmd = &cobra.Command{
 // Cleanup temp artifacts
 var cleanupCmd = &cobra.Command{
 	Use:   "clean",
-	Short: "clean MBT artifacts",
-	Long:  "clean MBT temporary created artifacts",
+	Short: "Clean MBT artifacts",
+	Long:  "Clean MBT temporary created artifacts",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		// Remove temp folder
