@@ -1,4 +1,4 @@
-package contenttype
+package conttype
 
 import (
 	. "github.com/onsi/ginkgo"

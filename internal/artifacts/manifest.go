@@ -11,8 +11,8 @@ import (
 
 	"github.com/SAP/cloud-mta/mta"
 
-	"github.com/SAP/cloud-mta-build-tool/internal/contenttype"
-	"github.com/SAP/cloud-mta-build-tool/internal/fs"
+	"github.com/SAP/cloud-mta-build-tool/internal/archive"
+	"github.com/SAP/cloud-mta-build-tool/internal/conttype"
 	"github.com/SAP/cloud-mta-build-tool/internal/tpl"
 	"github.com/SAP/cloud-mta-build-tool/internal/version"
 )
@@ -46,7 +46,7 @@ type entry struct {
 func setManifestDesc(ep dir.ITargetArtifacts, targetPathGetter dir.ITargetPath, mtaStr []*mta.Module,
 	mtaResources []*mta.Resource, modules []string, onlyModules bool) error {
 
-	contentTypes, err := contenttype.GetContentTypes()
+	contentTypes, err := conttype.GetContentTypes()
 	if err != nil {
 		return errors.Wrap(err,
 			"failed to generate the manifest file when getting the content types from the configuration")
@@ -106,7 +106,7 @@ func addModuleEntry(targetPathGetter dir.ITargetPath, entries []entry, module *m
 }
 
 func getResourcesEntries(targetPathGetter dir.ITargetPath, resources []*mta.Resource,
-	contentTypes *contenttype.ContentTypes) ([]entry, error) {
+	contentTypes *conttype.ContentTypes) ([]entry, error) {
 	var entries []entry
 	for _, resource := range resources {
 		if resource.Name == "" || resource.Parameters["path"] == nil {
@@ -129,7 +129,7 @@ func getResourcesEntries(targetPathGetter dir.ITargetPath, resources []*mta.Reso
 }
 
 func buildEntries(targetPathGetter dir.ITargetPath, module *mta.Module,
-	requiredDependencies []mta.Requires, contentTypes *contenttype.ContentTypes) ([]entry, error) {
+	requiredDependencies []mta.Requires, contentTypes *conttype.ContentTypes) ([]entry, error) {
 	result := make([]entry, 0)
 	for _, requiredDependency := range requiredDependencies {
 		contentType, err :=
@@ -148,7 +148,7 @@ func buildEntries(targetPathGetter dir.ITargetPath, module *mta.Module,
 	return result, nil
 }
 
-func getContentType(targetPathGetter dir.ITargetPath, path string, contentTypes *contenttype.ContentTypes) (string, error) {
+func getContentType(targetPathGetter dir.ITargetPath, path string, contentTypes *conttype.ContentTypes) (string, error) {
 	fullPath := filepath.Join(targetPathGetter.GetTargetTmpDir(), path)
 	info, err := os.Stat(fullPath)
 	if err != nil {
@@ -160,7 +160,7 @@ func getContentType(targetPathGetter dir.ITargetPath, path string, contentTypes 
 	}
 
 	extension := filepath.Ext(fullPath)
-	return contenttype.GetContentType(contentTypes, extension)
+	return conttype.GetContentType(contentTypes, extension)
 }
 
 func getRequiredDependencies(module *mta.Module) []mta.Requires {
