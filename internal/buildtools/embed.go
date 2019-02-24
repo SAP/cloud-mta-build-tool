@@ -10,7 +10,7 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/SAP/cloud-mta-build-tool/internal/fs"
+	"github.com/SAP/cloud-mta-build-tool/internal/archive"
 )
 
 type configInfo struct {
@@ -19,7 +19,7 @@ type configInfo struct {
 	Data        string
 }
 
-var templatePath = "./internal/build-tools"
+var templatePath = "./internal/buildtools"
 
 // This code is executed during the go:generate command
 // Reading the config files and generate byte array

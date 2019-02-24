@@ -10,8 +10,8 @@ import (
 
 	"github.com/SAP/cloud-mta/mta"
 
+	"github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta-build-tool/internal/commands"
-	"github.com/SAP/cloud-mta-build-tool/internal/fs"
 	"github.com/SAP/cloud-mta-build-tool/internal/logs"
 	"github.com/SAP/cloud-mta-build-tool/internal/proc"
 	"github.com/SAP/cloud-mta-build-tool/internal/version"

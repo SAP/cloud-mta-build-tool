@@ -11,8 +11,8 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/types"
 
+	"github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta-build-tool/internal/commands"
-	"github.com/SAP/cloud-mta-build-tool/internal/fs"
 	"github.com/SAP/cloud-mta-build-tool/internal/logs"
 )
 
