@@ -1,8 +1,6 @@
 package commands
 
 import (
-	"os"
-
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
@@ -10,6 +8,7 @@ import (
 	"github.com/SAP/cloud-mta-build-tool/internal/artifacts"
 	"github.com/SAP/cloud-mta-build-tool/internal/logs"
 	"strconv"
+	"os"
 )
 
 const (
@@ -18,12 +17,15 @@ const (
 
 var assembleCmdSrc string
 var assembleCmdTrg string
+var assembleCmdMtarName string
 
 func init() {
 	assemblyCommand.Flags().StringVarP(&assembleCmdSrc,
 		"source", "s", "", "the path to the MTA project; the current path is default")
 	assemblyCommand.Flags().StringVarP(&assembleCmdTrg,
 		"target", "t", "", "the path to the MBT results folder; the current path is default")
+	assemblyCommand.Flags().StringVarP(&assembleCmdMtarName,
+		"mtar", "m", "", "the archive name")
 }
 
 // Generate mtar from build artifacts
@@ -34,7 +36,7 @@ var assemblyCommand = &cobra.Command{
 	ValidArgs: []string{"Deployment descriptor location"},
 	Args:      cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		err := assembly(assembleCmdSrc, assembleCmdTrg, defaultPlatform, os.Getwd)
+		err := assembly(assembleCmdSrc, assembleCmdTrg, defaultPlatform, mtarCmdMtarName, os.Getwd)
 		logError(err)
 		return err
 	},
@@ -42,7 +44,7 @@ var assemblyCommand = &cobra.Command{
 	SilenceErrors: true,
 }
 
-func assembly(source, target, platform string, getWd func() (string, error)) error {
+func assembly(source, target, platform, mtarName string, getWd func() (string, error)) error {
 	logs.Logger.Info("assembling the MTA project...")
 	// copy from source to target
 	err := artifacts.CopyMtaContent(source, target, dir.Dep, getWd)
@@ -55,7 +57,7 @@ func assembly(source, target, platform string, getWd func() (string, error)) err
 		return errors.Wrap(err, "assembly of the MTA project failed when generating the meta information")
 	}
 	// generate mtar
-	err = artifacts.ExecuteGenMtar(source, target, strconv.FormatBool(target != ""), dir.Dep, "", getWd)
+	err = artifacts.ExecuteGenMtar(source, target, strconv.FormatBool(target != ""), dir.Dep, mtarName, getWd)
 	if err != nil {
 		return errors.Wrap(err, "assembly of the MTA project failed when generating the MTA archive")
 	}
