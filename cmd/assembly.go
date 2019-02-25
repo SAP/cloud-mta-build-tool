@@ -52,7 +52,7 @@ func assembly(source, target, platform string, getWd func() (string, error)) err
 	// Generate meta artifacts
 	err = artifacts.ExecuteGenMeta(source, target, dir.Dep, platform, false, getWd)
 	if err != nil {
-		return errors.Wrap(err, "assembly of the MTA project failed when generating the meta info")
+		return errors.Wrap(err, "assembly of the MTA project failed when generating the meta information")
 	}
 	// generate mtar
 	err = artifacts.ExecuteGenMtar(source, target, strconv.FormatBool(target != ""), dir.Dep, getWd)
