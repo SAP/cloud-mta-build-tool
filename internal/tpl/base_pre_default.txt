@@ -11,6 +11,9 @@ endif
 ifndef strict
 strict=true
 endif
+ifndef mtar
+mtar="*"
+endif
 modules := $(shell mbt provide modules -d={{.Dep}})
 modules := $(subst ],,$(subst [,,$(modules)))
 # List of all the recipes to be executed during the build process

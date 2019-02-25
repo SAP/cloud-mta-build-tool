@@ -24,6 +24,7 @@ var mtarCmdSrc string
 var mtarCmdTrg string
 var mtarCmdDesc string
 var mtarCmdTrgProvided string
+var mtarCmdMtarName string
 
 // init - inits flags of init command
 func init() {
@@ -53,6 +54,8 @@ func init() {
 		"the path to the MBT results folder; the current path is default")
 	mtarCmd.Flags().StringVarP(&mtarCmdDesc, "desc", "d", "",
 		"the MTA descriptor; supported values: dev (development descriptor, default value) and dep (deployment descriptor)")
+	mtarCmd.Flags().StringVarP(&mtarCmdMtarName, "mtar", "m", "*",
+		"the archive name")
 	mtarCmd.Flags().StringVarP(&mtarCmdTrgProvided, "target_provided", "", "",
 		"the MTA target provided indicator; supported values: true, false")
 }
@@ -95,7 +98,7 @@ var mtarCmd = &cobra.Command{
 	Long:  "Generates MTA archive from the folder with all artifacts",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		err := artifacts.ExecuteGenMtar(mtarCmdSrc, mtarCmdTrg, mtarCmdTrgProvided, mtarCmdDesc, os.Getwd)
+		err := artifacts.ExecuteGenMtar(mtarCmdSrc, mtarCmdTrg, mtarCmdTrgProvided, mtarCmdDesc, mtarCmdMtarName, os.Getwd)
 		logError(err)
 		return err
 	},

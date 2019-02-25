@@ -66,6 +66,7 @@ var _ = Describe("Commands", func() {
 			os.MkdirAll(getTestPath("result", ".mtahtml5_mta_build_tmp", "testapp"), os.ModePerm)
 			os.MkdirAll(getTestPath("result", ".mtahtml5_mta_build_tmp", "ui5app2"), os.ModePerm)
 			mtarCmdSrc = getTestPath("mtahtml5")
+			mtarCmdMtarName = ""
 			Ω(metaCmd.RunE(nil, []string{})).Should(Succeed())
 			Ω(mtarCmd.RunE(nil, []string{})).Should(Succeed())
 			Ω(getTestPath("result", "mtahtml5_0.0.1.mtar")).Should(BeAnExistingFile())

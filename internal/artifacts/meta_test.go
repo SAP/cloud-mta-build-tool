@@ -144,7 +144,7 @@ cli_version:["x"]
 			if err != nil {
 				fmt.Println(err)
 			}
-			mtarPath, err := generateMtar(&ep, &ep, &ep, true)
+			mtarPath, err := generateMtar(&ep, &ep, &ep, true, "")
 			if err != nil {
 				fmt.Println(err)
 			}

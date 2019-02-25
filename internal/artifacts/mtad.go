@@ -66,7 +66,7 @@ func ExecuteGenMtad(source, target, platform string, wdGetter func() (string, er
 
 func validatePlatform(platform string) error {
 	if platform != "xsa" && platform != "cf" && platform != "neo" {
-		return fmt.Errorf("the %s deployment platform is not supported; supported values: cf, xsa, neo", platform)
+		return fmt.Errorf(`the invalid target platform "%s"; supported platforms are: "cf", "neo", "xsa"`, platform)
 	}
 	return nil
 }

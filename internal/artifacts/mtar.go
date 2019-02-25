@@ -8,6 +8,7 @@ import (
 	"github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta-build-tool/internal/logs"
 	"strconv"
+	"github.com/SAP/cloud-mta/mta"
 )
 
 const (
@@ -15,13 +16,13 @@ const (
 )
 
 // ExecuteGenMtar - generates MTAR
-func ExecuteGenMtar(source, target, targetProvided, desc string, wdGetter func() (string, error)) error {
+func ExecuteGenMtar(source, target, targetProvided, desc, mtarName string, wdGetter func() (string, error)) error {
 	logs.Logger.Info("generating the MTA archive...")
 	loc, err := dir.Location(source, target, desc, wdGetter)
 	if err != nil {
 		return errors.Wrap(err, "generation of the MTA archive failed when initializing the location")
 	}
-	path, err := generateMtar(loc, loc, loc, isTargetProvided(target, targetProvided))
+	path, err := generateMtar(loc, loc, loc, isTargetProvided(target, targetProvided), mtarName)
 	if err != nil {
 		return err
 	}
@@ -41,7 +42,8 @@ func isTargetProvided(target, provided string) bool {
 }
 
 // generateMtar - generate mtar archive from the build artifacts
-func generateMtar(targetLoc dir.ITargetPath, targetArtifacts dir.ITargetArtifacts, parser dir.IMtaParser, targetProvided bool) (string, error) {
+func generateMtar(targetLoc dir.ITargetPath, targetArtifacts dir.ITargetArtifacts, parser dir.IMtaParser,
+	targetProvided bool, mtarName string) (string, error) {
 	// get MTA object
 	m, err := parser.ParseFile()
 	if err != nil {
@@ -59,10 +61,20 @@ func generateMtar(targetLoc dir.ITargetPath, targetArtifacts dir.ITargetArtifact
 			`generation of the MTA archive failed when creating the "%s" folder`, mtarFolderPath)
 	}
 	// archive building artifacts to mtar
-	mtarPath := filepath.Join(mtarFolderPath, m.ID+"_"+m.Version+mtarExtension)
+	mtarPath := filepath.Join(mtarFolderPath, getMtarFileName(m, mtarName))
 	err = dir.Archive(targetTmpDir, mtarPath)
 	if err != nil {
 		return "", errors.Wrap(err, "generation of the MTA archive failed when archiving")
 	}
 	return mtarPath, nil
+}
+
+func getMtarFileName(m *mta.MTA, mtarName string) string {
+	if mtarName == "" || mtarName == "*" {
+		return m.ID + "_" + m.Version + mtarExtension
+	}
+	if filepath.Ext(mtarName) != "" {
+		return mtarName
+	}
+	return mtarName + mtarExtension
 }

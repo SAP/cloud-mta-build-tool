@@ -11,6 +11,9 @@ endif
 ifndef strict
 strict=true
 endif
+ifndef mtar
+mtar="*"
+endif
 # Determine OS cores
 {{ OsCore.NPROCS  }}
 {{ OsCore.MAKEFLAGS  }}
