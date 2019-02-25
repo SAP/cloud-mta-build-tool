@@ -24,8 +24,8 @@ func init() {
 
 var initCmd = &cobra.Command{
 	Use:   "init",
-	Short: "Generate Makefile",
-	Long:  "Generate Makefile as manifest which describe's the build process",
+	Short: "generates Makefile",
+	Long:  "generates Makefile as a manifest file that describes the build process",
 	Args:  cobra.NoArgs,
 	Run: func(cmd *cobra.Command, args []string) {
 		// Generate build script
