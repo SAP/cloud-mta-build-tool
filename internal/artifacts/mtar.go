@@ -7,8 +7,8 @@ import (
 
 	"github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta-build-tool/internal/logs"
-	"strconv"
 	"github.com/SAP/cloud-mta/mta"
+	"strconv"
 )
 
 const (
