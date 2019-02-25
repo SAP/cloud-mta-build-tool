@@ -9,6 +9,7 @@ import (
 	"github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta-build-tool/internal/artifacts"
 	"github.com/SAP/cloud-mta-build-tool/internal/logs"
+	"strconv"
 )
 
 const (
@@ -54,7 +55,7 @@ func assembly(source, target, platform string, getWd func() (string, error)) err
 		return errors.Wrap(err, "assembly of the MTA project failed when generating the meta info")
 	}
 	// generate mtar
-	err = artifacts.ExecuteGenMtar(source, target, dir.Dep, getWd)
+	err = artifacts.ExecuteGenMtar(source, target, strconv.FormatBool(target != ""), dir.Dep, getWd)
 	if err != nil {
 		return errors.Wrap(err, "assembly of the MTA project failed when generating the MTA archive")
 	}

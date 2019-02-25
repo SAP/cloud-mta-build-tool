@@ -2,8 +2,10 @@ version=0.0.0
 ifndef p
 $(error platform flag is expected. e.g. use make -f makefile.mta p=cf)
 endif
+target_provided=true
 ifndef t
-t=$(CURDIR)
+t="$(CURDIR)"
+target_provided=false
 endif
 ifndef strict
 strict=true
@@ -38,7 +40,7 @@ meta: $(modules)
 
 # Pack as MTAR artifact
 mtar: $(modules) meta
-	@mbt gen mtar -d=dev -t=${t}
+	@mbt gen mtar -d=dev -t=${t} --target_provided=${target_provided}
 
 cleanup: mtar
 # Remove tmp folder

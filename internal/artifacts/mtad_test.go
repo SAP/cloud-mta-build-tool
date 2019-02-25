@@ -129,6 +129,6 @@ var _ = Describe("mtadLoc", func() {
 	})
 	It("GetMtarDir", func() {
 		loc := mtadLoc{"anyPath"}
-		Ω(loc.GetMtarDir()).Should(Equal(""))
+		Ω(loc.GetMtarDir(true)).Should(Equal(""))
 	})
 })

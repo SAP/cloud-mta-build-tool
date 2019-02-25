@@ -73,7 +73,7 @@ type ITargetArtifacts interface {
 	GetMetaPath() string
 	GetMtadPath() string
 	GetManifestPath() string
-	GetMtarDir() string
+	GetMtarDir(targetProvided bool) string
 }
 
 // Loc - MTA tool file properties
@@ -104,14 +104,14 @@ func (ep *Loc) GetDescriptor() string {
 }
 
 // GetMtarDir - gets archive folder
-// if the target folder differs from the source folder archive folder is target folder
+// if the target folder provided archive will be saved in the target folder
 // otherwise archives folder - "mta_archives" subfolder in the project folder
-func (ep *Loc) GetMtarDir() string {
-	if ep.SourcePath == ep.TargetPath {
-		return filepath.Join(ep.SourcePath, MtarFolder)
+func (ep *Loc) GetMtarDir(targetProvided bool) string {
+	if !targetProvided {
+		return filepath.Join(ep.GetTarget(), MtarFolder)
 	}
 
-	return ep.TargetPath
+	return ep.GetTarget()
 }
 
 // GetTarget gets the target path;

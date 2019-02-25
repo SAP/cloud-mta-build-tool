@@ -13,6 +13,8 @@ import (
 
 	"github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta-build-tool/internal/conttype"
+	"github.com/SAP/cloud-mta-build-tool/internal/version"
+	"strings"
 )
 
 var _ = Describe("manifest", func() {
@@ -41,9 +43,46 @@ var _ = Describe("manifest", func() {
 			Ω(setManifestDesc(&loc, &loc, mtaObj.Modules, []*mta.Resource{}, []string{}, false)).Should(Succeed())
 			actual := getFileContent(getTestPath("result", ".mta_mta_build_tmp", "META-INF", "MANIFEST.MF"))
 			golden := getFileContent(getTestPath("golden_manifest.mf"))
+			v, _ := version.GetVersion()
+			golden = strings.Replace(golden, "{{cli_version}}", v.CliVersion, -1)
 			fmt.Println(actual)
 			fmt.Println(golden)
 			Ω(actual).Should(Equal(golden))
+		})
+		It("Sanity - with list of modules provided; second module ignored", func() {
+			os.Mkdir(getTestPath("result", ".mta_mta_build_tmp", "node-js"), os.ModePerm)
+			os.Create(getTestPath("result", ".mta_mta_build_tmp", "node-js", "data.zip"))
+			dirC, _ := ioutil.ReadDir(getTestPath("result", ".mta_mta_build_tmp"))
+			for _, c := range dirC {
+				fmt.Println(c.Name())
+			}
+			loc := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath(), MtaFilename: "mta_2modules.yaml"}
+			mtaObj, err := loc.ParseFile()
+			Ω(err).Should(Succeed())
+			Ω(setManifestDesc(&loc, &loc, mtaObj.Modules, []*mta.Resource{}, []string{"node-js"}, false)).Should(Succeed())
+			actual := getFileContent(getTestPath("result", ".mta_mta_build_tmp", "META-INF", "MANIFEST.MF"))
+			golden := getFileContent(getTestPath("golden_manifest.mf"))
+			v, _ := version.GetVersion()
+			golden = strings.Replace(golden, "{{cli_version}}", v.CliVersion, -1)
+			fmt.Println(actual)
+			fmt.Println(golden)
+			Ω(actual).Should(Equal(golden))
+		})
+		It("wrong content types configuration", func() {
+			os.Mkdir(getTestPath("result", ".mta_mta_build_tmp", "node-js"), os.ModePerm)
+			os.Create(getTestPath("result", ".mta_mta_build_tmp", "node-js", "data.zip"))
+			dirC, _ := ioutil.ReadDir(getTestPath("result", ".mta_mta_build_tmp"))
+			for _, c := range dirC {
+				fmt.Println(c.Name())
+			}
+			loc := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath()}
+			mtaObj, err := loc.ParseFile()
+			Ω(err).Should(Succeed())
+			contentTypesOrig := conttype.ContentTypeConfig
+			conttype.ContentTypeConfig = []byte(`wrong configuraion`)
+			Ω(setManifestDesc(&loc, &loc, mtaObj.Modules, []*mta.Resource{}, []string{}, false)).Should(HaveOccurred())
+			conttype.ContentTypeConfig = contentTypesOrig
+
 		})
 		It("Sanity - no paths", func() {
 			os.Mkdir(getTestPath("result", ".mta_mta_build_tmp", "node-js"), os.ModePerm)
@@ -53,6 +92,8 @@ var _ = Describe("manifest", func() {
 			Ω(setManifestDesc(&loc, &loc, mtaObj.Modules, []*mta.Resource{}, []string{}, false)).Should(Succeed())
 			actual := getFileContent(getTestPath("result", ".mta_mta_build_tmp", "META-INF", "MANIFEST.MF"))
 			golden := getFileContent(getTestPath("golden_assembly_manifest_no_paths.mf"))
+			v, _ := version.GetVersion()
+			golden = strings.Replace(golden, "{{cli_version}}", v.CliVersion, -1)
 			fmt.Println(actual)
 			fmt.Println(golden)
 			Ω(actual).Should(Equal(golden))
@@ -68,6 +109,8 @@ var _ = Describe("manifest", func() {
 			Ω(setManifestDesc(&loc, &loc, mtaObj.Modules, mtaObj.Resources, []string{}, false)).Should(Succeed())
 			actual := getFileContent(getTestPath("result", ".assembly-sample_mta_build_tmp", "META-INF", "MANIFEST.MF"))
 			golden := getFileContent(getTestPath("golden_assembly_manifest.mf"))
+			v, _ := version.GetVersion()
+			golden = strings.Replace(golden, "{{cli_version}}", v.CliVersion, -1)
 			fmt.Println(actual)
 			fmt.Println(golden)
 			Ω(actual).Should(Equal(golden))
@@ -122,11 +165,22 @@ var _ = Describe("manifest", func() {
 			Ω(genManifest(loc.GetManifestPath(), entries)).Should(Succeed())
 			actual := getFileContent(getTestPath("result", ".mta_mta_build_tmp", "META-INF", "MANIFEST.MF"))
 			golden := getFileContent(getTestPath("golden_manifest.mf"))
+			v, _ := version.GetVersion()
+			golden = strings.Replace(golden, "{{cli_version}}", v.CliVersion, -1)
 			Ω(actual).Should(Equal(golden))
 		})
 		It("Fails on wrong location", func() {
 			loc := dir.Loc{}
 			Ω(genManifest(loc.GetManifestPath(), []entry{})).Should(HaveOccurred())
+		})
+		It("Fails on wrong version configuration", func() {
+			versionCfg := version.VersionConfig
+			version.VersionConfig = []byte(`
+bad config
+`)
+			loc := dir.Loc{}
+			Ω(genManifest(loc.GetManifestPath(), []entry{})).Should(HaveOccurred())
+			version.VersionConfig = versionCfg
 		})
 	})
 	var _ = Describe("moduleDefined", func() {

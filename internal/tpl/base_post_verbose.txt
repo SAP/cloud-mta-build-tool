@@ -5,7 +5,7 @@ meta: $(modules)
 
 # Pack as MTAR artifact
 mtar: $(modules) meta
-{{"\t"}}@mbt gen mtar -d={{.Dep}} -t=${t}
+{{"\t"}}@mbt gen mtar -d={{.Dep}} -t=${t} --target_provided=${target_provided}
 
 cleanup: mtar
 # Remove tmp folder

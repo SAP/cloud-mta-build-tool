@@ -32,7 +32,7 @@ func (loc *mtadLoc) GetManifestPath() string {
 	return ""
 }
 
-func (loc *mtadLoc) GetMtarDir() string {
+func (loc *mtadLoc) GetMtarDir(targetProvided bool) string {
 	return ""
 }
 

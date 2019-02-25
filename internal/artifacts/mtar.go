@@ -7,6 +7,7 @@ import (
 
 	"github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta-build-tool/internal/logs"
+	"strconv"
 )
 
 const (
@@ -14,13 +15,13 @@ const (
 )
 
 // ExecuteGenMtar - generates MTAR
-func ExecuteGenMtar(source, target, desc string, wdGetter func() (string, error)) error {
+func ExecuteGenMtar(source, target, targetProvided, desc string, wdGetter func() (string, error)) error {
 	logs.Logger.Info("generating the MTA archive...")
 	loc, err := dir.Location(source, target, desc, wdGetter)
 	if err != nil {
 		return errors.Wrap(err, "generation of the MTA archive failed when initializing the location")
 	}
-	path, err := generateMtar(loc, loc, loc)
+	path, err := generateMtar(loc, loc, loc, isTargetProvided(target, targetProvided))
 	if err != nil {
 		return err
 	}
@@ -28,8 +29,19 @@ func ExecuteGenMtar(source, target, desc string, wdGetter func() (string, error)
 	return nil
 }
 
+func isTargetProvided(target, provided string) bool {
+	if provided == "" {
+		return target != ""
+	}
+	value, err := strconv.ParseBool(provided)
+	if err != nil {
+		return false
+	}
+	return value
+}
+
 // generateMtar - generate mtar archive from the build artifacts
-func generateMtar(targetLoc dir.ITargetPath, targetArtifacts dir.ITargetArtifacts, parser dir.IMtaParser) (string, error) {
+func generateMtar(targetLoc dir.ITargetPath, targetArtifacts dir.ITargetArtifacts, parser dir.IMtaParser, targetProvided bool) (string, error) {
 	// get MTA object
 	m, err := parser.ParseFile()
 	if err != nil {
@@ -40,7 +52,7 @@ func generateMtar(targetLoc dir.ITargetPath, targetArtifacts dir.ITargetArtifact
 
 	// create the mta_archives folder
 	// get directory - where mtar will be saved
-	mtarFolderPath := targetArtifacts.GetMtarDir()
+	mtarFolderPath := targetArtifacts.GetMtarDir(targetProvided)
 	err = dir.CreateDirIfNotExist(mtarFolderPath)
 	if err != nil {
 		return "", errors.Wrapf(err,

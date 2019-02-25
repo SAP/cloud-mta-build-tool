@@ -19,22 +19,30 @@ var _ = Describe("Mtar", func() {
 		})
 
 		var _ = Describe("ExecuteGenMtar", func() {
-			It("Sanity", func() {
+			It("Sanity, target provided", func() {
 				os.MkdirAll(getTestPath("result", ".mtahtml5_mta_build_tmp", "testapp"), os.ModePerm)
 				os.MkdirAll(getTestPath("result", ".mtahtml5_mta_build_tmp", "ui5app2"), os.ModePerm)
 				Ω(ExecuteGenMeta(getTestPath("mtahtml5"), getResultPath(), "dev", "cf", true, os.Getwd)).Should(Succeed())
-				Ω(ExecuteGenMtar(getTestPath("mtahtml5"), getResultPath(), "dev", os.Getwd)).Should(Succeed())
+				Ω(ExecuteGenMtar(getTestPath("mtahtml5"), getResultPath(), "true", "dev", os.Getwd)).Should(Succeed())
 				Ω(getTestPath("result", "mtahtml5_0.0.1.mtar")).Should(BeAnExistingFile())
 			})
 
+			It("Sanity, target not provided", func() {
+				os.MkdirAll(getTestPath("result", ".mtahtml5_mta_build_tmp", "testapp"), os.ModePerm)
+				os.MkdirAll(getTestPath("result", ".mtahtml5_mta_build_tmp", "ui5app2"), os.ModePerm)
+				Ω(ExecuteGenMeta(getTestPath("mtahtml5"), getResultPath(), "dev", "cf", true, os.Getwd)).Should(Succeed())
+				Ω(ExecuteGenMtar(getTestPath("mtahtml5"), getResultPath(), "false", "dev", os.Getwd)).Should(Succeed())
+				Ω(getTestPath("result", "mta_archives", "mtahtml5_0.0.1.mtar")).Should(BeAnExistingFile())
+			})
+
 			It("Fails on location initialization", func() {
-				Ω(ExecuteGenMtar("", getResultPath(), "dev", func() (string, error) {
+				Ω(ExecuteGenMtar("", getResultPath(), "true", "dev", func() (string, error) {
 					return "", errors.New("err")
 				})).Should(HaveOccurred())
 			})
 
 			It("Fails - wrong source", func() {
-				Ω(ExecuteGenMtar(getTestPath("mtahtml6"), getResultPath(), "dev", os.Getwd)).Should(HaveOccurred())
+				Ω(ExecuteGenMtar(getTestPath("mtahtml6"), getResultPath(), "true", "dev", os.Getwd)).Should(HaveOccurred())
 			})
 		})
 
@@ -43,7 +51,7 @@ var _ = Describe("Mtar", func() {
 			os.MkdirAll(getTestPath("result", ".mtahtml5_mta_build_tmp", "testapp"), os.ModePerm)
 			os.MkdirAll(getTestPath("result", ".mtahtml5_mta_build_tmp", "ui5app2"), os.ModePerm)
 			Ω(generateMeta(&ep, &ep, &ep, false, "cf", true)).Should(Succeed())
-			mtarPath, err := generateMtar(&ep, &ep, &ep)
+			mtarPath, err := generateMtar(&ep, &ep, &ep, true)
 			Ω(err).Should(Succeed())
 			Ω(mtarPath).Should(BeAnExistingFile())
 		})
@@ -51,32 +59,40 @@ var _ = Describe("Mtar", func() {
 		It("Generate Mtar - Fails on wrong source", func() {
 			ep := dir.Loc{SourcePath: getTestPath("not_existing"), TargetPath: getResultPath()}
 			ep1 := dir.Loc{SourcePath: getTestPath("mtahtml5"), TargetPath: getResultPath()}
-			_, err := generateMtar(&ep, &ep1, &ep1)
+			_, err := generateMtar(&ep, &ep1, &ep1, true)
 			Ω(err).Should(HaveOccurred())
 		})
 
 		It("Generate Mtar - Invalid mta", func() {
 			ep := dir.Loc{SourcePath: getTestPath("mtahtml5"), TargetPath: getResultPath(), MtaFilename: "mtaBroken.yaml"}
-			_, err := generateMtar(&ep, &ep, &ep)
+			_, err := generateMtar(&ep, &ep, &ep, true)
 			Ω(err).Should(HaveOccurred())
 		})
 		It("Generate Mtar - Mta not exists", func() {
 			ep := dir.Loc{SourcePath: getTestPath("mtahtml5"), TargetPath: getResultPath(), MtaFilename: "mtaNotExists.yaml"}
-			_, err := generateMtar(&ep, &ep, &ep)
+			_, err := generateMtar(&ep, &ep, &ep, true)
 			Ω(err).Should(HaveOccurred())
 		})
 		It("Generate Mtar - results file exists, folder results can't be created ", func() {
 			file, _ := os.Create(getTestPath("result"))
 			defer file.Close()
 			ep := dir.Loc{SourcePath: getTestPath("mtahtml5"), TargetPath: getResultPath()}
-			_, err := generateMtar(&ep, &ep, &ep)
+			_, err := generateMtar(&ep, &ep, &ep, true)
 			Ω(err).Should(HaveOccurred())
 		})
+		DescribeTable("isTargetProvided", func(target, provided string, expected bool) {
+			Ω(isTargetProvided(target, provided)).Should(Equal(expected))
+		},
+			Entry("Sanity", "", "true", true),
+			Entry("Wrong provided value", "", "xx", false),
+			Entry("Empty provided value, target path provided", "path", "", true),
+			Entry("Empty provided value, no target path provided", "", "", false),
+		)
 
 		var _ = Describe("Target Failures", func() {
 			var _ = DescribeTable("Invalid location", func(loc *testMtarLoc) {
 				ep := dir.Loc{}
-				_, err := generateMtar(loc, &ep, &ep)
+				_, err := generateMtar(loc, &ep, &ep, true)
 				Ω(err).Should(HaveOccurred())
 			},
 				Entry("Fails on GetTargetTmpDir", &testMtarLoc{
