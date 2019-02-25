@@ -24,7 +24,7 @@ var buildCmdPlatform string
 
 func init() {
 
-	// set flags of command pack Module
+	// sets the flags of of the command pack module
 	packModuleCmd.Flags().StringVarP(&packCmdSrc, "source", "s", "",
 		"the path to the MTA project; the current path is default")
 	packModuleCmd.Flags().StringVarP(&packCmdTrg, "target", "t", "",
@@ -36,7 +36,7 @@ func init() {
 	packModuleCmd.Flags().StringVarP(&packCmdPlatform, "platform", "p", "",
 		"the deployment platform; supported plaforms: cf, xsa, neo")
 
-	// set flags of command build Module
+	// sets the flags of the command build module
 	buildModuleCmd.Flags().StringVarP(&buildCmdSrc, "source", "s", "",
 		"the path to the MTA project; the current path is default")
 	buildModuleCmd.Flags().StringVarP(&buildCmdTrg, "target", "t", "",
@@ -65,10 +65,10 @@ var buildModuleCmd = &cobra.Command{
 	SilenceErrors: true,
 }
 
-// zip specific module and put the artifacts on the temp folder according
-// to the mtar structure, i.e each module has new entry as folder in the mtar folder
-// Note - even if the path of the module was changed in the mta.yaml in the mtar the
-// the module folder will get the module name
+// zips the specific module and puts the artifacts in the temp folder according
+// to the MTAR structure; that is, each module has new entry as folder in the MTAR folder
+// Note - even if the path of the module was changed in the "mta.yaml" file, in the MTAR folder the
+// the module folder gets the module name
 var packModuleCmd = &cobra.Command{
 	Use:   "pack",
 	Short: "packs module artifacts",
