@@ -28,15 +28,15 @@ var rootCmd = &cobra.Command{
 	Args:    cobra.MaximumNArgs(1),
 }
 
-// Execute command adds all child commands to the root command and sets flags appropriately.
+// Execute command adds all child commands to the root command and sets flags appropriately
 func Execute() error {
 	return rootCmd.Execute()
 }
 
 func initConfig() {
 	viper.SetConfigFile(cfgFile)
-	viper.AutomaticEnv() // read in environment variables that match
-	// If a config file is found, read it in.
+	viper.AutomaticEnv() // reads in the environment variables that match
+	// if a config file is found, reads it in
 	if err := viper.ReadInConfig(); err == nil {
 		logs.Logger.Println("Using config file:", viper.ConfigFileUsed())
 	}
