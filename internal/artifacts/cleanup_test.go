@@ -26,19 +26,6 @@ var _ = Describe("Cleanup", func() {
 			return "", errors.New("err")
 		})).Should(HaveOccurred())
 	})
-	It("Fails on RemoveAll, another go routine creates file in the folder to be cleaned", func() {
-		messages := make(chan string)
-		messages1 := make(chan string)
-		go func() {
-			file, _ := os.OpenFile(getTestPath("result", ".mtahtml5_mta_build_tmp", "abc.txt"), os.O_CREATE, 0666)
-			messages1 <- "ping1"
-			<-messages
-			file.Close()
-		}()
-		<-messages1
-		Ω(ExecuteCleanup(getTestPath("mtahtml5"), getResultPath(), "dev", os.Getwd)).Should(HaveOccurred())
-		messages <- "ping"
-	})
 })
 
 var _ = Describe("Cleanup", func() {
