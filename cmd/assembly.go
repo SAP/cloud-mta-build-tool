@@ -1,14 +1,15 @@
 package commands
 
 import (
+	"os"
+	"strconv"
+
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
 	"github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta-build-tool/internal/artifacts"
 	"github.com/SAP/cloud-mta-build-tool/internal/logs"
-	"strconv"
-	"os"
 )
 
 const (
