@@ -245,9 +245,8 @@ func copyMtaContentFromPath(sourceMtaContent, targetMtaContent, mtaContentPath, 
 	if mtaContentInfo.IsDir() {
 		if copyInParallel {
 			return dir.CopyDir(sourceMtaContent, targetMtaContent, true, dir.CopyEntriesInParallel)
-		} else {
-			return dir.CopyDir(sourceMtaContent, targetMtaContent, true, dir.CopyEntries)
 		}
+		return dir.CopyDir(sourceMtaContent, targetMtaContent, true, dir.CopyEntries)
 	}
 
 	mtaContentParentDir := filepath.Dir(mtaContentPath)

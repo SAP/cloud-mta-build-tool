@@ -33,7 +33,6 @@ func init() {
 
 }
 
-
 // Generate mtar from build artifacts
 var assemblyCommand = &cobra.Command{
 	Use:       "assemble",
