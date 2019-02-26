@@ -124,7 +124,7 @@ var _ = Describe("FSOPS", func() {
 		It("TargetFileLocked", func() {
 			f, _ := os.Create(targetPath)
 			sourcePath := getFullPath("testdata", "level2")
-			Ω(CopyDir(sourcePath, targetPath, true, CopyEntries )).Should(HaveOccurred())
+			Ω(CopyDir(sourcePath, targetPath, true, CopyEntries)).Should(HaveOccurred())
 			f.Close()
 		})
 
