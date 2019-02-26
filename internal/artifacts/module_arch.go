@@ -155,7 +155,7 @@ func copyModuleArchive(ep dir.IModule, modulePath, moduleName string) error {
 
 // CopyMtaContent copies the content of all modules and resources which are presented in the deployment descriptor,
 // in the source directory, to the target directory
-func CopyMtaContent(source, target, desc string, wdGetter func() (string, error)) error {
+func CopyMtaContent(source, target, desc string, copyInParallel bool, wdGetter func() (string, error)) error {
 
 	logs.Logger.Info("copying the MTA content...")
 	loc, err := dir.Location(source, target, desc, wdGetter)
@@ -167,29 +167,29 @@ func CopyMtaContent(source, target, desc string, wdGetter func() (string, error)
 	if err != nil {
 		return errors.Wrapf(err, `copying the MTA content failed when parsing the %s file`, loc.GetMtaYamlPath())
 	}
-	err = copyModuleContent(loc.GetSource(), loc.GetTargetTmpDir(), mta)
+	err = copyModuleContent(loc.GetSource(), loc.GetTargetTmpDir(), mta, copyInParallel)
 	if err != nil {
 		return err
 	}
 
-	err = copyRequiredDependencyContent(loc.GetSource(), loc.GetTargetTmpDir(), mta)
+	err = copyRequiredDependencyContent(loc.GetSource(), loc.GetTargetTmpDir(), mta, copyInParallel)
 	if err != nil {
 		return err
 	}
 
-	return copyResourceContent(loc.GetSource(), loc.GetTargetTmpDir(), mta)
+	return copyResourceContent(loc.GetSource(), loc.GetTargetTmpDir(), mta, copyInParallel)
 }
 
-func copyModuleContent(source, target string, mta *mta.MTA) error {
-	return copyMtaContent(source, target, getModulesWithPaths(mta.Modules))
+func copyModuleContent(source, target string, mta *mta.MTA, copyInParallel bool) error {
+	return copyMtaContent(source, target, getModulesWithPaths(mta.Modules), copyInParallel)
 }
 
-func copyResourceContent(source, target string, mta *mta.MTA) error {
-	return copyMtaContent(source, target, getResourcesPaths(mta.Resources))
+func copyResourceContent(source, target string, mta *mta.MTA, copyInParallel bool) error {
+	return copyMtaContent(source, target, getResourcesPaths(mta.Resources), copyInParallel)
 }
 
-func copyRequiredDependencyContent(source, target string, mta *mta.MTA) error {
-	return copyMtaContent(source, target, getRequiredDependencyPaths(mta.Modules))
+func copyRequiredDependencyContent(source, target string, mta *mta.MTA, copyInParallel bool) error {
+	return copyMtaContent(source, target, getRequiredDependencyPaths(mta.Modules), copyInParallel)
 }
 
 func getRequiredDependencyPaths(mtaModules []*mta.Module) []string {
@@ -210,7 +210,7 @@ func getRequiredDependenciesWithPathsForModule(module *mta.Module) []string {
 	}
 	return result
 }
-func copyMtaContent(source, target string, mtaPaths []string) error {
+func copyMtaContent(source, target string, mtaPaths []string, copyInParallel bool) error {
 	copiedMtaContents := make([]string, 0)
 	for _, mtaPath := range mtaPaths {
 		sourceMtaContent := filepath.Join(source, mtaPath)
@@ -220,7 +220,7 @@ func copyMtaContent(source, target string, mtaPaths []string) error {
 		}
 		copiedMtaContents = append(copiedMtaContents, mtaPath)
 		targetMtaContent := filepath.Join(target, mtaPath)
-		err := copyMtaContentFromPath(sourceMtaContent, targetMtaContent, mtaPath, target)
+		err := copyMtaContentFromPath(sourceMtaContent, targetMtaContent, mtaPath, target, copyInParallel)
 		if err != nil {
 			return handleCopyMtaContentFailure(target, copiedMtaContents,
 				`error copying the "%s" MTA content to the "%s" target directory because: %s`, []interface{}{mtaPath, source, err.Error()})
@@ -240,10 +240,14 @@ func handleCopyMtaContentFailure(targetLocation string, copiedMtaContents []stri
 	return fmt.Errorf(message+"; cleanup failed", messageArguments...)
 }
 
-func copyMtaContentFromPath(sourceMtaContent, targetMtaContent, mtaContentPath, target string) error {
+func copyMtaContentFromPath(sourceMtaContent, targetMtaContent, mtaContentPath, target string, copyInParallel bool) error {
 	mtaContentInfo, _ := os.Stat(sourceMtaContent)
 	if mtaContentInfo.IsDir() {
-		return dir.CopyDir(sourceMtaContent, targetMtaContent, true)
+		if copyInParallel {
+			return dir.CopyDir(sourceMtaContent, targetMtaContent, true, dir.CopyEntriesInParallel)
+		} else {
+			return dir.CopyDir(sourceMtaContent, targetMtaContent, true, dir.CopyEntries)
+		}
 	}
 
 	mtaContentParentDir := filepath.Dir(mtaContentPath)

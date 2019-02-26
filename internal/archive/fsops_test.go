@@ -109,21 +109,42 @@ var _ = Describe("FSOPS", func() {
 			os.RemoveAll(targetPath)
 		})
 
-		It("Sanity", func() {
+		It("Sanity - parallel", func() {
 			sourcePath := getFullPath("testdata", "level2")
-			Ω(CopyDir(sourcePath, targetPath, true)).Should(Succeed())
+			Ω(CopyDir(sourcePath, targetPath, true, CopyEntriesInParallel)).Should(Succeed())
+			Ω(countFilesInDir(targetPath)).Should(Equal(countFilesInDir(sourcePath)))
+		})
+
+		It("Sanity - not parallel", func() {
+			sourcePath := getFullPath("testdata", "level2")
+			Ω(CopyDir(sourcePath, targetPath, true, CopyEntries)).Should(Succeed())
 			Ω(countFilesInDir(targetPath)).Should(Equal(countFilesInDir(sourcePath)))
 		})
 
 		It("TargetFileLocked", func() {
 			f, _ := os.Create(targetPath)
 			sourcePath := getFullPath("testdata", "level2")
-			Ω(CopyDir(sourcePath, targetPath, true)).Should(HaveOccurred())
+			Ω(CopyDir(sourcePath, targetPath, true, CopyEntries )).Should(HaveOccurred())
+			f.Close()
+		})
+
+		It("TargetFileLocked", func() {
+			f, _ := os.Create(targetPath)
+			sourcePath := getFullPath("testdata", "level2")
+			Ω(CopyDir(sourcePath, targetPath, true, CopyEntriesInParallel)).Should(HaveOccurred())
 			f.Close()
 		})
 
 		var _ = DescribeTable("Invalid cases", func(source, target string) {
-			Ω(CopyDir(source, targetPath, true)).Should(HaveOccurred())
+			Ω(CopyDir(source, targetPath, true, CopyEntries)).Should(HaveOccurred())
+		},
+			Entry("SourceDirectoryDoesNotExist", getFullPath("testdata", "level5"), targetPath),
+			Entry("SourceIsNotDirectory", getFullPath("testdata", "level2", "level2_one.txt"), targetPath),
+			Entry("DstDirectoryNotValid", getFullPath("level2"), ":"),
+		)
+
+		var _ = DescribeTable("Invalid cases - parallel", func(source, target string) {
+			Ω(CopyDir(source, targetPath, true, CopyEntriesInParallel)).Should(HaveOccurred())
 		},
 			Entry("SourceDirectoryDoesNotExist", getFullPath("testdata", "level5"), targetPath),
 			Entry("SourceIsNotDirectory", getFullPath("testdata", "level2", "level2_one.txt"), targetPath),
@@ -165,6 +186,21 @@ var _ = Describe("FSOPS", func() {
 				filesWrapped = append(filesWrapped, testFile{file: file})
 			}
 			Ω(CopyEntries(filesWrapped, sourcePath, targetPath)).Should(Succeed())
+			Ω(countFilesInDir(sourcePath) - 1).Should(Equal(countFilesInDir(targetPath)))
+			os.RemoveAll(targetPath)
+		})
+		It("Sanity - copy in parallel", func() {
+			sourcePath := getFullPath("testdata", "level2", "level3")
+			targetPath := getFullPath("testdata", "result")
+			os.MkdirAll(targetPath, os.ModePerm)
+			files, _ := ioutil.ReadDir(sourcePath)
+			// Files wrapped to overwrite their methods
+			var filesWrapped []os.FileInfo
+			Ω(CopyEntriesInParallel(filesWrapped, sourcePath, targetPath)).Should(Succeed())
+			for _, file := range files {
+				filesWrapped = append(filesWrapped, testFile{file: file})
+			}
+			Ω(CopyEntriesInParallel(filesWrapped, sourcePath, targetPath)).Should(Succeed())
 			Ω(countFilesInDir(sourcePath) - 1).Should(Equal(countFilesInDir(targetPath)))
 			os.RemoveAll(targetPath)
 		})
