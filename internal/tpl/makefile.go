@@ -127,11 +127,11 @@ func getTplCfg(mode string, isDep bool) (tplCfg, error) {
 			tpl.tplContent = makeVerbose
 		}
 		tpl.preContent = basePreVerbose
-		tpl.postContent = basePostVerbose
+		tpl.postContent = basePost
 	} else if mode == "" {
 		tpl.tplContent = makeDefault
 		tpl.preContent = basePreDefault
-		tpl.postContent = basePostDefault
+		tpl.postContent = basePost
 	} else {
 		return tplCfg{}, fmt.Errorf(`the "%s" command is not supported`, mode)
 	}

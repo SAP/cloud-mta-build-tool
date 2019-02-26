@@ -38,8 +38,8 @@ func getMakeFileContent(filePath string) string {
 var _ = Describe("Makefile", func() {
 
 	var (
-		tpl              = tplCfg{tplContent: makeVerbose, relPath: "", preContent: basePreVerbose, postContent: basePostVerbose, depDesc: "dev"}
-		tplDep           = tplCfg{tplContent: makeVerboseDep, relPath: "", preContent: basePreVerbose, postContent: basePostVerbose, depDesc: "dep"}
+		tpl              = tplCfg{tplContent: makeVerbose, relPath: "", preContent: basePreVerbose, postContent: basePost, depDesc: "dev"}
+		tplDep           = tplCfg{tplContent: makeVerboseDep, relPath: "", preContent: basePreVerbose, postContent: basePost, depDesc: "dep"}
 		makeFileName     = "MakeFileTest.mta"
 		wd, _            = os.Getwd()
 		expectedMakePath = func() string {
@@ -137,7 +137,7 @@ makefile_version: 0.0.0
 		wd, _ := os.Getwd()
 		testTemplate, _ := ioutil.ReadFile(filepath.Join(wd, "testdata", testTemplateFilename))
 		ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata"), TargetPath: filepath.Join(wd, "testdata")}
-		Ω(makeFile(&ep, &ep, makeFileName, &tplCfg{relPath: testPath, tplContent: testTemplate, preContent: basePreVerbose, postContent: basePostVerbose, depDesc: "dev"})).Should(HaveOccurred())
+		Ω(makeFile(&ep, &ep, makeFileName, &tplCfg{relPath: testPath, tplContent: testTemplate, preContent: basePreVerbose, postContent: basePost, depDesc: "dev"})).Should(HaveOccurred())
 	},
 		Entry("Wrong Template", "testdata", filepath.Join("testdata", "WrongMakeTmpl.txt")),
 		Entry("Yaml not exists", "testdata1", "make_default.txt"),
@@ -154,10 +154,10 @@ makefile_version: 0.0.0
 		DescribeTable("Positive", func(mode string, tpl tplCfg, isDep bool) {
 			Ω(getTplCfg(mode, isDep)).Should(Equal(tpl))
 		},
-			Entry("Default mode Dev", "", tplCfg{tplContent: makeDefault, preContent: basePreDefault, postContent: basePostDefault}, false),
-			Entry("Default mode Dep", "", tplCfg{tplContent: makeDefault, preContent: basePreDefault, postContent: basePostDefault}, true),
-			Entry("Verbose mode Dev", "verbose", tplCfg{tplContent: makeVerbose, preContent: basePreVerbose, postContent: basePostVerbose}, false),
-			Entry("Verbose mode Dep", "verbose", tplCfg{tplContent: makeVerboseDep, preContent: basePreVerbose, postContent: basePostVerbose}, true),
+			Entry("Default mode Dev", "", tplCfg{tplContent: makeDefault, preContent: basePreDefault, postContent: basePost}, false),
+			Entry("Default mode Dep", "", tplCfg{tplContent: makeDefault, preContent: basePreDefault, postContent: basePost}, true),
+			Entry("Verbose mode Dev", "verbose", tplCfg{tplContent: makeVerbose, preContent: basePreVerbose, postContent: basePost}, false),
+			Entry("Verbose mode Dep", "verbose", tplCfg{tplContent: makeVerboseDep, preContent: basePreVerbose, postContent: basePost}, true),
 		)
 		It("unknown mode", func() {
 			_, err := getTplCfg("test", false)

@@ -10,6 +10,9 @@ endif
 ifndef strict
 strict=true
 endif
+ifndef mtar
+mtar="*"
+endif
 # Determine OS cores
 NPROCS = $(shell grep -c 'processor' /proc/cpuinfo)
 MAKEFLAGS += -j$
@@ -38,7 +41,7 @@ meta: $(modules)
 
 # Pack as MTAR artifact
 mtar: $(modules) meta
-	@mbt gen mtar -d=dep -t=${t} --target_provided=${target_provided}
+	@mbt gen mtar -d=dep -t=${t} --mtar=${mtar} --target_provided=${target_provided}
 
 cleanup: mtar
 # Remove tmp folder

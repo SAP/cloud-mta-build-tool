@@ -5,8 +5,7 @@ package main
 //go:generate go run ./internal/buildtools/embed.go -source=./configs/content_type_cfg.yaml -target=./internal/conttype/content_type_cfg.go -name=ContentTypeConfig -package=conttype
 //go:generate go run ./internal/buildtools/embed.go -source=./internal/tpl/manifest.txt -target=./internal/tpl/manifest.go -name=Manifest -package=tpl
 //go:generate go run ./internal/buildtools/embed.go -source=./configs/builder_type_cfg.yaml -target=./internal/commands/builder_type_cfg.go -name=BuilderTypeConfig -package=commands
-//go:generate go run ./internal/buildtools/embed.go -source=./internal/tpl/base_post_default.txt -target=./internal/tpl/base_post_default.go -name=basePostDefault -package=tpl
-//go:generate go run ./internal/buildtools/embed.go -source=./internal/tpl/base_post_verbose.txt -target=./internal/tpl/base_post_verbose.go -name=basePostVerbose -package=tpl
+//go:generate go run ./internal/buildtools/embed.go -source=./internal/tpl/base_post.txt -target=./internal/tpl/base_post.go -name=basePost -package=tpl
 //go:generate go run ./internal/buildtools/embed.go -source=./internal/tpl/base_pre_default.txt -target=./internal/tpl/base_pre_default.go -name=basePreDefault -package=tpl
 //go:generate go run ./internal/buildtools/embed.go -source=./internal/tpl/base_pre_verbose.txt -target=./internal/tpl/base_pre_verbose.go -name=basePreVerbose -package=tpl
 //go:generate go run ./internal/buildtools/embed.go -source=./internal/tpl/make_default.txt -target=./internal/tpl/make_default.go -name=makeDefault -package=tpl
