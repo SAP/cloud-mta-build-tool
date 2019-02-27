@@ -37,12 +37,12 @@ func CommandProvider(modules mta.Module) (CommandList, error) {
 func mesh(module *mta.Module, moduleTypes *ModuleTypes, builderTypes Builders) (CommandList, error) {
 	// The object support deep struct for future use, can be simplified to flat object
 	var cmds CommandList
-	var commands []Commands
+	var commands []Command
 	var err error
 
 	// get builder - module type name or custom builder if defined
 	// and indicator if custom builder
-	builder, custom := buildops.GetBuilder(module)
+	builder, custom, options := buildops.GetBuilder(module)
 
 	// if module type used - get from module types configuration corresponding commands or custom builder if defined
 	if !custom {
@@ -51,7 +51,7 @@ func mesh(module *mta.Module, moduleTypes *ModuleTypes, builderTypes Builders) (
 				if m.Builder != "" {
 					// custom builder defined
 					// check that no commands defined for module type
-					if m.Type != nil && len(m.Type) > 0 {
+					if m.Commands != nil && len(m.Commands) > 0 {
 						return cmds, fmt.Errorf(
 							"the module type definition can include either the builder or the commands; the %s module type includes both",
 							m.Name)
@@ -62,7 +62,7 @@ func mesh(module *mta.Module, moduleTypes *ModuleTypes, builderTypes Builders) (
 				} else {
 					// get related information
 					cmds.Info = m.Info
-					commands = m.Type
+					commands = m.Commands
 				}
 			}
 		}
@@ -78,15 +78,24 @@ func mesh(module *mta.Module, moduleTypes *ModuleTypes, builderTypes Builders) (
 
 	// prepare result
 	for _, cmd := range commands {
-		cmds.Command = append(cmds.Command, cmd.Command)
+		//c := meshOpts(cmd.Command, options)
+		cmds.Command = append(cmds.Command, cmd.Command) //change cmd.Command to c
 	}
 	return cmds, nil
 }
 
-func getCustomCommandsByBuilder(customCommands Builders, builder string) ([]Commands, string, error) {
+func meshOpts(cmd string, options map[string]string) string{
+	c := cmd
+	for value,key := range options {
+		strings.Replace(c, "{{"+key+"}}",value,-1 )
+	}
+	return c
+}
+
+func getCustomCommandsByBuilder(customCommands Builders, builder string) ([]Command, string, error) {
 	for _, b := range customCommands.Builders {
 		if builder == b.Name {
-			return b.Type, b.Info, nil
+			return b.Commands, b.Info, nil
 		}
 	}
 

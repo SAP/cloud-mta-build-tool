@@ -15,17 +15,24 @@ builders:
 - name: npm
   info: "installing module dependencies & remove dev dependencies"
   path: "path to config file which override the following default commands"
-  type:
+  commands:
   - command: npm install
   - command: npm prune --production
 - name: grunt
   info: "execute grunt"
   path: "path to config file which override the following default commands"
-  type:
+  commands:
   - command: npm install
   - command: grunt
 - name: golang
   info: "build golang application"
   path: "path to config file which override the following default commands"
-  type:
+  commands:
   - command: go build *.go
+- name: fetcher
+  info: "packaging already Maven artifacts into MTAR as the module’s build results"
+  path: "path to config file which override the following default commands"
+  builder-types:
+  - name: maven
+    commands:
+    - command: mvn dependency:copy -Dartifact={{repo-coordinates}}
