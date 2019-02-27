@@ -271,13 +271,13 @@ module-types:
 			source, _ = ioutil.TempDir("", "testing-mta-content")
 		})
 		It("Without no deployment descriptor in the source directory", func() {
-			err := CopyMtaContent(source, source, defaultDeploymentDescriptorParam, os.Getwd)
+			err := CopyMtaContent(source, source, defaultDeploymentDescriptorParam, true, os.Getwd)
 			Ω(err).Should(Not(BeNil()))
 			fmt.Println(err.Error())
 			Ω(err.Error()).Should(ContainSubstring(fmt.Sprintf(`failed to read the "%s%smtad.yaml" file: open %s%smtad.yaml`, source, pathSep, source, pathSep)))
 		})
 		It("Location initialization fails", func() {
-			err := CopyMtaContent("", source, defaultDeploymentDescriptorParam, func() (string, error) {
+			err := CopyMtaContent("", source, defaultDeploymentDescriptorParam, false, func() (string, error) {
 				return "", errors.New("error")
 			})
 			Ω(err).Should(Not(BeNil()))
@@ -289,18 +289,18 @@ module-types:
 			mta := generateTestMta(source, 2, 0, map[string]string{}, map[string]string{"test-module-0": "zip", "test-module-1": "folder"})
 			mtaBytes, _ := yaml.Marshal(mta)
 			ioutil.WriteFile(filepath.Join(source, defaultDeploymentDescriptorName), mtaBytes, os.ModePerm)
-			err := CopyMtaContent(source, source, defaultDeploymentDescriptorParam, os.Getwd)
+			err := CopyMtaContent(source, source, defaultDeploymentDescriptorParam, true, os.Getwd)
 			Ω(err).Should((BeNil()))
 			info, _ := os.Stat(source)
 			Ω(dirContainsAllElements(source, map[string]bool{"." + info.Name() + dir.TempFolderSuffix: true}, false)).Should(Equal(true))
 			Ω(dirContainsAllElements(filepath.Join(source, "."+info.Name()+dir.TempFolderSuffix), map[string]bool{"test.zip": true, "test-content": true}, true)).Should(Equal(true))
 		})
-		It("With a deployment descriptor in the source directory with one module path and one resource path as zip archuve and a folder", func() {
+		It("With a deployment descriptor in the source directory with one module path and one resource path as zip archive and a folder", func() {
 			createFileInGivenPath(filepath.Join(source, defaultDeploymentDescriptorName))
 			mta := generateTestMta(source, 1, 1, map[string]string{}, map[string]string{"test-resource-0": "zip", "test-module-0": "folder"})
 			mtaBytes, _ := yaml.Marshal(mta)
 			ioutil.WriteFile(filepath.Join(source, defaultDeploymentDescriptorName), mtaBytes, os.ModePerm)
-			err := CopyMtaContent(source, source, defaultDeploymentDescriptorParam, os.Getwd)
+			err := CopyMtaContent(source, source, defaultDeploymentDescriptorParam, true, os.Getwd)
 			Ω(err).Should((BeNil()))
 			info, _ := os.Stat(source)
 			Ω(dirContainsAllElements(source, map[string]bool{"." + info.Name() + dir.TempFolderSuffix: true}, false)).Should(Equal(true))
@@ -311,7 +311,7 @@ module-types:
 			mta := generateTestMta(source, 0, 2, map[string]string{}, map[string]string{"test-resource-0": "zip", "test-resource-1": "folder"})
 			mtaBytes, _ := yaml.Marshal(mta)
 			ioutil.WriteFile(filepath.Join(source, defaultDeploymentDescriptorName), mtaBytes, os.ModePerm)
-			err := CopyMtaContent(source, source, defaultDeploymentDescriptorParam, os.Getwd)
+			err := CopyMtaContent(source, source, defaultDeploymentDescriptorParam, true, os.Getwd)
 			Ω(err).Should((BeNil()))
 			info, _ := os.Stat(source)
 			Ω(dirContainsAllElements(source, map[string]bool{"." + info.Name() + dir.TempFolderSuffix: true}, false)).Should(Equal(true))
@@ -322,7 +322,7 @@ module-types:
 			mta := generateTestMta(source, 2, 2, map[string]string{}, map[string]string{"test-resource-0": "zip", "test-resource-1": "zip", "test-module-0": "zip", "test-module-1": "zip"})
 			mtaBytes, _ := yaml.Marshal(mta)
 			ioutil.WriteFile(filepath.Join(source, defaultDeploymentDescriptorName), mtaBytes, os.ModePerm)
-			err := CopyMtaContent(source, source, defaultDeploymentDescriptorParam, os.Getwd)
+			err := CopyMtaContent(source, source, defaultDeploymentDescriptorParam, false, os.Getwd)
 			Ω(err).Should((BeNil()))
 			info, _ := os.Stat(source)
 			Ω(dirContainsAllElements(source, map[string]bool{"." + info.Name() + dir.TempFolderSuffix: true}, false)).Should(Equal(true))
@@ -334,7 +334,7 @@ module-types:
 			mta := generateTestMta(source, 1, 0, map[string]string{"test-module-0": "test-required"}, map[string]string{"test-module-0": "folder", "test-required": "zip"})
 			mtaBytes, _ := yaml.Marshal(mta)
 			ioutil.WriteFile(filepath.Join(source, defaultDeploymentDescriptorName), mtaBytes, os.ModePerm)
-			err := CopyMtaContent(source, source, defaultDeploymentDescriptorParam, os.Getwd)
+			err := CopyMtaContent(source, source, defaultDeploymentDescriptorParam, false, os.Getwd)
 			Ω(err).Should((BeNil()))
 			info, _ := os.Stat(source)
 			Ω(dirContainsAllElements(source, map[string]bool{"." + info.Name() + dir.TempFolderSuffix: true}, false)).Should(Equal(true))
@@ -346,7 +346,7 @@ module-types:
 			mta.Modules[0].Requires[0].Parameters["path"] = "zip1"
 			mtaBytes, _ := yaml.Marshal(mta)
 			ioutil.WriteFile(filepath.Join(source, defaultDeploymentDescriptorName), mtaBytes, os.ModePerm)
-			err := CopyMtaContent(source, source, defaultDeploymentDescriptorParam, os.Getwd)
+			err := CopyMtaContent(source, source, defaultDeploymentDescriptorParam, true, os.Getwd)
 			Ω(err).Should(HaveOccurred())
 		})
 
@@ -355,7 +355,7 @@ module-types:
 			mta := generateTestMta(source, 1, 0, map[string]string{}, map[string]string{"test-module-0": "not-existing-contet"})
 			mtaBytes, _ := yaml.Marshal(mta)
 			ioutil.WriteFile(filepath.Join(source, defaultDeploymentDescriptorName), mtaBytes, os.ModePerm)
-			err := CopyMtaContent(source, source, defaultDeploymentDescriptorParam, os.Getwd)
+			err := CopyMtaContent(source, source, defaultDeploymentDescriptorParam, false, os.Getwd)
 			Ω(err).Should(Not(BeNil()))
 			Ω(err.Error()).Should(Equal(`"not-existing-content" does not exist in the MTA project location`))
 			info, _ := os.Stat(source)
@@ -368,7 +368,7 @@ module-types:
 			mta := generateTestMta(source, 2, 0, map[string]string{}, map[string]string{"test-module-0": "not-existing-contet", "test-module-1": "zip"})
 			mtaBytes, _ := yaml.Marshal(mta)
 			ioutil.WriteFile(filepath.Join(source, defaultDeploymentDescriptorName), mtaBytes, os.ModePerm)
-			err := CopyMtaContent(source, source, defaultDeploymentDescriptorParam, os.Getwd)
+			err := CopyMtaContent(source, source, defaultDeploymentDescriptorParam, false, os.Getwd)
 			Ω(err).Should(Not(BeNil()))
 			Ω(err.Error()).Should(Equal(`"not-existing-content" does not exist in the MTA project location`))
 			info, _ := os.Stat(source)
@@ -385,7 +385,7 @@ module-types:
 			mta := generateTestMta(source, 10, 0, map[string]string{}, modulesWithSameContent)
 			mtaBytes, _ := yaml.Marshal(mta)
 			ioutil.WriteFile(filepath.Join(source, defaultDeploymentDescriptorName), mtaBytes, os.ModePerm)
-			err := CopyMtaContent(source, source, defaultDeploymentDescriptorParam, os.Getwd)
+			err := CopyMtaContent(source, source, defaultDeploymentDescriptorParam, false, os.Getwd)
 			Ω(err).Should((BeNil()))
 			info, _ := os.Stat(source)
 			Ω(dirContainsAllElements(source, map[string]bool{"." + info.Name() + dir.TempFolderSuffix: true}, false)).Should(Equal(true))
@@ -402,7 +402,13 @@ module-types:
 			file, _ := os.Create(getTestPath("result"))
 			defer file.Close()
 			Ω(copyMtaContentFromPath(getTestPath("mta", "mta.yaml"), getTestPath("result", "mta.yaml"),
-				getTestPath("result", "mta.yaml"), getTestPath("result"))).Should(HaveOccurred())
+				getTestPath("result", "mta.yaml"), getTestPath("result"), true)).Should(HaveOccurred())
+		})
+		It("content is file; fails because target folder exists and it's not a folder, but a file; not parallel", func() {
+			file, _ := os.Create(getTestPath("result"))
+			defer file.Close()
+			Ω(copyMtaContentFromPath(getTestPath("mta", "mta.yaml"), getTestPath("result", "mta.yaml"),
+				getTestPath("result", "mta.yaml"), getTestPath("result"), false)).Should(HaveOccurred())
 		})
 	})
 
@@ -478,7 +484,7 @@ func getContentPath(contentType, source string) string {
 	}
 	if contentType == "folder" {
 		dir.CopyDir(getTestPath("mta_content_copy_test", "test-content"),
-			filepath.Join(source, "test-content"), true)
+			filepath.Join(source, "test-content"), true, dir.CopyEntries)
 		return "test-content"
 	}
 

@@ -19,6 +19,7 @@ const (
 var assembleCmdSrc string
 var assembleCmdTrg string
 var assembleCmdMtarName string
+var assembleCmdParallel string
 
 func init() {
 	assemblyCommand.Flags().StringVarP(&assembleCmdSrc,
@@ -27,6 +28,9 @@ func init() {
 		"target", "t", "", "the path to the MBT results folder; the current path is default")
 	assemblyCommand.Flags().StringVarP(&assembleCmdMtarName,
 		"mtar", "m", "", "the archive name")
+	assemblyCommand.Flags().StringVarP(&assembleCmdParallel,
+		"parallel", "p", "false", "if true content copying will run in parallel")
+
 }
 
 // Generate mtar from build artifacts
@@ -37,7 +41,7 @@ var assemblyCommand = &cobra.Command{
 	ValidArgs: []string{"Deployment descriptor location"},
 	Args:      cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		err := assembly(assembleCmdSrc, assembleCmdTrg, defaultPlatform, mtarCmdMtarName, os.Getwd)
+		err := assembly(assembleCmdSrc, assembleCmdTrg, defaultPlatform, mtarCmdMtarName, assembleCmdParallel, os.Getwd)
 		logError(err)
 		return err
 	},
@@ -45,10 +49,15 @@ var assemblyCommand = &cobra.Command{
 	SilenceErrors: true,
 }
 
-func assembly(source, target, platform, mtarName string, getWd func() (string, error)) error {
+func assembly(source, target, platform, mtarName, copyInParallel string, getWd func() (string, error)) error {
 	logs.Logger.Info("assembling the MTA project...")
+
+	parallelCopy, err := strconv.ParseBool(copyInParallel)
+	if err != nil {
+		parallelCopy = false
+	}
 	// copy from source to target
-	err := artifacts.CopyMtaContent(source, target, dir.Dep, getWd)
+	err = artifacts.CopyMtaContent(source, target, dir.Dep, parallelCopy, getWd)
 	if err != nil {
 		return errors.Wrap(err, "assembly of the MTA project failed when copying the MTA content")
 	}

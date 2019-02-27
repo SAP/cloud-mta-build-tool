@@ -136,7 +136,7 @@ func CreateFile(path string) (file *os.File, err error) {
 }
 
 // CopyDir - copy directory content
-func CopyDir(src string, dst string, withParents bool) error {
+func CopyDir(src string, dst string, withParents bool, copyDirEntries func(entries []os.FileInfo, src, dst string) error) error {
 	src = filepath.Clean(src)
 	dst = filepath.Clean(dst)
 
@@ -158,7 +158,7 @@ func CopyDir(src string, dst string, withParents bool) error {
 	if err != nil {
 		return err
 	}
-	return CopyEntries(entries, src, dst)
+	return copyDirEntries(entries, src, dst)
 }
 
 // CopyByPatterns - copy files/directories according to patterns
@@ -231,7 +231,7 @@ func copyEntries(entries []string, source, target, pattern string) error {
 		}
 		targetEntry := filepath.Join(target, filepath.Base(entry))
 		if info.IsDir() {
-			err = CopyDir(entry, targetEntry, true)
+			err = CopyDir(entry, targetEntry, true, CopyEntries)
 		} else {
 			err = CopyFileWithMode(entry, targetEntry, info.Mode())
 		}
@@ -245,7 +245,38 @@ func copyEntries(entries []string, source, target, pattern string) error {
 }
 
 // CopyEntries - copies entries (files and directories) from source to destination folder
-func CopyEntries(entries []os.FileInfo, src, dst string) (rerr error) {
+func CopyEntries(entries []os.FileInfo, src, dst string) error {
+
+	if len(entries) == 0 {
+		return nil
+	}
+	for _, entry := range entries {
+		var err error
+		srcPath := filepath.Join(src, entry.Name())
+		dstPath := filepath.Join(dst, entry.Name())
+
+		if entry.IsDir() {
+			// execute recursively
+			err = CopyDir(srcPath, dstPath, false, CopyEntries)
+		} else {
+			// Todo check posix compatibility
+			if entry.Mode()&os.ModeSymlink != 0 {
+				logs.Logger.Infof(
+					`copying of the entries from the "%v" folder to the "%v" folder skipped the "%v" entry because its mode is a symbolic link`,
+					src, dst, entry.Name())
+			} else {
+				err = CopyFileWithMode(srcPath, dstPath, entry.Mode())
+			}
+		}
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// CopyEntriesInParallel - copies entries (files and directories) from source to destination folder in parallel
+func CopyEntriesInParallel(entries []os.FileInfo, src, dst string) (rerr error) {
 
 	if len(entries) == 0 {
 		return nil
@@ -266,7 +297,7 @@ func CopyEntries(entries []os.FileInfo, src, dst string) (rerr error) {
 
 			if e.IsDir() {
 				// execute recursively
-				err = CopyDir(srcPath, dstPath, false)
+				err = CopyDir(srcPath, dstPath, false, CopyEntriesInParallel)
 			} else {
 				// Todo check posix compatibility
 				if e.Mode()&os.ModeSymlink != 0 {
