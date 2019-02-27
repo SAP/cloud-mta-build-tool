@@ -8,8 +8,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"sync"
-
 	"github.com/pkg/errors"
 
 	"github.com/SAP/cloud-mta-build-tool/internal/logs"
@@ -278,19 +276,25 @@ func CopyEntries(entries []os.FileInfo, src, dst string) error {
 // CopyEntriesInParallel - copies entries (files and directories) from source to destination folder in parallel
 func CopyEntriesInParallel(entries []os.FileInfo, src, dst string) (rerr error) {
 
+	// limit parallel processes
+	const maxOpenFiles = 5
+
 	if len(entries) == 0 {
 		return nil
 	}
-	var wg sync.WaitGroup
-	wg.Add(len(entries))
+	// handle parallel processes with limited slice of semaphores
+	sem := make(chan bool, maxOpenFiles)
 	for _, entry := range entries {
-
+		// if copy failed stop processing
+		if rerr != nil {
+			break
+		}
+		sem <- true
 		go func(e os.FileInfo) {
 
-			defer wg.Done()
-			if rerr != nil {
-				return
-			}
+			// free place in semaphores at the end of routine
+			defer func() { <-sem }()
+
 			var err error
 			srcPath := filepath.Join(src, e.Name())
 			dstPath := filepath.Join(dst, e.Name())
@@ -313,7 +317,10 @@ func CopyEntriesInParallel(entries []os.FileInfo, src, dst string) (rerr error) 
 			}
 		}(entry)
 	}
-	wg.Wait()
+	// wait for the end of all running go routines
+	for i := 0; i < cap(sem); i++ {
+		sem <- true
+	}
 	return
 }
 
