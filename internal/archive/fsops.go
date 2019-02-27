@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
 	"github.com/pkg/errors"
 
 	"github.com/SAP/cloud-mta-build-tool/internal/logs"
