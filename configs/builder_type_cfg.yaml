@@ -33,14 +33,14 @@ builders:
       - command: go build *.go
 
   # ---dummy commands for build-before testing purpose
-  - name: echo_before_build
+  - name: cmd_before_all_modules_build
     info: "test"
     path: "test"
     type:
       - command: echo "-----------test before all modules build----------------"
 
   # ---dummy commands for build-after testing purpose
-  - name: echo_after_build
+  - name: cmd_after_all_modules_build
     info: "test"
     path: "test"
     type:
