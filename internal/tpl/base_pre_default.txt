@@ -17,9 +17,9 @@ endif
 modules := $(shell mbt provide modules -d={{.Dep}})
 modules := $(subst ],,$(subst [,,$(modules)))
 # List of all the recipes to be executed during the build process
-.PHONY: all validate $(modules) meta mtar cleanup
+.PHONY: all validate pre_build $(modules) post_build meta mtar cleanup
 # Default target compile all
-all: validate $(modules) meta mtar cleanup
+all: validate pre_build $(modules) post_build meta mtar cleanup
 cores:
 # Determine OS cores
 {{"\t"}}{{ OsCore.NPROCS  }}
@@ -27,4 +27,6 @@ cores:
 # Validate mta.yaml
 validate:
 {{"\t"}}@mbt validate -d={{.Dep}} -r=${strict}
+pre_build: validate
+{{"\t"}}@mbt project build -p=pre
 {{end}}

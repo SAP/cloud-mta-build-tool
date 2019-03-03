@@ -1,7 +1,10 @@
 {{define "base_post"}}
 # Create META-INF folder with MANIFEST.MF & mtad.yaml
-meta: $(modules)
+meta: $(modules) post_build
 {{"\t"}}@mbt gen meta -d={{.Dep}} -p=${p} -t=${t}
+
+post_build: $(modules)
+{{"\t"}}@mbt project build -p=post
 
 # Pack as MTAR artifact
 mtar: $(modules) meta

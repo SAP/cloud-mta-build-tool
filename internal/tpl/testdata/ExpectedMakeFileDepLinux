@@ -36,8 +36,11 @@ ui:
 	@mbt module pack -m=ui -d=dep -p=${p} -t=${t}
 
 # Create META-INF folder with MANIFEST.MF & mtad.yaml
-meta: $(modules)
+meta: $(modules) post_build
 	@mbt gen meta -d=dep -p=${p} -t=${t}
+
+post_build: $(modules)
+	@mbt project build -p=post
 
 # Pack as MTAR artifact
 mtar: $(modules) meta

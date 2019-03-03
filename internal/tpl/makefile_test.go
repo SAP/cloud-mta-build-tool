@@ -1,6 +1,7 @@
 package tpl
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -25,6 +26,7 @@ var _ = BeforeSuite(func() {
 func removeSpecialSymbols(b []byte) string {
 	reg, _ := regexp.Compile("[^a-zA-Z0-9]+")
 	s := string(b)
+	fmt.Println(s)
 	s = strings.Replace(s, "0xd, ", "", -1)
 	s = reg.ReplaceAllString(s, "")
 	return s

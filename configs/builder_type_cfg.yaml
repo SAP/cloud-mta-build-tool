@@ -12,20 +12,36 @@
 
 
 builders:
-- name: npm
-  info: "installing module dependencies & remove dev dependencies"
-  path: "path to config file which override the following default commands"
-  type:
-  - command: npm install
-  - command: npm prune --production
-- name: grunt
-  info: "execute grunt"
-  path: "path to config file which override the following default commands"
-  type:
-  - command: npm install
-  - command: grunt
-- name: golang
-  info: "build golang application"
-  path: "path to config file which override the following default commands"
-  type:
-  - command: go build *.go
+  - name: npm
+    info: "installing module dependencies & remove dev dependencies"
+    path: "path to config file which override the following default commands"
+    type:
+      - command: npm install
+      - command: npm prune --production
+
+  - name: grunt
+    info: "execute grunt"
+    path: "path to config file which override the following default commands"
+    type:
+      - command: npm install
+      - command: grunt
+
+  - name: golang
+    info: "build golang application"
+    path: "path to config file which override the following default commands"
+    type:
+      - command: go build *.go
+
+  # ---dummy commands for build-before testing purpose
+  - name: echo_before_build
+    info: "test"
+    path: "test"
+    type:
+      - command: echo "-----------test before all modules build----------------"
+
+  # ---dummy commands for build-after testing purpose
+  - name: echo_after_build
+    info: "test"
+    path: "test"
+    type:
+      - command: echo "-----------test after all modules build----------------"

@@ -1,0 +1,57 @@
+package artifacts
+
+import (
+	"fmt"
+
+	"github.com/pkg/errors"
+
+	"github.com/SAP/cloud-mta/mta"
+
+	"github.com/SAP/cloud-mta-build-tool/internal/archive"
+	"github.com/SAP/cloud-mta-build-tool/internal/commands"
+	"github.com/SAP/cloud-mta-build-tool/internal/exec"
+)
+
+// ExecuteProjectBuild - execute pre or post phase of project build
+func ExecuteProjectBuild(source, descriptor, phase string, getWd func() (string, error)) error {
+	if phase != "pre" && phase != "post" {
+		return fmt.Errorf("the %s phase of mta project build is invalid; supported phases: pre, post", phase)
+	}
+	loc, err := dir.Location(source, "", descriptor, getWd)
+	if err != nil {
+		return err
+	}
+	mtaObj, err := loc.ParseFile()
+	if err != nil {
+		return err
+	}
+	if phase == "pre" {
+		return runBuilder(mtaObj.BuildParams.BeforeAll)
+	}
+	return runBuilder(mtaObj.BuildParams.AfterAll)
+}
+
+func runBuilder(builder string) error {
+	if builder == "" {
+		return nil
+	}
+	dummyModule := mta.Module{
+		BuildParams: map[string]interface{}{
+			"builder": builder,
+		},
+	}
+	builderCommands, err := commands.CommandProvider(dummyModule)
+	if err != nil {
+		return errors.Wrap(err, "failed to parse the builder types configuration")
+	}
+
+	cmds := commands.CmdConverter(".", builderCommands.Command)
+
+	// Execute commands
+	err = exec.Execute(cmds)
+	if err != nil {
+		return errors.Wrapf(err, `the "%v" builder failed when executing commands`, builder)
+	}
+	return err
+
+}
