@@ -32,15 +32,15 @@ builders:
     type:
       - command: go build *.go
 
-  # ---dummy commands for build-before testing purpose
-  - name: cmd_before_all_modules_build
+  # ---dummy build-before commands testing purpose
+  - name: cds_before
     info: "test"
     path: "test"
     type:
       - command: echo "-----------test before all modules build----------------"
 
   # ---dummy commands for build-after testing purpose
-  - name: cmd_after_all_modules_build
+  - name: cds_after
     info: "test"
     path: "test"
     type:

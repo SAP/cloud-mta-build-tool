@@ -28,5 +28,5 @@ cores:
 validate:
 {{"\t"}}@mbt validate -d={{.Dep}} -r=${strict}
 pre_build: validate
-{{"\t"}}@mbt project build -p=pre
-{{end}}
+{{"\t"}}@mbt project build -p=pre{{end}}
+

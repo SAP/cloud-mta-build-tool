@@ -24,7 +24,7 @@ func init() {
 // projectBuildCmd - Runs the mta project pre and post build processes
 var projectBuildCmd = &cobra.Command{
 	Use:   "build",
-	Short: "Run the mta project pre and post build processes",
+	Short: "Run the MTA project pre and post build commands",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		err := artifacts.ExecuteProjectBuild(projectBuildCmdSrc, projectBuildCmdDesc, projectBuildCmdPhase, os.Getwd)

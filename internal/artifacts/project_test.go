@@ -19,7 +19,7 @@ builders:
   type:
   - command: go version
 `)
-			Ω(runBuilder("testbuilder")).Should(Succeed())
+			Ω(execBuilder("testbuilder")).Should(Succeed())
 			commands.BuilderTypeConfig = buildersCfg
 		})
 
@@ -33,7 +33,7 @@ builders:
   type:
   - command: go test unknown_test.go
 `)
-			Ω(runBuilder("testbuilder")).Should(HaveOccurred())
+			Ω(execBuilder("testbuilder")).Should(HaveOccurred())
 			commands.BuilderTypeConfig = buildersCfg
 		})
 	})
