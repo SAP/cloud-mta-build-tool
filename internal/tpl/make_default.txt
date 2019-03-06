@@ -1,8 +1,7 @@
 {{template "base_pre" .}}
-
-##Execute module build
+# Execute module build
 define build_rule
-$(1):
+$(1): pre_build
 	@mbt module build -m=$(1) -d=dev -p=${p} -t=${t}
 endef
 

@@ -23,13 +23,15 @@ var validateCmdStrict string
 func init() {
 
 	// Add command to the root
-	rootCmd.AddCommand(initCmd, validateCmd, cleanupCmd, provideCmd, generateCmd, moduleCmd, assemblyCommand)
+	rootCmd.AddCommand(initCmd, validateCmd, cleanupCmd, provideCmd, generateCmd, moduleCmd, assemblyCommand, projectCmd)
 	// Build module
 	provideCmd.AddCommand(provideModuleCmd)
 	// generate immutable commands
 	generateCmd.AddCommand(metaCmd, mtadCmd, mtarCmd)
 	// module commands
 	moduleCmd.AddCommand(buildModuleCmd, packModuleCmd)
+	// project commands
+	projectCmd.AddCommand(projectBuildCmd)
 
 	// set flags of cleanup command
 	rootCmd.Flags().BoolP("version", "v", false, "version for MBT")
@@ -75,6 +77,15 @@ var moduleCmd = &cobra.Command{
 	Use:    "module",
 	Short:  "MBT module commands",
 	Long:   "MBT module commands",
+	Hidden: true,
+	Run:    nil,
+}
+
+// moduleCmd - Parent of all module commands
+var projectCmd = &cobra.Command{
+	Use:    "project",
+	Short:  "MBT project commands",
+	Long:   "MBT project commands",
 	Hidden: true,
 	Run:    nil,
 }
