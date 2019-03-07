@@ -39,11 +39,11 @@ func ExecuteProjectBuild(source, descriptor, phase string, getWd func() (string,
 }
 
 // get builder name
-func getBuilder(runParams interface{}, exist bool) string {
+func getBuilder(buildParams interface{}, exist bool) string {
 	if exist {
-		runParamsMap, ok := runParams.(map[interface{}]interface{})
+		buildParamsMap, ok := buildParams.(map[interface{}]interface{})
 		if ok {
-			b, ok := runParamsMap[builder]
+			b, ok := buildParamsMap[builder]
 			if ok {
 				return b.(string)
 			}
@@ -53,15 +53,15 @@ func getBuilder(runParams interface{}, exist bool) string {
 }
 
 // get build params for before-all section
-func beforeExec(m *mta.MTA, buildParams string) string {
-	runParams, exist := m.BuildParams.BeforeAll[buildParams]
-	return getBuilder(runParams, exist)
+func beforeExec(m *mta.MTA, param string) string {
+	b, ok := m.BuildParams.BeforeAll[param]
+	return getBuilder(b, ok)
 }
 
 // get build params for after-all section
-func afterExec(m *mta.MTA, buildParams string) string {
-	runParams, exist := m.BuildParams.AfterAll[buildParams]
-	return getBuilder(runParams, exist)
+func afterExec(m *mta.MTA, param string) string {
+	b, ok := m.BuildParams.AfterAll[param]
+	return getBuilder(b, ok)
 }
 
 func execBuilder(builder string) error {
