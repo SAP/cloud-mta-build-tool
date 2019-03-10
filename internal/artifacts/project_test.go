@@ -15,7 +15,9 @@ var _ = Describe("Project", func() {
 	var _ = Describe("runBuilder", func() {
 		It("Sanity", func() {
 			buildersCfg := commands.BuilderTypeConfig
-			commands.BuilderTypeConfig = []byte(`
+			commands.BuilderTypeConfig =
+
+				[]byte(`
 builders:
 - name: testbuilder
   info: "installing module dependencies & remove dev dependencies"
@@ -29,7 +31,9 @@ builders:
 
 		It("Fails on command execution", func() {
 			buildersCfg := commands.BuilderTypeConfig
-			commands.BuilderTypeConfig = []byte(`
+			commands.BuilderTypeConfig =
+
+				[]byte(`
 builders:
 - name: testbuilder
   info: "installing module dependencies & remove dev dependencies"
