@@ -37,12 +37,13 @@ func CommandProvider(modules mta.Module) (CommandList, error) {
 func mesh(module *mta.Module, moduleTypes *ModuleTypes, builderTypes Builders) (CommandList, error) {
 	// The object support deep struct for future use, can be simplified to flat object
 	var cmds CommandList
-	var commands []Commands
+	var commands []Command
 	var err error
 
 	// get builder - module type name or custom builder if defined
-	// and indicator if custom builder
-	builder, custom := buildops.GetBuilder(module)
+	// indicator if custom builder
+	// options of builder if defined
+	builder, custom, options := buildops.GetBuilder(module)
 
 	// if module type used - get from module types configuration corresponding commands or custom builder if defined
 	if !custom {
@@ -51,7 +52,7 @@ func mesh(module *mta.Module, moduleTypes *ModuleTypes, builderTypes Builders) (
 				if m.Builder != "" {
 					// custom builder defined
 					// check that no commands defined for module type
-					if m.Type != nil && len(m.Type) > 0 {
+					if m.Commands != nil && len(m.Commands) > 0 {
 						return cmds, fmt.Errorf(
 							"the module type definition can include either the builder or the commands; the %s module type includes both",
 							m.Name)
@@ -62,7 +63,7 @@ func mesh(module *mta.Module, moduleTypes *ModuleTypes, builderTypes Builders) (
 				} else {
 					// get related information
 					cmds.Info = m.Info
-					commands = m.Type
+					commands = m.Commands
 				}
 			}
 		}
@@ -70,7 +71,7 @@ func mesh(module *mta.Module, moduleTypes *ModuleTypes, builderTypes Builders) (
 
 	if custom {
 		// custom builder used => get commands and info
-		commands, cmds.Info, err = getCustomCommandsByBuilder(builderTypes, builder)
+		commands, cmds.Info, err = getCustomCommandsByBuilder(builderTypes, builder, options)
 		if err != nil {
 			return cmds, err
 		}
@@ -78,20 +79,45 @@ func mesh(module *mta.Module, moduleTypes *ModuleTypes, builderTypes Builders) (
 
 	// prepare result
 	for _, cmd := range commands {
-		cmds.Command = append(cmds.Command, cmd.Command)
+		if options != nil {
+			cmd.Command = meshOpts(cmd.Command, options)
+		}
+		cmds.Command = append(cmds.Command, cmd.Command) //change cmd.Command to c
 	}
 	return cmds, nil
 }
 
-func getCustomCommandsByBuilder(customCommands Builders, builder string) ([]Commands, string, error) {
+func meshOpts(cmd string, options map[string]string) string {
+	c := cmd
+	for key, value := range options {
+		r := strings.NewReplacer("{{"+key+"}}", value)
+		c = r.Replace(c)
+	}
+	return c
+}
+
+func getCustomCommandsByBuilder(customCommands Builders, builder string, options map[string]string) ([]Command, string, error) {
 	for _, b := range customCommands.Builders {
 		if builder == b.Name {
-			return b.Type, b.Info, nil
+			if b.BuilderTypes != nil {
+				return getCustomCommandsByBuilderType(b, options)
+			}
+
+			return b.Commands, b.Info, nil
 		}
 	}
 
 	return nil, "", fmt.Errorf(`the "%s" builder is not defined in the custom commands configuration`, builder)
+}
 
+func getCustomCommandsByBuilderType(customCommands builder, options map[string]string) ([]Command, string, error) {
+	for _, b := range customCommands.BuilderTypes {
+		if options["repo-type"] == b.Name {
+			return b.Commands, b.Info, nil
+		}
+	}
+
+	return nil, "", fmt.Errorf(`the "%s" builder type is not defined in the custom commands configuration`, options["repo-type"])
 }
 
 // CmdConverter - path and commands to execute

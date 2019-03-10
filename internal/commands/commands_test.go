@@ -1,14 +1,13 @@
 package commands
 
 import (
-	"os"
-	"path/filepath"
-
+	"github.com/SAP/cloud-mta-build-tool/internal/archive"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"gopkg.in/yaml.v2"
+	"os"
+	"path/filepath"
 
-	"github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta/mta"
 )
 
@@ -19,21 +18,21 @@ version: 1
 module-types:
   - name: html5
     info: "build UI application"
-    type:
+    commands:
     - command: npm install
     - command: grunt
     - command: npm prune --production
   - name: java
     info: "build java application"
-    type:
+    commands:
     - command: mvn clean install
   - name: nodejs
     info: "build nodejs application"
-    type:
+    commands:
     - command: npm install
   - name: golang
     info: "build golang application"
-    type:
+    commands:
     - command: go build *.go
 `)
 		var modules = mta.Module{
@@ -81,7 +80,7 @@ version: 1
 builders:
   - name: npm
     info: "build UI application"
-    type:
+    commands:
     - command: npm install
     - command: npm prune --production
 `)
@@ -108,7 +107,7 @@ module-types:
   - name: html5
     info: "build UI application"
     builder: npm
-    type:
+    commands:
     - command: npm install
     - command: grunt
     - command: npm prune --production
@@ -145,11 +144,11 @@ module-types:
 - name: html5
   info: "installing module dependencies & execute grunt & remove dev dependencies"
   path: "path to config file which override the following default commands"
-  type: [xxx]
+  commands: [xxx]
 - name: nodejs
   info: "build nodejs application"
   path: "path to config file which override the following default commands"
-  type:
+  commands:
 `)
 		})
 
@@ -177,7 +176,7 @@ module-types:
 - name: html5
   info: "installing module dependencies & execute grunt & remove dev dependencies"
   path: "path to config file which override the following default commands"
-  type:
+  commands:
 `)
 
 			buildersConfig = make([]byte, len(BuilderTypeConfig))
@@ -187,7 +186,7 @@ builders:
 - name: html5
   info: "installing module dependencies & execute grunt & remove dev dependencies"
   path: "path to config file which override the following default commands"
-  type: [xxx]	
+  commands: [xxx]	
 `)
 		})
 
@@ -267,6 +266,31 @@ modules:
 			Ω(err).Should(BeNil())
 			Ω(module.Path).Should(Equal("app"))
 			Ω(commands).Should(Equal([]string{"npm install", "npm prune --production"}))
+		})
+		It("Fetcher builder specified in build params", func() {
+			var mtaCF = []byte(`
+_schema-version: "2.0.0"
+ID: mta_proj
+version: 1.0.0
+
+modules:
+  - name: htmlapp
+    type: html5
+    path: app
+    build-parameters:
+      builder: fetcher
+      fetcher-opts:
+         repo-type: maven
+         repo-coordinates: com.sap.xs.java:xs-audit-log-api:1.2.3
+
+`)
+			m := mta.MTA{}
+			// parse mta yaml
+			Ω(yaml.Unmarshal(mtaCF, &m)).Should(Succeed())
+			module, commands, err := moduleCmd(&m, "htmlapp")
+			Ω(err).Should(BeNil())
+			Ω(module.Path).Should(Equal("app"))
+			Ω(commands).Should(Equal([]string{"mvn dependency:copy -Dartifact=com.sap.xs.java:xs-audit-log-api:1.2.3 -DoutputDirectory=./target"}))
 		})
 	})
 

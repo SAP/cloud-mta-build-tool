@@ -7,14 +7,15 @@ type Builders struct {
 }
 
 type builder struct {
-	Name string     `yaml:"name"`
-	Info string     `yaml:"info"`
-	Path string     `yaml:"path"`
-	Type []Commands `yaml:"type"`
+	Name         string    `yaml:"name"`
+	Info         string    `yaml:"info,omitempty"`
+	Path         string    `yaml:"path,omitempty"`
+	Commands     []Command `yaml:"commands,omitempty"`
+	BuilderTypes []builder `yaml:"builder-types,omitempty"`
 }
 
 // Commands - specific command
-type Commands struct {
+type Command struct {
 	Command string `yaml:"command"`
 }
 
@@ -25,9 +26,9 @@ type ModuleTypes struct {
 }
 
 type moduleType struct {
-	Name    string     `yaml:"name"`
-	Info    string     `yaml:"info"`
-	Path    string     `yaml:"path"`
-	Builder string     `yaml:"builder"`
-	Type    []Commands `yaml:"type"`
+	Name     string    `yaml:"name"`
+	Info     string    `yaml:"info"`
+	Path     string    `yaml:"path"`
+	Builder  string    `yaml:"builder"`
+	Commands []Command `yaml:"commands"`
 }

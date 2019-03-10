@@ -15,17 +15,17 @@ module-types:
 - name: html5
   info: "installing module dependencies & execute grunt & remove dev dependencies"
   path: "path to config file which override the following default commands"
-  type:
+  commands:
   - command: npm install
   - command: grunt
   - command: npm prune --production
 - name: java
   info: "build java application"
   path: "path to config file which override the following default commands"
-  type:
+  commands:
   - command: mvn clean install
 - name: nodejs
   info: "build nodejs application"
   path: "path to config file which override the following default commands"
-  type:
+  commands:
   - command: npm prune --production

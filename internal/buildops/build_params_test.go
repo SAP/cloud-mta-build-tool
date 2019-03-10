@@ -1,6 +1,8 @@
 package buildops
 
 import (
+	"github.com/go-yaml/yaml"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 
@@ -199,8 +201,42 @@ var _ = Describe("GetBuilder", func() {
 				builderParam: "npm",
 			},
 		}
-		builder, custom := GetBuilder(&m)
+		builder, custom, _ := GetBuilder(&m)
 		Ω(builder).Should(Equal("npm"))
+		Ω(custom).Should(Equal(true))
+	})
+	It("fetcher builder defined by build params", func() {
+		m := mta.Module{
+			Name: "x",
+			Type: "node-js",
+			BuildParams: map[string]interface{}{
+				builderParam: "fetcher",
+				"fetcher-opts": map[interface{}]interface{}{
+					"repo-type": "maven",
+					"repo-coordinates": "com.sap.xs.java:xs-audit-log-api:1.2.3",
+				},
+			},
+		}
+		builder, custom, options := GetBuilder(&m)
+		Ω(options).Should(Equal(map[string]string{
+			"repo-type": "maven",
+			"repo-coordinates": "com.sap.xs.java:xs-audit-log-api:1.2.3"}))
+		Ω(builder).Should(Equal("fetcher"))
+		Ω(custom).Should(Equal(true))
+	})
+	It("fetcher builder defined by build params from mta.yaml", func() {
+		dir, _ := os.Getwd()
+		path := filepath.Join(dir, "testdata", "mtaWithFetcher.yaml")
+		// Read MTA file
+		yamlFile, err := ioutil.ReadFile(path)
+		Ω(err).Should(BeNil())
+		m := mta.MTA{}
+		yaml.Unmarshal(yamlFile, &m)
+		builder, custom, options := GetBuilder(m.Modules[0])
+		Ω(options).Should(Equal(map[string]string{
+			"repo-type": "maven",
+			"repo-coordinates": "mygroup:myart:1.0.0"}))
+		Ω(builder).Should(Equal("fetcher"))
 		Ω(custom).Should(Equal(true))
 	})
 })

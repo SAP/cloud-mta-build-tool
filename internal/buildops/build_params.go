@@ -1,6 +1,7 @@
 package buildops
 
 import (
+	"fmt"
 	"path/filepath"
 	"reflect"
 
@@ -29,13 +30,38 @@ type BuildRequires struct {
 }
 
 // GetBuilder - gets builder type of the module and indicator of custom builder
-func GetBuilder(module *mta.Module) (string, bool) {
+func GetBuilder(module *mta.Module) (string, bool, map[string]string) {
 	// builder defined in build params is prioritised
 	if module.BuildParams != nil && module.BuildParams[builderParam] != nil {
-		return module.BuildParams[builderParam].(string), true
+		builderName := module.BuildParams[builderParam].(string)
+		optsParamName := builderName + "-opts"
+		options := getOpts(module, optsParamName)
+
+		return builderName, true, options
 	}
 	// default builder is defined by type property of the module
-	return module.Type, false
+	return module.Type, false, nil
+}
+
+func getOpts (module *mta.Module, optsParamName string) map[string]string {
+	options := module.BuildParams[optsParamName]
+	if options != nil {
+		optionsMap := convert(options.(map[interface{}]interface{}))
+		return optionsMap
+	}
+	return nil
+}
+
+func convert(m map[interface{}]interface{}) map[string]string {
+	res := make(map[string]string)
+	for key, value := range m {
+		strKey := fmt.Sprintf("%v", key)
+		strValue := fmt.Sprintf("%v", value)
+
+		res[strKey] = strValue
+	}
+
+	return res
 }
 
 // getBuildRequires - gets Requires property of module's build-params property
