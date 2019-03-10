@@ -1,10 +1,14 @@
 package artifacts
 
 import (
+	"io/ioutil"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"gopkg.in/yaml.v2"
 
 	"github.com/SAP/cloud-mta-build-tool/internal/commands"
+	"github.com/SAP/cloud-mta/mta"
 )
 
 var _ = Describe("Project", func() {
@@ -36,5 +40,22 @@ builders:
 			Ω(execBuilder("testbuilder")).Should(HaveOccurred())
 			commands.BuilderTypeConfig = buildersCfg
 		})
+		Context("pre & post builder commands", func() {
+			oMta := &mta.MTA{}
+			BeforeEach(func() {
+				mtaFile, _ := ioutil.ReadFile("./testdata/mta/mta.yaml")
+				yaml.Unmarshal(mtaFile, oMta)
+			})
+			It("before-all builder", func() {
+				v := beforeExec(oMta, buildParams)
+				Ω(v).Should(Equal("mybuilder"))
+			})
+
+			It("after-all builder", func() {
+				v := afterExec(oMta, buildParams)
+				Ω(v).Should(Equal("otherbuilder"))
+			})
+		})
 	})
+
 })

@@ -2,6 +2,16 @@ ID: mta
 _schema-version: '2.1'
 version: 0.0.1
 
+build-parameters:
+  before-all:
+    build-parameters:
+      builder: mybuilder
+      supported-platforms: [cf]
+  after-all:
+    build-parameters:
+      builder: otherbuilder
+      supported-platforms: [cf]
+
 modules:
  - name: node-js
    type: nodejs
