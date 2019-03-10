@@ -7,6 +7,8 @@ import (
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"
+
+	"github.com/SAP/cloud-mta-build-tool/internal/artifacts"
 )
 
 var _ = Describe("Assembly", func() {
@@ -15,14 +17,14 @@ var _ = Describe("Assembly", func() {
 		os.RemoveAll(getTestPath("result"))
 	})
 	It("Sanity", func() {
-		err := assembly(getTestPath("assembly-sample"),
+		err := artifacts.Assembly(getTestPath("assembly-sample"),
 			getTestPath("result"), "cf", "", "?", os.Getwd)
 		Ω(err).Should(Succeed())
 		Ω(getTestPath("result", "com.sap.xs2.samples.javahelloworld_0.1.0.mtar")).Should(BeAnExistingFile())
 	})
 	var _ = DescribeTable("Fails on location initialization", func(maxCalls int) {
 		calls := 0
-		err := assembly("",
+		err := artifacts.Assembly("",
 			getTestPath("result"), "cf", "", "true", func() (string, error) {
 				calls++
 				if calls >= maxCalls {
