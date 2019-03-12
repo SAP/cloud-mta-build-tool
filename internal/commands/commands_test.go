@@ -290,8 +290,23 @@ modules:
 			module, commands, err := moduleCmd(&m, "htmlapp")
 			Ω(err).Should(BeNil())
 			Ω(module.Path).Should(Equal("app"))
-			Ω(commands).Should(Equal([]string{"mvn dependency:copy -Dartifact=com.sap.xs.java:xs-audit-log-api:1.2.3 -DoutputDirectory=./target"}))
+			Ω(commands).Should(Equal([]string{"mvn dependency:copy -Dartifact=com.sap.xs.java:xs-audit-log-api:1.2.3 -DoutputDirectory=./"}))
 		})
+	})
+
+	It("Invalid case - wrong fetcher builder type", func() {
+		wd, _ := os.Getwd()
+		ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata"), MtaFilename: "mtaWithFetcher.yaml"}
+		_, _, err := GetModuleAndCommands(&ep, "j1")
+		Ω(err).Should(HaveOccurred())
+	})
+
+	It("Invalid case - wrong mta", func() {
+		wd, _ := os.Getwd()
+		ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata"), MtaFilename: "mtaUnknown.yaml"}
+		_, _, err := GetModuleAndCommands(&ep, "node-js")
+		Ω(err).Should(HaveOccurred())
+
 	})
 
 	var _ = Describe("GetModuleAndCommands", func() {

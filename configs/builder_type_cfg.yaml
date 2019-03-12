@@ -12,44 +12,44 @@
 
 
 builders:
-  - name: npm
-    info: "installing module dependencies & remove dev dependencies"
-    path: "path to config file which override the following default commands"
-    commands:
-      - command: npm install
-      - command: npm prune --production
+- name: npm
+  info: "installing module dependencies & remove dev dependencies"
+  path: "path to config file which override the following default commands"
+  commands:
+  - command: npm install
+  - command: npm prune --production
 
-  - name: grunt
-    info: "execute grunt"
-    path: "path to config file which override the following default commands"
-    commands:
-      - command: npm install
-      - command: grunt
+- name: grunt
+  info: "execute grunt"
+  path: "path to config file which override the following default commands"
+  commands:
+  - command: npm install
+  - command: grunt
 
-  - name: golang
-    info: "build golang application"
-    path: "path to config file which override the following default commands"
-    commands:
-      - command: go build *.go
+- name: golang
+  info: "build golang application"
+  path: "path to config file which override the following default commands"
+  commands:
+  - command: go build *.go
 
-  # ---dummy build-before commands testing purpose
-  - name: cds_before
-    info: "test"
-    path: "test"
-    commands:
-      - command: echo "-----------test before all modules build----------------"
+# ---dummy build-before commands testing purpose
+- name: cds_before
+  info: "test"
+  path: "test"
+  commands:
+  - command: echo "-----------test before all modules build----------------"
 
-  # ---dummy commands for build-after testing purpose
-  - name: cds_after
-    info: "test"
-    path: "test"
-    commands:
-      - command: echo "-----------test after all modules build----------------"
+# ---dummy commands for build-after testing purpose
+- name: cds_after
+  info: "test"
+  path: "test"
+  commands:
+  - command: echo "-----------test after all modules build----------------"
 
-  - name: fetcher
-    info: "packaging already Maven artifacts into MTAR as the moduleג€™s build results"
-    path: "path to config file which override the following default commands"
-    builder-types:
-    - name: maven
-      commands:
-      - command: mvn dependency:copy -Dartifact={{repo-coordinates}} -DoutputDirectory=./target
+- name: fetcher
+  info: "packaging already Maven artifacts into MTAR as the moduleג€™s build results"
+  path: "path to config file which override the following default commands"
+  builder-types:
+  - name: maven
+    commands:
+    - command: mvn dependency:copy -Dartifact={{repo-coordinates}} -DoutputDirectory=./

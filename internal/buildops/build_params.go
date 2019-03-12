@@ -1,7 +1,6 @@
 package buildops
 
 import (
-	"fmt"
 	"path/filepath"
 	"reflect"
 
@@ -55,8 +54,8 @@ func getOpts (module *mta.Module, optsParamName string) map[string]string {
 func convert(m map[interface{}]interface{}) map[string]string {
 	res := make(map[string]string)
 	for key, value := range m {
-		strKey := fmt.Sprintf("%v", key)
-		strValue := fmt.Sprintf("%v", value)
+		strKey := key.(string)
+		strValue := value.(string)
 
 		res[strKey] = strValue
 	}

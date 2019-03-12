@@ -1,0 +1,15 @@
+ID: mtawithfetcher
+_schema-version: '2.1'
+version: 0.0.1
+
+modules:
+ - name: j1
+   type: java
+   path: j1
+   parameters:
+      memory: 1024M
+   build-parameters:
+      builder: fetcher
+      fetcher-opts:
+         repo-type: unvalid
+         repo-coordinates: mygroup:myart:1.0.0
