@@ -48,6 +48,7 @@ func getOpts(module *mta.Module, optsParamName string) map[string]string {
 		optionsMap := convert(options.(map[interface{}]interface{}))
 		return optionsMap
 	}
+
 	return nil
 }
 
