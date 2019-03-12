@@ -19,8 +19,6 @@ development descriptor (`mta.yaml` file) or from module build artifacts accordin
 Before using this package, be sure you are familiar with the multi-target application concept and terminology.
 For background and detailed information, see the [Multi-Target Application Model](https://www.sap.com/documents/2016/06/e2f618e4-757c-0010-82c7-eda71af511fa.html) guide.                   
 
-
-
 ## Usage
 
 ### Commands
@@ -30,15 +28,40 @@ For background and detailed information, see the [Multi-Target Application Model
 | version | `mbt -v`     | Prints the multi-target application archive builder version.                                        | x
 | help    | `mbt -h`     | Prints all the available commands.                             | x
 | assemble    | `mbt assemble`     | Creates an MTA archive `.mtar` file from the module build artifacts according to the MTA deployment descriptor (`mtad.yaml` file). Runs the command in the directory where the `mtad.yaml` file is located. **Note:** Make sure the path property of each module's `mtad.yaml` file points to the module's build artifacts you want to package into the target MTA archive. | x
-
+| init    | `mbt init`     | Generates Makefile according to the MTA descriptor ( mta.yaml file or mtad.yaml file). | x
 
 For more information, see the command help output available via `mbt [command] --help` or `mbt [command] -h`.
+
+### Makefile
+The generated `Makefile.mta` file is the actual project "builder" which provide verbose build manifest that can be changed according to the project needs and responsible to:
+- Building each of the modules in the MTA project.
+- invoking the MBT commands in the right order
+- Archive the MTA project
+Use make command to package the MTA project using the following parameters:
+
+| Description             | Parameter        | Arguments                                           | Examples    
+| ------------------  | ------       |  ----------                                           |  ----------------
+| Deployment platform – mandatory. | p=     | Deployment platform: cf/neo/xsa.                                      |make -f Makefile.mta p=neo
+| Target folder – optional.    | t=    | Folder for generated MTAR. The default value is the current folder. If this parameter is not provided the MTAR file will be saved in the “mta_archives” subfolder of the current folder. If the parameter is provided, the MTAR file will be saved in the root of the folder provided by the argument.                              | make -f Makefile.mta p=cf t=C:\temp
+| Archive name – optional.    | mtar=    | File name for the generated MTAR. If this parameter is omitted file name is created according to the following pattern: <br> <mta_application_ID>_<mta_application_version>.mtar. <br> If parameter provided, but does not include extension, .mtar extension will be used. | make -f Makefile.mta p=cf mtar=myMta<br><br> make -f Makefile.mta p=cf mtar=myMta.mtar
+| Duplicated fields and fields not defined in the "mta.yaml" schema handling – optional.    | strict=    | Default value is “true”. If set to true, duplicated fields and fields not defined in the "mta.yaml" schema are reported as errors; if set to false, they are reported as warnings. | make -f Makefile.mta p=cf strict=false
+
+#### Quick start example
+
+```go
+
+// Generate Makefile.mta file<br>
+mbt init 
+
+// Generate MTAR file<br>
+make -f Makefile.mta p=cf
+```
 
 
 ### Milestone 1  - (Q1-Q2 - 2019)
 
  - [x] Supports project-assembly-based deployment descriptors.
- - [ ] Supports the building of HTML5 applications (non repo).
+ - [x] Supports the building of HTML5 applications (non repo).
  - [ ] Supports the building of node applications.
  - [ ] Partially supports build parameters (first phase):
     - [ ] Supports build dependencies.
