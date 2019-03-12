@@ -87,7 +87,7 @@ func prepareMeshResult(cmds CommandList, commands []Command, options map[string]
 		if options != nil {
 			cmd.Command = meshOpts(cmd.Command, options)
 		}
-		cmds.Command = append(cmds.Command, cmd.Command) //change cmd.Command to c
+		cmds.Command = append(cmds.Command, cmd.Command)
 	}
 	return cmds, nil
 }
@@ -96,7 +96,7 @@ func prepareMeshResult(cmds CommandList, commands []Command, options map[string]
 func meshOpts(cmd string, options map[string]string) string {
 	c := cmd
 	for key, value := range options {
-		c = strings.Replace(c, "{{"+key+"}}", value, 1)
+		c = strings.Replace(c, "{{"+key+"}}", value, -1)
 	}
 	return c
 }
