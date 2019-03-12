@@ -78,6 +78,11 @@ func mesh(module *mta.Module, moduleTypes *ModuleTypes, builderTypes Builders) (
 	}
 
 	// prepare result
+	return prepareMeshResult(cmds, commands, options)
+}
+
+// prepare commands list - mesh result
+func prepareMeshResult(cmds CommandList, commands []Command, options map[string]string) (CommandList, error) {
 	for _, cmd := range commands {
 		if options != nil {
 			cmd.Command = meshOpts(cmd.Command, options)
@@ -87,11 +92,11 @@ func mesh(module *mta.Module, moduleTypes *ModuleTypes, builderTypes Builders) (
 	return cmds, nil
 }
 
+// Update command according to options arguments
 func meshOpts(cmd string, options map[string]string) string {
 	c := cmd
 	for key, value := range options {
-		r := strings.NewReplacer("{{"+key+"}}", value)
-		c = r.Replace(c)
+		c = strings.Replace(c, "{{"+key+"}}", value, 1)
 	}
 	return c
 }

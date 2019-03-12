@@ -1,10 +1,11 @@
 package buildops
 
 import (
-	"github.com/go-yaml/yaml"
 	"io/ioutil"
 	"os"
 	"path/filepath"
+
+	"github.com/go-yaml/yaml"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
@@ -212,17 +213,17 @@ var _ = Describe("GetBuilder", func() {
 			BuildParams: map[string]interface{}{
 				builderParam: "fetcher",
 				"fetcher-opts": map[interface{}]interface{}{
-					"repo-type": "maven",
+					"repo-type":        "maven",
 					"repo-coordinates": "com.sap.xs.java:xs-audit-log-api:1.2.3",
 				},
 			},
 		}
 		builder, custom, options := GetBuilder(&m)
 		Ω(options).Should(Equal(map[string]string{
-			"repo-type": "maven",
+			"repo-type":        "maven",
 			"repo-coordinates": "com.sap.xs.java:xs-audit-log-api:1.2.3"}))
 		Ω(builder).Should(Equal("fetcher"))
-		Ω(custom).Should(Equal(true))
+		Ω(custom).Should(BeTrue())
 	})
 	It("fetcher builder defined by build params from mta.yaml", func() {
 		dir, _ := os.Getwd()
@@ -234,10 +235,10 @@ var _ = Describe("GetBuilder", func() {
 		yaml.Unmarshal(yamlFile, &m)
 		builder, custom, options := GetBuilder(m.Modules[0])
 		Ω(options).Should(Equal(map[string]string{
-			"repo-type": "maven",
+			"repo-type":        "maven",
 			"repo-coordinates": "mygroup:myart:1.0.0"}))
 		Ω(builder).Should(Equal("fetcher"))
-		Ω(custom).Should(Equal(true))
+		Ω(custom).Should(BeTrue())
 	})
 })
 

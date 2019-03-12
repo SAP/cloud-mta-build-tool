@@ -86,14 +86,14 @@ func genMtad(mtaStr *mta.MTA, ep dir.ITargetArtifacts, deploymentDesc bool, plat
 
 	// if meta folder provided, mtad will be saved in this folder, so we create it if not exists
 	if metaPath != "" {
-		err := dir.CreateDirIfNotExist(metaPath)
+		err = dir.CreateDirIfNotExist(metaPath)
 		if err != nil {
 			logs.Logger.Infof(`the "%v" folder already exists`, metaPath)
 		}
 	}
 	if !deploymentDesc {
 		// convert modules types according to platform
-		err := ConvertTypes(*mtaStr, platform)
+		err = ConvertTypes(*mtaStr, platform)
 		if err != nil {
 			return errors.Wrapf(err,
 				`generation of the MTAD file failed when converting types according to the "%v" platform`,

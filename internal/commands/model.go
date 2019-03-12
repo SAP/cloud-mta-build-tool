@@ -14,7 +14,7 @@ type builder struct {
 	BuilderTypes []builder `yaml:"builder-types,omitempty"`
 }
 
-// Commands - specific command
+// Command - specific command
 type Command struct {
 	Command string `yaml:"command"`
 }

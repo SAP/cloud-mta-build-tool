@@ -42,7 +42,7 @@ func GetBuilder(module *mta.Module) (string, bool, map[string]string) {
 	return module.Type, false, nil
 }
 
-func getOpts (module *mta.Module, optsParamName string) map[string]string {
+func getOpts(module *mta.Module, optsParamName string) map[string]string {
 	options := module.BuildParams[optsParamName]
 	if options != nil {
 		optionsMap := convert(options.(map[interface{}]interface{}))
@@ -51,6 +51,7 @@ func getOpts (module *mta.Module, optsParamName string) map[string]string {
 	return nil
 }
 
+// Convert type map[interface{}]interface{} to map[string]string
 func convert(m map[interface{}]interface{}) map[string]string {
 	res := make(map[string]string)
 	for key, value := range m {
