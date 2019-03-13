@@ -47,7 +47,7 @@ builders:
   - command: echo "-----------test after all modules build----------------"
 
 - name: fetcher
-  info: "packaging already Maven artifacts into MTAR as the moduleג€™s build results"
+  info: "packaging already Maven artifacts into MTAR as the modules build results"
   path: "path to config file which override the following default commands"
   builder-types:
   - name: maven
