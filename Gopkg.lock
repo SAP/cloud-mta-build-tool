@@ -3,14 +3,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:d45d39bd5f094f3d0716520de70dcc7d6ab49d31126c525ab75c0df33d27ceb5"
+  digest = "1:657094443f4c2706812a74b689fc7a240f6bffd55fab2de25f9c58171b3fbea2"
   name = "github.com/SAP/cloud-mta"
   packages = [
     "mta",
     "validations",
   ]
   pruneopts = "UT"
-  revision = "602d3b3a26474905f1ac3af877a405b348b274ef"
+  revision = "00f6399e6bbb9bbb19b704b0acfd175f297ab862"
 
 [[projects]]
   digest = "1:e47d51dab652d26c3fba6f8cba403f922d02757a82abdc77e90df7948daf296e"
