@@ -51,7 +51,7 @@ func init() {
 		"the validation mode; supported values: schema, semantic (default)")
 	validateCmd.Flags().StringVarP(&validateCmdDesc, "desc", "d", "",
 		"the MTA descriptor; supported values: dev (development descriptor, default value) and dep (deployment descriptor)")
-	validateCmd.Flags().StringVarP(&validateCmdStrict, "strict", "r", "",
+	validateCmd.Flags().StringVarP(&validateCmdStrict, "strict", "r", "true",
 		`if set to true, duplicated fields and fields not defined in the "mta.yaml" schema are reported as errors; if set to false, they are reported as warnings`)
 }
 
