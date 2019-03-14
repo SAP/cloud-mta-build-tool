@@ -51,10 +51,10 @@ Use make command to package the MTA project using the following parameters:
 ```go
 
 // Generate Makefile.mta file<br>
-mbt init 
+    mbt init 
 
 // Generate MTAR file<br>
-make -f Makefile.mta p=cf
+   make -f Makefile.mta p=cf
 ```
 
 
