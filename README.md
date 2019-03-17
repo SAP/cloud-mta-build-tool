@@ -60,6 +60,7 @@ mbt init
 // Execute MTA project build
 
 make -f Makefile.mta p=cf
+
 ```
 
 
