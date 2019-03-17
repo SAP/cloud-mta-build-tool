@@ -39,6 +39,8 @@ The generated `Makefile.mta` file is the actual project "builder" which provide 
 - Archive the MTA project
 Use make command to package the MTA project using the following parameters:
 
+
+
 | Description             | Parameter        | Arguments                                           | Examples    
 | ------------------  | ------       |  ----------                                           |  ----------------
 | Deployment platform – mandatory. | p=     | Deployment platform: cf/neo/xsa.                                      |make -f Makefile.mta p=neo
@@ -46,15 +48,19 @@ Use make command to package the MTA project using the following parameters:
 | Archive name – optional.    | mtar=    | File name for the generated MTAR. If this parameter is omitted file name is created according to the following pattern: <br> <mta_application_ID>_<mta_application_version>.mtar. <br> If parameter provided, but does not include extension, .mtar extension will be used. | make -f Makefile.mta p=cf mtar=myMta<br><br> make -f Makefile.mta p=cf mtar=myMta.mtar
 | Duplicated fields and fields not defined in the "mta.yaml" schema handling – optional.    | strict=    | Default value is “true”. If set to true, duplicated fields and fields not defined in the "mta.yaml" schema are reported as errors; if set to false, they are reported as warnings. | make -f Makefile.mta p=cf strict=false
 
+
 #### Quick start example
 
 ```go
 
-// Generate Makefile.mta file<br>
-    mbt init 
+// Generate Makefile.mta file
 
-// Generate MTAR file<br>
-   make -f Makefile.mta p=cf
+mbt init 
+
+// Execute MTA project build
+
+make -f Makefile.mta p=cf
+
 ```
 
 
@@ -62,7 +68,7 @@ Use make command to package the MTA project using the following parameters:
 
  - [x] Supports project-assembly-based deployment descriptors.
  - [x] Supports the building of HTML5 applications (non repo).
- - [ ] Supports the building of node applications.
+ - [x] Supports the building of node applications.
  - [ ] Partially supports build parameters (first phase):
     - [ ] Supports build dependencies.
     - [ ] Supports the copying of build results from other modules.
