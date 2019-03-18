@@ -10,6 +10,8 @@ modules:
     - name: node_api
       properties:
          url: ${default-url}
+   build-parameters:
+     supported-platforms: [cf]
 
 #resources:
 # - name: uaa_mta_demo2
