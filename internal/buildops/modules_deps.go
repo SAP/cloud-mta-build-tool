@@ -48,7 +48,7 @@ func ProcessDependencies(mtaParser dir.IMtaParser, moduleSource dir.ISourceModul
 		return err
 	}
 	requires := getBuildRequires(module)
-	if requires != nil {
+	if len(requires) > 0 {
 		for _, req := range requires {
 			e := ProcessRequirements(moduleSource, m, &req, module.Name)
 			if e != nil {
@@ -78,7 +78,7 @@ func getModulesOrder(m *mta.MTA) ([]string, error) {
 	for index, module := range m.Modules {
 		deps := mapset.NewSet()
 		requires := getBuildRequires(module)
-		if requires != nil {
+		if len(requires) > 0 {
 			for _, req := range requires {
 				_, err := m.GetModuleByName(req.Name)
 				if err != nil {

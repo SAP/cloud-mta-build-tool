@@ -1,9 +1,7 @@
 package exec
 
 import (
-	"os"
 	"os/exec"
-	"path/filepath"
 	"time"
 
 	. "github.com/onsi/ginkgo"
@@ -80,8 +78,3 @@ var _ = Describe("Execute", func() {
 	})
 
 })
-
-func getTestPath(relPath ...string) string {
-	wd, _ := os.Getwd()
-	return filepath.Join(wd, "testdata", filepath.Join(relPath...))
-}

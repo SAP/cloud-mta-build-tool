@@ -4,11 +4,9 @@ version: 0.0.1
 
 build-parameters:
   before-all:
-    build-parameters:
       builder: mybuilder
       supported-platforms: [cf]
   after-all:
-    build-parameters:
       builder: otherbuilder
       supported-platforms: [cf]
 
