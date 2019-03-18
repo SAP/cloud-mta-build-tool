@@ -142,6 +142,7 @@ var _ = Describe("Integration - CloudMtaBuildTool", func() {
 			Ω(mtarFilename).Should(BeAnExistingFile())
 			// check that module with unsupported platform 'neo' is not presented in mtad.yaml
 			mtadContent, e := getFileContentFromZip(mtarFilename, "mtad.yaml")
+			Ω(e).Should(Succeed())
 			actual, e := mta.Unmarshal(mtadContent)
 			Ω(e).Should(Succeed())
 			expected, e := mta.Unmarshal([]byte(`

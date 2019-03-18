@@ -39,5 +39,4 @@ var _ = Describe("Assembly", func() {
 		Entry("fails on ExecuteCleanup", 4),
 	)
 
-
 })
