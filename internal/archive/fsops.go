@@ -165,7 +165,7 @@ func CopyDir(src string, dst string, withParents bool, copyDirEntries func(entri
 // patterns are relative to source folder
 func CopyByPatterns(source, target string, patterns []string) error {
 
-	if patterns == nil || len(patterns) == 0 {
+	if len(patterns) == 0 {
 		return nil
 	}
 

@@ -11,11 +11,6 @@ import (
 	"github.com/SAP/cloud-mta-build-tool/internal/exec"
 )
 
-const (
-	buildParams = "build-parameters"
-	builder     = "builder"
-)
-
 // ExecuteProjectBuild - execute pre or post phase of project build
 func ExecuteProjectBuild(source, descriptor, phase string, getWd func() (string, error)) error {
 	if phase != "pre" && phase != "post" {
@@ -30,38 +25,22 @@ func ExecuteProjectBuild(source, descriptor, phase string, getWd func() (string,
 		return err
 	}
 	if phase == "pre" && oMta.BuildParams != nil {
-		return execBuilder(beforeExec(oMta, buildParams))
+		return execBuilder(beforeExec(oMta))
 	}
 	if phase == "post" && oMta.BuildParams != nil {
-		return execBuilder(afterExec(oMta, buildParams))
+		return execBuilder(afterExec(oMta))
 	}
 	return nil
 }
 
-// get builder name
-func getBuilder(buildParams interface{}, exist bool) string {
-	if exist {
-		buildParamsMap, ok := buildParams.(map[interface{}]interface{})
-		if ok {
-			b, ok := buildParamsMap[builder]
-			if ok {
-				return b.(string)
-			}
-		}
-	}
-	return ""
-}
-
 // get build params for before-all section
-func beforeExec(m *mta.MTA, param string) string {
-	b, ok := m.BuildParams.BeforeAll[param]
-	return getBuilder(b, ok)
+func beforeExec(m *mta.MTA) string {
+	return m.BuildParams.BeforeAll["builder"].(string)
 }
 
 // get build params for after-all section
-func afterExec(m *mta.MTA, param string) string {
-	b, ok := m.BuildParams.AfterAll[param]
-	return getBuilder(b, ok)
+func afterExec(m *mta.MTA) string {
+	return m.BuildParams.AfterAll["builder"].(string)
 }
 
 func execBuilder(builder string) error {

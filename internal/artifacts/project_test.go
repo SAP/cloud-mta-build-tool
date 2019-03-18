@@ -51,12 +51,12 @@ builders:
 				yaml.Unmarshal(mtaFile, oMta)
 			})
 			It("before-all builder", func() {
-				v := beforeExec(oMta, buildParams)
+				v := beforeExec(oMta)
 				Ω(v).Should(Equal("mybuilder"))
 			})
 
 			It("after-all builder", func() {
-				v := afterExec(oMta, buildParams)
+				v := afterExec(oMta)
 				Ω(v).Should(Equal("otherbuilder"))
 			})
 		})
