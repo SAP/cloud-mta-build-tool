@@ -7,7 +7,7 @@ post_build: $(modules)
 {{"\t"}}@mbt project build -p=post
 
 # Validate mta.yaml after build
-post_validate:
+post_validate: post_build
 {{"\t"}}@mbt validate -d={{.Dep}} -r=${strict}
 
 # Pack as MTAR artifact
