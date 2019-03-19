@@ -18,12 +18,12 @@ endif
 {{ OsCore.NPROCS  }}
 {{ OsCore.MAKEFLAGS  }}
 # List of all the recipes to be executed during the build process
-.PHONY: validate {{- range .File.Modules}} {{.Name}}{{end}} meta mtar cleanup
+.PHONY: validate {{- range .File.Modules}} {{.Name}}{{end}} meta post_validate mtar cleanup
 # Default target compile all
-all: validate {{- range .File.Modules}} {{.Name}}{{end}} meta mtar cleanup
+all: validate {{- range .File.Modules}} {{.Name}}{{end}} meta post_validate mtar cleanup
 # Validate mta.yaml
 validate:
-{{"\t"}}@mbt validate -d={{.Dep}} -r=${strict}
+{{"\t"}}@mbt validate -d={{.Dep}} -r=${strict} -e="paths"
 # Set the current project repository path for general mta process
   PROJ_DIR := $(CURDIR)
 {{end}}

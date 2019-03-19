@@ -18,6 +18,7 @@ var validateCmdSrc string
 var validateCmdDesc string
 var validateCmdMode string
 var validateCmdStrict string
+var validateCmdExclude string
 
 // init - init commands tree and first level commands flags
 func init() {
@@ -53,6 +54,8 @@ func init() {
 		"the MTA descriptor; supported values: dev (development descriptor, default value) and dep (deployment descriptor)")
 	validateCmd.Flags().StringVarP(&validateCmdStrict, "strict", "r", "true",
 		`if set to true, duplicated fields and fields not defined in the "mta.yaml" schema are reported as errors; if set to false, they are reported as warnings`)
+	validateCmd.Flags().StringVarP(&validateCmdExclude, "exclude", "e", "",
+		`list of excluded semantic validations; supported validations: "paths", "names", "requires"`)
 }
 
 // generateCmd - Parent of all generation commands
@@ -114,7 +117,7 @@ var validateCmd = &cobra.Command{
 	Long:  "MBT validation",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		err := artifacts.ExecuteValidation(validateCmdSrc, validateCmdDesc, validateCmdMode, validateCmdStrict, os.Getwd)
+		err := artifacts.ExecuteValidation(validateCmdSrc, validateCmdDesc, validateCmdMode, validateCmdStrict, validateCmdExclude, os.Getwd)
 		logError(err)
 		return err
 	},
