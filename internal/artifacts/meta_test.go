@@ -37,6 +37,12 @@ var _ = Describe("Meta", func() {
 				return "", errors.New("err")
 			})).Should(HaveOccurred())
 		})
+		It("Wrong platform", func() {
+			os.MkdirAll(getTestPath("result", ".mtahtml5_mta_build_tmp", "ui5app2"), os.ModePerm)
+			os.MkdirAll(getTestPath("result", ".mtahtml5_mta_build_tmp", "testapp"), os.ModePerm)
+			Ω(ExecuteGenMeta(getTestPath("mtahtml5"), getResultPath(), "dev", "xx", true, os.Getwd)).Should(HaveOccurred())
+
+		})
 		It("generateMeta fails on wrong source path - parse mta fails", func() {
 			Ω(ExecuteGenMeta(getTestPath("mtahtml6"), getResultPath(), "dev", "cf", true, os.Getwd)).Should(HaveOccurred())
 		})

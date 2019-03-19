@@ -18,6 +18,11 @@ func ExecuteGenMeta(source, target, desc, platform string, onlyModules bool, wdG
 	if err != nil {
 		return errors.Wrap(err, "generation of metadata failed when initializing the location")
 	}
+	// validate platform
+	err = validatePlatform(platform)
+	if err != nil {
+		return err
+	}
 	err = generateMeta(loc, loc, loc, loc.IsDeploymentDescriptor(), platform, onlyModules)
 	if err != nil {
 		return err
