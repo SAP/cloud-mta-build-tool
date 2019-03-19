@@ -105,6 +105,7 @@ builders:
 		It("build Command", func() {
 			buildCmdModule = "node-js"
 			buildCmdSrc = getTestPath("mta")
+			buildCmdPlatform = "cf"
 			ep := dir.Loc{SourcePath: buildCmdSrc, TargetPath: buildCmdTrg}
 			Ω(buildModuleCmd.RunE(nil, []string{})).Should(Succeed())
 			Ω(ep.GetTargetModuleZipPath(buildCmdModule)).Should(BeAnExistingFile())

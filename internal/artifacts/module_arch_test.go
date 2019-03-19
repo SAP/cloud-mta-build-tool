@@ -61,6 +61,11 @@ builders:
 
 		})
 
+		It("Fails on platform validation", func() {
+			Ω(ExecuteBuild(getTestPath("mta"), getResultPath(), "dev", "node-js", "xx", os.Getwd)).Should(HaveOccurred())
+
+		})
+
 		It("Fails on location initialization", func() {
 			Ω(ExecuteBuild("", "", "dev", "ui5app", "cf", func() (string, error) {
 				return "", errors.New("err")
@@ -79,6 +84,11 @@ builders:
 				"cf", os.Getwd)).Should(Succeed())
 			loc := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath()}
 			Ω(loc.GetTargetModuleZipPath("node-js")).Should(BeAnExistingFile())
+		})
+
+		It("Fails on platform validation", func() {
+			Ω(ExecutePack(getTestPath("mta"), getResultPath(), "xx", "node-js",
+				"cf", os.Getwd)).Should(HaveOccurred())
 		})
 
 		It("Fails on location initialization", func() {

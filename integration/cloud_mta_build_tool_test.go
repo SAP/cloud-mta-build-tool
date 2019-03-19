@@ -120,6 +120,42 @@ var _ = Describe("Integration - CloudMtaBuildTool", func() {
 			Ω(filepath.Join(dir, "testdata", "mta_demo", "abc.mtar")).Should(BeAnExistingFile())
 		})
 
+		It("Generate MTAR - wrong platform", func() {
+
+			dir, _ := os.Getwd()
+			path := dir + filepath.FromSlash("/testdata/mta_demo")
+			bin := filepath.FromSlash("make")
+			out, err, _ := execute(bin, "-f Makefile.mta p=xxx mtar=xyz", path)
+			Ω(err).ShouldNot(BeEmpty())
+			Ω(out).Should(ContainSubstring(`ERROR the invalid target platform "xxx"; supported platforms are: "cf", "neo", "xsa"`))
+			Ω(filepath.Join(dir, "testdata", "mta_demo", "mta_archives", "xyz.mtar")).ShouldNot(BeAnExistingFile())
+		})
+
+		It("Generate MTAR - unsupported platform, module removed from mtad", func() {
+
+			dir, _ := os.Getwd()
+			path := dir + filepath.FromSlash("/testdata/mta_demo")
+			bin := filepath.FromSlash("make")
+			_, err, _ := execute(bin, "-f Makefile.mta p=neo mtar=xyz", path)
+			Ω(err).Should(BeEmpty())
+			mtarFilename := filepath.Join(dir, "testdata", "mta_demo", "mta_archives", "xyz.mtar")
+			Ω(mtarFilename).Should(BeAnExistingFile())
+			// check that module with unsupported platform 'neo' is not presented in mtad.yaml
+			mtadContent, e := getFileContentFromZip(mtarFilename, "mtad.yaml")
+			Ω(e).Should(Succeed())
+			actual, e := mta.Unmarshal(mtadContent)
+			Ω(e).Should(Succeed())
+			expected, e := mta.Unmarshal([]byte(`
+_schema-version: "2.1"
+ID: mta_demo
+version: 0.0.1
+parameters:
+  hcp-deployer-version: 1.1.0
+`))
+			Ω(e).Should(Succeed())
+			Ω(actual).Should(Equal(expected))
+		})
+
 		It("Generate MTAR", func() {
 
 			dir, _ := os.Getwd()
@@ -133,7 +169,28 @@ var _ = Describe("Integration - CloudMtaBuildTool", func() {
 			fmt.Println(cmdOut)
 			Ω(cmdOut).ShouldNot(BeEmpty())
 			// Check the archive was generated
+			mtarFilename := filepath.Join(dir, "testdata", "mta_demo", "mta_archives", archiveName)
 			Ω(filepath.Join(dir, "testdata", "mta_demo", "mta_archives", archiveName)).Should(BeAnExistingFile())
+			// check that module with unsupported platform 'cf' is presented in mtad.yaml
+			mtadContent, e := getFileContentFromZip(mtarFilename, "mtad.yaml")
+			Ω(e).Should(Succeed())
+			actual, e := mta.Unmarshal(mtadContent)
+			Ω(e).Should(Succeed())
+			expected, e := mta.Unmarshal([]byte(`
+_schema-version: "2.1"
+ID: mta_demo
+version: 0.0.1
+modules:
+- name: node
+  type: javascript.nodejs
+  path: node
+  provides:
+  - name: node_api
+    properties:
+      url: ${default-url}
+`))
+			Ω(e).Should(Succeed())
+			Ω(actual).Should(Equal(expected))
 		})
 	})
 
@@ -221,6 +278,28 @@ var _ = Describe("Integration - CloudMtaBuildTool", func() {
 		})
 	})
 })
+
+func getFileContentFromZip(path string, filename string) ([]byte, error) {
+	zipFile, err := zip.OpenReader(path)
+	if err != nil {
+		return nil, err
+	}
+	for _, file := range zipFile.File {
+		if strings.Contains(file.Name, filename) {
+			fc, err := file.Open()
+			defer fc.Close()
+			if err != nil {
+				return nil, err
+			}
+			c, err := ioutil.ReadAll(fc)
+			if err != nil {
+				return nil, err
+			}
+			return c, nil
+		}
+	}
+	return nil, fmt.Errorf(`file "%s" not found`, filename)
+}
 
 func validateMtaArchiveContents(expectedFilesInArchive []string, archiveLocation string) {
 	archiveReader, err := zip.OpenReader(archiveLocation)
