@@ -6,6 +6,10 @@ meta: $(modules) post_build
 post_build: $(modules)
 {{"\t"}}@mbt project build -p=post
 
+# Validate mta.yaml after build
+post_validate: post_build
+{{"\t"}}@mbt validate -d={{.Dep}} -r=${strict}
+
 # Pack as MTAR artifact
 mtar: $(modules) meta
 {{"\t"}}@mbt gen mtar -d={{.Dep}} -t=${t} --mtar=${mtar} --target_provided=${target_provided}

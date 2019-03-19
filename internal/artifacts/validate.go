@@ -12,7 +12,7 @@ import (
 )
 
 // ExecuteValidation - executes validation of MTA
-func ExecuteValidation(source, desc, mode, strict string, getWorkingDir func() (string, error)) error {
+func ExecuteValidation(source, desc, mode, strict, exclude string, getWorkingDir func() (string, error)) error {
 	logs.Logger.Info("validating the MTA project")
 
 	strictValue, err := strconv.ParseBool(strict)
@@ -28,7 +28,7 @@ func ExecuteValidation(source, desc, mode, strict string, getWorkingDir func() (
 	if err != nil {
 		return errors.Wrap(err, "validation failed when analyzing the validation mode")
 	}
-	warn, err := validate.MtaYaml(source, loc.GetMtaYamlFilename(), validateSchema, validateProject, strictValue, "")
+	warn, err := validate.MtaYaml(source, loc.GetMtaYamlFilename(), validateSchema, validateProject, strictValue, exclude)
 	if warn != "" {
 		logs.Logger.Warn(warn)
 	}

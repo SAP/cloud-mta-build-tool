@@ -17,12 +17,12 @@ endif
 NPROCS = $(sysctl -n hw.ncpu)
 MAKEFLAGS += -j
 # List of all the recipes to be executed during the build process
-.PHONY: validate ui meta mtar cleanup
+.PHONY: validate ui meta post_validate mtar cleanup
 # Default target compile all
-all: validate ui meta mtar cleanup
+all: validate ui meta post_validate mtar cleanup
 # Validate mta.yaml
 validate:
-	@mbt validate -d=dev -r=${strict}
+	@mbt validate -d=dev -r=${strict} -e="paths"
 # Set the current project repository path for general mta process
   PROJ_DIR := $(CURDIR)
 
@@ -43,6 +43,10 @@ meta: $(modules) post_build
 
 post_build: $(modules)
 	@mbt project build -p=post
+
+# Validate mta.yaml after build
+post_validate: post_build
+	@mbt validate -d=dev -r=${strict}
 
 # Pack as MTAR artifact
 mtar: $(modules) meta
