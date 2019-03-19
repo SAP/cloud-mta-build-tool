@@ -35,12 +35,24 @@ func ExecuteProjectBuild(source, descriptor, phase string, getWd func() (string,
 
 // get build params for before-all section
 func beforeExec(m *mta.MTA) string {
-	return m.BuildParams.BeforeAll["builder"].(string)
+	if m.BuildParams.BeforeAll != nil {
+		beforeBuilder, ok := m.BuildParams.BeforeAll["builder"]
+		if ok {
+			return beforeBuilder.(string)
+		}
+	}
+	return ""
 }
 
 // get build params for after-all section
 func afterExec(m *mta.MTA) string {
-	return m.BuildParams.AfterAll["builder"].(string)
+	if m.BuildParams.AfterAll != nil {
+		afterBuilder, ok := m.BuildParams.AfterAll["builder"]
+		if ok {
+			return afterBuilder.(string)
+		}
+	}
+	return ""
 }
 
 func execBuilder(builder string) error {
