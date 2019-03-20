@@ -71,6 +71,16 @@ modules:
 			Ω(ep.GetMtadPath()).Should(BeAnExistingFile())
 		})
 
+		It("Meta creation fails - fails on conversion by platform", func() {
+			m := mta.MTA{}
+			yaml.Unmarshal(mtaSingleModule, &m)
+			cfg := platform.PlatformConfig
+			platform.PlatformConfig = []byte(`very bad config`)
+			Ω(GenMetaInfo(&ep, &ep, ep.IsDeploymentDescriptor(), "cf",
+				&m, []string{"htmlapp"}, true)).Should(HaveOccurred())
+			platform.PlatformConfig = cfg
+		})
+
 		It("Fails on create file for manifest path", func() {
 			loc := testLoc{ep}
 			m := mta.MTA{}
