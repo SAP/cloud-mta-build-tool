@@ -114,6 +114,8 @@ cli_version:["x"]
 		}
 
 		It("Generate Meta", func() {
+			os.MkdirAll(getTestPath("result", ".mtahtml5_mta_build_tmp", "testapp"), os.ModePerm)
+			os.MkdirAll(getTestPath("result", ".mtahtml5_mta_build_tmp", "ui5app2"), os.ModePerm)
 			ep := dir.Loc{SourcePath: getTestPath("mtahtml5"), TargetPath: getResultPath()}
 			generateMeta(&ep, &ep, &ep, false, "cf", true)
 			Ω(readFileContent(&dir.Loc{SourcePath: getTestPath("result", ".mtahtml5_mta_build_tmp", "META-INF"), Descriptor: "dep"})).
@@ -145,6 +147,8 @@ cli_version:["x"]
 		})
 
 		It("Generate Mtar", func() {
+			os.MkdirAll(getTestPath("result", ".mtahtml5_mta_build_tmp", "testapp"), os.ModePerm)
+			os.MkdirAll(getTestPath("result", ".mtahtml5_mta_build_tmp", "ui5app2"), os.ModePerm)
 			ep := dir.Loc{SourcePath: getTestPath("mtahtml5"), TargetPath: getResultPath()}
 			err := generateMeta(&ep, &ep, &ep, false, "cf", true)
 			if err != nil {

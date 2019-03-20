@@ -125,10 +125,10 @@ var _ = Describe("Integration - CloudMtaBuildTool", func() {
 			dir, _ := os.Getwd()
 			path := dir + filepath.FromSlash("/testdata/mta_demo")
 			bin := filepath.FromSlash("make")
-			out, err, _ := execute(bin, "-f Makefile.mta p=xxx mtar=xyz", path)
+			out, err, _ := execute(bin, "-f Makefile.mta p=xxx mtar=xyz1", path)
 			Ω(err).ShouldNot(BeEmpty())
 			Ω(out).Should(ContainSubstring(`ERROR the invalid target platform "xxx"; supported platforms are: "cf", "neo", "xsa"`))
-			Ω(filepath.Join(dir, "testdata", "mta_demo", "mta_archives", "xyz.mtar")).ShouldNot(BeAnExistingFile())
+			Ω(filepath.Join(dir, "testdata", "mta_demo", "mta_archives", "xyz1.mtar")).ShouldNot(BeAnExistingFile())
 		})
 
 		It("Generate MTAR - unsupported platform, module removed from mtad", func() {
@@ -234,7 +234,7 @@ modules:
 	})
 
 	var _ = Describe("Deploy basic mta archive", func() {
-		It("Deploy MTAR", func() {
+		PIt("Deploy MTAR", func() {
 			dir, _ := os.Getwd()
 			path := dir + filepath.FromSlash("/testdata/mta_demo/mta_archives")
 			bin := filepath.FromSlash("cf")
