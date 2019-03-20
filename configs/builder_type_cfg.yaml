@@ -33,7 +33,7 @@ builders:
       - command: go build *.go
 
   - name: evo
-    info: "installing module dependencies & remove dev dependencies"
+    info: "installing module dependencies & run evo-build & remove dev dependencies"
     path: "path to config file which override the following default commands"
     type:
       - command: npm install
