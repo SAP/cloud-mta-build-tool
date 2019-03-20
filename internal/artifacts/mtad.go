@@ -65,7 +65,10 @@ func ExecuteGenMtad(source, target, platform string, wdGetter func() (string, er
 	// merge mta and extension objects
 	mta.Merge(mtaStr, mtaExt)
 	// init mtad object from the extended mta
-	adaptMtadForDeployment(loc, mtaStr, platform)
+	err = adaptMtadForDeployment(loc, mtaStr, platform)
+	if err != nil {
+		return errors.Wrap(err, `generation of the MTAD file failed`)
+	}
 
 	return genMtad(mtaStr, &mtadLoc{target}, false, platform, yaml.Marshal)
 }
@@ -127,19 +130,9 @@ func adaptMtadForDeployment(loc dir.ITargetPath, mtaStr *mta.MTA, platform strin
 		if buildops.PlatformDefined(m, platform) {
 			// remove build parameters from modules with defined platforms
 			m.BuildParams = map[string]interface{}{}
-			if m.Path != "" {
-				// check existence of path in the temp folder
-				modulePath := filepath.Join(loc.GetTargetTmpDir(), m.Path)
-				_, err := os.Stat(modulePath)
-				// if path not exists, use the mo
-				if err != nil && os.IsNotExist(err){
-					modulePath = filepath.Join(loc.GetTargetTmpDir(), m.Name)
-					_, e := os.Stat(modulePath)
-					if e != nil {
-						return err
-					}
-					m.Path = m.Name
-				}
+			err := adaptModulePath(loc, m)
+			if err != nil {
+				return err
 			}
 		}
 	}
@@ -164,6 +157,24 @@ func adaptMtadForDeployment(loc dir.ITargetPath, mtaStr *mta.MTA, platform strin
 		}
 		if mtaStr.Parameters["hcp-deployer-version"] == nil {
 			mtaStr.Parameters["hcp-deployer-version"] = "1.1.0"
+		}
+	}
+	return nil
+}
+
+func adaptModulePath(loc dir.ITargetPath, module *mta.Module) error {
+	if module.Path != "" {
+		// check existence of path in the temp folder
+		modulePath := filepath.Join(loc.GetTargetTmpDir(), module.Path)
+		_, err := os.Stat(modulePath)
+		// if path not exists, use the mo
+		if err != nil && os.IsNotExist(err) {
+			modulePath = filepath.Join(loc.GetTargetTmpDir(), module.Name)
+			_, e := os.Stat(modulePath)
+			if e != nil {
+				return err
+			}
+			module.Path = module.Name
 		}
 	}
 	return nil
