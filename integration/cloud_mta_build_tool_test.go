@@ -222,6 +222,7 @@ modules:
 		It("Generate mtad", func() {
 			dir, _ := os.Getwd()
 			path := filepath.Join(dir, "testdata", "mta_demo")
+			os.MkdirAll(filepath.Join(path, ".mta_demo_mta_build_tmp", "node"), os.ModePerm)
 			bin := filepath.FromSlash(binPath)
 			_, err, _ := execute(bin, "gen mtad", path)
 			Ω(err).Should(Equal(""))
@@ -234,7 +235,7 @@ modules:
 	})
 
 	var _ = Describe("Deploy basic mta archive", func() {
-		PIt("Deploy MTAR", func() {
+		It("Deploy MTAR", func() {
 			dir, _ := os.Getwd()
 			path := dir + filepath.FromSlash("/testdata/mta_demo/mta_archives")
 			bin := filepath.FromSlash("cf")
