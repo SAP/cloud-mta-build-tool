@@ -46,7 +46,10 @@ func generateMeta(parser dir.IMtaParser, ep dir.ITargetArtifacts, targetPathGett
 		mta.Merge(m, mExt)
 	}
 
-	adaptMtadForDeployment(m, platform)
+	err = adaptMtadForDeployment(targetPathGetter, m, platform)
+	if err != nil {
+		return errors.Wrap(err, "generation of metadata failed when adapting Mtad for deployment")
+	}
 	// Generate meta info dir with required content
 	err = GenMetaInfo(ep, targetPathGetter, deploymentDescriptor, platform, m, []string{}, onlyModules)
 	if err != nil {
