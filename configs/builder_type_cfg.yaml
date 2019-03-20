@@ -32,6 +32,15 @@ builders:
     type:
       - command: go build *.go
 
+  - name: evo
+    info: "installing module dependencies & remove dev dependencies"
+    path: "path to config file which override the following default commands"
+    type:
+      - command: npm install
+      - command: npm run init
+      - command: npm run build
+      - command: npm prune --production
+
   # ---dummy build-before commands testing purpose
   - name: cds
     info: "test"
