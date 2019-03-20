@@ -138,6 +138,7 @@ func adaptMtadForDeployment(loc dir.ITargetPath, mtaStr *mta.MTA, platform strin
 					if e != nil {
 						return err
 					}
+					m.Path = m.Name
 				}
 			}
 		}
