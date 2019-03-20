@@ -167,7 +167,7 @@ func adaptModulePath(loc dir.ITargetPath, module *mta.Module) error {
 		// check existence of path in the temp folder
 		modulePath := filepath.Join(loc.GetTargetTmpDir(), module.Path)
 		_, err := os.Stat(modulePath)
-		// if path not exists, use the mo
+		// if path not exists, use the module name
 		if err != nil && os.IsNotExist(err) {
 			modulePath = filepath.Join(loc.GetTargetTmpDir(), module.Name)
 			_, e := os.Stat(modulePath)

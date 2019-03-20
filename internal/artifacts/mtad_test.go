@@ -101,7 +101,7 @@ var _ = Describe("adaptMtadForDeployment", func() {
 				{
 					Name: "htmlapp2",
 					Type: "javascript.nodejs",
-					Path: "node-js",
+					Path: "node-js1",
 					BuildParams: map[string]interface{}{
 						buildops.SupportedPlatformsParam: nil,
 					},
@@ -116,9 +116,11 @@ var _ = Describe("adaptMtadForDeployment", func() {
 				},
 			},
 		}
-		adaptMtadForDeployment(&testMtadLoc{}, &mta, "neo")
+		err := adaptMtadForDeployment(&testMtadLoc{}, &mta, "neo")
+		Ω(err).Should(Succeed())
 		Ω(len(mta.Modules)).Should(Equal(1))
 		Ω(mta.Modules[0].Name).Should(Equal("htmlapp2"))
+		Ω(mta.Modules[0].Path).Should(Equal("htmlapp2"))
 		Ω(mta.Parameters["hcp-deployer-version"]).ShouldNot(BeNil())
 	})
 })

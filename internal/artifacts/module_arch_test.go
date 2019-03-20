@@ -87,8 +87,8 @@ builders:
 		})
 
 		It("Fails on platform validation", func() {
-			Ω(ExecutePack(getTestPath("mta"), getResultPath(), "xx", "node-js",
-				"cf", os.Getwd)).Should(HaveOccurred())
+			Ω(ExecutePack(getTestPath("mta"), getResultPath(), "dev", "node-js",
+				"xx", os.Getwd)).Should(HaveOccurred())
 		})
 
 		It("Fails on location initialization", func() {
