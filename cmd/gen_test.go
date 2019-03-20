@@ -45,6 +45,8 @@ var _ = Describe("Commands", func() {
 			Ω(ep.GetMtadPath()).Should(BeAnExistingFile())
 		})
 		It("Generate Mtad - Sanity", func() {
+			os.MkdirAll(getTestPath("result", ".mtahtml5_mta_build_tmp", "testapp"), os.ModePerm)
+			os.MkdirAll(getTestPath("result", ".mtahtml5_mta_build_tmp", "ui5app2"), os.ModePerm)
 			mtadCmdSrc = getTestPath("mtahtml5")
 			mtadCmdPlatform = "cf"
 			Ω(mtadCmd.RunE(nil, []string{})).Should(Succeed())

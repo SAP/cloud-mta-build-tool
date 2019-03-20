@@ -26,6 +26,7 @@ var _ = Describe("Mtad", func() {
 
 	var _ = Describe("ExecuteGenMtad", func() {
 		It("Sanity", func() {
+			os.MkdirAll(getTestPath("resultMtad", ".mta_mta_build_tmp", "node-js"), os.ModePerm)
 			Ω(ExecuteGenMtad(getTestPath("mta"), getTestPath("resultMtad"), "cf", os.Getwd)).Should(Succeed())
 			Ω(getTestPath("resultMtad", "mtad.yaml")).Should(BeAnExistingFile())
 		})
