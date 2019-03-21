@@ -1,7 +1,9 @@
 package artifacts
 
 import (
+	"fmt"
 	"io/ioutil"
+	"os"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -9,8 +11,6 @@ import (
 
 	"github.com/SAP/cloud-mta-build-tool/internal/commands"
 	"github.com/SAP/cloud-mta/mta"
-	"os"
-	"fmt"
 )
 
 var _ = Describe("Project", func() {
