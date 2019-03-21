@@ -14,7 +14,7 @@ import (
 // ExecuteProjectBuild - execute pre or post phase of project build
 func ExecuteProjectBuild(source, descriptor, phase string, getWd func() (string, error)) error {
 	if phase != "pre" && phase != "post" {
-		return fmt.Errorf("the %s phase of mta project build is invalid; supported phases: pre, post", phase)
+		return fmt.Errorf(`the "%s" phase of mta project build is invalid; supported phases: "pre", "post"`, phase)
 	}
 	loc, err := dir.Location(source, "", descriptor, getWd)
 	if err != nil {

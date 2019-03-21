@@ -150,10 +150,17 @@ cli_version:["x"]
 
 		It("Generate Meta fails on platform parsing", func() {
 			platformConfig := platform.PlatformConfig
-			platform.PlatformConfig = []byte("wrong")
+			platform.PlatformConfig = []byte("wrong config")
+			os.MkdirAll(getTestPath("result", ".mtahtml5_mta_build_tmp", "testapp"), os.ModePerm)
+			os.MkdirAll(getTestPath("result", ".mtahtml5_mta_build_tmp", "ui5app2"), os.ModePerm)
 			ep := dir.Loc{SourcePath: getTestPath("mtahtml5"), TargetPath: getResultPath()}
 			Ω(generateMeta(&ep, &ep, &ep, false, "cf", true)).Should(HaveOccurred())
 			platform.PlatformConfig = platformConfig
+		})
+
+		It("Generate Meta fails on mtad adaptation", func() {
+			ep := dir.Loc{SourcePath: getTestPath("mtahtml5"), TargetPath: getResultPath()}
+			Ω(generateMeta(&ep, &ep, &ep, false, "cf", true)).Should(HaveOccurred())
 		})
 
 		It("Generate Mtar", func() {

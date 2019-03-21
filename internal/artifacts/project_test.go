@@ -9,9 +9,32 @@ import (
 
 	"github.com/SAP/cloud-mta-build-tool/internal/commands"
 	"github.com/SAP/cloud-mta/mta"
+	"os"
+	"fmt"
 )
 
 var _ = Describe("Project", func() {
+
+	var _ = Describe("ExecuteProjectBuild", func() {
+		It("wrong phase", func() {
+			err := ExecuteProjectBuild(getTestPath("mta"), "dev", "wrong phase", os.Getwd)
+			Ω(err).Should(HaveOccurred())
+			Ω(err.Error()).Should(Equal(`the "wrong phase" phase of mta project build is invalid; supported phases: "pre", "post"`))
+		})
+		It("wrong location", func() {
+			err := ExecuteProjectBuild(getTestPath("mta"), "xx", "pre", func() (string, error) {
+				return "", fmt.Errorf("error")
+			})
+			Ω(err).Should(HaveOccurred())
+			Ω(err.Error()).Should(ContainSubstring("failed to initialize the location when validating descriptor:"))
+		})
+		It("mta.yaml not found", func() {
+			err := ExecuteProjectBuild(getTestPath("mta1"), "dev", "pre", os.Getwd)
+			Ω(err).Should(HaveOccurred())
+			Ω(err.Error()).Should(ContainSubstring("failed to read"))
+		})
+	})
+
 	var _ = Describe("runBuilder", func() {
 		It("Sanity", func() {
 			buildersCfg := commands.BuilderTypeConfig
