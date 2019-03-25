@@ -103,30 +103,31 @@ builders:
 	var _ = Describe("ExecuteZip", func() {
 
 		It("Sanity", func() {
-			Ω(ExecutePack(getTestPath("mta"), getResultPath(), "dev", "node-js",
+			Ω(ExecuteZip(getTestPath("mta_zip_builder"), getResultPath(), "dev", "node-js",
 				"cf", os.Getwd)).Should(Succeed())
-			loc := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath()}
+			loc := dir.Loc{SourcePath: getTestPath("mta_zip_builder"), TargetPath: getResultPath()}
 			Ω(loc.GetTargetModuleZipPath("node-js")).Should(BeAnExistingFile())
 		})
 
 		It("Fails on location initialization", func() {
-			Ω(ExecutePack("", "", "dev", "ui5app", "cf", func() (string, error) {
+			Ω(ExecuteZip("", "", "dev", "mta_zip_builder", "cf", func() (string, error) {
 				return "", errors.New("err")
 			})).Should(HaveOccurred())
 		})
 
 		It("Fails on wrong module", func() {
-			Ω(ExecutePack(getTestPath("mta"), getResultPath(), "dev", "ui5appx",
+			Ω(ExecuteZip(getTestPath("mta_zip_builder"), getResultPath(), "dev", "ui5appx",
 				"cf", os.Getwd)).Should(HaveOccurred())
 		})
 
 		It("Target folder exists as file", func() {
-			os.MkdirAll(getTestPath("result", ".mta_mta_build_tmp"), os.ModePerm)
-			createFile("result", ".mta_mta_build_tmp", "node-js")
-			Ω(ExecutePack(getTestPath("mta"), getResultPath(), "dev", "node-js",
+			os.MkdirAll(getTestPath("result", ".mta_zip_builder_mta_build_tmp"), os.ModePerm)
+			createFile("result", ".mta_zip_builder_mta_build_tmp", "node-js")
+			Ω(ExecuteZip(getTestPath("mta_zip_builder"), getResultPath(), "dev", "node-js",
 				"cf", os.Getwd)).Should(HaveOccurred())
 		})
 	})
+
 
 	var _ = Describe("Pack", func() {
 		var _ = Describe("Sanity", func() {
@@ -176,6 +177,60 @@ builders:
 				},
 			}
 			Ω(packModule(&ep, false, &mNoPlatforms, "node-js", "cf")).Should(Succeed())
+			Ω(getTestPath("result", "mta_with_zipped_module_mta_build_tmp", "node-js", "data.zip")).
+				ShouldNot(BeAnExistingFile())
+		})
+
+	})
+
+	var _ = Describe("Zip", func() {
+		var _ = Describe("Sanity", func() {
+
+			It("Deployment descriptor - Copy only", func() {
+				ep := dir.Loc{
+					SourcePath: getTestPath("mta_with_zipped_module"),
+					TargetPath: getResultPath(),
+					Descriptor: "dep",
+				}
+				Ω(zipModule(&ep, true, &m, "node-js", "cf")).Should(Succeed())
+				Ω(getTestPath("result", ".mta_with_zipped_module_mta_build_tmp", "node-js", "data.zip")).Should(BeAnExistingFile())
+			})
+
+			// ep.GetTargetModuleDir(moduleName)
+			It("Wrong source", func() {
+				ep := dir.Loc{
+					SourcePath: getTestPath("mta_unknown"),
+					TargetPath: getResultPath(),
+					Descriptor: "dev",
+				}
+				Ω(zipModule(&ep, false, &m, "node-js", "cf")).Should(HaveOccurred())
+			})
+			It("Target directory exists as a file", func() {
+				ep := dir.Loc{
+					SourcePath: getTestPath("mta_with_zipped_module"),
+					TargetPath: getResultPath(),
+					Descriptor: "dev",
+				}
+				os.MkdirAll(filepath.Join(ep.GetTarget(), ".mta_with_zipped_module_mta_build_tmp"), os.ModePerm)
+				createFile("result", ".mta_with_zipped_module_mta_build_tmp", "node-js")
+				Ω(zipModule(&ep, false, &m, "node-js", "cf")).Should(HaveOccurred())
+			})
+		})
+
+		It("No platforms - no pack", func() {
+			ep := dir.Loc{
+				SourcePath: getTestPath("mta_with_zipped_module"),
+				TargetPath: getResultPath(),
+				Descriptor: "dep",
+			}
+			mNoPlatforms := mta.Module{
+				Name: "node-js",
+				Path: "node-js",
+				BuildParams: map[string]interface{}{
+					buildops.SupportedPlatformsParam: []string{},
+				},
+			}
+			Ω(zipModule(&ep, false, &mNoPlatforms, "node-js", "cf")).Should(Succeed())
 			Ω(getTestPath("result", "mta_with_zipped_module_mta_build_tmp", "node-js", "data.zip")).
 				ShouldNot(BeAnExistingFile())
 		})

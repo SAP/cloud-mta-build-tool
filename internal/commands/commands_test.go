@@ -125,12 +125,12 @@ module-types:
 		Ω(err).Should(HaveOccurred())
 	})
 
-	It("CommandProvider", func() {
+	It("CommandProviderVerbose", func() {
 		expected := CommandList{
 			Info:    "installing module dependencies & execute grunt & remove dev dependencies",
 			Command: []string{"npm install", "grunt", "npm prune --production"},
 		}
-		Ω(CommandProvider(mta.Module{Type: "html5"}, "")).Should(Equal(expected))
+		Ω(CommandProviderVerbose(mta.Module{Type: "html5"})).Should(Equal(expected))
 	})
 
 	var _ = Describe("CommandProvider - Invalid module types cfg", func() {
@@ -159,7 +159,7 @@ module-types:
 		})
 
 		It("test", func() {
-			_, err := CommandProvider(mta.Module{Type: "html5"}, "")
+			_, err := CommandProviderVerbose(mta.Module{Type: "html5"})
 			Ω(err).Should(HaveOccurred())
 		})
 	})
@@ -199,7 +199,7 @@ builders:
 		})
 
 		It("test", func() {
-			_, err := CommandProvider(mta.Module{Type: "html5"}, "")
+			_, err := CommandProviderVerbose(mta.Module{Type: "html5"})
 			Ω(err).Should(HaveOccurred())
 		})
 	})

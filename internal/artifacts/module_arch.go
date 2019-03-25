@@ -159,7 +159,7 @@ func packModule(ep dir.IModule, deploymentDesc bool, module *mta.Module, moduleN
 	return nil
 }
 
-// packModule - pack build module artifacts
+// zipModule - pack build module artifacts
 func zipModule(ep dir.IModule, deploymentDesc bool, module *mta.Module, moduleName, platform string) error {
 
 	if !buildops.PlatformDefined(module, platform) {
