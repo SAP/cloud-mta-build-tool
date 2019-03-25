@@ -54,7 +54,7 @@ module-types:
 			Type: "html5",
 			Path: "./",
 		}
-		 _, err := mesh(&modules, "", &commands, customCommands)
+		_, err := mesh(&modules, "", &commands, customCommands)
 		Ω(err).Should(Succeed())
 		modules = mta.Module{
 			Name: "uiapp1",
@@ -64,7 +64,7 @@ module-types:
 				"builder": "html5x",
 			},
 		}
-		 _, err = mesh(&modules, "", &commands, customCommands)
+		_, err = mesh(&modules, "", &commands, customCommands)
 		Ω(err).Should(HaveOccurred())
 	})
 
@@ -121,7 +121,7 @@ module-types:
 		commands := ModuleTypes{}
 		customCommands := Builders{}
 		Ω(yaml.Unmarshal(moduleTypesCfg, &commands)).Should(Succeed())
-		 _, err := mesh(&modules, "", &commands, customCommands)
+		_, err := mesh(&modules, "", &commands, customCommands)
 		Ω(err).Should(HaveOccurred())
 	})
 
@@ -159,7 +159,7 @@ module-types:
 		})
 
 		It("test", func() {
-			 _, err := CommandProvider(mta.Module{Type: "html5"}, "")
+			_, err := CommandProvider(mta.Module{Type: "html5"}, "")
 			Ω(err).Should(HaveOccurred())
 		})
 	})
@@ -199,7 +199,7 @@ builders:
 		})
 
 		It("test", func() {
-			 _, err := CommandProvider(mta.Module{Type: "html5"}, "")
+			_, err := CommandProvider(mta.Module{Type: "html5"}, "")
 			Ω(err).Should(HaveOccurred())
 		})
 	})
@@ -320,14 +320,14 @@ modules:
 	It("Invalid case - wrong fetcher builder type", func() {
 		wd, _ := os.Getwd()
 		ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata"), MtaFilename: "mtaWithFetcher.yaml"}
-		 _, _, err := GetModuleAndCommands(&ep, "", "j1")
+		_, _, err := GetModuleAndCommands(&ep, "", "j1")
 		Ω(err).Should(HaveOccurred())
 	})
 
 	It("Invalid case - wrong mta", func() {
 		wd, _ := os.Getwd()
 		ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata"), MtaFilename: "mtaUnknown.yaml"}
-		 _, _, err := GetModuleAndCommands(&ep, "", "node-js")
+		_, _, err := GetModuleAndCommands(&ep, "", "node-js")
 		Ω(err).Should(HaveOccurred())
 
 	})
@@ -346,21 +346,21 @@ modules:
 		It("Invalid case - wrong module name", func() {
 			wd, _ := os.Getwd()
 			ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata")}
-			 _, _, err := GetModuleAndCommands(&ep, "", "node-js1")
+			_, _, err := GetModuleAndCommands(&ep, "", "node-js1")
 			Ω(err).Should(HaveOccurred())
 
 		})
 		It("Invalid case - wrong mta", func() {
 			wd, _ := os.Getwd()
 			ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata"), MtaFilename: "mtaUnknown.yaml"}
-			 _, _, err := GetModuleAndCommands(&ep, "", "node-js")
+			_, _, err := GetModuleAndCommands(&ep, "", "node-js")
 			Ω(err).Should(HaveOccurred())
 
 		})
 		It("Invalid case - wrong type", func() {
 			wd, _ := os.Getwd()
 			ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata"), MtaFilename: "mtaUnknownBuilder.yaml"}
-			 _, cmd, _ := GetModuleAndCommands(&ep, "", "node-js")
+			_, cmd, _ := GetModuleAndCommands(&ep, "", "node-js")
 			Ω(len(cmd)).Should(Equal(0))
 
 		})
@@ -369,7 +369,7 @@ modules:
 			ModuleTypeConfig = []byte("wrong config")
 			wd, _ := os.Getwd()
 			ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata")}
-			 _, _, err := GetModuleAndCommands(&ep, "", "node-js")
+			_, _, err := GetModuleAndCommands(&ep, "", "node-js")
 			ModuleTypeConfig = conf
 			Ω(err).Should(HaveOccurred())
 		})

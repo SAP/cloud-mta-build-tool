@@ -48,7 +48,6 @@ func ExecutePack(source, target, desc, moduleName, platform string, wdGetter fun
 	builder, _, _ := buildops.GetBuilder(module, source)
 	if builder != "zip" {
 
-
 		err = packModule(loc, loc.IsDeploymentDescriptor(), module, moduleName, platform)
 		if err != nil {
 			return err
@@ -58,7 +57,7 @@ func ExecutePack(source, target, desc, moduleName, platform string, wdGetter fun
 	return nil
 }
 
-// ExecutePack - executes packing of module
+// ExecuteZip - executes packing of module
 func ExecuteZip(source, target, desc, moduleName, platform string, wdGetter func() (string, error)) error {
 	logs.Logger.Infof(`zipping the "%v" module...`, moduleName)
 

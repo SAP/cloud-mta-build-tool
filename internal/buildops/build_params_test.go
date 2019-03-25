@@ -16,7 +16,6 @@ import (
 )
 
 var _ = Describe("BuildParams", func() {
-
 	var _ = Describe("GetBuildResultsPath", func() {
 		var _ = DescribeTable("valid cases", func(module *mta.Module, expected string) {
 			Ω(GetBuildResultsPath(&dir.Loc{}, module)).Should(HaveSuffix(expected))
@@ -215,8 +214,8 @@ var _ = Describe("GetBuilder", func() {
 				"fetcher-opts": map[interface{}]interface{}{
 					"repo-type":        "maven",
 					"repo-coordinates": "com.sap.xs.java:xs-audit-log-api:1.2.3",
-					"module-name": "x",
-					"source": "$(PROJ_DIR)",
+					"module-name":      "x",
+					"source":           "$(PROJ_DIR)",
 				},
 			},
 		}
@@ -224,8 +223,8 @@ var _ = Describe("GetBuilder", func() {
 		Ω(options).Should(Equal(map[string]string{
 			"repo-type":        "maven",
 			"repo-coordinates": "com.sap.xs.java:xs-audit-log-api:1.2.3",
-			"source": "$(PROJ_DIR)",
-			"module-name": "x",
+			"source":           "$(PROJ_DIR)",
+			"module-name":      "x",
 		}))
 		Ω(builder).Should(Equal("fetcher"))
 		Ω(custom).Should(BeTrue())
@@ -242,8 +241,8 @@ var _ = Describe("GetBuilder", func() {
 		Ω(options).Should(Equal(map[string]string{
 			"repo-type":        "maven",
 			"repo-coordinates": "mygroup:myart:1.0.0",
-			"module-name": "j1",
-			"source": "$(PROJ_DIR)",}))
+			"module-name":      "j1",
+			"source":           "$(PROJ_DIR)"}))
 		Ω(builder).Should(Equal("fetcher"))
 		Ω(custom).Should(BeTrue())
 	})
@@ -257,7 +256,7 @@ var _ = Describe("GetBuilder", func() {
 		yaml.Unmarshal(yamlFile, &m)
 		builder, custom, options := GetBuilder(m.Modules[0], "")
 		Ω(options).Should(Equal(map[string]string{
-			"source": "$(PROJ_DIR)",
+			"source":      "$(PROJ_DIR)",
 			"module-name": "node"}))
 		Ω(builder).Should(Equal("zip"))
 		Ω(custom).Should(BeTrue())

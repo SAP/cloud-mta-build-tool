@@ -34,7 +34,7 @@ func CommandProvider(modules mta.Module, source string) (CommandList, error) {
 	return mesh(&modules, source, &moduleTypes, builderTypes)
 }
 
-// CommandProvider - Get build command's to execute
+// CommandProviderVerbose - Get build command's to execute
 //noinspection GoExportedFuncWithUnexportedType
 func CommandProviderVerbose(modules mta.Module) (CommandList, error) {
 	return CommandProvider(modules, "")
