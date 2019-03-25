@@ -74,8 +74,8 @@ make -f Makefile.mta p=cf
     - [ ] Supports build dependencies.
     - [ ] Supports the copying of build results from other modules.
     - [ ] Supports the build results from a different location.
-    - [ ] Supports target platforms.
- - [ ] Supports the generation of a default `Makefile` file.
+    - [x] Supports target platforms.
+ - [x] Supports the generation of a default `Makefile` file.
  - [ ] Supports the generation of an `mtad.yaml` file from an `mta.yaml` file.
  - [ ] Supports the building of `XSA` and `CF` (Cloud Foundry) targets.
 
