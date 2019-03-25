@@ -23,7 +23,7 @@ func ExecuteBuild(source, target, desc, moduleName, platform string, wdGetter fu
 	if err != nil {
 		return errors.Wrapf(err, `build of the "%v" module failed when initializing the location`, moduleName)
 	}
-	err = buildModule(loc, loc, loc.IsDeploymentDescriptor(), moduleName, platform)
+	err = buildModule(loc.GetSource(), loc, loc, loc.IsDeploymentDescriptor(), moduleName, platform)
 	if err != nil {
 		return err
 	}
@@ -32,6 +32,7 @@ func ExecuteBuild(source, target, desc, moduleName, platform string, wdGetter fu
 
 // ExecutePack - executes packing of module
 func ExecutePack(source, target, desc, moduleName, platform string, wdGetter func() (string, error)) error {
+
 	logs.Logger.Infof(`packing the "%v" module...`, moduleName)
 
 	loc, err := dir.Location(source, target, desc, wdGetter)
@@ -39,12 +40,38 @@ func ExecutePack(source, target, desc, moduleName, platform string, wdGetter fun
 		return errors.Wrapf(err, `packing of the "%v" module failed when initializing the location`, moduleName)
 	}
 
-	module, _, err := commands.GetModuleAndCommands(loc, moduleName)
+	module, _, err := commands.GetModuleAndCommands(loc, source, moduleName)
 	if err != nil {
 		return errors.Wrapf(err, `packing of the "%v" module failed when getting commands`, moduleName)
 	}
 
-	err = packModule(loc, loc.IsDeploymentDescriptor(), module, moduleName, platform)
+	builder, _, _ := buildops.GetBuilder(module, source)
+	if builder != "zip" {
+
+
+		err = packModule(loc, loc.IsDeploymentDescriptor(), module, moduleName, platform)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ExecutePack - executes packing of module
+func ExecuteZip(source, target, desc, moduleName, platform string, wdGetter func() (string, error)) error {
+	logs.Logger.Infof(`zipping the "%v" module...`, moduleName)
+
+	loc, err := dir.Location(source, target, desc, wdGetter)
+	if err != nil {
+		return errors.Wrapf(err, `zipping of the "%v" module failed when initializing the location`, moduleName)
+	}
+
+	module, _, err := commands.GetModuleAndCommands(loc, source, moduleName)
+	if err != nil {
+		return errors.Wrapf(err, `zipping of the "%v" module failed when getting commands`, moduleName)
+	}
+	err = zipModule(loc, loc.IsDeploymentDescriptor(), module, moduleName, platform)
 	if err != nil {
 		return err
 	}
@@ -53,10 +80,10 @@ func ExecutePack(source, target, desc, moduleName, platform string, wdGetter fun
 }
 
 // buildModule - builds module
-func buildModule(mtaParser dir.IMtaParser, moduleLoc dir.IModule, deploymentDesc bool, moduleName, platform string) error {
+func buildModule(source string, mtaParser dir.IMtaParser, moduleLoc dir.IModule, deploymentDesc bool, moduleName, platform string) error {
 
 	// Get module respective command's to execute
-	module, mCmd, err := commands.GetModuleAndCommands(mtaParser, moduleName)
+	module, mCmd, err := commands.GetModuleAndCommands(mtaParser, source, moduleName)
 	if err != nil {
 		return errors.Wrapf(err, `build of the "%v" module failed when getting commands`, moduleName)
 	}
@@ -102,6 +129,39 @@ func buildModule(mtaParser dir.IMtaParser, moduleLoc dir.IModule, deploymentDesc
 
 // packModule - pack build module artifacts
 func packModule(ep dir.IModule, deploymentDesc bool, module *mta.Module, moduleName, platform string) error {
+	if !buildops.PlatformDefined(module, platform) {
+		return nil
+	}
+
+	if deploymentDesc {
+		return copyModuleArchive(ep, module.Path, moduleName)
+	}
+
+	// Get module relative path
+	moduleZipPath := ep.GetTargetModuleDir(moduleName)
+
+	// Create empty folder with name as before the zip process
+	// to put the file such as data.zip inside
+	err := os.MkdirAll(moduleZipPath, os.ModePerm)
+	if err != nil {
+		return errors.Wrapf(err, `packing of the "%v" module failed when creating the "%v" folder`, moduleName, moduleZipPath)
+	}
+	// zipping the build artifacts
+	logs.Logger.Infof(`zipping the %v module...`, moduleName)
+	moduleZipFullPath := moduleZipPath + dataZip
+	sourceModuleDir := buildops.GetBuildResultsPath(ep, module)
+
+	err = dir.Archive(sourceModuleDir, moduleZipFullPath)
+	if err != nil {
+		return errors.Wrapf(err, `packing of the "%v" module failed when archiving`, moduleName)
+
+	}
+
+	return nil
+}
+
+// packModule - pack build module artifacts
+func zipModule(ep dir.IModule, deploymentDesc bool, module *mta.Module, moduleName, platform string) error {
 
 	if !buildops.PlatformDefined(module, platform) {
 		return nil
@@ -122,7 +182,6 @@ func packModule(ep dir.IModule, deploymentDesc bool, module *mta.Module, moduleN
 		return errors.Wrapf(err, `packing of the "%v" module failed when creating the "%v" folder`, moduleName, moduleZipPath)
 	}
 	// zipping the build artifacts
-	logs.Logger.Infof(`zipping the %v module...`, moduleName)
 	moduleZipFullPath := moduleZipPath + dataZip
 	sourceModuleDir := buildops.GetBuildResultsPath(ep, module)
 

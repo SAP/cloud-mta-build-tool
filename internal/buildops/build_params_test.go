@@ -192,7 +192,7 @@ var _ = Describe("GetBuilder", func() {
 				SupportedPlatformsParam: []string{},
 			},
 		}
-		Ω(GetBuilder(&m)).Should(Equal("node-js"))
+		Ω(GetBuilder(&m, "")).Should(Equal("node-js"))
 	})
 	It("Builder defined by build params", func() {
 		m := mta.Module{
@@ -202,7 +202,7 @@ var _ = Describe("GetBuilder", func() {
 				builderParam: "npm",
 			},
 		}
-		builder, custom, _ := GetBuilder(&m)
+		builder, custom, _ := GetBuilder(&m, "")
 		Ω(builder).Should(Equal("npm"))
 		Ω(custom).Should(Equal(true))
 	})
@@ -215,13 +215,18 @@ var _ = Describe("GetBuilder", func() {
 				"fetcher-opts": map[interface{}]interface{}{
 					"repo-type":        "maven",
 					"repo-coordinates": "com.sap.xs.java:xs-audit-log-api:1.2.3",
+					"module-name": "x",
+					"source": "$(PROJ_DIR)",
 				},
 			},
 		}
-		builder, custom, options := GetBuilder(&m)
+		builder, custom, options := GetBuilder(&m, "")
 		Ω(options).Should(Equal(map[string]string{
 			"repo-type":        "maven",
-			"repo-coordinates": "com.sap.xs.java:xs-audit-log-api:1.2.3"}))
+			"repo-coordinates": "com.sap.xs.java:xs-audit-log-api:1.2.3",
+			"source": "$(PROJ_DIR)",
+			"module-name": "x",
+		}))
 		Ω(builder).Should(Equal("fetcher"))
 		Ω(custom).Should(BeTrue())
 	})
@@ -233,11 +238,28 @@ var _ = Describe("GetBuilder", func() {
 		Ω(err).Should(BeNil())
 		m := mta.MTA{}
 		yaml.Unmarshal(yamlFile, &m)
-		builder, custom, options := GetBuilder(m.Modules[0])
+		builder, custom, options := GetBuilder(m.Modules[0], "")
 		Ω(options).Should(Equal(map[string]string{
 			"repo-type":        "maven",
-			"repo-coordinates": "mygroup:myart:1.0.0"}))
+			"repo-coordinates": "mygroup:myart:1.0.0",
+			"module-name": "j1",
+			"source": "$(PROJ_DIR)",}))
 		Ω(builder).Should(Equal("fetcher"))
+		Ω(custom).Should(BeTrue())
+	})
+	It("zip builder defined by build params from mta.yaml", func() {
+		dir, _ := os.Getwd()
+		path := filepath.Join(dir, "testdata", "mtaWithZip.yaml")
+		// Read MTA file
+		yamlFile, err := ioutil.ReadFile(path)
+		Ω(err).Should(BeNil())
+		m := mta.MTA{}
+		yaml.Unmarshal(yamlFile, &m)
+		builder, custom, options := GetBuilder(m.Modules[0], "")
+		Ω(options).Should(Equal(map[string]string{
+			"source": "$(PROJ_DIR)",
+			"module-name": "node"}))
+		Ω(builder).Should(Equal("zip"))
 		Ω(custom).Should(BeTrue())
 	})
 })

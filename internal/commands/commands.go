@@ -20,9 +20,10 @@ type CommandList struct {
 
 // CommandProvider - Get build command's to execute
 //noinspection GoExportedFuncWithUnexportedType
-func CommandProvider(modules mta.Module) (CommandList, error) {
+func CommandProvider(modules mta.Module, source string) (CommandList, error) {
 	// Get config from ./commands_cfg.yaml as generated artifacts from source
 	moduleTypes, err := parseModuleTypes(ModuleTypeConfig)
+
 	if err != nil {
 		return CommandList{}, errors.Wrap(err, "failed to parse the module types configuration")
 	}
@@ -30,11 +31,17 @@ func CommandProvider(modules mta.Module) (CommandList, error) {
 	if err != nil {
 		return CommandList{}, errors.Wrap(err, "failed to parse the builder types configuration")
 	}
-	return mesh(&modules, &moduleTypes, builderTypes)
+	return mesh(&modules, source, &moduleTypes, builderTypes)
+}
+
+// CommandProvider - Get build command's to execute
+//noinspection GoExportedFuncWithUnexportedType
+func CommandProviderVerbose(modules mta.Module) (CommandList, error) {
+	return CommandProvider(modules, "")
 }
 
 // Match the object according to type and provide the respective command
-func mesh(module *mta.Module, moduleTypes *ModuleTypes, builderTypes Builders) (CommandList, error) {
+func mesh(module *mta.Module, source string, moduleTypes *ModuleTypes, builderTypes Builders) (CommandList, error) {
 	// The object support deep struct for future use, can be simplified to flat object
 	var cmds CommandList
 	var commands []Command
@@ -43,7 +50,7 @@ func mesh(module *mta.Module, moduleTypes *ModuleTypes, builderTypes Builders) (
 	// get builder - module type name or custom builder if defined
 	// indicator if custom builder
 	// options of builder if defined
-	builder, custom, options := buildops.GetBuilder(module)
+	builder, custom, options := buildops.GetBuilder(module, source)
 
 	// if module type used - get from module types configuration corresponding commands or custom builder if defined
 	if !custom {
@@ -78,11 +85,11 @@ func mesh(module *mta.Module, moduleTypes *ModuleTypes, builderTypes Builders) (
 	}
 
 	// prepare result
-	return prepareMeshResult(cmds, commands, options)
+	return prepareMeshResult(cmds, source, commands, options)
 }
 
 // prepare commands list - mesh result
-func prepareMeshResult(cmds CommandList, commands []Command, options map[string]string) (CommandList, error) {
+func prepareMeshResult(cmds CommandList, source string, commands []Command, options map[string]string) (CommandList, error) {
 	for _, cmd := range commands {
 		if options != nil {
 			cmd.Command = meshOpts(cmd.Command, options)
@@ -136,20 +143,20 @@ func CmdConverter(mPath string, cmdList []string) [][]string {
 
 // GetModuleAndCommands - Get module from mta.yaml and
 // commands (with resolved paths) configured for the module type
-func GetModuleAndCommands(loc dir.IMtaParser, module string) (*mta.Module, []string, error) {
+func GetModuleAndCommands(loc dir.IMtaParser, source string, module string) (*mta.Module, []string, error) {
 	mtaObj, err := loc.ParseFile()
 	if err != nil {
 		return nil, nil, err
 	}
 	// Get module respective command's to execute
-	return moduleCmd(mtaObj, module)
+	return moduleCmd(mtaObj, source, module)
 }
 
 // Get commands for specific module type
-func moduleCmd(mta *mta.MTA, moduleName string) (*mta.Module, []string, error) {
+func moduleCmd(mta *mta.MTA, source string, moduleName string) (*mta.Module, []string, error) {
 	for _, m := range mta.Modules {
 		if m.Name == moduleName {
-			commandProvider, err := CommandProvider(*m)
+			commandProvider, err := CommandProvider(*m, source)
 			if err != nil {
 				return nil, nil, err
 			}

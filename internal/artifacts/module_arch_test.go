@@ -100,6 +100,34 @@ builders:
 		})
 	})
 
+	var _ = Describe("ExecuteZip", func() {
+
+		It("Sanity", func() {
+			Ω(ExecutePack(getTestPath("mta"), getResultPath(), "dev", "node-js",
+				"cf", os.Getwd)).Should(Succeed())
+			loc := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath()}
+			Ω(loc.GetTargetModuleZipPath("node-js")).Should(BeAnExistingFile())
+		})
+
+		It("Fails on location initialization", func() {
+			Ω(ExecutePack("", "", "dev", "ui5app", "cf", func() (string, error) {
+				return "", errors.New("err")
+			})).Should(HaveOccurred())
+		})
+
+		It("Fails on wrong module", func() {
+			Ω(ExecutePack(getTestPath("mta"), getResultPath(), "dev", "ui5appx",
+				"cf", os.Getwd)).Should(HaveOccurred())
+		})
+
+		It("Target folder exists as file", func() {
+			os.MkdirAll(getTestPath("result", ".mta_mta_build_tmp"), os.ModePerm)
+			createFile("result", ".mta_mta_build_tmp", "node-js")
+			Ω(ExecutePack(getTestPath("mta"), getResultPath(), "dev", "node-js",
+				"cf", os.Getwd)).Should(HaveOccurred())
+		})
+	})
+
 	var _ = Describe("Pack", func() {
 		var _ = Describe("Sanity", func() {
 
@@ -179,7 +207,7 @@ builders:
 
 			It("Sanity", func() {
 				ep := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath()}
-				Ω(buildModule(&ep, &ep, false, "node-js", "cf")).Should(Succeed())
+				Ω(buildModule("",&ep, &ep, false, "node-js", "cf")).Should(Succeed())
 				Ω(ep.GetTargetModuleZipPath("node-js")).Should(BeAnExistingFile())
 			})
 
@@ -199,14 +227,14 @@ module-types:
 `)
 
 				ep := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath()}
-				Ω(buildModule(&ep, &ep, false, "node-js", "cf")).Should(HaveOccurred())
+				Ω(buildModule("",&ep, &ep, false, "node-js", "cf")).Should(HaveOccurred())
 			})
 
 			It("Target folder exists as a file - dev", func() {
 				os.MkdirAll(getTestPath("result", ".mta_mta_build_tmp"), os.ModePerm)
 				ep := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath()}
 				createFile("result", ".mta_mta_build_tmp", "node-js")
-				Ω(buildModule(&ep, &ep, false, "node-js", "cf")).Should(HaveOccurred())
+				Ω(buildModule("",&ep, &ep, false, "node-js", "cf")).Should(HaveOccurred())
 			})
 
 			It("Target folder exists as a file - dep", func() {
@@ -218,7 +246,7 @@ module-types:
 					MtaFilename: "mta.yaml",
 				}
 				createFile("result", "mta", "node-js")
-				Ω(buildModule(&ep, &ep, true, "node-js", "cf")).Should(HaveOccurred())
+				Ω(buildModule("",&ep, &ep, true, "node-js", "cf")).Should(HaveOccurred())
 			})
 
 			It("Deployment Descriptor", func() {
@@ -227,14 +255,14 @@ module-types:
 					TargetPath:  getResultPath(),
 					MtaFilename: "mta.yaml",
 					Descriptor:  "dep"}
-				Ω(buildModule(&ep, &ep, true, "node-js", "cf")).Should(Succeed())
+				Ω(buildModule("",&ep, &ep, true, "node-js", "cf")).Should(Succeed())
 				Ω(ep.GetTargetModuleZipPath("node-js")).Should(BeAnExistingFile())
 			})
 
 			var _ = DescribeTable("Invalid inputs", func(projectName, mtaFilename, moduleName string) {
 				ep := dir.Loc{SourcePath: getTestPath(projectName), TargetPath: getResultPath(), MtaFilename: mtaFilename}
 				Ω(ep.GetTargetTmpDir()).ShouldNot(BeADirectory())
-				Ω(buildModule(&ep, &ep, false, moduleName, "cf")).Should(HaveOccurred())
+				Ω(buildModule("",&ep, &ep, false, moduleName, "cf")).Should(HaveOccurred())
 				Ω(ep.GetTargetTmpDir()).ShouldNot(BeADirectory())
 			},
 				Entry("Invalid path to application", "mta1", "mta.yaml", "node-js"),

@@ -48,13 +48,13 @@ module-types:
 		commands := ModuleTypes{}
 		customCommands := Builders{}
 		Ω(yaml.Unmarshal(moduleTypesCfg, &commands)).Should(Succeed())
-		Ω(mesh(&modules, &commands, customCommands)).Should(Equal(expected))
+		Ω(mesh(&modules, "", &commands, customCommands)).Should(Equal(expected))
 		modules = mta.Module{
 			Name: "uiapp1",
 			Type: "html5",
 			Path: "./",
 		}
-		_, err := mesh(&modules, &commands, customCommands)
+		 _, err := mesh(&modules, "", &commands, customCommands)
 		Ω(err).Should(Succeed())
 		modules = mta.Module{
 			Name: "uiapp1",
@@ -64,7 +64,7 @@ module-types:
 				"builder": "html5x",
 			},
 		}
-		_, err = mesh(&modules, &commands, customCommands)
+		 _, err = mesh(&modules, "", &commands, customCommands)
 		Ω(err).Should(HaveOccurred())
 	})
 
@@ -98,7 +98,7 @@ builders:
 		customCommands := Builders{}
 		Ω(yaml.Unmarshal(moduleTypesCfg, &commands)).Should(Succeed())
 		Ω(yaml.Unmarshal(buildersCfg, &customCommands)).Should(Succeed())
-		Ω(mesh(&modules, &commands, customCommands)).Should(Equal(expected))
+		Ω(mesh(&modules, "", &commands, customCommands)).Should(Equal(expected))
 	})
 
 	It("Mesh - fails on usage both builder and commands in one module type", func() {
@@ -121,7 +121,7 @@ module-types:
 		commands := ModuleTypes{}
 		customCommands := Builders{}
 		Ω(yaml.Unmarshal(moduleTypesCfg, &commands)).Should(Succeed())
-		_, err := mesh(&modules, &commands, customCommands)
+		 _, err := mesh(&modules, "", &commands, customCommands)
 		Ω(err).Should(HaveOccurred())
 	})
 
@@ -130,7 +130,7 @@ module-types:
 			Info:    "installing module dependencies & execute grunt & remove dev dependencies",
 			Command: []string{"npm install", "grunt", "npm prune --production"},
 		}
-		Ω(CommandProvider(mta.Module{Type: "html5"})).Should(Equal(expected))
+		Ω(CommandProvider(mta.Module{Type: "html5"}, "")).Should(Equal(expected))
 	})
 
 	var _ = Describe("CommandProvider - Invalid module types cfg", func() {
@@ -159,7 +159,7 @@ module-types:
 		})
 
 		It("test", func() {
-			_, err := CommandProvider(mta.Module{Type: "html5"})
+			 _, err := CommandProvider(mta.Module{Type: "html5"}, "")
 			Ω(err).Should(HaveOccurred())
 		})
 	})
@@ -199,7 +199,7 @@ builders:
 		})
 
 		It("test", func() {
-			_, err := CommandProvider(mta.Module{Type: "html5"})
+			 _, err := CommandProvider(mta.Module{Type: "html5"}, "")
 			Ω(err).Should(HaveOccurred())
 		})
 	})
@@ -240,7 +240,7 @@ modules:
 			m := mta.MTA{}
 			// parse mta yaml
 			Ω(yaml.Unmarshal(mtaCF, &m)).Should(Succeed())
-			module, commands, err := moduleCmd(&m, "htmlapp")
+			module, commands, err := moduleCmd(&m, "", "htmlapp")
 			Ω(err).Should(Succeed())
 			Ω(module.Path).Should(Equal("app"))
 			Ω(commands).Should(Equal([]string{"npm install", "grunt", "npm prune --production"}))
@@ -263,7 +263,7 @@ modules:
 			m := mta.MTA{}
 			// parse mta yaml
 			Ω(yaml.Unmarshal(mtaCF, &m)).Should(Succeed())
-			module, commands, err := moduleCmd(&m, "htmlapp")
+			module, commands, err := moduleCmd(&m, "", "htmlapp")
 			Ω(err).Should(BeNil())
 			Ω(module.Path).Should(Equal("app"))
 			Ω(commands).Should(Equal([]string{"npm install", "npm prune --production"}))
@@ -288,24 +288,46 @@ modules:
 			m := mta.MTA{}
 			// parse mta yaml
 			Ω(yaml.Unmarshal(mtaCF, &m)).Should(Succeed())
-			module, commands, err := moduleCmd(&m, "htmlapp")
+			module, commands, err := moduleCmd(&m, "", "htmlapp")
 			Ω(err).Should(BeNil())
 			Ω(module.Path).Should(Equal("app"))
 			Ω(commands).Should(Equal([]string{"mvn dependency:copy -Dartifact=com.sap.xs.java:xs-audit-log-api:1.2.3 -DoutputDirectory=./"}))
+		})
+		It("Zip builder specified in build params", func() {
+			var mtaCF = []byte(`
+_schema-version: "2.0.0"
+ID: mta_proj
+version: 1.0.0
+
+modules:
+  - name: htmlapp
+    type: html5
+    path: app
+    build-parameters:
+      builder: zip
+      build-result: myfolder
+`)
+			m := mta.MTA{}
+			// parse mta yaml
+			Ω(yaml.Unmarshal(mtaCF, &m)).Should(Succeed())
+			module, commands, err := moduleCmd(&m, "mta", "htmlapp")
+			Ω(err).Should(BeNil())
+			Ω(module.Path).Should(Equal("app"))
+			Ω(commands).Should(Equal([]string{"mbt module zip -m=htmlapp -s=\"mta\""}))
 		})
 	})
 
 	It("Invalid case - wrong fetcher builder type", func() {
 		wd, _ := os.Getwd()
 		ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata"), MtaFilename: "mtaWithFetcher.yaml"}
-		_, _, err := GetModuleAndCommands(&ep, "j1")
+		 _, _, err := GetModuleAndCommands(&ep, "", "j1")
 		Ω(err).Should(HaveOccurred())
 	})
 
 	It("Invalid case - wrong mta", func() {
 		wd, _ := os.Getwd()
 		ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata"), MtaFilename: "mtaUnknown.yaml"}
-		_, _, err := GetModuleAndCommands(&ep, "node-js")
+		 _, _, err := GetModuleAndCommands(&ep, "", "node-js")
 		Ω(err).Should(HaveOccurred())
 
 	})
@@ -314,7 +336,7 @@ modules:
 		It("Sanity", func() {
 			wd, _ := os.Getwd()
 			ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata")}
-			module, cmd, err := GetModuleAndCommands(&ep, "node-js")
+			module, cmd, err := GetModuleAndCommands(&ep, "", "node-js")
 			Ω(err).Should(Succeed())
 			Ω(module.Name).Should(Equal("node-js"))
 			Ω(len(cmd)).Should(Equal(1))
@@ -324,21 +346,21 @@ modules:
 		It("Invalid case - wrong module name", func() {
 			wd, _ := os.Getwd()
 			ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata")}
-			_, _, err := GetModuleAndCommands(&ep, "node-js1")
+			 _, _, err := GetModuleAndCommands(&ep, "", "node-js1")
 			Ω(err).Should(HaveOccurred())
 
 		})
 		It("Invalid case - wrong mta", func() {
 			wd, _ := os.Getwd()
 			ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata"), MtaFilename: "mtaUnknown.yaml"}
-			_, _, err := GetModuleAndCommands(&ep, "node-js")
+			 _, _, err := GetModuleAndCommands(&ep, "", "node-js")
 			Ω(err).Should(HaveOccurred())
 
 		})
 		It("Invalid case - wrong type", func() {
 			wd, _ := os.Getwd()
 			ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata"), MtaFilename: "mtaUnknownBuilder.yaml"}
-			_, cmd, _ := GetModuleAndCommands(&ep, "node-js")
+			 _, cmd, _ := GetModuleAndCommands(&ep, "", "node-js")
 			Ω(len(cmd)).Should(Equal(0))
 
 		})
@@ -347,7 +369,7 @@ modules:
 			ModuleTypeConfig = []byte("wrong config")
 			wd, _ := os.Getwd()
 			ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata")}
-			_, _, err := GetModuleAndCommands(&ep, "node-js")
+			 _, _, err := GetModuleAndCommands(&ep, "", "node-js")
 			ModuleTypeConfig = conf
 			Ω(err).Should(HaveOccurred())
 		})

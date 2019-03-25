@@ -106,7 +106,7 @@ func makeFile(mtaParser dir.IMtaParser, loc dir.ITargetPath, makeFilename string
 //noinspection GoUnusedParameter
 func mapTpl(templateContent []byte, BasePreContent []byte, BasePostContent []byte) (*template.Template, error) {
 	funcMap := template.FuncMap{
-		"CommandProvider": commands.CommandProvider,
+		"CommandProvider": commands.CommandProviderVerbose,
 		"OsCore":          proc.OsCore,
 		"Version":         version.GetVersion,
 	}

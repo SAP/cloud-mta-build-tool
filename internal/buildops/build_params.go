@@ -29,12 +29,12 @@ type BuildRequires struct {
 }
 
 // GetBuilder - gets builder type of the module and indicator of custom builder
-func GetBuilder(module *mta.Module) (string, bool, map[string]string) {
+func GetBuilder(module *mta.Module, source string) (string, bool, map[string]string) {
 	// builder defined in build params is prioritised
 	if module.BuildParams != nil && module.BuildParams[builderParam] != nil {
 		builderName := module.BuildParams[builderParam].(string)
 		optsParamName := builderName + "-opts"
-		options := getOpts(module, optsParamName)
+		options := getOpts(module, optsParamName, source)
 
 		return builderName, true, options
 	}
@@ -42,14 +42,20 @@ func GetBuilder(module *mta.Module) (string, bool, map[string]string) {
 	return module.Type, false, nil
 }
 
-func getOpts(module *mta.Module, optsParamName string) map[string]string {
+func getOpts(module *mta.Module, optsParamName, source string) map[string]string {
 	options := module.BuildParams[optsParamName]
+	optionsMap := make(map[string]string)
 	if options != nil {
-		optionsMap := convert(options.(map[interface{}]interface{}))
-		return optionsMap
+		optionsMap = convert(options.(map[interface{}]interface{}))
+	}
+	optionsMap["module-name"] = module.Name
+	if source != "" {
+		optionsMap["source"] = `"`+source+`"`
+	} else {
+		optionsMap["source"] = "$(PROJ_DIR)"
 	}
 
-	return nil
+	return optionsMap
 }
 
 // Convert type map[interface{}]interface{} to map[string]string

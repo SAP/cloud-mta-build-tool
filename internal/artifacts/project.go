@@ -2,7 +2,6 @@ package artifacts
 
 import (
 	"fmt"
-
 	"github.com/SAP/cloud-mta/mta"
 	"github.com/pkg/errors"
 
@@ -73,7 +72,7 @@ func execBuilder(builder string) error {
 			"builder": builder,
 		},
 	}
-	builderCommands, err := commands.CommandProvider(dummyModule)
+	builderCommands, err := commands.CommandProvider(dummyModule, "")
 	if err != nil {
 		return errors.Wrap(err, "failed to parse the builder types configuration")
 	}
