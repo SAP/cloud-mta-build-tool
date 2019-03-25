@@ -35,6 +35,11 @@ platform:
   - native-type: cds
     platform-type: "cds"
 
+  - native-type: approuter.nodejs
+    platform-type: "javascript.nodejs"
+
+  - native-type: com.sap.html5.application-content
+    platform-type: "com.sap.html5.application-content"
 
 # Types for Neo platform
 - name: neo
