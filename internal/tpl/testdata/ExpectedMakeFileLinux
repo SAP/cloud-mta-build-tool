@@ -13,7 +13,6 @@ endif
 ifndef mtar
 mtar="*"
 endif
-endif
 # Determine OS cores
 NPROCS = $(shell grep -c 'processor' /proc/cpuinfo)
 MAKEFLAGS += -j
