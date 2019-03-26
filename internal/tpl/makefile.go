@@ -61,12 +61,9 @@ func genMakefile(mtaParser dir.IMtaParser, loc dir.ITargetPath, desc dir.IDescri
 // makeFile - generate makefile form templates
 func makeFile(mtaParser dir.IMtaParser, loc dir.ITargetPath, makeFilename string, tpl *tplCfg) (e error) {
 
-	type api map[string]string
 	// template data
 	var data struct {
 		File mta.MTA
-		API  api
-		Dep  string
 	}
 
 	// ParseFile file
@@ -77,7 +74,6 @@ func makeFile(mtaParser dir.IMtaParser, loc dir.ITargetPath, makeFilename string
 
 	// Template data
 	data.File = *m
-	data.Dep = tpl.depDesc
 
 	// Create maps of the template method's
 	t, err := mapTpl(tpl.tplContent, tpl.preContent, tpl.postContent)
@@ -110,7 +106,8 @@ func mapTpl(templateContent []byte, BasePreContent []byte, BasePostContent []byt
 		"OsCore":          proc.OsCore,
 		"Version":         version.GetVersion,
 	}
-	fullTemplate := append(BasePreContent[:], templateContent...)
+	fullTemplate := append(baseArgs, BasePreContent...)
+	fullTemplate = append(fullTemplate, templateContent...)
 	fullTemplate = append(fullTemplate, BasePostContent...)
 	fullTemplateStr := string(fullTemplate)
 	// parse the template txt file
@@ -123,15 +120,23 @@ func getTplCfg(mode string, isDep bool) (tplCfg, error) {
 	if (mode == "verbose") || (mode == "v") {
 		if isDep {
 			tpl.tplContent = makeVerboseDep
+			tpl.preContent = basePreVerboseDep
+			tpl.postContent = basePostDep
 		} else {
 			tpl.tplContent = makeVerbose
+			tpl.preContent = basePreVerbose
+			tpl.postContent = basePost
 		}
-		tpl.preContent = basePreVerbose
-		tpl.postContent = basePost
 	} else if mode == "" {
-		tpl.tplContent = makeDefault
-		tpl.preContent = basePreDefault
-		tpl.postContent = basePost
+		if isDep {
+			tpl.tplContent = makeDeployment
+			tpl.preContent = basePreDefaultDep
+			tpl.postContent = basePostDep
+		} else {
+			tpl.tplContent = makeDefault
+			tpl.preContent = basePreDefault
+			tpl.postContent = basePost
+		}
 	} else {
 		return tplCfg{}, fmt.Errorf(`the "%s" command is not supported`, mode)
 	}

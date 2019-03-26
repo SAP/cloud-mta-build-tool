@@ -41,7 +41,7 @@ var _ = Describe("Makefile", func() {
 
 	var (
 		tpl              = tplCfg{tplContent: makeVerbose, relPath: "", preContent: basePreVerbose, postContent: basePost, depDesc: "dev"}
-		tplDep           = tplCfg{tplContent: makeVerboseDep, relPath: "", preContent: basePreVerbose, postContent: basePost, depDesc: "dep"}
+		tplDep           = tplCfg{tplContent: makeVerboseDep, relPath: "", preContent: basePreVerboseDep, postContent: basePostDep, depDesc: "dep"}
 		makeFileName     = "MakeFileTest.mta"
 		wd, _            = os.Getwd()
 		expectedMakePath = func() string {
@@ -157,9 +157,9 @@ makefile_version: 0.0.0
 			Ω(getTplCfg(mode, isDep)).Should(Equal(tpl))
 		},
 			Entry("Default mode Dev", "", tplCfg{tplContent: makeDefault, preContent: basePreDefault, postContent: basePost}, false),
-			Entry("Default mode Dep", "", tplCfg{tplContent: makeDefault, preContent: basePreDefault, postContent: basePost}, true),
+			Entry("Default mode Dep", "", tplCfg{tplContent: makeDeployment, preContent: basePreDefaultDep, postContent: basePostDep}, true),
 			Entry("Verbose mode Dev", "verbose", tplCfg{tplContent: makeVerbose, preContent: basePreVerbose, postContent: basePost}, false),
-			Entry("Verbose mode Dep", "verbose", tplCfg{tplContent: makeVerboseDep, preContent: basePreVerbose, postContent: basePost}, true),
+			Entry("Verbose mode Dep", "verbose", tplCfg{tplContent: makeVerboseDep, preContent: basePreVerboseDep, postContent: basePostDep}, true),
 		)
 		It("unknown mode", func() {
 			_, err := getTplCfg("test", false)
