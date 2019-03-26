@@ -146,7 +146,7 @@ var _ = Describe("PlatformDefined", func() {
 		m := mta.Module{
 			Name: "x",
 			BuildParams: map[string]interface{}{
-				SupportedPlatformsParam: []string{"cf"},
+				SupportedPlatformsParam: []string{"CF"},
 			},
 		}
 		Ω(PlatformDefined(&m, "cf")).Should(Equal(true))
