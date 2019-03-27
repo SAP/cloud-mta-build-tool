@@ -14,6 +14,7 @@ import (
 	"github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta-build-tool/internal/buildops"
 	"github.com/SAP/cloud-mta-build-tool/internal/logs"
+	"strings"
 )
 
 type mtadLoc struct {
@@ -45,7 +46,7 @@ func ExecuteGenMtad(source, target, platform string, wdGetter func() (string, er
 	}
 
 	// validate platform
-	err = validatePlatform(platform)
+	platform, err = validatePlatform(platform)
 	if err != nil {
 		return err
 	}
@@ -73,11 +74,12 @@ func ExecuteGenMtad(source, target, platform string, wdGetter func() (string, er
 	return genMtad(mtaStr, &mtadLoc{target}, false, platform, yaml.Marshal)
 }
 
-func validatePlatform(platform string) error {
-	if platform != "xsa" && platform != "cf" && platform != "neo" {
-		return fmt.Errorf(`the invalid target platform "%s"; supported platforms are: "cf", "neo", "xsa"`, platform)
+func validatePlatform(platform string) (string, error) {
+	result := strings.ToLower(platform)
+	if result != "xsa" && result != "cf" && result != "neo" {
+		return "", fmt.Errorf(`the invalid target platform "%s"; supported platforms are: "cf", "neo", "xsa"`, platform)
 	}
-	return nil
+	return result, nil
 }
 
 // genMtad generates an mtad.yaml file from a mta.yaml file and a platform configuration file.
