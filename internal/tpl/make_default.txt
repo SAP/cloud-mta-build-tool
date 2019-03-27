@@ -1,9 +1,7 @@
-{{template "base_pre" .}}
 # Execute module build
 define build_rule
-$(1): pre_build
-	@mbt module build -m=$(1) -d=dev -p=${p} -t=${t}
+$(1): validate
+	@mbt module build -m=$(1) -p=${p} -t=${t}
 endef
 
 $(foreach mod,$(modules),$(eval $(call build_rule,$(mod))))
-{{template "base_post" .}}
