@@ -25,32 +25,26 @@ func ExecuteProjectBuild(source, descriptor, phase string, getWd func() (string,
 		return err
 	}
 	if phase == "pre" && oMta.BuildParams != nil {
-		return execBuilder(beforeExec(oMta))
+		return execBuilder(beforeExec(oMta.BuildParams))
 	}
 	if phase == "post" && oMta.BuildParams != nil {
-		return execBuilder(afterExec(oMta))
+		return execBuilder(afterExec(oMta.BuildParams))
 	}
 	return nil
 }
 
 // get build params for before-all section
-func beforeExec(m *mta.MTA) string {
-	if m.BuildParams.BeforeAll != nil {
-		beforeBuilder, ok := m.BuildParams.BeforeAll["builder"]
-		if ok {
-			return beforeBuilder.(string)
-		}
+func beforeExec(pb *mta.ProjectBuild) string {
+	for _, v := range pb.BeforeAll.Builders {
+		return v.Builder
 	}
 	return ""
 }
 
 // get build params for after-all section
-func afterExec(m *mta.MTA) string {
-	if m.BuildParams.AfterAll != nil {
-		afterBuilder, ok := m.BuildParams.AfterAll["builder"]
-		if ok {
-			return afterBuilder.(string)
-		}
+func afterExec(pb *mta.ProjectBuild) string {
+	for _, v := range pb.AfterAll.Builders {
+		return v.Builder
 	}
 	return ""
 }
