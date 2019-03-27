@@ -36,14 +36,14 @@ module-types:
   - name: react_n
     info: "build react native apps"
     path: "path to config file which override the following default commands"
-    builer: npm
+    builder: npm
 
   - name: approuter.nodejs
     info: "build approuter application"
     path: "path to config file which override the following default commands"
-    builer: npm
+    builder: npm
 
   - name: com.sap.html5.application-content
     info: "build deployer application"
     path: "path to config file which override the following default commands"
-    builer: npm
+    builder: npm
