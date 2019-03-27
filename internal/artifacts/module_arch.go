@@ -24,7 +24,7 @@ func ExecuteBuild(source, target, desc, moduleName, platform string, wdGetter fu
 		return errors.Wrapf(err, `build of the "%v" module failed when initializing the location`, moduleName)
 	}
 	// validate platform
-	err = validatePlatform(platform)
+	platform, err = validatePlatform(platform)
 	if err != nil {
 		return err
 	}
@@ -44,7 +44,7 @@ func ExecutePack(source, target, desc, moduleName, platform string, wdGetter fun
 		return errors.Wrapf(err, `packing of the "%v" module failed when initializing the location`, moduleName)
 	}
 	// validate platform
-	err = validatePlatform(platform)
+	platform, err = validatePlatform(platform)
 	if err != nil {
 		return err
 	}

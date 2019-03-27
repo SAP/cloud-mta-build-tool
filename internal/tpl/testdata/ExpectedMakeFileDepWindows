@@ -17,12 +17,13 @@ endif
 NPROCS = $(shell echo %NUMBER_OF_PROCESSORS%)
 MAKEFLAGS += -j
 # List of all the recipes to be executed during the build process
-.PHONY: validate ui meta post_validate mtar cleanup
+.PHONY: validate ui meta mtar cleanup
 # Default target compile all
-all: validate ui meta post_validate mtar cleanup
+all: validate ui meta mtar cleanup
 # Validate mta.yaml
 validate:
-	@mbt validate -d=dep -r=${strict} -e="paths"
+	@mbt validate -d=dep -r=${strict}
+
 # Set the current project repository path for general mta process
   PROJ_DIR := $(CURDIR)
 
@@ -31,20 +32,13 @@ modules = ui
 
 # Execute all modules builds
 # build module ui
-ui:
+ui: validate
 # Pack module build artifacts
 	@mbt module pack -m=ui -d=dep -p=${p} -t=${t}
 
 # Create META-INF folder with MANIFEST.MF & mtad.yaml
-meta: $(modules) post_build
+meta: $(modules)
 	@mbt gen meta -d=dep -p=${p} -t=${t}
-
-post_build: $(modules)
-	@mbt project build -p=post
-
-# Validate mta.yaml after build
-post_validate: post_build
-	@mbt validate -d=dep -r=${strict}
 
 # Pack as MTAR artifact
 mtar: $(modules) meta

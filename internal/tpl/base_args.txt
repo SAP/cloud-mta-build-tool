@@ -1,0 +1,15 @@
+version={{Version.MakeFile}}
+ifndef p
+$(error platform flag is expected. e.g. use make -f makefile.mta p=cf)
+endif
+target_provided=true
+ifndef t
+t="$(CURDIR)"
+target_provided=false
+endif
+ifndef strict
+strict=true
+endif
+ifndef mtar
+mtar="*"
+endif
