@@ -24,6 +24,11 @@ func ExecuteBuild(source, target, desc, moduleName, platform string, wdGetter fu
 		return errors.Wrapf(err, `build of the "%v" module failed when initializing the location`, moduleName)
 	}
 	err = buildModule(loc.GetSource(), loc, loc, loc.IsDeploymentDescriptor(), moduleName, platform)
+	// validate platform
+	platform, err = validatePlatform(platform)
+	if err != nil {
+		return err
+	}
 	if err != nil {
 		return err
 	}
@@ -38,6 +43,11 @@ func ExecutePack(source, target, desc, moduleName, platform string, wdGetter fun
 	loc, err := dir.Location(source, target, desc, wdGetter)
 	if err != nil {
 		return errors.Wrapf(err, `packing of the "%v" module failed when initializing the location`, moduleName)
+	}
+	// validate platform
+	platform, err = validatePlatform(platform)
+	if err != nil {
+		return err
 	}
 
 	module, _, err := commands.GetModuleAndCommands(loc, source, moduleName)

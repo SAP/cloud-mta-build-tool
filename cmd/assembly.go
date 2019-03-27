@@ -25,7 +25,7 @@ var assemblyCommand = &cobra.Command{
 	ValidArgs: []string{"Deployment descriptor location"},
 	Args:      cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		err := artifacts.Assembly(assembleCmdSrc, assembleCmdTrg, defaultPlatform, mtarCmdMtarName, assembleCmdParallel, os.Getwd)
+		err := artifacts.Assembly(assembleCmdSrc, assembleCmdTrg, defaultPlatform, assembleCmdMtarName, assembleCmdParallel, os.Getwd)
 		logError(err)
 		return err
 	},

@@ -1,32 +1,17 @@
-{{define "base_pre"}}
-version={{Version.MakeFile}}
-ifndef p
-$(error platform flag is expected. e.g. use make -f makefile.mta p=cf)
-endif
-target_provided=true
-ifndef t
-t="$(CURDIR)"
-target_provided=false
-endif
-ifndef strict
-strict=true
-endif
-ifndef mtar
-mtar="*"
-endif
-modules := $(shell mbt provide modules -d={{.Dep}})
+modules := $(shell mbt provide modules -d=dev)
 modules := $(subst ],,$(subst [,,$(modules)))
 # List of all the recipes to be executed during the build process
-.PHONY: all validate pre_build $(modules) post_build meta mtar cleanup
+.PHONY: all pre_validate pre_build validate $(modules) post_build meta mtar cleanup
 # Default target compile all
-all: validate pre_build $(modules) post_build meta mtar cleanup
+all: pre_validate pre_build validate $(modules) post_build meta mtar cleanup
 cores:
 # Determine OS cores
 {{"\t"}}{{ OsCore.NPROCS  }}
 {{"\t"}}{{ OsCore.MAKEFLAGS  }}
 # Validate mta.yaml
-validate:
-{{"\t"}}@mbt validate -d={{.Dep}} -r=${strict}
-pre_build: validate
-{{"\t"}}@mbt project build -p=pre{{end}}
+pre_validate:
+{{"\t"}}@mbt validate -r=${strict} -e="paths"
+pre_build: pre_validate
+{{"\t"}}@mbt project build -p=pre
+
 

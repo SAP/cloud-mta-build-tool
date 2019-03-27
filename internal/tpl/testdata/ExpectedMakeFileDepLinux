@@ -23,6 +23,7 @@ all: validate ui meta mtar cleanup
 # Validate mta.yaml
 validate:
 	@mbt validate -d=dep -r=${strict}
+
 # Set the current project repository path for general mta process
   PROJ_DIR := $(CURDIR)
 
@@ -31,16 +32,13 @@ modules = ui
 
 # Execute all modules builds
 # build module ui
-ui:
+ui: validate
 # Pack module build artifacts
 	@mbt module pack -m=ui -d=dep -p=${p} -t=${t}
 
 # Create META-INF folder with MANIFEST.MF & mtad.yaml
-meta: $(modules) post_build
+meta: $(modules)
 	@mbt gen meta -d=dep -p=${p} -t=${t}
-
-post_build: $(modules)
-	@mbt project build -p=post
 
 # Pack as MTAR artifact
 mtar: $(modules) meta

@@ -18,6 +18,11 @@ func ExecuteGenMeta(source, target, desc, platform string, onlyModules bool, wdG
 	if err != nil {
 		return errors.Wrap(err, "generation of metadata failed when initializing the location")
 	}
+	// validate platform
+	platform, err = validatePlatform(platform)
+	if err != nil {
+		return err
+	}
 	err = generateMeta(loc, loc, loc, loc.IsDeploymentDescriptor(), platform, onlyModules)
 	if err != nil {
 		return err
@@ -41,7 +46,10 @@ func generateMeta(parser dir.IMtaParser, ep dir.ITargetArtifacts, targetPathGett
 		mta.Merge(m, mExt)
 	}
 
-	adaptMtadForDeployment(m, platform)
+	err = adaptMtadForDeployment(targetPathGetter, m, platform)
+	if err != nil {
+		return errors.Wrap(err, "generation of metadata failed when adapting Mtad for deployment")
+	}
 	// Generate meta info dir with required content
 	err = GenMetaInfo(ep, targetPathGetter, deploymentDescriptor, platform, m, []string{}, onlyModules)
 	if err != nil {

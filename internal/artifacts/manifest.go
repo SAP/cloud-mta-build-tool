@@ -227,7 +227,7 @@ func populateManifest(file io.Writer, funcMap template.FuncMap) error {
 
 // moduleDefined - checks if module defined in the list
 func moduleDefined(module string, modules []string) bool {
-	if modules == nil || len(modules) == 0 {
+	if len(modules) == 0 {
 		return true
 	}
 	for _, m := range modules {

@@ -12,20 +12,38 @@
 
 
 module-types:
-- name: html5
-  info: "installing module dependencies & execute grunt & remove dev dependencies"
-  path: "path to config file which override the following default commands"
+
+  - name: html5
+    info: "installing module dependencies & execute grunt & remove dev dependencies"
+    path: "path to config file which override the following default commands"
   commands:
-  - command: npm install
-  - command: grunt
-  - command: npm prune --production
-- name: java
-  info: "build java application"
-  path: "path to config file which override the following default commands"
+      - command: npm install
+      - command: grunt
+      - command: npm prune --production
+
+  - name: java
+    info: "build java application"
+    path: "path to config file which override the following default commands"
   commands:
-  - command: mvn clean install
-- name: nodejs
-  info: "build nodejs application"
-  path: "path to config file which override the following default commands"
+      - command: mvn clean install
+
+  - name: nodejs
+    info: "build nodejs application"
+    path: "path to config file which override the following default commands"
   commands:
-  - command: npm prune --production
+      - command: npm prune --production
+
+  - name: react_n
+    info: "build react native apps"
+    path: "path to config file which override the following default commands"
+    builder: npm
+
+  - name: approuter.nodejs
+    info: "build approuter application"
+    path: "path to config file which override the following default commands"
+    builder: npm
+
+  - name: com.sap.html5.application-content
+    info: "build deployer application"
+    path: "path to config file which override the following default commands"
+    builder: npm

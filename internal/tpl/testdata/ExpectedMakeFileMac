@@ -17,12 +17,16 @@ endif
 NPROCS = $(sysctl -n hw.ncpu)
 MAKEFLAGS += -j
 # List of all the recipes to be executed during the build process
-.PHONY: validate ui meta mtar cleanup
+.PHONY: pre_validate pre_build validate ui meta mtar cleanup
 # Default target compile all
-all: validate ui meta mtar cleanup
+all: pre_validate pre_build validate ui meta mtar cleanup
 # Validate mta.yaml
-validate:
-	@mbt validate -d=dev -r=${strict}
+pre_validate:
+	@mbt validate -r=${strict} -e="paths"
+
+pre_build: pre_validate
+	@mbt project build -p=pre
+
 # Set the current project repository path for general mta process
   PROJ_DIR := $(CURDIR)
 
@@ -31,7 +35,7 @@ modules = ui
 
 # Execute all modules builds
 # build module ui
-ui:
+ui: validate
 	@cd $(PROJ_DIR)/ui && npm install && grunt
 # Pack module build artifacts
 	@mbt module pack -m=ui -p=${p} -t=${t}
@@ -39,14 +43,18 @@ ui:
 
 # Create META-INF folder with MANIFEST.MF & mtad.yaml
 meta: $(modules) post_build
-	@mbt gen meta -d=dev -p=${p} -t=${t}
+	@mbt gen meta -p=${p} -t=${t}
 
 post_build: $(modules)
 	@mbt project build -p=post
 
+# Validate mta.yaml
+validate: pre_build
+	@mbt validate -r=${strict}
+
 # Pack as MTAR artifact
 mtar: $(modules) meta
-	@mbt gen mtar -d=dev -t=${t} --mtar=${mtar} --target_provided=${target_provided}
+	@mbt gen mtar -t=${t} --mtar=${mtar} --target_provided=${target_provided}
 
 cleanup: mtar
 # Remove tmp folder

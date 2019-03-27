@@ -26,6 +26,7 @@ var _ = Describe("Mtad", func() {
 
 	var _ = Describe("ExecuteGenMtad", func() {
 		It("Sanity", func() {
+			os.MkdirAll(getTestPath("resultMtad", ".mta_mta_build_tmp", "node-js"), os.ModePerm)
 			Ω(ExecuteGenMtad(getTestPath("mta"), getTestPath("resultMtad"), "cf", os.Getwd)).Should(Succeed())
 			Ω(getTestPath("resultMtad", "mtad.yaml")).Should(BeAnExistingFile())
 		})
@@ -100,7 +101,7 @@ var _ = Describe("adaptMtadForDeployment", func() {
 				{
 					Name: "htmlapp2",
 					Type: "javascript.nodejs",
-					Path: "app2",
+					Path: "node-js1",
 					BuildParams: map[string]interface{}{
 						buildops.SupportedPlatformsParam: nil,
 					},
@@ -115,12 +116,24 @@ var _ = Describe("adaptMtadForDeployment", func() {
 				},
 			},
 		}
-		adaptMtadForDeployment(&mta, "neo")
+		err := adaptMtadForDeployment(&testMtadLoc{}, &mta, "neo")
+		Ω(err).Should(Succeed())
 		Ω(len(mta.Modules)).Should(Equal(1))
 		Ω(mta.Modules[0].Name).Should(Equal("htmlapp2"))
+		Ω(mta.Modules[0].Path).Should(Equal("htmlapp2"))
 		Ω(mta.Parameters["hcp-deployer-version"]).ShouldNot(BeNil())
 	})
 })
+
+type testMtadLoc struct {
+}
+
+func (loc *testMtadLoc) GetTarget() string {
+	return getTestPath("mta")
+}
+func (loc *testMtadLoc) GetTargetTmpDir() string {
+	return getTestPath("mta")
+}
 
 var _ = Describe("mtadLoc", func() {
 	It("GetManifestPath", func() {

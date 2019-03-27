@@ -8,6 +8,7 @@ import (
 
 	"github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta/mta"
+	"strings"
 )
 
 const (
@@ -184,7 +185,7 @@ func PlatformDefined(module *mta.Module, platform string) bool {
 	if reflect.TypeOf(supportedPlatforms).Elem().Kind() == reflect.String {
 		sp := supportedPlatforms.([]string)
 		for _, p := range sp {
-			if p == platform {
+			if strings.ToLower(p) == platform {
 				return true
 			}
 		}
@@ -192,7 +193,7 @@ func PlatformDefined(module *mta.Module, platform string) bool {
 	}
 	sp := supportedPlatforms.([]interface{})
 	for _, p := range sp {
-		if p.(string) == platform {
+		if strings.ToLower(p.(string)) == platform {
 			return true
 		}
 	}

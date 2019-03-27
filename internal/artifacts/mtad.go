@@ -14,6 +14,7 @@ import (
 	"github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta-build-tool/internal/buildops"
 	"github.com/SAP/cloud-mta-build-tool/internal/logs"
+	"strings"
 )
 
 type mtadLoc struct {
@@ -44,6 +45,12 @@ func ExecuteGenMtad(source, target, platform string, wdGetter func() (string, er
 		return errors.Wrap(err, "generation of the MTAD file failed when initializing the location")
 	}
 
+	// validate platform
+	platform, err = validatePlatform(platform)
+	if err != nil {
+		return err
+	}
+
 	// get mta object
 	mtaStr, err := loc.ParseFile()
 	if err != nil {
@@ -59,27 +66,25 @@ func ExecuteGenMtad(source, target, platform string, wdGetter func() (string, er
 	// merge mta and extension objects
 	mta.Merge(mtaStr, mtaExt)
 	// init mtad object from the extended mta
-	adaptMtadForDeployment(mtaStr, platform)
+	err = adaptMtadForDeployment(loc, mtaStr, platform)
+	if err != nil {
+		return errors.Wrap(err, `generation of the MTAD file failed`)
+	}
 
 	return genMtad(mtaStr, &mtadLoc{target}, false, platform, yaml.Marshal)
 }
 
-func validatePlatform(platform string) error {
-	if platform != "xsa" && platform != "cf" && platform != "neo" {
-		return fmt.Errorf(`the invalid target platform "%s"; supported platforms are: "cf", "neo", "xsa"`, platform)
+func validatePlatform(platform string) (string, error) {
+	result := strings.ToLower(platform)
+	if result != "xsa" && result != "cf" && result != "neo" {
+		return "", fmt.Errorf(`the invalid target platform "%s"; supported platforms are: "cf", "neo", "xsa"`, platform)
 	}
-	return nil
+	return result, nil
 }
 
 // genMtad generates an mtad.yaml file from a mta.yaml file and a platform configuration file.
 func genMtad(mtaStr *mta.MTA, ep dir.ITargetArtifacts, deploymentDesc bool, platform string,
 	marshal func(interface{}) (out []byte, err error)) error {
-
-	// validate platform
-	err := validatePlatform(platform)
-	if err != nil {
-		return err
-	}
 
 	// Create META-INF folder under the mtar folder
 	metaPath := ep.GetMetaPath()
@@ -121,12 +126,16 @@ func genMtad(mtaStr *mta.MTA, ep dir.ITargetArtifacts, deploymentDesc bool, plat
 // module will not be packed, not listed in MTAD yaml and in manifest
 // if module has to be deployed we clean build parameters from module,
 // as this section is not used in MTAD yaml
-func adaptMtadForDeployment(mtaStr *mta.MTA, platform string) {
+func adaptMtadForDeployment(loc dir.ITargetPath, mtaStr *mta.MTA, platform string) error {
 
-	// remove build parameters from modules with defined platforms
 	for _, m := range mtaStr.Modules {
 		if buildops.PlatformDefined(m, platform) {
+			// remove build parameters from modules with defined platforms
 			m.BuildParams = map[string]interface{}{}
+			err := adaptModulePath(loc, m)
+			if err != nil {
+				return err
+			}
 		}
 	}
 
@@ -152,4 +161,23 @@ func adaptMtadForDeployment(mtaStr *mta.MTA, platform string) {
 			mtaStr.Parameters["hcp-deployer-version"] = "1.1.0"
 		}
 	}
+	return nil
+}
+
+func adaptModulePath(loc dir.ITargetPath, module *mta.Module) error {
+	if module.Path != "" {
+		// check existence of path in the temp folder
+		modulePath := filepath.Join(loc.GetTargetTmpDir(), module.Path)
+		_, err := os.Stat(modulePath)
+		// if path not exists, use the module name
+		if err != nil && os.IsNotExist(err) {
+			modulePath = filepath.Join(loc.GetTargetTmpDir(), module.Name)
+			_, e := os.Stat(modulePath)
+			if e != nil {
+				return err
+			}
+			module.Path = module.Name
+		}
+	}
+	return nil
 }

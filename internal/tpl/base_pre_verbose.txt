@@ -1,29 +1,16 @@
-{{define "base_pre"}}
-version={{Version.MakeFile}}
-ifndef p
-$(error platform flag is expected. e.g. use make -f makefile.mta p=cf)
-endif
-target_provided=true
-ifndef t
-t="$(CURDIR)"
-target_provided=false
-endif
-ifndef strict
-strict=true
-endif
-ifndef mtar
-mtar="*"
-endif
 # Determine OS cores
 {{ OsCore.NPROCS  }}
 {{ OsCore.MAKEFLAGS  }}
 # List of all the recipes to be executed during the build process
-.PHONY: validate {{- range .File.Modules}} {{.Name}}{{end}} meta mtar cleanup
+.PHONY: pre_validate pre_build validate {{- range .File.Modules}} {{.Name}}{{end}} meta mtar cleanup
 # Default target compile all
-all: validate {{- range .File.Modules}} {{.Name}}{{end}} meta mtar cleanup
+all: pre_validate pre_build validate {{- range .File.Modules}} {{.Name}}{{end}} meta mtar cleanup
 # Validate mta.yaml
-validate:
-{{"\t"}}@mbt validate -d={{.Dep}} -r=${strict}
+pre_validate:
+{{"\t"}}@mbt validate -r=${strict} -e="paths"
+
+pre_build: pre_validate
+{{"\t"}}@mbt project build -p=pre
+
 # Set the current project repository path for general mta process
   PROJ_DIR := $(CURDIR)
-{{end}}

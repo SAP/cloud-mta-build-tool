@@ -10,15 +10,10 @@ import (
 	"github.com/SAP/cloud-mta-build-tool/internal/exec"
 )
 
-const (
-	buildParams = "build-parameters"
-	builder     = "builder"
-)
-
 // ExecuteProjectBuild - execute pre or post phase of project build
 func ExecuteProjectBuild(source, descriptor, phase string, getWd func() (string, error)) error {
 	if phase != "pre" && phase != "post" {
-		return fmt.Errorf("the %s phase of mta project build is invalid; supported phases: pre, post", phase)
+		return fmt.Errorf(`the "%s" phase of mta project build is invalid; supported phases: "pre", "post"`, phase)
 	}
 	loc, err := dir.Location(source, "", descriptor, getWd)
 	if err != nil {
@@ -29,38 +24,28 @@ func ExecuteProjectBuild(source, descriptor, phase string, getWd func() (string,
 		return err
 	}
 	if phase == "pre" && oMta.BuildParams != nil {
-		return execBuilder(beforeExec(oMta, buildParams))
+		return execBuilder(beforeExec(oMta.BuildParams))
 	}
 	if phase == "post" && oMta.BuildParams != nil {
-		return execBuilder(afterExec(oMta, buildParams))
+		return execBuilder(afterExec(oMta.BuildParams))
 	}
 	return nil
 }
 
-// get builder name
-func getBuilder(buildParams interface{}, exist bool) string {
-	if exist {
-		buildParamsMap, ok := buildParams.(map[interface{}]interface{})
-		if ok {
-			b, ok := buildParamsMap[builder]
-			if ok {
-				return b.(string)
-			}
-		}
+// get build params for before-all section
+func beforeExec(pb *mta.ProjectBuild) string {
+	for _, v := range pb.BeforeAll.Builders {
+		return v.Builder
 	}
 	return ""
 }
 
-// get build params for before-all section
-func beforeExec(m *mta.MTA, param string) string {
-	b, ok := m.BuildParams.BeforeAll[param]
-	return getBuilder(b, ok)
-}
-
 // get build params for after-all section
-func afterExec(m *mta.MTA, param string) string {
-	b, ok := m.BuildParams.AfterAll[param]
-	return getBuilder(b, ok)
+func afterExec(pb *mta.ProjectBuild) string {
+	for _, v := range pb.AfterAll.Builders {
+		return v.Builder
+	}
+	return ""
 }
 
 func execBuilder(builder string) error {
