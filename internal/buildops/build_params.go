@@ -51,7 +51,7 @@ func getOpts(module *mta.Module, optsParamName, source string) map[string]string
 	}
 	optionsMap["module-name"] = module.Name
 	if source != "" {
-		optionsMap["source"] = `"` + source + `"`
+		optionsMap["source"] = `` + source + ``
 	} else {
 		optionsMap["source"] = "$(PROJ_DIR)"
 	}

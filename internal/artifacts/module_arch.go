@@ -16,6 +16,11 @@ import (
 	"github.com/SAP/cloud-mta-build-tool/internal/logs"
 )
 
+const (
+	zipBuilder       = "zip"
+	buildResultParam = "build-result"
+)
+
 // ExecuteBuild - executes build of module
 func ExecuteBuild(source, target, desc, moduleName, platform string, wdGetter func() (string, error)) error {
 	logs.Logger.Infof(`building the "%v" module...`, moduleName)
@@ -23,15 +28,16 @@ func ExecuteBuild(source, target, desc, moduleName, platform string, wdGetter fu
 	if err != nil {
 		return errors.Wrapf(err, `build of the "%v" module failed when initializing the location`, moduleName)
 	}
-	err = buildModule(loc.GetSource(), loc, loc, loc.IsDeploymentDescriptor(), moduleName, platform)
 	// validate platform
 	platform, err = validatePlatform(platform)
 	if err != nil {
 		return err
 	}
+	err = buildModule(loc.GetSource(), loc, loc, loc.IsDeploymentDescriptor(), moduleName, platform)
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
 
@@ -50,13 +56,13 @@ func ExecutePack(source, target, desc, moduleName, platform string, wdGetter fun
 		return err
 	}
 
-	module, _, err := commands.GetModuleAndCommands(loc, source, moduleName)
+	module, err := getModuleContent(loc, moduleName)
 	if err != nil {
 		return errors.Wrapf(err, `packing of the "%v" module failed when getting commands`, moduleName)
 	}
 
 	builder, _, _ := buildops.GetBuilder(module, source)
-	if builder != "zip" {
+	if builder != zipBuilder {
 
 		err = packModule(loc, loc.IsDeploymentDescriptor(), module, moduleName, platform)
 		if err != nil {
@@ -67,7 +73,7 @@ func ExecutePack(source, target, desc, moduleName, platform string, wdGetter fun
 	return nil
 }
 
-// ExecuteZip - executes packing of module
+// ExecuteZip - executes zipping of module
 func ExecuteZip(source, target, desc, moduleName, platform string, wdGetter func() (string, error)) error {
 	logs.Logger.Infof(`zipping the "%v" module...`, moduleName)
 
@@ -76,11 +82,12 @@ func ExecuteZip(source, target, desc, moduleName, platform string, wdGetter func
 		return errors.Wrapf(err, `zipping of the "%v" module failed when initializing the location`, moduleName)
 	}
 
-	module, _, err := commands.GetModuleAndCommands(loc, source, moduleName)
+	module, err := getModuleContent(loc, moduleName)
 	if err != nil {
 		return errors.Wrapf(err, `zipping of the "%v" module failed when getting commands`, moduleName)
 	}
-	err = zipModule(loc, loc.IsDeploymentDescriptor(), module, moduleName, platform)
+
+	err = zipModule(source, loc, loc.IsDeploymentDescriptor(), module, moduleName, platform)
 	if err != nil {
 		return err
 	}
@@ -117,10 +124,12 @@ func buildModule(source string, mtaParser dir.IMtaParser, moduleLoc dir.IModule,
 		if e != nil {
 			return errors.Wrapf(e, `build of the "%v" module failed when executing commands`, moduleName)
 		}
-
 		// 3. Packing the modules build artifacts (include node modules)
 		// into the artifactsPath dir as data zip
-		e = packModule(moduleLoc, false, module, moduleName, platform)
+		builder, _, _ := buildops.GetBuilder(module, source)
+		if builder != zipBuilder {
+			e = packModule(moduleLoc, false, module, moduleName, platform)
+		}
 		if e != nil {
 			return e
 		}
@@ -170,7 +179,7 @@ func packModule(ep dir.IModule, deploymentDesc bool, module *mta.Module, moduleN
 }
 
 // zipModule - pack build module artifacts
-func zipModule(ep dir.IModule, deploymentDesc bool, module *mta.Module, moduleName, platform string) error {
+func zipModule(source string, ep dir.IModule, deploymentDesc bool, module *mta.Module, moduleName, platform string) error {
 
 	if !buildops.PlatformDefined(module, platform) {
 		return nil
@@ -192,7 +201,13 @@ func zipModule(ep dir.IModule, deploymentDesc bool, module *mta.Module, moduleNa
 	}
 	// zipping the build artifacts
 	moduleZipFullPath := moduleZipPath + dataZip
-	sourceModuleDir := buildops.GetBuildResultsPath(ep, module)
+	sourceModuleDir := source
+
+	// if no sub-folder provided - build results will be saved in the module folder
+	if module.BuildParams != nil && module.BuildParams[buildResultParam] != nil {
+		// if sub-folder provided - build results are located in the subfolder of the module folder
+		sourceModuleDir = filepath.Join(sourceModuleDir, module.BuildParams[buildResultParam].(string))
+	}
 
 	err = dir.Archive(sourceModuleDir, moduleZipFullPath)
 	if err != nil {
@@ -250,6 +265,21 @@ func CopyMtaContent(source, target, desc string, copyInParallel bool, wdGetter f
 
 func copyModuleContent(source, target string, mta *mta.MTA, copyInParallel bool) error {
 	return copyMtaContent(source, target, getModulesWithPaths(mta.Modules), copyInParallel)
+}
+
+// getModuleContent - Get module from mta.yaml
+func getModuleContent(loc dir.IMtaParser, moduleName string) (*mta.Module, error) {
+	mta, err := loc.ParseFile()
+	if err != nil {
+		return nil, err
+	}
+	for _, m := range mta.Modules {
+		if m.Name == moduleName {
+			return m, err
+
+		}
+	}
+	return nil, errors.Errorf(`the "%v" module is not defined in the MTA file`, moduleName)
 }
 
 func copyResourceContent(source, target string, mta *mta.MTA, copyInParallel bool) error {

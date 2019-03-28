@@ -11,23 +11,28 @@ modules:
     properties:
       url: ${default-url}
   build-parameters:
+    supported-platforms: [cf]
+- name: node-js
+  type: nodejs
+  path: node-js
+  provides:
+  - name: node-js_api
+    properties:
+      url: ${default-url}
+  build-parameters:
     builder: zip
-   build-parameters:
-     supported-platforms: [cf]
+    build-result: node
 
-
-
-#resources:
-# - name: uaa_mta_demo2
-#   parameters:
-#      path: ./xs-security.json
-#      service-plan: application
-#      service: xsuaa
-#   type: org.cloudfoundry.managed-service
-#
-# - name: dest_mta_demo2
-#   parameters:
-#      service-plan: lite
-#      service: destination
-#   type: org.cloudfoundry.managed-service
-
+      #resources:
+      # - name: uaa_mta_demo2
+      #   parameters:
+      #      path: ./xs-security.json
+      #      service-plan: application
+      #      service: xsuaa
+      #   type: org.cloudfoundry.managed-service
+      #
+      # - name: dest_mta_demo2
+      #   parameters:
+      #      service-plan: lite
+      #      service: destination
+      #   type: org.cloudfoundry.managed-service

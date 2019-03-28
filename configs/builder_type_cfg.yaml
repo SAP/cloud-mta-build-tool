@@ -1,3 +1,4 @@
+
 #             Builders Execution Commands
 # the following configuration commands will be self-contained in the tool
 # to provide some known defaults for ease of use and quick start
@@ -32,22 +33,22 @@ builders:
   commands:
   - command: go build *.go
 
-  - name: evo
-    info: "installing module dependencies & run evo-build & remove dev dependencies"
-    path: "path to config file which override the following default commands"
-    type:
-      - command: npm install
-      - command: npm run init
-      - command: npm run build
-      - command: npm prune --production
+- name: evo
+  info: "installing module dependencies & run evo-build & remove dev dependencies"
+  path: "path to config file which override the following default commands"
+  commands:
+  - command: npm install
+  - command: npm run init
+  - command: npm run build
+  - command: npm prune --production
 
 # ---dummy build-before commands testing purpose
-  - name: cds
+- name: cds
   info: "test"
   path: "test"
   commands:
-      - command: npm install
-      - command: npm run build
+  - command: npm install
+  - command: npm run build
 
 # ---dummy commands for build-after testing purpose
 - name: cds_after
@@ -69,5 +70,3 @@ builders:
   path: "the zip builder archives the source folder into a .zip file and saves it as .mtar without making any changes"
   commands:
   - command: mbt module zip -m={{module-name}} -s={{source}}
-
-

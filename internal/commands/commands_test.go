@@ -313,7 +313,7 @@ modules:
 			module, commands, err := moduleCmd(&m, "mta", "htmlapp")
 			Ω(err).Should(BeNil())
 			Ω(module.Path).Should(Equal("app"))
-			Ω(commands).Should(Equal([]string{"mbt module zip -m=htmlapp -s=\"mta\""}))
+			Ω(commands).Should(Equal([]string{"mbt module zip -m=htmlapp -s=mta"}))
 		})
 	})
 
