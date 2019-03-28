@@ -35,6 +35,7 @@ func GetBuilder(module *mta.Module, source string) (string, bool, map[string]str
 	if module.BuildParams != nil && module.BuildParams[builderParam] != nil {
 		builderName := module.BuildParams[builderParam].(string)
 		optsParamName := builderName + "-opts"
+		// get options for builder from mta.yaml
 		options := getOpts(module, optsParamName, source)
 
 		return builderName, true, options
@@ -43,6 +44,8 @@ func GetBuilder(module *mta.Module, source string) (string, bool, map[string]str
 	return module.Type, false, nil
 }
 
+// Get options for builder from mta.yaml
+// module name and source (module full path) are added by default
 func getOpts(module *mta.Module, optsParamName, source string) map[string]string {
 	options := module.BuildParams[optsParamName]
 	optionsMap := make(map[string]string)
