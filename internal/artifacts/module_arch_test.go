@@ -201,7 +201,7 @@ builders:
 					TargetPath: getResultPath(),
 					Descriptor: "dep",
 				}
-				Ω(zipModule(ep.SourcePath, &ep, true, &m, "node-js", "cf")).Should(Succeed())
+				Ω(zipModule(&ep, true, &m, "node-js", "cf")).Should(Succeed())
 				Ω(getTestPath("result", ".mta_with_zipped_module_mta_build_tmp", "node-js", "data.zip")).Should(BeAnExistingFile())
 			})
 
@@ -212,7 +212,7 @@ builders:
 					TargetPath: getResultPath(),
 					Descriptor: "dev",
 				}
-				Ω(zipModule(ep.SourcePath, &ep, false, &m, "node-js", "cf")).Should(HaveOccurred())
+				Ω(zipModule(&ep, false, &m, "node-js", "cf")).Should(HaveOccurred())
 			})
 			It("Target directory exists as a file", func() {
 				ep := dir.Loc{
@@ -222,7 +222,7 @@ builders:
 				}
 				os.MkdirAll(filepath.Join(ep.GetTarget(), ".mta_with_zipped_module_mta_build_tmp"), os.ModePerm)
 				createFile("result", ".mta_with_zipped_module_mta_build_tmp", "node-js")
-				Ω(zipModule(ep.SourcePath, &ep, false, &m, "node-js", "cf")).Should(HaveOccurred())
+				Ω(zipModule(&ep, false, &m, "node-js", "cf")).Should(HaveOccurred())
 			})
 		})
 
@@ -239,7 +239,7 @@ builders:
 					buildops.SupportedPlatformsParam: []string{},
 				},
 			}
-			Ω(zipModule(ep.SourcePath, &ep, false, &mNoPlatforms, "node-js", "cf")).Should(Succeed())
+			Ω(zipModule(&ep, false, &mNoPlatforms, "node-js", "cf")).Should(Succeed())
 			Ω(getTestPath("result", "mta_with_zipped_module_mta_build_tmp", "node-js", "data.zip")).
 				ShouldNot(BeAnExistingFile())
 		})

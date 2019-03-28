@@ -87,7 +87,7 @@ func ExecuteZip(source, target, desc, moduleName, platform string, wdGetter func
 		return errors.Wrapf(err, `zipping of the "%v" module failed when getting commands`, moduleName)
 	}
 
-	err = zipModule(source, loc, loc.IsDeploymentDescriptor(), module, moduleName, platform)
+	err = zipModule(loc, loc.IsDeploymentDescriptor(), module, moduleName, platform)
 	if err != nil {
 		return err
 	}
@@ -179,7 +179,7 @@ func packModule(ep dir.IModule, deploymentDesc bool, module *mta.Module, moduleN
 }
 
 // zipModule - pack build module artifacts
-func zipModule(source string, ep dir.IModule, deploymentDesc bool, module *mta.Module, moduleName, platform string) error {
+func zipModule(ep dir.IModule, deploymentDesc bool, module *mta.Module, moduleName, platform string) error {
 
 	if !buildops.PlatformDefined(module, platform) {
 		return nil
@@ -201,13 +201,7 @@ func zipModule(source string, ep dir.IModule, deploymentDesc bool, module *mta.M
 	}
 	// zipping the build artifacts
 	moduleZipFullPath := moduleZipPath + dataZip
-	sourceModuleDir := source
-
-	// if no sub-folder provided - build results will be saved in the module folder
-	if module.BuildParams != nil && module.BuildParams[buildResultParam] != nil {
-		// if sub-folder provided - build results are located in the subfolder of the module folder
-		sourceModuleDir = filepath.Join(sourceModuleDir, module.BuildParams[buildResultParam].(string))
-	}
+	sourceModuleDir := buildops.GetBuildResultsPath(ep, module)
 
 	err = dir.Archive(sourceModuleDir, moduleZipFullPath)
 	if err != nil {

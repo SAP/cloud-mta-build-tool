@@ -21,7 +21,6 @@ modules:
       url: ${default-url}
   build-parameters:
     builder: zip
-    build-result: node
 
       #resources:
       # - name: uaa_mta_demo2
