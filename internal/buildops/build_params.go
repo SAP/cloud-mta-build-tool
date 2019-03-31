@@ -128,6 +128,11 @@ func GetBuildResultsPath(ep dir.ISourceModule, module *mta.Module) string {
 		// if sub-folder provided - build results are located in the subfolder of the module folder
 		path = filepath.Join(path, module.BuildParams[buildResultParam].(string))
 	}
+
+	sourceEntries, err := filepath.Glob(path)
+	if err == nil && len(sourceEntries) > 0 {
+		return sourceEntries[0]
+	}
 	return path
 }
 

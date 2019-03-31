@@ -25,6 +25,16 @@ var _ = Describe("BuildParams", func() {
 					BuildParams: map[string]interface{}{buildResultParam: "bPath"},
 				},
 				"bPath"))
+
+		It("build results - pattern", func() {
+			module := &mta.Module{
+				Path:        "inui2",
+				BuildParams: map[string]interface{}{buildResultParam: "*.txt"},
+			}
+			Ω(GetBuildResultsPath(
+				&dir.Loc{SourcePath: getTestPath("testbuildparams", "ui2", "deep", "folder")}, module)).
+				Should(HaveSuffix("anotherfile.txt"))
+		})
 	})
 
 	var _ = DescribeTable("getRequiredTargetPath", func(requires BuildRequires, module mta.Module, expected string) {
