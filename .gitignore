@@ -7,6 +7,8 @@ cmd/internal/
 vendor
 release
 config.json
+# IntelliJ files
+*.iml
 
 # Binaries for programs and plugins
 *.so

@@ -41,6 +41,18 @@ platform:
   - native-type: com.sap.html5.application-content
     platform-type: "com.sap.html5.application-content"
 
+  - native-type: com.sap.portal.content
+    platform-type: "com.sap.portal.content"
+
+  - native-type: hdb
+    platform-type: "com.sap.xs.hdi"
+
+  - native-type: sitecontent
+    platform-type: "com.sap.portal.site-content"
+
+  - native-type: dwf
+    platform-type: "com.sap.xs.dwf"
+
 # Types for Neo platform
 - name: neo
   modules:
@@ -48,6 +60,8 @@ platform:
     platform-type: "com.sap.hcp.html5"
   - native-type: java
     platform-type: "java.tomcat"
+  - native-type: com.sap.portal.content
+    platform-type: "com.sap.portal.content"
 
 # Type for XSA platform
 - name: xsa
@@ -72,3 +86,15 @@ platform:
 
   - native-type: cds
     platform-type: "cds"
+
+  - native-type: com.sap.portal.content
+    platform-type: "com.sap.portal.content"
+
+  - native-type: hdb
+    platform-type: "com.sap.xs.hdi"
+
+  - native-type: sitecontent
+    platform-type: "com.sap.portal.site-content"
+
+  - native-type: dwf
+    platform-type: "com.sap.xs.dwf"

@@ -25,6 +25,7 @@ builders:
     type:
       - command: npm install
       - command: grunt
+      - command: npm prune --production
 
   - name: golang
     info: "build golang application"

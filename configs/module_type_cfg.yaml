@@ -14,24 +14,20 @@
 module-types:
 
   - name: html5
-    info: "installing module dependencies & execute grunt & remove dev dependencies"
+    info: "installing module dependencies & remove dev dependencies"
     path: "path to config file which override the following default commands"
-    type:
-      - command: npm install
-      - command: grunt
-      - command: npm prune --production
+    builder: npm
 
   - name: java
     info: "build java application"
     path: "path to config file which override the following default commands"
     type:
-      - command: mvn clean install
+      - command: mvn -B package
 
   - name: nodejs
     info: "build nodejs application"
     path: "path to config file which override the following default commands"
-    type:
-      - command: npm prune --production
+    builder: npm
 
   - name: react_n
     info: "build react native apps"
@@ -47,3 +43,24 @@ module-types:
     info: "build deployer application"
     path: "path to config file which override the following default commands"
     builder: npm
+
+  - name: com.sap.portal.content
+    info: "build flp application"
+    path: "path to config file which override the following default commands"
+    builder: npm
+
+  - name: hdb
+    info: "build hdb application"
+    path: "path to config file which override the following default commands"
+    builder: npm
+
+  - name: sitecontent
+    info: "build portal site-content application"
+    path: "path to config file which override the following default commands"
+    builder: npm
+
+  - name: dwf
+    info: "build dwf application"
+    path: "path to config file which override the following default commands"
+    builder: npm
+
