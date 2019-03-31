@@ -127,8 +127,8 @@ module-types:
 
 	It("CommandProvider", func() {
 		expected := CommandList{
-			Info:    "installing module dependencies & execute grunt & remove dev dependencies",
-			Command: []string{"npm install", "grunt", "npm prune --production"},
+			Info:    "installing module dependencies & remove dev dependencies",
+			Command: []string{"npm install", "npm prune --production"},
 		}
 		Ω(CommandProvider(mta.Module{Type: "html5"})).Should(Equal(expected))
 	})
@@ -243,7 +243,7 @@ modules:
 			module, commands, err := moduleCmd(&m, "htmlapp")
 			Ω(err).Should(Succeed())
 			Ω(module.Path).Should(Equal("app"))
-			Ω(commands).Should(Equal([]string{"npm install", "grunt", "npm prune --production"}))
+			Ω(commands).Should(Equal([]string{"npm install", "npm prune --production"}))
 		})
 
 		It("Builder specified in build params", func() {
@@ -277,8 +277,9 @@ modules:
 			module, cmd, err := GetModuleAndCommands(&ep, "node-js")
 			Ω(err).Should(Succeed())
 			Ω(module.Name).Should(Equal("node-js"))
-			Ω(len(cmd)).Should(Equal(1))
-			Ω(cmd[0]).Should(Equal("npm prune --production"))
+			Ω(len(cmd)).Should(Equal(2))
+			Ω(cmd[0]).Should(Equal("npm install"))
+			Ω(cmd[1]).Should(Equal("npm prune --production"))
 
 		})
 		It("Invalid case - wrong module name", func() {
