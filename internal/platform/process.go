@@ -21,12 +21,39 @@ func Unmarshal(data []byte) (Platforms, error) {
 func ConvertTypes(iCfg mta.MTA, eCfg Platforms, targetPlatform string) {
 	tpl := platformConfig(eCfg, targetPlatform)
 	for i, v := range iCfg.Modules {
+		moduleAcc := -1
+		modulePlatformType := v.Type
 		for _, em := range tpl.Modules {
-			if v.Type == em.NativeType {
-				iCfg.Modules[i].Type = em.PlatformType
+			if ok, acc := satisfies(v, &em); ok && acc > moduleAcc {
+				modulePlatformType = em.PlatformType
+				moduleAcc = acc
 			}
 		}
+		iCfg.Modules[i].Type = modulePlatformType
 	}
+}
+
+// Satisfies checks if the module m satisfies the conditions defined in the configuration mc.
+//
+// If it doesn't satisfy the conditions, ok will be false and accuracy will be less than 0.
+//
+// If it satisfies the conditions, accuracy will be higher the more conditions there are inside the configuration
+// (in other words, the more specific match is considered more accurate).
+func satisfies(m *mta.Module, mc *Properties) (ok bool, accuracy int) {
+	if m.Type != mc.NativeType {
+		return false, -1
+	}
+	for ckey, cval := range mc.Parameters {
+		if mval, ok := m.Parameters[ckey]; !ok || mval != cval {
+			return false, -1
+		}
+	}
+	for ckey, cval := range mc.Properties {
+		if mval, ok := m.Properties[ckey]; !ok || mval != cval {
+			return false, -1
+		}
+	}
+	return true, len(mc.Parameters) + len(mc.Properties)
 }
 
 func platformConfig(eCfg Platforms, targetPlatform string) Modules {
