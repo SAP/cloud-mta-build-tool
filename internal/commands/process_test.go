@@ -13,21 +13,21 @@ version: 1
 builders:
   - name: html5
     info: "build UI5 application"
-    type:
+    commands:
     - command: npm install
     - command: grunt
     - command: npm prune --production
   - name: java
     info: "build java application"
-    type:
+    commands:
     - command: mvn clean install
   - name: nodejs
     info: "build nodejs application"
-    type:
+    commands:
     - command: npm install
   - name: golang
     info: "build golang application"
-    type:
+    commands:
     - command: go build *.go
 `)
 	var builders = Builders{
@@ -36,7 +36,7 @@ builders:
 			{
 				Name: "html5",
 				Info: "build UI5 application",
-				Type: []Commands{
+				Commands: []Command{
 					{Command: "npm install"},
 					{Command: "grunt"},
 					{Command: "npm prune --production"},
@@ -45,21 +45,21 @@ builders:
 			{
 				Name: "java",
 				Info: "build java application",
-				Type: []Commands{
+				Commands: []Command{
 					{Command: "mvn clean install"},
 				},
 			},
 			{
 				Name: "nodejs",
 				Info: "build nodejs application",
-				Type: []Commands{
+				Commands: []Command{
 					{Command: "npm install"},
 				},
 			},
 			{
 				Name: "golang",
 				Info: "build golang application",
-				Type: []Commands{
+				Commands: []Command{
 					{Command: "go build *.go"},
 				},
 			},

@@ -1,0 +1,15 @@
+ID: mta_demo
+_schema-version: '2.1'
+version: 0.0.1
+
+modules:
+ - name: node
+   type: nodejs
+   path: node
+   provides:
+    - name: node_api
+      properties:
+         url: ${default-url}
+   build-parameters:     
+     builder: zip
+     build-result: myfolder

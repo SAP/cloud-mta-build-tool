@@ -55,6 +55,7 @@ var _ = Describe("Integration - CloudMtaBuildTool", func() {
 		os.RemoveAll("./testdata/mta_demo/mta_archives")
 		os.RemoveAll("./testdata/mta_assemble/mta_archives")
 		resourceCleanup("node")
+		resourceCleanup("node-js")
 	})
 
 	var _ = Describe("Command to provide the list of modules", func() {
@@ -66,7 +67,7 @@ var _ = Describe("Integration - CloudMtaBuildTool", func() {
 			cmdOut, err, _ := execute(bin, "provide modules", path)
 			Ω(err).Should(Equal(""))
 			Ω(cmdOut).ShouldNot(BeNil())
-			Ω(cmdOut).Should(ContainSubstring("[node]" + "\n"))
+			Ω(cmdOut).Should(ContainSubstring("[node node-js]" + "\n"))
 		})
 
 		It("Command name error", func() {
@@ -149,6 +150,14 @@ var _ = Describe("Integration - CloudMtaBuildTool", func() {
 _schema-version: "2.1"
 ID: mta_demo
 version: 0.0.1
+modules:
+- name: node-js
+  type: nodejs
+  path: node-js
+  provides:
+  - name: node-js_api
+    properties:
+      url: ${default-url}
 parameters:
   hcp-deployer-version: 1.1.0
 `))
@@ -157,7 +166,6 @@ parameters:
 		})
 
 		It("Generate MTAR", func() {
-
 			dir, _ := os.Getwd()
 			path := dir + filepath.FromSlash("/testdata/mta_demo")
 			bin := filepath.FromSlash("make")
@@ -188,9 +196,19 @@ modules:
   - name: node_api
     properties:
       url: ${default-url}
+- name: node-js
+  type: javascript.nodejs
+  path: node-js
+  provides:
+  - name: node-js_api
+    properties:
+      url: ${default-url}
 `))
 			Ω(e).Should(Succeed())
 			Ω(actual).Should(Equal(expected))
+
+			Ω(filepath.Join(path, "mta_archives", "mta.assembly.example_1.3.3.mtar")).Should(BeAnExistingFile())
+			validateMtaArchiveContents([]string{"node-js.zip", "package.json"}, filepath.Join(path, "mta_archives", "mta_demo_0.0.1.mtar"))
 		})
 	})
 
@@ -223,6 +241,7 @@ modules:
 			dir, _ := os.Getwd()
 			path := filepath.Join(dir, "testdata", "mta_demo")
 			os.MkdirAll(filepath.Join(path, ".mta_demo_mta_build_tmp", "node"), os.ModePerm)
+			os.MkdirAll(filepath.Join(path, ".mta_demo_mta_build_tmp", "node-js"), os.ModePerm)
 			bin := filepath.FromSlash(binPath)
 			_, err, _ := execute(bin, "gen mtad", path)
 			Ω(err).Should(Equal(""))
@@ -231,6 +250,7 @@ modules:
 			content, _ := ioutil.ReadFile(mtadPath)
 			mtadObj, _ := mta.Unmarshal(content)
 			Ω(mtadObj.Modules[0].Type).Should(Equal("javascript.nodejs"))
+			Ω(mtadObj.Modules[1].Type).Should(Equal("javascript.nodejs"))
 		})
 	})
 

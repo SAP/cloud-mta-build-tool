@@ -76,6 +76,18 @@ var _ = Describe("Commands", func() {
 		)
 	})
 
+	var _ = Describe("Zip", func() {
+		DescribeTable("Standard cases", func(projectPath string, match types.GomegaMatcher) {
+			zipCmdSrc = projectPath
+			zipCmdModule = "ui5app"
+			zipCmdPlatform = "cf"
+			Ω(zipModuleCmd.RunE(nil, []string{})).Should(match)
+		},
+			Entry("SanityTest", getTestPath("mtahtml5"), Succeed()),
+			Entry("Wrong path to project", getTestPath("mtahtml6"), HaveOccurred()),
+		)
+	})
+
 	var _ = Describe("Build", func() {
 		var config []byte
 

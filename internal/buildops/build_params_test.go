@@ -1,8 +1,11 @@
 package buildops
 
 import (
+	"io/ioutil"
 	"os"
 	"path/filepath"
+
+	"github.com/go-yaml/yaml"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
@@ -189,7 +192,7 @@ var _ = Describe("GetBuilder", func() {
 				SupportedPlatformsParam: []string{},
 			},
 		}
-		Ω(GetBuilder(&m)).Should(Equal("node-js"))
+		Ω(GetBuilder(&m, "")).Should(Equal("node-js"))
 	})
 	It("Builder defined by build params", func() {
 		m := mta.Module{
@@ -199,9 +202,25 @@ var _ = Describe("GetBuilder", func() {
 				builderParam: "npm",
 			},
 		}
-		builder, custom := GetBuilder(&m)
+		builder, custom, _ := GetBuilder(&m, "")
 		Ω(builder).Should(Equal("npm"))
 		Ω(custom).Should(Equal(true))
+	})
+
+	It("zip builder defined by build params from mta.yaml", func() {
+		dir, _ := os.Getwd()
+		path := filepath.Join(dir, "testdata", "mtaWithZip.yaml")
+		// Read MTA file
+		yamlFile, err := ioutil.ReadFile(path)
+		Ω(err).Should(BeNil())
+		m := mta.MTA{}
+		yaml.Unmarshal(yamlFile, &m)
+		builder, custom, options := GetBuilder(m.Modules[0], "")
+		Ω(options).Should(Equal(map[string]string{
+			"source":      "$(PROJ_DIR)",
+			"module-name": "node"}))
+		Ω(builder).Should(Equal("zip"))
+		Ω(custom).Should(BeTrue())
 	})
 })
 

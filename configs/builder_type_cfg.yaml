@@ -12,46 +12,52 @@
 
 
 builders:
-  - name: npm
-    info: "installing module dependencies & remove dev dependencies"
-    path: "path to config file which override the following default commands"
-    type:
-      - command: npm install
-      - command: npm prune --production
+- name: npm
+  info: "installing module dependencies & remove dev dependencies"
+  path: "path to config file which override the following default commands"
+  commands:
+  - command: npm install
+  - command: npm prune --production
 
-  - name: grunt
-    info: "execute grunt"
-    path: "path to config file which override the following default commands"
-    type:
-      - command: npm install
-      - command: grunt
+- name: grunt
+  info: "execute grunt"
+  path: "path to config file which override the following default commands"
+  commands:
+  - command: npm install
+  - command: grunt
 
-  - name: golang
-    info: "build golang application"
-    path: "path to config file which override the following default commands"
-    type:
-      - command: go build *.go
+- name: golang
+  info: "build golang application"
+  path: "path to config file which override the following default commands"
+  commands:
+  - command: go build *.go
 
-  - name: evo
-    info: "installing module dependencies & run evo-build & remove dev dependencies"
-    path: "path to config file which override the following default commands"
-    type:
-      - command: npm install
-      - command: npm run init
-      - command: npm run build
-      - command: npm prune --production
+- name: evo
+  info: "installing module dependencies & run evo-build & remove dev dependencies"
+  path: "path to config file which override the following default commands"
+  commands:
+  - command: npm install
+  - command: npm run init
+  - command: npm run build
+  - command: npm prune --production
 
-  # ---dummy build-before commands testing purpose
-  - name: cds
-    info: "test"
-    path: "test"
-    type:
-      - command: npm install
-      - command: npm run build
+# ---dummy build-before commands testing purpose
+- name: cds
+  info: "test"
+  path: "test"
+  commands:
+  - command: npm install
+  - command: npm run build
 
-  # ---dummy commands for build-after testing purpose
-  - name: cds_after
-    info: "test"
-    path: "test"
-    type:
-      - command: echo "-----------test after all modules build----------------"
+# ---dummy commands for build-after testing purpose
+- name: cds_after
+  info: "test"
+  path: "test"
+  commands:
+  - command: echo "-----------test after all modules build----------------"
+
+- name: zip
+  info: "archives the source folder into a .zip file"
+  path: "archives the source folder into a .zip file"
+  commands:
+  - command: mbt module zip -m={{module-name}} -s={{source}}

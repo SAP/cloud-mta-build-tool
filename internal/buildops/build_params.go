@@ -30,13 +30,48 @@ type BuildRequires struct {
 }
 
 // GetBuilder - gets builder type of the module and indicator of custom builder
-func GetBuilder(module *mta.Module) (string, bool) {
+func GetBuilder(module *mta.Module, source string) (string, bool, map[string]string) {
 	// builder defined in build params is prioritised
 	if module.BuildParams != nil && module.BuildParams[builderParam] != nil {
-		return module.BuildParams[builderParam].(string), true
+		builderName := module.BuildParams[builderParam].(string)
+		optsParamName := builderName + "-opts"
+		// get options for builder from mta.yaml
+		options := getOpts(module, optsParamName, source)
+		return builderName, true, options
 	}
 	// default builder is defined by type property of the module
-	return module.Type, false
+	return module.Type, false, nil
+}
+
+// Get options for builder from mta.yaml
+// module name and source (module full path) are added by default
+func getOpts(module *mta.Module, optsParamName, source string) map[string]string {
+	options := module.BuildParams[optsParamName]
+	optionsMap := make(map[string]string)
+	if options != nil {
+		optionsMap = convert(options.(map[interface{}]interface{}))
+	}
+	optionsMap["module-name"] = module.Name
+	if source != "" {
+		optionsMap["source"] = `` + source + ``
+	} else {
+		optionsMap["source"] = "$(PROJ_DIR)"
+	}
+
+	return optionsMap
+}
+
+// Convert type map[interface{}]interface{} to map[string]string
+func convert(m map[interface{}]interface{}) map[string]string {
+	res := make(map[string]string)
+	for key, value := range m {
+		strKey := key.(string)
+		strValue := value.(string)
+
+		res[strKey] = strValue
+	}
+
+	return res
 }
 
 // getBuildRequires - gets Requires property of module's build-params property
