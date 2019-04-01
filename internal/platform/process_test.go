@@ -171,11 +171,11 @@ platform:
 		Ω(platformConfig(platforms, "cf")).Should(Equal(expected))
 	})
 
-	Describe("satisfies", func() {
+	Describe("satisfiesModuleConfig", func() {
 		It("returns ok=false when module type is mismatched", func() {
 			m := mta.Module{Name: "htmlapp", Type: "javascript.nodejs", Path: "app"}
 			config := Properties{NativeType: "abcd", PlatformType: "abcd"}
-			ok, acc := satisfies(&m, &config)
+			ok, acc := satisfiesModuleConfig(&m, &config)
 			Ω(ok).Should(BeFalse())
 			Ω(acc).Should(BeNumerically("<", 0))
 		})
@@ -183,7 +183,7 @@ platform:
 		It("returns ok=true when module type matches and no other conditions", func() {
 			m := mta.Module{Type: "htmlapp"}
 			config := Properties{NativeType: "htmlapp", PlatformType: "abcd"}
-			ok, acc := satisfies(&m, &config)
+			ok, acc := satisfiesModuleConfig(&m, &config)
 			Ω(ok).Should(BeTrue())
 			Ω(acc).Should(BeNumerically(">=", 0))
 		})
@@ -195,7 +195,7 @@ platform:
 				Parameters: map[string]interface{}{"a": "b"},
 			}
 			c.NativeType = "a"
-			ok, acc := satisfies(&m, &c)
+			ok, acc := satisfiesModuleConfig(&m, &c)
 			Ω(ok).Should(BeFalse())
 			Ω(acc).Should(BeNumerically("<", 0))
 		},
@@ -229,7 +229,7 @@ platform:
 			prevDesc := "initial value"
 			for _, c := range configs {
 				c.config.NativeType = "a"
-				ok, moduleAcc := satisfies(&m, &c.config)
+				ok, moduleAcc := satisfiesModuleConfig(&m, &c.config)
 				Ω(ok).Should(BeTrue(), "module did not satisfy config with "+c.desc)
 				Ω(moduleAcc).Should(BeNumerically(">", acc), c.desc+" has lower accuracy than "+prevDesc)
 				acc = moduleAcc

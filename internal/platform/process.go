@@ -24,7 +24,7 @@ func ConvertTypes(iCfg mta.MTA, eCfg Platforms, targetPlatform string) {
 		moduleAcc := -1
 		modulePlatformType := v.Type
 		for _, em := range tpl.Modules {
-			if ok, acc := satisfies(v, &em); ok && acc > moduleAcc {
+			if ok, acc := satisfiesModuleConfig(v, &em); ok && acc > moduleAcc {
 				modulePlatformType = em.PlatformType
 				moduleAcc = acc
 			}
@@ -39,7 +39,7 @@ func ConvertTypes(iCfg mta.MTA, eCfg Platforms, targetPlatform string) {
 //
 // If it satisfies the conditions, accuracy will be higher the more conditions there are inside the configuration
 // (in other words, the more specific match is considered more accurate).
-func satisfies(m *mta.Module, mc *Properties) (ok bool, accuracy int) {
+func satisfiesModuleConfig(m *mta.Module, mc *Properties) (ok bool, accuracy int) {
 	if m.Type != mc.NativeType {
 		return false, -1
 	}
