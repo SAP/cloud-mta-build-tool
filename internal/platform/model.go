@@ -14,6 +14,8 @@ type Modules struct {
 // Properties - properties list
 //noinspection GoUnnecessarilyExportedIdentifiers
 type Properties struct {
-	NativeType   string `yaml:"native-type"`
-	PlatformType string `yaml:"platform-type"`
+	NativeType   string            `yaml:"native-type"`
+	PlatformType string            `yaml:"platform-type"`
+	Properties   map[string]string `yaml:"properties,omitempty"`
+	Parameters   map[string]string `yaml:"parameters,omitempty"`
 }
