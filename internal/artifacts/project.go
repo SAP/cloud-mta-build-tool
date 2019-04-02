@@ -58,7 +58,7 @@ func execBuilder(builder string) error {
 			"builder": builder,
 		},
 	}
-	builderCommands, err := commands.CommandProvider(dummyModule)
+	builderCommands, _, err := commands.CommandProvider(dummyModule)
 	if err != nil {
 		return errors.Wrap(err, "failed to parse the builder types configuration")
 	}

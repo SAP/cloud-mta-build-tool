@@ -9,6 +9,7 @@ import (
 	"github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta/mta"
 	"strings"
+	"fmt"
 )
 
 const (
@@ -88,7 +89,7 @@ func getStrParam(m map[interface{}]interface{}, param string) string {
 // 2.	Dependency on not defined module
 
 // ProcessRequirements - Processes build requirement of module (using moduleName).
-func ProcessRequirements(ep dir.ISourceModule, mta *mta.MTA, requires *BuildRequires, moduleName string) error {
+func ProcessRequirements(ep dir.ISourceModule, mta *mta.MTA, requires *BuildRequires, moduleName, defaultBuildResult string) error {
 
 	// validate module names - both in process and required
 	module, err := mta.GetModuleByName(moduleName)
@@ -106,7 +107,12 @@ func ProcessRequirements(ep dir.ISourceModule, mta *mta.MTA, requires *BuildRequ
 	}
 
 	// Build paths for artifacts copying
-	sourcePath := GetBuildResultsPath(ep, requiredModule)
+	sourcePath, err := GetBuildResultsPath(ep, requiredModule, defaultBuildResult)
+	if err != nil {
+		return errors.Wrapf(err,
+			`processing requirements of the "%v" module based on the "%v" module failed when getting the build results path`,
+			moduleName, requires.Name)
+	}
 	targetPath := getRequiredTargetPath(ep, module, requires)
 
 	// execute copy of artifacts
@@ -120,20 +126,30 @@ func ProcessRequirements(ep dir.ISourceModule, mta *mta.MTA, requires *BuildRequ
 }
 
 // GetBuildResultsPath - provides path of build results
-func GetBuildResultsPath(ep dir.ISourceModule, module *mta.Module) string {
+func GetBuildResultsPath(ep dir.ISourceModule, module *mta.Module, defaultBuildResult string) (string, error) {
 	path := ep.GetSourceModuleDir(module.Path)
 
+	buildResultsDefined := false
 	// if no sub-folder provided - build results will be saved in the module folder
 	if module.BuildParams != nil && module.BuildParams[buildResultParam] != nil {
 		// if sub-folder provided - build results are located in the subfolder of the module folder
 		path = filepath.Join(path, module.BuildParams[buildResultParam].(string))
+		buildResultsDefined = true
+	} else if defaultBuildResult != "" {
+		path = filepath.Join(path, defaultBuildResult)
+		buildResultsDefined = true
 	}
 
-	sourceEntries, err := filepath.Glob(path)
-	if err == nil && len(sourceEntries) > 0 {
-		return sourceEntries[0]
+	if buildResultsDefined {
+		sourceEntries, err := filepath.Glob(path)
+		if err != nil {
+			return "", err
+		} else if len(sourceEntries) == 0 {
+			return "", fmt.Errorf(`no entry found that matches the "%s" build results`, path)
+		}
+		return sourceEntries[0], nil
 	}
-	return path
+	return path, nil
 }
 
 // getRequiredTargetPath - provides path of required artifacts

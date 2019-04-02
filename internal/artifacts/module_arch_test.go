@@ -113,13 +113,32 @@ builders:
 	var _ = Describe("Pack", func() {
 		var _ = Describe("Sanity", func() {
 
+			It("Build results - zip file, copy only", func() {
+				ep := dir.Loc{
+					SourcePath: getTestPath("mta_with_zipped_module"),
+					TargetPath: getResultPath(),
+					Descriptor: "dev",
+				}
+				Ω(packModule(&ep, false, &m, "node-js", "cf", "*.zip")).Should(Succeed())
+				Ω(getTestPath("result", ".mta_with_zipped_module_mta_build_tmp", "node-js", "abc.zip")).Should(BeAnExistingFile())
+			})
+
+			It("Build results - zip file, copy only fails - no file matching wildcard", func() {
+				ep := dir.Loc{
+					SourcePath: getTestPath("mta_with_zipped_module"),
+					TargetPath: getResultPath(),
+					Descriptor: "dev",
+				}
+				Ω(packModule(&ep, false, &m, "node-js", "cf", "m*.zip")).Should(HaveOccurred())
+			})
+
 			It("Deployment descriptor - Copy only", func() {
 				ep := dir.Loc{
 					SourcePath: getTestPath("mta_with_zipped_module"),
 					TargetPath: getResultPath(),
 					Descriptor: "dep",
 				}
-				Ω(packModule(&ep, true, &m, "node-js", "cf")).Should(Succeed())
+				Ω(packModule(&ep, true, &m, "node-js", "cf", "")).Should(Succeed())
 				Ω(getTestPath("result", ".mta_with_zipped_module_mta_build_tmp", "node-js", "data.zip")).Should(BeAnExistingFile())
 			})
 
@@ -130,7 +149,7 @@ builders:
 					TargetPath: getResultPath(),
 					Descriptor: "dev",
 				}
-				Ω(packModule(&ep, false, &m, "node-js", "cf")).Should(HaveOccurred())
+				Ω(packModule(&ep, false, &m, "node-js", "cf", "")).Should(HaveOccurred())
 			})
 			It("Target directory exists as a file", func() {
 				ep := dir.Loc{
@@ -140,7 +159,7 @@ builders:
 				}
 				os.MkdirAll(filepath.Join(ep.GetTarget(), ".mta_with_zipped_module_mta_build_tmp"), os.ModePerm)
 				createFile("result", ".mta_with_zipped_module_mta_build_tmp", "node-js")
-				Ω(packModule(&ep, false, &m, "node-js", "cf")).Should(HaveOccurred())
+				Ω(packModule(&ep, false, &m, "node-js", "cf", "")).Should(HaveOccurred())
 			})
 		})
 
@@ -157,7 +176,7 @@ builders:
 					buildops.SupportedPlatformsParam: []string{},
 				},
 			}
-			Ω(packModule(&ep, false, &mNoPlatforms, "node-js", "cf")).Should(Succeed())
+			Ω(packModule(&ep, false, &mNoPlatforms, "node-js", "cf", "")).Should(Succeed())
 			Ω(getTestPath("result", "mta_with_zipped_module_mta_build_tmp", "node-js", "data.zip")).
 				ShouldNot(BeAnExistingFile())
 		})

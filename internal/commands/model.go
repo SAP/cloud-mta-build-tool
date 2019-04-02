@@ -11,6 +11,7 @@ type builder struct {
 	Info string     `yaml:"info"`
 	Path string     `yaml:"path"`
 	Type []Commands `yaml:"type"`
+	BuildResult string `yaml:"build-result,omitempty"`
 }
 
 // Commands - specific command

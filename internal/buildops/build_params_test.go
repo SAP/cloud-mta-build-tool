@@ -16,15 +16,14 @@ var _ = Describe("BuildParams", func() {
 
 	var _ = Describe("GetBuildResultsPath", func() {
 		var _ = DescribeTable("valid cases", func(module *mta.Module, expected string) {
-			Ω(GetBuildResultsPath(&dir.Loc{}, module)).Should(HaveSuffix(expected))
+			Ω(GetBuildResultsPath(&dir.Loc{SourcePath: getTestPath("mtahtml5")}, module, expected)).Should(HaveSuffix(expected))
 		},
-			Entry("Implicit Build Results Path", &mta.Module{Path: "mPath"}, "mPath"),
+			Entry("Implicit Build Results Path", &mta.Module{Path: "mPath"}, ""),
 			Entry("Explicit Build Results Path",
 				&mta.Module{
-					Path:        "mPath",
-					BuildParams: map[string]interface{}{buildResultParam: "bPath"},
-				},
-				"bPath"))
+					Path:        "testapp",
+					BuildParams: map[string]interface{}{buildResultParam: filepath.Join("webapp", "controller")},
+				}, "controller"))
 
 		It("build results - pattern", func() {
 			module := &mta.Module{
@@ -32,8 +31,25 @@ var _ = Describe("BuildParams", func() {
 				BuildParams: map[string]interface{}{buildResultParam: "*.txt"},
 			}
 			Ω(GetBuildResultsPath(
-				&dir.Loc{SourcePath: getTestPath("testbuildparams", "ui2", "deep", "folder")}, module)).
+				&dir.Loc{SourcePath: getTestPath("testbuildparams", "ui2", "deep", "folder")}, module, "")).
 				Should(HaveSuffix("anotherfile.txt"))
+		})
+
+		It("default build results", func() {
+			module := &mta.Module{
+				Path: "inui2",
+			}
+			Ω(GetBuildResultsPath(
+				&dir.Loc{SourcePath: getTestPath("testbuildparams", "ui2", "deep", "folder")}, module, "*.txt")).
+				Should(HaveSuffix("anotherfile.txt"))
+		})
+		It("default build results - no file answers pattern", func() {
+			module := &mta.Module{
+				Path: "inui2",
+			}
+			_, err := GetBuildResultsPath(
+				&dir.Loc{SourcePath: getTestPath("testbuildparams", "ui2", "deep", "folder")}, module, "b*.txt")
+			Ω(err).Should(HaveOccurred())
 		})
 	})
 
@@ -74,7 +90,7 @@ var _ = Describe("BuildParams", func() {
 					},
 				},
 			}
-			Ω(ProcessRequirements(&ep, &mtaObj, &require, "B")).Should(Succeed())
+			Ω(ProcessRequirements(&ep, &mtaObj, &require, "B", "")).Should(Succeed())
 			Ω(filepath.Join(wd, expectedPath)).Should(BeADirectory())
 			Ω(filepath.Join(wd, expectedPath, "webapp", "Component.js")).Should(BeAnExistingFile())
 		},
@@ -82,24 +98,29 @@ var _ = Describe("BuildParams", func() {
 			Entry("Require All - single value", []string{"*"}, filepath.Join("testdata", "testproject", "moduleB", "b_copied_artifacts")),
 			Entry("Require All From Parent", []string{"."}, filepath.Join("testdata", "testproject", "moduleB", "b_copied_artifacts", "ui5app")))
 
-		var _ = DescribeTable("Invalid cases", func(lp *dir.Loc, require BuildRequires, mtaObj mta.MTA, moduleName string) {
-			Ω(ProcessRequirements(lp, &mtaObj, &require, moduleName)).Should(HaveOccurred())
+		var _ = DescribeTable("Invalid cases", func(lp *dir.Loc, require BuildRequires, mtaObj mta.MTA, moduleName, buildResult string ) {
+			Ω(ProcessRequirements(lp, &mtaObj, &require, moduleName, buildResult)).Should(HaveOccurred())
 		},
 			Entry("Module not defined",
 				&dir.Loc{},
 				BuildRequires{Name: "A", Artifacts: []string{"*"}, TargetPath: "b_copied_artifacts"},
 				mta.MTA{Modules: []*mta.Module{{Name: "A", Path: "ui5app"}, {Name: "B", Path: "moduleB"}}},
-				"C"),
+				"C", ""),
 			Entry("Required Module not defined",
 				&dir.Loc{},
 				BuildRequires{Name: "C", Artifacts: []string{"*"}, TargetPath: "b_copied_artifacts"},
 				mta.MTA{Modules: []*mta.Module{{Name: "A", Path: "ui5app"}, {Name: "B", Path: "moduleB"}}},
-				"B"),
+				"B", ""),
+			Entry("Default build results defined but nothing matches it",
+				&dir.Loc{},
+				BuildRequires{Name: "B", Artifacts: []string{"*"}, TargetPath: "b_copied_artifacts"},
+				mta.MTA{Modules: []*mta.Module{{Name: "A", Path: "ui5app"}, {Name: "B", Path: "moduleB"}}},
+				"A", "abc.zip"),
 			Entry("Target path - file",
 				&dir.Loc{SourcePath: getTestPath("testbuildparams")},
 				BuildRequires{Name: "ui1", Artifacts: []string{"*"}, TargetPath: "file.txt"},
 				mta.MTA{Modules: []*mta.Module{{Name: "ui1", Path: "ui1"}, {Name: "node", Path: "node"}}},
-				"node"))
+				"node", ""))
 
 	})
 })
@@ -119,7 +140,7 @@ var _ = Describe("Process complex list of requirements", func() {
 		for _, m := range mtaObj.Modules {
 			if m.Name == "node" {
 				for _, r := range getBuildRequires(m) {
-					ProcessRequirements(&lp, mtaObj, &r, "node")
+					ProcessRequirements(&lp, mtaObj, &r, "node", "")
 				}
 			}
 		}
