@@ -27,6 +27,11 @@ platform:
     platform-type: "com.sap.xs.hdi"
 
   - native-type: java
+    platform-type: "java.tomee"
+    properties:
+      TARGET_RUNTIME: tomee
+
+  - native-type: java
     platform-type: "java.tomcat"
 
   - native-type: dwf
@@ -58,8 +63,20 @@ platform:
   modules:
   - native-type: html5
     platform-type: "com.sap.hcp.html5"
+
+  - native-type: java
+    platform-type: "com.sap.java"
+    parameters:
+      runtime: neo-java-web
+
+  - native-type: java
+    platform-type: "com.sap.java"
+    parameters:
+      runtime: neo-javaee6-wp
+
   - native-type: java
     platform-type: "java.tomcat"
+
   - native-type: com.sap.portal.content
     platform-type: "com.sap.portal.content"
 
@@ -77,6 +94,11 @@ platform:
 
   - native-type: hdb
     platform-type: "com.sap.xs.hdi"
+
+  - native-type: java
+    platform-type: "java.tomee"
+    properties:
+      TARGET_RUNTIME: tomee
 
   - native-type: java
     platform-type: "java.tomcat"
