@@ -32,6 +32,13 @@ var _ = Describe("Meta", func() {
 			Ω(getTestPath("result", ".mtahtml5_mta_build_tmp", "META-INF", "mtad.yaml")).Should(BeAnExistingFile())
 		})
 
+		It("Fails on META-INF folder creation", func() {
+			os.MkdirAll(getTestPath("result", ".mtahtml5_mta_build_tmp"), os.ModePerm)
+			file, _ := os.Create(getTestPath("result", ".mtahtml5_mta_build_tmp", "META-INF"))
+			file.Close()
+			Ω(ExecuteGenMeta(getTestPath("mtahtml5"), getResultPath(), "dev", "CF", true, os.Getwd)).Should(HaveOccurred())
+		})
+
 		It("Wrong location - fails on Working directory get", func() {
 			Ω(ExecuteGenMeta("", "", "dev", "cf", true, func() (string, error) {
 				return "", errors.New("err")
@@ -75,6 +82,8 @@ modules:
 		It("Meta creation fails - fails on conversion by platform", func() {
 			m := mta.MTA{}
 			yaml.Unmarshal(mtaSingleModule, &m)
+			os.MkdirAll(getTestPath("result", ".testproject_mta_build_tmp", "app"), os.ModePerm)
+			os.MkdirAll(getTestPath("result", ".testproject_mta_build_tmp", "META-INF"), os.ModePerm)
 			cfg := platform.PlatformConfig
 			platform.PlatformConfig = []byte(`very bad config`)
 			Ω(genMetaInfo(&ep, &ep, ep.IsDeploymentDescriptor(), "cf",

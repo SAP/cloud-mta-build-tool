@@ -30,6 +30,13 @@ var _ = Describe("Mtad", func() {
 			Ω(ExecuteGenMtad(getTestPath("mta"), getTestPath("resultMtad"), "cf", os.Getwd)).Should(Succeed())
 			Ω(getTestPath("resultMtad", "mtad.yaml")).Should(BeAnExistingFile())
 		})
+		It("Fails on creating META-INF folder", func() {
+			os.MkdirAll(getTestPath("resultMtad", ".mta_mta_build_tmp"), os.ModePerm)
+			file, err := os.Create(getTestPath("resultMtad", ".mta_mta_build_tmp", "META-INF"))
+			Ω(err).Should(Succeed())
+			file.Close()
+			Ω(ExecuteGenMtad(getTestPath("mta"), getTestPath("resultMtad"), "cf", os.Getwd)).Should(HaveOccurred())
+		})
 		It("Fails on location initialization", func() {
 			Ω(ExecuteGenMtad("", getTestPath("resultMtad"), "cf", func() (string, error) {
 				return "", errors.New("err")
@@ -84,6 +91,14 @@ var _ = Describe("Mtad", func() {
 
 })
 
+var _ = Describe("adaptModulePath", func() {
+	It("path by module name", func() {
+		mod := mta.Module{Name: "htmlapp2", Path: "xyz"}
+		Ω(adaptModulePath(&testMtadLoc{}, &mod)).Should(Succeed())
+		Ω(mod.Path).Should(Equal("htmlapp2"))
+	})
+})
+
 var _ = Describe("removeUndeployedModules", func() {
 	It("Sanity", func() {
 		mta := mta.MTA{
@@ -116,8 +131,7 @@ var _ = Describe("removeUndeployedModules", func() {
 				},
 			},
 		}
-		err := removeUndeployedModules(&mta, "neo")
-		Ω(err).Should(Succeed())
+		removeUndeployedModules(&mta, "neo")
 		Ω(len(mta.Modules)).Should(Equal(1))
 		Ω(mta.Modules[0].Name).Should(Equal("htmlapp2"))
 		Ω(mta.Parameters["hcp-deployer-version"]).ShouldNot(BeNil())
@@ -142,5 +156,9 @@ var _ = Describe("mtadLoc", func() {
 	It("GetMtarDir", func() {
 		loc := mtadLoc{"anyPath"}
 		Ω(loc.GetMtarDir(true)).Should(Equal(""))
+	})
+	It("GetManifestPath", func() {
+		loc := mtadLoc{"anyPath"}
+		Ω(loc.GetMetaPath()).Should(Equal("anyPath"))
 	})
 })

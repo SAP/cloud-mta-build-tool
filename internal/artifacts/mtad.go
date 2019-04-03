@@ -66,12 +66,12 @@ func ExecuteGenMtad(source, target, platform string, wdGetter func() (string, er
 	// merge mta and extension objects
 	mta.Merge(mtaStr, mtaExt)
 	// init mtad object from the extended mta
-	err = removeUndeployedModules(mtaStr, platform)
-	if err != nil {
-		return errors.Wrap(err, `generation of the MTAD file failed`)
-	}
+	removeUndeployedModules(mtaStr, platform)
 
-	createMetaFolderIfNotExists(loc)
+	err = dir.CreateDirIfNotExist(loc.GetMetaPath())
+	if err != nil {
+		return err
+	}
 
 	removeBuildParamsFromMta(loc, mtaStr)
 	return genMtad(mtaStr, &mtadLoc{target}, false, platform, yaml.Marshal)
@@ -118,7 +118,7 @@ func genMtad(mtaStr *mta.MTA, ep dir.ITargetArtifacts, deploymentDesc bool, plat
 // SupportedPlatforms of module's build parameters indicate if module has to be deployed
 // if SupportedPlatforms property defined with empty list of properties
 // module will not be packed, not listed in MTAD yaml and in manifest
-func removeUndeployedModules(mtaStr *mta.MTA, platform string) error {
+func removeUndeployedModules(mtaStr *mta.MTA, platform string) {
 
 	// remove modules with no platforms defined
 	for doCleaning := true; doCleaning; {
@@ -142,7 +142,6 @@ func removeUndeployedModules(mtaStr *mta.MTA, platform string) error {
 			mtaStr.Parameters["hcp-deployer-version"] = "1.1.0"
 		}
 	}
-	return nil
 }
 
 // if module has to be deployed we clean build parameters from module,

@@ -24,7 +24,10 @@ func ExecuteGenMeta(source, target, desc, platform string, onlyModules bool, wdG
 		return err
 	}
 
-	createMetaFolderIfNotExists(loc)
+	err = dir.CreateDirIfNotExist(loc.GetMetaPath())
+	if err != nil {
+		return err
+	}
 
 	err = generateMeta(loc, loc, loc, loc.IsDeploymentDescriptor(), platform, onlyModules)
 	if err != nil {
@@ -49,10 +52,8 @@ func generateMeta(parser dir.IMtaParser, ep dir.ITargetArtifacts, targetPathGett
 		mta.Merge(m, mExt)
 	}
 
-	err = removeUndeployedModules(m, platform)
-	if err != nil {
-		return errors.Wrap(err, "generation of metadata failed when adapting Mtad for deployment")
-	}
+	removeUndeployedModules(m, platform)
+
 	// Generate meta info dir with required content
 	err = genMetaInfo(ep, targetPathGetter, deploymentDescriptor, platform, m, []string{}, onlyModules)
 	if err != nil {
@@ -89,18 +90,4 @@ func ConvertTypes(mtaStr mta.MTA, platformName string) error {
 		platform.ConvertTypes(mtaStr, platformCfg, platformName)
 	}
 	return err
-}
-
-
-func createMetaFolderIfNotExists(loc dir.ITargetArtifacts){
-	// Create META-INF folder under the mtar folder
-	metaPath := loc.GetMetaPath()
-
-	// if meta folder provided, mtad will be saved in this folder, so we create it if not exists
-	if metaPath != "" {
-		err := dir.CreateDirIfNotExist(metaPath)
-		if err != nil {
-			logs.Logger.Infof(`the "%v" folder already exists`, metaPath)
-		}
-	}
 }

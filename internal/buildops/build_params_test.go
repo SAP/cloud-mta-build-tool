@@ -27,6 +27,14 @@ var _ = Describe("BuildParams", func() {
 					BuildParams: map[string]interface{}{buildResultParam: filepath.Join("webapp", "controller")},
 				}, "controller"))
 
+		It("empty path, no build results", func() {
+			module := &mta.Module{
+			}
+			buildResult, _, _ := GetBuildResultsPath(
+				&dir.Loc{SourcePath: getTestPath("testbuildparams", "ui2", "deep", "folder")}, module, "")
+			Ω(buildResult).Should(Equal(""))
+		})
+
 		It("build results - pattern", func() {
 			module := &mta.Module{
 				Path:        "inui2",
