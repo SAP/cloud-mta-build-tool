@@ -16,7 +16,9 @@ var _ = Describe("BuildParams", func() {
 
 	var _ = Describe("GetBuildResultsPath", func() {
 		var _ = DescribeTable("valid cases", func(module *mta.Module, expected string) {
-			Ω(GetBuildResultsPath(&dir.Loc{SourcePath: getTestPath("mtahtml5")}, module, expected)).Should(HaveSuffix(expected))
+			path, _, err := GetBuildResultsPath(&dir.Loc{SourcePath: getTestPath("mtahtml5")}, module, expected)
+			Ω(err).Should(Succeed())
+			Ω(path).Should(HaveSuffix(expected))
 		},
 			Entry("Implicit Build Results Path", &mta.Module{Path: "mPath"}, ""),
 			Entry("Explicit Build Results Path",
@@ -30,24 +32,24 @@ var _ = Describe("BuildParams", func() {
 				Path:        "inui2",
 				BuildParams: map[string]interface{}{buildResultParam: "*.txt"},
 			}
-			Ω(GetBuildResultsPath(
-				&dir.Loc{SourcePath: getTestPath("testbuildparams", "ui2", "deep", "folder")}, module, "")).
-				Should(HaveSuffix("anotherfile.txt"))
+			buildResult, _, _ := GetBuildResultsPath(
+				&dir.Loc{SourcePath: getTestPath("testbuildparams", "ui2", "deep", "folder")}, module, "")
+			Ω(buildResult).Should(HaveSuffix("anotherfile.txt"))
 		})
 
 		It("default build results", func() {
 			module := &mta.Module{
 				Path: "inui2",
 			}
-			Ω(GetBuildResultsPath(
-				&dir.Loc{SourcePath: getTestPath("testbuildparams", "ui2", "deep", "folder")}, module, "*.txt")).
-				Should(HaveSuffix("anotherfile.txt"))
+			buildResult, _, _ := GetBuildResultsPath(
+				&dir.Loc{SourcePath: getTestPath("testbuildparams", "ui2", "deep", "folder")}, module, "*.txt")
+			Ω(buildResult).Should(HaveSuffix("anotherfile.txt"))
 		})
 		It("default build results - no file answers pattern", func() {
 			module := &mta.Module{
 				Path: "inui2",
 			}
-			_, err := GetBuildResultsPath(
+			_, _, err := GetBuildResultsPath(
 				&dir.Loc{SourcePath: getTestPath("testbuildparams", "ui2", "deep", "folder")}, module, "b*.txt")
 			Ω(err).Should(HaveOccurred())
 		})
@@ -98,7 +100,7 @@ var _ = Describe("BuildParams", func() {
 			Entry("Require All - single value", []string{"*"}, filepath.Join("testdata", "testproject", "moduleB", "b_copied_artifacts")),
 			Entry("Require All From Parent", []string{"."}, filepath.Join("testdata", "testproject", "moduleB", "b_copied_artifacts", "ui5app")))
 
-		var _ = DescribeTable("Invalid cases", func(lp *dir.Loc, require BuildRequires, mtaObj mta.MTA, moduleName, buildResult string ) {
+		var _ = DescribeTable("Invalid cases", func(lp *dir.Loc, require BuildRequires, mtaObj mta.MTA, moduleName, buildResult string) {
 			Ω(ProcessRequirements(lp, &mtaObj, &require, moduleName, buildResult)).Should(HaveOccurred())
 		},
 			Entry("Module not defined",

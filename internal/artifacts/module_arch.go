@@ -133,7 +133,7 @@ func packModule(ep dir.IModule, deploymentDesc bool, module *mta.Module, moduleN
 	}
 	// zipping the build artifacts
 	logs.Logger.Infof(`zipping the %v module...`, moduleName)
-	buildResults, err := buildops.GetBuildResultsPath(ep, module, defaultBuildResult)
+	buildResults, _, err := buildops.GetBuildResultsPath(ep, module, defaultBuildResult)
 	if err != nil {
 		return errors.Wrapf(err, `packing of the "%v" module failed while getting the build results path`,
 			moduleName)
@@ -150,6 +150,7 @@ func packModule(ep dir.IModule, deploymentDesc bool, module *mta.Module, moduleN
 			return errors.Wrapf(err, `packing of the "%v" module failed when copying the "%s" path to the "%s" folder`,
 				moduleName, buildResults, moduleZipPath)
 		}
+		return nil
 	}
 
 	moduleZipFullPath := moduleZipPath + dataZip

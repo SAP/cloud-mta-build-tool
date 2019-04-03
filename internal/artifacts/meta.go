@@ -23,6 +23,9 @@ func ExecuteGenMeta(source, target, desc, platform string, onlyModules bool, wdG
 	if err != nil {
 		return err
 	}
+
+	createMetaFolderIfNotExists(loc)
+
 	err = generateMeta(loc, loc, loc, loc.IsDeploymentDescriptor(), platform, onlyModules)
 	if err != nil {
 		return err
@@ -46,30 +49,32 @@ func generateMeta(parser dir.IMtaParser, ep dir.ITargetArtifacts, targetPathGett
 		mta.Merge(m, mExt)
 	}
 
-	err = adaptMtadForDeployment(targetPathGetter, m, platform)
+	err = removeUndeployedModules(m, platform)
 	if err != nil {
 		return errors.Wrap(err, "generation of metadata failed when adapting Mtad for deployment")
 	}
 	// Generate meta info dir with required content
-	err = GenMetaInfo(ep, targetPathGetter, deploymentDescriptor, platform, m, []string{}, onlyModules)
+	err = genMetaInfo(ep, targetPathGetter, deploymentDescriptor, platform, m, []string{}, onlyModules)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-// GenMetaInfo generates a MANIFEST.MF file and updates the build artifacts paths for deployment purposes.
-func GenMetaInfo(ep dir.ITargetArtifacts, targetPathGetter dir.ITargetPath, deploymentDesc bool,
+// genMetaInfo generates a MANIFEST.MF file and updates the build artifacts paths for deployment purposes.
+func genMetaInfo(ep dir.ITargetArtifacts, targetPathGetter dir.ITargetPath, deploymentDesc bool,
 	platform string, mtaStr *mta.MTA, modules []string, onlyModules bool) (rerr error) {
 
-	err := genMtad(mtaStr, ep, deploymentDesc, platform, yaml.Marshal)
-	if err != nil {
-		return errors.Wrap(err, "generation of metadata failed when generating the MTAD file")
-	}
 	// Set the MANIFEST.MF file
-	err = setManifestDesc(ep, targetPathGetter, mtaStr.Modules, mtaStr.Resources, modules, onlyModules)
+	err := setManifestDesc(ep, targetPathGetter, mtaStr.Modules, mtaStr.Resources, modules, onlyModules)
 	if err != nil {
 		return errors.Wrap(err, "generation of metadata failed when populating the manifest file")
+	}
+
+	removeBuildParamsFromMta(targetPathGetter, mtaStr)
+	err = genMtad(mtaStr, ep, deploymentDesc, platform, yaml.Marshal)
+	if err != nil {
+		return errors.Wrap(err, "generation of metadata failed when generating the MTAD file")
 	}
 
 	return nil
@@ -84,4 +89,18 @@ func ConvertTypes(mtaStr mta.MTA, platformName string) error {
 		platform.ConvertTypes(mtaStr, platformCfg, platformName)
 	}
 	return err
+}
+
+
+func createMetaFolderIfNotExists(loc dir.ITargetArtifacts){
+	// Create META-INF folder under the mtar folder
+	metaPath := loc.GetMetaPath()
+
+	// if meta folder provided, mtad will be saved in this folder, so we create it if not exists
+	if metaPath != "" {
+		err := dir.CreateDirIfNotExist(metaPath)
+		if err != nil {
+			logs.Logger.Infof(`the "%v" folder already exists`, metaPath)
+		}
+	}
 }

@@ -21,8 +21,7 @@ module-types:
   - name: java
     info: "build java application"
     path: "path to config file which override the following default commands"
-    type:
-      - command: mvn -B package
+    builder: maven
 
   - name: nodejs
     info: "build nodejs application"

@@ -42,6 +42,12 @@ builders:
       - command: npm run build
       - command: npm prune --production
 
+  - name: maven
+    info: "build java application"
+    path: "path to config file which override the following default commands"
+    type:
+    - command: mvn -B package
+
   # ---dummy build-before commands testing purpose
   - name: cds
     info: "test"

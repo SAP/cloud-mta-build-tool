@@ -51,6 +51,7 @@ var _ = Describe("Mtar", func() {
 			ep := dir.Loc{SourcePath: getTestPath("mtahtml5"), TargetPath: getResultPath()}
 			os.MkdirAll(getTestPath("result", ".mtahtml5_mta_build_tmp", "testapp"), os.ModePerm)
 			os.MkdirAll(getTestPath("result", ".mtahtml5_mta_build_tmp", "ui5app2"), os.ModePerm)
+			os.MkdirAll(getTestPath("result", ".mtahtml5_mta_build_tmp", "META-INF"), os.ModePerm)
 			Ω(generateMeta(&ep, &ep, &ep, false, "cf", true)).Should(Succeed())
 			mtarPath, err := generateMtar(&ep, &ep, &ep, true, "")
 			Ω(err).Should(Succeed())

@@ -107,7 +107,7 @@ func ProcessRequirements(ep dir.ISourceModule, mta *mta.MTA, requires *BuildRequ
 	}
 
 	// Build paths for artifacts copying
-	sourcePath, err := GetBuildResultsPath(ep, requiredModule, defaultBuildResult)
+	sourcePath, _, err := GetBuildResultsPath(ep, requiredModule, defaultBuildResult)
 	if err != nil {
 		return errors.Wrapf(err,
 			`processing requirements of the "%v" module based on the "%v" module failed when getting the build results path`,
@@ -126,12 +126,12 @@ func ProcessRequirements(ep dir.ISourceModule, mta *mta.MTA, requires *BuildRequ
 }
 
 // GetBuildResultsPath - provides path of build results
-func GetBuildResultsPath(ep dir.ISourceModule, module *mta.Module, defaultBuildResult string) (string, error) {
+func GetBuildResultsPath(ep dir.ISourceModule, module *mta.Module, defaultBuildResult string) (string, bool, error) {
 	var path string
-	if module.Path != ""{
+	if module.Path != "" {
 		path = ep.GetSourceModuleDir(module.Path)
 	} else {
-		return "", nil
+		return "", false, nil
 	}
 
 	buildResultsDefined := false
@@ -148,13 +148,13 @@ func GetBuildResultsPath(ep dir.ISourceModule, module *mta.Module, defaultBuildR
 	if buildResultsDefined {
 		sourceEntries, err := filepath.Glob(path)
 		if err != nil {
-			return "", err
+			return "", false, err
 		} else if len(sourceEntries) == 0 {
-			return "", fmt.Errorf(`no entry found that matches the "%s" build results`, path)
+			return "", false, fmt.Errorf(`no entry found that matches the "%s" build results`, path)
 		}
-		return sourceEntries[0], nil
+		return sourceEntries[0], true, nil
 	}
-	return path, nil
+	return path, false, nil
 }
 
 // getRequiredTargetPath - provides path of required artifacts

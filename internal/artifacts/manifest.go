@@ -192,14 +192,19 @@ func getModulePath(module *mta.Module, targetPathGetter dir.ITargetPath, default
 	if existsModuleZipInDirectories(module, []string{loc.GetSource(), loc.GetTargetTmpDir()}) {
 		return filepath.ToSlash(module.Name + dataZip), nil
 	}
-	buildResultPath, err := buildops.GetBuildResultsPath(loc, module, defaultBuildResult)
+	buildResultPath, buildResultDefined, err := buildops.GetBuildResultsPath(loc, module, defaultBuildResult)
 	if err != nil {
 		return "", err
 	}
 	if buildResultPath == "" {
 		return module.Path, nil
 	}
-	return filepath.Base(buildResultPath), nil
+
+	if buildResultDefined {
+		return filepath.Join(module.Name, filepath.Base(buildResultPath)), nil
+	} else {
+		return filepath.Base(buildResultPath), nil
+	}
 }
 
 func existsModuleZipInDirectories(module *mta.Module, directories []string) bool {

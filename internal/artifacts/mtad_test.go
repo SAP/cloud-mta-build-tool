@@ -84,7 +84,7 @@ var _ = Describe("Mtad", func() {
 
 })
 
-var _ = Describe("adaptMtadForDeployment", func() {
+var _ = Describe("removeUndeployedModules", func() {
 	It("Sanity", func() {
 		mta := mta.MTA{
 			ID:      "mta_proj",
@@ -116,11 +116,10 @@ var _ = Describe("adaptMtadForDeployment", func() {
 				},
 			},
 		}
-		err := adaptMtadForDeployment(&testMtadLoc{}, &mta, "neo")
+		err := removeUndeployedModules(&mta, "neo")
 		Ω(err).Should(Succeed())
 		Ω(len(mta.Modules)).Should(Equal(1))
 		Ω(mta.Modules[0].Name).Should(Equal("htmlapp2"))
-		Ω(mta.Modules[0].Path).Should(Equal("htmlapp2"))
 		Ω(mta.Parameters["hcp-deployer-version"]).ShouldNot(BeNil())
 	})
 })
