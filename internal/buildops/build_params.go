@@ -127,7 +127,12 @@ func ProcessRequirements(ep dir.ISourceModule, mta *mta.MTA, requires *BuildRequ
 
 // GetBuildResultsPath - provides path of build results
 func GetBuildResultsPath(ep dir.ISourceModule, module *mta.Module, defaultBuildResult string) (string, error) {
-	path := ep.GetSourceModuleDir(module.Path)
+	var path string
+	if module.Path != ""{
+		path = ep.GetSourceModuleDir(module.Path)
+	} else {
+		return "", nil
+	}
 
 	buildResultsDefined := false
 	// if no sub-folder provided - build results will be saved in the module folder

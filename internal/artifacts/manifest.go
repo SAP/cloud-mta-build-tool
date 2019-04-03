@@ -15,6 +15,8 @@ import (
 	"github.com/SAP/cloud-mta-build-tool/internal/conttype"
 	"github.com/SAP/cloud-mta-build-tool/internal/tpl"
 	"github.com/SAP/cloud-mta-build-tool/internal/version"
+	"github.com/SAP/cloud-mta-build-tool/internal/buildops"
+	"github.com/SAP/cloud-mta-build-tool/internal/commands"
 )
 
 // The deployment descriptor should be located within the META-INF folder of the JAR.
@@ -57,13 +59,21 @@ func setManifestDesc(ep dir.ITargetArtifacts, targetPathGetter dir.ITargetPath, 
 		if !moduleDefined(mod.Name, modules) || mod.Name == "" {
 			continue
 		}
-		contentType, err := getContentType(targetPathGetter, getModulePath(mod, targetPathGetter), contentTypes)
+		_, defaultBuildResult, err := commands.CommandProvider(*mod)
+		if err != nil {
+			return err
+		}
+		modulePath, err := getModulePath(mod, targetPathGetter, defaultBuildResult)
+		if err != nil {
+			return err
+		}
+		contentType, err := getContentType(targetPathGetter, modulePath, contentTypes)
 		if err != nil {
 			return errors.Wrapf(err,
 				`failed to generate the manifest file when getting the "%s" module content type`, mod.Name)
 		}
 
-		entries = addModuleEntry(targetPathGetter, entries, mod, contentType)
+		entries = addModuleEntry(entries, mod, contentType, modulePath)
 
 		if onlyModules {
 			continue
@@ -90,9 +100,9 @@ func setManifestDesc(ep dir.ITargetArtifacts, targetPathGetter dir.ITargetPath, 
 	return genManifest(ep.GetManifestPath(), entries)
 }
 
-func addModuleEntry(targetPathGetter dir.ITargetPath, entries []entry, module *mta.Module, contentType string) []entry {
+func addModuleEntry(entries []entry, module *mta.Module, contentType, modulePath string) []entry {
 	result := entries
-	modulePath := getModulePath(module, targetPathGetter)
+
 	if modulePath != "" {
 		moduleEntry := entry{
 			EntryName:   module.Name,
@@ -177,12 +187,19 @@ func getResourcePath(resource *mta.Resource) string {
 	return resource.Parameters["path"].(string)
 }
 
-func getModulePath(module *mta.Module, targetPathGetter dir.ITargetPath) string {
+func getModulePath(module *mta.Module, targetPathGetter dir.ITargetPath, defaultBuildResult string) (string, error) {
 	loc := targetPathGetter.(*dir.Loc)
 	if existsModuleZipInDirectories(module, []string{loc.GetSource(), loc.GetTargetTmpDir()}) {
-		return filepath.ToSlash(module.Name + dataZip)
+		return filepath.ToSlash(module.Name + dataZip), nil
 	}
-	return module.Path
+	buildResultPath, err := buildops.GetBuildResultsPath(loc, module, defaultBuildResult)
+	if err != nil {
+		return "", err
+	}
+	if buildResultPath == "" {
+		return module.Path, nil
+	}
+	return filepath.Base(buildResultPath), nil
 }
 
 func existsModuleZipInDirectories(module *mta.Module, directories []string) bool {
