@@ -54,39 +54,9 @@ func setManifestDesc(ep dir.ITargetArtifacts, targetPathGetter dir.ITargetPath, 
 			"failed to generate the manifest file when getting the content types from the configuration")
 	}
 
-	var entries []entry
-	for _, mod := range mtaStr {
-		if !moduleDefined(mod.Name, modules) || mod.Name == "" {
-			continue
-		}
-		_, defaultBuildResult, err := commands.CommandProvider(*mod)
-		if err != nil {
-			return err
-		}
-		modulePath, err := getModulePath(mod, targetPathGetter, defaultBuildResult)
-		if err != nil {
-			return err
-		}
-		contentType, err := getContentType(targetPathGetter, modulePath, contentTypes)
-		if err != nil {
-			return errors.Wrapf(err,
-				`failed to generate the manifest file when getting the "%s" module content type`, mod.Name)
-		}
-
-		entries = addModuleEntry(entries, mod, contentType, modulePath)
-
-		if onlyModules {
-			continue
-		}
-		requiredDependenciesWithPath := getRequiredDependencies(mod)
-		requiredDependencyEntries, err :=
-			buildEntries(targetPathGetter, mod, requiredDependenciesWithPath, contentTypes)
-		if err != nil {
-			return errors.Wrapf(err,
-				`failed to generate the manifest file when building the required entries of the "%s" module`,
-				mod.Name)
-		}
-		entries = append(entries, requiredDependencyEntries...)
+	entries, err := getModulesEntries(targetPathGetter, mtaStr, contentTypes, modules, onlyModules)
+	if err != nil {
+		return err
 	}
 
 	if !onlyModules {
@@ -113,6 +83,46 @@ func addModuleEntry(entries []entry, module *mta.Module, contentType, modulePath
 		result = append(entries, moduleEntry)
 	}
 	return result
+}
+
+func getModulesEntries(targetPathGetter dir.ITargetPath, moduleList []*mta.Module,
+	contentTypes *conttype.ContentTypes, modules []string, onlyModules bool) ([]entry, error) {
+
+	var entries []entry
+	for _, mod := range moduleList {
+		if !moduleDefined(mod.Name, modules) || mod.Name == "" {
+			continue
+		}
+		_, defaultBuildResult, err := commands.CommandProvider(*mod)
+		if err != nil {
+			return nil, err
+		}
+		modulePath, err := getModulePath(mod, targetPathGetter, defaultBuildResult)
+		if err != nil {
+			return nil, err
+		}
+		contentType, err := getContentType(targetPathGetter, modulePath, contentTypes)
+		if err != nil {
+			return nil, errors.Wrapf(err,
+				`failed to generate the manifest file when getting the "%s" module content type`, mod.Name)
+		}
+
+		entries = addModuleEntry(entries, mod, contentType, modulePath)
+
+		if onlyModules {
+			continue
+		}
+		requiredDependenciesWithPath := getRequiredDependencies(mod)
+		requiredDependencyEntries, err :=
+			buildEntries(targetPathGetter, mod, requiredDependenciesWithPath, contentTypes)
+		if err != nil {
+			return nil, errors.Wrapf(err,
+				`failed to generate the manifest file when building the required entries of the "%s" module`,
+				mod.Name)
+		}
+		entries = append(entries, requiredDependencyEntries...)
+	}
+	return entries, nil
 }
 
 func getResourcesEntries(targetPathGetter dir.ITargetPath, resources []*mta.Resource,

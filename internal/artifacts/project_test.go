@@ -9,8 +9,8 @@ import (
 	. "github.com/onsi/gomega"
 	"gopkg.in/yaml.v2"
 
-	"github.com/SAP/cloud-mta-build-tool/internal/commands"
 	"github.com/SAP/cloud-mta/mta"
+	"github.com/SAP/cloud-mta-build-tool/internal/commands"
 )
 
 var _ = Describe("Project", func() {
@@ -88,8 +88,8 @@ builders:
 			BeforeEach(func() {
 				mtaFile, _ := ioutil.ReadFile("./testdata/mta/mta.yaml")
 				yaml.Unmarshal(mtaFile, oMta)
-				oMta.BuildParams.BeforeAll.Builders=nil
-				oMta.BuildParams.AfterAll.Builders=nil
+				oMta.BuildParams.BeforeAll.Builders = nil
+				oMta.BuildParams.AfterAll.Builders = nil
 			})
 			It("before-all builder", func() {
 				v := beforeExec(oMta.BuildParams)

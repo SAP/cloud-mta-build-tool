@@ -1,15 +1,15 @@
 package buildops
 
 import (
+	"fmt"
 	"path/filepath"
 	"reflect"
+	"strings"
 
 	"github.com/pkg/errors"
 
 	"github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta/mta"
-	"strings"
-	"fmt"
 	"github.com/SAP/cloud-mta-build-tool/internal/commands"
 )
 

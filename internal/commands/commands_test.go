@@ -274,7 +274,7 @@ modules:
 		It("Sanity", func() {
 			wd, _ := os.Getwd()
 			ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata")}
-			module, cmd,  _, err := GetModuleAndCommands(&ep, "node-js")
+			module, cmd, _, err := GetModuleAndCommands(&ep, "node-js")
 			Ω(err).Should(Succeed())
 			Ω(module.Name).Should(Equal("node-js"))
 			Ω(len(cmd)).Should(Equal(2))
@@ -285,21 +285,21 @@ modules:
 		It("Invalid case - wrong module name", func() {
 			wd, _ := os.Getwd()
 			ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata")}
-			_, _,  _, err := GetModuleAndCommands(&ep, "node-js1")
+			_, _, _, err := GetModuleAndCommands(&ep, "node-js1")
 			Ω(err).Should(HaveOccurred())
 
 		})
 		It("Invalid case - wrong mta", func() {
 			wd, _ := os.Getwd()
 			ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata"), MtaFilename: "mtaUnknown.yaml"}
-			_, _,  _, err := GetModuleAndCommands(&ep, "node-js")
+			_, _, _, err := GetModuleAndCommands(&ep, "node-js")
 			Ω(err).Should(HaveOccurred())
 
 		})
 		It("Invalid case - wrong type", func() {
 			wd, _ := os.Getwd()
 			ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata"), MtaFilename: "mtaUnknownBuilder.yaml"}
-			_, cmd,  _, _ := GetModuleAndCommands(&ep, "node-js")
+			_, cmd, _, _ := GetModuleAndCommands(&ep, "node-js")
 			Ω(len(cmd)).Should(Equal(0))
 
 		})
@@ -308,7 +308,7 @@ modules:
 			ModuleTypeConfig = []byte("wrong config")
 			wd, _ := os.Getwd()
 			ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata")}
-			_, _,  _, err := GetModuleAndCommands(&ep, "node-js")
+			_, _, _, err := GetModuleAndCommands(&ep, "node-js")
 			ModuleTypeConfig = conf
 			Ω(err).Should(HaveOccurred())
 		})
