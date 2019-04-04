@@ -10,6 +10,7 @@ import (
 
 	"github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta/mta"
+	"github.com/SAP/cloud-mta-build-tool/internal/commands"
 )
 
 var _ = Describe("BuildParams", func() {
@@ -70,6 +71,35 @@ var _ = Describe("BuildParams", func() {
 		Entry("Explicit Target Path", BuildRequires{TargetPath: "artifacts"}, mta.Module{Path: "mPath"}, filepath.Join("mPath", "artifacts")))
 
 	var _ = Describe("ProcessRequirements", func() {
+		wd, _ := os.Getwd()
+		ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata", "testproject"), TargetPath: filepath.Join(wd, "testdata", "result")}
+		require := BuildRequires{
+			Name:       "A",
+			TargetPath: "./b_copied_artifacts",
+		}
+		reqs := []BuildRequires{require}
+		mtaObj := mta.MTA{
+			Modules: []*mta.Module{
+				{
+					Name: "A",
+					Path: "ui5app",
+				},
+				{
+					Name: "B",
+					Path: "moduleB",
+					BuildParams: map[string]interface{}{
+						requiresParam: reqs,
+					},
+				},
+			},
+		}
+
+		It("wrong builders configuration", func() {
+			conf := commands.BuilderTypeConfig
+			commands.BuilderTypeConfig = []byte("bad bad bad")
+			Ω(ProcessRequirements(&ep, &mtaObj, &require, "B")).Should(HaveOccurred())
+			commands.BuilderTypeConfig = conf
+		})
 
 		AfterEach(func() {
 			wd, _ := os.Getwd()
@@ -77,29 +107,7 @@ var _ = Describe("BuildParams", func() {
 		})
 
 		var _ = DescribeTable("Valid cases", func(artifacts []string, expectedPath string) {
-			wd, _ := os.Getwd()
-			ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata", "testproject"), TargetPath: filepath.Join(wd, "testdata", "result")}
-			require := BuildRequires{
-				Name:       "A",
-				Artifacts:  artifacts,
-				TargetPath: "./b_copied_artifacts",
-			}
-			reqs := []BuildRequires{require}
-			mtaObj := mta.MTA{
-				Modules: []*mta.Module{
-					{
-						Name: "A",
-						Path: "ui5app",
-					},
-					{
-						Name: "B",
-						Path: "moduleB",
-						BuildParams: map[string]interface{}{
-							requiresParam: reqs,
-						},
-					},
-				},
-			}
+			require.Artifacts = artifacts
 			Ω(ProcessRequirements(&ep, &mtaObj, &require, "B")).Should(Succeed())
 			Ω(filepath.Join(wd, expectedPath)).Should(BeADirectory())
 			Ω(filepath.Join(wd, expectedPath, "webapp", "Component.js")).Should(BeAnExistingFile())
@@ -121,11 +129,6 @@ var _ = Describe("BuildParams", func() {
 				BuildRequires{Name: "C", Artifacts: []string{"*"}, TargetPath: "b_copied_artifacts"},
 				mta.MTA{Modules: []*mta.Module{{Name: "A", Path: "ui5app"}, {Name: "B", Path: "moduleB"}}},
 				"B", ""),
-			//Entry("Default build results defined but nothing matches it",
-			//	&dir.Loc{},
-			//	BuildRequires{Name: "B", Artifacts: []string{"*"}, TargetPath: "b_copied_artifacts"},
-			//	mta.MTA{Modules: []*mta.Module{{Name: "A", Path: "ui5app"}, {Name: "B", Path: "moduleB"}}},
-			//	"A", "abc.zip"),
 			Entry("Target path - file",
 				&dir.Loc{SourcePath: getTestPath("testbuildparams")},
 				BuildRequires{Name: "ui1", Artifacts: []string{"*"}, TargetPath: "file.txt"},
