@@ -66,11 +66,14 @@ func ExecuteGenMtad(source, target, platform string, wdGetter func() (string, er
 	// merge mta and extension objects
 	mta.Merge(mtaStr, mtaExt)
 	// init mtad object from the extended mta
-	err = adaptMtadForDeployment(loc, mtaStr, platform)
+	removeUndeployedModules(mtaStr, platform)
+
+	err = dir.CreateDirIfNotExist(loc.GetMetaPath())
 	if err != nil {
-		return errors.Wrap(err, `generation of the MTAD file failed`)
+		return err
 	}
 
+	removeBuildParamsFromMta(loc, mtaStr)
 	return genMtad(mtaStr, &mtadLoc{target}, false, platform, yaml.Marshal)
 }
 
@@ -86,16 +89,6 @@ func validatePlatform(platform string) (string, error) {
 func genMtad(mtaStr *mta.MTA, ep dir.ITargetArtifacts, deploymentDesc bool, platform string,
 	marshal func(interface{}) (out []byte, err error)) error {
 
-	// Create META-INF folder under the mtar folder
-	metaPath := ep.GetMetaPath()
-
-	// if meta folder provided, mtad will be saved in this folder, so we create it if not exists
-	if metaPath != "" {
-		err := dir.CreateDirIfNotExist(metaPath)
-		if err != nil {
-			logs.Logger.Infof(`the "%v" folder already exists`, metaPath)
-		}
-	}
 	if !deploymentDesc {
 		// convert modules types according to platform
 		err := ConvertTypes(*mtaStr, platform)
@@ -105,6 +98,7 @@ func genMtad(mtaStr *mta.MTA, ep dir.ITargetArtifacts, deploymentDesc bool, plat
 				platform)
 		}
 	}
+
 	// Create readable Yaml before writing to file
 	mtad, err := marshal(mtaStr)
 	if err != nil {
@@ -119,25 +113,12 @@ func genMtad(mtaStr *mta.MTA, ep dir.ITargetArtifacts, deploymentDesc bool, plat
 	return nil
 }
 
-// adaptMtadForDeployment - remove elements from MTA that are not relevant for MTAD
+// removeUndeployedModules - remove elements from MTA that are not relevant for MTAD
 // Function is used in process of deployment artifacts preparation
 // SupportedPlatforms of module's build parameters indicate if module has to be deployed
 // if SupportedPlatforms property defined with empty list of properties
 // module will not be packed, not listed in MTAD yaml and in manifest
-// if module has to be deployed we clean build parameters from module,
-// as this section is not used in MTAD yaml
-func adaptMtadForDeployment(loc dir.ITargetPath, mtaStr *mta.MTA, platform string) error {
-
-	for _, m := range mtaStr.Modules {
-		if buildops.PlatformDefined(m, platform) {
-			// remove build parameters from modules with defined platforms
-			m.BuildParams = map[string]interface{}{}
-			err := adaptModulePath(loc, m)
-			if err != nil {
-				return err
-			}
-		}
-	}
+func removeUndeployedModules(mtaStr *mta.MTA, platform string) {
 
 	// remove modules with no platforms defined
 	for doCleaning := true; doCleaning; {
@@ -159,6 +140,20 @@ func adaptMtadForDeployment(loc dir.ITargetPath, mtaStr *mta.MTA, platform strin
 		}
 		if mtaStr.Parameters["hcp-deployer-version"] == nil {
 			mtaStr.Parameters["hcp-deployer-version"] = "1.1.0"
+		}
+	}
+}
+
+// if module has to be deployed we clean build parameters from module,
+// as this section is not used in MTAD yaml
+func removeBuildParamsFromMta(loc dir.ITargetPath, mtaStr *mta.MTA) error {
+
+	for _, m := range mtaStr.Modules {
+		// remove build parameters from modules with defined platforms
+		m.BuildParams = map[string]interface{}{}
+		err := adaptModulePath(loc, m)
+		if err != nil {
+			return err
 		}
 	}
 	return nil

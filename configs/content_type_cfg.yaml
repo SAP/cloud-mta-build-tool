@@ -16,7 +16,7 @@ content-types:
   content-type: "application/json"
 
 - extension: .war
-  content-type: "application/zip"
+  content-type: "application/war"
 
 - extension: .jar
   content-type: "application/zip"

@@ -49,12 +49,12 @@ func ExecutePack(source, target, desc, moduleName, platform string, wdGetter fun
 		return err
 	}
 
-	module, _, err := commands.GetModuleAndCommands(loc, moduleName)
+	module, _, defaultBuildResult, err := commands.GetModuleAndCommands(loc, moduleName)
 	if err != nil {
 		return errors.Wrapf(err, `packing of the "%v" module failed when getting commands`, moduleName)
 	}
 
-	err = packModule(loc, loc.IsDeploymentDescriptor(), module, moduleName, platform)
+	err = packModule(loc, loc.IsDeploymentDescriptor(), module, moduleName, platform, defaultBuildResult)
 	if err != nil {
 		return err
 	}
@@ -66,7 +66,7 @@ func ExecutePack(source, target, desc, moduleName, platform string, wdGetter fun
 func buildModule(mtaParser dir.IMtaParser, moduleLoc dir.IModule, deploymentDesc bool, moduleName, platform string) error {
 
 	// Get module respective command's to execute
-	module, mCmd, err := commands.GetModuleAndCommands(mtaParser, moduleName)
+	module, mCmd, defaultBuildResults, err := commands.GetModuleAndCommands(mtaParser, moduleName)
 	if err != nil {
 		return errors.Wrapf(err, `build of the "%v" module failed when getting commands`, moduleName)
 	}
@@ -94,7 +94,7 @@ func buildModule(mtaParser dir.IMtaParser, moduleLoc dir.IModule, deploymentDesc
 
 		// 3. Packing the modules build artifacts (include node modules)
 		// into the artifactsPath dir as data zip
-		e = packModule(moduleLoc, false, module, moduleName, platform)
+		e = packModule(moduleLoc, false, module, moduleName, platform, defaultBuildResults)
 		if e != nil {
 			return e
 		}
@@ -111,7 +111,7 @@ func buildModule(mtaParser dir.IMtaParser, moduleLoc dir.IModule, deploymentDesc
 }
 
 // packModule - pack build module artifacts
-func packModule(ep dir.IModule, deploymentDesc bool, module *mta.Module, moduleName, platform string) error {
+func packModule(ep dir.IModule, deploymentDesc bool, module *mta.Module, moduleName, platform, defaultBuildResult string) error {
 
 	if !buildops.PlatformDefined(module, platform) {
 		return nil
@@ -133,14 +133,37 @@ func packModule(ep dir.IModule, deploymentDesc bool, module *mta.Module, moduleN
 	}
 	// zipping the build artifacts
 	logs.Logger.Infof(`zipping the %v module...`, moduleName)
-	moduleZipFullPath := moduleZipPath + dataZip
-	sourceModuleDir := buildops.GetBuildResultsPath(ep, module)
+	buildResults, _, err := buildops.GetBuildResultsPath(ep, module, defaultBuildResult)
+	if err != nil {
+		return errors.Wrapf(err, `packing of the "%v" module failed while getting the build results path`,
+			moduleName)
+	}
 
-	err = dir.Archive(sourceModuleDir, moduleZipFullPath)
+	entry, err := os.Stat(buildResults)
+	if err != nil {
+		return errors.Wrapf(err, `packing of the "%v" module failed; the "%v" build results path does not exist`,
+			moduleName, buildResults)
+	}
+	if !entry.IsDir() && isArchive(buildResults) {
+		err = dir.CopyFile(buildResults, filepath.Join(moduleZipPath, filepath.Base(buildResults)))
+		if err != nil {
+			return errors.Wrapf(err, `packing of the "%v" module failed when copying the "%s" path to the "%s" folder`,
+				moduleName, buildResults, moduleZipPath)
+		}
+		return nil
+	}
+
+	moduleZipFullPath := moduleZipPath + dataZip
+	err = dir.Archive(buildResults, moduleZipFullPath)
 	if err != nil {
 		return errors.Wrapf(err, `packing of the "%v" module failed when archiving`, moduleName)
 	}
 	return nil
+}
+
+func isArchive(path string) bool {
+	ext := filepath.Ext(path)
+	return ext == ".zip" || ext == ".jar" || ext == ".war"
 }
 
 // copyModuleArchive - copies module archive to temp directory

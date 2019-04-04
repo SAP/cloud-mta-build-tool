@@ -83,6 +83,24 @@ builders:
 				Ω(v).Should(Equal("otherbuilder"))
 			})
 		})
+		Context("pre & post builder commands - no builders defined", func() {
+			oMta := &mta.MTA{}
+			BeforeEach(func() {
+				mtaFile, _ := ioutil.ReadFile("./testdata/mta/mta.yaml")
+				yaml.Unmarshal(mtaFile, oMta)
+				oMta.BuildParams.BeforeAll.Builders = nil
+				oMta.BuildParams.AfterAll.Builders = nil
+			})
+			It("before-all builder", func() {
+				v := beforeExec(oMta.BuildParams)
+				Ω(v).Should(Equal(""))
+			})
+
+			It("after-all builder", func() {
+				v := afterExec(oMta.BuildParams)
+				Ω(v).Should(Equal(""))
+			})
+		})
 	})
 
 })

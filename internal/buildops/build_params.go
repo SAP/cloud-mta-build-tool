@@ -1,14 +1,16 @@
 package buildops
 
 import (
+	"fmt"
 	"path/filepath"
 	"reflect"
+	"strings"
 
 	"github.com/pkg/errors"
 
 	"github.com/SAP/cloud-mta-build-tool/internal/archive"
+	"github.com/SAP/cloud-mta-build-tool/internal/commands"
 	"github.com/SAP/cloud-mta/mta"
-	"strings"
 )
 
 const (
@@ -27,16 +29,6 @@ type BuildRequires struct {
 	Name       string   `yaml:"name,omitempty"`
 	Artifacts  []string `yaml:"artifacts,omitempty"`
 	TargetPath string   `yaml:"target-path,omitempty"`
-}
-
-// GetBuilder - gets builder type of the module and indicator of custom builder
-func GetBuilder(module *mta.Module) (string, bool) {
-	// builder defined in build params is prioritised
-	if module.BuildParams != nil && module.BuildParams[builderParam] != nil {
-		return module.BuildParams[builderParam].(string), true
-	}
-	// default builder is defined by type property of the module
-	return module.Type, false
 }
 
 // getBuildRequires - gets Requires property of module's build-params property
@@ -105,8 +97,20 @@ func ProcessRequirements(ep dir.ISourceModule, mta *mta.MTA, requires *BuildRequ
 			moduleName, requires.Name, requires.Name)
 	}
 
+	_, defaultBuildResult, err := commands.CommandProvider(*requiredModule)
+	if err != nil {
+		return errors.Wrapf(err,
+			`processing requirements of the "%v" module based on the "%v" module failed when getting the "%v" module commands`,
+			moduleName, requires.Name, requires.Name)
+	}
+
 	// Build paths for artifacts copying
-	sourcePath := GetBuildResultsPath(ep, requiredModule)
+	sourcePath, _, err := GetBuildResultsPath(ep, requiredModule, defaultBuildResult)
+	if err != nil {
+		return errors.Wrapf(err,
+			`processing requirements of the "%v" module based on the "%v" module failed when getting the build results path`,
+			moduleName, requires.Name)
+	}
 	targetPath := getRequiredTargetPath(ep, module, requires)
 
 	// execute copy of artifacts
@@ -120,15 +124,35 @@ func ProcessRequirements(ep dir.ISourceModule, mta *mta.MTA, requires *BuildRequ
 }
 
 // GetBuildResultsPath - provides path of build results
-func GetBuildResultsPath(ep dir.ISourceModule, module *mta.Module) string {
-	path := ep.GetSourceModuleDir(module.Path)
+func GetBuildResultsPath(ep dir.ISourceModule, module *mta.Module, defaultBuildResult string) (string, bool, error) {
+	var path string
+	if module.Path != "" {
+		path = ep.GetSourceModuleDir(module.Path)
+	} else {
+		return "", false, nil
+	}
 
+	buildResultsDefined := false
 	// if no sub-folder provided - build results will be saved in the module folder
 	if module.BuildParams != nil && module.BuildParams[buildResultParam] != nil {
 		// if sub-folder provided - build results are located in the subfolder of the module folder
 		path = filepath.Join(path, module.BuildParams[buildResultParam].(string))
+		buildResultsDefined = true
+	} else if defaultBuildResult != "" {
+		path = filepath.Join(path, defaultBuildResult)
+		buildResultsDefined = true
 	}
-	return path
+
+	if buildResultsDefined {
+		sourceEntries, err := filepath.Glob(path)
+		if err != nil {
+			return "", false, err
+		} else if len(sourceEntries) == 0 {
+			return "", false, fmt.Errorf(`no entry found that matches the "%s" build results`, path)
+		}
+		return sourceEntries[0], true, nil
+	}
+	return path, false, nil
 }
 
 // getRequiredTargetPath - provides path of required artifacts

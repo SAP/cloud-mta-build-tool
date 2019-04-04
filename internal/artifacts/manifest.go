@@ -12,6 +12,8 @@ import (
 	"github.com/SAP/cloud-mta/mta"
 
 	"github.com/SAP/cloud-mta-build-tool/internal/archive"
+	"github.com/SAP/cloud-mta-build-tool/internal/buildops"
+	"github.com/SAP/cloud-mta-build-tool/internal/commands"
 	"github.com/SAP/cloud-mta-build-tool/internal/conttype"
 	"github.com/SAP/cloud-mta-build-tool/internal/tpl"
 	"github.com/SAP/cloud-mta-build-tool/internal/version"
@@ -52,31 +54,9 @@ func setManifestDesc(ep dir.ITargetArtifacts, targetPathGetter dir.ITargetPath, 
 			"failed to generate the manifest file when getting the content types from the configuration")
 	}
 
-	var entries []entry
-	for _, mod := range mtaStr {
-		if !moduleDefined(mod.Name, modules) || mod.Name == "" {
-			continue
-		}
-		contentType, err := getContentType(targetPathGetter, getModulePath(mod, targetPathGetter), contentTypes)
-		if err != nil {
-			return errors.Wrapf(err,
-				`failed to generate the manifest file when getting the "%s" module content type`, mod.Name)
-		}
-
-		entries = addModuleEntry(targetPathGetter, entries, mod, contentType)
-
-		if onlyModules {
-			continue
-		}
-		requiredDependenciesWithPath := getRequiredDependencies(mod)
-		requiredDependencyEntries, err :=
-			buildEntries(targetPathGetter, mod, requiredDependenciesWithPath, contentTypes)
-		if err != nil {
-			return errors.Wrapf(err,
-				`failed to generate the manifest file when building the required entries of the "%s" module`,
-				mod.Name)
-		}
-		entries = append(entries, requiredDependencyEntries...)
+	entries, err := getModulesEntries(targetPathGetter, mtaStr, contentTypes, modules, onlyModules)
+	if err != nil {
+		return err
 	}
 
 	if !onlyModules {
@@ -90,9 +70,9 @@ func setManifestDesc(ep dir.ITargetArtifacts, targetPathGetter dir.ITargetPath, 
 	return genManifest(ep.GetManifestPath(), entries)
 }
 
-func addModuleEntry(targetPathGetter dir.ITargetPath, entries []entry, module *mta.Module, contentType string) []entry {
+func addModuleEntry(entries []entry, module *mta.Module, contentType, modulePath string) []entry {
 	result := entries
-	modulePath := getModulePath(module, targetPathGetter)
+
 	if modulePath != "" {
 		moduleEntry := entry{
 			EntryName:   module.Name,
@@ -103,6 +83,46 @@ func addModuleEntry(targetPathGetter dir.ITargetPath, entries []entry, module *m
 		result = append(entries, moduleEntry)
 	}
 	return result
+}
+
+func getModulesEntries(targetPathGetter dir.ITargetPath, moduleList []*mta.Module,
+	contentTypes *conttype.ContentTypes, modules []string, onlyModules bool) ([]entry, error) {
+
+	var entries []entry
+	for _, mod := range moduleList {
+		if !moduleDefined(mod.Name, modules) || mod.Name == "" {
+			continue
+		}
+		_, defaultBuildResult, err := commands.CommandProvider(*mod)
+		if err != nil {
+			return nil, err
+		}
+		modulePath, err := getModulePath(mod, targetPathGetter, defaultBuildResult)
+		if err != nil {
+			return nil, err
+		}
+		contentType, err := getContentType(targetPathGetter, modulePath, contentTypes)
+		if err != nil {
+			return nil, errors.Wrapf(err,
+				`failed to generate the manifest file when getting the "%s" module content type`, mod.Name)
+		}
+
+		entries = addModuleEntry(entries, mod, contentType, modulePath)
+
+		if onlyModules {
+			continue
+		}
+		requiredDependenciesWithPath := getRequiredDependencies(mod)
+		requiredDependencyEntries, err :=
+			buildEntries(targetPathGetter, mod, requiredDependenciesWithPath, contentTypes)
+		if err != nil {
+			return nil, errors.Wrapf(err,
+				`failed to generate the manifest file when building the required entries of the "%s" module`,
+				mod.Name)
+		}
+		entries = append(entries, requiredDependencyEntries...)
+	}
+	return entries, nil
 }
 
 func getResourcesEntries(targetPathGetter dir.ITargetPath, resources []*mta.Resource,
@@ -177,12 +197,23 @@ func getResourcePath(resource *mta.Resource) string {
 	return resource.Parameters["path"].(string)
 }
 
-func getModulePath(module *mta.Module, targetPathGetter dir.ITargetPath) string {
+func getModulePath(module *mta.Module, targetPathGetter dir.ITargetPath, defaultBuildResult string) (string, error) {
 	loc := targetPathGetter.(*dir.Loc)
-	if existsModuleZipInDirectories(module, []string{loc.GetSource(), loc.GetTargetTmpDir()}) {
-		return filepath.ToSlash(module.Name + dataZip)
+
+	// get build results path - defined in build-params property or in
+	buildResultPath, buildResultDefined, err := buildops.GetBuildResultsPath(loc, module, defaultBuildResult)
+	if err != nil {
+		return "", err
 	}
-	return module.Path
+	if buildResultPath == "" {
+		// module path not defined
+		return module.Path, nil
+	} else if buildResultDefined {
+		return filepath.ToSlash(filepath.Join(module.Name, filepath.Base(buildResultPath))), nil
+	} else if existsModuleZipInDirectories(module, []string{loc.GetSource(), loc.GetTargetTmpDir()}) {
+		return filepath.ToSlash(module.Name + dataZip), nil
+	}
+	return filepath.Base(buildResultPath), nil
 }
 
 func existsModuleZipInDirectories(module *mta.Module, directories []string) bool {
