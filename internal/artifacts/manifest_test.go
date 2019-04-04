@@ -84,6 +84,8 @@ var _ = Describe("manifest", func() {
 		})
 		It("Sanity - with list of modules provided; second module ignored", func() {
 			os.Mkdir(getTestPath("result", ".mta_mta_build_tmp", "node-js"), os.ModePerm)
+			file, _ := os.Create(getTestPath("result", ".mta_mta_build_tmp", "node-js", "data.zip"))
+			file.Close()
 			dirC, _ := ioutil.ReadDir(getTestPath("result", ".mta_mta_build_tmp"))
 			for _, c := range dirC {
 				fmt.Println(c.Name())
