@@ -75,7 +75,7 @@ func buildModule(mtaParser dir.IMtaParser, moduleLoc dir.IModule, deploymentDesc
 
 		// Development descriptor - build includes:
 		// 1. module dependencies processing
-		e := buildops.ProcessDependencies(mtaParser, moduleLoc, moduleName, defaultBuildResults)
+		e := buildops.ProcessDependencies(mtaParser, moduleLoc, moduleName)
 		if e != nil {
 			return errors.Wrapf(e, `build of the "%v" module failed when processing dependencies`, moduleName)
 		}

@@ -100,7 +100,7 @@ var _ = Describe("BuildParams", func() {
 					},
 				},
 			}
-			Ω(ProcessRequirements(&ep, &mtaObj, &require, "B", "")).Should(Succeed())
+			Ω(ProcessRequirements(&ep, &mtaObj, &require, "B")).Should(Succeed())
 			Ω(filepath.Join(wd, expectedPath)).Should(BeADirectory())
 			Ω(filepath.Join(wd, expectedPath, "webapp", "Component.js")).Should(BeAnExistingFile())
 		},
@@ -109,7 +109,7 @@ var _ = Describe("BuildParams", func() {
 			Entry("Require All From Parent", []string{"."}, filepath.Join("testdata", "testproject", "moduleB", "b_copied_artifacts", "ui5app")))
 
 		var _ = DescribeTable("Invalid cases", func(lp *dir.Loc, require BuildRequires, mtaObj mta.MTA, moduleName, buildResult string) {
-			Ω(ProcessRequirements(lp, &mtaObj, &require, moduleName, buildResult)).Should(HaveOccurred())
+			Ω(ProcessRequirements(lp, &mtaObj, &require, moduleName)).Should(HaveOccurred())
 		},
 			Entry("Module not defined",
 				&dir.Loc{},
@@ -121,11 +121,11 @@ var _ = Describe("BuildParams", func() {
 				BuildRequires{Name: "C", Artifacts: []string{"*"}, TargetPath: "b_copied_artifacts"},
 				mta.MTA{Modules: []*mta.Module{{Name: "A", Path: "ui5app"}, {Name: "B", Path: "moduleB"}}},
 				"B", ""),
-			Entry("Default build results defined but nothing matches it",
-				&dir.Loc{},
-				BuildRequires{Name: "B", Artifacts: []string{"*"}, TargetPath: "b_copied_artifacts"},
-				mta.MTA{Modules: []*mta.Module{{Name: "A", Path: "ui5app"}, {Name: "B", Path: "moduleB"}}},
-				"A", "abc.zip"),
+			//Entry("Default build results defined but nothing matches it",
+			//	&dir.Loc{},
+			//	BuildRequires{Name: "B", Artifacts: []string{"*"}, TargetPath: "b_copied_artifacts"},
+			//	mta.MTA{Modules: []*mta.Module{{Name: "A", Path: "ui5app"}, {Name: "B", Path: "moduleB"}}},
+			//	"A", "abc.zip"),
 			Entry("Target path - file",
 				&dir.Loc{SourcePath: getTestPath("testbuildparams")},
 				BuildRequires{Name: "ui1", Artifacts: []string{"*"}, TargetPath: "file.txt"},
@@ -150,7 +150,7 @@ var _ = Describe("Process complex list of requirements", func() {
 		for _, m := range mtaObj.Modules {
 			if m.Name == "node" {
 				for _, r := range getBuildRequires(m) {
-					ProcessRequirements(&lp, mtaObj, &r, "node", "")
+					ProcessRequirements(&lp, mtaObj, &r, "node")
 				}
 			}
 		}
@@ -218,31 +218,6 @@ var _ = Describe("PlatformDefined", func() {
 			},
 		}
 		Ω(PlatformDefined(&m, "cf")).Should(Equal(false))
-	})
-})
-
-var _ = Describe("GetBuilder", func() {
-	It("Builder defined by type", func() {
-		m := mta.Module{
-			Name: "x",
-			Type: "node-js",
-			BuildParams: map[string]interface{}{
-				SupportedPlatformsParam: []string{},
-			},
-		}
-		Ω(GetBuilder(&m)).Should(Equal("node-js"))
-	})
-	It("Builder defined by build params", func() {
-		m := mta.Module{
-			Name: "x",
-			Type: "node-js",
-			BuildParams: map[string]interface{}{
-				builderParam: "npm",
-			},
-		}
-		builder, custom := GetBuilder(&m)
-		Ω(builder).Should(Equal("npm"))
-		Ω(custom).Should(Equal(true))
 	})
 })
 

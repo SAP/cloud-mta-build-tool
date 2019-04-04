@@ -38,7 +38,7 @@ func ProvideModules(source, desc string, wdGetter func() (string, error)) error 
 // ProcessDependencies - processes module dependencies
 // function prepares all artifacts required for module
 // copying them from required modules
-func ProcessDependencies(mtaParser dir.IMtaParser, moduleSource dir.ISourceModule, moduleName, defaultBuildResult string) error {
+func ProcessDependencies(mtaParser dir.IMtaParser, moduleSource dir.ISourceModule, moduleName string) error {
 	m, err := mtaParser.ParseFile()
 	if err != nil {
 		return err
@@ -50,7 +50,7 @@ func ProcessDependencies(mtaParser dir.IMtaParser, moduleSource dir.ISourceModul
 	requires := getBuildRequires(module)
 	if len(requires) > 0 {
 		for _, req := range requires {
-			e := ProcessRequirements(moduleSource, m, &req, module.Name, defaultBuildResult)
+			e := ProcessRequirements(moduleSource, m, &req, module.Name)
 			if e != nil {
 				return e
 			}

@@ -314,3 +314,25 @@ modules:
 		})
 	})
 })
+
+var _ = Describe("GetBuilder", func() {
+	It("Builder defined by type", func() {
+		m := mta.Module{
+			Name: "x",
+			Type: "node-js",
+		}
+		Ω(GetBuilder(&m)).Should(Equal("node-js"))
+	})
+	It("Builder defined by build params", func() {
+		m := mta.Module{
+			Name: "x",
+			Type: "node-js",
+			BuildParams: map[string]interface{}{
+				builderParam: "npm",
+			},
+		}
+		builder, custom := GetBuilder(&m)
+		Ω(builder).Should(Equal("npm"))
+		Ω(custom).Should(Equal(true))
+	})
+})

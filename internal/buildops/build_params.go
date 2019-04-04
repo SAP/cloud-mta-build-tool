@@ -10,6 +10,7 @@ import (
 	"github.com/SAP/cloud-mta/mta"
 	"strings"
 	"fmt"
+	"github.com/SAP/cloud-mta-build-tool/internal/commands"
 )
 
 const (
@@ -28,16 +29,6 @@ type BuildRequires struct {
 	Name       string   `yaml:"name,omitempty"`
 	Artifacts  []string `yaml:"artifacts,omitempty"`
 	TargetPath string   `yaml:"target-path,omitempty"`
-}
-
-// GetBuilder - gets builder type of the module and indicator of custom builder
-func GetBuilder(module *mta.Module) (string, bool) {
-	// builder defined in build params is prioritised
-	if module.BuildParams != nil && module.BuildParams[builderParam] != nil {
-		return module.BuildParams[builderParam].(string), true
-	}
-	// default builder is defined by type property of the module
-	return module.Type, false
 }
 
 // getBuildRequires - gets Requires property of module's build-params property
@@ -89,7 +80,7 @@ func getStrParam(m map[interface{}]interface{}, param string) string {
 // 2.	Dependency on not defined module
 
 // ProcessRequirements - Processes build requirement of module (using moduleName).
-func ProcessRequirements(ep dir.ISourceModule, mta *mta.MTA, requires *BuildRequires, moduleName, defaultBuildResult string) error {
+func ProcessRequirements(ep dir.ISourceModule, mta *mta.MTA, requires *BuildRequires, moduleName string) error {
 
 	// validate module names - both in process and required
 	module, err := mta.GetModuleByName(moduleName)
@@ -103,6 +94,13 @@ func ProcessRequirements(ep dir.ISourceModule, mta *mta.MTA, requires *BuildRequ
 	if err != nil {
 		return errors.Wrapf(err,
 			`processing requirements of the "%v" module based on the "%v" module failed when getting the "%v" module`,
+			moduleName, requires.Name, requires.Name)
+	}
+
+	_, defaultBuildResult, err := commands.CommandProvider(*requiredModule)
+	if err != nil {
+		return errors.Wrapf(err,
+			`processing requirements of the "%v" module based on the "%v" module failed when getting the "%v" module commands`,
 			moduleName, requires.Name, requires.Name)
 	}
 

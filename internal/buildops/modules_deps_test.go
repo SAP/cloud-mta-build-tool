@@ -25,23 +25,23 @@ var _ = Describe("ModulesDeps", func() {
 
 		It("Sanity", func() {
 			ep := dir.Loc{SourcePath: getTestPath("mtahtml5"), TargetPath: getTestPath("result"), MtaFilename: "mtaWithBuildParams.yaml"}
-			Ω(ProcessDependencies(&ep, &ep, "ui5app", "")).Should(Succeed())
+			Ω(ProcessDependencies(&ep, &ep, "ui5app")).Should(Succeed())
 		})
 		It("Invalid artifacts", func() {
 			ep := dir.Loc{SourcePath: getTestPath("mtahtml5"), TargetPath: getTestPath("result"), MtaFilename: "mtaWithBuildParamsWithWrongArtifacts.yaml"}
-			Ω(ProcessDependencies(&ep, &ep, "ui5app", "")).Should(HaveOccurred())
+			Ω(ProcessDependencies(&ep, &ep, "ui5app")).Should(HaveOccurred())
 		})
 		It("Invalid mta", func() {
 			ep := dir.Loc{SourcePath: getTestPath("mtahtml5"), MtaFilename: "mta1.yaml"}
-			Ω(ProcessDependencies(&ep, &ep, "ui5app", "")).Should(HaveOccurred())
+			Ω(ProcessDependencies(&ep, &ep, "ui5app")).Should(HaveOccurred())
 		})
 		It("Invalid module name", func() {
 			ep := dir.Loc{SourcePath: getTestPath("mtahtml5")}
-			Ω(ProcessDependencies(&ep, &ep, "xxx", "")).Should(HaveOccurred())
+			Ω(ProcessDependencies(&ep, &ep, "xxx")).Should(HaveOccurred())
 		})
 		It("Invalid module name", func() {
 			ep := dir.Loc{SourcePath: getTestPath("mtahtml5"), MtaFilename: "mtaWithWrongBuildParams.yaml"}
-			Ω(ProcessDependencies(&ep, &ep, "ui5app", "")).Should(HaveOccurred())
+			Ω(ProcessDependencies(&ep, &ep, "ui5app")).Should(HaveOccurred())
 		})
 	})
 

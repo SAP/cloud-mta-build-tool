@@ -9,13 +9,26 @@ import (
 	"github.com/SAP/cloud-mta/mta"
 
 	"github.com/SAP/cloud-mta-build-tool/internal/archive"
-	"github.com/SAP/cloud-mta-build-tool/internal/buildops"
+)
+
+const (
+	builderParam = "builder"
 )
 
 // CommandList - list of command to execute
 type CommandList struct {
 	Info    string
 	Command []string
+}
+
+// GetBuilder - gets builder type of the module and indicator of custom builder
+func GetBuilder(module *mta.Module) (string, bool) {
+	// builder defined in build params is prioritised
+	if module.BuildParams != nil && module.BuildParams[builderParam] != nil {
+		return module.BuildParams[builderParam].(string), true
+	}
+	// default builder is defined by type property of the module
+	return module.Type, false
 }
 
 // CommandProvider - Get build command's to execute
@@ -42,7 +55,7 @@ func mesh(module *mta.Module, moduleTypes *ModuleTypes, builderTypes Builders) (
 
 	// get builder - module type name or custom builder if defined
 	// and indicator if custom builder
-	builder, custom := buildops.GetBuilder(module)
+	builder, custom := GetBuilder(module)
 
 	// if module type used - get from module types configuration corresponding commands or custom builder if defined
 	if !custom {
