@@ -199,7 +199,7 @@ func getModulePath(module *mta.Module, targetPathGetter dir.ITargetPath, default
 		// module path not defined
 		return module.Path, nil
 	} else if buildResultDefined {
-		return filepath.Join(module.Name, filepath.Base(buildResultPath)), nil
+		return filepath.ToSlash(filepath.Join(module.Name, filepath.Base(buildResultPath))), nil
 	} else if existsModuleZipInDirectories(module, []string{loc.GetSource(), loc.GetTargetTmpDir()}) {
 		return filepath.ToSlash(module.Name + dataZip), nil
 	}
