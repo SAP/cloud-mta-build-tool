@@ -12,10 +12,10 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/SAP/cloud-mta-build-tool/internal/archive"
+	"github.com/SAP/cloud-mta-build-tool/internal/commands"
 	"github.com/SAP/cloud-mta-build-tool/internal/conttype"
 	"github.com/SAP/cloud-mta-build-tool/internal/version"
 	"strings"
-	"github.com/SAP/cloud-mta-build-tool/internal/commands"
 )
 
 var _ = Describe("manifest", func() {

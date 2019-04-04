@@ -12,11 +12,11 @@ import (
 	"github.com/SAP/cloud-mta/mta"
 
 	"github.com/SAP/cloud-mta-build-tool/internal/archive"
+	"github.com/SAP/cloud-mta-build-tool/internal/buildops"
+	"github.com/SAP/cloud-mta-build-tool/internal/commands"
 	"github.com/SAP/cloud-mta-build-tool/internal/conttype"
 	"github.com/SAP/cloud-mta-build-tool/internal/tpl"
 	"github.com/SAP/cloud-mta-build-tool/internal/version"
-	"github.com/SAP/cloud-mta-build-tool/internal/buildops"
-	"github.com/SAP/cloud-mta-build-tool/internal/commands"
 )
 
 // The deployment descriptor should be located within the META-INF folder of the JAR.
@@ -200,7 +200,7 @@ func getResourcePath(resource *mta.Resource) string {
 func getModulePath(module *mta.Module, targetPathGetter dir.ITargetPath, defaultBuildResult string) (string, error) {
 	loc := targetPathGetter.(*dir.Loc)
 
-	// get build results path - defined in build-params property or in 
+	// get build results path - defined in build-params property or in
 	buildResultPath, buildResultDefined, err := buildops.GetBuildResultsPath(loc, module, defaultBuildResult)
 	if err != nil {
 		return "", err

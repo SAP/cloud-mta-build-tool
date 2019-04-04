@@ -8,9 +8,9 @@ import (
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
 
-	"github.com/SAP/cloud-mta/mta"
 	"github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta-build-tool/internal/commands"
+	"github.com/SAP/cloud-mta/mta"
 )
 
 var _ = Describe("BuildParams", func() {
@@ -29,8 +29,7 @@ var _ = Describe("BuildParams", func() {
 				}, "controller"))
 
 		It("empty path, no build results", func() {
-			module := &mta.Module{
-			}
+			module := &mta.Module{}
 			buildResult, _, _ := GetBuildResultsPath(
 				&dir.Loc{SourcePath: getTestPath("testbuildparams", "ui2", "deep", "folder")}, module, "")
 			Ω(buildResult).Should(Equal(""))

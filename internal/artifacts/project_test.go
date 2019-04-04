@@ -9,8 +9,8 @@ import (
 	. "github.com/onsi/gomega"
 	"gopkg.in/yaml.v2"
 
-	"github.com/SAP/cloud-mta/mta"
 	"github.com/SAP/cloud-mta-build-tool/internal/commands"
+	"github.com/SAP/cloud-mta/mta"
 )
 
 var _ = Describe("Project", func() {
