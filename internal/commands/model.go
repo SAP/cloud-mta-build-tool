@@ -7,11 +7,11 @@ type Builders struct {
 }
 
 type builder struct {
-	Name         string    `yaml:"name"`
-	Info         string    `yaml:"info"`
-	Path         string    `yaml:"path"`
-	Commands     []Command `yaml:"commands,omitempty"`
-	BuildResult  string    `yaml:"build-result,omitempty"`
+	Name        string    `yaml:"name"`
+	Info        string    `yaml:"info"`
+	Path        string    `yaml:"path"`
+	Commands    []Command `yaml:"commands,omitempty"`
+	BuildResult string    `yaml:"build-result,omitempty"`
 }
 
 // Command - specific command
