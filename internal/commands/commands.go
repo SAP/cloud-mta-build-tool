@@ -50,7 +50,7 @@ func CommandProvider(modules mta.Module) (CommandList, string, error) {
 func mesh(module *mta.Module, moduleTypes *ModuleTypes, builderTypes Builders) (CommandList, string, error) {
 	// The object support deep struct for future use, can be simplified to flat object
 	var cmds CommandList
-	var commands []Commands
+	var commands []Command
 	var err error
 
 	// get builder - module type name or custom builder if defined
@@ -64,7 +64,7 @@ func mesh(module *mta.Module, moduleTypes *ModuleTypes, builderTypes Builders) (
 				if m.Builder != "" {
 					// custom builder defined
 					// check that no commands defined for module type
-					if m.Type != nil && len(m.Type) > 0 {
+					if m.Commands != nil && len(m.Commands) > 0 {
 						return cmds, "", fmt.Errorf(
 							"the module type definition can include either the builder or the commands; the %s module type includes both",
 							m.Name)
@@ -75,7 +75,7 @@ func mesh(module *mta.Module, moduleTypes *ModuleTypes, builderTypes Builders) (
 				} else {
 					// get related information
 					cmds.Info = m.Info
-					commands = m.Type
+					commands = m.Commands
 				}
 			}
 		}
@@ -98,10 +98,10 @@ func mesh(module *mta.Module, moduleTypes *ModuleTypes, builderTypes Builders) (
 	return cmds, buildResults, nil
 }
 
-func getCustomCommandsByBuilder(customCommands Builders, builder string) ([]Commands, string, string, error) {
+func getCustomCommandsByBuilder(customCommands Builders, builder string) ([]Command, string, string, error) {
 	for _, b := range customCommands.Builders {
 		if builder == b.Name {
-			return b.Type, b.Info, b.BuildResult, nil
+			return b.Commands, b.Info, b.BuildResult, nil
 		}
 	}
 

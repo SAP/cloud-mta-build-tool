@@ -72,7 +72,11 @@ func genMetaInfo(ep dir.ITargetArtifacts, targetPathGetter dir.ITargetPath, depl
 		return errors.Wrap(err, "generation of metadata failed when populating the manifest file")
 	}
 
-	removeBuildParamsFromMta(targetPathGetter, mtaStr)
+	err = removeBuildParamsFromMta(targetPathGetter, mtaStr)
+	if err != nil {
+		return err
+	}
+
 	err = genMtad(mtaStr, ep, deploymentDesc, platform, yaml.Marshal)
 	if err != nil {
 		return errors.Wrap(err, "generation of metadata failed when generating the MTAD file")

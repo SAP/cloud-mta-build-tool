@@ -73,7 +73,11 @@ func ExecuteGenMtad(source, target, platform string, wdGetter func() (string, er
 		return err
 	}
 
-	removeBuildParamsFromMta(loc, mtaStr)
+	err = removeBuildParamsFromMta(loc, mtaStr)
+	if err != nil {
+		return err
+	}
+
 	return genMtad(mtaStr, &mtadLoc{target}, false, platform, yaml.Marshal)
 }
 
@@ -153,7 +157,7 @@ func removeBuildParamsFromMta(loc dir.ITargetPath, mtaStr *mta.MTA) error {
 		m.BuildParams = map[string]interface{}{}
 		err := adaptModulePath(loc, m)
 		if err != nil {
-			return err
+			return errors.Wrapf(err, `cleaning build parameters from the "%v" module failed`, m.Name)
 		}
 	}
 	return nil
