@@ -45,7 +45,7 @@ builders:
 - name: testbuilder
   info: "installing module dependencies & remove dev dependencies"
   path: "path to config file which override the following default commands"
-  type:
+  commands:
   - command: go version
 `)
 			Ω(execBuilder("testbuilder")).Should(Succeed())
@@ -61,7 +61,7 @@ builders:
 - name: testbuilder
   info: "installing module dependencies & remove dev dependencies"
   path: "path to config file which override the following default commands"
-  type:
+  commands:
   - command: go test unknown_test.go
 `)
 			Ω(execBuilder("testbuilder")).Should(HaveOccurred())

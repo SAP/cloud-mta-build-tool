@@ -19,21 +19,21 @@ version: 1
 module-types:
   - name: html5
     info: "build UI application"
-    type:
+    commands:
     - command: npm install
     - command: grunt
     - command: npm prune --production
   - name: java
     info: "build java application"
-    type:
+    commands:
     - command: mvn clean install
   - name: nodejs
     info: "build nodejs application"
-    type:
+    commands:
     - command: npm install
   - name: golang
     info: "build golang application"
-    type:
+    commands:
     - command: go build *.go
 `)
 		var modules = mta.Module{
@@ -81,7 +81,7 @@ version: 1
 builders:
   - name: npm
     info: "build UI application"
-    type:
+    commands:
     - command: npm install
     - command: npm prune --production
 `)
@@ -108,7 +108,7 @@ module-types:
   - name: html5
     info: "build UI application"
     builder: npm
-    type:
+    commands:
     - command: npm install
     - command: grunt
     - command: npm prune --production
@@ -145,11 +145,11 @@ module-types:
 - name: html5
   info: "installing module dependencies & execute grunt & remove dev dependencies"
   path: "path to config file which override the following default commands"
-  type: [xxx]
+  commands: [xxx]
 - name: nodejs
   info: "build nodejs application"
   path: "path to config file which override the following default commands"
-  type:
+  commands:
 `)
 		})
 
@@ -177,7 +177,7 @@ module-types:
 - name: html5
   info: "installing module dependencies & execute grunt & remove dev dependencies"
   path: "path to config file which override the following default commands"
-  type:
+  commands:
 `)
 
 			buildersConfig = make([]byte, len(BuilderTypeConfig))
@@ -187,7 +187,7 @@ builders:
 - name: html5
   info: "installing module dependencies & execute grunt & remove dev dependencies"
   path: "path to config file which override the following default commands"
-  type: [xxx]	
+  commands: [xxx]	
 `)
 		})
 

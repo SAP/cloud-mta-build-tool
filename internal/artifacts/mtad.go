@@ -73,7 +73,11 @@ func ExecuteGenMtad(source, target, platform string, wdGetter func() (string, er
 		return err
 	}
 
-	removeBuildParamsFromMta(loc, mtaStr)
+	err = removeBuildParamsFromMta(loc, mtaStr)
+	if err != nil {
+		return err
+	}
+
 	return genMtad(mtaStr, &mtadLoc{target}, false, platform, yaml.Marshal)
 }
 

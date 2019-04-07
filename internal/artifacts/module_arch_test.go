@@ -33,11 +33,11 @@ builders:
 - name: html5
   info: "installing module dependencies & execute grunt & remove dev dependencies"
   path: "path to config file which override the following default commands"
-  type: 
+  commands: 
 - name: nodejs
   info: "build nodejs application"
   path: "path to config file which override the following default commands"
-  type:
+  commands:
 `)
 	})
 
@@ -198,11 +198,11 @@ builders:
 - name: html5
   info: "installing module dependencies & execute grunt & remove dev dependencies"
   path: "path to config file which override the following default commands"
-  type:
+  commands:
 - name: nodejs
   info: "build nodejs application"
   path: "path to config file which override the following default commands"
-  type:
+  commands:
 `)
 			})
 
@@ -218,12 +218,12 @@ module-types:
 - name: html5
   info: "installing module dependencies & execute grunt & remove dev dependencies"
   path: "path to config file which override the following default commands"
-  type:
+  commands:
     - command: go test exec_unknownTest.go
 - name: nodejs
   info: "build nodejs application"
   path: "path to config file which override the following default commands"
-  type:
+  commands:
     - command: go test exec_unknownTest.go
 `)
 
