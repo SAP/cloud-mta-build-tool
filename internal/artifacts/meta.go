@@ -74,7 +74,7 @@ func genMetaInfo(ep dir.ITargetArtifacts, targetPathGetter dir.ITargetPath, depl
 
 	err = removeBuildParamsFromMta(targetPathGetter, mtaStr)
 	if err != nil {
-		return errors.Wrap(err, "generation of metadata failed when cleaning build parameters from module")
+		return err
 	}
 
 	err = genMtad(mtaStr, ep, deploymentDesc, platform, yaml.Marshal)
