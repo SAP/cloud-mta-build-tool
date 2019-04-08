@@ -258,8 +258,6 @@ var _ = Describe("GetBuilder", func() {
 				"fetcher-opts": map[interface{}]interface{}{
 					"repo-type":        "maven",
 					"repo-coordinates": "com.sap.xs.java:xs-audit-log-api:1.2.3",
-					"module-name":      "x",
-					"source":           "$(PROJ_DIR)",
 				},
 			},
 		}

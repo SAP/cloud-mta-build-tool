@@ -292,7 +292,7 @@ modules:
 			module, commands, _, err := moduleCmd(&m, "htmlapp")
 			Ω(err).Should(BeNil())
 			Ω(module.Path).Should(Equal("app"))
-			Ω(commands).Should(Equal([]string{"mvn -B org.apache.maven.plugins:maven-dependency-plugin:2.10:get -Dartifact=com.sap.xs.java:xs-audit-log-api:1.2.3 -DremoteRepositories=central::default::https://nexus.wdf.sap.corp:8443/nexus/content/groups/build.milestones.xmakeCleaned -Ddest=data.war -Dtransitive=false"}))
+			Ω(commands).Should(Equal([]string{"mvn -B dependency:copy -Dartifact=com.sap.xs.java:xs-audit-log-api:1.2.3 -DoutputDirectory=./target"}))
 		})
 
 		It("Invalid case - wrong mta", func() {
@@ -364,7 +364,7 @@ modules:
 					builderParam: "npm",
 				},
 			}
-			builder, custom,_ := GetBuilder(&m)
+			builder, custom, _ := GetBuilder(&m)
 			Ω(builder).Should(Equal("npm"))
 			Ω(custom).Should(Equal(true))
 		})

@@ -145,7 +145,6 @@ func meshOpts(cmd string, options map[string]string) string {
 	return c
 }
 
-
 func getCustomCommandsByBuilder(customCommands Builders, builder string) ([]Command, string, string, error) {
 	for _, b := range customCommands.Builders {
 		if builder == b.Name {
