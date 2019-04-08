@@ -207,7 +207,7 @@ modules:
 `))
 			Ω(e).Should(Succeed())
 			Ω(actual).Should(Equal(expected))
-			validateMtaArchiveContents([]string{"node-js.zip", "package.json"}, filepath.Join(path, "mta_archives", "mta_demo_0.0.1.mtar"))
+			validateMtaArchiveContents([]string{"node-js/data.zip"}, filepath.Join(path, "mta_archives", "mta_demo_0.0.1.mtar"))
 		})
 	})
 
