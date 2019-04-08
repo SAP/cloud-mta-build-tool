@@ -89,11 +89,11 @@ var _ = Describe("Integration - CloudMtaBuildTool", func() {
 			dir, _ := os.Getwd()
 			path := filepath.Join(dir, "testdata", "mta_demo")
 			bin := filepath.FromSlash(binPath)
-			cmdOut, err, _ := execute(bin, "init", path)
+			_, err, _ := execute(bin, "init", path)
 			if len(err) > 0 {
 				fmt.Println(err)
 			}
-			Ω(cmdOut).ShouldNot(BeNil())
+			Ω(err).Should(Equal(""))
 
 			// Check the MakeFile was generated
 			Ω(filepath.Join(dir, "testdata", "mta_demo", "Makefile.mta")).Should(BeAnExistingFile())
@@ -103,11 +103,11 @@ var _ = Describe("Integration - CloudMtaBuildTool", func() {
 			dir, _ := os.Getwd()
 			path := filepath.Join(dir, "testdata", "mta_java")
 			bin := filepath.FromSlash(binPath)
-			cmdOut, err, _ := execute(bin, "init", path)
+			_, err, _ := execute(bin, "init", path)
 			if len(err) > 0 {
 				fmt.Println(err)
 			}
-			Ω(cmdOut).ShouldNot(BeNil())
+			Ω(err).Should(Equal(""))
 
 			// Check the MakeFile was generated
 			Ω(filepath.Join(dir, "testdata", "mta_java", "Makefile.mta")).Should(BeAnExistingFile())
