@@ -1,8 +1,11 @@
 package buildops
 
 import (
+	"io/ioutil"
 	"os"
 	"path/filepath"
+
+	"github.com/go-yaml/yaml"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
@@ -220,6 +223,67 @@ var _ = Describe("PlatformDefined", func() {
 			},
 		}
 		Ω(PlatformDefined(&m, "cf")).Should(Equal(false))
+	})
+})
+
+var _ = Describe("GetBuilder", func() {
+	It("Builder defined by type", func() {
+		m := mta.Module{
+			Name: "x",
+			Type: "node-js",
+			BuildParams: map[string]interface{}{
+				SupportedPlatformsParam: []string{},
+			},
+		}
+		Ω(commands.GetBuilder(&m)).Should(Equal("node-js"))
+	})
+	It("Builder defined by build params", func() {
+		m := mta.Module{
+			Name: "x",
+			Type: "node-js",
+			BuildParams: map[string]interface{}{
+				builderParam: "npm",
+			},
+		}
+		builder, custom, _ := commands.GetBuilder(&m)
+		Ω(builder).Should(Equal("npm"))
+		Ω(custom).Should(Equal(true))
+	})
+	It("fetcher builder defined by build params", func() {
+		m := mta.Module{
+			Name: "x",
+			Type: "node-js",
+			BuildParams: map[string]interface{}{
+				builderParam: "fetcher",
+				"fetcher-opts": map[interface{}]interface{}{
+					"repo-type":        "maven",
+					"repo-coordinates": "com.sap.xs.java:xs-audit-log-api:1.2.3",
+					"module-name":      "x",
+					"source":           "$(PROJ_DIR)",
+				},
+			},
+		}
+		builder, custom, options := commands.GetBuilder(&m)
+		Ω(options).Should(Equal(map[string]string{
+			"repo-type":        "maven",
+			"repo-coordinates": "com.sap.xs.java:xs-audit-log-api:1.2.3"}))
+		Ω(builder).Should(Equal("fetcher"))
+		Ω(custom).Should(BeTrue())
+	})
+	It("fetcher builder defined by build params from mta.yaml", func() {
+		dir, _ := os.Getwd()
+		path := filepath.Join(dir, "testdata", "mtaWithFetcher.yaml")
+		// Read MTA file
+		yamlFile, err := ioutil.ReadFile(path)
+		Ω(err).Should(BeNil())
+		m := mta.MTA{}
+		yaml.Unmarshal(yamlFile, &m)
+		builder, custom, options := commands.GetBuilder(m.Modules[0])
+		Ω(options).Should(Equal(map[string]string{
+			"repo-type":        "maven",
+			"repo-coordinates": "mygroup:myart:1.0.0"}))
+		Ω(builder).Should(Equal("fetcher"))
+		Ω(custom).Should(BeTrue())
 	})
 })
 

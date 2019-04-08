@@ -54,7 +54,13 @@ var _ = Describe("Integration - CloudMtaBuildTool", func() {
 		os.Remove("./testdata/mta_demo/abc.mtar")
 		os.RemoveAll("./testdata/mta_demo/mta_archives")
 		os.RemoveAll("./testdata/mta_assemble/mta_archives")
+		os.RemoveAll("./testdata/mta_java/myModule/target")
+		os.Remove("./testdata/mta_java/Makefile.mta")
+		os.Remove("./testdata/mta_java/mtad.yaml")
+		os.Remove("./testdata/mta_java/abc.mtar")
+		os.RemoveAll("./testdata/mta_java/mta_archives")
 		resourceCleanup("node")
+		resourceCleanup("node-js")
 	})
 
 	var _ = Describe("Command to provide the list of modules", func() {
@@ -79,7 +85,7 @@ var _ = Describe("Integration - CloudMtaBuildTool", func() {
 	})
 	var _ = Describe("Generate the Makefile according to the mta.yaml file", func() {
 
-		It("Generate Makefile", func() {
+		It("Generate Makefile for mta_demo", func() {
 			dir, _ := os.Getwd()
 			path := filepath.Join(dir, "testdata", "mta_demo")
 			bin := filepath.FromSlash(binPath)
@@ -93,6 +99,20 @@ var _ = Describe("Integration - CloudMtaBuildTool", func() {
 			Ω(filepath.Join(dir, "testdata", "mta_demo", "Makefile.mta")).Should(BeAnExistingFile())
 		})
 
+		It("Generate Makefile for mta_java", func() {
+			dir, _ := os.Getwd()
+			path := filepath.Join(dir, "testdata", "mta_java")
+			bin := filepath.FromSlash(binPath)
+			cmdOut, err, _ := execute(bin, "init", path)
+			if len(err) > 0 {
+				fmt.Println(err)
+			}
+			Ω(cmdOut).ShouldNot(BeNil())
+
+			// Check the MakeFile was generated
+			Ω(filepath.Join(dir, "testdata", "mta_java", "Makefile.mta")).Should(BeAnExistingFile())
+		})
+
 		It("Command name error", func() {
 			dir, _ := os.Getwd()
 			path := dir + filepath.FromSlash("/testdata/mta_demo")
@@ -104,7 +124,7 @@ var _ = Describe("Integration - CloudMtaBuildTool", func() {
 	})
 
 	var _ = Describe("Generate MTAR", func() {
-		It("Generate MTAR with provided target and mtar name", func() {
+		It("Generate MTAR with provided target and mtar name for mta_demo", func() {
 			dir, _ := os.Getwd()
 			os.RemoveAll(filepath.Join(dir, "testdata", "mta_demo", archiveName))
 			path := dir + filepath.FromSlash("/testdata/mta_demo")
@@ -118,6 +138,22 @@ var _ = Describe("Integration - CloudMtaBuildTool", func() {
 			Ω(cmdOut).ShouldNot(BeEmpty())
 			// Check the archive was generated
 			Ω(filepath.Join(dir, "testdata", "mta_demo", "abc.mtar")).Should(BeAnExistingFile())
+		})
+
+		It("Generate MTAR with provided target and mtar name for mta_java", func() {
+			dir, _ := os.Getwd()
+			os.RemoveAll(filepath.Join(dir, "testdata", "mta_java", archiveName))
+			path := dir + filepath.FromSlash("/testdata/mta_java")
+			bin := filepath.FromSlash("make")
+			cmdOut, err, _ := execute(bin, "-f Makefile.mta p=cf mtar=abc t="+path, path)
+			if len(err) > 0 {
+				fmt.Println(err)
+			}
+			Ω(err).Should(Equal(""))
+			fmt.Println(cmdOut)
+			Ω(cmdOut).ShouldNot(BeEmpty())
+			// Check the archive was generated
+			Ω(filepath.Join(dir, "testdata", "mta_java", "abc.mtar")).Should(BeAnExistingFile())
 		})
 
 		It("Generate MTAR - wrong platform", func() {

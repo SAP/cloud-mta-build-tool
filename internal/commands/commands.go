@@ -22,13 +22,43 @@ type CommandList struct {
 }
 
 // GetBuilder - gets builder type of the module and indicator of custom builder
-func GetBuilder(module *mta.Module) (string, bool) {
+func GetBuilder(module *mta.Module) (string, bool, map[string]string) {
 	// builder defined in build params is prioritised
 	if module.BuildParams != nil && module.BuildParams[builderParam] != nil {
-		return module.BuildParams[builderParam].(string), true
+		builderName := module.BuildParams[builderParam].(string)
+		optsParamName := builderName + "-opts"
+		// get options for builder from mta.yaml
+		options := getOpts(module, optsParamName)
+
+		return builderName, true, options
 	}
 	// default builder is defined by type property of the module
-	return module.Type, false
+	return module.Type, false, nil
+}
+
+// Get options for builder from mta.yaml
+// module name and source (module full path) are added by default
+func getOpts(module *mta.Module, optsParamName string) map[string]string {
+	options := module.BuildParams[optsParamName]
+	optionsMap := make(map[string]string)
+	if options != nil {
+		optionsMap = convert(options.(map[interface{}]interface{}))
+	}
+
+	return optionsMap
+}
+
+// Convert type map[interface{}]interface{} to map[string]string
+func convert(m map[interface{}]interface{}) map[string]string {
+	res := make(map[string]string)
+	for key, value := range m {
+		strKey := key.(string)
+		strValue := value.(string)
+
+		res[strKey] = strValue
+	}
+
+	return res
 }
 
 // CommandProvider - Get build command's to execute
@@ -55,7 +85,7 @@ func mesh(module *mta.Module, moduleTypes *ModuleTypes, builderTypes Builders) (
 
 	// get builder - module type name or custom builder if defined
 	// and indicator if custom builder
-	builder, custom := GetBuilder(module)
+	builder, custom, options := GetBuilder(module)
 
 	// if module type used - get from module types configuration corresponding commands or custom builder if defined
 	if !custom {
@@ -92,11 +122,29 @@ func mesh(module *mta.Module, moduleTypes *ModuleTypes, builderTypes Builders) (
 	}
 
 	// prepare result
+	return prepareMeshResult(cmds, buildResults, commands, options)
+}
+
+// prepare commands list - mesh result
+func prepareMeshResult(cmds CommandList, buildResults string, commands []Command, options map[string]string) (CommandList, string, error) {
 	for _, cmd := range commands {
+		if options != nil {
+			cmd.Command = meshOpts(cmd.Command, options)
+		}
 		cmds.Command = append(cmds.Command, cmd.Command)
 	}
 	return cmds, buildResults, nil
 }
+
+// Update command according to options arguments
+func meshOpts(cmd string, options map[string]string) string {
+	c := cmd
+	for key, value := range options {
+		c = strings.Replace(c, "{{"+key+"}}", value, -1)
+	}
+	return c
+}
+
 
 func getCustomCommandsByBuilder(customCommands Builders, builder string) ([]Command, string, string, error) {
 	for _, b := range customCommands.Builders {

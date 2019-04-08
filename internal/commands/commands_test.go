@@ -268,27 +268,33 @@ modules:
 			Ω(module.Path).Should(Equal("app"))
 			Ω(commands).Should(Equal([]string{"npm install", "npm prune --production"}))
 		})
-	})
 
-	var _ = Describe("GetModuleAndCommands", func() {
-		It("Sanity", func() {
-			wd, _ := os.Getwd()
-			ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata")}
-			module, cmd, _, err := GetModuleAndCommands(&ep, "node-js")
-			Ω(err).Should(Succeed())
-			Ω(module.Name).Should(Equal("node-js"))
-			Ω(len(cmd)).Should(Equal(2))
-			Ω(cmd[0]).Should(Equal("npm install"))
-			Ω(cmd[1]).Should(Equal("npm prune --production"))
+		It("Fetcher builder specified in build params", func() {
+			var mtaCF = []byte(`
+_schema-version: "2.0.0"
+ID: mta_proj
+version: 1.0.0
 
+modules:
+  - name: htmlapp
+    type: html5
+    path: app
+    build-parameters:
+      builder: fetcher
+      fetcher-opts:
+         repo-type: maven
+         repo-coordinates: com.sap.xs.java:xs-audit-log-api:1.2.3
+
+`)
+			m := mta.MTA{}
+			// parse mta yaml
+			Ω(yaml.Unmarshal(mtaCF, &m)).Should(Succeed())
+			module, commands, _, err := moduleCmd(&m, "htmlapp")
+			Ω(err).Should(BeNil())
+			Ω(module.Path).Should(Equal("app"))
+			Ω(commands).Should(Equal([]string{"mvn -B org.apache.maven.plugins:maven-dependency-plugin:2.10:get -Dartifact=com.sap.xs.java:xs-audit-log-api:1.2.3 -DremoteRepositories=central::default::https://nexus.wdf.sap.corp:8443/nexus/content/groups/build.milestones.xmakeCleaned -Ddest=data.war -Dtransitive=false"}))
 		})
-		It("Invalid case - wrong module name", func() {
-			wd, _ := os.Getwd()
-			ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata")}
-			_, _, _, err := GetModuleAndCommands(&ep, "node-js1")
-			Ω(err).Should(HaveOccurred())
 
-		})
 		It("Invalid case - wrong mta", func() {
 			wd, _ := os.Getwd()
 			ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata"), MtaFilename: "mtaUnknown.yaml"}
@@ -296,43 +302,71 @@ modules:
 			Ω(err).Should(HaveOccurred())
 
 		})
-		It("Invalid case - wrong type", func() {
-			wd, _ := os.Getwd()
-			ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata"), MtaFilename: "mtaUnknownBuilder.yaml"}
-			_, cmd, _, _ := GetModuleAndCommands(&ep, "node-js")
-			Ω(len(cmd)).Should(Equal(0))
 
-		})
-		It("Invalid case - broken commands config", func() {
-			conf := ModuleTypeConfig
-			ModuleTypeConfig = []byte("wrong config")
-			wd, _ := os.Getwd()
-			ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata")}
-			_, _, _, err := GetModuleAndCommands(&ep, "node-js")
-			ModuleTypeConfig = conf
-			Ω(err).Should(HaveOccurred())
+		var _ = Describe("GetModuleAndCommands", func() {
+			It("Sanity", func() {
+				wd, _ := os.Getwd()
+				ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata")}
+				module, cmd, _, err := GetModuleAndCommands(&ep, "node-js")
+				Ω(err).Should(Succeed())
+				Ω(module.Name).Should(Equal("node-js"))
+				Ω(len(cmd)).Should(Equal(2))
+				Ω(cmd[0]).Should(Equal("npm install"))
+				Ω(cmd[1]).Should(Equal("npm prune --production"))
+
+			})
+			It("Invalid case - wrong module name", func() {
+				wd, _ := os.Getwd()
+				ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata")}
+				_, _, _, err := GetModuleAndCommands(&ep, "node-js1")
+				Ω(err).Should(HaveOccurred())
+
+			})
+			It("Invalid case - wrong mta", func() {
+				wd, _ := os.Getwd()
+				ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata"), MtaFilename: "mtaUnknown.yaml"}
+				_, _, _, err := GetModuleAndCommands(&ep, "node-js")
+				Ω(err).Should(HaveOccurred())
+
+			})
+			It("Invalid case - wrong type", func() {
+				wd, _ := os.Getwd()
+				ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata"), MtaFilename: "mtaUnknownBuilder.yaml"}
+				_, cmd, _, _ := GetModuleAndCommands(&ep, "node-js")
+				Ω(len(cmd)).Should(Equal(0))
+
+			})
+			It("Invalid case - broken commands config", func() {
+				conf := ModuleTypeConfig
+				ModuleTypeConfig = []byte("wrong config")
+				wd, _ := os.Getwd()
+				ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata")}
+				_, _, _, err := GetModuleAndCommands(&ep, "node-js")
+				ModuleTypeConfig = conf
+				Ω(err).Should(HaveOccurred())
+			})
 		})
 	})
-})
 
-var _ = Describe("GetBuilder", func() {
-	It("Builder defined by type", func() {
-		m := mta.Module{
-			Name: "x",
-			Type: "node-js",
-		}
-		Ω(GetBuilder(&m)).Should(Equal("node-js"))
-	})
-	It("Builder defined by build params", func() {
-		m := mta.Module{
-			Name: "x",
-			Type: "node-js",
-			BuildParams: map[string]interface{}{
-				builderParam: "npm",
-			},
-		}
-		builder, custom := GetBuilder(&m)
-		Ω(builder).Should(Equal("npm"))
-		Ω(custom).Should(Equal(true))
+	var _ = Describe("GetBuilder", func() {
+		It("Builder defined by type", func() {
+			m := mta.Module{
+				Name: "x",
+				Type: "node-js",
+			}
+			Ω(GetBuilder(&m)).Should(Equal("node-js"))
+		})
+		It("Builder defined by build params", func() {
+			m := mta.Module{
+				Name: "x",
+				Type: "node-js",
+				BuildParams: map[string]interface{}{
+					builderParam: "npm",
+				},
+			}
+			builder, custom,_ := GetBuilder(&m)
+			Ω(builder).Should(Equal("npm"))
+			Ω(custom).Should(Equal(true))
+		})
 	})
 })
