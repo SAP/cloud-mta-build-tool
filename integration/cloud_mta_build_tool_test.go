@@ -55,6 +55,7 @@ var _ = Describe("Integration - CloudMtaBuildTool", func() {
 		os.RemoveAll("./testdata/mta_demo/mta_archives")
 		os.RemoveAll("./testdata/mta_assemble/mta_archives")
 		resourceCleanup("node")
+		resourceCleanup("node-js")
 	})
 
 	var _ = Describe("Command to provide the list of modules", func() {
@@ -206,7 +207,6 @@ modules:
 `))
 			Ω(e).Should(Succeed())
 			Ω(actual).Should(Equal(expected))
-			Ω(filepath.Join(path, "mta_archives", "mta.assembly.example_1.3.3.mtar")).Should(BeAnExistingFile())
 			validateMtaArchiveContents([]string{"node-js.zip", "package.json"}, filepath.Join(path, "mta_archives", "mta_demo_0.0.1.mtar"))
 		})
 	})
