@@ -1,0 +1,45 @@
+ID: mta_my_nouaa_app
+_schema-version: '2.1'
+parameters:
+  deploy_mode: html5-repo
+version: 0.0.1
+modules:
+  - name: mta_my_nouaa_app_appRouter
+    type: approuter.nodejs
+    path: mta_my_nouaa_app_appRouter
+    parameters:
+      disk-quota: 256M
+      memory: 256M
+    requires:
+      - name: mta_my_nouaa_app_html5_repo_runtime
+    build-parameters:
+      builder: test_build_result
+  - name: mta_my_nouaa_app_ui_deployer
+    type: com.sap.html5.application-content
+    path: mta_my_nouaa_app_ui_deployer
+    requires:
+      - name: mta_my_nouaa_app_html5_repo_host
+    build-parameters:
+      requires:
+        - name: my_nouaa_app
+          artifacts:
+            - './*'
+          target-path: resources/my_nouaa_app
+  - name: my_nouaa_app
+    type: html5
+    path: my_nouaa_app
+    build-parameters:
+      builder: grunt
+      supported-platforms: []
+      build-result: dist      
+resources:
+  - name: mta_my_nouaa_app_html5_repo_runtime
+    parameters:
+      service-plan: app-runtime
+      service: html5-apps-repo
+    type: org.cloudfoundry.managed-service
+  - name: mta_my_nouaa_app_html5_repo_host
+    parameters:
+      service-plan: app-host
+      service: html5-apps-repo
+    type: org.cloudfoundry.managed-service

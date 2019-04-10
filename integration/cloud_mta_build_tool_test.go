@@ -360,6 +360,38 @@ modules:
 			os.Chdir(currentWorkingDirectory)
 		})
 	})
+
+	var _ = Describe("Default build result test", func() {
+
+		AfterEach(func() {
+			os.RemoveAll("./testdata/mta_build_result/Makefile.mta")
+			os.RemoveAll("./testdata/mta_build_result/.mta_build_result_mta_build_tmp")
+			os.RemoveAll("./testdata/mta_build_result/mta_archives")
+		})
+
+		It("Sanity", func() {
+			dir, _ := os.Getwd()
+			path := filepath.Join(dir, "testdata", "mta_build_result")
+			bin := filepath.FromSlash(binPath)
+			_, err, _ := execute(bin, "init", path)
+			if len(err) > 0 {
+				fmt.Println(err)
+			}
+			Ω(err).Should(Equal(""))
+
+			// Check the MakeFile was generated
+			Ω(filepath.Join(dir, "testdata", "mta_build_result", "Makefile.mta")).Should(BeAnExistingFile())
+			bin = filepath.FromSlash("make")
+			cmd, err, _ := execute(bin, "-f Makefile.mta p=cf mtar=archive.mtar", path)
+			fmt.Println(cmd)
+			Ω(err).Should(Equal(""))
+			// Check the archive was generated
+			archive := filepath.Join(dir, "testdata", "mta_build_result", "mta_archives", "archive.mtar")
+			Ω(archive).Should(BeAnExistingFile())
+			Ω(existsInZip(archive,"test1.zip")).Should(BeTrue())
+			//TODO deploy; use real project
+		})
+	})
 })
 
 func getFileContentFromZip(path string, filename string) ([]byte, error) {
@@ -382,6 +414,19 @@ func getFileContentFromZip(path string, filename string) ([]byte, error) {
 		}
 	}
 	return nil, fmt.Errorf(`file "%s" not found`, filename)
+}
+
+func existsInZip(path string, filename string) (bool, error) {
+	zipFile, err := zip.OpenReader(path)
+	if err != nil {
+		return false, err
+	}
+	for _, file := range zipFile.File {
+		if strings.Contains(file.Name, filename) {
+			return true, nil
+		}
+	}
+	return false, nil
 }
 
 func validateMtaArchiveContents(expectedFilesInArchive []string, archiveLocation string) {

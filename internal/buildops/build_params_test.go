@@ -2,10 +2,9 @@ package buildops
 
 import (
 	"io/ioutil"
+	"gopkg.in/yaml.v2"
 	"os"
 	"path/filepath"
-
-	"github.com/go-yaml/yaml"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"

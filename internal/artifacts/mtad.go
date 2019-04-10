@@ -157,7 +157,7 @@ func removeBuildParamsFromMta(loc dir.ITargetPath, mtaStr *mta.MTA) error {
 		m.BuildParams = map[string]interface{}{}
 		err := adaptModulePath(loc, m)
 		if err != nil {
-			return errors.Wrapf(err, `cleaning build parameters from the "%v" module failed`, m.Name)
+			return errors.Wrapf(err, `failed to clean the build parameters from the "%v" module`, m.Name)
 		}
 	}
 	return nil
