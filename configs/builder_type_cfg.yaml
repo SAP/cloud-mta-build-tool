@@ -49,6 +49,13 @@ builders:
   - command: mvn -B package
   build-result: target/*.war
 
+- name: fetcher
+  info: "packaging Maven artifacts into MTAR as the modules build results"
+  path: "path to config file which override the following default commands"
+  commands:
+  - command: mvn -B dependency:copy -Dartifact={{repo-coordinates}} -DoutputDirectory=./target
+  build-result: target/*.*
+
 - name: zip
   info: "archives the source folder into a .zip file"
   path: "archives the source folder into a .zip file"
