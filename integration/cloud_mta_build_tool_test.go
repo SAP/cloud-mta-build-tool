@@ -24,8 +24,9 @@ import (
 )
 
 const (
-	archiveName = "mta_demo_0.0.1.mtar"
-	binPath     = "mbt"
+	demoArchiveName = "mta_demo_0.0.1.mtar"
+	javaArchiveName = "com.fetcher.project_0.0.1.mtar"
+	binPath         = "mbt"
 )
 
 var _ = Describe("Integration - CloudMtaBuildTool", func() {
@@ -57,7 +58,6 @@ var _ = Describe("Integration - CloudMtaBuildTool", func() {
 		os.RemoveAll("./testdata/mta_java/myModule/target")
 		os.Remove("./testdata/mta_java/Makefile.mta")
 		os.Remove("./testdata/mta_java/mtad.yaml")
-		os.Remove("./testdata/mta_java/abc.mtar")
 		os.RemoveAll("./testdata/mta_java/mta_archives")
 		resourceCleanup("node")
 		resourceCleanup("node-js")
@@ -124,9 +124,9 @@ var _ = Describe("Integration - CloudMtaBuildTool", func() {
 	})
 
 	var _ = Describe("Generate MTAR", func() {
-		It("Generate MTAR with provided target and mtar name for mta_demo", func() {
+		It("Generate MTAR with provided target and mtar name", func() {
 			dir, _ := os.Getwd()
-			os.RemoveAll(filepath.Join(dir, "testdata", "mta_demo", archiveName))
+			os.RemoveAll(filepath.Join(dir, "testdata", "mta_demo", demoArchiveName))
 			path := dir + filepath.FromSlash("/testdata/mta_demo")
 			bin := filepath.FromSlash("make")
 			cmdOut, err, _ := execute(bin, "-f Makefile.mta p=cf mtar=abc t="+path, path)
@@ -138,22 +138,6 @@ var _ = Describe("Integration - CloudMtaBuildTool", func() {
 			Ω(cmdOut).ShouldNot(BeEmpty())
 			// Check the archive was generated
 			Ω(filepath.Join(dir, "testdata", "mta_demo", "abc.mtar")).Should(BeAnExistingFile())
-		})
-
-		It("Generate MTAR with provided target and mtar name for mta_java", func() {
-			dir, _ := os.Getwd()
-			os.RemoveAll(filepath.Join(dir, "testdata", "mta_java", archiveName))
-			path := dir + filepath.FromSlash("/testdata/mta_java")
-			bin := filepath.FromSlash("make")
-			cmdOut, err, _ := execute(bin, "-f Makefile.mta p=cf mtar=abc t="+path, path)
-			if len(err) > 0 {
-				fmt.Println(err)
-			}
-			Ω(err).Should(Equal(""))
-			fmt.Println(cmdOut)
-			Ω(cmdOut).ShouldNot(BeEmpty())
-			// Check the archive was generated
-			Ω(filepath.Join(dir, "testdata", "mta_java", "abc.mtar")).Should(BeAnExistingFile())
 		})
 
 		It("Generate MTAR - wrong platform", func() {
@@ -200,7 +184,7 @@ parameters:
 			Ω(actual).Should(Equal(expected))
 		})
 
-		It("Generate MTAR", func() {
+		It("Generate MTAR for mta_demo", func() {
 
 			dir, _ := os.Getwd()
 			path := dir + filepath.FromSlash("/testdata/mta_demo")
@@ -213,8 +197,8 @@ parameters:
 			fmt.Println(cmdOut)
 			Ω(cmdOut).ShouldNot(BeEmpty())
 			// Check the archive was generated
-			mtarFilename := filepath.Join(dir, "testdata", "mta_demo", "mta_archives", archiveName)
-			Ω(filepath.Join(dir, "testdata", "mta_demo", "mta_archives", archiveName)).Should(BeAnExistingFile())
+			mtarFilename := filepath.Join(dir, "testdata", "mta_demo", "mta_archives", demoArchiveName)
+			Ω(filepath.Join(dir, "testdata", "mta_demo", "mta_archives", demoArchiveName)).Should(BeAnExistingFile())
 			// check that module with unsupported platform 'cf' is presented in mtad.yaml
 			mtadContent, e := getFileContentFromZip(mtarFilename, "mtad.yaml")
 			Ω(e).Should(Succeed())
@@ -244,6 +228,52 @@ modules:
 			Ω(actual).Should(Equal(expected))
 			validateMtaArchiveContents([]string{"node-js/data.zip"}, filepath.Join(path, "mta_archives", "mta_demo_0.0.1.mtar"))
 		})
+		It("Generate MTAR for mta_java", func() {
+
+			dir, _ := os.Getwd()
+			path := dir + filepath.FromSlash("/testdata/mta_java")
+			bin := filepath.FromSlash("make")
+			cmdOut, err, _ := execute(bin, "-f Makefile.mta p=cf", path)
+			if len(err) > 0 {
+				fmt.Println(err)
+			}
+			Ω(err).Should(Equal(""))
+			fmt.Println(cmdOut)
+			Ω(cmdOut).ShouldNot(BeEmpty())
+			// Check the archive was generated
+			mtarFilename := filepath.Join(dir, "testdata", "mta_java", "mta_archives", javaArchiveName)
+			Ω(filepath.Join(dir, "testdata", "mta_java", "mta_archives", javaArchiveName)).Should(BeAnExistingFile())
+			// check that module with unsupported platform 'cf' is presented in mtad.yaml
+			mtadContent, e := getFileContentFromZip(mtarFilename, "mtad.yaml")
+			Ω(e).Should(Succeed())
+			actual, e := mta.Unmarshal(mtadContent)
+			Ω(e).Should(Succeed())
+			expected, e := mta.Unmarshal([]byte(`
+_schema-version: 2.0.0
+ID: com.fetcher.project
+version: 0.0.1
+modules:
+- name: myModule
+  type: java.tomcat
+  path: myModule
+  requires:
+  - name: otracker-uaa
+  - name: otracker-managed-hdi
+  parameters:
+    buildpack: sap_java_buildpack
+    stack: cflinuxfs3
+resources:
+- name: otracker-uaa
+  type: com.sap.xs.uaa-space
+  parameters:
+    config-path: xs-security.json
+- name: otracker-managed-hdi
+  type: com.sap.xs.managed-hdi-container
+`))
+			Ω(e).Should(Succeed())
+			Ω(actual).Should(Equal(expected))
+			validateMtaArchiveContents([]string{"META-INF/MANIFEST.MF", "META-INF/mtad.yaml", "myModule/java-xsahaa-1.1.2.war"}, filepath.Join(path, "mta_archives", "com.fetcher.project_0.0.1.mtar"))
+		})
 	})
 
 	var _ = Describe("Generate the Verbose Makefile and use it for mtar generation", func() {
@@ -251,7 +281,7 @@ modules:
 		It("Generate Verbose Makefile", func() {
 			dir, _ := os.Getwd()
 			os.RemoveAll(filepath.Join(dir, "testdata", "mta_demo", "Makefile.mta"))
-			os.RemoveAll(filepath.Join(dir, "testdata", "mta_demo", "mta_archives", archiveName))
+			os.RemoveAll(filepath.Join(dir, "testdata", "mta_demo", "mta_archives", demoArchiveName))
 			path := filepath.Join(dir, "testdata", "mta_demo")
 			bin := filepath.FromSlash(binPath)
 			cmdOut, err, _ := execute(bin, "init -m=verbose", path)
@@ -265,7 +295,7 @@ modules:
 			bin = filepath.FromSlash("make")
 			execute(bin, "-f Makefile.mta p=cf", path)
 			// Check the archive was generated
-			Ω(filepath.Join(dir, "testdata", "mta_demo", "mta_archives", archiveName)).Should(BeAnExistingFile())
+			Ω(filepath.Join(dir, "testdata", "mta_demo", "mta_archives", demoArchiveName)).Should(BeAnExistingFile())
 		})
 
 	})
@@ -294,7 +324,7 @@ modules:
 			path := dir + filepath.FromSlash("/testdata/mta_demo/mta_archives")
 			bin := filepath.FromSlash("cf")
 			// Execute deployment process with output to make the deployment success/failure more clear
-			executeWithOutput(bin, "deploy "+archiveName+" -f", path)
+			executeWithOutput(bin, "deploy "+demoArchiveName+" -f", path)
 			// Check if the deploy succeeded by using curl command response.
 			// Receiving the output status code 200 represents successful deployment
 			args := "-s -o /dev/null -w '%{http_code}' " + os.Getenv("NODE_APP_ROUTE")
