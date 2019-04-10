@@ -50,7 +50,7 @@ builders:
   build-result: target/*.war
 
 - name: fetcher
-  info: "packaging already Maven artifacts into MTAR as the modules build results"
+  info: "packaging Maven artifacts into MTAR as the modules build results"
   path: "path to config file which override the following default commands"
   commands:
   - command: mvn -B dependency:copy -Dartifact={{repo-coordinates}} -DoutputDirectory=./target

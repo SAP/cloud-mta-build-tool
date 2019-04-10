@@ -195,7 +195,6 @@ parameters:
 			}
 			Ω(err).Should(Equal(""))
 			fmt.Println(cmdOut)
-			Ω(cmdOut).ShouldNot(BeEmpty())
 			// Check the archive was generated
 			mtarFilename := filepath.Join(dir, "testdata", "mta_demo", "mta_archives", demoArchiveName)
 			Ω(filepath.Join(dir, "testdata", "mta_demo", "mta_archives", demoArchiveName)).Should(BeAnExistingFile())
@@ -239,7 +238,6 @@ modules:
 			}
 			Ω(err).Should(Equal(""))
 			fmt.Println(cmdOut)
-			Ω(cmdOut).ShouldNot(BeEmpty())
 			// Check the archive was generated
 			mtarFilename := filepath.Join(dir, "testdata", "mta_java", "mta_archives", javaArchiveName)
 			Ω(filepath.Join(dir, "testdata", "mta_java", "mta_archives", javaArchiveName)).Should(BeAnExistingFile())

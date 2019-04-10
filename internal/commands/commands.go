@@ -37,7 +37,6 @@ func GetBuilder(module *mta.Module) (string, bool, map[string]string) {
 }
 
 // Get options for builder from mta.yaml
-// module name and source (module full path) are added by default
 func getOpts(module *mta.Module, optsParamName string) map[string]string {
 	options := module.BuildParams[optsParamName]
 	optionsMap := make(map[string]string)
@@ -122,18 +121,19 @@ func mesh(module *mta.Module, moduleTypes *ModuleTypes, builderTypes Builders) (
 	}
 
 	// prepare result
-	return prepareMeshResult(cmds, buildResults, commands, options)
+	cmds, buildResults = prepareMeshResult(cmds, buildResults, commands, options)
+	return cmds, buildResults, nil
 }
 
 // prepare commands list - mesh result
-func prepareMeshResult(cmds CommandList, buildResults string, commands []Command, options map[string]string) (CommandList, string, error) {
+func prepareMeshResult(cmds CommandList, buildResults string, commands []Command, options map[string]string) (CommandList, string) {
 	for _, cmd := range commands {
 		if options != nil {
 			cmd.Command = meshOpts(cmd.Command, options)
 		}
 		cmds.Command = append(cmds.Command, cmd.Command)
 	}
-	return cmds, buildResults, nil
+	return cmds, buildResults
 }
 
 // Update command according to options arguments
