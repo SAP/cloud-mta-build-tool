@@ -388,7 +388,7 @@ modules:
 			// Check the archive was generated
 			archive := filepath.Join(dir, "testdata", "mta_build_result", "mta_archives", "archive.mtar")
 			Ω(archive).Should(BeAnExistingFile())
-			Ω(existsInZip(archive,"test1.zip")).Should(BeTrue())
+			Ω(existsInZip(archive, "test1.zip")).Should(BeTrue())
 			//TODO deploy; use real project
 		})
 	})
