@@ -4,7 +4,7 @@
 .idea
 .idea/inspectionProfiles/
 cmd/internal/
-vendor
+#vendor
 release
 config.json
 # IntelliJ files
