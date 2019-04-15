@@ -135,13 +135,13 @@ func packModule(ep dir.IModule, deploymentDesc bool, module *mta.Module, moduleN
 	logs.Logger.Infof(`zipping the %v module...`, moduleName)
 	buildResults, _, err := buildops.GetBuildResultsPath(ep, module, defaultBuildResult)
 	if err != nil {
-		return errors.Wrapf(err, `packing of the "%v" module failed while getting the build results path`,
+		return errors.Wrapf(err, `packing the "%v" module failed while getting the build results path`,
 			moduleName)
 	}
 
 	entry, err := os.Stat(buildResults)
 	if err != nil {
-		return errors.Wrapf(err, `packing of the "%v" module failed; the "%v" build results path does not exist`,
+		return errors.Wrapf(err, `packing the "%v" module failed; the "%v" build results path does not exist`,
 			moduleName, buildResults)
 	}
 	if !entry.IsDir() && isArchive(buildResults) {
