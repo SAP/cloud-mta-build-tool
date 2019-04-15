@@ -86,21 +86,21 @@ func ProcessRequirements(ep dir.ISourceModule, mta *mta.MTA, requires *BuildRequ
 	module, err := mta.GetModuleByName(moduleName)
 	if err != nil {
 		return errors.Wrapf(err,
-			`processing requirements of the "%v" module based on the "%v" module failed when getting the "%v" module`,
+			`the processing requirements of the "%v" module that is based on the "%v" module failed when getting the "%v" module`,
 			moduleName, requires.Name, moduleName)
 	}
 
 	requiredModule, err := mta.GetModuleByName(requires.Name)
 	if err != nil {
 		return errors.Wrapf(err,
-			`processing requirements of the "%v" module based on the "%v" module failed when getting the "%v" module`,
+			`the processing requirements of the "%v" module that is based on the "%v" module failed when getting the "%v" module`,
 			moduleName, requires.Name, requires.Name)
 	}
 
 	_, defaultBuildResult, err := commands.CommandProvider(*requiredModule)
 	if err != nil {
 		return errors.Wrapf(err,
-			`processing requirements of the "%v" module based on the "%v" module failed when getting the "%v" module commands`,
+			`the processing requirements of the "%v" module that is based on the "%v" module failed when getting the "%v" module commands`,
 			moduleName, requires.Name, requires.Name)
 	}
 
@@ -108,7 +108,7 @@ func ProcessRequirements(ep dir.ISourceModule, mta *mta.MTA, requires *BuildRequ
 	sourcePath, _, err := GetBuildResultsPath(ep, requiredModule, defaultBuildResult)
 	if err != nil {
 		return errors.Wrapf(err,
-			`processing requirements of the "%v" module based on the "%v" module failed when getting the build results path`,
+			`the processing requirements of the "%v" module that is based on the "%v" module failed when getting the build results path`,
 			moduleName, requires.Name)
 	}
 	targetPath := getRequiredTargetPath(ep, module, requires)
@@ -117,7 +117,7 @@ func ProcessRequirements(ep dir.ISourceModule, mta *mta.MTA, requires *BuildRequ
 	err = dir.CopyByPatterns(sourcePath, targetPath, requires.Artifacts)
 	if err != nil {
 		return errors.Wrapf(err,
-			`processing requirements of the "%v" module based on the "%v" module failed when copying artifacts`,
+			`the processing requirements of the "%v" module that is based on the "%v" module failed when copying artifacts`,
 			moduleName, requiredModule.Name)
 	}
 	return nil
@@ -148,7 +148,7 @@ func GetBuildResultsPath(ep dir.ISourceModule, module *mta.Module, defaultBuildR
 		if err != nil {
 			return "", false, err
 		} else if len(sourceEntries) == 0 {
-			return "", false, fmt.Errorf(`no entry found that matches the "%s" build results`, path)
+			return "", false, fmt.Errorf(`could not find the "%s" build results`, path)
 		}
 		return sourceEntries[0], true, nil
 	}
