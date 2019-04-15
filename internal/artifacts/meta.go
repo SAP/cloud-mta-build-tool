@@ -16,7 +16,7 @@ func ExecuteGenMeta(source, target, desc, platform string, onlyModules bool, wdG
 	logs.Logger.Info("generating the metadata...")
 	loc, err := dir.Location(source, target, desc, wdGetter)
 	if err != nil {
-		return errors.Wrap(err, "failed to generate metadata when initializing the location")
+		return errors.Wrap(err, "generation of metadata failed when initializing the location")
 	}
 	// validate platform
 	platform, err = validatePlatform(platform)
@@ -43,7 +43,7 @@ func generateMeta(parser dir.IMtaParser, ep dir.ITargetArtifacts, targetPathGett
 	// parse MTA file
 	m, err := parser.ParseFile()
 	if err != nil {
-		return errors.Wrap(err, "failed to generate metadata when parsing the MTA file")
+		return errors.Wrap(err, "generation of metadata failed when parsing the MTA file")
 	}
 	// read MTA extension file
 	mExt, err := parser.ParseExtFile(platform)
@@ -69,7 +69,7 @@ func genMetaInfo(ep dir.ITargetArtifacts, targetPathGetter dir.ITargetPath, depl
 	// Set the MANIFEST.MF file
 	err := setManifestDesc(ep, targetPathGetter, mtaStr.Modules, mtaStr.Resources, modules, onlyModules)
 	if err != nil {
-		return errors.Wrap(err, "failed to generate metadata when populating the manifest file")
+		return errors.Wrap(err, "generation of metadata failed when populating the manifest file")
 	}
 
 	err = removeBuildParamsFromMta(targetPathGetter, mtaStr)
@@ -79,7 +79,7 @@ func genMetaInfo(ep dir.ITargetArtifacts, targetPathGetter dir.ITargetPath, depl
 
 	err = genMtad(mtaStr, ep, deploymentDesc, platform, yaml.Marshal)
 	if err != nil {
-		return errors.Wrap(err, "failed to generate metadata when generating the MTAD file")
+		return errors.Wrap(err, "generation of metadata failed when generating the MTAD file")
 	}
 
 	return nil

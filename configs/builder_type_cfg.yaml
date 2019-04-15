@@ -75,8 +75,3 @@ builders:
   path: "test"
   commands:
   - command: echo "-----------test after all modules build----------------"
-
-# ---dummy commands for build-result default testing
-- name: test_build_result
-  build-result: target/t*.zip
-  commands:
