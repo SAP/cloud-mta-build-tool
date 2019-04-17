@@ -16,6 +16,10 @@ import (
 	"github.com/SAP/cloud-mta-build-tool/internal/logs"
 )
 
+const (
+	ignore = "ignore"
+)
+
 // ExecuteBuild - executes build of module
 func ExecuteBuild(source, target, desc, moduleName, platform string, wdGetter func() (string, error)) error {
 	logs.Logger.Infof(`building the "%v" module...`, moduleName)
@@ -120,7 +124,6 @@ func packModule(ep dir.IModule, deploymentDesc bool, module *mta.Module, moduleN
 	if deploymentDesc {
 		return copyModuleArchive(ep, module.Path, moduleName)
 	}
-
 	// Get module relative path
 	moduleZipPath := ep.GetTargetModuleDir(moduleName)
 
@@ -154,11 +157,33 @@ func packModule(ep dir.IModule, deploymentDesc bool, module *mta.Module, moduleN
 	}
 
 	moduleZipFullPath := moduleZipPath + dataZip
-	err = dir.Archive(buildResults, moduleZipFullPath)
+	// get ignore - get files and/or subfolders to exclude from the package.
+	ignore := getIgnores(module)
+	err = dir.Archive(buildResults, moduleZipFullPath, ignore)
 	if err != nil {
 		return errors.Wrapf(err, `packing of the "%v" module failed when archiving`, moduleName)
 	}
 	return nil
+}
+
+// getIgnores - get files and/or subfolders to exclude from the package.
+func getIgnores(module *mta.Module) []string {
+	var ignoreList []string
+	// ignore defined in build params is declared
+	if module.BuildParams != nil && module.BuildParams[ignore] != nil {
+		ignoreList = convert(module.BuildParams[ignore].([]interface{}))
+	}
+
+	return ignoreList
+}
+
+// Convert slice []interface{} to slice []string
+func convert(data []interface{}) []string {
+	aString := make([]string, len(data))
+	for i, v := range data {
+		aString[i] = v.(string)
+	}
+	return aString
 }
 
 func isArchive(path string) bool {

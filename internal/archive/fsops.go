@@ -30,7 +30,7 @@ func CreateDirIfNotExist(dir string) error {
 // to support the spec requirements
 // Source Path to be zipped
 // Target artifact
-func Archive(sourcePath, targetArchivePath string) (e error) {
+func Archive(sourcePath, targetArchivePath string, ignore []string) (e error) {
 
 	// check that folder to be packed exist
 	info, err := os.Stat(sourcePath)
@@ -65,8 +65,30 @@ func Archive(sourcePath, targetArchivePath string) (e error) {
 		baseDir += string(os.PathSeparator)
 	}
 
-	err = walk(sourcePath, baseDir, archive)
+	ignoreMap, err := getIgnoredEntries(ignore, sourcePath)
+	if err != nil {
+		return err
+	}
+
+	err = walk(sourcePath, baseDir, archive, ignoreMap)
 	return err
+}
+
+// getIgnoresMap - getIgnores Helper
+func getIgnoredEntries(ignore []string, sourcePath string) (map[string]interface{}, error) {
+	ignoredEntriesMap := map[string]interface{}{}
+	for _, ign := range ignore {
+		path := filepath.Join(sourcePath, ign)
+		entries, err := filepath.Glob(path)
+		if err != nil {
+			return nil, err
+		}
+
+		for _, entry := range entries {
+			ignoredEntriesMap[entry] = nil
+		}
+	}
+	return ignoredEntriesMap, nil
 }
 
 // CloseFile - closes file
@@ -79,12 +101,19 @@ func CloseFile(file io.Closer, err error) error {
 	return err
 }
 
-func walk(sourcePath string, baseDir string, archive *zip.Writer) error {
+func walk(sourcePath string, baseDir string, archive *zip.Writer, ignore map[string]interface{}) error {
 
 	// pack files of source into archive
 	return filepath.Walk(sourcePath, func(path string, info os.FileInfo, err error) (e error) {
 		if err != nil {
 			return err
+		}
+
+		if _, ok := ignore[path]; ok {
+			if info.IsDir() {
+				return filepath.SkipDir
+			}
+			return
 		}
 
 		if info.IsDir() {

@@ -12,7 +12,9 @@ modules:
    requires:
     - name: uaa_mtahtml5
     - name: dest_mtahtml5
-
+   build-parameters:
+      builder: zip
+      ignore: ["ui5app/"]
 
  - name: ui5app2
    type: html5

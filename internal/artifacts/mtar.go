@@ -62,7 +62,7 @@ func generateMtar(targetLoc dir.ITargetPath, targetArtifacts dir.ITargetArtifact
 	}
 	// archive building artifacts to mtar
 	mtarPath := filepath.Join(mtarFolderPath, getMtarFileName(m, mtarName))
-	err = dir.Archive(targetTmpDir, mtarPath)
+	err = dir.Archive(targetTmpDir, mtarPath, nil)
 	if err != nil {
 		return "", errors.Wrap(err, "generation of the MTA archive failed when archiving")
 	}

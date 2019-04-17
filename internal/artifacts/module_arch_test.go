@@ -1,6 +1,7 @@
 package artifacts
 
 import (
+	"archive/zip"
 	"errors"
 	"fmt"
 	"io/ioutil"
@@ -121,6 +122,24 @@ builders:
 				}
 				Ω(packModule(&ep, false, &m, "node-js", "cf", "*.zip")).Should(Succeed())
 				Ω(getTestPath("result", ".mta_with_zipped_module_mta_build_tmp", "node-js", "abc.zip")).Should(BeAnExistingFile())
+			})
+
+			It("ignore case", func() {
+				m := mta.Module{
+					Name: "htmlapp2",
+					Path: "htmlapp2",
+					BuildParams: map[string]interface{}{
+						"ignore": []interface{}{"ignore/"},
+					},
+				}
+				ep := dir.Loc{
+					SourcePath: getTestPath("mta"),
+					TargetPath: getResultPath(),
+					Descriptor: "dev",
+				}
+				Ω(packModule(&ep, false, &m, "htmlapp2", "cf", "")).Should(Succeed())
+				Ω(getTestPath("result", ".mta_mta_build_tmp", "htmlapp2")).Should(BeAnExistingFile())
+				validateArchiveContents([]string{"ignore"}, ep.GetTargetModuleZipPath("htmlapp2"), false)
 			})
 
 			It("Build results - zip file, copy only fails - no file matching wildcard", func() {
@@ -528,4 +547,26 @@ func createFileInGivenPath(path string) {
 
 func createFile(path ...string) {
 	createFileInGivenPath(getTestPath(path...))
+}
+
+func validateArchiveContents(expectedFilesInArchive []string, archiveLocation string, isExists bool) {
+	archiveReader, err := zip.OpenReader(archiveLocation)
+	Ω(err).Should(BeNil())
+	defer archiveReader.Close()
+	var filesInArchive []string
+	for _, file := range archiveReader.File {
+		filesInArchive = append(filesInArchive, file.Name)
+	}
+	for _, expectedFile := range expectedFilesInArchive {
+		Ω(contains(expectedFile, filesInArchive)).Should(Equal(isExists))
+	}
+}
+
+func contains(element string, elements []string) bool {
+	for _, el := range elements {
+		if el == element {
+			return true
+		}
+	}
+	return false
 }
