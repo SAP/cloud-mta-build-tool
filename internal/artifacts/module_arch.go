@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"reflect"
 
 	"github.com/pkg/errors"
 
@@ -14,6 +15,10 @@ import (
 	"github.com/SAP/cloud-mta-build-tool/internal/commands"
 	"github.com/SAP/cloud-mta-build-tool/internal/exec"
 	"github.com/SAP/cloud-mta-build-tool/internal/logs"
+)
+
+const (
+	ignore = "ignore"
 )
 
 // ExecuteBuild - executes build of module
@@ -120,7 +125,6 @@ func packModule(ep dir.IModule, deploymentDesc bool, module *mta.Module, moduleN
 	if deploymentDesc {
 		return copyModuleArchive(ep, module.Path, moduleName)
 	}
-
 	// Get module relative path
 	moduleZipPath := ep.GetTargetModuleDir(moduleName)
 
@@ -138,7 +142,6 @@ func packModule(ep dir.IModule, deploymentDesc bool, module *mta.Module, moduleN
 		return errors.Wrapf(err, `packing of the "%v" module failed while getting the build results path`,
 			moduleName)
 	}
-
 	entry, err := os.Stat(buildResults)
 	if err != nil {
 		return errors.Wrapf(err, `packing of the "%v" module failed; the "%v" build results path does not exist`,
@@ -154,11 +157,71 @@ func packModule(ep dir.IModule, deploymentDesc bool, module *mta.Module, moduleN
 	}
 
 	moduleZipFullPath := moduleZipPath + dataZip
-	err = dir.Archive(buildResults, moduleZipFullPath)
+	err = archiveModule(module, buildResults, moduleZipFullPath)
 	if err != nil {
 		return errors.Wrapf(err, `packing of the "%v" module failed when archiving`, moduleName)
 	}
 	return nil
+}
+
+func archiveModule(module *mta.Module, buildResults, moduleZipFullPath string) error {
+	// get ignore - get files and/or subfolders to exclude from the package.
+	ignore, err := getIgnores(module, buildResults)
+	if err != nil {
+		return err
+	}
+	err = dir.Archive(buildResults, moduleZipFullPath, ignore)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// getIgnores - get files and/or subfolders to exclude from the package.
+func getIgnores(module *mta.Module, sourcePath string) (map[string]interface{}, error) {
+	var ignoreList []string
+	// ignore defined in build params is declared
+	if module.BuildParams != nil && module.BuildParams[ignore] != nil {
+		ignoreList = convert(nil, reflect.ValueOf(module.BuildParams[ignore]))
+	}
+	ignoredEntriesMap, _ := getIgnoresMap(ignoreList, sourcePath)
+	return ignoredEntriesMap, nil
+}
+
+// getIgnoresMap - getIgnores Helper
+func getIgnoresMap(ignore []string, sourcePath string) (map[string]interface{}, error) {
+	ignoredEntriesMap := map[string]interface{}{}
+	for _, ign := range ignore {
+		path := filepath.Join(sourcePath, ign)
+		entries, err := filepath.Glob(path)
+		if err != nil {
+			return nil, err
+		}
+
+		for _, entry := range entries {
+			ignoredEntriesMap[entry] = nil
+		}
+	}
+	return ignoredEntriesMap, nil
+}
+
+// Convert slice []interface{} to slice []string
+func convert(dst []string, v reflect.Value) []string {
+	// Drill down to the concrete value
+	for v.Kind() == reflect.Interface {
+		v = v.Elem()
+	}
+
+	if v.Kind() == reflect.Slice {
+		// Convert each element of the slice.
+		for i := 0; i < v.Len(); i++ {
+			dst = convert(dst, v.Index(i))
+		}
+	} else {
+		// Convert value to string and append to result.
+		dst = append(dst, fmt.Sprint(v.Interface()))
+	}
+	return dst
 }
 
 func isArchive(path string) bool {

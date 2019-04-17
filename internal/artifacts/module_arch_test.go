@@ -1,6 +1,7 @@
 package artifacts
 
 import (
+	"archive/zip"
 	"errors"
 	"fmt"
 	"io/ioutil"
@@ -84,6 +85,14 @@ builders:
 				"cf", os.Getwd)).Should(Succeed())
 			loc := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath()}
 			Ω(loc.GetTargetModuleZipPath("node-js")).Should(BeAnExistingFile())
+		})
+
+		It("Sanity - with ignore parameter", func() {
+			Ω(ExecutePack(getTestPath("mta_ignore"), getResultPath(), "dev", "node",
+				"cf", os.Getwd)).Should(Succeed())
+			loc := dir.Loc{SourcePath: getTestPath("mta_ignore"), TargetPath: getResultPath()}
+			Ω(loc.GetTargetModuleZipPath("node")).Should(BeAnExistingFile())
+			validateArchiveContents([]string{"data1.zip", "ignore"}, loc.GetTargetModuleZipPath("node"), false)
 		})
 
 		It("Fails on platform validation", func() {
@@ -528,4 +537,31 @@ func createFileInGivenPath(path string) {
 
 func createFile(path ...string) {
 	createFileInGivenPath(getTestPath(path...))
+}
+
+func validateArchiveContents(expectedFilesInArchive []string, archiveLocation string, isExists bool) {
+	archiveReader, err := zip.OpenReader(archiveLocation)
+	Ω(err).Should(BeNil())
+	defer archiveReader.Close()
+	var filesInArchive []string
+	for _, file := range archiveReader.File {
+		filesInArchive = append(filesInArchive, file.Name)
+	}
+	for _, expectedFile := range expectedFilesInArchive {
+		if isExists {
+			Ω(contains(expectedFile, filesInArchive)).Should(BeTrue())
+
+		} else {
+			Ω(contains(expectedFile, filesInArchive)).Should(BeFalse())
+		}
+	}
+}
+
+func contains(element string, elements []string) bool {
+	for _, el := range elements {
+		if el == element {
+			return true
+		}
+	}
+	return false
 }

@@ -69,7 +69,7 @@ var _ = Describe("FSOPS", func() {
 
 		var _ = DescribeTable("Archive", func(source, target string, matcher GomegaMatcher, created bool) {
 
-			Ω(Archive(source, target)).Should(matcher)
+			Ω(Archive(source, target, map[string]interface{}{"": nil})).Should(matcher)
 			if created {
 				Ω(target).Should(BeAnExistingFile())
 			} else {
