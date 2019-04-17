@@ -1,31 +1,1 @@
----
-applications:
-- name: java-hello-world-db
-  path: db
-  memory: 128M
-  no-route: true
-  services:
-    - java-hdi-container
-
-- name: java-hello-world
-  path: web
-  port: [approuter-port]
-  memory: 128M
-  env:
-    destinations: >
-      [
-        {"name":"java", "url":"[http|https]://[hostname]:[backend-port]", "forwardAuthToken": true}
-      ]
-  services:
-    - java-uaa
-
-- name: java-hello-world-backend
-  port: [backend-port] #the port used for the java backend
-  memory: 512M
-  instances: 1
-  path: java/target/java-hello-world.war
-  services:
-    - java-hdi-container
-    - java-uaa
-  env:
-    TARGET_RUNTIME: tomee
+---applications:- name: java-hello-world-db  path: db  memory: 128M  no-route: true  services:    - java-hdi-container- name: java-hello-world  path: web  port: [approuter-port]  memory: 128M  env:    destinations: >      [        {"name":"java", "url":"[http|https]://[hostname]:[backend-port]", "forwardAuthToken": true}      ]  services:    - java-uaa- name: java-hello-world-backend  port: [backend-port] #the port used for the java backend  memory: 512M  instances: 1  path: java/target/java-hello-world.war  services:    - java-hdi-container    - java-uaa  env:    TARGET_RUNTIME: tomee

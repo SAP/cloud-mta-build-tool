@@ -1,45 +1,1 @@
-ID: testbuildparams
-_schema-version: '2.1'
-version: 0.0.1
-
-modules:
-
- - name: node
-   type: nodejs
-   path: node
-   build-parameters:
-      requires:
-        - name: ui1
-          artifacts: ["*"]
-          target-path: "newfolder" 
-          
-        - name: ui1
-          artifacts: ["unknown.txt"]
-          target-path: "newfolder" 
-          
-        - name: ui2
-          artifacts: ["deep/folder/inui2/somefile.txt"]
-          target-path: "existingfolder/deepfolder"
-          
-        - name: ui2
-          artifacts: ["./deep/*/inui2/another*"]
-          target-path: "./existingfolder/deepfolder"
-        
-        - name: ui2
-          artifacts: ["deep/folder/inui2/somefile.txt", "*/folder/"]
-          target-path: "newfolder/newdeepfolder"
-          
-
- - name: ui1
-   type: html5
-   path: ui1
-
- - name: ui2
-   type: html5
-   path: ui2
-  
- 
-  
- 
-  
-
+ID: testbuildparams_schema-version: '2.1'version: 0.0.1modules: - name: node   type: nodejs   path: node   build-parameters:      requires:        - name: ui1          artifacts: ["*"]          target-path: "newfolder"                   - name: ui1          artifacts: ["unknown.txt"]          target-path: "newfolder"                   - name: ui2          artifacts: ["deep/folder/inui2/somefile.txt"]          target-path: "existingfolder/deepfolder"                  - name: ui2          artifacts: ["./deep/*/inui2/another*"]          target-path: "./existingfolder/deepfolder"                - name: ui2          artifacts: ["deep/folder/inui2/somefile.txt", "*/folder/"]          target-path: "newfolder/newdeepfolder"           - name: ui1   type: html5   path: ui1 - name: ui2   type: html5   path: ui2        

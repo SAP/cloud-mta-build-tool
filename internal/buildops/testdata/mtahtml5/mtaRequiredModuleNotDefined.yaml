@@ -1,16 +1,1 @@
-ID: mtahtml5
-_schema-version: '2.1'
-version: 0.0.1
-
-modules:
- - name: ui5app
-   type: html5
-   path: testapp
-   parameters:
-      disk-quota: 256M
-      memory: 256M
-   build-parameters:
-      requires:
-      - name: abc
-
-
+ID: mtahtml5_schema-version: '2.1'version: 0.0.1modules: - name: ui5app   type: html5   path: testapp   parameters:      disk-quota: 256M      memory: 256M   build-parameters:      requires:      - name: abc
