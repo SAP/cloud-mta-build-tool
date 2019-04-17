@@ -49,3 +49,7 @@ sign:
     - $artifact
   signature: ${artifact}.sig
   artifacts: none
+
+after:
+  hooks:
+    - npm publish
