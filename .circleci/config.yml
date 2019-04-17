@@ -48,6 +48,16 @@ jobs:
       - run: cf login -a $CF_API -o $ORG -s $SPACE -u $TECH_USER -p $TECH_PASS
       - run: cd integration &&  go test -tags=integration
 
+
+  release:
+    docker:
+      - image: circleci/golang:1.11.5
+    working_directory: /go/src/github.com/SAP/cloud-mta-build-tool
+    steps:
+      - checkout
+      - run: curl -sL https://git.io/goreleaser | bash
+
+
 workflows:
   version: 2
   build_integration:
@@ -60,3 +70,12 @@ workflows:
           filters:
             branches:
               only: master
+
+  release:
+    jobs:
+      - release:
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /v[0-9]+(\.[0-9]+)*(-.*)*/
