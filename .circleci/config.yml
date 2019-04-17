@@ -49,7 +49,7 @@ jobs:
       - run: cd integration &&  go test -tags=integration
 
 
-  release:
+  release_new:
     docker:
       - image: circleci/golang:1.11.5
     working_directory: /go/src/github.com/SAP/cloud-mta-build-tool
@@ -73,9 +73,12 @@ workflows:
 
   release:
     jobs:
-      - release:
+      - release_new:
           filters:
             branches:
               ignore: /.*/
             tags:
               only: /v[0-9]+(\.[0-9]+)*(-.*)*/
+          requires:
+            - build
+            - integration_test
