@@ -67,9 +67,9 @@ var _ = Describe("FSOPS", func() {
 			os.RemoveAll(targetFilePath)
 		})
 
-		var _ = DescribeTable("Archive", func(source, target string, matcher GomegaMatcher, created bool) {
+		var _ = DescribeTable("Archive", func(source, target string, ignore []string, matcher GomegaMatcher, created bool) {
 
-			Ω(Archive(source, target, nil)).Should(matcher)
+			Ω(Archive(source, target, ignore)).Should(matcher)
 			if created {
 				Ω(target).Should(BeAnExistingFile())
 			} else {
@@ -77,13 +77,15 @@ var _ = Describe("FSOPS", func() {
 			}
 		},
 			Entry("Sanity",
-				getFullPath("testdata", "mtahtml5"), targetFilePath, Succeed(), true),
+				getFullPath("testdata", "mtahtml5"), targetFilePath, nil, Succeed(), true),
+			Entry("Sanity - ignore case",
+				getFullPath("testdata", "testproject"), targetFilePath, []string{"ui5app/"}, Succeed(), true),
 			Entry("SourceIsNotFolder",
-				getFullPath("testdata", "level2", "level2_one.txt"), targetFilePath, Succeed(), true),
+				getFullPath("testdata", "level2", "level2_one.txt"), targetFilePath, nil, Succeed(), true),
 			Entry("Target is empty string",
-				getFullPath("testdata", "mtahtml5"), "", HaveOccurred(), false),
+				getFullPath("testdata", "mtahtml5"), "", nil, HaveOccurred(), false),
 			Entry("Source is empty string",
-				"", "", HaveOccurred(), false),
+				"", "", nil, HaveOccurred(), false),
 		)
 	})
 

@@ -87,14 +87,6 @@ builders:
 			Ω(loc.GetTargetModuleZipPath("node-js")).Should(BeAnExistingFile())
 		})
 
-		It("Sanity - with ignore parameter", func() {
-			Ω(ExecutePack(getTestPath("mta_ignore"), getResultPath(), "dev", "node",
-				"cf", os.Getwd)).Should(Succeed())
-			loc := dir.Loc{SourcePath: getTestPath("mta_ignore"), TargetPath: getResultPath()}
-			Ω(loc.GetTargetModuleZipPath("node")).Should(BeAnExistingFile())
-			validateArchiveContents([]string{"data1.zip", "ignore"}, loc.GetTargetModuleZipPath("node"), false)
-		})
-
 		It("Fails on platform validation", func() {
 			Ω(ExecutePack(getTestPath("mta"), getResultPath(), "dev", "node-js",
 				"xx", os.Getwd)).Should(HaveOccurred())
@@ -130,6 +122,24 @@ builders:
 				}
 				Ω(packModule(&ep, false, &m, "node-js", "cf", "*.zip")).Should(Succeed())
 				Ω(getTestPath("result", ".mta_with_zipped_module_mta_build_tmp", "node-js", "abc.zip")).Should(BeAnExistingFile())
+			})
+
+			It("ignore case", func() {
+				m := mta.Module{
+					Name: "htmlapp2",
+					Path: "htmlapp2",
+					BuildParams: map[string]interface{}{
+						"ignore": []interface{}{"ignore/"},
+					},
+				}
+				ep := dir.Loc{
+					SourcePath: getTestPath("mta"),
+					TargetPath: getResultPath(),
+					Descriptor: "dev",
+				}
+				Ω(packModule(&ep, false, &m, "htmlapp2", "cf", "")).Should(Succeed())
+				Ω(getTestPath("result", ".mta_mta_build_tmp", "htmlapp2")).Should(BeAnExistingFile())
+				validateArchiveContents([]string{"ignore"}, ep.GetTargetModuleZipPath("htmlapp2"), false)
 			})
 
 			It("Build results - zip file, copy only fails - no file matching wildcard", func() {
@@ -548,12 +558,7 @@ func validateArchiveContents(expectedFilesInArchive []string, archiveLocation st
 		filesInArchive = append(filesInArchive, file.Name)
 	}
 	for _, expectedFile := range expectedFilesInArchive {
-		if isExists {
-			Ω(contains(expectedFile, filesInArchive)).Should(BeTrue())
-
-		} else {
-			Ω(contains(expectedFile, filesInArchive)).Should(BeFalse())
-		}
+		Ω(contains(expectedFile, filesInArchive)).Should(Equal(isExists))
 	}
 }
 

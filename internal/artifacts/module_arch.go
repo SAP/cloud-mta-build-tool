@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"reflect"
 
 	"github.com/pkg/errors"
 
@@ -158,54 +157,33 @@ func packModule(ep dir.IModule, deploymentDesc bool, module *mta.Module, moduleN
 	}
 
 	moduleZipFullPath := moduleZipPath + dataZip
-	err = archiveModule(module, buildResults, moduleZipFullPath)
+	// get ignore - get files and/or subfolders to exclude from the package.
+	ignore := getIgnores(module)
+	err = dir.Archive(buildResults, moduleZipFullPath, ignore)
 	if err != nil {
 		return errors.Wrapf(err, `packing of the "%v" module failed when archiving`, moduleName)
 	}
 	return nil
 }
 
-func archiveModule(module *mta.Module, buildResults, moduleZipFullPath string) error {
-	// get ignore - get files and/or subfolders to exclude from the package.
-	ignore, err := getIgnores(module)
-	if err != nil {
-		return err
-	}
-	err = dir.Archive(buildResults, moduleZipFullPath, ignore)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
 // getIgnores - get files and/or subfolders to exclude from the package.
-func getIgnores(module *mta.Module) ([]string, error) {
+func getIgnores(module *mta.Module) []string {
 	var ignoreList []string
 	// ignore defined in build params is declared
 	if module.BuildParams != nil && module.BuildParams[ignore] != nil {
-		ignoreList = convert(nil, reflect.ValueOf(module.BuildParams[ignore]))
+		ignoreList = convert(module.BuildParams[ignore].([]interface{}))
 	}
 
-	return ignoreList, nil
+	return ignoreList
 }
 
 // Convert slice []interface{} to slice []string
-func convert(dst []string, v reflect.Value) []string {
-	// Drill down to the concrete value
-	for v.Kind() == reflect.Interface {
-		v = v.Elem()
+func convert(data []interface{}) []string {
+	aString := make([]string, len(data))
+	for i, v := range data {
+		aString[i] = v.(string)
 	}
-
-	if v.Kind() == reflect.Slice {
-		// Convert each element of the slice.
-		for i := 0; i < v.Len(); i++ {
-			dst = convert(dst, v.Index(i))
-		}
-	} else {
-		// Convert value to string and append to result.
-		dst = append(dst, fmt.Sprint(v.Interface()))
-	}
-	return dst
+	return aString
 }
 
 func isArchive(path string) bool {

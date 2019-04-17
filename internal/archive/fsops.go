@@ -65,7 +65,7 @@ func Archive(sourcePath, targetArchivePath string, ignore []string) (e error) {
 		baseDir += string(os.PathSeparator)
 	}
 
-	ignoreMap, err := getIgnoresMap(ignore, sourcePath)
+	ignoreMap, err := getIgnoredEntries(ignore, sourcePath)
 	if err != nil {
 		return err
 	}
@@ -75,7 +75,7 @@ func Archive(sourcePath, targetArchivePath string, ignore []string) (e error) {
 }
 
 // getIgnoresMap - getIgnores Helper
-func getIgnoresMap(ignore []string, sourcePath string) (map[string]interface{}, error) {
+func getIgnoredEntries(ignore []string, sourcePath string) (map[string]interface{}, error) {
 	ignoredEntriesMap := map[string]interface{}{}
 	for _, ign := range ignore {
 		path := filepath.Join(sourcePath, ign)
