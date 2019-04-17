@@ -30,7 +30,7 @@ func CreateDirIfNotExist(dir string) error {
 // to support the spec requirements
 // Source Path to be zipped
 // Target artifact
-func Archive(sourcePath, targetArchivePath string, ignore map[string]interface{}) (e error) {
+func Archive(sourcePath, targetArchivePath string, ignore []string) (e error) {
 
 	// check that folder to be packed exist
 	info, err := os.Stat(sourcePath)
@@ -65,8 +65,30 @@ func Archive(sourcePath, targetArchivePath string, ignore map[string]interface{}
 		baseDir += string(os.PathSeparator)
 	}
 
-	err = walk(sourcePath, baseDir, archive, ignore)
+	ignoreMap, err := getIgnoresMap(ignore, sourcePath)
+	if err != nil {
+		return err
+	}
+
+	err = walk(sourcePath, baseDir, archive, ignoreMap)
 	return err
+}
+
+// getIgnoresMap - getIgnores Helper
+func getIgnoresMap(ignore []string, sourcePath string) (map[string]interface{}, error) {
+	ignoredEntriesMap := map[string]interface{}{}
+	for _, ign := range ignore {
+		path := filepath.Join(sourcePath, ign)
+		entries, err := filepath.Glob(path)
+		if err != nil {
+			return nil, err
+		}
+
+		for _, entry := range entries {
+			ignoredEntriesMap[entry] = nil
+		}
+	}
+	return ignoredEntriesMap, nil
 }
 
 // CloseFile - closes file

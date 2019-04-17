@@ -142,6 +142,7 @@ func packModule(ep dir.IModule, deploymentDesc bool, module *mta.Module, moduleN
 		return errors.Wrapf(err, `packing of the "%v" module failed while getting the build results path`,
 			moduleName)
 	}
+
 	entry, err := os.Stat(buildResults)
 	if err != nil {
 		return errors.Wrapf(err, `packing of the "%v" module failed; the "%v" build results path does not exist`,
@@ -166,7 +167,7 @@ func packModule(ep dir.IModule, deploymentDesc bool, module *mta.Module, moduleN
 
 func archiveModule(module *mta.Module, buildResults, moduleZipFullPath string) error {
 	// get ignore - get files and/or subfolders to exclude from the package.
-	ignore, err := getIgnores(module, buildResults)
+	ignore, err := getIgnores(module)
 	if err != nil {
 		return err
 	}
@@ -178,31 +179,14 @@ func archiveModule(module *mta.Module, buildResults, moduleZipFullPath string) e
 }
 
 // getIgnores - get files and/or subfolders to exclude from the package.
-func getIgnores(module *mta.Module, sourcePath string) (map[string]interface{}, error) {
+func getIgnores(module *mta.Module) ([]string, error) {
 	var ignoreList []string
 	// ignore defined in build params is declared
 	if module.BuildParams != nil && module.BuildParams[ignore] != nil {
 		ignoreList = convert(nil, reflect.ValueOf(module.BuildParams[ignore]))
 	}
-	ignoredEntriesMap, _ := getIgnoresMap(ignoreList, sourcePath)
-	return ignoredEntriesMap, nil
-}
 
-// getIgnoresMap - getIgnores Helper
-func getIgnoresMap(ignore []string, sourcePath string) (map[string]interface{}, error) {
-	ignoredEntriesMap := map[string]interface{}{}
-	for _, ign := range ignore {
-		path := filepath.Join(sourcePath, ign)
-		entries, err := filepath.Glob(path)
-		if err != nil {
-			return nil, err
-		}
-
-		for _, entry := range entries {
-			ignoredEntriesMap[entry] = nil
-		}
-	}
-	return ignoredEntriesMap, nil
+	return ignoreList, nil
 }
 
 // Convert slice []interface{} to slice []string
