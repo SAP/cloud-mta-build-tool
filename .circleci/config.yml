@@ -49,13 +49,13 @@ jobs:
       - run: cd integration &&  go test -tags=integration
 
 
-  release_new:
-    docker:
-      - image: circleci/golang:1.11.5
-    working_directory: /go/src/github.com/SAP/cloud-mta-build-tool
-    steps:
-      - checkout
-      - run: curl -sL https://git.io/goreleaser | bash
+#  release_new:
+#    docker:
+#      - image: circleci/golang:1.11.5
+#    working_directory: /go/src/github.com/SAP/cloud-mta-build-tool
+#    steps:
+#      - checkout
+#      - run: curl -sL https://git.io/goreleaser | bash
 
 
 workflows:
@@ -71,14 +71,14 @@ workflows:
             branches:
               only: master
 
-  release:
-    jobs:
-      - release_new:
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /v[0-9]+(\.[0-9]+)*(-.*)*/
-          requires:
-            - build
-            - integration_test
+#  release:
+#    jobs:
+#      - release_new:
+#          filters:
+#            branches:
+#              ignore: /.*/
+#            tags:
+#              only: /v[0-9]+(\.[0-9]+)*(-.*)*/
+#          requires:
+#            - build
+#            - integration_test
