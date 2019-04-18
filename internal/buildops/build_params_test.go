@@ -79,7 +79,12 @@ var _ = Describe("BuildParams", func() {
 			Name:       "A",
 			TargetPath: "./b_copied_artifacts",
 		}
+		require1 := BuildRequires{
+			Name:       "C",
+			TargetPath: "./b_copied_artifacts",
+		}
 		reqs := []BuildRequires{require}
+		reqs1 := []BuildRequires{require1}
 		mtaObj := mta.MTA{
 			Modules: []*mta.Module{
 				{
@@ -93,6 +98,20 @@ var _ = Describe("BuildParams", func() {
 						requiresParam: reqs,
 					},
 				},
+				{
+					Name: "C",
+					Path: "ui5app",
+					BuildParams: map[string]interface{}{
+						buildResultParam: "xxx.xxx",
+					},
+				},
+				{
+					Name: "D",
+					Path: "ui5app",
+					BuildParams: map[string]interface{}{
+						requiresParam: reqs1,
+					},
+				},
 			},
 		}
 
@@ -101,6 +120,12 @@ var _ = Describe("BuildParams", func() {
 			commands.BuilderTypeConfig = []byte("bad bad bad")
 			Ω(ProcessRequirements(&ep, &mtaObj, &require, "B")).Should(HaveOccurred())
 			commands.BuilderTypeConfig = conf
+		})
+
+		It("default build results - no file answers pattern", func() {
+			err := ProcessRequirements(&dir.Loc{SourcePath: getTestPath("testbuildparams", "ui2", "deep", "folder")},
+				&mtaObj, &require1, "D")
+			Ω(err).Should(HaveOccurred())
 		})
 
 		AfterEach(func() {
@@ -281,6 +306,20 @@ var _ = Describe("GetBuilder", func() {
 			"repo-type":        "maven",
 			"repo-coordinates": "mygroup:myart:1.0.0"}))
 		Ω(builder).Should(Equal("fetcher"))
+		Ω(custom).Should(BeTrue())
+	})
+	It("npm builder with config opts", func() {
+		dir, _ := os.Getwd()
+		path := filepath.Join(dir, "testdata", "mtaWithNpmConfig.yaml")
+		// Read MTA file
+		yamlFile, err := ioutil.ReadFile(path)
+		Ω(err).Should(BeNil())
+		m := mta.MTA{}
+		yaml.Unmarshal(yamlFile, &m)
+		builder, custom, options := commands.GetBuilder(m.Modules[0])
+		Ω(options["config"]).Should(ContainSubstring("--foo abc"))
+		Ω(options["config"]).Should(ContainSubstring("--foo1 xyz"))
+		Ω(builder).Should(Equal("npm"))
 		Ω(custom).Should(BeTrue())
 	})
 })

@@ -16,7 +16,7 @@ builders:
   info: "installing module dependencies & remove dev dependencies"
   path: "path to config file which override the following default commands"
   commands:
-  - command: npm install
+  - command: npm install {{config}}
   - command: npm prune --production
 
 - name: grunt
