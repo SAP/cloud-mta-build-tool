@@ -138,10 +138,12 @@ func mesh(module *mta.Module, moduleTypes *ModuleTypes, builderTypes Builders) (
 
 // prepare commands list - mesh result
 func prepareMeshResult(cmds CommandList, buildResults string, commands []Command, options map[string]string) (CommandList, string) {
+	reg := regexp.MustCompile("{{\\w+}}")
 	for _, cmd := range commands {
 		if options != nil {
 			cmd.Command = meshOpts(cmd.Command, options)
 		}
+		cmd.Command = reg.ReplaceAllString(cmd.Command, "")
 		cmds.Command = append(cmds.Command, cmd.Command)
 	}
 	return cmds, buildResults
@@ -153,8 +155,6 @@ func meshOpts(cmd string, options map[string]string) string {
 	for key, value := range options {
 		c = strings.Replace(c, "{{"+key+"}}", value, -1)
 	}
-	reg := regexp.MustCompile("{{\\w+}}")
-	c = reg.ReplaceAllString(c, "")
 	return c
 }
 

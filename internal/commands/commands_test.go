@@ -43,7 +43,7 @@ module-types:
 		}
 		var expected = CommandList{
 			Info:    "build UI application",
-			Command: []string{"npm install {{config}}", "grunt", "npm prune --production"},
+			Command: []string{"npm install ", "grunt", "npm prune --production"},
 		}
 		commands := ModuleTypes{}
 		customCommands := Builders{}
@@ -92,7 +92,7 @@ builders:
 		}
 		var expected = CommandList{
 			Info:    "build UI application",
-			Command: []string{"npm install {{config}}", "npm prune --production"},
+			Command: []string{"npm install ", "npm prune --production"},
 		}
 		commands := ModuleTypes{}
 		customCommands := Builders{}
@@ -128,7 +128,7 @@ module-types:
 	It("CommandProvider", func() {
 		expected := CommandList{
 			Info:    "installing module dependencies & remove dev dependencies",
-			Command: []string{"npm install {{config}}", "npm prune --production"},
+			Command: []string{"npm install ", "npm prune --production"},
 		}
 		Ω(CommandProvider(mta.Module{Type: "html5"})).Should(Equal(expected))
 	})
@@ -243,7 +243,7 @@ modules:
 			module, commands, _, err := moduleCmd(&m, "htmlapp")
 			Ω(err).Should(Succeed())
 			Ω(module.Path).Should(Equal("app"))
-			Ω(commands).Should(Equal([]string{"npm install {{config}}", "npm prune --production"}))
+			Ω(commands).Should(Equal([]string{"npm install ", "npm prune --production"}))
 		})
 
 		It("Builder specified in build params", func() {
@@ -311,7 +311,7 @@ modules:
 				Ω(err).Should(Succeed())
 				Ω(module.Name).Should(Equal("node-js"))
 				Ω(len(cmd)).Should(Equal(2))
-				Ω(cmd[0]).Should(Equal("npm install {{config}}"))
+				Ω(cmd[0]).Should(Equal("npm install "))
 				Ω(cmd[1]).Should(Equal("npm prune --production"))
 
 			})
