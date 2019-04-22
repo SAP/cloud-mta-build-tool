@@ -424,22 +424,22 @@ func getRelativePath(fullPath, basePath string) string {
 
 // Read returns mta byte slice.
 func Read(ep IMtaYaml) ([]byte, error) {
-	fileFullPath := ep.GetMtaYamlPath()
 	// Read MTA file
-	yamlFile, err := ioutil.ReadFile(fileFullPath)
+	return readFile(ep.GetMtaYamlPath())
+}
+
+func readFile(file string) ([]byte, error){
+	content, err := ioutil.ReadFile(file)
 	if err != nil {
-		return nil, errors.Wrapf(err, `failed to read the "%v" file`, fileFullPath)
+		return nil, errors.Wrapf(err, `failed to read the "%v" file`, file)
 	}
-	return yamlFile, nil
+	s := string(content)
+	s = strings.Replace(s, "\r\n", "\r", -1)
+	content = []byte(s)
+	return content, nil
 }
 
 // ReadExt returns mta extension byte slice.
 func ReadExt(ep IMtaExtYaml, platform string) ([]byte, error) {
-	fileFullPath := ep.GetMtaExtYamlPath(platform)
-	// Read MTA extension file
-	yamlFile, err := ioutil.ReadFile(fileFullPath)
-	if err != nil {
-		return nil, errors.Wrapf(err, `failed to read the "%v" file`, fileFullPath)
-	}
-	return yamlFile, err
+	return readFile(ep.GetMtaExtYamlPath(platform))
 }

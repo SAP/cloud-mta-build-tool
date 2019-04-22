@@ -1,1 +1,29 @@
-_schema-version: "2.0.0"ID: com.fetcher.projectversion: 0.0.1modules:- name: myModule  type: java  path: myModule  parameters:    buildpack: sap_java_buildpack    stack: cflinuxfs3  build-parameters:    builder: fetcher    fetcher-opts:      repo-type: maven      repo-coordinates: com.sap.xsahaa:java-xsahaa:1.1.2:war  requires:  - name: otracker-uaa  - name: otracker-managed-hdiresources:- name: otracker-uaa  type: com.sap.xs.uaa-space  parameters:    config-path: xs-security.json- name: otracker-managed-hdi  type: com.sap.xs.managed-hdi-container
+_schema-version: "2.0.0"
+ID: com.fetcher.project
+version: 0.0.1
+
+modules:
+
+- name: myModule
+  type: java
+  path: myModule
+  parameters:
+    buildpack: sap_java_buildpack
+    stack: cflinuxfs3
+  build-parameters:
+    builder: fetcher
+    fetcher-opts:
+      repo-type: maven
+      repo-coordinates: com.sap.xsahaa:java-xsahaa:1.1.2:war
+  requires:
+  - name: otracker-uaa
+  - name: otracker-managed-hdi
+
+resources:
+- name: otracker-uaa
+  type: com.sap.xs.uaa-space
+  parameters:
+    config-path: xs-security.json
+
+- name: otracker-managed-hdi
+  type: com.sap.xs.managed-hdi-container

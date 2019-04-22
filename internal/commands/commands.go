@@ -9,6 +9,7 @@ import (
 	"github.com/SAP/cloud-mta/mta"
 
 	"github.com/SAP/cloud-mta-build-tool/internal/archive"
+	"regexp"
 )
 
 const (
@@ -152,6 +153,8 @@ func meshOpts(cmd string, options map[string]string) string {
 	for key, value := range options {
 		c = strings.Replace(c, "{{"+key+"}}", value, -1)
 	}
+	reg := regexp.MustCompile("{{\\w+}}")
+	c = reg.ReplaceAllString(c, "")
 	return c
 }
 

@@ -1,1 +1,480 @@
-_schema-version: 2.1.0ID: com.company.vs.samples.odata.ebversion: 0.3.0parameters:  deploy_mode: htm-repomodules:- name: eb-java  type: java  path: srv  requires:  - name: ed-aaa    properties:      JBP_CONFIG_RESOURCE_CONFIGURATION: '[tomcat/webapps/ROOT/META-INF/context.xml: {"service_name_for_DefaultDB" : "~{aaa-container-name}"}]'  - name: ed-bbb  - name: ed-con  - name: ed-dest  - name: ed-sb-bbb  - name: ed-job-scheduler    parameters:      buildpack: company_java_buildpack      config:        msbbb_instance_name: ed-bbb  - name: ed-rabbit  - name: dynatrace-service  - name: eb-db  parameters:    health-check-type: http    health-check-http-endpoint: /health    health-check-timeout: 180    memory: 2G  properties:    JBP_CONFIG_companyJVM: '[ memory_calculator: { memory_sizes: { heap: 1000m, stack: 1m, metaspace: 150m } } ]'  provides:  - name: java    properties:      url: '${default-url}'- name: eb-db  type: hdb  path: db  requires:  - name: ed-aaa### UI related artifacts- name: eb-uideployer  type: com.company.htm.application-content  requires:  - name: ed-apprepo-dt  build-parameters:    builder: grunt    type: com.company.htm.application-content    requires:    - name: eb-ui-conf-eb    - name: eb-ui-conf-extensionfunction    - name: eb-ui-conf-movementcategory    - name: eb-ui-conf-stockledgercharacteristic    - name: eb-ui-conf-taxrate    - name: eb-ui-conf-taxwarehouse    - name: eb-ui-stockledgerlineitem    - name: eb-ui-stockledgerlineitem-alp    - name: eb-ui-stockledgerprocessingerror    - name: eb-ui-md-shiptomaster    - name: eb-ui-md-materialmaster- name: eb-ui-conf-eb  type: htm  path: ui-conf-eb  parameters:    disk-quota: 256M    memory: 256M  build-parameters:    builder: grunt  requires:  - name: java    group: destinations    properties:      name: java      url: '~{url}'- name: eb-ui-conf-extensionfunction  type: htm  path: ui-conf-extensionfunction  parameters:    disk-quota: 256M    memory: 256M  build-parameters:    builder: grunt  requires:  - name: java    group: destinations    properties:      name: java      url: '~{url}'- name: eb-ui-conf-movementcategory  type: htm  path: ui-conf-movementcategory  parameters:    disk-quota: 256M    memory: 256M  build-parameters:    builder: grunt  requires:  - name: java    group: destinations    properties:      name: java      url: '~{url}'- name: eb-ui-conf-stockledgercharacteristic  type: htm  path: ui-conf-stockledgercharacteristic  parameters:    disk-quota: 256M    memory: 256M  build-parameters:    builder: grunt  requires:  - name: java    group: destinations    properties:      name: java      url: '~{url}'- name: eb-ui-conf-taxrate  type: htm  path: ui-conf-taxrate  parameters:    disk-quota: 256M    memory: 256M  build-parameters:    builder: grunt  requires:  - name: java    group: destinations    properties:      name: java      url: '~{url}'- name: eb-ui-conf-taxwarehouse  type: htm  path: ui-conf-taxwarehouse  parameters:    disk-quota: 256M    memory: 256M  build-parameters:    builder: grunt  requires:  - name: java    group: destinations    properties:      name: java      url: '~{url}'- name: eb-ui-md-materialmaster  type: htm  path: ui-md-materialmaster  parameters:    disk-quota: 256M    memory: 256M  build-parameters:    builder: grunt  requires:  - name: java    group: destinations    properties:      name: java      url: '~{url}'- name: eb-ui-md-shiptomaster  type: htm  path: ui-md-shiptomaster  parameters:    disk-quota: 256M    memory: 256M  build-parameters:    builder: grunt  requires:  - name: java    group: destinations    properties:      name: java      url: '~{url}'- name: eb-ui-stockledgerlineitem  type: htm  path: ui-stockledgerlineitem  parameters:    disk-quota: 256M    memory: 256M  build-parameters:    builder: grunt  requires:  - name: java    group: destinations    properties:      name: java      url: '~{url}'- name: eb-ui-stockledgerlineitem-alp  type: htm  path: ui-stockledgerlineitem-alp  parameters:    disk-quota: 256M    memory: 256M  build-parameters:    builder: grunt  requires:  - name: java    group: destinations    properties:      name: java      url: '~{url}'- name: eb-ui-stockledgerprocessingerror  type: htm  path: ui-stockledgerprocessingerror  parameters:    disk-quota: 256M    memory: 256M  build-parameters:    builder: grunt  requires:  - name: java    group: destinations    properties:      name: java      url: '~{url}'- name: eb-approuter  type: approuter.nodejs  path: approuter  parameters:    disk-quota: 256M    memory: 256M  requires:  - name: dynatrace-service  - name: ed-bbb  - name: ed-apprepo-rt  - name: ed-portal  - name: ed-dest  - name: ed-con  - name: java    group: destinations    properties:      name: ed-backend      url: ~{url}      forwardAuthToken: true  - name: eb-msahaa    group: destinations    properties:      name: msAHAA_BACKEND      url: ~{url}      forwardAuthToken: true  - name: orca-remote-qbuilder-aaa    group: destinations    properties:      name: orca-remote-qbuilder-aaa      url: ~{url}      forwardAuthToken: true  properties:    CORS: >      [        {          "uriPattern": "^/company/bc/ina/(.*)$",          "allowedOrigin": [ { "host": "*.companyanalytics.cloud", "protocol": "https" },                             { "host": "*.companyanalytics.cloud", "protocol": "http" }          ],          "allowedMethods": ["GET", "POST", "HEAD", "OPTIONS", "PUT", "DELETE"],          "allowedHeaders": ["Origin", "Accept", "X-Requested-With", "Content-Type", "Access-Control-Request-Method", "Access-Control-Request-Headers", "Authorization", "X-company-Cid", "X-Csrf-Token"],          "exposeHeaders": ["Accept", "Authorization", "X-Requested-With", "X-company-Cid", "Access-Control-Allow-Origin", "Access-Control-Allow-Credentials", "X-Csrf-Token", "Content-Type"]        }      ]- name: eb-ftp-content  type: com.company.portal.site-content  path: ftp-content  parameters:    memory: 128M    buildpack: https://github.com/cloudfoundry  requires:  - name: ed-portal  - name: ed-bbb  - name: ed-apprepo-dt  - name: eb-uideployer### Supporting artifacts- name: eb-sb  type: nodejs  path: service-broker/  properties:    SBF_BROKER_CREDENTIALS: >      {        "${generated-user}": "${generated-password}"      }  requires:  - name: java    properties:      SBF_SERVICE_CONFIG:        eb-ServiceBroker:          extend_credentials:            shared:              url: ~{url}  - name: ed-sb-bbb  parameters:    memory: 128M- name: eb-msahaa  type: java  path: msahaa  parameters:    memory: 512M    buildpack: company_java_buildpack    health-check-timeout: 180  properties:    TARGET_RUNTIME: tomee    JBP_CONFIG_RESOURCE_CONFIGURATION: "['tomee/webapps/ROOT/WEB-INF/resources.xml': {'msahaa-aaa-container':'ed-aaa'}]"    company_JWT_TRUST_ACL: >      [        {"clientid":"*","identityzone":"*"}      ]  provides:  - name: eb-msahaa    properties:      url: "${default-url}"  requires:  - name: ed-bbb  - name: ed-aaa  build-parameters:    build-result: target/*.warresources:- name: ed-aaa  type: com.company.ms.aaa-container  properties:    aaa-container-name: '${service-name}'- name: ed-bbb  type: com.company.ms.bbb  parameters:    service-name: ed-bbb    config:      xcompanypname: 'ed-${space}'      tenant-mode: dedicated      scopes:      - name: $XcompanyPNAME.ConfDisp        description: Display configuration      - name: $XcompanyPNAME.ConfEdit        description: Edit configuration      - name: $XcompanyPNAME.MDDisp        description: Display master data      - name: $XcompanyPNAME.MDEdit        description: Edit master data      - name: $XcompanyPNAME.SLDisp        description: Display stock ledger      - name: $XcompanyPNAME.SLEdit        description: Reprocess stock ledger      - name: $XcompanyPNAME.Ext        description: Extension functions      - name: $XcompanyPNAME.JOBSCHEDULER        description: "Job Scheduler Scope"        grant-as-authority-to-apps: ["jobscheduler"]      authorities:      - $XcompanyPNAME.ConfDisp      - $XcompanyPNAME.MDDisp      - $XcompanyPNAME.SLDisp      - $XcompanyPNAME.SLEdit      - $XcompanyPNAME.Ext      role-templates:      - name: DisplayConfiguration        description: Display configuration        scope-references:        - $XcompanyPNAME.ConfDisp        - bbb.user      - name: EditConfiguration        description: Edit configuration        scope-references:        - $XcompanyPNAME.ConfDisp        - $XcompanyPNAME.ConfEdit        - bbb.user      - name: DisplayMasterData        description: Display master data        scope-references:        - $XcompanyPNAME.MDDisp        - bbb.user      - name: EditMasterData        description: Edit master data        scope-references:        - $XcompanyPNAME.MDDisp        - $XcompanyPNAME.MDEdit        - bbb.user      - name: DisplayStockLedger        description: Display stock ledger        scope-references:        - $XcompanyPNAME.SLDisp        - bbb.user      - name: ReprocessStockLedger        description: Reprocess stock ledger        scope-references:        - $XcompanyPNAME.SLDisp        - $XcompanyPNAME.SLEdit        - bbb.user      - name: Extendeb        description: Extension functions        scope-references:        - $XcompanyPNAME.Ext        - bbb.user      oauth2-configuration:        token-validity: 31536000- name: ed-sb-bbb  type: org.cloudfoundry.managed-service  parameters:    service: msbbb    service-plan: broker    config:      xcompanypname: 'ed-sb-${space}'      tenant-mode: dedicated      scopes:      - name: $XcompanyPNAME.ExecuteTaxCalc        description: execute tax calculation      authorities:      - $XcompanyPNAME.ExecuteTaxCalc- name: ed-job-scheduler  type: org.cloudfoundry.managed-service  parameters:    service: jobscheduler    service-plan: dev- name: ed-con  type: org.cloudfoundry.managed-service  parameters:    service: connectivity    service-plan: lite- name: ed-dest  type: org.cloudfoundry.managed-service  parameters:    service: destination    service-plan: lite- name: ed-apprepo-rt  type: org.cloudfoundry.managed-service  parameters:    service: htm-apps-repo    service-plan: app-runtime- name: ed-apprepo-dt  type: org.cloudfoundry.managed-service  parameters:    service: htm-apps-repo    service-plan: app-host- name: ed-portal  type: org.cloudfoundry.managed-service  parameters:    service-plan: standard    service: portal- name: orca-remote-qbuilder-aaa  properties:    url: 'https://company.com/'- name: ed-rabbit  type: org.cloudfoundry.managed-service  parameters:    service: rabbitmq    service-plan: v3.6-dev- name: dynatrace-service  type: org.cloudfoundry.existing-service
+_schema-version: 2.1.0
+ID: com.company.vs.samples.odata.eb
+version: 0.3.0
+
+parameters:
+  deploy_mode: htm-repo
+
+modules:
+
+- name: eb-java
+  type: java
+  path: srv
+  requires:
+  - name: ed-aaa
+    properties:
+      JBP_CONFIG_RESOURCE_CONFIGURATION: '[tomcat/webapps/ROOT/META-INF/context.xml: {"service_name_for_DefaultDB" : "~{aaa-container-name}"}]'
+  - name: ed-bbb
+  - name: ed-con
+  - name: ed-dest
+  - name: ed-sb-bbb
+  - name: ed-job-scheduler
+    parameters:
+      buildpack: company_java_buildpack
+      config:
+        msbbb_instance_name: ed-bbb
+  - name: ed-rabbit
+  - name: dynatrace-service
+  - name: eb-db
+  parameters:
+    health-check-type: http
+    health-check-http-endpoint: /health
+    health-check-timeout: 180
+    memory: 2G
+  properties:
+    JBP_CONFIG_companyJVM: '[ memory_calculator: { memory_sizes: { heap: 1000m, stack: 1m, metaspace: 150m } } ]'
+  provides:
+  - name: java
+    properties:
+      url: '${default-url}'
+
+- name: eb-db
+  type: hdb
+  path: db
+  requires:
+  - name: ed-aaa
+
+
+### UI related artifacts
+
+- name: eb-uideployer
+  type: com.company.htm.application-content
+  requires:
+  - name: ed-apprepo-dt
+  build-parameters:
+    builder: grunt
+    type: com.company.htm.application-content
+    requires:
+    - name: eb-ui-conf-eb
+    - name: eb-ui-conf-extensionfunction
+    - name: eb-ui-conf-movementcategory
+    - name: eb-ui-conf-stockledgercharacteristic
+    - name: eb-ui-conf-taxrate
+    - name: eb-ui-conf-taxwarehouse
+    - name: eb-ui-stockledgerlineitem
+    - name: eb-ui-stockledgerlineitem-alp
+    - name: eb-ui-stockledgerprocessingerror
+    - name: eb-ui-md-shiptomaster
+    - name: eb-ui-md-materialmaster
+
+- name: eb-ui-conf-eb
+  type: htm
+  path: ui-conf-eb
+  parameters:
+    disk-quota: 256M
+    memory: 256M
+  build-parameters:
+    builder: grunt
+  requires:
+  - name: java
+    group: destinations
+    properties:
+      name: java
+      url: '~{url}'
+
+- name: eb-ui-conf-extensionfunction
+  type: htm
+  path: ui-conf-extensionfunction
+  parameters:
+    disk-quota: 256M
+    memory: 256M
+  build-parameters:
+    builder: grunt
+  requires:
+  - name: java
+    group: destinations
+    properties:
+      name: java
+      url: '~{url}'
+
+- name: eb-ui-conf-movementcategory
+  type: htm
+  path: ui-conf-movementcategory
+  parameters:
+    disk-quota: 256M
+    memory: 256M
+  build-parameters:
+    builder: grunt
+  requires:
+  - name: java
+    group: destinations
+    properties:
+      name: java
+      url: '~{url}'
+
+- name: eb-ui-conf-stockledgercharacteristic
+  type: htm
+  path: ui-conf-stockledgercharacteristic
+  parameters:
+    disk-quota: 256M
+    memory: 256M
+  build-parameters:
+    builder: grunt
+  requires:
+  - name: java
+    group: destinations
+    properties:
+      name: java
+      url: '~{url}'
+
+- name: eb-ui-conf-taxrate
+  type: htm
+  path: ui-conf-taxrate
+  parameters:
+    disk-quota: 256M
+    memory: 256M
+  build-parameters:
+    builder: grunt
+  requires:
+  - name: java
+    group: destinations
+    properties:
+      name: java
+      url: '~{url}'
+
+- name: eb-ui-conf-taxwarehouse
+  type: htm
+  path: ui-conf-taxwarehouse
+  parameters:
+    disk-quota: 256M
+    memory: 256M
+  build-parameters:
+    builder: grunt
+  requires:
+  - name: java
+    group: destinations
+    properties:
+      name: java
+      url: '~{url}'
+
+- name: eb-ui-md-materialmaster
+  type: htm
+  path: ui-md-materialmaster
+  parameters:
+    disk-quota: 256M
+    memory: 256M
+  build-parameters:
+    builder: grunt
+  requires:
+  - name: java
+    group: destinations
+    properties:
+      name: java
+      url: '~{url}'
+
+- name: eb-ui-md-shiptomaster
+  type: htm
+  path: ui-md-shiptomaster
+  parameters:
+    disk-quota: 256M
+    memory: 256M
+  build-parameters:
+    builder: grunt
+  requires:
+  - name: java
+    group: destinations
+    properties:
+      name: java
+      url: '~{url}'
+
+- name: eb-ui-stockledgerlineitem
+  type: htm
+  path: ui-stockledgerlineitem
+  parameters:
+    disk-quota: 256M
+    memory: 256M
+  build-parameters:
+    builder: grunt
+  requires:
+  - name: java
+    group: destinations
+    properties:
+      name: java
+      url: '~{url}'
+
+- name: eb-ui-stockledgerlineitem-alp
+  type: htm
+  path: ui-stockledgerlineitem-alp
+  parameters:
+    disk-quota: 256M
+    memory: 256M
+  build-parameters:
+    builder: grunt
+  requires:
+  - name: java
+    group: destinations
+    properties:
+      name: java
+      url: '~{url}'
+
+- name: eb-ui-stockledgerprocessingerror
+  type: htm
+  path: ui-stockledgerprocessingerror
+  parameters:
+    disk-quota: 256M
+    memory: 256M
+  build-parameters:
+    builder: grunt
+  requires:
+  - name: java
+    group: destinations
+    properties:
+      name: java
+      url: '~{url}'
+
+- name: eb-approuter
+  type: approuter.nodejs
+  path: approuter
+  parameters:
+    disk-quota: 256M
+    memory: 256M
+  requires:
+  - name: dynatrace-service
+  - name: ed-bbb
+  - name: ed-apprepo-rt
+  - name: ed-portal
+  - name: ed-dest
+  - name: ed-con
+  - name: java
+    group: destinations
+    properties:
+      name: ed-backend
+      url: ~{url}
+      forwardAuthToken: true
+  - name: eb-msahaa
+    group: destinations
+    properties:
+      name: msAHAA_BACKEND
+      url: ~{url}
+      forwardAuthToken: true
+  - name: orca-remote-qbuilder-aaa
+    group: destinations
+    properties:
+      name: orca-remote-qbuilder-aaa
+      url: ~{url}
+      forwardAuthToken: true
+  properties:
+    CORS: >
+      [
+        {
+          "uriPattern": "^/company/bc/ina/(.*)$",
+          "allowedOrigin": [ { "host": "*.companyanalytics.cloud", "protocol": "https" },
+                             { "host": "*.companyanalytics.cloud", "protocol": "http" }
+          ],
+          "allowedMethods": ["GET", "POST", "HEAD", "OPTIONS", "PUT", "DELETE"],
+          "allowedHeaders": ["Origin", "Accept", "X-Requested-With", "Content-Type", "Access-Control-Request-Method", "Access-Control-Request-Headers", "Authorization", "X-company-Cid", "X-Csrf-Token"],
+          "exposeHeaders": ["Accept", "Authorization", "X-Requested-With", "X-company-Cid", "Access-Control-Allow-Origin", "Access-Control-Allow-Credentials", "X-Csrf-Token", "Content-Type"]
+        }
+      ]
+- name: eb-ftp-content
+  type: com.company.portal.site-content
+  path: ftp-content
+  parameters:
+    memory: 128M
+    buildpack: https://github.com/cloudfoundry
+  requires:
+  - name: ed-portal
+  - name: ed-bbb
+  - name: ed-apprepo-dt
+  - name: eb-uideployer
+
+### Supporting artifacts
+
+- name: eb-sb
+  type: nodejs
+  path: service-broker/
+  properties:
+    SBF_BROKER_CREDENTIALS: >
+      {
+        "${generated-user}": "${generated-password}"
+      }
+  requires:
+  - name: java
+    properties:
+      SBF_SERVICE_CONFIG:
+        eb-ServiceBroker:
+          extend_credentials:
+            shared:
+              url: ~{url}
+  - name: ed-sb-bbb
+  parameters:
+    memory: 128M
+
+- name: eb-msahaa
+  type: java
+  path: msahaa
+  parameters:
+    memory: 512M
+    buildpack: company_java_buildpack
+    health-check-timeout: 180
+  properties:
+    TARGET_RUNTIME: tomee
+    JBP_CONFIG_RESOURCE_CONFIGURATION: "['tomee/webapps/ROOT/WEB-INF/resources.xml': {'msahaa-aaa-container':'ed-aaa'}]"
+    company_JWT_TRUST_ACL: >
+      [
+        {"clientid":"*","identityzone":"*"}
+      ]
+  provides:
+  - name: eb-msahaa
+    properties:
+      url: "${default-url}"
+  requires:
+  - name: ed-bbb
+  - name: ed-aaa
+  build-parameters:
+    build-result: target/*.war
+
+resources:
+- name: ed-aaa
+  type: com.company.ms.aaa-container
+  properties:
+    aaa-container-name: '${service-name}'
+
+- name: ed-bbb
+  type: com.company.ms.bbb
+  parameters:
+    service-name: ed-bbb
+    config:
+      xcompanypname: 'ed-${space}'
+      tenant-mode: dedicated
+      scopes:
+      - name: $XcompanyPNAME.ConfDisp
+        description: Display configuration
+      - name: $XcompanyPNAME.ConfEdit
+        description: Edit configuration
+      - name: $XcompanyPNAME.MDDisp
+        description: Display master data
+      - name: $XcompanyPNAME.MDEdit
+        description: Edit master data
+      - name: $XcompanyPNAME.SLDisp
+        description: Display stock ledger
+      - name: $XcompanyPNAME.SLEdit
+        description: Reprocess stock ledger
+      - name: $XcompanyPNAME.Ext
+        description: Extension functions
+      - name: $XcompanyPNAME.JOBSCHEDULER
+        description: "Job Scheduler Scope"
+        grant-as-authority-to-apps: ["jobscheduler"]
+      authorities:
+      - $XcompanyPNAME.ConfDisp
+      - $XcompanyPNAME.MDDisp
+      - $XcompanyPNAME.SLDisp
+      - $XcompanyPNAME.SLEdit
+      - $XcompanyPNAME.Ext
+      role-templates:
+      - name: DisplayConfiguration
+        description: Display configuration
+        scope-references:
+        - $XcompanyPNAME.ConfDisp
+        - bbb.user
+      - name: EditConfiguration
+        description: Edit configuration
+        scope-references:
+        - $XcompanyPNAME.ConfDisp
+        - $XcompanyPNAME.ConfEdit
+        - bbb.user
+      - name: DisplayMasterData
+        description: Display master data
+        scope-references:
+        - $XcompanyPNAME.MDDisp
+        - bbb.user
+      - name: EditMasterData
+        description: Edit master data
+        scope-references:
+        - $XcompanyPNAME.MDDisp
+        - $XcompanyPNAME.MDEdit
+        - bbb.user
+      - name: DisplayStockLedger
+        description: Display stock ledger
+        scope-references:
+        - $XcompanyPNAME.SLDisp
+        - bbb.user
+      - name: ReprocessStockLedger
+        description: Reprocess stock ledger
+        scope-references:
+        - $XcompanyPNAME.SLDisp
+        - $XcompanyPNAME.SLEdit
+        - bbb.user
+      - name: Extendeb
+        description: Extension functions
+        scope-references:
+        - $XcompanyPNAME.Ext
+        - bbb.user
+      oauth2-configuration:
+        token-validity: 31536000
+
+- name: ed-sb-bbb
+  type: org.cloudfoundry.managed-service
+  parameters:
+    service: msbbb
+    service-plan: broker
+    config:
+      xcompanypname: 'ed-sb-${space}'
+      tenant-mode: dedicated
+      scopes:
+      - name: $XcompanyPNAME.ExecuteTaxCalc
+        description: execute tax calculation
+      authorities:
+      - $XcompanyPNAME.ExecuteTaxCalc
+
+- name: ed-job-scheduler
+  type: org.cloudfoundry.managed-service
+  parameters:
+    service: jobscheduler
+    service-plan: dev
+
+- name: ed-con
+  type: org.cloudfoundry.managed-service
+  parameters:
+    service: connectivity
+    service-plan: lite
+
+- name: ed-dest
+  type: org.cloudfoundry.managed-service
+  parameters:
+    service: destination
+    service-plan: lite
+
+
+- name: ed-apprepo-rt
+  type: org.cloudfoundry.managed-service
+  parameters:
+    service: htm-apps-repo
+    service-plan: app-runtime
+
+- name: ed-apprepo-dt
+  type: org.cloudfoundry.managed-service
+  parameters:
+    service: htm-apps-repo
+    service-plan: app-host
+
+- name: ed-portal
+  type: org.cloudfoundry.managed-service
+  parameters:
+    service-plan: standard
+    service: portal
+
+- name: orca-remote-qbuilder-aaa
+  properties:
+    url: 'https://company.com/'
+
+- name: ed-rabbit
+  type: org.cloudfoundry.managed-service
+  parameters:
+    service: rabbitmq
+    service-plan: v3.6-dev
+
+- name: dynatrace-service
+  type: org.cloudfoundry.existing-service
+
+

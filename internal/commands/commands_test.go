@@ -266,7 +266,7 @@ modules:
 			module, commands, _, err := moduleCmd(&m, "htmlapp")
 			Ω(err).Should(BeNil())
 			Ω(module.Path).Should(Equal("app"))
-			Ω(commands).Should(Equal([]string{"npm install {{config}}", "npm prune --production"}))
+			Ω(commands).Should(Equal([]string{"npm install ", "npm prune --production"}))
 		})
 
 		It("Fetcher builder specified in build params", func() {
