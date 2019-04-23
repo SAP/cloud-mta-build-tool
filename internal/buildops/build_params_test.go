@@ -104,7 +104,6 @@ var _ = Describe("BuildParams", func() {
 		})
 
 		AfterEach(func() {
-			wd, _ = os.Getwd()
 			os.RemoveAll(filepath.Join(wd, "testdata", "testproject", "moduleB"))
 		})
 

@@ -2,9 +2,10 @@ package artifacts
 
 import (
 	"fmt"
-	"github.com/SAP/cloud-mta-build-tool/internal/logs"
-	"github.com/SAP/cloud-mta/mta"
+
 	"github.com/pkg/errors"
+
+	"github.com/SAP/cloud-mta/mta"
 
 	"github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta-build-tool/internal/commands"
@@ -38,7 +39,6 @@ func ExecuteProjectBuild(source, descriptor, phase string, getWd func() (string,
 }
 
 func postBuild(loc *dir.Loc, oMta *mta.MTA) error {
-	logs.Logger.Infof(`hi...`)
 	err := copyResourceContent(loc.GetSource(), loc.GetTargetTmpDir(), oMta, copyInParallel)
 	if err != nil {
 		return err
