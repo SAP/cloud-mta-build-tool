@@ -428,7 +428,7 @@ func Read(ep IMtaYaml) ([]byte, error) {
 	return readFile(ep.GetMtaYamlPath())
 }
 
-func readFile(file string) ([]byte, error){
+func readFile(file string) ([]byte, error) {
 	content, err := ioutil.ReadFile(file)
 	if err != nil {
 		return nil, errors.Wrapf(err, `failed to read the "%v" file`, file)
