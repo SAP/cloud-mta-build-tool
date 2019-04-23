@@ -14,6 +14,7 @@ import (
 
 	"github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta/mta"
+	"strings"
 )
 
 var _ = Describe("ModulesDeps", func() {
@@ -69,13 +70,24 @@ var _ = Describe("ModulesDeps", func() {
 			Ω(GetModulesNames(mtaStr)).Should(Equal([]string{"someproj-db", "someproj-java"}))
 		})
 		It("Required module not defined", func() {
-			mtaContent, _ := ioutil.ReadFile(getTestPath("mtahtml5", "mtaRequiredModuleNotDefined.yaml"))
+			mtaContent, _ := readFile(getTestPath("mtahtml5", "mtaRequiredModuleNotDefined.yaml"))
 			mtaStr, _ := mta.Unmarshal(mtaContent)
 			_, err := GetModulesNames(mtaStr)
 			Ω(err.Error()).Should(Equal("the abc module is not defined "))
 		})
 	})
 })
+
+func readFile(file string) ([]byte, error) {
+	content, err := ioutil.ReadFile(file)
+	if err != nil {
+		return nil, errors.Wrapf(err, `failed to read the "%v" file`, file)
+	}
+	s := string(content)
+	s = strings.Replace(s, "\r\n", "\r", -1)
+	content = []byte(s)
+	return content, nil
+}
 
 func executeAndProvideOutput(execute func()) string {
 	old := os.Stdout // keep backup of the real stdout

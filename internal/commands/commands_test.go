@@ -20,7 +20,7 @@ module-types:
   - name: html5
     info: "build UI application"
     commands:
-    - command: npm install
+    - command: npm install {{config}}
     - command: grunt
     - command: npm prune --production
   - name: java
@@ -43,7 +43,7 @@ module-types:
 		}
 		var expected = CommandList{
 			Info:    "build UI application",
-			Command: []string{"npm install", "grunt", "npm prune --production"},
+			Command: []string{"npm install ", "grunt", "npm prune --production"},
 		}
 		commands := ModuleTypes{}
 		customCommands := Builders{}
@@ -82,7 +82,7 @@ builders:
   - name: npm
     info: "build UI application"
     commands:
-    - command: npm install
+    - command: npm install {{config}}
     - command: npm prune --production
 `)
 		var modules = mta.Module{
@@ -92,7 +92,7 @@ builders:
 		}
 		var expected = CommandList{
 			Info:    "build UI application",
-			Command: []string{"npm install", "npm prune --production"},
+			Command: []string{"npm install ", "npm prune --production"},
 		}
 		commands := ModuleTypes{}
 		customCommands := Builders{}
@@ -128,7 +128,7 @@ module-types:
 	It("CommandProvider", func() {
 		expected := CommandList{
 			Info:    "installing module dependencies & remove dev dependencies",
-			Command: []string{"npm install", "npm prune --production"},
+			Command: []string{"npm install ", "npm prune --production"},
 		}
 		Ω(CommandProvider(mta.Module{Type: "html5"})).Should(Equal(expected))
 	})
@@ -207,9 +207,9 @@ builders:
 	var _ = Describe("Command converter", func() {
 
 		It("Sanity", func() {
-			cmdInput := []string{"npm install", "grunt", "npm prune --production"}
+			cmdInput := []string{"npm install {{config}}", "grunt", "npm prune --production"}
 			cmdExpected := [][]string{
-				{"path", "npm", "install"},
+				{"path", "npm", "install", "{{config}}"},
 				{"path", "grunt"},
 				{"path", "npm", "prune", "--production"}}
 			Ω(CmdConverter("path", cmdInput)).Should(Equal(cmdExpected))
@@ -243,7 +243,7 @@ modules:
 			module, commands, _, err := moduleCmd(&m, "htmlapp")
 			Ω(err).Should(Succeed())
 			Ω(module.Path).Should(Equal("app"))
-			Ω(commands).Should(Equal([]string{"npm install", "npm prune --production"}))
+			Ω(commands).Should(Equal([]string{"npm install ", "npm prune --production"}))
 		})
 
 		It("Builder specified in build params", func() {
@@ -266,7 +266,7 @@ modules:
 			module, commands, _, err := moduleCmd(&m, "htmlapp")
 			Ω(err).Should(BeNil())
 			Ω(module.Path).Should(Equal("app"))
-			Ω(commands).Should(Equal([]string{"npm install", "npm prune --production"}))
+			Ω(commands).Should(Equal([]string{"npm install ", "npm prune --production"}))
 		})
 
 		It("Fetcher builder specified in build params", func() {
@@ -311,7 +311,7 @@ modules:
 				Ω(err).Should(Succeed())
 				Ω(module.Name).Should(Equal("node-js"))
 				Ω(len(cmd)).Should(Equal(2))
-				Ω(cmd[0]).Should(Equal("npm install"))
+				Ω(cmd[0]).Should(Equal("npm install "))
 				Ω(cmd[1]).Should(Equal("npm prune --production"))
 
 			})
@@ -367,6 +367,24 @@ modules:
 			builder, custom, _ := GetBuilder(&m)
 			Ω(builder).Should(Equal("npm"))
 			Ω(custom).Should(Equal(true))
+		})
+		It("Builder defined by build params with config", func() {
+			m := mta.Module{
+				Name: "x",
+				Type: "node-js",
+				BuildParams: map[string]interface{}{
+					builderParam: "npm",
+					"npm-opts": map[interface{}]interface{}{
+						"config": map[interface{}]interface{}{
+							"key1": "value1",
+						},
+					},
+				},
+			}
+			builder, custom, opts := GetBuilder(&m)
+			Ω(builder).Should(Equal("npm"))
+			Ω(custom).Should(Equal(true))
+			Ω(opts["config"]).Should(Equal(" --key1 value1"))
 		})
 	})
 })

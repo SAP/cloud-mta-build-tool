@@ -9,10 +9,12 @@ import (
 	"github.com/SAP/cloud-mta/mta"
 
 	"github.com/SAP/cloud-mta-build-tool/internal/archive"
+	"regexp"
 )
 
 const (
-	builderParam = "builder"
+	builderParam  = "builder"
+	optionsSuffix = "-opts"
 )
 
 // CommandList - list of command to execute
@@ -26,7 +28,7 @@ func GetBuilder(module *mta.Module) (string, bool, map[string]string) {
 	// builder defined in build params is prioritised
 	if module.BuildParams != nil && module.BuildParams[builderParam] != nil {
 		builderName := module.BuildParams[builderParam].(string)
-		optsParamName := builderName + "-opts"
+		optsParamName := builderName + optionsSuffix
 		// get options for builder from mta.yaml
 		options := getOpts(module, optsParamName)
 
@@ -52,7 +54,16 @@ func convert(m map[interface{}]interface{}) map[string]string {
 	res := make(map[string]string)
 	for key, value := range m {
 		strKey := key.(string)
-		strValue := value.(string)
+		strValue, ok := value.(string)
+		// deep property will be presented as string of --key value
+		if !ok {
+			mapValueI := value.(map[interface{}]interface{})
+			mapValue := convert(mapValueI)
+			strValue = ""
+			for deepKey, deepValue := range mapValue {
+				strValue = strValue + " --" + deepKey + " " + deepValue
+			}
+		}
 
 		res[strKey] = strValue
 	}
@@ -127,10 +138,12 @@ func mesh(module *mta.Module, moduleTypes *ModuleTypes, builderTypes Builders) (
 
 // prepare commands list - mesh result
 func prepareMeshResult(cmds CommandList, buildResults string, commands []Command, options map[string]string) (CommandList, string) {
+	reg := regexp.MustCompile("{{\\w+}}")
 	for _, cmd := range commands {
 		if options != nil {
 			cmd.Command = meshOpts(cmd.Command, options)
 		}
+		cmd.Command = reg.ReplaceAllString(cmd.Command, "")
 		cmds.Command = append(cmds.Command, cmd.Command)
 	}
 	return cmds, buildResults
