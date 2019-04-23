@@ -2,13 +2,17 @@ package artifacts
 
 import (
 	"fmt"
-
+	"github.com/SAP/cloud-mta-build-tool/internal/logs"
 	"github.com/SAP/cloud-mta/mta"
 	"github.com/pkg/errors"
 
 	"github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta-build-tool/internal/commands"
 	"github.com/SAP/cloud-mta-build-tool/internal/exec"
+)
+
+const (
+	copyInParallel = false
 )
 
 // ExecuteProjectBuild - execute pre or post phase of project build
@@ -27,7 +31,19 @@ func ExecuteProjectBuild(source, descriptor, phase string, getWd func() (string,
 	if phase == "pre" && oMta.BuildParams != nil {
 		return execBuilder(beforeExec(oMta.BuildParams))
 	}
-	if phase == "post" && oMta.BuildParams != nil {
+	if phase == "post" {
+		return postBuild(loc, oMta)
+	}
+	return nil
+}
+
+func postBuild(loc *dir.Loc, oMta *mta.MTA) error {
+	logs.Logger.Infof(`hi...`)
+	err := copyResourceContent(loc.GetSource(), loc.GetTargetTmpDir(), oMta, copyInParallel)
+	if err != nil {
+		return err
+	}
+	if oMta.BuildParams != nil {
 		return execBuilder(afterExec(oMta.BuildParams))
 	}
 	return nil
