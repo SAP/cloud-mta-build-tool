@@ -20,8 +20,8 @@ module-types:
   - name: html5
     info: "build UI application"
     commands:
-    - command: npm install {{config}}
-    - command: grunt
+    - command: npm install 
+    - command: grunt 
     - command: npm prune --production
   - name: java
     info: "build java application"
@@ -43,18 +43,18 @@ module-types:
 		}
 		var expected = CommandList{
 			Info:    "build UI application",
-			Command: []string{"npm install ", "grunt", "npm prune --production"},
+			Command: []string{"npm install", "grunt", "npm prune --production"},
 		}
 		commands := ModuleTypes{}
 		customCommands := Builders{}
 		Ω(yaml.Unmarshal(moduleTypesCfg, &commands)).Should(Succeed())
-		Ω(mesh(&modules, &commands, customCommands)).Should(Equal(expected))
+		Ω(mesh(&modules, &commands, customCommands, nil)).Should(Equal(expected))
 		modules = mta.Module{
 			Name: "uiapp1",
 			Type: "html5",
 			Path: "./",
 		}
-		_, _, err := mesh(&modules, &commands, customCommands)
+		_, _, err := mesh(&modules, &commands, customCommands, nil)
 		Ω(err).Should(Succeed())
 		modules = mta.Module{
 			Name: "uiapp1",
@@ -64,7 +64,7 @@ module-types:
 				"builder": "html5x",
 			},
 		}
-		_, _, err = mesh(&modules, &commands, customCommands)
+		_, _, err = mesh(&modules, &commands, customCommands, nil)
 		Ω(err).Should(HaveOccurred())
 	})
 
@@ -82,23 +82,34 @@ builders:
   - name: npm
     info: "build UI application"
     commands:
-    - command: npm install {{config}}
+    - command: npm install {{npm.config}}
+    - command: grunt {{grunt}}
     - command: npm prune --production
 `)
 		var modules = mta.Module{
 			Name: "uiapp",
 			Type: "html5",
 			Path: "./",
+			BuildParams: map[string]interface{}{
+				"npm-opts": map[interface{}]interface{}{
+					"config": map[interface{}]interface{}{
+						"foo": "abc",
+					},
+				},
+				"grunt-opts": []string{
+					"abc", "xyz",
+				},
+			},
 		}
 		var expected = CommandList{
 			Info:    "build UI application",
-			Command: []string{"npm install ", "npm prune --production"},
+			Command: []string{"npm install  --foo abc", "grunt abc xyz", "npm prune --production"},
 		}
 		commands := ModuleTypes{}
 		customCommands := Builders{}
 		Ω(yaml.Unmarshal(moduleTypesCfg, &commands)).Should(Succeed())
 		Ω(yaml.Unmarshal(buildersCfg, &customCommands)).Should(Succeed())
-		Ω(mesh(&modules, &commands, customCommands)).Should(Equal(expected))
+		Ω(mesh(&modules, &commands, customCommands, nil)).Should(Equal(expected))
 	})
 
 	It("Mesh - fails on usage both builder and commands in one module type", func() {
@@ -121,7 +132,7 @@ module-types:
 		commands := ModuleTypes{}
 		customCommands := Builders{}
 		Ω(yaml.Unmarshal(moduleTypesCfg, &commands)).Should(Succeed())
-		_, _, err := mesh(&modules, &commands, customCommands)
+		_, _, err := mesh(&modules, &commands, customCommands, nil)
 		Ω(err).Should(HaveOccurred())
 	})
 
@@ -130,7 +141,7 @@ module-types:
 			Info:    "installing module dependencies & remove dev dependencies",
 			Command: []string{"npm install ", "npm prune --production"},
 		}
-		Ω(CommandProvider(mta.Module{Type: "html5"})).Should(Equal(expected))
+		Ω(CommandProvider(mta.Module{Type: "html5"}, nil)).Should(Equal(expected))
 	})
 
 	var _ = Describe("CommandProvider - Invalid module types cfg", func() {
@@ -159,7 +170,7 @@ module-types:
 		})
 
 		It("test", func() {
-			_, _, err := CommandProvider(mta.Module{Type: "html5"})
+			_, _, err := CommandProvider(mta.Module{Type: "html5"}, nil)
 			Ω(err).Should(HaveOccurred())
 		})
 	})
@@ -199,7 +210,7 @@ builders:
 		})
 
 		It("test", func() {
-			_, _, err := CommandProvider(mta.Module{Type: "html5"})
+			_, _, err := CommandProvider(mta.Module{Type: "html5"}, nil)
 			Ω(err).Should(HaveOccurred())
 		})
 	})
@@ -384,7 +395,7 @@ modules:
 			builder, custom, opts := GetBuilder(&m)
 			Ω(builder).Should(Equal("npm"))
 			Ω(custom).Should(Equal(true))
-			Ω(opts["config"]).Should(Equal(" --key1 value1"))
+			Ω(opts["npm.config"]).Should(Equal(" --key1 value1"))
 		})
 	})
 })

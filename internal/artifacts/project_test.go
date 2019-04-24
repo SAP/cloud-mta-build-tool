@@ -2,13 +2,10 @@ package artifacts
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"gopkg.in/yaml.v2"
-
 	"github.com/SAP/cloud-mta-build-tool/internal/commands"
 	"github.com/SAP/cloud-mta/mta"
 )
@@ -33,6 +30,96 @@ var _ = Describe("Project", func() {
 			Ω(err).Should(HaveOccurred())
 			Ω(err.Error()).Should(ContainSubstring("failed to read"))
 		})
+		It("Sanity - wrong builder", func() {
+			err := ExecuteProjectBuild(getTestPath("mta"), "dev", "pre", os.Getwd)
+			Ω(err).Should(HaveOccurred())
+		})
+	})
+
+	var _ = Describe("getProjectBuilderCommands", func() {
+		It("Builder and commands defined", func() {
+			projectBuild := mta.ProjectBuilder{
+				Builder: "npm",
+				Options: mta.ProjectBuilderOptions{
+					Execute: []string{"command {{xxx.abc}}"},
+				},
+				BuildParams: map[string]interface{}{
+					"xxx-opts": map[interface{}]interface{}{
+						"abc": "aaa",
+					},
+					"npm-opts": map[interface{}]interface{}{
+						"config": map[interface{}]interface{}{
+							"foo": "xyz",
+						},
+					},
+				},
+			}
+
+			cmds, err := getProjectBuilderCommands(projectBuild)
+			Ω(err).Should(Succeed())
+			Ω(len(cmds.Command)).Should(Equal(3))
+			Ω(cmds.Command[0]).Should(Equal("npm install  --foo xyz"))
+			Ω(cmds.Command[2]).Should(Equal("command aaa"))
+		})
+	})
+
+	var _ = Describe("execProjectBuilders", func() {
+		It("Before Defined with nothing to execute", func() {
+			builders := []mta.ProjectBuilder{}
+			projectBuild := mta.ProjectBuild{
+				BeforeAll: struct {
+					Builders []mta.ProjectBuilder `yaml:"builders,omitempty"`
+				}{Builders: builders},
+			}
+			oMta := mta.MTA{
+				BuildParams: &projectBuild,
+			}
+			Ω(execProjectBuilders(&oMta, "pre")).Should(Succeed())
+		})
+		It("After Defined with nothing to execute", func() {
+			builders := []mta.ProjectBuilder{}
+			projectBuild := mta.ProjectBuild{
+				AfterAll: struct {
+					Builders []mta.ProjectBuilder `yaml:"builders,omitempty"`
+				}{Builders: builders},
+			}
+			oMta := mta.MTA{
+				BuildParams: &projectBuild,
+			}
+			Ω(execProjectBuilders(&oMta, "post")).Should(Succeed())
+		})
+		It("Before Defined with wrong builder", func() {
+			builders := []mta.ProjectBuilder{
+				{
+					Builder: "xxx",
+				},
+			}
+			projectBuild := mta.ProjectBuild{
+				BeforeAll: struct {
+					Builders []mta.ProjectBuilder `yaml:"builders,omitempty"`
+				}{Builders: builders},
+			}
+			oMta := mta.MTA{
+				BuildParams: &projectBuild,
+			}
+			Ω(execProjectBuilders(&oMta, "pre")).Should(HaveOccurred())
+		})
+		It("After Defined with wrong builder", func() {
+			builders := []mta.ProjectBuilder{
+				{
+					Builder: "xxx",
+				},
+			}
+			projectBuild := mta.ProjectBuild{
+				AfterAll: struct {
+					Builders []mta.ProjectBuilder `yaml:"builders,omitempty"`
+				}{Builders: builders},
+			}
+			oMta := mta.MTA{
+				BuildParams: &projectBuild,
+			}
+			Ω(execProjectBuilders(&oMta, "post")).Should(HaveOccurred())
+		})
 	})
 
 	var _ = Describe("runBuilder", func() {
@@ -48,8 +135,23 @@ builders:
   commands:
   - command: go version
 `)
-			Ω(execBuilder("testbuilder")).Should(Succeed())
+			builder := mta.ProjectBuilder{
+				Builder: "testbuilder",
+			}
+			Ω(execBuilder([]mta.ProjectBuilder{builder})).Should(Succeed())
 			commands.BuilderTypeConfig = buildersCfg
+		})
+		It("Builder does not exist", func() {
+			builder := mta.ProjectBuilder{
+				Builder: "testbuilder",
+			}
+			Ω(execBuilder([]mta.ProjectBuilder{builder})).Should(HaveOccurred())
+		})
+		It("Sanity - no builder defined", func() {
+
+			builder := mta.ProjectBuilder{
+			}
+			Ω(execBuilder([]mta.ProjectBuilder{builder})).Should(Succeed())
 		})
 
 		It("Fails on command execution", func() {
@@ -64,42 +166,11 @@ builders:
   commands:
   - command: go test unknown_test.go
 `)
-			Ω(execBuilder("testbuilder")).Should(HaveOccurred())
+			builder := mta.ProjectBuilder{
+				Builder: "testbuilder",
+			}
+			Ω(execBuilder([]mta.ProjectBuilder{builder})).Should(HaveOccurred())
 			commands.BuilderTypeConfig = buildersCfg
-		})
-		Context("pre & post builder commands", func() {
-			oMta := &mta.MTA{}
-			BeforeEach(func() {
-				mtaFile, _ := ioutil.ReadFile("./testdata/mta/mta.yaml")
-				yaml.Unmarshal(mtaFile, oMta)
-			})
-			It("before-all builder", func() {
-				v := beforeExec(oMta.BuildParams)
-				Ω(v).Should(Equal("mybuilder"))
-			})
-
-			It("after-all builder", func() {
-				v := afterExec(oMta.BuildParams)
-				Ω(v).Should(Equal("otherbuilder"))
-			})
-		})
-		Context("pre & post builder commands - no builders defined", func() {
-			oMta := &mta.MTA{}
-			BeforeEach(func() {
-				mtaFile, _ := ioutil.ReadFile("./testdata/mta/mta.yaml")
-				yaml.Unmarshal(mtaFile, oMta)
-				oMta.BuildParams.BeforeAll.Builders = nil
-				oMta.BuildParams.AfterAll.Builders = nil
-			})
-			It("before-all builder", func() {
-				v := beforeExec(oMta.BuildParams)
-				Ω(v).Should(Equal(""))
-			})
-
-			It("after-all builder", func() {
-				v := afterExec(oMta.BuildParams)
-				Ω(v).Should(Equal(""))
-			})
 		})
 	})
 

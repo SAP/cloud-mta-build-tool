@@ -26,31 +26,47 @@ type CommandList struct {
 // GetBuilder - gets builder type of the module and indicator of custom builder
 func GetBuilder(module *mta.Module) (string, bool, map[string]string) {
 	// builder defined in build params is prioritised
-	if module.BuildParams != nil && module.BuildParams[builderParam] != nil {
-		builderName := module.BuildParams[builderParam].(string)
-		optsParamName := builderName + optionsSuffix
-		// get options for builder from mta.yaml
-		options := getOpts(module, optsParamName)
-
-		return builderName, true, options
+	builderName := module.Type
+	customBuilder := false
+	if module.BuildParams != nil {
+		if module.BuildParams[builderParam] != nil {
+			builderName = module.BuildParams[builderParam].(string)
+			customBuilder = true
+		}
+		options := getOpts(module)
+		return builderName, customBuilder, options
 	}
 	// default builder is defined by type property of the module
-	return module.Type, false, nil
+	return module.Type, customBuilder, nil
 }
 
 // Get options for builder from mta.yaml
-func getOpts(module *mta.Module, optsParamName string) map[string]string {
-	options := module.BuildParams[optsParamName]
-	optionsMap := make(map[string]string)
-	if options != nil {
-		optionsMap = convert(options.(map[interface{}]interface{}))
+func getOpts(module *mta.Module) map[string]string {
+	options := make(map[string]string)
+	for paramName, paramValue := range module.BuildParams {
+		if strings.HasSuffix(paramName, optionsSuffix) {
+			optsName := strings.TrimSuffix(paramName, optionsSuffix)
+			paramMap, ok := paramValue.(map[interface{}]interface{})
+			if ok {
+				paramMapOpts := convertMap(paramMap, optsName)
+				for paramMapKey, paramMapValue := range paramMapOpts {
+					options[paramMapKey] = paramMapValue
+				}
+			} else {
+				// options as sequence => jon them separated by space
+				paramSlice, ok := paramValue.([]string)
+				if ok {
+					options[optsName] = strings.Join(paramSlice, " ")
+				}
+			}
+		}
 	}
 
-	return optionsMap
+	return options
 }
 
 // Convert type map[interface{}]interface{} to map[string]string
-func convert(m map[interface{}]interface{}) map[string]string {
+func convertMap(m map[interface{}]interface{}, optsName string) map[string]string {
 	res := make(map[string]string)
 	for key, value := range m {
 		strKey := key.(string)
@@ -58,14 +74,19 @@ func convert(m map[interface{}]interface{}) map[string]string {
 		// deep property will be presented as string of --key value
 		if !ok {
 			mapValueI := value.(map[interface{}]interface{})
-			mapValue := convert(mapValueI)
+			mapValue := convertMap(mapValueI, "")
 			strValue = ""
 			for deepKey, deepValue := range mapValue {
 				strValue = strValue + " --" + deepKey + " " + deepValue
 			}
 		}
 
-		res[strKey] = strValue
+		if optsName == "" {
+			res[strKey] = strValue
+		} else {
+			res[optsName+"."+strKey] = strValue
+		}
+
 	}
 
 	return res
@@ -73,7 +94,7 @@ func convert(m map[interface{}]interface{}) map[string]string {
 
 // CommandProvider - Get build command's to execute
 //noinspection GoExportedFuncWithUnexportedType
-func CommandProvider(modules mta.Module) (CommandList, string, error) {
+func CommandProvider(module mta.Module, commands []string) (CommandList, string, error) {
 	// Get config from ./commands_cfg.yaml as generated artifacts from source
 	moduleTypes, err := parseModuleTypes(ModuleTypeConfig)
 	if err != nil {
@@ -83,11 +104,11 @@ func CommandProvider(modules mta.Module) (CommandList, string, error) {
 	if err != nil {
 		return CommandList{}, "", errors.Wrap(err, "failed to parse the builder types configuration")
 	}
-	return mesh(&modules, &moduleTypes, builderTypes)
+	return mesh(&module, &moduleTypes, builderTypes, commands)
 }
 
 // Match the object according to type and provide the respective command
-func mesh(module *mta.Module, moduleTypes *ModuleTypes, builderTypes Builders) (CommandList, string, error) {
+func mesh(module *mta.Module, moduleTypes *ModuleTypes, builderTypes Builders, exec []string) (CommandList, string, error) {
 	// The object support deep struct for future use, can be simplified to flat object
 	var cmds CommandList
 	var commands []Command
@@ -123,11 +144,17 @@ func mesh(module *mta.Module, moduleTypes *ModuleTypes, builderTypes Builders) (
 
 	buildResults := ""
 
-	if custom {
+	if custom && builder != "_dummyBuilder_" {
 		// custom builder used => get commands and info
 		commands, cmds.Info, buildResults, err = getCustomCommandsByBuilder(builderTypes, builder)
 		if err != nil {
 			return cmds, "", err
+		}
+	}
+
+	if exec != nil {
+		for _, cmd := range exec {
+			commands = append(commands, Command{cmd})
 		}
 	}
 
@@ -138,7 +165,7 @@ func mesh(module *mta.Module, moduleTypes *ModuleTypes, builderTypes Builders) (
 
 // prepare commands list - mesh result
 func prepareMeshResult(cmds CommandList, buildResults string, commands []Command, options map[string]string) (CommandList, string) {
-	reg := regexp.MustCompile("{{\\w+}}")
+	reg := regexp.MustCompile("{{\\w+([.]\\w+){0,1}}}")
 	for _, cmd := range commands {
 		if options != nil {
 			cmd.Command = meshOpts(cmd.Command, options)
@@ -193,7 +220,7 @@ func GetModuleAndCommands(loc dir.IMtaParser, module string) (*mta.Module, []str
 func moduleCmd(mta *mta.MTA, moduleName string) (*mta.Module, []string, string, error) {
 	for _, m := range mta.Modules {
 		if m.Name == moduleName {
-			commandProvider, buildResults, err := CommandProvider(*m)
+			commandProvider, buildResults, err := CommandProvider(*m, nil)
 			if err != nil {
 				return nil, nil, "", err
 			}

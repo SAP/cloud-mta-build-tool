@@ -103,7 +103,7 @@ func makeFile(mtaParser dir.IMtaParser, loc dir.ITargetPath, makeFilename string
 func mapTpl(templateContent []byte, BasePreContent []byte, BasePostContent []byte) (*template.Template, error) {
 	funcMap := template.FuncMap{
 		"CommandProvider": func(modules mta.Module) (commands.CommandList, error) {
-			cmds, _, err := commands.CommandProvider(modules)
+			cmds, _, err := commands.CommandProvider(modules, nil)
 			return cmds, err
 		},
 		"OsCore":  proc.OsCore,

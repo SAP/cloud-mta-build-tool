@@ -4,8 +4,6 @@ import (
 	"fmt"
 
 	"github.com/SAP/cloud-mta/mta"
-	"github.com/pkg/errors"
-
 	"github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta-build-tool/internal/commands"
 	"github.com/SAP/cloud-mta-build-tool/internal/exec"
@@ -24,49 +22,46 @@ func ExecuteProjectBuild(source, descriptor, phase string, getWd func() (string,
 	if err != nil {
 		return err
 	}
+	return execProjectBuilders(oMta, phase)
+}
+
+func execProjectBuilders(oMta *mta.MTA, phase string) error {
 	if phase == "pre" && oMta.BuildParams != nil {
-		return execBuilder(beforeExec(oMta.BuildParams))
+		return execBuilder(oMta.BuildParams.BeforeAll.Builders)
 	}
 	if phase == "post" && oMta.BuildParams != nil {
-		return execBuilder(afterExec(oMta.BuildParams))
+		return execBuilder(oMta.BuildParams.AfterAll.Builders)
 	}
 	return nil
 }
 
-// get build params for before-all section
-func beforeExec(pb *mta.ProjectBuild) string {
-	for _, v := range pb.BeforeAll.Builders {
-		return v.Builder
+func execBuilder(builders []mta.ProjectBuilder) error {
+	for _, builder := range builders {
+		builderCommands, err := getProjectBuilderCommands(builder)
+		if err != nil {
+			return err
+		}
+		cmds := commands.CmdConverter(".", builderCommands.Command)
+		// Execute commands
+		err = exec.Execute(cmds)
+		if err != nil {
+			return err
+		}
 	}
-	return ""
+	return nil
 }
 
-// get build params for after-all section
-func afterExec(pb *mta.ProjectBuild) string {
-	for _, v := range pb.AfterAll.Builders {
-		return v.Builder
+func getProjectBuilderCommands(builder mta.ProjectBuilder) (commands.CommandList, error) {
+	dummyModule := mta.Module{}
+	if builder.BuildParams == nil {
+		builder.BuildParams = make(map[string]interface{})
 	}
-	return ""
-}
-
-func execBuilder(builder string) error {
-	if builder == "" {
-		return nil
+	dummyModule.BuildParams = builder.BuildParams
+	builderName := builder.Builder
+	if builderName == "" {
+		builderName = "_dummyBuilder_"
 	}
-	dummyModule := mta.Module{
-		BuildParams: map[string]interface{}{
-			"builder": builder,
-		},
-	}
-	builderCommands, _, err := commands.CommandProvider(dummyModule)
-	if err != nil {
-		return errors.Wrap(err, "failed to parse the builder types configuration")
-	}
-	cmds := commands.CmdConverter(".", builderCommands.Command)
-	// Execute commands
-	err = exec.Execute(cmds)
-	if err != nil {
-		return errors.Wrapf(err, `the "%v" builder failed when executing commands`, builder)
-	}
-	return err
+	dummyModule.BuildParams["builder"] = builderName
+	builderCommands, _, err := commands.CommandProvider(dummyModule, builder.Options.Execute)
+	return builderCommands, err
 }

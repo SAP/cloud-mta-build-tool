@@ -260,7 +260,9 @@ var _ = Describe("GetBuilder", func() {
 				SupportedPlatformsParam: []string{},
 			},
 		}
-		Ω(commands.GetBuilder(&m)).Should(Equal("node-js"))
+		builder, custom, _ := commands.GetBuilder(&m)
+		Ω(builder).Should(Equal("node-js"))
+		Ω(custom).Should(BeFalse())
 	})
 	It("Builder defined by build params", func() {
 		m := mta.Module{
@@ -288,8 +290,8 @@ var _ = Describe("GetBuilder", func() {
 		}
 		builder, custom, options := commands.GetBuilder(&m)
 		Ω(options).Should(Equal(map[string]string{
-			"repo-type":        "maven",
-			"repo-coordinates": "com.sap.xs.java:xs-audit-log-api:1.2.3"}))
+			"fetcher.repo-type":        "maven",
+			"fetcher.repo-coordinates": "com.sap.xs.java:xs-audit-log-api:1.2.3"}))
 		Ω(builder).Should(Equal("fetcher"))
 		Ω(custom).Should(BeTrue())
 	})
@@ -303,8 +305,8 @@ var _ = Describe("GetBuilder", func() {
 		yaml.Unmarshal(yamlFile, &m)
 		builder, custom, options := commands.GetBuilder(m.Modules[0])
 		Ω(options).Should(Equal(map[string]string{
-			"repo-type":        "maven",
-			"repo-coordinates": "mygroup:myart:1.0.0"}))
+			"fetcher.repo-type":        "maven",
+			"fetcher.repo-coordinates": "mygroup:myart:1.0.0"}))
 		Ω(builder).Should(Equal("fetcher"))
 		Ω(custom).Should(BeTrue())
 	})
@@ -317,8 +319,8 @@ var _ = Describe("GetBuilder", func() {
 		m := mta.MTA{}
 		yaml.Unmarshal(yamlFile, &m)
 		builder, custom, options := commands.GetBuilder(m.Modules[0])
-		Ω(options["config"]).Should(ContainSubstring("--foo abc"))
-		Ω(options["config"]).Should(ContainSubstring("--foo1 xyz"))
+		Ω(options["npm.config"]).Should(ContainSubstring("--foo abc"))
+		Ω(options["npm.config"]).Should(ContainSubstring("--foo1 xyz"))
 		Ω(builder).Should(Equal("npm"))
 		Ω(custom).Should(BeTrue())
 	})

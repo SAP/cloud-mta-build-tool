@@ -16,15 +16,15 @@ builders:
   info: "installing module dependencies & remove dev dependencies"
   path: "path to config file which override the following default commands"
   commands:
-  - command: npm install {{config}}
+  - command: npm install {{npm.config}}
   - command: npm prune --production
 
 - name: grunt
   info: "execute grunt"
   path: "path to config file which override the following default commands"
   commands:
-  - command: npm install
-  - command: grunt
+  - command: npm install {{npm.config}}
+  - command: grunt {{grunt}}
   - command: npm prune --production
 
 - name: golang
@@ -53,7 +53,7 @@ builders:
   info: "packaging Maven artifacts into MTAR as the modules build results"
   path: "path to config file which override the following default commands"
   commands:
-  - command: mvn -B dependency:copy -Dartifact={{repo-coordinates}} -DoutputDirectory=./target
+  - command: mvn -B dependency:copy -Dartifact={{fetcher.repo-coordinates}} -DoutputDirectory=./target
   build-result: target/*.*
 
 - name: zip
