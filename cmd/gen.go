@@ -82,7 +82,7 @@ var metaCmd = &cobra.Command{
 	Long:  "Generates META-INF folder with manifest and MTAD files",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		err := artifacts.ExecuteGenMeta(metaCmdSrc, metaCmdTrg, metaCmdDesc, metaCmdPlatform, true, os.Getwd)
+		err := artifacts.ExecuteGenMeta(metaCmdSrc, metaCmdTrg, metaCmdDesc, metaCmdPlatform, os.Getwd)
 		logError(err)
 		return err
 	},

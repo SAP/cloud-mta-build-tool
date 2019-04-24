@@ -12,7 +12,7 @@ import (
 )
 
 // ExecuteGenMeta - generates metadata
-func ExecuteGenMeta(source, target, desc, platform string, onlyModules bool, wdGetter func() (string, error)) error {
+func ExecuteGenMeta(source, target, desc, platform string, wdGetter func() (string, error)) error {
 	logs.Logger.Info("generating the metadata...")
 	loc, err := dir.Location(source, target, desc, wdGetter)
 	if err != nil {
@@ -29,7 +29,7 @@ func ExecuteGenMeta(source, target, desc, platform string, onlyModules bool, wdG
 		return err
 	}
 
-	err = generateMeta(loc, loc, loc, loc.IsDeploymentDescriptor(), platform, onlyModules)
+	err = generateMeta(loc, loc, loc, loc.IsDeploymentDescriptor(), platform)
 	if err != nil {
 		return err
 	}
@@ -38,7 +38,7 @@ func ExecuteGenMeta(source, target, desc, platform string, onlyModules bool, wdG
 
 // generateMeta - generate metadata artifacts
 func generateMeta(parser dir.IMtaParser, ep dir.ITargetArtifacts, targetPathGetter dir.ITargetPath,
-	deploymentDescriptor bool, platform string, onlyModules bool) error {
+	deploymentDescriptor bool, platform string) error {
 
 	// parse MTA file
 	m, err := parser.ParseFile()
@@ -53,9 +53,8 @@ func generateMeta(parser dir.IMtaParser, ep dir.ITargetArtifacts, targetPathGett
 	}
 
 	removeUndeployedModules(m, platform)
-
 	// Generate meta info dir with required content
-	err = genMetaInfo(ep, targetPathGetter, deploymentDescriptor, platform, m, []string{}, onlyModules)
+	err = genMetaInfo(ep, targetPathGetter, deploymentDescriptor, platform, m, []string{})
 	if err != nil {
 		return err
 	}
@@ -64,10 +63,10 @@ func generateMeta(parser dir.IMtaParser, ep dir.ITargetArtifacts, targetPathGett
 
 // genMetaInfo generates a MANIFEST.MF file and updates the build artifacts paths for deployment purposes.
 func genMetaInfo(ep dir.ITargetArtifacts, targetPathGetter dir.ITargetPath, deploymentDesc bool,
-	platform string, mtaStr *mta.MTA, modules []string, onlyModules bool) (rerr error) {
+	platform string, mtaStr *mta.MTA, modules []string) (rerr error) {
 
 	// Set the MANIFEST.MF file
-	err := setManifestDesc(ep, targetPathGetter, mtaStr.Modules, mtaStr.Resources, modules, onlyModules)
+	err := setManifestDesc(ep, targetPathGetter, mtaStr.Modules, mtaStr.Resources, modules)
 	if err != nil {
 		return errors.Wrap(err, "failed to generate metadata when populating the manifest file")
 	}
