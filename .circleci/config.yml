@@ -48,15 +48,33 @@ jobs:
       - run: cf login -a $CF_API -o $ORG -s $SPACE -u $TECH_USER -p $TECH_PASS
       - run: cd integration &&  go test -tags=integration
 
-
   release_new:
     docker:
       - image: circleci/golang:1.11.5
     working_directory: /go/src/github.com/SAP/cloud-mta-build-tool
     steps:
       - checkout
+      - run:
+          name: bump patch version
+          command: |
+            CURR_MBT_VERSION=$(cat ./VERSION)
+            MBT_VERSION=$(echo $CURR_MBT_VERSION | awk -F. '{$NF = $NF + 1;} 1' | sed 's/ /./g')
+      - run:
+          name: update new release version
+          command: |
+            sed  -i "/\"version\":/s/$CURR_MBT_VERSION/$MBT_VERSION/" package.json
+            sed  -i "/cli_version:/s/$CURR_MBT_VERSION/$MBT_VERSION/" configs/version.yaml
+            sed  -i "s/$CURR_MBT_VERSION/$MBT_VERSION/" VERSION
+            git add package.json, configs/version.yaml, VERSION
+            git config user.email "${MBT_REPO_USER_EMAIL}"
+            git config user.name "Release Bot"
+            git commit -m "Bump version $MBT_VERSION"
+            # Push quietly to prevent showing the token in log
+            git push -q  https://${MBT_REPO_TOKEN}@github.com/SAP/cloud-mta-build-tool.git master
       - run: curl -sL https://git.io/goreleaser | bash
-
+      - run: artifactdeployer pack --script-file ./configpack --package-file ./dist/cloud-mta-build-tool-pack -D baseDir=. -D mbtVersion=$MBT_VERSION
+      - run: artifactdeployer deploy --package-file ./dist/cloud-mta-build-tool-pack --artifact-version $MBT_VERSION --repo-url http://nexusmil.wdf.sap.corp:8081/nexus/content/repositories/sap.milestones.manual-uploads.hosted --repo-user $REPO_USER --repo-passwd $REPO_PASSWD
+      - run: npm publish
 
 workflows:
   version: 2
@@ -71,14 +89,14 @@ workflows:
             branches:
               only: master
 
-#  release:
-#    jobs:
-#      - release_new:
-#          filters:
-#            branches:
-#              ignore: /.*/
-#            tags:
-#              only: /v[0-9]+(\.[0-9]+)*(-.*)*/
-#          requires:
-#            - build
-#            - integration_test
+release:
+  jobs:
+    - release_new:
+      filters:
+        branches:
+          ignore: /.*/
+          tags:
+            only: /v[0-9]+(\.[0-9]+)*(-.*)*/
+      requires:
+        - build
+        - integration_test
