@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"os"
 
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
 	"github.com/SAP/cloud-mta-build-tool/internal/commands"
 	"github.com/SAP/cloud-mta/mta"
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("Project", func() {
@@ -149,8 +149,7 @@ builders:
 		})
 		It("Sanity - no builder defined", func() {
 
-			builder := mta.ProjectBuilder{
-			}
+			builder := mta.ProjectBuilder{}
 			Ω(execBuilder([]mta.ProjectBuilder{builder})).Should(Succeed())
 		})
 

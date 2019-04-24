@@ -2,14 +2,13 @@ package commands
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 
 	"github.com/pkg/errors"
 
 	"github.com/SAP/cloud-mta/mta"
-
 	"github.com/SAP/cloud-mta-build-tool/internal/archive"
-	"regexp"
 )
 
 const (
@@ -152,15 +151,21 @@ func mesh(module *mta.Module, moduleTypes *ModuleTypes, builderTypes Builders, e
 		}
 	}
 
-	if exec != nil {
-		for _, cmd := range exec {
-			commands = append(commands, Command{cmd})
-		}
-	}
+	commands = addExecCommands(commands, exec)
 
 	// prepare result
 	cmds, buildResults = prepareMeshResult(cmds, buildResults, commands, options)
 	return cmds, buildResults, nil
+}
+
+func addExecCommands(commands []Command, exec []string) []Command {
+	result := commands
+	if exec != nil {
+		for _, cmd := range exec {
+			result = append(result, Command{cmd})
+		}
+	}
+	return result
 }
 
 // prepare commands list - mesh result
