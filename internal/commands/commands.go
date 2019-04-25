@@ -106,9 +106,8 @@ func convertKeyValue(key string, value interface{}, prefix string) (string, stri
 
 	if prefix == "" {
 		return key, strValue
-	} else {
-		return prefix + "." + key, strValue
 	}
+	return prefix + "." + key, strValue
 }
 
 // CommandProvider - Get build command's to execute
