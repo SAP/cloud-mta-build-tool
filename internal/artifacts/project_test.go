@@ -138,19 +138,19 @@ builders:
 			builder := mta.ProjectBuilder{
 				Builder: "testbuilder",
 			}
-			Ω(execBuilder([]mta.ProjectBuilder{builder})).Should(Succeed())
+			Ω(execProjectBuilder([]mta.ProjectBuilder{builder})).Should(Succeed())
 			commands.BuilderTypeConfig = buildersCfg
 		})
 		It("Builder does not exist", func() {
 			builder := mta.ProjectBuilder{
 				Builder: "testbuilder",
 			}
-			Ω(execBuilder([]mta.ProjectBuilder{builder})).Should(HaveOccurred())
+			Ω(execProjectBuilder([]mta.ProjectBuilder{builder})).Should(HaveOccurred())
 		})
 		It("Sanity - no builder defined", func() {
 
 			builder := mta.ProjectBuilder{}
-			Ω(execBuilder([]mta.ProjectBuilder{builder})).Should(Succeed())
+			Ω(execProjectBuilder([]mta.ProjectBuilder{builder})).Should(Succeed())
 		})
 
 		It("Fails on command execution", func() {
@@ -168,7 +168,7 @@ builders:
 			builder := mta.ProjectBuilder{
 				Builder: "testbuilder",
 			}
-			Ω(execBuilder([]mta.ProjectBuilder{builder})).Should(HaveOccurred())
+			Ω(execProjectBuilder([]mta.ProjectBuilder{builder})).Should(HaveOccurred())
 			commands.BuilderTypeConfig = buildersCfg
 		})
 	})

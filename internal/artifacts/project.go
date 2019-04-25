@@ -27,15 +27,15 @@ func ExecuteProjectBuild(source, descriptor, phase string, getWd func() (string,
 
 func execProjectBuilders(oMta *mta.MTA, phase string) error {
 	if phase == "pre" && oMta.BuildParams != nil {
-		return execBuilder(oMta.BuildParams.BeforeAll.Builders)
+		return execProjectBuilder(oMta.BuildParams.BeforeAll.Builders)
 	}
 	if phase == "post" && oMta.BuildParams != nil {
-		return execBuilder(oMta.BuildParams.AfterAll.Builders)
+		return execProjectBuilder(oMta.BuildParams.AfterAll.Builders)
 	}
 	return nil
 }
 
-func execBuilder(builders []mta.ProjectBuilder) error {
+func execProjectBuilder(builders []mta.ProjectBuilder) error {
 	for _, builder := range builders {
 		builderCommands, err := getProjectBuilderCommands(builder)
 		if err != nil {

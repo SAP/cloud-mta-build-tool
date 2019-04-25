@@ -45,17 +45,25 @@ func getOpts(module *mta.Module) map[string]string {
 	for paramName, paramValue := range module.BuildParams {
 		if strings.HasSuffix(paramName, optionsSuffix) {
 			optsName := strings.TrimSuffix(paramName, optionsSuffix)
-			paramMap, ok := paramValue.(map[interface{}]interface{})
+			paramMapI, ok := paramValue.(map[interface{}]interface{})
 			if ok {
-				paramMapOpts := convertMap(paramMap, optsName)
+				paramMapOpts := convertMapI(paramMapI, optsName)
 				for paramMapKey, paramMapValue := range paramMapOpts {
 					options[paramMapKey] = paramMapValue
 				}
 			} else {
-				// options as sequence => jon them separated by space
-				paramSlice, ok := paramValue.([]string)
+				paramMap, ok := paramValue.(map[string]interface{})
 				if ok {
-					options[optsName] = strings.Join(paramSlice, " ")
+					paramMapOpts := convertMap(paramMap, optsName)
+					for paramMapKey, paramMapValue := range paramMapOpts {
+						options[paramMapKey] = paramMapValue
+					}
+				} else {
+					// options as sequence => jon them separated by space
+					paramSlice, ok := paramValue.([]string)
+					if ok {
+						options[optsName] = strings.Join(paramSlice, " ")
+					}
 				}
 			}
 		}
@@ -65,30 +73,42 @@ func getOpts(module *mta.Module) map[string]string {
 }
 
 // Convert type map[interface{}]interface{} to map[string]string
-func convertMap(m map[interface{}]interface{}, optsName string) map[string]string {
+func convertMapI(m map[interface{}]interface{}, optsName string) map[string]string {
 	res := make(map[string]string)
 	for key, value := range m {
-		strKey := key.(string)
-		strValue, ok := value.(string)
-		// deep property will be presented as string of --key value
-		if !ok {
-			mapValueI := value.(map[interface{}]interface{})
-			mapValue := convertMap(mapValueI, "")
-			strValue = ""
-			for deepKey, deepValue := range mapValue {
-				strValue = strValue + " --" + deepKey + " " + deepValue
-			}
-		}
-
-		if optsName == "" {
-			res[strKey] = strValue
-		} else {
-			res[optsName+"."+strKey] = strValue
-		}
-
+		strKey, strValue := convertKeyValue(key.(string), value, optsName)
+		res[strKey] = strValue
 	}
 
 	return res
+}
+
+// Convert type map[string]interface{} to map[string]string
+func convertMap(m map[string]interface{}, optsName string) map[string]string {
+	res := make(map[string]string)
+	for key, value := range m {
+		strKey, strValue := convertKeyValue(key, value, optsName)
+		res[strKey] = strValue
+	}
+	return res
+}
+
+func convertKeyValue(key string, value interface{}, prefix string) (string, string) {
+	strValue, ok := value.(string)
+	if !ok {
+		mapValueI := value.(map[interface{}]interface{})
+		mapValue := convertMapI(mapValueI, "")
+		strValue = ""
+		for deepKey, deepValue := range mapValue {
+			strValue = strValue + " --" + deepKey + " " + deepValue
+		}
+	}
+
+	if prefix == "" {
+		return key, strValue
+	} else {
+		return prefix + "." + key, strValue
+	}
 }
 
 // CommandProvider - Get build command's to execute

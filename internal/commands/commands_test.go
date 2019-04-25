@@ -397,5 +397,23 @@ modules:
 			Ω(custom).Should(Equal(true))
 			Ω(opts["npm.config"]).Should(Equal(" --key1 value1"))
 		})
+		It("Builder defined by build params with config string->interface", func() {
+			m := mta.Module{
+				Name: "x",
+				Type: "node-js",
+				BuildParams: map[string]interface{}{
+					builderParam: "npm",
+					"npm-opts": map[string]interface{}{
+						"config": map[interface{}]interface{}{
+							"key1": "value1",
+						},
+					},
+				},
+			}
+			builder, custom, opts := GetBuilder(&m)
+			Ω(builder).Should(Equal("npm"))
+			Ω(custom).Should(Equal(true))
+			Ω(opts["npm.config"]).Should(Equal(" --key1 value1"))
+		})
 	})
 })
