@@ -366,7 +366,7 @@ modules:
 			builder, custom, _, _, err := GetBuilder(&m)
 			Ω(builder).Should(Equal(customBuilder))
 			Ω(custom).Should(Equal(true))
-			Ω(err.Error()).Should(Equal(`no "commands" property defined for the "custom" builder`))
+			Ω(err).Should(Succeed())
 		})
 		It("Custom builder with wrong commands definition", func() {
 			m := mta.Module{
@@ -380,7 +380,7 @@ modules:
 			builder, custom, _, _, err := GetBuilder(&m)
 			Ω(builder).Should(Equal(customBuilder))
 			Ω(custom).Should(Equal(true))
-			Ω(err.Error()).Should(Equal(`failed to unmarshal the "commands" property of the "custom" builder`))
+			Ω(err.Error()).Should(Equal(`the "commands" property is defined incorrectly; a sequence of strings is expected`))
 		})
 	})
 })

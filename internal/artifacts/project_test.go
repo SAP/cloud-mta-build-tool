@@ -54,6 +54,15 @@ var _ = Describe("Project", func() {
 			Ω(cmds.Command[0]).Should(Equal("npm install"))
 			Ω(cmds.Command[1]).Should(Equal("npm prune --production"))
 		})
+		It("Custom builder with no commands", func() {
+			projectBuild := mta.ProjectBuilder{
+				Builder: "custom",
+			}
+
+			cmds, err := getProjectBuilderCommands(projectBuild)
+			Ω(err).Should(Succeed())
+			Ω(len(cmds.Command)).Should(Equal(0))
+		})
 	})
 
 	var _ = Describe("execProjectBuilders", func() {
@@ -123,18 +132,18 @@ builders:
 			builder := mta.ProjectBuilder{
 				Builder: "testbuilder",
 			}
-			Ω(execProjectBuilder([]mta.ProjectBuilder{builder})).Should(Succeed())
+			Ω(execProjectBuilder([]mta.ProjectBuilder{builder}, "pre")).Should(Succeed())
 			commands.BuilderTypeConfig = buildersCfg
 		})
 		It("Builder does not exist", func() {
 			builder := mta.ProjectBuilder{
 				Builder: "testbuilder",
 			}
-			Ω(execProjectBuilder([]mta.ProjectBuilder{builder})).Should(HaveOccurred())
+			Ω(execProjectBuilder([]mta.ProjectBuilder{builder}, "pre")).Should(HaveOccurred())
 		})
 		It("Custom builder", func() {
 			builder := mta.ProjectBuilder{Builder: "custom", Commands: []string{`echo "aaa"`}}
-			Ω(execProjectBuilder([]mta.ProjectBuilder{builder})).Should(Succeed())
+			Ω(execProjectBuilder([]mta.ProjectBuilder{builder}, "pre")).Should(Succeed())
 		})
 
 		It("Fails on command execution", func() {
@@ -152,7 +161,7 @@ builders:
 			builder := mta.ProjectBuilder{
 				Builder: "testbuilder",
 			}
-			Ω(execProjectBuilder([]mta.ProjectBuilder{builder})).Should(HaveOccurred())
+			Ω(execProjectBuilder([]mta.ProjectBuilder{builder}, "pre")).Should(HaveOccurred())
 			commands.BuilderTypeConfig = buildersCfg
 		})
 	})

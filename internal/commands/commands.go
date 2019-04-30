@@ -9,6 +9,7 @@ import (
 	"github.com/SAP/cloud-mta/mta"
 
 	"github.com/SAP/cloud-mta-build-tool/internal/archive"
+	"github.com/SAP/cloud-mta-build-tool/internal/logs"
 )
 
 const (
@@ -36,11 +37,12 @@ func GetBuilder(module *mta.Module) (string, bool, map[string]string, []string, 
 		if builderName == customBuilder {
 			cmdsParam, ok := module.BuildParams[commandsParam]
 			if !ok {
-				return builderName, true, options, cmds, fmt.Errorf(`no "commands" property defined for the "custom" builder`)
+				logs.Logger.Warn(`no "commands" property defined for the "custom" builder`)
+				return builderName, true, options, []string{}, nil
 			}
 			cmds, ok = cmdsParam.([]string)
 			if !ok {
-				return builderName, true, options, cmds, fmt.Errorf(`failed to unmarshal the "commands" property of the "custom" builder`)
+				return builderName, true, options, cmds, fmt.Errorf(`the "commands" property is defined incorrectly; a sequence of strings is expected`)
 			}
 		}
 
