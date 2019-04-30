@@ -46,7 +46,7 @@ type entry struct {
 
 // setManifestDesc - Set the MANIFEST.MF file
 func setManifestDesc(ep dir.ITargetArtifacts, targetPathGetter dir.ITargetPath, mtaStr []*mta.Module,
-	mtaResources []*mta.Resource, modules []string, onlyModules bool) error {
+	mtaResources []*mta.Resource, modules []string) error {
 
 	contentTypes, err := conttype.GetContentTypes()
 	if err != nil {
@@ -54,18 +54,16 @@ func setManifestDesc(ep dir.ITargetArtifacts, targetPathGetter dir.ITargetPath, 
 			"failed to generate the manifest file when getting the content types from the configuration")
 	}
 
-	entries, err := getModulesEntries(targetPathGetter, mtaStr, contentTypes, modules, onlyModules)
+	entries, err := getModulesEntries(targetPathGetter, mtaStr, contentTypes, modules)
 	if err != nil {
 		return err
 	}
 
-	if !onlyModules {
-		resourcesEntries, err := getResourcesEntries(targetPathGetter, mtaResources, contentTypes)
-		if err != nil {
-			return err
-		}
-		entries = append(entries, resourcesEntries...)
+	resourcesEntries, err := getResourcesEntries(targetPathGetter, mtaResources, contentTypes)
+	if err != nil {
+		return err
 	}
+	entries = append(entries, resourcesEntries...)
 
 	return genManifest(ep.GetManifestPath(), entries)
 }
@@ -86,7 +84,7 @@ func addModuleEntry(entries []entry, module *mta.Module, contentType, modulePath
 }
 
 func getModulesEntries(targetPathGetter dir.ITargetPath, moduleList []*mta.Module,
-	contentTypes *conttype.ContentTypes, modules []string, onlyModules bool) ([]entry, error) {
+	contentTypes *conttype.ContentTypes, modules []string) ([]entry, error) {
 
 	var entries []entry
 	for _, mod := range moduleList {
@@ -108,10 +106,6 @@ func getModulesEntries(targetPathGetter dir.ITargetPath, moduleList []*mta.Modul
 		}
 
 		entries = addModuleEntry(entries, mod, contentType, modulePath)
-
-		if onlyModules {
-			continue
-		}
 		requiredDependenciesWithPath := getRequiredDependencies(mod)
 		requiredDependencyEntries, err :=
 			buildEntries(targetPathGetter, mod, requiredDependenciesWithPath, contentTypes)

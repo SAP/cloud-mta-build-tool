@@ -23,3 +23,10 @@ modules:
       - name: node-js_api
         properties:
           url: ${default-url}
+
+resources:
+- name: mta-assembly-uaa
+  parameters:
+    service: xsuaa
+    service-plan: space
+    path: xs-security.json

@@ -24,7 +24,7 @@ func Assembly(source, target, platform, mtarName, copyInParallel string, getWd f
 		return errors.Wrap(err, "assembly of the MTA project failed when copying the MTA content")
 	}
 	// Generate meta artifacts
-	err = ExecuteGenMeta(source, target, dir.Dep, platform, false, getWd)
+	err = ExecuteGenMeta(source, target, dir.Dep, platform, getWd)
 	if err != nil {
 		return errors.Wrap(err, "assembly of the MTA project failed when generating the meta information")
 	}

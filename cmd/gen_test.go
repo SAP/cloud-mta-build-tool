@@ -43,6 +43,8 @@ var _ = Describe("Commands", func() {
 			os.MkdirAll(getTestPath("result", ".mtahtml5_mta_build_tmp", "ui5app2"), os.ModePerm)
 			file, _ = os.Create(getTestPath("result", ".mtahtml5_mta_build_tmp", "ui5app2", "data.zip"))
 			file.Close()
+			file, _ = os.Create(getTestPath("result", ".mtahtml5_mta_build_tmp", "xs-security.json"))
+			file.Close()
 			metaCmdSrc = getTestPath("mtahtml5")
 			ep = dir.Loc{SourcePath: metaCmdSrc, TargetPath: metaCmdTrg}
 			Ω(metaCmd.RunE(nil, []string{})).Should(Succeed())
@@ -71,6 +73,8 @@ var _ = Describe("Commands", func() {
 		It("Generate Mtar", func() {
 			os.MkdirAll(getTestPath("result", ".mtahtml5_mta_build_tmp", "testapp"), os.ModePerm)
 			os.MkdirAll(getTestPath("result", ".mtahtml5_mta_build_tmp", "ui5app2"), os.ModePerm)
+			file, _ := os.Create(getTestPath("result", ".mtahtml5_mta_build_tmp", "xs-security.json"))
+			file.Close()
 			mtarCmdSrc = getTestPath("mtahtml5")
 			mtarCmdMtarName = ""
 			Ω(metaCmd.RunE(nil, []string{})).Should(Succeed())

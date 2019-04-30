@@ -41,7 +41,7 @@ var _ = Describe("manifest", func() {
 			loc := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath()}
 			mtaObj, err := loc.ParseFile()
 			Ω(err).Should(Succeed())
-			Ω(setManifestDesc(&loc, &loc, mtaObj.Modules, []*mta.Resource{}, []string{}, false)).Should(Succeed())
+			Ω(setManifestDesc(&loc, &loc, mtaObj.Modules, []*mta.Resource{}, []string{})).Should(Succeed())
 			actual := getFileContent(getTestPath("result", ".mta_mta_build_tmp", "META-INF", "MANIFEST.MF"))
 			golden := getFileContent(getTestPath("golden_manifest.mf"))
 			v, _ := version.GetVersion()
@@ -58,14 +58,14 @@ var _ = Describe("manifest", func() {
 			Ω(err).Should(Succeed())
 			moduleConf := commands.ModuleTypeConfig
 			commands.ModuleTypeConfig = []byte("bad module conf")
-			Ω(setManifestDesc(&loc, &loc, mtaObj.Modules, []*mta.Resource{}, []string{}, false)).Should(HaveOccurred())
+			Ω(setManifestDesc(&loc, &loc, mtaObj.Modules, []*mta.Resource{}, []string{})).Should(HaveOccurred())
 			commands.ModuleTypeConfig = moduleConf
 		})
 		It("wrong build results", func() {
 			os.Mkdir(getTestPath("result", ".mta_mta_build_tmp", "node-js"), os.ModePerm)
 			loc := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath(), MtaFilename: "mtaWrongBuildResult.yaml"}
 			mtaObj, _ := loc.ParseFile()
-			Ω(setManifestDesc(&loc, &loc, mtaObj.Modules, []*mta.Resource{}, []string{}, false)).Should(HaveOccurred())
+			Ω(setManifestDesc(&loc, &loc, mtaObj.Modules, []*mta.Resource{}, []string{})).Should(HaveOccurred())
 		})
 		It("correct build results", func() {
 			os.Mkdir(getTestPath("result", ".mta_mta_build_tmp", "node-js"), os.ModePerm)
@@ -73,7 +73,7 @@ var _ = Describe("manifest", func() {
 			file.Close()
 			loc := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath(), MtaFilename: "mtaBuildResult.yaml"}
 			mtaObj, _ := loc.ParseFile()
-			Ω(setManifestDesc(&loc, &loc, mtaObj.Modules, []*mta.Resource{}, []string{}, false)).Should(Succeed())
+			Ω(setManifestDesc(&loc, &loc, mtaObj.Modules, []*mta.Resource{}, []string{})).Should(Succeed())
 			actual := getFileContent(getTestPath("result", ".mta_mta_build_tmp", "META-INF", "MANIFEST.MF"))
 			golden := getFileContent(getTestPath("golden_manifestBuildResult.mf"))
 			v, _ := version.GetVersion()
@@ -93,7 +93,7 @@ var _ = Describe("manifest", func() {
 			loc := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath(), MtaFilename: "mta_2modules.yaml"}
 			mtaObj, err := loc.ParseFile()
 			Ω(err).Should(Succeed())
-			Ω(setManifestDesc(&loc, &loc, mtaObj.Modules, []*mta.Resource{}, []string{"node-js"}, false)).Should(Succeed())
+			Ω(setManifestDesc(&loc, &loc, mtaObj.Modules, []*mta.Resource{}, []string{"node-js"})).Should(Succeed())
 			actual := getFileContent(getTestPath("result", ".mta_mta_build_tmp", "META-INF", "MANIFEST.MF"))
 			golden := getFileContent(getTestPath("golden_manifest.mf"))
 			v, _ := version.GetVersion()
@@ -114,7 +114,7 @@ var _ = Describe("manifest", func() {
 			Ω(err).Should(Succeed())
 			contentTypesOrig := conttype.ContentTypeConfig
 			conttype.ContentTypeConfig = []byte(`wrong configuraion`)
-			Ω(setManifestDesc(&loc, &loc, mtaObj.Modules, []*mta.Resource{}, []string{}, false)).Should(HaveOccurred())
+			Ω(setManifestDesc(&loc, &loc, mtaObj.Modules, []*mta.Resource{}, []string{})).Should(HaveOccurred())
 			conttype.ContentTypeConfig = contentTypesOrig
 
 		})
@@ -123,7 +123,7 @@ var _ = Describe("manifest", func() {
 			loc := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath(), MtaFilename: "mta_no_paths.yaml"}
 			mtaObj, err := loc.ParseFile()
 			Ω(err).Should(Succeed())
-			Ω(setManifestDesc(&loc, &loc, mtaObj.Modules, []*mta.Resource{}, []string{}, false)).Should(Succeed())
+			Ω(setManifestDesc(&loc, &loc, mtaObj.Modules, []*mta.Resource{}, []string{})).Should(Succeed())
 			actual := getFileContent(getTestPath("result", ".mta_mta_build_tmp", "META-INF", "MANIFEST.MF"))
 			golden := getFileContent(getTestPath("golden_assembly_manifest_no_paths.mf"))
 			v, _ := version.GetVersion()
@@ -140,7 +140,7 @@ var _ = Describe("manifest", func() {
 			loc := dir.Loc{SourcePath: getTestPath("assembly-sample"), TargetPath: getResultPath(), Descriptor: "dep"}
 			mtaObj, err := loc.ParseFile()
 			Ω(err).Should(Succeed())
-			Ω(setManifestDesc(&loc, &loc, mtaObj.Modules, mtaObj.Resources, []string{}, false)).Should(Succeed())
+			Ω(setManifestDesc(&loc, &loc, mtaObj.Modules, mtaObj.Resources, []string{})).Should(Succeed())
 			actual := getFileContent(getTestPath("result", ".assembly-sample_mta_build_tmp", "META-INF", "MANIFEST.MF"))
 			golden := getFileContent(getTestPath("golden_assembly_manifest.mf"))
 			v, _ := version.GetVersion()
@@ -154,7 +154,7 @@ var _ = Describe("manifest", func() {
 			loc := dir.Loc{SourcePath: getTestPath("assembly-sample"), TargetPath: getResultPath(), Descriptor: "dep"}
 			mtaObj, err := loc.ParseFile()
 			Ω(err).Should(Succeed())
-			err = setManifestDesc(&loc, &loc, mtaObj.Modules, mtaObj.Resources, []string{}, false)
+			err = setManifestDesc(&loc, &loc, mtaObj.Modules, mtaObj.Resources, []string{})
 			Ω(err).Should(HaveOccurred())
 			Ω(err.Error()).Should(ContainSubstring(`failed to generate the manifest file when getting the "java-hello-world" module content type`))
 		})
@@ -165,7 +165,7 @@ var _ = Describe("manifest", func() {
 			loc := dir.Loc{SourcePath: getTestPath("assembly-sample"), TargetPath: getTestPath("result1"), Descriptor: "dep"}
 			mtaObj, err := loc.ParseFile()
 			Ω(err).Should(Succeed())
-			err = setManifestDesc(&loc, &loc, mtaObj.Modules, mtaObj.Resources, []string{}, false)
+			err = setManifestDesc(&loc, &loc, mtaObj.Modules, mtaObj.Resources, []string{})
 			Ω(err).Should(HaveOccurred())
 			Ω(err.Error()).Should(ContainSubstring(`failed to generate the manifest file when getting the "java-uaa" resource content type`))
 
@@ -177,7 +177,7 @@ var _ = Describe("manifest", func() {
 			loc := dir.Loc{SourcePath: getTestPath("assembly-sample"), TargetPath: getTestPath("result2"), Descriptor: "dep"}
 			mtaObj, err := loc.ParseFile()
 			Ω(err).Should(Succeed())
-			err = setManifestDesc(&loc, &loc, mtaObj.Modules, mtaObj.Resources, []string{}, false)
+			err = setManifestDesc(&loc, &loc, mtaObj.Modules, mtaObj.Resources, []string{})
 			Ω(err).Should(HaveOccurred())
 			Ω(err.Error()).Should(
 				ContainSubstring(`failed to generate the manifest file when building the required entries of the "java-hello-world-backend" module`))

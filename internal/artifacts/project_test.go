@@ -13,6 +13,10 @@ import (
 var _ = Describe("Project", func() {
 
 	var _ = Describe("ExecuteProjectBuild", func() {
+		It("Sanity - post phase", func() {
+			err := ExecuteProjectBuild(getTestPath("mtahtml5"), "dev", "post", os.Getwd)
+			Ω(err).Should(BeNil())
+		})
 		It("wrong phase", func() {
 			err := ExecuteProjectBuild(getTestPath("mta"), "dev", "wrong phase", os.Getwd)
 			Ω(err).Should(HaveOccurred())
