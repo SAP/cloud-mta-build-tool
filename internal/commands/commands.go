@@ -2,17 +2,19 @@ package commands
 
 import (
 	"fmt"
-	"regexp"
 	"strings"
 
 	"github.com/pkg/errors"
 
-	"github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta/mta"
+
+	"github.com/SAP/cloud-mta-build-tool/internal/archive"
 )
 
 const (
 	builderParam  = "builder"
+	commandsParam = "commands"
+	customBuilder = "custom"
 	optionsSuffix = "-opts"
 )
 
@@ -23,96 +25,58 @@ type CommandList struct {
 }
 
 // GetBuilder - gets builder type of the module and indicator of custom builder
-func GetBuilder(module *mta.Module) (string, bool, map[string]string) {
+func GetBuilder(module *mta.Module) (string, bool, map[string]string, []string, error) {
 	// builder defined in build params is prioritised
-	builderName := module.Type
-	customBuilder := false
-	if module.BuildParams != nil {
-		if module.BuildParams[builderParam] != nil {
-			builderName = module.BuildParams[builderParam].(string)
-			customBuilder = true
+	if module.BuildParams != nil && module.BuildParams[builderParam] != nil {
+		builderName := module.BuildParams[builderParam].(string)
+		optsParamName := builderName + optionsSuffix
+		// get options for builder from mta.yaml
+		options := getOpts(module, optsParamName)
+		var cmds []string
+		if builderName == customBuilder {
+			cmdsParam, ok := module.BuildParams[commandsParam]
+			if !ok {
+				return builderName, true, options, cmds, fmt.Errorf(`no "commands" property defined for the "custom" builder`)
+			}
+			cmds, ok = cmdsParam.([]string)
+			if !ok {
+				return builderName, true, options, cmds, fmt.Errorf(`failed to unmarshal the "commands" property of the "custom" builder`)
+			}
 		}
-		options := getOpts(module)
-		return builderName, customBuilder, options
+
+		return builderName, true, options, cmds, nil
 	}
 	// default builder is defined by type property of the module
-	return module.Type, customBuilder, nil
+	return module.Type, false, nil, nil, nil
 }
 
 // Get options for builder from mta.yaml
-func getOpts(module *mta.Module) map[string]string {
-	options := make(map[string]string)
-	for paramName, paramValue := range module.BuildParams {
-		if strings.HasSuffix(paramName, optionsSuffix) {
-			optsName := strings.TrimSuffix(paramName, optionsSuffix)
-			paramMapI, ok := paramValue.(map[interface{}]interface{})
-			if ok {
-				paramMapOpts := convertMapI(paramMapI, optsName)
-				for paramMapKey, paramMapValue := range paramMapOpts {
-					options[paramMapKey] = paramMapValue
-				}
-			} else {
-				paramMap, ok := paramValue.(map[string]interface{})
-				if ok {
-					paramMapOpts := convertMap(paramMap, optsName)
-					for paramMapKey, paramMapValue := range paramMapOpts {
-						options[paramMapKey] = paramMapValue
-					}
-				} else {
-					// options as sequence => jon them separated by space
-					paramSlice, ok := paramValue.([]string)
-					if ok {
-						options[optsName] = strings.Join(paramSlice, " ")
-					}
-				}
-			}
-		}
+func getOpts(module *mta.Module, optsParamName string) map[string]string {
+	options := module.BuildParams[optsParamName]
+	optionsMap := make(map[string]string)
+	if options != nil {
+		optionsMap = convert(options.(map[interface{}]interface{}))
 	}
 
-	return options
+	return optionsMap
 }
 
 // Convert type map[interface{}]interface{} to map[string]string
-func convertMapI(m map[interface{}]interface{}, optsName string) map[string]string {
+func convert(m map[interface{}]interface{}) map[string]string {
 	res := make(map[string]string)
 	for key, value := range m {
-		strKey, strValue := convertKeyValue(key.(string), value, optsName)
+		strKey := key.(string)
+		strValue := value.(string)
+
 		res[strKey] = strValue
 	}
 
 	return res
-}
-
-// Convert type map[string]interface{} to map[string]string
-func convertMap(m map[string]interface{}, optsName string) map[string]string {
-	res := make(map[string]string)
-	for key, value := range m {
-		strKey, strValue := convertKeyValue(key, value, optsName)
-		res[strKey] = strValue
-	}
-	return res
-}
-
-func convertKeyValue(key string, value interface{}, prefix string) (string, string) {
-	strValue, ok := value.(string)
-	if !ok {
-		mapValueI := value.(map[interface{}]interface{})
-		mapValue := convertMapI(mapValueI, "")
-		strValue = ""
-		for deepKey, deepValue := range mapValue {
-			strValue = strValue + " --" + deepKey + " " + deepValue
-		}
-	}
-
-	if prefix == "" {
-		return key, strValue
-	}
-	return prefix + "." + key, strValue
 }
 
 // CommandProvider - Get build command's to execute
 //noinspection GoExportedFuncWithUnexportedType
-func CommandProvider(module mta.Module, commands []string) (CommandList, string, error) {
+func CommandProvider(module mta.Module) (CommandList, string, error) {
 	// Get config from ./commands_cfg.yaml as generated artifacts from source
 	moduleTypes, err := parseModuleTypes(ModuleTypeConfig)
 	if err != nil {
@@ -122,19 +86,20 @@ func CommandProvider(module mta.Module, commands []string) (CommandList, string,
 	if err != nil {
 		return CommandList{}, "", errors.Wrap(err, "failed to parse the builder types configuration")
 	}
-	return mesh(&module, &moduleTypes, builderTypes, commands)
+	return mesh(&module, &moduleTypes, builderTypes)
 }
 
 // Match the object according to type and provide the respective command
-func mesh(module *mta.Module, moduleTypes *ModuleTypes, builderTypes Builders, exec []string) (CommandList, string, error) {
+func mesh(module *mta.Module, moduleTypes *ModuleTypes, builderTypes Builders) (CommandList, string, error) {
 	// The object support deep struct for future use, can be simplified to flat object
 	var cmds CommandList
+	var cmdList []string
 	var commands []Command
 	var err error
 
 	// get builder - module type name or custom builder if defined
 	// and indicator if custom builder
-	builder, custom, options := GetBuilder(module)
+	builder, custom, options, cmdList, err := GetBuilder(module)
 
 	// if module type used - get from module types configuration corresponding commands or custom builder if defined
 	if !custom {
@@ -162,39 +127,25 @@ func mesh(module *mta.Module, moduleTypes *ModuleTypes, builderTypes Builders, e
 
 	buildResults := ""
 
-	if custom && builder != "_dummyBuilder_" {
+	if custom {
 		// custom builder used => get commands and info
-		commands, cmds.Info, buildResults, err = getCustomCommandsByBuilder(builderTypes, builder)
+		commands, cmds.Info, buildResults, err = getCustomCommandsByBuilder(builderTypes, builder, cmdList)
 		if err != nil {
 			return cmds, "", err
 		}
 	}
-
-	commands = addExecCommands(commands, exec)
 
 	// prepare result
 	cmds, buildResults = prepareMeshResult(cmds, buildResults, commands, options)
 	return cmds, buildResults, nil
 }
 
-func addExecCommands(commands []Command, exec []string) []Command {
-	result := commands
-	if exec != nil {
-		for _, cmd := range exec {
-			result = append(result, Command{cmd})
-		}
-	}
-	return result
-}
-
 // prepare commands list - mesh result
 func prepareMeshResult(cmds CommandList, buildResults string, commands []Command, options map[string]string) (CommandList, string) {
-	reg := regexp.MustCompile("{{\\w+([.]\\w+){0,1}}}")
 	for _, cmd := range commands {
 		if options != nil {
 			cmd.Command = meshOpts(cmd.Command, options)
 		}
-		cmd.Command = reg.ReplaceAllString(cmd.Command, "")
 		cmds.Command = append(cmds.Command, cmd.Command)
 	}
 	return cmds, buildResults
@@ -209,7 +160,15 @@ func meshOpts(cmd string, options map[string]string) string {
 	return c
 }
 
-func getCustomCommandsByBuilder(customCommands Builders, builder string) ([]Command, string, string, error) {
+func getCustomCommandsByBuilder(customCommands Builders, builder string, cmds []string) ([]Command, string, string, error) {
+	if builder == customBuilder {
+		var res []Command
+		for _, cmd := range cmds {
+			res = append(res, Command{cmd})
+		}
+		return res, "", "", nil
+	}
+
 	for _, b := range customCommands.Builders {
 		if builder == b.Name {
 			return b.Commands, b.Info, b.BuildResult, nil
@@ -244,7 +203,7 @@ func GetModuleAndCommands(loc dir.IMtaParser, module string) (*mta.Module, []str
 func moduleCmd(mta *mta.MTA, moduleName string) (*mta.Module, []string, string, error) {
 	for _, m := range mta.Modules {
 		if m.Name == moduleName {
-			commandProvider, buildResults, err := CommandProvider(*m, nil)
+			commandProvider, buildResults, err := CommandProvider(*m)
 			if err != nil {
 				return nil, nil, "", err
 			}

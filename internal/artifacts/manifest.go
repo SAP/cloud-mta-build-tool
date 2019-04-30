@@ -93,7 +93,7 @@ func getModulesEntries(targetPathGetter dir.ITargetPath, moduleList []*mta.Modul
 		if !moduleDefined(mod.Name, modules) || mod.Name == "" {
 			continue
 		}
-		_, defaultBuildResult, err := commands.CommandProvider(*mod, nil)
+		_, defaultBuildResult, err := commands.CommandProvider(*mod)
 		if err != nil {
 			return nil, err
 		}

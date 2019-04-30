@@ -30,36 +30,25 @@ var _ = Describe("Project", func() {
 			Ω(err).Should(HaveOccurred())
 			Ω(err.Error()).Should(ContainSubstring("failed to read"))
 		})
-		It("Sanity - wrong builder", func() {
+		It("Sanity - custom builder", func() {
 			err := ExecuteProjectBuild(getTestPath("mta"), "dev", "pre", os.Getwd)
-			Ω(err).Should(HaveOccurred())
+			Ω(err.Error()).Should(ContainSubstring(`"command1"`))
+			Ω(err.Error()).Should(ContainSubstring("failed"))
 		})
 	})
 
 	var _ = Describe("getProjectBuilderCommands", func() {
 		It("Builder and commands defined", func() {
 			projectBuild := mta.ProjectBuilder{
-				Builder: "npm",
-				Options: mta.ProjectBuilderOptions{
-					Execute: []string{"command {{xxx.abc}}"},
-				},
-				BuildParams: map[string]interface{}{
-					"xxx-opts": map[interface{}]interface{}{
-						"abc": "aaa",
-					},
-					"npm-opts": map[interface{}]interface{}{
-						"config": map[interface{}]interface{}{
-							"foo": "xyz",
-						},
-					},
-				},
+				Builder:  "npm",
+				Commands: []string{"abc"},
 			}
 
 			cmds, err := getProjectBuilderCommands(projectBuild)
 			Ω(err).Should(Succeed())
-			Ω(len(cmds.Command)).Should(Equal(3))
-			Ω(cmds.Command[0]).Should(Equal("npm install  --foo xyz"))
-			Ω(cmds.Command[2]).Should(Equal("command aaa"))
+			Ω(len(cmds.Command)).Should(Equal(2))
+			Ω(cmds.Command[0]).Should(Equal("npm install"))
+			Ω(cmds.Command[1]).Should(Equal("npm prune --production"))
 		})
 	})
 
@@ -67,9 +56,7 @@ var _ = Describe("Project", func() {
 		It("Before Defined with nothing to execute", func() {
 			builders := []mta.ProjectBuilder{}
 			projectBuild := mta.ProjectBuild{
-				BeforeAll: struct {
-					Builders []mta.ProjectBuilder `yaml:"builders,omitempty"`
-				}{Builders: builders},
+				BeforeAll: builders,
 			}
 			oMta := mta.MTA{
 				BuildParams: &projectBuild,
@@ -79,9 +66,7 @@ var _ = Describe("Project", func() {
 		It("After Defined with nothing to execute", func() {
 			builders := []mta.ProjectBuilder{}
 			projectBuild := mta.ProjectBuild{
-				AfterAll: struct {
-					Builders []mta.ProjectBuilder `yaml:"builders,omitempty"`
-				}{Builders: builders},
+				AfterAll: builders,
 			}
 			oMta := mta.MTA{
 				BuildParams: &projectBuild,
@@ -95,9 +80,7 @@ var _ = Describe("Project", func() {
 				},
 			}
 			projectBuild := mta.ProjectBuild{
-				BeforeAll: struct {
-					Builders []mta.ProjectBuilder `yaml:"builders,omitempty"`
-				}{Builders: builders},
+				BeforeAll: builders,
 			}
 			oMta := mta.MTA{
 				BuildParams: &projectBuild,
@@ -111,9 +94,7 @@ var _ = Describe("Project", func() {
 				},
 			}
 			projectBuild := mta.ProjectBuild{
-				AfterAll: struct {
-					Builders []mta.ProjectBuilder `yaml:"builders,omitempty"`
-				}{Builders: builders},
+				AfterAll: builders,
 			}
 			oMta := mta.MTA{
 				BuildParams: &projectBuild,
@@ -147,9 +128,8 @@ builders:
 			}
 			Ω(execProjectBuilder([]mta.ProjectBuilder{builder})).Should(HaveOccurred())
 		})
-		It("Sanity - no builder defined", func() {
-
-			builder := mta.ProjectBuilder{}
+		It("Custom builder", func() {
+			builder := mta.ProjectBuilder{Builder: "custom", Commands: []string{`echo "aaa"`}}
 			Ω(execProjectBuilder([]mta.ProjectBuilder{builder})).Should(Succeed())
 		})
 

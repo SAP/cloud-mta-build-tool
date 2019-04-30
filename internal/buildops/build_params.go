@@ -111,7 +111,7 @@ func ProcessRequirements(ep dir.ISourceModule, mta *mta.MTA, requires *BuildRequ
 			moduleName, requires.Name, requires.Name)
 	}
 
-	_, defaultBuildResult, err := commands.CommandProvider(*requiredModule, nil)
+	_, defaultBuildResult, err := commands.CommandProvider(*requiredModule)
 	if err != nil {
 		return errors.Wrapf(err,
 			`the processing requirements of the "%v" module that is based on the "%v" module failed when getting the "%v" module commands`,

@@ -48,13 +48,13 @@ module-types:
 		commands := ModuleTypes{}
 		customCommands := Builders{}
 		Ω(yaml.Unmarshal(moduleTypesCfg, &commands)).Should(Succeed())
-		Ω(mesh(&modules, &commands, customCommands, nil)).Should(Equal(expected))
+		Ω(mesh(&modules, &commands, customCommands)).Should(Equal(expected))
 		modules = mta.Module{
 			Name: "uiapp1",
 			Type: "html5",
 			Path: "./",
 		}
-		_, _, err := mesh(&modules, &commands, customCommands, nil)
+		_, _, err := mesh(&modules, &commands, customCommands)
 		Ω(err).Should(Succeed())
 		modules = mta.Module{
 			Name: "uiapp1",
@@ -64,52 +64,8 @@ module-types:
 				"builder": "html5x",
 			},
 		}
-		_, _, err = mesh(&modules, &commands, customCommands, nil)
+		_, _, err = mesh(&modules, &commands, customCommands)
 		Ω(err).Should(HaveOccurred())
-	})
-
-	It("Mesh - with builder in module types config", func() {
-		var moduleTypesCfg = []byte(`
-version: 1
-module-types:
-  - name: html5
-    info: "build UI application"
-    builder: npm
-`)
-		var buildersCfg = []byte(`
-version: 1
-builders:
-  - name: npm
-    info: "build UI application"
-    commands:
-    - command: npm install {{npm.config}}
-    - command: grunt {{grunt}}
-    - command: npm prune --production
-`)
-		var modules = mta.Module{
-			Name: "uiapp",
-			Type: "html5",
-			Path: "./",
-			BuildParams: map[string]interface{}{
-				"npm-opts": map[interface{}]interface{}{
-					"config": map[interface{}]interface{}{
-						"foo": "abc",
-					},
-				},
-				"grunt-opts": []string{
-					"abc", "xyz",
-				},
-			},
-		}
-		var expected = CommandList{
-			Info:    "build UI application",
-			Command: []string{"npm install  --foo abc", "grunt abc xyz", "npm prune --production"},
-		}
-		commands := ModuleTypes{}
-		customCommands := Builders{}
-		Ω(yaml.Unmarshal(moduleTypesCfg, &commands)).Should(Succeed())
-		Ω(yaml.Unmarshal(buildersCfg, &customCommands)).Should(Succeed())
-		Ω(mesh(&modules, &commands, customCommands, nil)).Should(Equal(expected))
 	})
 
 	It("Mesh - fails on usage both builder and commands in one module type", func() {
@@ -132,16 +88,34 @@ module-types:
 		commands := ModuleTypes{}
 		customCommands := Builders{}
 		Ω(yaml.Unmarshal(moduleTypesCfg, &commands)).Should(Succeed())
-		_, _, err := mesh(&modules, &commands, customCommands, nil)
+		_, _, err := mesh(&modules, &commands, customCommands)
 		Ω(err).Should(HaveOccurred())
+	})
+
+	It("Mesh - custom builder", func() {
+		var modules = mta.Module{
+			Name: "uiapp",
+			Type: "html5",
+			Path: "./",
+			BuildParams: map[string]interface{}{
+				builderParam:  "custom",
+				commandsParam: []string{"command1"},
+			},
+		}
+		commands := ModuleTypes{}
+		customCommands := Builders{}
+		cmds, _, err := mesh(&modules, &commands, customCommands)
+		Ω(err).Should(Succeed())
+		Ω(len(cmds.Command)).Should(Equal(1))
+		Ω(cmds.Command[0]).Should(Equal("command1"))
 	})
 
 	It("CommandProvider", func() {
 		expected := CommandList{
 			Info:    "installing module dependencies & remove dev dependencies",
-			Command: []string{"npm install ", "npm prune --production"},
+			Command: []string{"npm install", "npm prune --production"},
 		}
-		Ω(CommandProvider(mta.Module{Type: "html5"}, nil)).Should(Equal(expected))
+		Ω(CommandProvider(mta.Module{Type: "html5"})).Should(Equal(expected))
 	})
 
 	var _ = Describe("CommandProvider - Invalid module types cfg", func() {
@@ -170,7 +144,7 @@ module-types:
 		})
 
 		It("test", func() {
-			_, _, err := CommandProvider(mta.Module{Type: "html5"}, nil)
+			_, _, err := CommandProvider(mta.Module{Type: "html5"})
 			Ω(err).Should(HaveOccurred())
 		})
 	})
@@ -210,7 +184,7 @@ builders:
 		})
 
 		It("test", func() {
-			_, _, err := CommandProvider(mta.Module{Type: "html5"}, nil)
+			_, _, err := CommandProvider(mta.Module{Type: "html5"})
 			Ω(err).Should(HaveOccurred())
 		})
 	})
@@ -254,7 +228,7 @@ modules:
 			module, commands, _, err := moduleCmd(&m, "htmlapp")
 			Ω(err).Should(Succeed())
 			Ω(module.Path).Should(Equal("app"))
-			Ω(commands).Should(Equal([]string{"npm install ", "npm prune --production"}))
+			Ω(commands).Should(Equal([]string{"npm install", "npm prune --production"}))
 		})
 
 		It("Builder specified in build params", func() {
@@ -277,7 +251,7 @@ modules:
 			module, commands, _, err := moduleCmd(&m, "htmlapp")
 			Ω(err).Should(BeNil())
 			Ω(module.Path).Should(Equal("app"))
-			Ω(commands).Should(Equal([]string{"npm install ", "npm prune --production"}))
+			Ω(commands).Should(Equal([]string{"npm install", "npm prune --production"}))
 		})
 
 		It("Fetcher builder specified in build params", func() {
@@ -322,7 +296,7 @@ modules:
 				Ω(err).Should(Succeed())
 				Ω(module.Name).Should(Equal("node-js"))
 				Ω(len(cmd)).Should(Equal(2))
-				Ω(cmd[0]).Should(Equal("npm install "))
+				Ω(cmd[0]).Should(Equal("npm install"))
 				Ω(cmd[1]).Should(Equal("npm prune --production"))
 
 			})
@@ -375,45 +349,38 @@ modules:
 					builderParam: "npm",
 				},
 			}
-			builder, custom, _ := GetBuilder(&m)
+			builder, custom, cmds, _, err := GetBuilder(&m)
 			Ω(builder).Should(Equal("npm"))
 			Ω(custom).Should(Equal(true))
+			Ω(len(cmds)).Should(Equal(0))
+			Ω(err).Should(Succeed())
 		})
-		It("Builder defined by build params with config", func() {
+		It("Custom builder with no commands", func() {
 			m := mta.Module{
 				Name: "x",
 				Type: "node-js",
 				BuildParams: map[string]interface{}{
-					builderParam: "npm",
-					"npm-opts": map[interface{}]interface{}{
-						"config": map[interface{}]interface{}{
-							"key1": "value1",
-						},
-					},
+					builderParam: customBuilder,
 				},
 			}
-			builder, custom, opts := GetBuilder(&m)
-			Ω(builder).Should(Equal("npm"))
+			builder, custom, _, _, err := GetBuilder(&m)
+			Ω(builder).Should(Equal(customBuilder))
 			Ω(custom).Should(Equal(true))
-			Ω(opts["npm.config"]).Should(Equal(" --key1 value1"))
+			Ω(err.Error()).Should(Equal(`no "commands" property defined for the "custom" builder`))
 		})
-		It("Builder defined by build params with config string->interface", func() {
+		It("Custom builder with wrong commands definition", func() {
 			m := mta.Module{
 				Name: "x",
 				Type: "node-js",
 				BuildParams: map[string]interface{}{
-					builderParam: "npm",
-					"npm-opts": map[string]interface{}{
-						"config": map[interface{}]interface{}{
-							"key1": "value1",
-						},
-					},
+					builderParam:  customBuilder,
+					commandsParam: "command1",
 				},
 			}
-			builder, custom, opts := GetBuilder(&m)
-			Ω(builder).Should(Equal("npm"))
+			builder, custom, _, _, err := GetBuilder(&m)
+			Ω(builder).Should(Equal(customBuilder))
 			Ω(custom).Should(Equal(true))
-			Ω(opts["npm.config"]).Should(Equal(" --key1 value1"))
+			Ω(err.Error()).Should(Equal(`failed to unmarshal the "commands" property of the "custom" builder`))
 		})
 	})
 })

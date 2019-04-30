@@ -260,9 +260,11 @@ var _ = Describe("GetBuilder", func() {
 				SupportedPlatformsParam: []string{},
 			},
 		}
-		builder, custom, _ := commands.GetBuilder(&m)
+		builder, custom, _, cmds, err := commands.GetBuilder(&m)
 		Ω(builder).Should(Equal("node-js"))
 		Ω(custom).Should(BeFalse())
+		Ω(cmds).Should(BeNil())
+		Ω(err).Should(Succeed())
 	})
 	It("Builder defined by build params", func() {
 		m := mta.Module{
@@ -272,9 +274,26 @@ var _ = Describe("GetBuilder", func() {
 				builderParam: "npm",
 			},
 		}
-		builder, custom, _ := commands.GetBuilder(&m)
+		builder, custom, cmds, _, err := commands.GetBuilder(&m)
 		Ω(builder).Should(Equal("npm"))
 		Ω(custom).Should(Equal(true))
+		Ω(len(cmds)).Should(Equal(0))
+		Ω(err).Should(Succeed())
+	})
+	It("Builder defined by build params", func() {
+		m := mta.Module{
+			Name: "x",
+			Type: "node-js",
+			BuildParams: map[string]interface{}{
+				builderParam: "custom",
+				"commands":   []string{"command1"},
+			},
+		}
+		builder, custom, _, cmds, err := commands.GetBuilder(&m)
+		Ω(builder).Should(Equal("custom"))
+		Ω(custom).Should(Equal(true))
+		Ω(cmds[0]).Should(Equal("command1"))
+		Ω(err).Should(Succeed())
 	})
 	It("fetcher builder defined by build params", func() {
 		m := mta.Module{
@@ -288,12 +307,14 @@ var _ = Describe("GetBuilder", func() {
 				},
 			},
 		}
-		builder, custom, options := commands.GetBuilder(&m)
+		builder, custom, options, cmds, err := commands.GetBuilder(&m)
 		Ω(options).Should(Equal(map[string]string{
-			"fetcher.repo-type":        "maven",
-			"fetcher.repo-coordinates": "com.sap.xs.java:xs-audit-log-api:1.2.3"}))
+			"repo-type":        "maven",
+			"repo-coordinates": "com.sap.xs.java:xs-audit-log-api:1.2.3"}))
 		Ω(builder).Should(Equal("fetcher"))
 		Ω(custom).Should(BeTrue())
+		Ω(cmds).Should(BeNil())
+		Ω(err).Should(Succeed())
 	})
 	It("fetcher builder defined by build params from mta.yaml", func() {
 		dir, _ := os.Getwd()
@@ -303,26 +324,14 @@ var _ = Describe("GetBuilder", func() {
 		Ω(err).Should(BeNil())
 		m := mta.MTA{}
 		yaml.Unmarshal(yamlFile, &m)
-		builder, custom, options := commands.GetBuilder(m.Modules[0])
+		builder, custom, options, cmds, err := commands.GetBuilder(m.Modules[0])
 		Ω(options).Should(Equal(map[string]string{
-			"fetcher.repo-type":        "maven",
-			"fetcher.repo-coordinates": "mygroup:myart:1.0.0"}))
+			"repo-type":        "maven",
+			"repo-coordinates": "mygroup:myart:1.0.0"}))
 		Ω(builder).Should(Equal("fetcher"))
 		Ω(custom).Should(BeTrue())
-	})
-	It("npm builder with config opts", func() {
-		dir, _ := os.Getwd()
-		path := filepath.Join(dir, "testdata", "mtaWithNpmConfig.yaml")
-		// Read MTA file
-		yamlFile, err := ioutil.ReadFile(path)
-		Ω(err).Should(BeNil())
-		m := mta.MTA{}
-		yaml.Unmarshal(yamlFile, &m)
-		builder, custom, options := commands.GetBuilder(m.Modules[0])
-		Ω(options["npm.config"]).Should(ContainSubstring("--foo abc"))
-		Ω(options["npm.config"]).Should(ContainSubstring("--foo1 xyz"))
-		Ω(builder).Should(Equal("npm"))
-		Ω(custom).Should(BeTrue())
+		Ω(cmds).Should(BeNil())
+		Ω(err).Should(Succeed())
 	})
 })
 

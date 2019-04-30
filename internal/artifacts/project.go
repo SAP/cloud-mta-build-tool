@@ -27,10 +27,10 @@ func ExecuteProjectBuild(source, descriptor, phase string, getWd func() (string,
 
 func execProjectBuilders(oMta *mta.MTA, phase string) error {
 	if phase == "pre" && oMta.BuildParams != nil {
-		return execProjectBuilder(oMta.BuildParams.BeforeAll.Builders)
+		return execProjectBuilder(oMta.BuildParams.BeforeAll)
 	}
 	if phase == "post" && oMta.BuildParams != nil {
-		return execProjectBuilder(oMta.BuildParams.AfterAll.Builders)
+		return execProjectBuilder(oMta.BuildParams.AfterAll)
 	}
 	return nil
 }
@@ -53,15 +53,9 @@ func execProjectBuilder(builders []mta.ProjectBuilder) error {
 
 func getProjectBuilderCommands(builder mta.ProjectBuilder) (commands.CommandList, error) {
 	dummyModule := mta.Module{}
-	if builder.BuildParams == nil {
-		builder.BuildParams = make(map[string]interface{})
-	}
-	dummyModule.BuildParams = builder.BuildParams
-	builderName := builder.Builder
-	if builderName == "" {
-		builderName = "_dummyBuilder_"
-	}
-	dummyModule.BuildParams["builder"] = builderName
-	builderCommands, _, err := commands.CommandProvider(dummyModule, builder.Options.Execute)
+	dummyModule.BuildParams = make(map[string]interface{})
+	dummyModule.BuildParams["builder"] = builder.Builder
+	dummyModule.BuildParams["commands"] = builder.Commands
+	builderCommands, _, err := commands.CommandProvider(dummyModule)
 	return builderCommands, err
 }
