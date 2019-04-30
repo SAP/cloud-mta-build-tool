@@ -5,15 +5,11 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/SAP/cloud-mta/mta"
-
 	"github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta-build-tool/internal/commands"
 	"github.com/SAP/cloud-mta-build-tool/internal/exec"
-)
-
-const (
-	copyInParallel = false
+	"github.com/SAP/cloud-mta-build-tool/internal/logs"
+	"github.com/SAP/cloud-mta/mta"
 )
 
 // ExecuteProjectBuild - execute pre or post phase of project build
@@ -29,60 +25,48 @@ func ExecuteProjectBuild(source, descriptor, phase string, getWd func() (string,
 	if err != nil {
 		return err
 	}
+	return execProjectBuilders(oMta, phase)
+}
+
+func execProjectBuilders(oMta *mta.MTA, phase string) error {
 	if phase == "pre" && oMta.BuildParams != nil {
-		return execBuilder(beforeExec(oMta.BuildParams))
+		return execProjectBuilder(oMta.BuildParams.BeforeAll, "pre")
 	}
-	if phase == "post" {
-		return postBuild(loc, oMta)
-	}
-	return nil
-}
-
-func postBuild(loc *dir.Loc, oMta *mta.MTA) error {
-	err := copyResourceContent(loc.GetSource(), loc.GetTargetTmpDir(), oMta, copyInParallel)
-	if err != nil {
-		return err
-	}
-	if oMta.BuildParams != nil {
-		return execBuilder(afterExec(oMta.BuildParams))
+	if phase == "post" && oMta.BuildParams != nil {
+		return execProjectBuilder(oMta.BuildParams.AfterAll, "post")
 	}
 	return nil
 }
 
-// get build params for before-all section
-func beforeExec(pb *mta.ProjectBuild) string {
-	for _, v := range pb.BeforeAll.Builders {
-		return v.Builder
+func execProjectBuilder(builders []mta.ProjectBuilder, phase string) error {
+	errMessage := "the %s build process failed"
+	for _, builder := range builders {
+		builderCommands, err := getProjectBuilderCommands(builder)
+		if err != nil {
+			return errors.Wrapf(err, errMessage, phase)
+		}
+		cmds := commands.CmdConverter(".", builderCommands.Command)
+		// Execute commands
+		err = exec.Execute(cmds)
+		if err != nil {
+			return errors.Wrapf(err, errMessage, phase)
+		}
 	}
-	return ""
+	return nil
 }
 
-// get build params for after-all section
-func afterExec(pb *mta.ProjectBuild) string {
-	for _, v := range pb.AfterAll.Builders {
-		return v.Builder
+func getProjectBuilderCommands(builder mta.ProjectBuilder) (commands.CommandList, error) {
+	dummyModule := mta.Module{}
+	dummyModule.BuildParams = make(map[string]interface{})
+	dummyModule.BuildParams["builder"] = builder.Builder
+	dummyModule.BuildParams["commands"] = builder.Commands
+	if builder.Builder == "custom" && builder.Commands == nil && len(builder.Commands) == 0 {
+		logs.Logger.Warn(`no "commands" property defined for the "custom" builder`)
+		return commands.CommandList{Command: []string{}}, nil
 	}
-	return ""
-}
-
-func execBuilder(builder string) error {
-	if builder == "" {
-		return nil
-	}
-	dummyModule := mta.Module{
-		BuildParams: map[string]interface{}{
-			"builder": builder,
-		},
+	if builder.Builder != "custom" && builder.Commands != nil && len(builder.Commands) != 0 {
+		logs.Logger.Warnf(`the "commands" property is not supported for the "%s" builder`, builder.Builder)
 	}
 	builderCommands, _, err := commands.CommandProvider(dummyModule)
-	if err != nil {
-		return errors.Wrap(err, "failed to parse the builder types configuration")
-	}
-	cmds := commands.CmdConverter(".", builderCommands.Command)
-	// Execute commands
-	err = exec.Execute(cmds)
-	if err != nil {
-		return errors.Wrapf(err, `the "%v" builder failed when executing commands`, builder)
-	}
-	return err
+	return builderCommands, err
 }

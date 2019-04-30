@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"os/exec"
-	"path/filepath"
 	"time"
 
 	"github.com/pkg/errors"
@@ -25,11 +24,7 @@ func Execute(cmdParams [][]string) error {
 
 	for _, cp := range cmdParams {
 		var cmd *exec.Cmd
-		if cp[0] != "" {
-			logs.Logger.Infof("executing the %s command for the %s module...", cp[1:], filepath.Base(cp[0]))
-		} else {
-			logs.Logger.Infof("executing the %s command...", cp[1:])
-		}
+		logs.Logger.Infof("executing the %s command...", cp[1:])
 		cmd = makeCommand(cp[1:])
 		cmd.Dir = cp[0]
 

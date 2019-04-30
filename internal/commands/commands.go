@@ -9,11 +9,13 @@ import (
 	"github.com/SAP/cloud-mta/mta"
 
 	"github.com/SAP/cloud-mta-build-tool/internal/archive"
-	"regexp"
+	"github.com/SAP/cloud-mta-build-tool/internal/logs"
 )
 
 const (
 	builderParam  = "builder"
+	commandsParam = "commands"
+	customBuilder = "custom"
 	optionsSuffix = "-opts"
 )
 
@@ -24,18 +26,30 @@ type CommandList struct {
 }
 
 // GetBuilder - gets builder type of the module and indicator of custom builder
-func GetBuilder(module *mta.Module) (string, bool, map[string]string) {
+func GetBuilder(module *mta.Module) (string, bool, map[string]string, []string, error) {
 	// builder defined in build params is prioritised
 	if module.BuildParams != nil && module.BuildParams[builderParam] != nil {
 		builderName := module.BuildParams[builderParam].(string)
 		optsParamName := builderName + optionsSuffix
 		// get options for builder from mta.yaml
 		options := getOpts(module, optsParamName)
+		var cmds []string
+		if builderName == customBuilder {
+			cmdsParam, ok := module.BuildParams[commandsParam]
+			if !ok {
+				logs.Logger.Warn(`no "commands" property defined for the "custom" builder`)
+				return builderName, true, options, []string{}, nil
+			}
+			cmds, ok = cmdsParam.([]string)
+			if !ok {
+				return builderName, true, options, cmds, fmt.Errorf(`the "commands" property is defined incorrectly; a sequence of strings is expected`)
+			}
+		}
 
-		return builderName, true, options
+		return builderName, true, options, cmds, nil
 	}
 	// default builder is defined by type property of the module
-	return module.Type, false, nil
+	return module.Type, false, nil, nil, nil
 }
 
 // Get options for builder from mta.yaml
@@ -54,16 +68,7 @@ func convert(m map[interface{}]interface{}) map[string]string {
 	res := make(map[string]string)
 	for key, value := range m {
 		strKey := key.(string)
-		strValue, ok := value.(string)
-		// deep property will be presented as string of --key value
-		if !ok {
-			mapValueI := value.(map[interface{}]interface{})
-			mapValue := convert(mapValueI)
-			strValue = ""
-			for deepKey, deepValue := range mapValue {
-				strValue = strValue + " --" + deepKey + " " + deepValue
-			}
-		}
+		strValue := value.(string)
 
 		res[strKey] = strValue
 	}
@@ -73,7 +78,7 @@ func convert(m map[interface{}]interface{}) map[string]string {
 
 // CommandProvider - Get build command's to execute
 //noinspection GoExportedFuncWithUnexportedType
-func CommandProvider(modules mta.Module) (CommandList, string, error) {
+func CommandProvider(module mta.Module) (CommandList, string, error) {
 	// Get config from ./commands_cfg.yaml as generated artifacts from source
 	moduleTypes, err := parseModuleTypes(ModuleTypeConfig)
 	if err != nil {
@@ -83,19 +88,23 @@ func CommandProvider(modules mta.Module) (CommandList, string, error) {
 	if err != nil {
 		return CommandList{}, "", errors.Wrap(err, "failed to parse the builder types configuration")
 	}
-	return mesh(&modules, &moduleTypes, builderTypes)
+	return mesh(&module, &moduleTypes, &builderTypes)
 }
 
 // Match the object according to type and provide the respective command
-func mesh(module *mta.Module, moduleTypes *ModuleTypes, builderTypes Builders) (CommandList, string, error) {
+func mesh(module *mta.Module, moduleTypes *ModuleTypes, builderTypes *Builders) (CommandList, string, error) {
 	// The object support deep struct for future use, can be simplified to flat object
 	var cmds CommandList
+	var cmdList []string
 	var commands []Command
 	var err error
 
 	// get builder - module type name or custom builder if defined
 	// and indicator if custom builder
-	builder, custom, options := GetBuilder(module)
+	builder, custom, options, cmdList, err := GetBuilder(module)
+	if err != nil {
+		return CommandList{Command: []string{}}, "", err
+	}
 
 	// if module type used - get from module types configuration corresponding commands or custom builder if defined
 	if !custom {
@@ -125,7 +134,7 @@ func mesh(module *mta.Module, moduleTypes *ModuleTypes, builderTypes Builders) (
 
 	if custom {
 		// custom builder used => get commands and info
-		commands, cmds.Info, buildResults, err = getCustomCommandsByBuilder(builderTypes, builder)
+		commands, cmds.Info, buildResults, err = getCustomCommandsByBuilder(builderTypes, builder, cmdList)
 		if err != nil {
 			return cmds, "", err
 		}
@@ -138,12 +147,10 @@ func mesh(module *mta.Module, moduleTypes *ModuleTypes, builderTypes Builders) (
 
 // prepare commands list - mesh result
 func prepareMeshResult(cmds CommandList, buildResults string, commands []Command, options map[string]string) (CommandList, string) {
-	reg := regexp.MustCompile("{{\\w+}}")
 	for _, cmd := range commands {
 		if options != nil {
 			cmd.Command = meshOpts(cmd.Command, options)
 		}
-		cmd.Command = reg.ReplaceAllString(cmd.Command, "")
 		cmds.Command = append(cmds.Command, cmd.Command)
 	}
 	return cmds, buildResults
@@ -158,7 +165,15 @@ func meshOpts(cmd string, options map[string]string) string {
 	return c
 }
 
-func getCustomCommandsByBuilder(customCommands Builders, builder string) ([]Command, string, string, error) {
+func getCustomCommandsByBuilder(customCommands *Builders, builder string, cmds []string) ([]Command, string, string, error) {
+	if builder == customBuilder {
+		var res []Command
+		for _, cmd := range cmds {
+			res = append(res, Command{cmd})
+		}
+		return res, "", "", nil
+	}
+
 	for _, b := range customCommands.Builders {
 		if builder == b.Name {
 			return b.Commands, b.Info, b.BuildResult, nil
