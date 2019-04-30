@@ -88,11 +88,11 @@ func CommandProvider(module mta.Module) (CommandList, string, error) {
 	if err != nil {
 		return CommandList{}, "", errors.Wrap(err, "failed to parse the builder types configuration")
 	}
-	return mesh(&module, &moduleTypes, builderTypes)
+	return mesh(&module, &moduleTypes, &builderTypes)
 }
 
 // Match the object according to type and provide the respective command
-func mesh(module *mta.Module, moduleTypes *ModuleTypes, builderTypes Builders) (CommandList, string, error) {
+func mesh(module *mta.Module, moduleTypes *ModuleTypes, builderTypes *Builders) (CommandList, string, error) {
 	// The object support deep struct for future use, can be simplified to flat object
 	var cmds CommandList
 	var cmdList []string
@@ -102,6 +102,9 @@ func mesh(module *mta.Module, moduleTypes *ModuleTypes, builderTypes Builders) (
 	// get builder - module type name or custom builder if defined
 	// and indicator if custom builder
 	builder, custom, options, cmdList, err := GetBuilder(module)
+	if err != nil {
+		return CommandList{Command: []string{}}, "", err
+	}
 
 	// if module type used - get from module types configuration corresponding commands or custom builder if defined
 	if !custom {
@@ -162,7 +165,7 @@ func meshOpts(cmd string, options map[string]string) string {
 	return c
 }
 
-func getCustomCommandsByBuilder(customCommands Builders, builder string, cmds []string) ([]Command, string, string, error) {
+func getCustomCommandsByBuilder(customCommands *Builders, builder string, cmds []string) ([]Command, string, string, error) {
 	if builder == customBuilder {
 		var res []Command
 		for _, cmd := range cmds {

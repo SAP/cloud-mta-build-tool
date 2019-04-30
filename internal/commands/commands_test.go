@@ -48,13 +48,13 @@ module-types:
 		commands := ModuleTypes{}
 		customCommands := Builders{}
 		Ω(yaml.Unmarshal(moduleTypesCfg, &commands)).Should(Succeed())
-		Ω(mesh(&modules, &commands, customCommands)).Should(Equal(expected))
+		Ω(mesh(&modules, &commands, &customCommands)).Should(Equal(expected))
 		modules = mta.Module{
 			Name: "uiapp1",
 			Type: "html5",
 			Path: "./",
 		}
-		_, _, err := mesh(&modules, &commands, customCommands)
+		_, _, err := mesh(&modules, &commands, &customCommands)
 		Ω(err).Should(Succeed())
 		modules = mta.Module{
 			Name: "uiapp1",
@@ -64,7 +64,23 @@ module-types:
 				"builder": "html5x",
 			},
 		}
-		_, _, err = mesh(&modules, &commands, customCommands)
+		_, _, err = mesh(&modules, &commands, &customCommands)
+		Ω(err).Should(HaveOccurred())
+	})
+
+	It("Mesh - fails on wrong type of property commands", func() {
+		module := mta.Module{
+			Name: "uiapp1",
+			Type: "html5",
+			Path: "./",
+			BuildParams: map[string]interface{}{
+				"builder":  "custom",
+				"commands": "cmd",
+			},
+		}
+		commands := ModuleTypes{}
+		customCommands := Builders{}
+		_, _, err := mesh(&module, &commands, &customCommands)
 		Ω(err).Should(HaveOccurred())
 	})
 
@@ -88,7 +104,7 @@ module-types:
 		commands := ModuleTypes{}
 		customCommands := Builders{}
 		Ω(yaml.Unmarshal(moduleTypesCfg, &commands)).Should(Succeed())
-		_, _, err := mesh(&modules, &commands, customCommands)
+		_, _, err := mesh(&modules, &commands, &customCommands)
 		Ω(err).Should(HaveOccurred())
 	})
 
@@ -104,7 +120,7 @@ module-types:
 		}
 		commands := ModuleTypes{}
 		customCommands := Builders{}
-		cmds, _, err := mesh(&modules, &commands, customCommands)
+		cmds, _, err := mesh(&modules, &commands, &customCommands)
 		Ω(err).Should(Succeed())
 		Ω(len(cmds.Command)).Should(Equal(1))
 		Ω(cmds.Command[0]).Should(Equal("command1"))

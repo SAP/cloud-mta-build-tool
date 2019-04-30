@@ -3,12 +3,13 @@ package artifacts
 import (
 	"fmt"
 
+	"github.com/pkg/errors"
+
 	"github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta-build-tool/internal/commands"
 	"github.com/SAP/cloud-mta-build-tool/internal/exec"
-	"github.com/SAP/cloud-mta/mta"
 	"github.com/SAP/cloud-mta-build-tool/internal/logs"
-	"github.com/pkg/errors"
+	"github.com/SAP/cloud-mta/mta"
 )
 
 // ExecuteProjectBuild - execute pre or post phase of project build
