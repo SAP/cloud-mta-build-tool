@@ -396,7 +396,7 @@ modules:
 			builder, custom, _, _, err := GetBuilder(&m)
 			Ω(builder).Should(Equal(customBuilder))
 			Ω(custom).Should(Equal(true))
-			Ω(err.Error()).Should(Equal(`the "commands" property is defined incorrectly; a sequence of strings is expected`))
+			Ω(err.Error()).Should(Equal(`the "commands" property is defined incorrectly; the property must contain a sequence of strings`))
 		})
 	})
 })

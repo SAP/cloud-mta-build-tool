@@ -61,11 +61,11 @@ func getProjectBuilderCommands(builder mta.ProjectBuilder) (commands.CommandList
 	dummyModule.BuildParams["builder"] = builder.Builder
 	dummyModule.BuildParams["commands"] = builder.Commands
 	if builder.Builder == "custom" && builder.Commands == nil && len(builder.Commands) == 0 {
-		logs.Logger.Warn(`no "commands" property defined for the "custom" builder`)
+		logs.Logger.Warn(`the "commands" property is missing in the "custom" builder`)
 		return commands.CommandList{Command: []string{}}, nil
 	}
 	if builder.Builder != "custom" && builder.Commands != nil && len(builder.Commands) != 0 {
-		logs.Logger.Warnf(`the "commands" property is not supported for the "%s" builder`, builder.Builder)
+		logs.Logger.Warnf(`the "commands" property is not supported by the "%s" builder`, builder.Builder)
 	}
 	builderCommands, _, err := commands.CommandProvider(dummyModule)
 	return builderCommands, err
