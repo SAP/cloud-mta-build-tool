@@ -38,6 +38,9 @@ jobs:
       - image: shimit/mbt_multi:0.1.0
     working_directory: /go/src/github.com/SAP/cloud-mta-build-tool
     steps:
+#      - add_ssh_keys:
+#          fingerprints:
+#            - "6c:7e:c8:28:cd:0b:94:b6:c8:f1:3f:71:40:a1:6e:fd"
       - checkout
       - run:
           name: install dep
@@ -55,26 +58,38 @@ jobs:
     steps:
       - checkout
       - run:
-          name: bump patch version
+          name: bump release version
           command: |
             CURR_MBT_VERSION=$(cat ./VERSION)
+            echo "Current release: ${CURR_MBT_VERSION}"
             MBT_VERSION=$(echo $CURR_MBT_VERSION | awk -F. '{$NF = $NF + 1;} 1' | sed 's/ /./g')
-      - run:
-          name: update new release version
-          command: |
-            sed  -i "/\"version\":/s/$CURR_MBT_VERSION/$MBT_VERSION/" package.json
-            sed  -i "/cli_version:/s/$CURR_MBT_VERSION/$MBT_VERSION/" configs/version.yaml
-            sed  -i "s/$CURR_MBT_VERSION/$MBT_VERSION/" VERSION
-            git add package.json, configs/version.yaml, VERSION
-            git config user.email "${MBT_REPO_USER_EMAIL}"
-            git config user.name "Release Bot"
-            git commit -m "Bump version $MBT_VERSION"
-            # Push quietly to prevent showing the token in log
-            git push -q  https://${MBT_REPO_TOKEN}@github.com/SAP/cloud-mta-build-tool.git master
-      - run: curl -sL https://git.io/goreleaser | bash
-      - run: artifactdeployer pack --script-file ./configpack --package-file ./dist/cloud-mta-build-tool-pack -D baseDir=. -D mbtVersion=$MBT_VERSION
-      - run: artifactdeployer deploy --package-file ./dist/cloud-mta-build-tool-pack --artifact-version $MBT_VERSION --repo-url http://nexusmil.wdf.sap.corp:8081/nexus/content/repositories/sap.milestones.manual-uploads.hosted --repo-user $REPO_USER --repo-passwd $REPO_PASSWD
-      - run: npm publish
+            echo "New release: ${MBT_VERSION}"
+#            sed  -i "/\"version\":/s/${CURR_MBT_VERSION}/${MBT_VERSION}/" ./package.json
+#            sed  -i "/\"version\":/s/${CURR_MBT_VERSION}/${MBT_VERSION}/" ./internal/version/version_cfg.go
+#            sed  -i "/cli_version:/s/${CURR_MBT_VERSION}/${MBT_VERSION}/" ./configs/version.yaml
+#            sed  -i "s/${CURR_MBT_VERSION}/${MBT_VERSION}/" ./VERSION
+#            git add ./VERSION
+#            git config user.email "${MBT_REPO_USER_EMAIL}"
+#            git config user.name "CloudMTABot"
+#            git commit -m "[skip ci] Bump version ${MBT_VERSION}"
+#            # Push quietly to prevent showing the token in log
+#            git push -q https://github.com/SAP/cloud-mta-build-tool.git master
+#     - run: 
+#         name: release new version
+#         command: curl -sL https://git.io/goreleaser | bash
+#     - run: 
+#         name: publish to npm
+#         command: npm publish
+#      - run: 
+#          name: upload to nexus
+#          command: |
+#            MBT_VERSION=$(cat ./VERSION)
+#            echo $MBT_VERSION
+#            curl -L https://github.com/SAP/cloud-mta-build-tool/releases/download/v${MBT_VERSION}/cloud-mta-build-tool_${MBT_VERSION}_Darwin_amd64.tar.gz -o cloud-mta-build-tool_${MBT_VERSION}_Darwin_amd64.tar.gz
+#            curl -L https://github.com/SAP/cloud-mta-build-tool/releases/download/v${MBT_VERSION}/cloud-mta-build-tool_${MBT_VERSION}_Linux_amd64.tar.gz -o cloud-mta-build-tool_${MBT_VERSION}_Linux_amd64.tar.gz
+#            curl -L https://github.com/SAP/cloud-mta-build-tool/releases/download/v${MBT_VERSION}/cloud-mta-build-tool_${MBT_VERSION}_Windows_amd64.tar.gz -o cloud-mta-build-tool_${MBT_VERSION}_Windows_amd64.tar.gz
+#            artifactdeployer pack --script-file ./configpack --package-file ./cloud-mta-build-tool-pack -D baseDir=. -D mbtVersion=$MBT_VERSION
+#            artifactdeployer deploy --package-file ./cloud-mta-build-tool-pack --artifact-version $MBT_VERSION --repo-url http://nexusmil.wdf.sap.corp:8081/nexus/content/repositories/sap.milestones.manual-uploads.hosted --repo-user $MVN_REPO_USER --repo-passwd $MVN_REPO_PASSWD
 
 workflows:
   version: 2
