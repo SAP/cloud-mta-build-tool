@@ -64,32 +64,22 @@ jobs:
             echo "Current release: ${CURR_MBT_VERSION}"
             MBT_VERSION=$(echo $CURR_MBT_VERSION | awk -F. '{$NF = $NF + 1;} 1' | sed 's/ /./g')
             echo "New release: ${MBT_VERSION}"
-#            sed  -i "/\"version\":/s/${CURR_MBT_VERSION}/${MBT_VERSION}/" ./package.json
-#            sed  -i "/\"version\":/s/${CURR_MBT_VERSION}/${MBT_VERSION}/" ./internal/version/version_cfg.go
-#            sed  -i "/cli_version:/s/${CURR_MBT_VERSION}/${MBT_VERSION}/" ./configs/version.yaml
-#            sed  -i "s/${CURR_MBT_VERSION}/${MBT_VERSION}/" ./VERSION
-#            git add ./VERSION
-#            git config user.email "${MBT_REPO_USER_EMAIL}"
-#            git config user.name "CloudMTABot"
-#            git commit -m "[skip ci] Bump version ${MBT_VERSION}"
-#            # Push quietly to prevent showing the token in log
-#            git push -q https://github.com/SAP/cloud-mta-build-tool.git master
-#     - run: 
-#         name: release new version
-#         command: curl -sL https://git.io/goreleaser | bash
-#     - run: 
-#         name: publish to npm
-#         command: npm publish
-#      - run: 
-#          name: upload to nexus
-#          command: |
-#            MBT_VERSION=$(cat ./VERSION)
-#            echo $MBT_VERSION
-#            curl -L https://github.com/SAP/cloud-mta-build-tool/releases/download/v${MBT_VERSION}/cloud-mta-build-tool_${MBT_VERSION}_Darwin_amd64.tar.gz -o cloud-mta-build-tool_${MBT_VERSION}_Darwin_amd64.tar.gz
-#            curl -L https://github.com/SAP/cloud-mta-build-tool/releases/download/v${MBT_VERSION}/cloud-mta-build-tool_${MBT_VERSION}_Linux_amd64.tar.gz -o cloud-mta-build-tool_${MBT_VERSION}_Linux_amd64.tar.gz
-#            curl -L https://github.com/SAP/cloud-mta-build-tool/releases/download/v${MBT_VERSION}/cloud-mta-build-tool_${MBT_VERSION}_Windows_amd64.tar.gz -o cloud-mta-build-tool_${MBT_VERSION}_Windows_amd64.tar.gz
-#            artifactdeployer pack --script-file ./configpack --package-file ./cloud-mta-build-tool-pack -D baseDir=. -D mbtVersion=$MBT_VERSION
-#            artifactdeployer deploy --package-file ./cloud-mta-build-tool-pack --artifact-version $MBT_VERSION --repo-url http://nexusmil.wdf.sap.corp:8081/nexus/content/repositories/sap.milestones.manual-uploads.hosted --repo-user $MVN_REPO_USER --repo-passwd $MVN_REPO_PASSWD
+            sed  -i "/\"version\":/s/${CURR_MBT_VERSION}/${MBT_VERSION}/" ./package.json
+            sed  -i "/\"version\":/s/${CURR_MBT_VERSION}/${MBT_VERSION}/" ./internal/version/version_cfg.go
+            sed  -i "/cli_version:/s/${CURR_MBT_VERSION}/${MBT_VERSION}/" ./configs/version.yaml
+            sed  -i "s/${CURR_MBT_VERSION}/${MBT_VERSION}/" ./VERSION
+            git add ./VERSION
+            git config user.email "${MBT_REPO_USER_EMAIL}"
+            git config user.name "CloudMTABot"
+            git commit -m "[skip ci] Bump version ${MBT_VERSION}"
+            # Push quietly to prevent showing the token in log
+            git push -q https://github.com/SAP/cloud-mta-build-tool.git master
+     - run: 
+         name: release new version
+         command: curl -sL https://git.io/goreleaser | bash
+     - run: 
+         name: publish to npm
+         command: npm publish
 
 workflows:
   version: 2
