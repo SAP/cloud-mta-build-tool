@@ -36,12 +36,14 @@ func execProjectBuilders(loc *dir.Loc, oMta *mta.MTA, phase string) error {
 	if phase == "pre" && oMta.BuildParams != nil {
 		return execProjectBuilder(oMta.BuildParams.BeforeAll, "pre")
 	}
-	if phase == "post" && oMta.BuildParams != nil {
+	if phase == "post" {
 		err := copyResourceContent(loc.GetSource(), loc.GetTargetTmpDir(), oMta, copyInParallel)
 		if err != nil {
 			return err
 		}
-		return execProjectBuilder(oMta.BuildParams.AfterAll, "post")
+		if oMta.BuildParams != nil {
+			return execProjectBuilder(oMta.BuildParams.AfterAll, "post")
+		}
 	}
 	return nil
 }
