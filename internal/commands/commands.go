@@ -42,6 +42,20 @@ func GetBuilder(module *mta.Module) (string, bool, map[string]string, []string, 
 			}
 			cmds, ok = cmdsParam.([]string)
 			if !ok {
+				cmdsI, okI := cmdsParam.([]interface{})
+				if okI {
+					ok = true
+					for _, cmdI := range cmdsI{
+						cmd, okCmd := cmdI.(string)
+						if !okCmd {
+							ok=false
+							break
+						}
+						cmds = append(cmds, cmd)
+					}
+				}
+			}
+			if !ok {
 				return builderName, true, options, cmds, fmt.Errorf(`the "commands" property is defined incorrectly; the property must contain a sequence of strings`)
 			}
 		}
