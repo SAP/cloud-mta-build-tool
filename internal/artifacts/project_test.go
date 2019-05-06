@@ -8,6 +8,9 @@ import (
 	"github.com/SAP/cloud-mta/mta"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"io/ioutil"
+	"gopkg.in/yaml.v3"
+	"github.com/SAP/cloud-mta-build-tool/internal/archive"
 )
 
 var _ = Describe("Project", func() {
@@ -74,7 +77,8 @@ var _ = Describe("Project", func() {
 			oMta := mta.MTA{
 				BuildParams: &projectBuild,
 			}
-			Ω(execProjectBuilders(&oMta, "pre")).Should(Succeed())
+
+			Ω(execProjectBuilders(&dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath()}, &oMta, "pre")).Should(Succeed())
 		})
 		It("After Defined with nothing to execute", func() {
 			builders := []mta.ProjectBuilder{}
@@ -84,7 +88,7 @@ var _ = Describe("Project", func() {
 			oMta := mta.MTA{
 				BuildParams: &projectBuild,
 			}
-			Ω(execProjectBuilders(&oMta, "post")).Should(Succeed())
+			Ω(execProjectBuilders(&dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath()}, &oMta, "post")).Should(Succeed())
 		})
 		It("Before Defined with wrong builder", func() {
 			builders := []mta.ProjectBuilder{
@@ -98,7 +102,7 @@ var _ = Describe("Project", func() {
 			oMta := mta.MTA{
 				BuildParams: &projectBuild,
 			}
-			Ω(execProjectBuilders(&oMta, "pre")).Should(HaveOccurred())
+			Ω(execProjectBuilders(&dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath()}, &oMta, "pre")).Should(HaveOccurred())
 		})
 		It("After Defined with wrong builder", func() {
 			builders := []mta.ProjectBuilder{
@@ -112,7 +116,7 @@ var _ = Describe("Project", func() {
 			oMta := mta.MTA{
 				BuildParams: &projectBuild,
 			}
-			Ω(execProjectBuilders(&oMta, "post")).Should(HaveOccurred())
+			Ω(execProjectBuilders(&dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath()}, &oMta, "post")).Should(HaveOccurred())
 		})
 	})
 
@@ -163,6 +167,22 @@ builders:
 			}
 			Ω(execProjectBuilder([]mta.ProjectBuilder{builder}, "pre")).Should(HaveOccurred())
 			commands.BuilderTypeConfig = buildersCfg
+		})
+		Context("pre & post builder commands", func() {
+			oMta := &mta.MTA{}
+			BeforeEach(func() {
+				mtaFile, _ := ioutil.ReadFile("./testdata/mta/mta.yaml")
+				yaml.Unmarshal(mtaFile, oMta)
+			})
+		})
+		Context("pre & post builder commands - no builders defined", func() {
+			oMta := &mta.MTA{}
+			BeforeEach(func() {
+				mtaFile, _ := ioutil.ReadFile("./testdata/mta/mta.yaml")
+				yaml.Unmarshal(mtaFile, oMta)
+				oMta.BuildParams.BeforeAll = nil
+				oMta.BuildParams.AfterAll = nil
+			})
 		})
 	})
 

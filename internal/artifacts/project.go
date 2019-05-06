@@ -12,6 +12,10 @@ import (
 	"github.com/SAP/cloud-mta/mta"
 )
 
+const (
+	copyInParallel = false
+)
+
 // ExecuteProjectBuild - execute pre or post phase of project build
 func ExecuteProjectBuild(source, descriptor, phase string, getWd func() (string, error)) error {
 	if phase != "pre" && phase != "post" {
@@ -25,14 +29,18 @@ func ExecuteProjectBuild(source, descriptor, phase string, getWd func() (string,
 	if err != nil {
 		return err
 	}
-	return execProjectBuilders(oMta, phase)
+	return execProjectBuilders(loc, oMta, phase)
 }
 
-func execProjectBuilders(oMta *mta.MTA, phase string) error {
+func execProjectBuilders(loc *dir.Loc, oMta *mta.MTA, phase string) error {
 	if phase == "pre" && oMta.BuildParams != nil {
 		return execProjectBuilder(oMta.BuildParams.BeforeAll, "pre")
 	}
 	if phase == "post" && oMta.BuildParams != nil {
+		err := copyResourceContent(loc.GetSource(), loc.GetTargetTmpDir(), oMta, copyInParallel)
+		if err != nil {
+			return err
+		}
 		return execProjectBuilder(oMta.BuildParams.AfterAll, "post")
 	}
 	return nil
