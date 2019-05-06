@@ -2,14 +2,15 @@ package artifacts
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os"
 
-	"github.com/SAP/cloud-mta-build-tool/internal/commands"
-	"github.com/SAP/cloud-mta/mta"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"io/ioutil"
 	"gopkg.in/yaml.v3"
+
+	"github.com/SAP/cloud-mta/mta"
+	"github.com/SAP/cloud-mta-build-tool/internal/commands"
 	"github.com/SAP/cloud-mta-build-tool/internal/archive"
 )
 

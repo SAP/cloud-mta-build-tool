@@ -45,10 +45,10 @@ func GetBuilder(module *mta.Module) (string, bool, map[string]string, []string, 
 				cmdsI, okI := cmdsParam.([]interface{})
 				if okI {
 					ok = true
-					for _, cmdI := range cmdsI{
+					for _, cmdI := range cmdsI {
 						cmd, okCmd := cmdI.(string)
 						if !okCmd {
-							ok=false
+							ok = false
 							break
 						}
 						cmds = append(cmds, cmd)
