@@ -38,9 +38,9 @@ jobs:
       - image: shimit/mbt_multi:0.1.0
     working_directory: /go/src/github.com/SAP/cloud-mta-build-tool
     steps:
-#      - add_ssh_keys:
-#          fingerprints:
-#            - "6c:7e:c8:28:cd:0b:94:b6:c8:f1:3f:71:40:a1:6e:fd"
+      - add_ssh_keys:
+          fingerprints:
+            - "34:86:26:17:59:ed:71:fa:b8:37:fc:d6:a4:68:af:0e"
       - checkout
       - run:
           name: install dep
@@ -77,9 +77,9 @@ jobs:
      - run: 
          name: release new version
          command: curl -sL https://git.io/goreleaser | bash
-     - run: 
-         name: publish to npm
-         command: npm publish
+#     - run:
+#         name: publish to npm
+#         command: npm publish
 
 workflows:
   version: 2
@@ -99,9 +99,7 @@ release:
     - release_new:
       filters:
         branches:
-          ignore: /.*/
-          tags:
-            only: /v[0-9]+(\.[0-9]+)*(-.*)*/
+          only: master
       requires:
         - build
         - integration_test
