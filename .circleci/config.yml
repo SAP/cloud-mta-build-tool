@@ -54,9 +54,33 @@ jobs:
       - image: circleci/golang:1.11.5
     working_directory: /go/src/github.com/SAP/cloud-mta-build-tool
     steps:
+      - add_ssh_keys:
+          fingerprints:
+            - "34:86:26:17:59:ed:71:fa:b8:37:fc:d6:a4:68:af:0e"
       - checkout
-      - run: curl -sL https://git.io/goreleaser | bash
-
+      - run:
+          name: bump release version
+          command: |
+            CURR_MBT_VERSION=$(cat ./VERSION)
+            echo "Current release: ${CURR_MBT_VERSION}"
+            MBT_VERSION=$(echo $CURR_MBT_VERSION | awk -F. '{$NF = $NF + 1;} 1' | sed 's/ /./g')
+            echo "New release: ${MBT_VERSION}"
+            sed  -i "/\"version\":/s/${CURR_MBT_VERSION}/${MBT_VERSION}/" ./package.json
+            sed  -i "/\"version\":/s/${CURR_MBT_VERSION}/${MBT_VERSION}/" ./internal/version/version_cfg.go
+            sed  -i "/cli_version:/s/${CURR_MBT_VERSION}/${MBT_VERSION}/" ./configs/version.yaml
+            sed  -i "s/${CURR_MBT_VERSION}/${MBT_VERSION}/" ./VERSION
+            git add ./VERSION
+            git config user.email "${MBT_REPO_USER_EMAIL}"
+            git config user.name "CloudMTABot"
+            git commit -m "[skip ci] Bump version ${MBT_VERSION}"
+            #Push quietly to prevent showing the token in log
+            git push -q https://github.com/SAP/cloud-mta-build-tool.git master
+      - run:
+          name: release new version
+          command: curl -sL https://git.io/goreleaser | bash
+#     - run:
+#         name: publish to npm
+#         command: npm publish
 
 workflows:
   version: 2
@@ -71,14 +95,12 @@ workflows:
             branches:
               only: master
 
-#  release:
-#    jobs:
-#      - release_new:
-#          filters:
-#            branches:
-#              ignore: /.*/
-#            tags:
-#              only: /v[0-9]+(\.[0-9]+)*(-.*)*/
-#          requires:
-#            - build
-#            - integration_test
+  release:
+    jobs:
+      - release_new:
+        filters:
+          branches:
+            only: master
+        requires:
+          - build
+          - integration_test
