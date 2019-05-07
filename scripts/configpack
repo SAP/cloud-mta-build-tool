@@ -1,0 +1,9 @@
+artifacts builderVersion: "1.1", {
+    group "com.sap.mta", {
+        artifact "cloud-mta-build-tool", {
+            file "cloud-mta-build-tool_${mbtVersion}_Darwin_amd64.tar.gz", classifier:"Darwin_amd64", extension:"tar.gz"
+            file "cloud-mta-build-tool_${mbtVersion}_Linux_amd64.tar.gz", classifier:"Linux_amd64", extension:"tar.gz"
+            file "cloud-mta-build-tool_${mbtVersion}_Windows_amd64.tar.gz", classifier:"Windows_amd64", extension:"tar.gz"
+        }
+    }
+}
