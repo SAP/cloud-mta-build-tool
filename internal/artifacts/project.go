@@ -50,6 +50,7 @@ func execProjectBuilders(loc *dir.Loc, oMta *mta.MTA, phase string) error {
 
 func execProjectBuilder(builders []mta.ProjectBuilder, phase string) error {
 	errMessage := "the %s build process failed"
+	logs.Logger.Infof("%s building MTA project..." )
 	for _, builder := range builders {
 		builderCommands, err := getProjectBuilderCommands(builder)
 		if err != nil {
