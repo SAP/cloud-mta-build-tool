@@ -34,7 +34,7 @@ func ExecuteProjectBuild(source, descriptor, phase string, getWd func() (string,
 
 func execProjectBuilders(loc *dir.Loc, oMta *mta.MTA, phase string) error {
 	if phase == "pre" && oMta.BuildParams != nil {
-		return execProjectBuilder(oMta.BuildParams.BeforeAll, "pre")
+		return execProjectBuilder(oMta.BuildParams.BeforeAll, "before-all")
 	}
 	if phase == "post" {
 		err := copyResourceContent(loc.GetSource(), loc.GetTargetTmpDir(), oMta, copyInParallel)
@@ -42,15 +42,15 @@ func execProjectBuilders(loc *dir.Loc, oMta *mta.MTA, phase string) error {
 			return err
 		}
 		if oMta.BuildParams != nil {
-			return execProjectBuilder(oMta.BuildParams.AfterAll, "post")
+			return execProjectBuilder(oMta.BuildParams.AfterAll, "after-all")
 		}
 	}
 	return nil
 }
 
 func execProjectBuilder(builders []mta.ProjectBuilder, phase string) error {
-	errMessage := "the %s build process failed"
-	logs.Logger.Infof("%s building MTA project..." )
+	errMessage := "the %s build failed"
+	logs.Logger.Infof("running %s build...", phase)
 	for _, builder := range builders {
 		builderCommands, err := getProjectBuilderCommands(builder)
 		if err != nil {
