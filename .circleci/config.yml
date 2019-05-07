@@ -72,7 +72,7 @@ jobs:
             git config user.email "${MBT_REPO_USER_EMAIL}"
             git config user.name "CloudMTABot"
             git commit -m "[skip ci] Bump version ${MBT_VERSION}"
-            # Push quietly to prevent showing the token in log
+            #Push quietly to prevent showing the token in log
             git push -q https://github.com/SAP/cloud-mta-build-tool.git master
      - run: 
          name: release new version
@@ -94,12 +94,12 @@ workflows:
             branches:
               only: master
 
-release:
-  jobs:
-    - release_new:
-      filters:
-        branches:
-          only: master
-      requires:
-        - build
-        - integration_test
+  release:
+    jobs:
+      - release_new:
+        filters:
+          branches:
+            only: master
+        requires:
+          - build
+          - integration_test
