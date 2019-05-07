@@ -188,7 +188,7 @@ func getRequiredDependencies(module *mta.Module) []mta.Requires {
 }
 
 func getResourcePath(resource *mta.Resource) string {
-	return resource.Parameters["path"].(string)
+	return filepath.Clean(resource.Parameters["path"].(string))
 }
 
 func getModulePath(module *mta.Module, targetPathGetter dir.ITargetPath, defaultBuildResult string) (string, error) {

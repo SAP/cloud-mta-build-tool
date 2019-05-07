@@ -12,6 +12,10 @@ import (
 	"github.com/SAP/cloud-mta/mta"
 )
 
+const (
+	copyInParallel = false
+)
+
 // ExecuteProjectBuild - execute pre or post phase of project build
 func ExecuteProjectBuild(source, descriptor, phase string, getWd func() (string, error)) error {
 	if phase != "pre" && phase != "post" {
@@ -25,21 +29,28 @@ func ExecuteProjectBuild(source, descriptor, phase string, getWd func() (string,
 	if err != nil {
 		return err
 	}
-	return execProjectBuilders(oMta, phase)
+	return execProjectBuilders(loc, oMta, phase)
 }
 
-func execProjectBuilders(oMta *mta.MTA, phase string) error {
+func execProjectBuilders(loc *dir.Loc, oMta *mta.MTA, phase string) error {
 	if phase == "pre" && oMta.BuildParams != nil {
-		return execProjectBuilder(oMta.BuildParams.BeforeAll, "pre")
+		return execProjectBuilder(oMta.BuildParams.BeforeAll, "before-all")
 	}
-	if phase == "post" && oMta.BuildParams != nil {
-		return execProjectBuilder(oMta.BuildParams.AfterAll, "post")
+	if phase == "post" {
+		err := copyResourceContent(loc.GetSource(), loc.GetTargetTmpDir(), oMta, copyInParallel)
+		if err != nil {
+			return err
+		}
+		if oMta.BuildParams != nil {
+			return execProjectBuilder(oMta.BuildParams.AfterAll, "after-all")
+		}
 	}
 	return nil
 }
 
 func execProjectBuilder(builders []mta.ProjectBuilder, phase string) error {
-	errMessage := "the %s build process failed"
+	errMessage := `the "%s"" build failed`
+	logs.Logger.Infof(`running the "%s" build...`, phase)
 	for _, builder := range builders {
 		builderCommands, err := getProjectBuilderCommands(builder)
 		if err != nil {
@@ -61,11 +72,11 @@ func getProjectBuilderCommands(builder mta.ProjectBuilder) (commands.CommandList
 	dummyModule.BuildParams["builder"] = builder.Builder
 	dummyModule.BuildParams["commands"] = builder.Commands
 	if builder.Builder == "custom" && builder.Commands == nil && len(builder.Commands) == 0 {
-		logs.Logger.Warn(`no "commands" property defined for the "custom" builder`)
+		logs.Logger.Warn(`the "commands" property is missing in the "custom" builder`)
 		return commands.CommandList{Command: []string{}}, nil
 	}
 	if builder.Builder != "custom" && builder.Commands != nil && len(builder.Commands) != 0 {
-		logs.Logger.Warnf(`the "commands" property is not supported for the "%s" builder`, builder.Builder)
+		logs.Logger.Warnf(`the "commands" property is not supported by the "%s" builder`, builder.Builder)
 	}
 	builderCommands, _, err := commands.CommandProvider(dummyModule)
 	return builderCommands, err
