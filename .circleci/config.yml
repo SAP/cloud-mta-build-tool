@@ -69,9 +69,9 @@ jobs:
             sed  -i "/\"version\":/s/${CURR_MBT_VERSION}/${MBT_VERSION}/" ./internal/version/version_cfg.go
             sed  -i "/cli_version:/s/${CURR_MBT_VERSION}/${MBT_VERSION}/" ./configs/version.yaml
             sed  -i "s/${CURR_MBT_VERSION}/${MBT_VERSION}/" ./VERSION
-            git add ./VERSION
+            git add ./package.json ./internal/version/version_cfg.go ./configs/version.yaml ./VERSION
             git config user.email "${MBT_REPO_USER_EMAIL}"
-            git config user.name "CloudMTABot"
+            git config user.name "${MBT_REPO_USER}"
             git commit -m "[skip ci] Bump version ${MBT_VERSION}"
             #Push quietly to prevent showing the token in log
             git push -q https://github.com/SAP/cloud-mta-build-tool.git master
