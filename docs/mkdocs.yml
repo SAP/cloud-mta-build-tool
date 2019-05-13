@@ -1,5 +1,5 @@
 site_name: Cloud MTA Build Tool
-repo_url: https://github.com/SAP/cloud-mta-build-tool
+repo_url: https://sap.github.io/cloud-mta-build-tool
 docs_dir: /docs/docs/
 nav:
   - Home: index.md
