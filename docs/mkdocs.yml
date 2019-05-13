@@ -2,12 +2,12 @@ site_name: Cloud MTA Build Tool
 repo_url: https://github.com/SAP/cloud-mta-build-tool
 docs_dir: /docs/docs/
 nav:
-  - Home: 'index.md'
-  - Description: 'description.md'
-  - Usage: 'usage.md'
-  - Makefile: 'makefile.md'
-  - Roadmap: 'roadmap.md'
-  - Download: 'download.md'
+  - Home: index.md
+  - Description: description.md
+  - Usage: usage.md
+  - Makefile: makefile.md
+  - Roadmap: roadmap.md
+  - Download: download.md
 
 theme:
   name: 'material'
