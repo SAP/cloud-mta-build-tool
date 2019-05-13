@@ -5,8 +5,8 @@
 Multi-Target Application (MTA) build tool for Cloud Applications
 
 
-Description 
-Usage
-Makefile
-Roadmap
-Download
+- Description 
+- Usage
+- Makefile
+- Roadmap
+- Download
