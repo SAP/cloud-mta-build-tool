@@ -20,7 +20,7 @@ import (
 )
 
 const (
-	makefile    = "Makefile.mta"
+	makefile = "Makefile.mta"
 )
 
 var _ = BeforeSuite(func() {
