@@ -5,7 +5,7 @@ nav:
   - Usage: usage.md
   - Makefile: makefile.md
   - Roadmap: roadmap.md
-  - Download: download.md 
+  - Download And Installation: download.md
 
 theme:
   name: 'material'
