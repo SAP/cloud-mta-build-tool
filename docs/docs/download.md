@@ -1,4 +1,3 @@
-## Download and Installation
 
  There are two supported ways to install the multi-target application archive builder (MBT) tool:
 
