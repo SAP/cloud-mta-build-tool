@@ -3,7 +3,6 @@ package commands
 import (
 	"bytes"
 	"fmt"
-	"github.com/SAP/cloud-mta-build-tool/internal/logs"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -76,8 +75,6 @@ var buildCmd = &cobra.Command{
 		bin := filepath.FromSlash("make")
 		commandArgs := "-f " + makefileTmp + " p=" + buildProjectCmdPlatform + " mtar=" + buildProjectCmdMtar + ` t="` + buildProjectCmdTrg + `"`
 		cmdout, error, _ := execute(bin, commandArgs, buildProjectCmdSrc)
-		logs.Logger.Infof("source: %s", buildProjectCmdDesc)
-		logs.Logger.Infof("Target: %s", buildProjectCmdTrg)
 		fmt.Println(cmdout)
 		if error != "" {
 			fmt.Println("binary creation failed: ", err)
