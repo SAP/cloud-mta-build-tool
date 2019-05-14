@@ -2,7 +2,7 @@
 
  There are two supported ways to install the multi-target application archive builder (MBT) tool:
 
- **Manually**:
+ **Install manually**:
  
   1. [Download](https://github.com/SAP/cloud-mta-build-tool/releases) the **latest** binary file according to your operating system.
   2. Extract the archive file to the folder where you want to install the tool.
