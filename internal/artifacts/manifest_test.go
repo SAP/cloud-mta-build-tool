@@ -34,6 +34,7 @@ var _ = Describe("manifest", func() {
 		It("Sanity", func() {
 			os.Mkdir(getTestPath("result", ".mta_mta_build_tmp", "node-js"), os.ModePerm)
 			os.Create(getTestPath("result", ".mta_mta_build_tmp", "node-js", "data.zip"))
+			os.Create(getTestPath("result", ".mta_mta_build_tmp", "config-site-host.json"))
 			dirC, _ := ioutil.ReadDir(getTestPath("result", ".mta_mta_build_tmp"))
 			for _, c := range dirC {
 				fmt.Println(c.Name())
@@ -44,6 +45,27 @@ var _ = Describe("manifest", func() {
 			Ω(setManifestDesc(&loc, &loc, mtaObj.Modules, []*mta.Resource{}, []string{})).Should(Succeed())
 			actual := getFileContent(getTestPath("result", ".mta_mta_build_tmp", "META-INF", "MANIFEST.MF"))
 			golden := getFileContent(getTestPath("golden_manifest.mf"))
+			v, _ := version.GetVersion()
+			golden = strings.Replace(golden, "{{cli_version}}", v.CliVersion, -1)
+			fmt.Println(actual)
+			fmt.Println(golden)
+			Ω(actual).Should(Equal(golden))
+		})
+		It("Sanity - with configuration provided", func() {
+			os.Mkdir(getTestPath("result", ".mta_mta_build_tmp", "node-js"), os.ModePerm)
+			os.Create(getTestPath("result", ".mta_mta_build_tmp", "node-js", "data.zip"))
+			os.Create(getTestPath("result", ".mta_mta_build_tmp", "config-site-host.json"))
+			os.Create(getTestPath("result", ".mta_mta_build_tmp", "xs-security.json"))
+			dirC, _ := ioutil.ReadDir(getTestPath("result", ".mta_mta_build_tmp"))
+			for _, c := range dirC {
+				fmt.Println(c.Name())
+			}
+			loc := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath(), MtaFilename: "mta_cfg.yaml"}
+			mtaObj, err := loc.ParseFile()
+			Ω(err).Should(Succeed())
+			Ω(setManifestDesc(&loc, &loc, mtaObj.Modules, []*mta.Resource{}, []string{})).Should(Succeed())
+			actual := getFileContent(getTestPath("result", ".mta_mta_build_tmp", "META-INF", "MANIFEST.MF"))
+			golden := getFileContent(getTestPath("golden_manifest_cfg.mf"))
 			v, _ := version.GetVersion()
 			golden = strings.Replace(golden, "{{cli_version}}", v.CliVersion, -1)
 			fmt.Println(actual)
