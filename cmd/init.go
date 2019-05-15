@@ -8,8 +8,7 @@ import (
 )
 
 const (
-	makefile    = "Makefile.mta"
-	makefileTmp = "Makefile_tmp.mta"
+	makefile = "Makefile.mta"
 )
 
 // flags of init command
@@ -39,7 +38,7 @@ func init() {
 	initCmd.Flags().StringVarP(&initCmdMode, "mode", "m", "", "Mode of Makefile generation - default/verbose")
 
 	// set flags of build command
-	buildCmd.Flags().StringVarP(&buildProjectCmdSrc, "source", "s", "$(CURDIR)", "Provide MTA source")
+	buildCmd.Flags().StringVarP(&buildProjectCmdSrc, "source", "s", "", "Provide MTA source")
 	buildCmd.Flags().StringVarP(&buildProjectCmdTrg, "target", "t", "$(CURDIR)/mta_archives", "Provide MTA target")
 	buildCmd.Flags().StringVarP(&buildProjectCmdDesc, "desc", "d", "", "Descriptor MTA - dev/dep")
 	buildCmd.Flags().StringVarP(&buildProjectCmdName, "name", "n", "", "Name of Makefile")
