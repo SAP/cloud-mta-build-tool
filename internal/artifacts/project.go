@@ -2,19 +2,41 @@ package artifacts
 
 import (
 	"fmt"
-
-	"github.com/pkg/errors"
-
 	"github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta-build-tool/internal/commands"
 	"github.com/SAP/cloud-mta-build-tool/internal/exec"
 	"github.com/SAP/cloud-mta-build-tool/internal/logs"
+	"github.com/SAP/cloud-mta-build-tool/internal/tpl"
 	"github.com/SAP/cloud-mta/mta"
+	"github.com/pkg/errors"
+	"os"
+	"path/filepath"
+	"strconv"
 )
 
 const (
 	copyInParallel = false
+	makefileTmp    = "Makefile_tmp.mta"
 )
+
+// ExecBuild - Generates Makefile according to the MTA descriptor and executes it
+func ExecBuild(buildProjectCmdSrc, buildProjectCmdTrg, buildProjectCmdDesc, buildProjectCmdMode, buildProjectCmdMtar, buildProjectCmdPlatform string, buildProjectCmdStrict bool, wdGetter func() (string, error)) error {
+	// Generate build script
+	err := tpl.ExecuteMake(buildProjectCmdSrc, "", makefileTmp, buildProjectCmdDesc, buildProjectCmdMode, os.Getwd)
+	if err != nil {
+		return fmt.Errorf(`generation of the "%v" file failed`, makefileTmp)
+	}
+	err = exec.Execute([][]string{{buildProjectCmdSrc, "make", "-f", makefileTmp, " p=" + buildProjectCmdPlatform, " mtar=" + buildProjectCmdMtar, ` t="` + buildProjectCmdTrg + `"`, " strict=" + strconv.FormatBool(buildProjectCmdStrict)}})
+	if err != nil {
+		return fmt.Errorf(`execution of the "%v" file failed`, makefileTmp)
+	}
+	// Remove Makefile_tmp.mta file from directory
+	err = os.Remove(filepath.Join(buildProjectCmdSrc, makefileTmp))
+	if err != nil {
+		return fmt.Errorf(`removing of the "%v" file failed`, makefileTmp)
+	}
+	return err
+}
 
 // ExecuteProjectBuild - execute pre or post phase of project build
 func ExecuteProjectBuild(source, descriptor, phase string, getWd func() (string, error)) error {

@@ -36,7 +36,7 @@ var _ = Describe("Build", func() {
 		os.Mkdir(getTestPath("result"), os.ModePerm)
 	})
 	AfterEach(func() {
-		//os.RemoveAll(getTestPath("result"))
+		os.RemoveAll(getTestPath("result"))
 	})
 	It("Sanity", func() {
 		buildProjectCmdDesc = "dev"
@@ -45,8 +45,8 @@ var _ = Describe("Build", func() {
 		buildProjectCmdTrg = getTestPath("result")
 		buildProjectCmdPlatform = "cf"
 
-		buildCmd.Run(nil, []string{})
-		//Ω(err).Should(Succeed())
+		err := buildCmd.RunE(nil, []string{})
+		Ω(err).Should(BeNil())
 	})
 	It("Invalid descriptor", func() {
 		initCmdDesc = "xx"
