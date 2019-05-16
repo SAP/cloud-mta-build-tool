@@ -6,7 +6,6 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/SAP/cloud-mta-build-tool/internal/tpl"
-	"github.com/SAP/cloud-mta-build-tool/internal/archive"
 )
 
 // flags of init command
@@ -29,7 +28,7 @@ var initCmd = &cobra.Command{
 	Args:  cobra.NoArgs,
 	Run: func(cmd *cobra.Command, args []string) {
 		// Generate build script
-		err := tpl.ExecuteMake(initCmdSrc, initCmdTrg, dir.Dev, initCmdMode, os.Getwd)
+		err := tpl.ExecuteMake(initCmdSrc, initCmdTrg, initCmdMode, os.Getwd)
 		logError(err)
 	},
 }

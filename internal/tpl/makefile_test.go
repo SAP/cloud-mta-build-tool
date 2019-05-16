@@ -91,16 +91,16 @@ makefile_version: 0.0.0
 				os.Remove(filepath.Join(wd, "testdata", "Makefile.mta"))
 			})
 			It("Sanity", func() {
-				Ω(ExecuteMake(filepath.Join(wd, "testdata"), filepath.Join(wd, "testdata"), "dev", "", os.Getwd)).Should(Succeed())
+				Ω(ExecuteMake(filepath.Join(wd, "testdata"), filepath.Join(wd, "testdata"), "", os.Getwd)).Should(Succeed())
 				Ω(filepath.Join(wd, "testdata", "Makefile.mta")).Should(BeAnExistingFile())
 			})
 			It("Fails on location initialization", func() {
-				Ω(ExecuteMake("", filepath.Join(wd, "testdata"), "dev", "", func() (string, error) {
+				Ω(ExecuteMake("", filepath.Join(wd, "testdata"), "", func() (string, error) {
 					return "", errors.New("err")
 				})).Should(HaveOccurred())
 			})
 			It("Fails on wrong mode", func() {
-				Ω(ExecuteMake(filepath.Join(wd, "testdata"), filepath.Join(wd, "testdata"), "dev", "wrong", os.Getwd)).Should(HaveOccurred())
+				Ω(ExecuteMake(filepath.Join(wd, "testdata"), filepath.Join(wd, "testdata"), "wrong", os.Getwd)).Should(HaveOccurred())
 			})
 		})
 

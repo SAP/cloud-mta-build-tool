@@ -30,9 +30,9 @@ type tplCfg struct {
 }
 
 // ExecuteMake - generate makefile
-func ExecuteMake(source, target, desc, mode string, wdGetter func() (string, error)) error {
+func ExecuteMake(source, target, mode string, wdGetter func() (string, error)) error {
 	logs.Logger.Info(`generating the "Makefile.mta" file...`)
-	loc, err := dir.Location(source, target, desc, wdGetter)
+	loc, err := dir.Location(source, target, dir.Dev, wdGetter)
 	if err != nil {
 		return errors.Wrap(err, `generation of the "Makefile.mta" file failed when initializing the location`)
 	}
