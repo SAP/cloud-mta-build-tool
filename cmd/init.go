@@ -16,16 +16,16 @@ var initCmdMode string
 
 // init flags of init command
 func init() {
-	initCmd.Flags().StringVarP(&initCmdSrc, "source", "s", "", "Provide MTA source")
-	initCmd.Flags().StringVarP(&initCmdTrg, "target", "t", "", "Provide MTA target")
-	initCmd.Flags().StringVarP(&initCmdDesc, "desc", "d", "", "Descriptor MTA - dev/dep")
-	initCmd.Flags().StringVarP(&initCmdMode, "mode", "m", "", "Mode of Makefile generation - default/verbose")
+	initCmd.Flags().StringVarP(&initCmdSrc, "source", "s", "", "the path to the MTA project; the current path is default")
+	initCmd.Flags().StringVarP(&initCmdTrg, "target", "t", "", "the path to the generated Makefile folder; the current path is default")
+	initCmd.Flags().StringVarP(&initCmdDesc, "desc", "d", "", "the MTA descriptor; supported values: dev (development descriptor, default value) and dep (deployment descriptor)")
+	initCmd.Flags().StringVarP(&initCmdMode, "mode", "m", "", "the mode of the Makefile generation; supported values: default and verbose")
 }
 
 var initCmd = &cobra.Command{
 	Use:   "init",
 	Short: "generates Makefile",
-	Long:  "generates Makefile as a manifest file that describes the build process",
+	Long:  "generates Makefile as a manifest file that describes the build process of the MTA project",
 	Args:  cobra.NoArgs,
 	Run: func(cmd *cobra.Command, args []string) {
 		// Generate build script
