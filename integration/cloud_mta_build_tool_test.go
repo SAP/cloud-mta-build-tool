@@ -151,6 +151,32 @@ var _ = Describe("Integration - CloudMtaBuildTool", func() {
 			Ω(filepath.Join(dir, "testdata", "mta_demo", "mta_archives", "xyz1.mtar")).ShouldNot(BeAnExistingFile())
 		})
 
+		var _ = Describe("MBT build - generates Makefile and executes it", func() {
+
+			It("MBT build for mta_demo", func() {
+				dir, _ := os.Getwd()
+				path := filepath.Join(dir, "testdata", "mta_demo")
+				bin := filepath.FromSlash(binPath)
+				_, err, _ := execute(bin, "build -p=cf", path)
+				if len(err) > 0 {
+					fmt.Println(err)
+				}
+				Ω(err).Should(Equal(""))
+
+				// Check the MTAR was generates
+				validateMtaArchiveContents([]string{"node-js/data.zip"}, filepath.Join(path, "mta_archives", "mta_demo_0.0.1.mtar"))
+			})
+
+			It("MBT build - wrong platform", func() {
+				dir, _ := os.Getwd()
+				path := filepath.Join(dir, "testdata", "mta_demo")
+				bin := filepath.FromSlash(binPath)
+				_, err, _ := execute(bin, "build -p=xxx", path)
+				Ω(err).ShouldNot(BeEmpty())
+			})
+		})
+
+
 		It("Generate MTAR - unsupported platform, module removed from mtad", func() {
 
 			dir, _ := os.Getwd()

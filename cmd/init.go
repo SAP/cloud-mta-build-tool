@@ -2,6 +2,7 @@ package commands
 
 import (
 	"github.com/SAP/cloud-mta-build-tool/internal/artifacts"
+	"github.com/SAP/cloud-mta-build-tool/internal/exec"
 	"github.com/SAP/cloud-mta-build-tool/internal/tpl"
 	"github.com/spf13/cobra"
 	"os"
@@ -69,7 +70,7 @@ var buildCmd = &cobra.Command{
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		// Generate build script
-		err := artifacts.ExecBuild(buildProjectCmdSrc, buildProjectCmdTrg, buildProjectCmdDesc, buildProjectCmdMode, buildProjectCmdMtar, buildProjectCmdPlatform, buildProjectCmdStrict, os.Getwd)
+		err := artifacts.ExecBuild(buildProjectCmdSrc, buildProjectCmdTrg, buildProjectCmdDesc, buildProjectCmdMode, buildProjectCmdMtar, buildProjectCmdPlatform, buildProjectCmdStrict, os.Getwd, exec.Execute)
 		logError(err)
 		return err
 	},

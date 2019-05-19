@@ -20,13 +20,13 @@ const (
 )
 
 // ExecBuild - Generates Makefile according to the MTA descriptor and executes it
-func ExecBuild(buildProjectCmdSrc, buildProjectCmdTrg, buildProjectCmdDesc, buildProjectCmdMode, buildProjectCmdMtar, buildProjectCmdPlatform string, buildProjectCmdStrict bool, wdGetter func() (string, error)) error {
+func ExecBuild(buildProjectCmdSrc, buildProjectCmdTrg, buildProjectCmdDesc, buildProjectCmdMode, buildProjectCmdMtar, buildProjectCmdPlatform string, buildProjectCmdStrict bool, wdGetter func() (string, error), wdExec func([][]string) error) error {
 	// Generate build script
 	err := tpl.ExecuteMake(buildProjectCmdSrc, "", makefileTmp, buildProjectCmdDesc, buildProjectCmdMode, wdGetter)
 	if err != nil {
 		return fmt.Errorf(`generation of the "%v" file failed`, makefileTmp)
 	}
-	err = exec.Execute([][]string{{buildProjectCmdSrc, "make", "-f", makefileTmp, " p=" + buildProjectCmdPlatform, " mtar=" + buildProjectCmdMtar, ` t="` + buildProjectCmdTrg + `"`, " strict=" + strconv.FormatBool(buildProjectCmdStrict)}})
+	err = wdExec([][]string{{buildProjectCmdSrc, "make", "-f", makefileTmp, " p=" + buildProjectCmdPlatform, " mtar=" + buildProjectCmdMtar, ` t="` + buildProjectCmdTrg + `"`, " strict=" + strconv.FormatBool(buildProjectCmdStrict)}})
 	if err != nil {
 		// Remove Makefile_tmp.mta file from directory
 		err = os.Remove(filepath.Join(buildProjectCmdSrc, filepath.FromSlash(makefileTmp)))
