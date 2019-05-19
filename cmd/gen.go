@@ -31,7 +31,7 @@ func init() {
 
 	// set flags of mtad command
 	mtadCmd.Flags().StringVarP(&mtadCmdSrc, "source", "s", "",
-		"the path to the MTA project; the current path is default")
+		"the path to the MTA project; the current path is set as the default")
 	mtadCmd.Flags().StringVarP(&mtadCmdTrg, "target", "t",
 		"", "the path to the MBT results folder; the current path is set as the default")
 	mtadCmd.Flags().StringVarP(&mtadCmdPlatform, "platform", "p", "cf",
