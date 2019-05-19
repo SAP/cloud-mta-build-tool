@@ -1,15 +1,18 @@
 package commands
 
 import (
-	"github.com/SAP/cloud-mta-build-tool/internal/artifacts"
 	"github.com/SAP/cloud-mta-build-tool/internal/exec"
-	"github.com/SAP/cloud-mta-build-tool/internal/tpl"
-	"github.com/spf13/cobra"
 	"os"
+
+	"github.com/spf13/cobra"
+
+	"github.com/SAP/cloud-mta-build-tool/internal/artifacts"
+	"github.com/SAP/cloud-mta-build-tool/internal/tpl"
 )
 
 const (
-	makefile = "Makefile.mta"
+	makefile    = "Makefile.mta"
+	makefileTmp = "Makefile_tmp.mta"
 )
 
 // flags of init command
@@ -20,11 +23,9 @@ var initCmdName string
 var initCmdMode string
 
 // flags of build command
-var buildProjectCmdExecFunc = exec.Execute
 var buildProjectCmdSrc string
 var buildProjectCmdTrg string
 var buildProjectCmdDesc string
-var buildProjectCmdName string
 var buildProjectCmdMode string
 var buildProjectCmdMtar string
 var buildProjectCmdPlatform string
@@ -33,21 +34,30 @@ var buildProjectCmdStrict bool
 // init flags of init command
 func init() {
 	// set flags of init command
-	initCmd.Flags().StringVarP(&initCmdSrc, "source", "s", "", "Provide MTA source")
-	initCmd.Flags().StringVarP(&initCmdTrg, "target", "t", "", "Provide MTA target")
-	initCmd.Flags().StringVarP(&initCmdDesc, "desc", "d", "", "Descriptor MTA - dev/dep")
-	initCmd.Flags().StringVarP(&initCmdDesc, "name", "n", "", "Name of Makefile")
-	initCmd.Flags().StringVarP(&initCmdMode, "mode", "m", "", "Mode of Makefile generation - default/verbose")
+	initCmd.Flags().StringVarP(&initCmdSrc, "source", "s", "",
+		"the path to the MTA project; the current path is default")
+	initCmd.Flags().StringVarP(&initCmdTrg, "target", "t", "",
+		"the path to the MBT results folder; the current path is set as a default")
+	initCmd.Flags().StringVarP(&initCmdDesc, "desc", "d", "",
+		`the MTA descriptor; supported values: "dev" (development descriptor, default value) and "dep" (deployment descriptor)`)
+	initCmd.Flags().StringVarP(&initCmdName, "name", "n", "",
+		"the name of the Makefile; Makefile.mta is set as a default")
+	initCmd.Flags().StringVarP(&initCmdMode, "mode", "m", "",
+		"Mode of Makefile generation - default/verbose")
 
 	// set flags of build command
-	buildCmd.Flags().StringVarP(&buildProjectCmdSrc, "source", "s", "", "Provide MTA source")
-	buildCmd.Flags().StringVarP(&buildProjectCmdTrg, "target", "t", "$(CURDIR)/mta_archives", "Provide MTA target")
-	buildCmd.Flags().StringVarP(&buildProjectCmdDesc, "desc", "d", "", "Descriptor MTA - dev/dep")
-	buildCmd.Flags().StringVarP(&buildProjectCmdName, "name", "n", "", "Name of Makefile")
-	buildCmd.Flags().StringVarP(&buildProjectCmdMode, "mode", "m", "", "Name of Mtar")
-	buildCmd.Flags().StringVarP(&buildProjectCmdMtar, "mtar", "", "*", "Mode of Makefile generation - default/verbose")
-	buildCmd.Flags().StringVarP(&buildProjectCmdPlatform, "platform", "p", "", "Platform")
-	buildCmd.Flags().BoolVarP(&buildProjectCmdStrict, "strict", "", true, "Strict")
+	buildCmd.Flags().StringVarP(&buildProjectCmdSrc, "source", "s", "",
+		"the path to the MTA project; the current path is default")
+	buildCmd.Flags().StringVarP(&buildProjectCmdTrg, "target", "t", "$(CURDIR)/mta_archives",
+		"the path to the MBT results folder; the current path is set as a default")
+	buildCmd.Flags().StringVarP(&buildProjectCmdDesc, "desc", "d", "",
+		`the MTA descriptor; supported values: "dev" (development descriptor, default value) and "dep" (deployment descriptor)`)
+	buildCmd.Flags().StringVarP(&buildProjectCmdMtar, "mtar", "", "*",
+		"Mode of Makefile generation - default/verbose")
+	buildCmd.Flags().StringVarP(&buildProjectCmdPlatform, "platform", "p", "",
+		`the deployment platform; supported plaforms: "cf", "xsa", "neo"`)
+	buildCmd.Flags().BoolVarP(&buildProjectCmdStrict, "strict", "", true,
+		"true - duplicated fields and fields that are not defined reported as errors. false -  they are reported as warnings; true is set as a default")
 }
 
 // Generates the Makefile.mta file according to the MTA descriptor
@@ -71,7 +81,7 @@ var buildCmd = &cobra.Command{
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		// Generate build script
-		err := artifacts.ExecBuild(buildProjectCmdSrc, buildProjectCmdTrg, buildProjectCmdDesc, buildProjectCmdMode, buildProjectCmdMtar, buildProjectCmdPlatform, buildProjectCmdStrict, os.Getwd, buildProjectCmdExecFunc)
+		err := artifacts.ExecBuild(buildProjectCmdSrc, buildProjectCmdTrg, buildProjectCmdDesc, buildProjectCmdMode, buildProjectCmdMtar, buildProjectCmdPlatform, buildProjectCmdStrict, os.Getwd, exec.Execute)
 		logError(err)
 		return err
 	},

@@ -1,10 +1,11 @@
 package commands
 
 import (
-	"fmt"
+	"os"
+	"path/filepath"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"os"
 )
 
 var _ = Describe("Init", func() {
@@ -39,26 +40,19 @@ var _ = Describe("Build", func() {
 	AfterEach(func() {
 		os.RemoveAll(getTestPath("result"))
 	})
-	It("Sanity", func() {
+
+	It("Failure - Makefile_tmp.mta exists", func() {
 		buildProjectCmdDesc = "dev"
 
 		buildProjectCmdSrc = getTestPath("mta")
 		buildProjectCmdTrg = getTestPath("result")
 		buildProjectCmdPlatform = "cf"
-		buildProjectCmdExecFunc = func(cmdParams [][]string) error {
-			return nil
-		}
-		err := buildCmd.RunE(nil, []string{})
+		file, err := os.Create(filepath.Join(buildProjectCmdSrc, filepath.FromSlash("Makefile_tmp.mta")))
+		file.Close()
 		Ω(err).Should(BeNil())
-	})
-	It("Invalid descriptor", func() {
-		buildProjectCmdDesc = "xx"
-		buildProjectCmdSrc = getTestPath("mta")
-		buildProjectCmdTrg = getTestPath("result")
-		buildProjectCmdExecFunc = func(cmdParams [][]string) error {
-			return fmt.Errorf("failure")
-		}
-		err := buildCmd.RunE(nil, []string{})
+		err = buildCmd.RunE(nil, []string{})
 		Ω(err).ShouldNot(BeNil())
+		err = os.Remove(filepath.Join(buildProjectCmdSrc, filepath.FromSlash("Makefile_tmp.mta")))
+		Ω(err).Should(BeNil())
 	})
 })
