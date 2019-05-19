@@ -38,3 +38,4 @@ internal/tpl/MakeFileTest.mta
 Dockerfile
 
 integration/testdata/mta_demo/mta_archives/
+docs/site
