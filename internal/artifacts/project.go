@@ -41,6 +41,10 @@ func execProjectBuilders(loc *dir.Loc, oMta *mta.MTA, phase string) error {
 		if err != nil {
 			return err
 		}
+		err = copyRequiredDependencyContent(loc.GetSource(), loc.GetTargetTmpDir(), oMta, copyInParallel)
+		if err != nil {
+			return err
+		}
 		if oMta.BuildParams != nil {
 			return execProjectBuilder(oMta.BuildParams.AfterAll, "after-all")
 		}
