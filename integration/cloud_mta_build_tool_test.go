@@ -176,7 +176,6 @@ var _ = Describe("Integration - CloudMtaBuildTool", func() {
 			})
 		})
 
-
 		It("Generate MTAR - unsupported platform, module removed from mtad", func() {
 
 			dir, _ := os.Getwd()
