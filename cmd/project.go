@@ -14,11 +14,11 @@ var projectBuildCmdPhase string
 
 func init() {
 	projectBuildCmd.Flags().StringVarP(&projectBuildCmdSrc,
-		"source", "s", "", "the path to the MTA project; the current path is default")
+		"source", "s", "", "the path to the MTA project; the current path is set as the default")
 	projectBuildCmd.Flags().StringVarP(&projectBuildCmdDesc,
-		"desc", "d", "", "the MTA descriptor; supported values: dev (development descriptor, default value) and dep (deployment descriptor)")
+		"desc", "d", "", `the MTA descriptor; supported values: "dev" (development descriptor, default value) and "dep" (deployment descriptor)`)
 	projectBuildCmd.Flags().StringVarP(&projectBuildCmdPhase,
-		"phase", "p", "", "the project build phase; supported values: pre and post")
+		"phase", "p", "", `the project build phase; supported values: "pre" and "post"`)
 }
 
 // projectBuildCmd - Runs the mta project pre and post build processes

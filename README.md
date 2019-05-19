@@ -28,7 +28,7 @@ For background and detailed information, see the [Multi-Target Application Model
 | version | `mbt -v`     | Prints the Multi-Target Application Archive Builder tool version.                                        | x
 | help    | `mbt -h`     | Prints all the available commands.                             
 | assemble    | `mbt assemble`     | Creates an MTA archive `.mtar` file from the module build artifacts according to the MTA deployment descriptor (`mtad.yaml` file). Runs the command in the directory where the `mtad.yaml` file is located. <br>**Note:** Make sure the path property of each module's `mtad.yaml` file points to the module's build artifacts that you want to package into the target MTA archive. 
-| init    | `mbt init`     | Generates the `Makefile.mta` file according to the MTA descriptor (`mta.yaml` file or `mtad.yaml` file). <br> The `make` command uses the generated `Makefile.mta` file to package the MTA project. 
+| init    | `mbt init`     | Generates the `Makefile.mta` file according to the MTA descriptor (`mta.yaml` file). <br> The `make` command uses the generated `Makefile.mta` file to package the MTA project. <br> Use the `mbt init` command with the following flags:<br><ul><li>`-s (--source)` is the path to the MTA project; the current path is set as the default.<br> Example: `mbt init -s C:/TestProject` <li>`-t (--target)` is the path to the generated Makefile folder; the current path is set as the default. <br> Example: `mbt init -t C:/TestFolder`<li>`-m (--mode)` is the mode of the Makefile generation; supported values are "default" and "verbose"<br> Example: `mbt init -m default`   
 <br>
 For more information, see the command help output available via either of the following:
 

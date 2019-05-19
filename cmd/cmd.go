@@ -39,19 +39,19 @@ func init() {
 
 	// set flags of cleanup command
 	cleanupCmd.Flags().StringVarP(&cleanupCmdSrc, "source", "s", "",
-		"the path to the MTA project; the current path is default")
+		"the path to the MTA project; the current path is set as the default")
 	cleanupCmd.Flags().StringVarP(&cleanupCmdTrg, "target", "t", "",
-		"the path to the MBT results folder; the current path is default")
+		"the path to the MBT results folder; the current path is set as the default")
 	cleanupCmd.Flags().StringVarP(&cleanupCmdDesc, "desc", "d", "",
-		"the MTA descriptor; supported values: dev (development descriptor, default value) and dep (deployment descriptor)")
+		`the MTA descriptor; supported values: "dev" (development descriptor, default value) and "dep" (deployment descriptor)`)
 
 	// set flags of validation command
 	validateCmd.Flags().StringVarP(&validateCmdSrc, "source", "s", "",
-		"the path to the MTA project; the current path is default")
+		"the path to the MTA project; the current path is set as the default")
 	validateCmd.Flags().StringVarP(&validateCmdMode, "mode", "m", "",
-		"the validation mode; supported values: schema, semantic (default)")
+		`the validation mode; supported values: "schema", "semantic" (default)`)
 	validateCmd.Flags().StringVarP(&validateCmdDesc, "desc", "d", "",
-		"the MTA descriptor; supported values: dev (development descriptor, default value) and dep (deployment descriptor)")
+		`the MTA descriptor; supported values: "dev" (development descriptor, default value) and "dep" (deployment descriptor)`)
 	validateCmd.Flags().StringVarP(&validateCmdStrict, "strict", "r", "true",
 		`if set to true, duplicated fields and fields not defined in the "mta.yaml" schema are reported as errors; if set to false, they are reported as warnings`)
 	validateCmd.Flags().StringVarP(&validateCmdExclude, "exclude", "e", "",

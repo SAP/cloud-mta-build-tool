@@ -33,27 +33,27 @@ func init() {
 	mtadCmd.Flags().StringVarP(&mtadCmdSrc, "source", "s", "",
 		"the path to the MTA project; the current path is default")
 	mtadCmd.Flags().StringVarP(&mtadCmdTrg, "target", "t",
-		"", "the path to the MBT results folder; the current path is default")
+		"", "the path to the MBT results folder; the current path is set as the default")
 	mtadCmd.Flags().StringVarP(&mtadCmdPlatform, "platform", "p", "cf",
-		"the deployment platform; supported plaforms: cf, xsa, neo")
+		`the deployment platform; supported plaforms: "cf", "xsa", "neo"`)
 
 	// set flags of meta command
 	metaCmd.Flags().StringVarP(&metaCmdSrc, "source", "s", "",
-		"the path to the MTA project; the current path is default")
+		"the path to the MTA project; the current path is set as the default")
 	metaCmd.Flags().StringVarP(&metaCmdTrg, "target", "t", "",
-		"the path to the MBT results folder; the current path is default")
+		"the path to the MBT results folder; the current path is set as the default")
 	metaCmd.Flags().StringVarP(&metaCmdDesc, "desc", "d", "",
-		"the MTA descriptor; supported values: dev (development descriptor, default value) and dep (deployment descriptor)")
+		`the MTA descriptor; supported values: "dev" (development descriptor, default value) and "dep" (deployment descriptor)`)
 	metaCmd.Flags().StringVarP(&metaCmdPlatform, "platform", "p", "cf",
-		"the deployment platform; supported plaforms: cf, xsa, neo")
+		`the deployment platform; supported plaforms: "cf", "xsa", "neo"`)
 
 	// set flags of mtar command
 	mtarCmd.Flags().StringVarP(&mtarCmdSrc, "source", "s", "",
-		"the path to the MTA project; the current path is default")
+		"the path to the MTA project; the current path is set as the default")
 	mtarCmd.Flags().StringVarP(&mtarCmdTrg, "target", "t", "",
-		"the path to the MBT results folder; the current path is default")
+		"the path to the MBT results folder; the current path is set as the default")
 	mtarCmd.Flags().StringVarP(&mtarCmdDesc, "desc", "d", "",
-		"the MTA descriptor; supported values: dev (development descriptor, default value) and dep (deployment descriptor)")
+		`the MTA descriptor; supported values: "dev" (development descriptor, default value) and "dep" (deployment descriptor)`)
 	mtarCmd.Flags().StringVarP(&mtarCmdMtarName, "mtar", "m", "*",
 		"the archive name")
 	mtarCmd.Flags().StringVarP(&mtarCmdTrgProvided, "target_provided", "", "",

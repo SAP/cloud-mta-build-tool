@@ -30,9 +30,9 @@ type tplCfg struct {
 }
 
 // ExecuteMake - generate makefile
-func ExecuteMake(source, target, desc, mode string, wdGetter func() (string, error)) error {
+func ExecuteMake(source, target, mode string, wdGetter func() (string, error)) error {
 	logs.Logger.Info(`generating the "Makefile.mta" file...`)
-	loc, err := dir.Location(source, target, desc, wdGetter)
+	loc, err := dir.Location(source, target, dir.Dev, wdGetter)
 	if err != nil {
 		return errors.Wrap(err, `generation of the "Makefile.mta" file failed when initializing the location`)
 	}
@@ -121,25 +121,13 @@ func mapTpl(templateContent []byte, BasePreContent []byte, BasePostContent []byt
 func getTplCfg(mode string, isDep bool) (tplCfg, error) {
 	tpl := tplCfg{}
 	if (mode == "verbose") || (mode == "v") {
-		if isDep {
-			tpl.tplContent = makeVerboseDep
-			tpl.preContent = basePreVerboseDep
-			tpl.postContent = basePostDep
-		} else {
-			tpl.tplContent = makeVerbose
-			tpl.preContent = basePreVerbose
-			tpl.postContent = basePost
-		}
+		tpl.tplContent = makeVerbose
+		tpl.preContent = basePreVerbose
+		tpl.postContent = basePost
 	} else if mode == "" {
-		if isDep {
-			tpl.tplContent = makeDeployment
-			tpl.preContent = basePreDefaultDep
-			tpl.postContent = basePostDep
-		} else {
-			tpl.tplContent = makeDefault
-			tpl.preContent = basePreDefault
-			tpl.postContent = basePost
-		}
+		tpl.tplContent = makeDefault
+		tpl.preContent = basePreDefault
+		tpl.postContent = basePost
 	} else {
 		return tplCfg{}, fmt.Errorf(`the "%s" command is not supported`, mode)
 	}
