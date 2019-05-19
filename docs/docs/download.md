@@ -1,5 +1,5 @@
 
- There are two supported ways to install the multi-target application archive builder (MBT) tool:
+ There are two supported ways to install the Cloud MTA Build Tool (MBT):
 
  **Install manually**:
  
