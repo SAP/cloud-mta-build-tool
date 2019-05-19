@@ -29,14 +29,14 @@ func ExecBuild(buildProjectCmdSrc, buildProjectCmdTrg, buildProjectCmdDesc, buil
 	err = exec.Execute([][]string{{buildProjectCmdSrc, "make", "-f", makefileTmp, " p=" + buildProjectCmdPlatform, " mtar=" + buildProjectCmdMtar, ` t="` + buildProjectCmdTrg + `"`, " strict=" + strconv.FormatBool(buildProjectCmdStrict)}})
 	if err != nil {
 		// Remove Makefile_tmp.mta file from directory
-		err = os.Remove(filepath.FromSlash(makefileTmp))
+		err = os.Remove(filepath.Join(buildProjectCmdSrc, filepath.FromSlash(makefileTmp)))
 		if err != nil {
 			return fmt.Errorf(`removing of the "%v" file failed`, makefileTmp)
 		}
 		return fmt.Errorf(`execution of the "%v" file failed`, makefileTmp)
 	}
 	// Remove Makefile_tmp.mta file from directory
-	err = os.Remove(filepath.FromSlash(makefileTmp))
+	err = os.Remove(filepath.Join(buildProjectCmdSrc, filepath.FromSlash(makefileTmp)))
 	if err != nil {
 		return fmt.Errorf(`removing of the "%v" file failed`, makefileTmp)
 	}
