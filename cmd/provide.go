@@ -14,9 +14,9 @@ var provideModuleCmdDesc string
 // init - inits flags of provide module command
 func init() {
 	provideModuleCmd.Flags().StringVarP(&provideModuleCmdSrc, "source", "s",
-		"", "the path to the MTA project; the current path is default")
+		"", "the path to the MTA project; the current path is set as the default")
 	provideModuleCmd.Flags().StringVarP(&provideModuleCmdDesc, "desc", "d", "",
-		"the MTA descriptor; supported values: dev (development descriptor, default value) and dep (deployment descriptor)")
+		`the MTA descriptor; supported values: "dev" (development descriptor, default value) and "dep" (deployment descriptor)`)
 }
 
 // provideModuleCmd - Provide list of modules

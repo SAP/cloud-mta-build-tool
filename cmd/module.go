@@ -26,27 +26,27 @@ func init() {
 
 	// sets the flags of of the command pack module
 	packModuleCmd.Flags().StringVarP(&packCmdSrc, "source", "s", "",
-		"the path to the MTA project; the current path is default")
+		"the path to the MTA project; the current path is is set as the default")
 	packModuleCmd.Flags().StringVarP(&packCmdTrg, "target", "t", "",
-		"the path to the MBT results folder; the current path is default")
+		"the path to the MBT results folder; the current path is set as the default")
 	packModuleCmd.Flags().StringVarP(&packCmdDesc, "desc", "d", "",
-		"the MTA descriptor; supported values: dev (development descriptor, default value) and dep (deployment descriptor)")
+		`the MTA descriptor; supported values: "dev" (development descriptor, default value) and "dep" (deployment descriptor)`)
 	packModuleCmd.Flags().StringVarP(&packCmdModule, "module", "m", "",
 		"the name of the module")
 	packModuleCmd.Flags().StringVarP(&packCmdPlatform, "platform", "p", "",
-		"the deployment platform; supported plaforms: cf, xsa, neo")
+		`the deployment platform; supported plaforms: "cf", "xsa", "neo"`)
 
 	// sets the flags of the command build module
 	buildModuleCmd.Flags().StringVarP(&buildCmdSrc, "source", "s", "",
-		"the path to the MTA project; the current path is default")
+		"the path to the MTA project; the current path is set as the default")
 	buildModuleCmd.Flags().StringVarP(&buildCmdTrg, "target", "t", "",
-		"the path to the MBT results folder; the current path is default")
+		"the path to the MBT results folder; the current path is set as the default")
 	buildModuleCmd.Flags().StringVarP(&buildCmdDesc, "desc", "d", "",
-		"the MTA descriptor; supported values: dev (development descriptor, default value) and dep (deployment descriptor)")
+		`the MTA descriptor; supported values: "dev" (development descriptor, default value) and "dep" (deployment descriptor)`)
 	buildModuleCmd.Flags().StringVarP(&buildCmdModule, "module", "m", "",
 		"the name of the module")
 	buildModuleCmd.Flags().StringVarP(&buildCmdPlatform, "platform", "p", "",
-		"the deployment platform; supported plaforms: cf, xsa, neo")
+		`the deployment platform; supported plaforms: "cf", "xsa", "neo"`)
 }
 
 // buildModuleCmd - Build module

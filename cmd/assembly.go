@@ -35,9 +35,9 @@ var assemblyCommand = &cobra.Command{
 
 func init() {
 	assemblyCommand.Flags().StringVarP(&assembleCmdSrc,
-		"source", "s", "", "the path to the MTA project; the current path is default")
+		"source", "s", "", "the path to the MTA project; the current path is set as the default")
 	assemblyCommand.Flags().StringVarP(&assembleCmdTrg,
-		"target", "t", "", "the path to the MBT results folder; the current path is default")
+		"target", "t", "", "the path to the MBT results folder; the current path is set as the default")
 	assemblyCommand.Flags().StringVarP(&assembleCmdMtarName,
 		"mtar", "m", "", "the archive name")
 	assemblyCommand.Flags().StringVarP(&assembleCmdParallel,
