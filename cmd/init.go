@@ -20,6 +20,7 @@ var initCmdName string
 var initCmdMode string
 
 // flags of build command
+var buildProjectCmdExecFunc = exec.Execute
 var buildProjectCmdSrc string
 var buildProjectCmdTrg string
 var buildProjectCmdDesc string
@@ -70,7 +71,7 @@ var buildCmd = &cobra.Command{
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		// Generate build script
-		err := artifacts.ExecBuild(buildProjectCmdSrc, buildProjectCmdTrg, buildProjectCmdDesc, buildProjectCmdMode, buildProjectCmdMtar, buildProjectCmdPlatform, buildProjectCmdStrict, os.Getwd, exec.Execute)
+		err := artifacts.ExecBuild(buildProjectCmdSrc, buildProjectCmdTrg, buildProjectCmdDesc, buildProjectCmdMode, buildProjectCmdMtar, buildProjectCmdPlatform, buildProjectCmdStrict, os.Getwd, buildProjectCmdExecFunc)
 		logError(err)
 		return err
 	},

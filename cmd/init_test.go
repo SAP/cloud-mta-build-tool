@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"fmt"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"os"
@@ -44,15 +45,20 @@ var _ = Describe("Build", func() {
 		buildProjectCmdSrc = getTestPath("mta")
 		buildProjectCmdTrg = getTestPath("result")
 		buildProjectCmdPlatform = "cf"
-
+		buildProjectCmdExecFunc = func(cmdParams [][]string) error {
+			return nil
+		}
 		err := buildCmd.RunE(nil, []string{})
 		Ω(err).Should(BeNil())
 	})
 	It("Invalid descriptor", func() {
-		initCmdDesc = "xx"
-		initCmdSrc = getTestPath("mta")
-		initCmdTrg = getTestPath("result")
-		initCmd.Run(nil, []string{})
-		Ω(getTestPath("result", "Makefile_tmp.mta")).ShouldNot(BeAnExistingFile())
+		buildProjectCmdDesc = "xx"
+		buildProjectCmdSrc = getTestPath("mta")
+		buildProjectCmdTrg = getTestPath("result")
+		buildProjectCmdExecFunc = func(cmdParams [][]string) error {
+			return fmt.Errorf("failure")
+		}
+		err := buildCmd.RunE(nil, []string{})
+		Ω(err).ShouldNot(BeNil())
 	})
 })
