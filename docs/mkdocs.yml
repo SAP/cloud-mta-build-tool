@@ -21,5 +21,7 @@ nav:
 
 theme:
   name: 'material'
+  palette:
+    primary: 'blue'
 edit_uri: edit/master/docs/docs/
 
