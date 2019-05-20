@@ -1,12 +1,12 @@
 package commands
 
 import (
-	"github.com/SAP/cloud-mta-build-tool/internal/exec"
 	"os"
 
 	"github.com/spf13/cobra"
 
 	"github.com/SAP/cloud-mta-build-tool/internal/artifacts"
+	"github.com/SAP/cloud-mta-build-tool/internal/exec"
 	"github.com/SAP/cloud-mta-build-tool/internal/tpl"
 )
 
