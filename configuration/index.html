@@ -94,6 +94,10 @@
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
     <label class="md-overlay" data-md-component="overlay" for="__drawer"></label>
     
+      <a href="#overview" tabindex="1" class="md-skip">
+        Skip to content
+      </a>
+    
     
       <header class="md-header" data-md-component="header">
   <nav class="md-header-nav md-grid">
@@ -327,9 +331,125 @@
     <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="__toc">
     
     
+      <label class="md-nav__link md-nav__link--active" for="__toc">
+        Configuration
+      </label>
+    
     <a href="./" title="Configuration" class="md-nav__link md-nav__link--active">
       Configuration
     </a>
+    
+      
+<nav class="md-nav md-nav--secondary">
+  
+  
+  
+    <label class="md-nav__title" for="__toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" title="Overview" class="md-nav__link">
+    Overview
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#configuring-a-builder-for-a-module" title="Configuring a builder for a module" class="md-nav__link">
+    Configuring a builder for a module
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuring-build-order" title="Configuring Build order" class="md-nav__link">
+    Configuring Build order
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#defining-module-build-order" title="Defining module build order" class="md-nav__link">
+    Defining module build order
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#using-build-results-for-building-another-modulecopy-artifact" title="Using build results for building another modulecopy artifact" class="md-nav__link">
+    Using build results for building another modulecopy artifact
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuring-before-all-build" title="Configuring "before-all" build" class="md-nav__link">
+    Configuring "before-all" build
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuring-the-fetcher-builder" title="Configuring the Fetcher Builder" class="md-nav__link">
+    Configuring the Fetcher Builder
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuring-the-custom-builder" title="Configuring the Custom Builder" class="md-nav__link">
+    Configuring the Custom Builder
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuring-module-build-artifacts-to-package-into-mta-archive" title="Configuring module build artifacts to package into MTA archive" class="md-nav__link">
+    Configuring module build artifacts to package into MTA archive
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuring-and-packaging-modules-according-to-target-platforms" title="Configuring and Packaging Modules According to Target Platforms" class="md-nav__link">
+    Configuring and Packaging Modules According to Target Platforms
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuring-timeout-sessions" title="Configuring Timeout Sessions" class="md-nav__link">
+    Configuring Timeout Sessions
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuring-the-build-artifact-name" title="Configuring the Build Artifact Name" class="md-nav__link">
+    Configuring the Build Artifact Name
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+      
+      
+      
+      
+    </ul>
+  
+</nav>
     
   </li>
 
@@ -449,6 +569,124 @@
               </div>
             
             
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary">
+  
+  
+  
+    <label class="md-nav__title" for="__toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" title="Overview" class="md-nav__link">
+    Overview
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#configuring-a-builder-for-a-module" title="Configuring a builder for a module" class="md-nav__link">
+    Configuring a builder for a module
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuring-build-order" title="Configuring Build order" class="md-nav__link">
+    Configuring Build order
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#defining-module-build-order" title="Defining module build order" class="md-nav__link">
+    Defining module build order
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#using-build-results-for-building-another-modulecopy-artifact" title="Using build results for building another modulecopy artifact" class="md-nav__link">
+    Using build results for building another modulecopy artifact
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuring-before-all-build" title="Configuring "before-all" build" class="md-nav__link">
+    Configuring "before-all" build
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuring-the-fetcher-builder" title="Configuring the Fetcher Builder" class="md-nav__link">
+    Configuring the Fetcher Builder
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuring-the-custom-builder" title="Configuring the Custom Builder" class="md-nav__link">
+    Configuring the Custom Builder
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuring-module-build-artifacts-to-package-into-mta-archive" title="Configuring module build artifacts to package into MTA archive" class="md-nav__link">
+    Configuring module build artifacts to package into MTA archive
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuring-and-packaging-modules-according-to-target-platforms" title="Configuring and Packaging Modules According to Target Platforms" class="md-nav__link">
+    Configuring and Packaging Modules According to Target Platforms
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuring-timeout-sessions" title="Configuring Timeout Sessions" class="md-nav__link">
+    Configuring Timeout Sessions
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuring-the-build-artifact-name" title="Configuring the Build Artifact Name" class="md-nav__link">
+    Configuring the Build Artifact Name
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+      
+      
+      
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
           
           <div class="md-content">
             <article class="md-content__inner md-typeset">
@@ -459,7 +697,226 @@
                 
                   <h1>Configuration</h1>
                 
-                <p>TBD </p>
+                <h3 id="overview">Overview</h3>
+<p>Optionally, you can define the builder behavior by configuring parameters in build-parameters section in mta.yaml for each module or globaly.</p>
+<p>For each module, the MTA Build Tool performs a build operation using a default technology specific for the module type, for example, npm builder.</p>
+<p>For complete list of available builders and their default behaviour, see <a href="https://github.com/SAP/cloud-mta-build-tool/blob/master/configs/builder_type_cfg.yaml">Builders execution commands</a>.</p>
+<p>See <a href="https://github.com/SAP/cloud-mta-build-tool/blob/master/configs/module_type_cfg.yaml">Modules' default builder configuration</a> to know what builder is applied for a module if <code>builder</code> parameters is not explicily set in the MTA development descriptor file (<code>mta.yaml</code>). </p>
+<p>The following sections describe in detail how to configure each of the supported builders.</p>
+<h4 id="configuring-a-builder-for-a-module">Configuring a builder for a module</h4>
+<p>To use a non-default builder for a module, specify its name in the builder parameter.</p>
+<pre><code class="yaml">
+- name: module1
+   type: java
+   build-parameters:     
+     builder: zip
+
+</code></pre>
+
+<h4 id="configuring-build-order">Configuring Build order</h4>
+<p>You can define dependencies between modules to ensure that they are built in a certain order. In addition, you can use the build results of one module to build another module.
+Also you can can configure a build step that is performed before building any of the modules.</p>
+<h5 id="defining-module-build-order">Defining module build order</h5>
+<p>To define the build order of modules, in the mta.yaml file, add a <code>requires</code> section under the <code>build-parameters</code> section of the dependent module; that is, a module that should be built only after building another required module. Then specify the required module name as a property of the dependent module’s <code>requires</code> section.</p>
+<p>The example mta.yaml file below demonstrates how to build module A after module B:</p>
+<pre><code class="yaml">
+ID: myproject
+_schema-version: '3.1'
+version: 0.0.1
+
+modules:
+
+ - name: A
+   type: html5 
+   path: pathtomoduleA
+   build-parameters:
+      requires:
+        - name: B
+
+ - name: B
+   type: html5 
+   path: pathtomoduleB
+
+</code></pre>
+
+<blockquote>
+<p><strong><em>NOTE:</em></strong> The order of modules in the mta.yaml file is not important as long as the requires sections have been coded with the relevant dependencies.</p>
+<p><strong><em>CAUTION:</em></strong> Cyclical dependencies are not allowed. If such dependencies are found, the build fails.</p>
+</blockquote>
+<p><br></p>
+<h5 id="using-build-results-for-building-another-modulecopy-artifact">Using build results for building another modulecopy artifact</h5>
+<p>If you want to use the build results of module B for building module A, modify the <code>requires</code> section as follows:</p>
+<pre><code class="yaml">
+ID: myproject
+_schema-version: '3.1'
+version: 0.0.1
+
+modules:
+
+ - name: A
+   type: html5 
+   path: pathtomoduleA
+   build-parameters:
+      requires:
+        - name: B
+          artifacts: [&quot;*&quot;]
+          target-path: &quot;newfolder&quot;
+
+ - name: B
+   type: html5 
+   path: pathtomoduleB
+
+</code></pre>
+
+<p><br></p>
+<h5 id="configuring-before-all-build">Configuring "before-all" build</h5>
+<p>If you would like to run some builder process before running builders of the specific modules, define it in the <code>build-parameters</code> section at global level in mta.yaml as follows:</p>
+<pre><code class="yaml">
+ID: myproject
+_schema-version: '3.1'
+version: 0.0.1
+
+build-parameters:
+  before-all:
+    builders:
+      - builder: npm
+
+modules:
+ ...
+
+</code></pre>
+
+<p>You can configure any of the supported buiders. 
+Also you can list several builders and they will run in the specified order.</p>
+<pre><code class="yaml">
+ID: myproject
+_schema-version: '3.1'
+version: 0.0.1
+
+build-parameters:
+  before-all:
+    builders:
+      - builder: custom
+        commands: 
+          - npm run script1
+      - builder: grunt
+
+
+modules:
+ ...
+
+</code></pre>
+
+<blockquote>
+<p><strong><em>NOTE:</em></strong> The following build parameters only are considered when configuing builder at "before-all" level: <li>timeout<li>commands (for the <code>custom</code> builder only)<li> fetcher-opts (for the <code>fetcher</code> builder only)
+<br></p>
+</blockquote>
+<h4 id="configuring-the-fetcher-builder">Configuring the Fetcher Builder</h4>
+<p>The fetcher can be used for packaging already available Maven artifacts into a multitarget application archive as the module’s build results.</p>
+<pre><code class="yaml">
+- name: my_module
+  build-parameters:
+      builder: fetcher
+      fetcher-opts:
+         repo-type: maven
+         repo-coordinates: mygroup:myart:1.0.0
+
+</code></pre>
+
+<p>repo-coordinates is a string of the form <code>groupId:artifactId:version[:packaging[:classifier]]</code>.</p>
+<p>This is equivalent to a Maven dependency command, delegating the specified coordinates to the standard Maven dependency mechanism: <code>mvn dependency:copy -Dartifact=mygroup:myart:1.0.0</code></p>
+<h4 id="configuring-the-custom-builder">Configuring the Custom Builder</h4>
+<p>You can define your own build commands by configuring <code>custom</code> builder as follows:</p>
+<pre><code class="yaml">
+- name: my_module
+  build-parameters:
+      builder: custom
+      commands:
+        - npm install
+        - grunt
+        - npm prune --production
+
+
+</code></pre>
+
+<p>When used for configuring a module builder, you can omit <code>commands</code> parameters; then no build is performed and the module's root folder or a folder specified in <code>build-result</code> will be packaged into the MTA archive.</p>
+<h4 id="configuring-module-build-artifacts-to-package-into-mta-archive">Configuring module build artifacts to package into MTA archive</h4>
+<p>You can configure the following build parameters to define arctifacts to package into MTA archive for the specific module:</p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Default value</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>build-result</td>
+<td>The module folder</td>
+<td>A folder with the build results to package.</td>
+</tr>
+<tr>
+<td>ignore</td>
+<td>None</td>
+<td>Files and/or subfolders to exclude from the package.</td>
+</tr>
+</tbody>
+</table>
+<p>For example:</p>
+<pre><code class="yaml">
+- name: module1
+   type: java
+   build-parameters:     
+     builder: zip
+     build-result: myfolder
+     ignore: [&quot;*.txt&quot;, &quot;mtaignore/&quot;]
+
+
+</code></pre>
+
+<blockquote>
+<p><strong><em>NOTE:</em></strong> These parameters are not considered for the <code>fetcher</code> builder</p>
+</blockquote>
+<h4 id="configuring-and-packaging-modules-according-to-target-platforms">Configuring and Packaging Modules According to Target Platforms</h4>
+<p>If you want to control which modules should be packaged into a multitarget application archive for a specific platform during a multitarget application build, use the <code>supported-platforms</code> build parameter as follows:</p>
+<pre><code class="yaml">
+ID: myproject
+_schema-version: '2.0'
+version: 0.0.1
+
+modules:
+
+ - name: A
+   type: html5 
+   path: pathtomoduleA
+   build-parameters:
+      supported-platforms: [NEO, CF]
+
+ - name: B
+   type: html5 
+   path: pathtomoduleB
+   build-parameters:
+      supported-platforms: [NEO]
+
+ - name: C
+   type: html5 
+   path: pathtomodulec
+   build-parameters:
+      supported-platforms: []
+
+
+</code></pre>
+
+<p>If you build an application with the multitarget application descriptor above for a <code>CF</code> target, all its modules will be built but the resulting multitarget application archive and deployment descriptor will include module A only.</p>
+<p>If you build the same application for a <code>NEO</code> target, the multitarget application archive will include module A and module B.</p>
+<p>If you have a module C with an empty supported platform list, it is never included in any multitarget application archive, regardless of the target platform of the specific multitarget application build.</p>
+<p>If the <code>supported-platforms</code> build parameter is not used, the module is packaged for any target platform.</p>
+<p>You can use these values or any combination of these values for the <code>supported-platforms</code> build parameter: <ul><li><code>CF</code> for SAP Cloud Platform Cloud Foundry Environment  <li><code>NEO</code> for SAP Cloud Platform Neo Environment <li><code>XSA</code> for SAP HANA XS advanced model </p>
+<h4 id="configuring-timeout-sessions">Configuring Timeout Sessions</h4>
+<p>This feature is not supported yet by the tool.</p>
+<h4 id="configuring-the-build-artifact-name">Configuring the Build Artifact Name</h4>
+<p>This feature is not supported yet by the tool.</p>
                 
                   
                 
