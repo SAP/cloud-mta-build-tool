@@ -1,4 +1,4 @@
-# <b>Welcome to the Cloud MTA Build Tool (aka MBT) </b>
+# <b>Welcome to the Cloud MTA Build Tool (a.k.a MBT) </b>
 
 ## <b>Introduction</b>
 
