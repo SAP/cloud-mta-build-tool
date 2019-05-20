@@ -11,12 +11,14 @@ The archive builder is used on a file system independently of the development en
 
 The archive builder is supported on Windows and Linux.
 
+If you previously used [Multitarget Application Archive Builder](https://help.sap.com/viewer/58746c584026430a890170ac4d87d03b/Cloud/en-US/ba7dd5a47b7a4858a652d15f9673c28d.html) for building your MTA projects please learn about [differences between the tools](migration.md).
+
 ### <b> Multitarget Application</b>
 
 Before using this package, be sure you are familiar with the multi-target application concept and terminology.
 For background and detailed information, see the [Multi-Target Application Model](https://www.sap.com/documents/2016/06/e2f618e4-757c-0010-82c7-eda71af511fa.html) guide.   
 
-### Creating MTA archive according to the project’s MTA development descriptor (`mta.yaml` file)
+### <b>Creating MTA archive according to MTA development descriptor (`mta.yaml` file)</b>
 
 The build process and the resulting multitarget application archive depend on the target platform on which the archive will be deployed. The currently supported target platforms are SAP Cloud Platform (both the Neo and Cloud Foundry environments), and SAP HANA XS advanced model.
 
@@ -27,6 +29,6 @@ If the MTA Build Tool encounters a module type in the `mta.yaml` that is not lis
 
 All resource definitions are passed to the `mtad.yaml` file as is without mapping and validations (e.g., if the resource is supported in the target platform or specified parameters match the type).
 
-###Creating MTA archive according to the project’s MTA deploymnet descriptor (`mtad.yaml` file)
+###<b>Creating MTA archive according to the MTA deploymnet descriptor (`mtad.yaml` file)</b>
 
 TBD
