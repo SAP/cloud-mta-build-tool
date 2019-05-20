@@ -11,8 +11,7 @@ import (
 )
 
 const (
-	makefile    = "Makefile.mta"
-	makefileTmp = "Makefile_tmp.mta"
+	makefile = "Makefile.mta"
 )
 
 // flags of init command
@@ -43,7 +42,7 @@ func init() {
 	initCmd.Flags().StringVarP(&initCmdName, "name", "n", "",
 		"the name of the Makefile; Makefile.mta is set as the default")
 	initCmd.Flags().StringVarP(&initCmdMode, "mode", "m", "",
-		"Mode of Makefile generation - default/verbose")
+		`the mode of the Makefile generation; supported values: "default" and "verbose"`)
 
 	// set flags of build command
 	buildCmd.Flags().StringVarP(&buildProjectCmdSrc, "source", "s", "",
@@ -52,12 +51,14 @@ func init() {
 		"the path to the MBT results folder; the current path is set as the default")
 	buildCmd.Flags().StringVarP(&buildProjectCmdDesc, "desc", "d", "",
 		`the MTA descriptor; supported values: "dev" (development descriptor, default value) and "dep" (deployment descriptor)`)
+	buildCmd.Flags().StringVarP(&buildProjectCmdMode, "mode", "m", "",
+		`the mode of the Makefile generation; supported values: "default" and "verbose"`)
 	buildCmd.Flags().StringVarP(&buildProjectCmdMtar, "mtar", "", "*",
 		"Mode of Makefile generation - default/verbose")
 	buildCmd.Flags().StringVarP(&buildProjectCmdPlatform, "platform", "p", "",
 		`the deployment platform; supported plaforms: "cf", "xsa", "neo"`)
 	buildCmd.Flags().BoolVarP(&buildProjectCmdStrict, "strict", "", true,
-		"true - duplicated fields and fields that are not defined reported as errors. false -  they are reported as warnings; true is set as a default")
+		`if set to true, duplicated fields and fields not defined in the "mta.yaml" schema are reported as errors; if set to false, they are reported as warnings`)
 }
 
 // Generates the Makefile.mta file according to the MTA descriptor
