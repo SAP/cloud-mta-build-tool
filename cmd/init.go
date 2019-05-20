@@ -77,8 +77,8 @@ var initCmd = &cobra.Command{
 // Generates the Makefile.mta file according to the MTA descriptor and executes it
 var buildCmd = &cobra.Command{
 	Use:   "build",
-	Short: "generates and executes Makefile",
-	Long:  "generates Makefile as a manifest file that describes the build process and executes it",
+	Short: "Execute MTA project build",
+	Long:  "Building each of the modules in the MTA project and Archiving the MTA project",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		// Generate build script
