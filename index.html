@@ -42,12 +42,6 @@
     
       <link rel="stylesheet" href="assets/stylesheets/application.750b69bd.css">
       
-        <link rel="stylesheet" href="assets/stylesheets/application-palette.224b79ff.css">
-      
-      
-        
-        
-        <meta name="theme-color" content="#2196f3">
       
     
     
@@ -69,9 +63,7 @@
     
   </head>
   
-    
-    
-    <body dir="ltr" data-md-color-primary="blue" data-md-color-accent="">
+    <body dir="ltr">
   
     <svg class="md-svg">
       <defs>
@@ -279,15 +271,15 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#creating-mta-archive-according-to-the-projects-mta-development-descriptor-mtayaml-file" title="Creating MTA archive according to the project’s MTA development descriptor (mta.yaml file)" class="md-nav__link">
-    Creating MTA archive according to the project’s MTA development descriptor (mta.yaml file)
+  <a href="#creating-mta-archive-according-to-mta-development-descriptor-mtayaml-file" title="Creating MTA archive according to MTA development descriptor (mta.yaml file)" class="md-nav__link">
+    Creating MTA archive according to MTA development descriptor (mta.yaml file)
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#creating-mta-archive-according-to-the-projects-mta-deploymnet-descriptor-mtadyaml-file" title="Creating MTA archive according to the project’s MTA deploymnet descriptor (mtad.yaml file)" class="md-nav__link">
-    Creating MTA archive according to the project’s MTA deploymnet descriptor (mtad.yaml file)
+  <a href="#creating-mta-archive-according-to-the-mta-deploymnet-descriptor-mtadyaml-file" title="Creating MTA archive according to the MTA deploymnet descriptor (mtad.yaml file)" class="md-nav__link">
+    Creating MTA archive according to the MTA deploymnet descriptor (mtad.yaml file)
   </a>
   
 </li>
@@ -548,15 +540,15 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#creating-mta-archive-according-to-the-projects-mta-development-descriptor-mtayaml-file" title="Creating MTA archive according to the project’s MTA development descriptor (mta.yaml file)" class="md-nav__link">
-    Creating MTA archive according to the project’s MTA development descriptor (mta.yaml file)
+  <a href="#creating-mta-archive-according-to-mta-development-descriptor-mtayaml-file" title="Creating MTA archive according to MTA development descriptor (mta.yaml file)" class="md-nav__link">
+    Creating MTA archive according to MTA development descriptor (mta.yaml file)
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#creating-mta-archive-according-to-the-projects-mta-deploymnet-descriptor-mtadyaml-file" title="Creating MTA archive according to the project’s MTA deploymnet descriptor (mtad.yaml file)" class="md-nav__link">
-    Creating MTA archive according to the project’s MTA deploymnet descriptor (mtad.yaml file)
+  <a href="#creating-mta-archive-according-to-the-mta-deploymnet-descriptor-mtadyaml-file" title="Creating MTA archive according to the MTA deploymnet descriptor (mtad.yaml file)" class="md-nav__link">
+    Creating MTA archive according to the MTA deploymnet descriptor (mtad.yaml file)
   </a>
   
 </li>
@@ -592,16 +584,17 @@ multi-target application (MTA) archive <code>.mtar</code> file from the artifact
 development descriptor (<code>mta.yaml</code> file) or from module build artifacts according to the MTA deployment descriptor (<code>mtad.yaml</code> file).</p>
 <p>The archive builder is used on a file system independently of the development environment in which the application project has been created.</p>
 <p>The archive builder is supported on Windows and Linux.</p>
+<p>If you previously used <a href="https://help.sap.com/viewer/58746c584026430a890170ac4d87d03b/Cloud/en-US/ba7dd5a47b7a4858a652d15f9673c28d.html">Multitarget Application Archive Builder</a> for building your MTA projects please learn about <a href="migration/">differences between the tools</a>.</p>
 <h3 id="multitarget-application"><b> Multitarget Application</b></h3>
 <p>Before using this package, be sure you are familiar with the multi-target application concept and terminology.
 For background and detailed information, see the <a href="https://www.sap.com/documents/2016/06/e2f618e4-757c-0010-82c7-eda71af511fa.html">Multi-Target Application Model</a> guide.   </p>
-<h3 id="creating-mta-archive-according-to-the-projects-mta-development-descriptor-mtayaml-file">Creating MTA archive according to the project’s MTA development descriptor (<code>mta.yaml</code> file)</h3>
+<h3 id="creating-mta-archive-according-to-mta-development-descriptor-mtayaml-file"><b>Creating MTA archive according to MTA development descriptor (<code>mta.yaml</code> file)</b></h3>
 <p>The build process and the resulting multitarget application archive depend on the target platform on which the archive will be deployed. The currently supported target platforms are SAP Cloud Platform (both the Neo and Cloud Foundry environments), and SAP HANA XS advanced model.</p>
 <p>Each module is built using the build technology that is either associated with the module type by default or is configured explicitly. Then the results of each module's build are packaged into an archive together with the multitarget application deployment descriptor. The deployment descriptor is created based on the structure of the multitarget application project, the multitarget application development descriptor (mta.yaml), the extension descriptors, if they are supplied (the builder merges them with mta.yaml), and the command line options. In the deployment descriptor, the design-time modules are converted into the module types that are recognized by the respective target platforms. The resulting multitarget application archive can then be deployed on the required target platform.
 See <a href="https://github.com/SAP/cloud-mta-build-tool/blob/master/configs/platform_cfg.yaml">Module types conversion</a> for more details on how design time module types in <code>mta.yaml</code> are converted into deployment time module types in <code>mtad.yaml</code> according to the target platform. </p>
 <p>If the MTA Build Tool encounters a module type in the <code>mta.yaml</code> that is not listed in the configuration file, its definition is copied to <code>mtad.yaml</code> as is and the <code>zip</code> builder is applied to the module (i.e. archived module sources will be packaged as the build result).</p>
 <p>All resource definitions are passed to the <code>mtad.yaml</code> file as is without mapping and validations (e.g., if the resource is supported in the target platform or specified parameters match the type).</p>
-<h3 id="creating-mta-archive-according-to-the-projects-mta-deploymnet-descriptor-mtadyaml-file">Creating MTA archive according to the project’s MTA deploymnet descriptor (<code>mtad.yaml</code> file)</h3>
+<h3 id="creating-mta-archive-according-to-the-mta-deploymnet-descriptor-mtadyaml-file"><b>Creating MTA archive according to the MTA deploymnet descriptor (<code>mtad.yaml</code> file)</b></h3>
 <p>TBD</p>
                 
                   

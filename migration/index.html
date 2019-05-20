@@ -42,12 +42,6 @@
     
       <link rel="stylesheet" href="../assets/stylesheets/application.750b69bd.css">
       
-        <link rel="stylesheet" href="../assets/stylesheets/application-palette.224b79ff.css">
-      
-      
-        
-        
-        <meta name="theme-color" content="#2196f3">
       
     
     
@@ -69,9 +63,7 @@
     
   </head>
   
-    
-    
-    <body dir="ltr" data-md-color-primary="blue" data-md-color-accent="">
+    <body dir="ltr">
   
     <svg class="md-svg">
       <defs>
@@ -101,6 +93,10 @@
     <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
     <label class="md-overlay" data-md-component="overlay" for="__drawer"></label>
+    
+      <a href="#overview" tabindex="1" class="md-skip">
+        Skip to content
+      </a>
     
     
       <header class="md-header" data-md-component="header">
@@ -323,9 +319,63 @@
     <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="__toc">
     
     
+      <label class="md-nav__link md-nav__link--active" for="__toc">
+        Migration
+      </label>
+    
     <a href="./" title="Migration" class="md-nav__link md-nav__link--active">
       Migration
     </a>
+    
+      
+<nav class="md-nav md-nav--secondary">
+  
+  
+  
+    <label class="md-nav__title" for="__toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" title="Overview" class="md-nav__link">
+    Overview
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#features-that-handled-differently-in-the-cloud-mta-build-tool" title="Features that handled differently in the Cloud MTA Build Tool" class="md-nav__link">
+    Features that handled differently in the Cloud MTA Build Tool
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#new-features-in-the-cloud-mta-build-tool" title="New features in the Cloud MTA Build Tool" class="md-nav__link">
+    New features in the Cloud MTA Build Tool
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#features-that-are-temporary-not-available-in-the-cloud-mta-build-tool" title="Features that are temporary not available in the Cloud MTA Build Tool" class="md-nav__link">
+    Features that are temporary not available in the Cloud MTA Build Tool
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+      
+      
+      
+      
+    </ul>
+  
+</nav>
     
   </li>
 
@@ -457,6 +507,62 @@
               </div>
             
             
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary">
+  
+  
+  
+    <label class="md-nav__title" for="__toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" title="Overview" class="md-nav__link">
+    Overview
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#features-that-handled-differently-in-the-cloud-mta-build-tool" title="Features that handled differently in the Cloud MTA Build Tool" class="md-nav__link">
+    Features that handled differently in the Cloud MTA Build Tool
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#new-features-in-the-cloud-mta-build-tool" title="New features in the Cloud MTA Build Tool" class="md-nav__link">
+    New features in the Cloud MTA Build Tool
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#features-that-are-temporary-not-available-in-the-cloud-mta-build-tool" title="Features that are temporary not available in the Cloud MTA Build Tool" class="md-nav__link">
+    Features that are temporary not available in the Cloud MTA Build Tool
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+      
+      
+      
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
           
           <div class="md-content">
             <article class="md-content__inner md-typeset">
@@ -467,7 +573,37 @@
                 
                   <h1>Migration</h1>
                 
-                <p>TBD</p>
+                <h3 id="overview">Overview</h3>
+<p>If you previously used <a href="https://help.sap.com/viewer/58746c584026430a890170ac4d87d03b/Cloud/en-US/ba7dd5a47b7a4858a652d15f9673c28d.html">Multitarget Application Archive Builder</a> for building your MTA projects please learn about differences between the tools.</p>
+<h4 id="features-that-handled-differently-in-the-cloud-mta-build-tool">Features that handled differently in the Cloud MTA Build Tool</h4>
+<ul>
+<li>Packaging of html5 modules in <code>deploy_mode=html5-repo</code>
+You need to update your <code>mta.yaml</code> file to exclude <code>html5</code> modules from the result MTA archive. For that, add the following to the <code>build-parameters</code> section of each  module of this type:</li>
+</ul>
+<pre><code class="yaml">
+   build-parameters:
+      supported-platforms: []
+</code></pre>
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; For more details on the <code>supported-platforms</code> build parameter, see <a href="../configuration/#configuring-and-packaging-modules-according-to-target-platforms">Configuring and Packaging Modules According to Target Platforms</a></p>
+<ul>
+<li>The following <code>build-rarameters</code> are not supported by the Cloud MTA Build Tool: <ul><li><code>npm-opts</code><li><code>grunt-opt</code><li><code>maven-opts</code></ul></li>
+</ul>
+<p>If you need to change default build behaviour defined for the correponding builder, please use <a href="../configuration/#configuring-the-custom-builder">configure <code>custom</code> builder</a>
+  For complete list of available builders and their default behaviour, see <a href="https://github.com/SAP/cloud-mta-build-tool/blob/master/configs/builder_type_cfg.yaml">Builders execution commands</a>.
+  <br></p>
+<h4 id="new-features-in-the-cloud-mta-build-tool">New features in the Cloud MTA Build Tool</h4>
+<ul>
+<li>If you would like to run some builder process before running builders of the specific modules, define it in <a href="../configuration/#configuring_before_all_build">global <code>before-all</code> build parameters</a></li>
+<li>You can define your own build commands by <a href="../configuration/#configuring-the-custom-builder">configuring <code>custom</code> builder</a></li>
+</ul>
+<h4 id="features-that-are-temporary-not-available-in-the-cloud-mta-build-tool">Features that are temporary not available in the Cloud MTA Build Tool</h4>
+<p>The following features are supported by the <a href="https://help.sap.com/viewer/58746c584026430a890170ac4d87d03b/Cloud/en-US/ba7dd5a47b7a4858a652d15f9673c28d.html">Multitarget Application Archive Builder</a> and will be provided in the Cloud MTA Build Tool soon.</p>
+<ul>
+<li>MTA build with extension files</li>
+<li>Configuring Timeout Sessions</li>
+<li>Configuring the Build Artifact Name</li>
+</ul>
                 
                   
                 
