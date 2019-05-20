@@ -11,6 +11,8 @@ The archive builder is used on a file system independently of the development en
 
 The archive builder is supported on Windows and Linux.
 
+If you previously used [Multitarget Application Archive Builder](https://help.sap.com/viewer/58746c584026430a890170ac4d87d03b/Cloud/en-US/ba7dd5a47b7a4858a652d15f9673c28d.html) for building your MTA projects please learn about [differences between the tools](migration.md).
+
 ### <b> Multitarget Application</b>
 
 Before using this package, be sure you are familiar with the multi-target application concept and terminology.
