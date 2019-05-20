@@ -74,7 +74,7 @@ var initCmd = &cobra.Command{
 	},
 }
 
-// Generates the Makefile.mta file according to the MTA descriptor and executes it
+// Execute MTA project build
 var buildCmd = &cobra.Command{
 	Use:   "build",
 	Short: "Execute MTA project build",
