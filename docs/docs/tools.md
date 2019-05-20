@@ -11,7 +11,7 @@ For more information on builders, see the `Configuration` section.
 | `sitecontent` <br> |  `Node.js 6` or above <br> `npm` <br>     | 
 | `maven` <br> |  `Java SE Development Kit 8` <br> `Apache Maven` <br>     | 
 | `fetcher` <br> |  `Java SE Development Kit 8` <br> `Apache Maven` <br>     |
-| `golang` <br> |  TBD     |
+| `golang` <br> |  1.10.x    |
 | `evo` <br> |  `Node.js 6` or above <br> `npm` <br>     | 
 
 
