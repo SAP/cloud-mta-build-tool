@@ -35,21 +35,21 @@ var buildProjectCmdStrict bool
 func init() {
 	// set flags of init command
 	initCmd.Flags().StringVarP(&initCmdSrc, "source", "s", "",
-		"the path to the MTA project; the current path is default")
+		"the path to the MTA project; the current path is set as the default")
 	initCmd.Flags().StringVarP(&initCmdTrg, "target", "t", "",
-		"the path to the MBT results folder; the current path is set as a default")
+		"the path to the MBT results folder; the current path is set as the default")
 	initCmd.Flags().StringVarP(&initCmdDesc, "desc", "d", "",
 		`the MTA descriptor; supported values: "dev" (development descriptor, default value) and "dep" (deployment descriptor)`)
 	initCmd.Flags().StringVarP(&initCmdName, "name", "n", "",
-		"the name of the Makefile; Makefile.mta is set as a default")
+		"the name of the Makefile; Makefile.mta is set as the default")
 	initCmd.Flags().StringVarP(&initCmdMode, "mode", "m", "",
 		"Mode of Makefile generation - default/verbose")
 
 	// set flags of build command
 	buildCmd.Flags().StringVarP(&buildProjectCmdSrc, "source", "s", "",
-		"the path to the MTA project; the current path is default")
+		"the path to the MTA project; the current path is set as the default")
 	buildCmd.Flags().StringVarP(&buildProjectCmdTrg, "target", "t", "$(CURDIR)/mta_archives",
-		"the path to the MBT results folder; the current path is set as a default")
+		"the path to the MBT results folder; the current path is set as the default")
 	buildCmd.Flags().StringVarP(&buildProjectCmdDesc, "desc", "d", "",
 		`the MTA descriptor; supported values: "dev" (development descriptor, default value) and "dep" (deployment descriptor)`)
 	buildCmd.Flags().StringVarP(&buildProjectCmdMtar, "mtar", "", "*",

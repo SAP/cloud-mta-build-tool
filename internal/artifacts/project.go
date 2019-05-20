@@ -2,16 +2,18 @@ package artifacts
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
+	"strconv"
+
+	"github.com/pkg/errors"
+
 	"github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta-build-tool/internal/commands"
 	"github.com/SAP/cloud-mta-build-tool/internal/exec"
 	"github.com/SAP/cloud-mta-build-tool/internal/logs"
 	"github.com/SAP/cloud-mta-build-tool/internal/tpl"
 	"github.com/SAP/cloud-mta/mta"
-	"github.com/pkg/errors"
-	"os"
-	"path/filepath"
-	"strconv"
 )
 
 const (
