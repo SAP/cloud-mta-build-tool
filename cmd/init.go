@@ -78,7 +78,7 @@ var initCmd = &cobra.Command{
 var buildCmd = &cobra.Command{
 	Use:   "build",
 	Short: "Execute MTA project build",
-	Long:  "Building each of the modules in the MTA project and Archiving the MTA project",
+	Long:  "Building each of the modules in the MTA project and archiving",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		// Generate build script
