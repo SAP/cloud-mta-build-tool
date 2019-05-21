@@ -20,7 +20,7 @@ multi-target application (MTA) archive `.mtar` file from the artifacts of an MTA
 development descriptor (`mta.yaml` file) or from module build artifacts according to the MTA deployment descriptor (`mtad.yaml` file). Also it provides commands for runing intermediate build process steps, for example, the mta.yaml file validations,building a single module according to configurations in the development descriptor, generating deployment descriptor, etc.
 
 
-><b>For more information, see the the [Cloud MTA Build Tool user guide](docs/docs/index.md).</b>
+><b>For more information, see the the [Cloud MTA Build Tool user guide](https://sap.github.io/cloud-mta-build-tool/)</b>
 
 ## Contributions
 
