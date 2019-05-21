@@ -17,7 +17,6 @@ const (
 // flags of init command
 var initCmdSrc string
 var initCmdTrg string
-var initCmdDesc string
 var initCmdName string
 var initCmdMode string
 
@@ -65,7 +64,7 @@ func init() {
 var initCmd = &cobra.Command{
 	Use:   "init",
 	Short: "generates Makefile",
-	Long:  "generates Makefile as a manifest file that describes the build process",
+	Long:  "generates Makefile as a manifest file that describes the build process of the MTA project",
 	Args:  cobra.NoArgs,
 	Run: func(cmd *cobra.Command, args []string) {
 		// Generate build script

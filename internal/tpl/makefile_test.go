@@ -45,7 +45,6 @@ var _ = Describe("Makefile", func() {
 
 	var (
 		tpl              = tplCfg{tplContent: makeVerbose, relPath: "", preContent: basePreVerbose, postContent: basePost, depDesc: "dev"}
-		tplDep           = tplCfg{tplContent: makeVerboseDep, relPath: "", preContent: basePreVerboseDep, postContent: basePostDep, depDesc: "dep"}
 		makeFileName     = "MakeFileTest.mta"
 		wd, _            = os.Getwd()
 		expectedMakePath = func() string {
@@ -60,23 +59,10 @@ var _ = Describe("Makefile", func() {
 			}
 			return filepath.Join(wd, "testdata", filename)
 		}()
-		expectedMakeDepPath = func() string {
-			var filename string
-			switch runtime.GOOS {
-			case "linux":
-				filename = "ExpectedMakeFileDepLinux"
-			case "darwin":
-				filename = "ExpectedMakeFileDepMac"
-			default:
-				filename = "ExpectedMakeFileDepWindows"
-			}
-			return filepath.Join(wd, "testdata", filename)
-		}()
 		makeFileFullPath = func() string {
 			return filepath.Join(wd, "testdata", makeFileName)
 		}()
-		expectedMakeFileContent    = getMakeFileContent(expectedMakePath)
-		expectedMakeFileDepContent = getMakeFileContent(expectedMakeDepPath)
+		expectedMakeFileContent = getMakeFileContent(expectedMakePath)
 	)
 
 	var _ = Describe("MakeFile Generation", func() {
@@ -117,17 +103,11 @@ makefile_version: 0.0.0
 			_, err := createMakeFile(makeFilePath, makeFileName)
 			Ω(err).Should(HaveOccurred())
 		})
-		It("Sanity - Dev", func() {
+		It("Sanity", func() {
 			ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata"), TargetPath: filepath.Join(wd, "testdata"), Descriptor: "dev"}
 			Ω(makeFile(&ep, &ep, makeFileName, &tpl)).Should(Succeed())
 			Ω(makeFileFullPath).Should(BeAnExistingFile())
 			Ω(getMakeFileContent(makeFileFullPath)).Should(Equal(expectedMakeFileContent))
-		})
-		It("Sanity - Dep", func() {
-			ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata"), TargetPath: filepath.Join(wd, "testdata"), Descriptor: "dep"}
-			Ω(makeFile(&ep, &ep, makeFileName, &tplDep)).Should(Succeed())
-			Ω(makeFileFullPath).Should(BeAnExistingFile())
-			Ω(getMakeFileContent(makeFileFullPath)).Should(Equal(expectedMakeFileDepContent))
 		})
 		It("genMakefile testing with wrong mta yaml file", func() {
 			ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata"), TargetPath: filepath.Join(wd, "testdata"), MtaFilename: "xxx.yaml"}
@@ -161,9 +141,7 @@ makefile_version: 0.0.0
 			Ω(getTplCfg(mode, isDep)).Should(Equal(tpl))
 		},
 			Entry("Default mode Dev", "", tplCfg{tplContent: makeDefault, preContent: basePreDefault, postContent: basePost}, false),
-			Entry("Default mode Dep", "", tplCfg{tplContent: makeDeployment, preContent: basePreDefaultDep, postContent: basePostDep}, true),
 			Entry("Verbose mode Dev", "verbose", tplCfg{tplContent: makeVerbose, preContent: basePreVerbose, postContent: basePost}, false),
-			Entry("Verbose mode Dep", "verbose", tplCfg{tplContent: makeVerboseDep, preContent: basePreVerboseDep, postContent: basePostDep}, true),
 		)
 		It("unknown mode", func() {
 			_, err := getTplCfg("test", false)
