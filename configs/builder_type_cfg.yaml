@@ -16,8 +16,7 @@ builders:
   info: "installing module dependencies & remove dev dependencies"
   path: "path to config file which override the following default commands"
   commands:
-  - command: npm install
-  - command: npm prune --production
+  - command: npm install --production
 
 - name: grunt
   info: "execute grunt"
@@ -25,7 +24,6 @@ builders:
   commands:
   - command: npm install
   - command: grunt
-  - command: npm prune --production
 
 - name: golang
   info: "build golang application"
