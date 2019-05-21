@@ -8,17 +8,12 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/SAP/cloud-mta/mta"
-
 	"github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta-build-tool/internal/commands"
 	"github.com/SAP/cloud-mta-build-tool/internal/logs"
 	"github.com/SAP/cloud-mta-build-tool/internal/proc"
 	"github.com/SAP/cloud-mta-build-tool/internal/version"
-)
-
-const (
-	makefile = "Makefile.mta"
+	"github.com/SAP/cloud-mta/mta"
 )
 
 type tplCfg struct {
@@ -30,13 +25,13 @@ type tplCfg struct {
 }
 
 // ExecuteMake - generate makefile
-func ExecuteMake(source, target, mode string, wdGetter func() (string, error)) error {
-	logs.Logger.Info(`generating the "Makefile.mta" file...`)
+func ExecuteMake(source, target, name, mode string, wdGetter func() (string, error)) error {
+	logs.Logger.Infof(`generating the "%v" file...`, name)
 	loc, err := dir.Location(source, target, dir.Dev, wdGetter)
 	if err != nil {
-		return errors.Wrap(err, `generation of the "Makefile.mta" file failed when initializing the location`)
+		return errors.Wrapf(err, `generation of the "%v" file failed when initializing the location`, name)
 	}
-	err = genMakefile(loc, loc, loc, mode)
+	err = genMakefile(loc, loc, loc, name, mode)
 	if err != nil {
 		return err
 	}
@@ -45,7 +40,7 @@ func ExecuteMake(source, target, mode string, wdGetter func() (string, error)) e
 }
 
 // genMakefile - Generate the makefile
-func genMakefile(mtaParser dir.IMtaParser, loc dir.ITargetPath, desc dir.IDescriptor, mode string) error {
+func genMakefile(mtaParser dir.IMtaParser, loc dir.ITargetPath, desc dir.IDescriptor, makeFilename, mode string) error {
 	tpl, err := getTplCfg(mode, desc.IsDeploymentDescriptor())
 	if err != nil {
 		return err
@@ -53,7 +48,7 @@ func genMakefile(mtaParser dir.IMtaParser, loc dir.ITargetPath, desc dir.IDescri
 	if err == nil {
 		tpl.depDesc = desc.GetDescriptor()
 		// Get project working directory
-		err = makeFile(mtaParser, loc, makefile, &tpl)
+		err = makeFile(mtaParser, loc, makeFilename, &tpl)
 	}
 	return err
 }
@@ -69,7 +64,7 @@ func makeFile(mtaParser dir.IMtaParser, loc dir.ITargetPath, makeFilename string
 	// ParseFile file
 	m, err := mtaParser.ParseFile()
 	if err != nil {
-		return errors.Wrap(err, `generation of the "Makefile.mta" file failed when reading the MTA file`)
+		return errors.Wrapf(err, `generation of the "%v" file failed when reading the MTA file`, makeFilename)
 	}
 
 	// Template data
@@ -78,7 +73,7 @@ func makeFile(mtaParser dir.IMtaParser, loc dir.ITargetPath, makeFilename string
 	// Create maps of the template method's
 	t, err := mapTpl(tpl.tplContent, tpl.preContent, tpl.postContent)
 	if err != nil {
-		return errors.Wrap(err, `generation of the "Makefile.mta" file failed when mapping the template`)
+		return errors.Wrapf(err, `generation of the "%v" file failed when mapping the template`, makeFilename)
 	}
 	// path for creating the file
 	target := loc.GetTarget()
@@ -90,7 +85,7 @@ func makeFile(mtaParser dir.IMtaParser, loc dir.ITargetPath, makeFilename string
 		e = dir.CloseFile(mf, e)
 	}()
 	if err != nil {
-		return errors.Wrap(err, `generation of the "Makefile.mta" file failed when creating the file`)
+		return errors.Wrapf(err, `generation of the "%v" file failed when creating the file`, makeFilename)
 	}
 	if mf != nil {
 		// Execute the template
@@ -149,7 +144,7 @@ func createMakeFile(path, filename string) (file *os.File, err error) {
 	fullFilename := filepath.Join(path, filename)
 	var mf *os.File
 	if _, err = os.Stat(fullFilename); err == nil {
-		return nil, fmt.Errorf(`generation of the "Makefile.mta" file failed because the "%s" file already exists`, fullFilename)
+		return nil, fmt.Errorf(`generation of the "%v" file failed because the "%s" file already exists`, filename, fullFilename)
 	}
 	mf, err = dir.CreateFile(fullFilename)
 	return mf, err
