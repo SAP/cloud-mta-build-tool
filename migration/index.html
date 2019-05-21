@@ -366,8 +366,8 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#features-that-are-temporary-not-available-in-the-cloud-mta-build-tool" title="Features that are temporary not available in the Cloud MTA Build Tool" class="md-nav__link">
-    Features that are temporary not available in the Cloud MTA Build Tool
+  <a href="#features-that-are-temporarily-not-available-in-the-cloud-mta-build-tool" title="Features that are temporarily not available in the Cloud MTA Build Tool" class="md-nav__link">
+    Features that are temporarily not available in the Cloud MTA Build Tool
   </a>
   
 </li>
@@ -439,6 +439,18 @@
   <li class="md-nav__item">
     <a href="../newbuilder/" title="New Builder" class="md-nav__link">
       New Builder
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../process.md" title="Process" class="md-nav__link">
+      Process
     </a>
   </li>
 
@@ -549,8 +561,8 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#features-that-are-temporary-not-available-in-the-cloud-mta-build-tool" title="Features that are temporary not available in the Cloud MTA Build Tool" class="md-nav__link">
-    Features that are temporary not available in the Cloud MTA Build Tool
+  <a href="#features-that-are-temporarily-not-available-in-the-cloud-mta-build-tool" title="Features that are temporarily not available in the Cloud MTA Build Tool" class="md-nav__link">
+    Features that are temporarily not available in the Cloud MTA Build Tool
   </a>
   
 </li>
@@ -582,35 +594,38 @@
                   <h1>Migration</h1>
                 
                 <h3 id="overview">Overview</h3>
-<p>If you previously used <a href="https://help.sap.com/viewer/58746c584026430a890170ac4d87d03b/Cloud/en-US/ba7dd5a47b7a4858a652d15f9673c28d.html">Multitarget Application Archive Builder</a> for building your MTA projects please learn about differences between the tools.</p>
+<p>If you have previously used the <a href="https://help.sap.com/viewer/58746c584026430a890170ac4d87d03b/Cloud/en-US/ba7dd5a47b7a4858a652d15f9673c28d.html">Multitarget Application Archive Builder</a> for building your MTA projects, you should be aware of the differences between the tools.</p>
 <h4 id="features-that-handled-differently-in-the-cloud-mta-build-tool">Features that handled differently in the Cloud MTA Build Tool</h4>
 <ul>
-<li>Packaging of html5 modules in <code>deploy_mode=html5-repo</code>
-You need to update your <code>mta.yaml</code> file to exclude <code>html5</code> modules from the result MTA archive. For that, add the following to the <code>build-parameters</code> section of each  module of this type:</li>
+<li>For building an MTA project, the Cloud MTA build Tool uses <code>GNU Make</code> technology. Therefore, you should have <code>GNU Make</code> installed in your build environmnet. Please read the correponding sections for more information about <a href="../makefile/"><code>GNU Make</code> installation</a> and <a href="../usage/#how-to-build-an-mta-archive-from-the-project-sources">commands for building a project</a>. 
+<br></li>
+<li>Packaging of HTML5 modules in <code>deploy_mode=html5-repo</code>
+You need to update your <code>mta.yaml</code> file to exclude <code>html5</code> modules from the resulting MTA archive. In order to do that, add the following to the <code>build-parameters</code> section for each  module of this type:</li>
 </ul>
 <pre><code class="yaml">
    build-parameters:
       supported-platforms: []
 </code></pre>
 
-<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; For more details on the <code>supported-platforms</code> build parameter, see <a href="../configuration/#configuring-and-packaging-modules-according-to-target-platforms">Configuring and Packaging Modules According to Target Platforms</a></p>
-<ul>
-<li>The following <code>build-rarameters</code> are not supported by the Cloud MTA Build Tool: <ul><li><code>npm-opts</code><li><code>grunt-opt</code><li><code>maven-opts</code></ul></li>
-</ul>
-<p>If you need to change default build behaviour defined for the correponding builder, please use <a href="../configuration/#configuring-the-custom-builder">configure <code>custom</code> builder</a>
-  For complete list of available builders and their default behaviour, see <a href="https://github.com/SAP/cloud-mta-build-tool/blob/master/configs/builder_type_cfg.yaml">Builders execution commands</a>.
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; For more information about the <code>supported-platforms</code> build parameter, see <a href="../configuration/#configuring-and-packaging-modules-according-to-target-platforms">Configuring and Packaging Modules According to Target Platforms</a>
+<br>
+* The following <code>build-parameters</code> are not supported by the Cloud MTA Build Tool: <ul><li><code>npm-opts</code><li><code>grunt-opt</code><li><code>maven-opts</code></ul></p>
+<p>If you need to change the default build behavior defined for the correponding builder, see <a href="../configuration/#configuring-the-custom-builder">configure <code>custom</code> builder</a>.
+  For a complete list of available builders and their default behaviors, see <a href="https://github.com/SAP/cloud-mta-build-tool/blob/master/configs/builder_type_cfg.yaml">Builders execution commands</a>.
   <br></p>
 <h4 id="new-features-in-the-cloud-mta-build-tool">New features in the Cloud MTA Build Tool</h4>
 <ul>
-<li>If you would like to run some builder process before running builders of the specific modules, define it in <a href="../configuration/#configuring_before_all_build">global <code>before-all</code> build parameters</a></li>
-<li>You can define your own build commands by <a href="../configuration/#configuring-the-custom-builder">configuring <code>custom</code> builder</a></li>
+<li>If you want to run a builder process before running builders of the specific modules, define it using <a href="../configuration/#configuring-global-build">global <code>before-all</code> build parameters</a>.</li>
 </ul>
-<h4 id="features-that-are-temporary-not-available-in-the-cloud-mta-build-tool">Features that are temporary not available in the Cloud MTA Build Tool</h4>
-<p>The following features are supported by the <a href="https://help.sap.com/viewer/58746c584026430a890170ac4d87d03b/Cloud/en-US/ba7dd5a47b7a4858a652d15f9673c28d.html">Multitarget Application Archive Builder</a> and will be provided in the Cloud MTA Build Tool soon.</p>
+<p><br>
+* You can define your own build commands as described here: <a href="../configuration/#configuring-the-custom-builder">configuring <code>custom</code> builder</a>.
+<br></p>
+<h4 id="features-that-are-temporarily-not-available-in-the-cloud-mta-build-tool">Features that are temporarily not available in the Cloud MTA Build Tool</h4>
+<p>The following features are supported by the <a href="https://help.sap.com/viewer/58746c584026430a890170ac4d87d03b/Cloud/en-US/ba7dd5a47b7a4858a652d15f9673c28d.html">Multitarget Application Archive Builder</a> and will be provided in the Cloud MTA Build Tool soon:</p>
 <ul>
-<li>MTA build with extension files</li>
-<li>Configuring Timeout Sessions</li>
-<li>Configuring the Build Artifact Name</li>
+<li>Running MTA builds with extension files</li>
+<li>Configuration of timeout sessions</li>
+<li>Configuration of build artifact names</li>
 </ul>
                 
                   

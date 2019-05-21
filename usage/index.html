@@ -339,8 +339,8 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#how-to-know-the-tools-version" title="How to know the tool's version" class="md-nav__link">
-    How to know the tool's version
+  <a href="#how-to-display-the-current-tool-version" title="How to display the current tool version" class="md-nav__link">
+    How to display the current tool version
   </a>
   
 </li>
@@ -368,8 +368,8 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#cloud-mta-build-tool-commands" title="Cloud MTA Build Tool Commands" class="md-nav__link">
-    Cloud MTA Build Tool Commands
+  <a href="#cloud-mta-build-tool-commands" title="Cloud MTA Build Tool commands" class="md-nav__link">
+    Cloud MTA Build Tool commands
   </a>
   
 </li>
@@ -387,8 +387,8 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#how-to-build-an-mta-archive-from-modules-build-artifacts" title="How to build an MTA archive from modules' build artifacts" class="md-nav__link">
-    How to build an MTA archive from modules' build artifacts
+  <a href="#how-to-build-an-mta-archive-from-the-modules-build-artifacts" title="How to build an MTA archive from the modules' build artifacts" class="md-nav__link">
+    How to build an MTA archive from the modules' build artifacts
   </a>
   
 </li>
@@ -467,6 +467,18 @@
   <li class="md-nav__item">
     <a href="../newbuilder/" title="New Builder" class="md-nav__link">
       New Builder
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../process.md" title="Process" class="md-nav__link">
+      Process
     </a>
   </li>
 
@@ -562,8 +574,8 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#how-to-know-the-tools-version" title="How to know the tool's version" class="md-nav__link">
-    How to know the tool's version
+  <a href="#how-to-display-the-current-tool-version" title="How to display the current tool version" class="md-nav__link">
+    How to display the current tool version
   </a>
   
 </li>
@@ -591,8 +603,8 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#cloud-mta-build-tool-commands" title="Cloud MTA Build Tool Commands" class="md-nav__link">
-    Cloud MTA Build Tool Commands
+  <a href="#cloud-mta-build-tool-commands" title="Cloud MTA Build Tool commands" class="md-nav__link">
+    Cloud MTA Build Tool commands
   </a>
   
 </li>
@@ -610,8 +622,8 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#how-to-build-an-mta-archive-from-modules-build-artifacts" title="How to build an MTA archive from modules' build artifacts" class="md-nav__link">
-    How to build an MTA archive from modules' build artifacts
+  <a href="#how-to-build-an-mta-archive-from-the-modules-build-artifacts" title="How to build an MTA archive from the modules' build artifacts" class="md-nav__link">
+    How to build an MTA archive from the modules' build artifacts
   </a>
   
 </li>
@@ -664,7 +676,7 @@
 </tr>
 </tbody>
 </table>
-<h3 id="how-to-know-the-tools-version">How to know the tool's version</h3>
+<h3 id="how-to-display-the-current-tool-version">How to display the current tool version</h3>
 <table>
 <thead>
 <tr>
@@ -677,7 +689,7 @@
 <tr>
 <td>version</td>
 <td><code>mbt -v</code></td>
-<td>Prints the Cloud MTA Build Tool version.</td>
+<td>Prints the current Cloud MTA Build Tool version.</td>
 </tr>
 <tr>
 <td><br></td>
@@ -689,20 +701,20 @@
 <h3 id="how-to-build-an-mta-archive-from-the-project-sources">How to build an MTA archive from the project sources</h3>
 <h4 id="prerequisites">Prerequisites</h4>
 <ul>
-<li><code>GNU Make 4.2.1</code> installed in your build environmnet. </li>
-<li>module build tools</li>
+<li><code>GNU Make 4.2.1</code> is installed in your build environment. </li>
+<li>Module build tools are installed in your build environment.</li>
 </ul>
-<p>See the correponding <code>Download and Installation</code> sections for more details.</p>
+<p>For more information, see the corresponding <code>Download</code> and <code>Installation</code> sections.</p>
 <h4 id="quick-start-example">Quick start example</h4>
-<pre><code class="go">// Generate Makefile.mta file.
+<pre><code class="go">// Generates the `Makefile.mta` file.
 mbt init 
 
-// Execute MTA project build for Cloud Foundry target environmnet
+// Executes the MTA project build for Cloud Foundry target environment.
 make -f Makefile.mta p=cf
 
 </code></pre>
 
-<h4 id="cloud-mta-build-tool-commands">Cloud MTA Build Tool Commands</h4>
+<h4 id="cloud-mta-build-tool-commands">Cloud MTA Build Tool commands</h4>
 <table>
 <thead>
 <tr>
@@ -715,17 +727,19 @@ make -f Makefile.mta p=cf
 <tr>
 <td>init</td>
 <td><code>mbt init &lt;flags&gt;</code></td>
-<td>Generates the <code>Makefile.mta</code> file according to the MTA descriptor (<code>mta.yaml</code> file). <br> The <code>make</code> command uses the generated <code>Makefile.mta</code> file to package the MTA project. <br> Use the <code>mbt init</code> command with the following flags:<br><ul><li><code>-s (--source)</code> is the path to the MTA project; the current path is set as the default.<br> Example: <code>mbt init -s C:/TestProject</code> <li><code>-t (--target)</code> is the path to the generated Makefile folder; the current path is set as the default. <br> Example: <code>mbt init -t C:/TestFolder</code><li><code>-m (--mode)</code> is the mode of the Makefile generation; supported values are "default" and "verbose"<br> Example: <code>mbt init -m default</code></td>
+<td>Generates the <code>Makefile.mta</code> file according to the MTA descriptor (<code>mta.yaml</code> file). <br> The <code>make</code> command uses the generated <code>Makefile.mta</code> file to package the MTA project. <br> Use the <code>mbt init</code> command with the following flags:<br><ul><li><code>-s (--source)</code> is the path to the MTA project; the current path is set as the default.<br> Example: <code>mbt init -s C:/TestProject</code> <li><code>-t (--target)</code> is the path to the generated <code>Makefile</code> folder; the current path is set as the default. <br> Example: <code>mbt init -t C:/TestFolder</code><li><code>-m (--mode)</code> is the mode of the <code>Makefile</code> generation; supported values are <code>default</code> and <code>verbose</code>.<br> Example: <code>mbt init -m default</code></td>
 </tr>
 </tbody>
 </table>
 <p><br></p>
 <h4 id="make-commands">Make commands</h4>
-<p>The <code>Makefile.mta</code> file that is generated by the <code>mbt init</code> command is the actual project "builder". It provides the verbose build manifest, which can be changed according to the project needs. It is responsible for:
-- Building each of the modules in the MTA project.
-- Invoking the MBT commands in the right order.
-- Archiving the MTA project.<br><br>
-Use the <code>make</code> command to package the MTA project with the following parameters:</p>
+<p>The <code>Makefile.mta</code> file that is generated by the <code>mbt init</code> command is the actual project "builder". It provides the verbose build manifest, which can be changed according to the project needs. It is responsible for:</p>
+<ul>
+<li>Building each of the modules in the MTA project.</li>
+<li>Invoking the MBT commands in the correct order.</li>
+<li>Archiving the MTA project.<br><br>
+Use the <code>make</code> command to package the MTA project with the following parameters:</li>
+</ul>
 <table>
 <thead>
 <tr>
@@ -741,14 +755,14 @@ Use the <code>make</code> command to package the MTA project with the following 
 <td><code>p</code></td>
 <td>string</td>
 <td>Mandatory</td>
-<td>The name of the deployment platform. <br>The supported deployment platforms are: <ul><li>cf for SAP Cloud Platform Cloud Foundry Environment  <li>neo for SAP Cloud Platform Neo Environment <li>xsa for SAP HANA XS advanced model</td>
+<td>The name of the deployment platform. <br>The supported deployment platforms are: <ul><li><code>cf</code> for SAP Cloud Platform Cloud Foundry environment  <li><code>neo</code> for the SAP Cloud Platform Neo environment <li><code>xsa</code> for the SAP HANA XS advanced model</td>
 <td><code>make -f Makefile.mta p=cf</code></td>
 </tr>
 <tr>
 <td><code>t</code></td>
 <td>string</td>
 <td>Optional</td>
-<td>The folder for the generated MTAR file. The default value is the current folder. If this parameter is not provided, the MTAR file is saved in the <code>mta_archives</code> subfolder of the current folder. If the parameter is provided, the MTAR file is saved in the root of the folder provided by the argument.</td>
+<td>The folder for the generated <code>MTAR</code> file. The default value is the current folder. If this parameter is not provided, the <code>MTAR</code> file is saved in the <code>mta_archives</code> subfolder of the current folder. If the parameter is provided, the <code>MTAR</code> file is saved in the root of the folder provided by the argument.</td>
 <td><code>make -f Makefile.mta p=cf t=C:\temp</code></td>
 </tr>
 <tr>
@@ -768,7 +782,7 @@ Use the <code>make</code> command to package the MTA project with the following 
 </tbody>
 </table>
 <p><br></p>
-<h3 id="how-to-build-an-mta-archive-from-modules-build-artifacts">How to build an MTA archive from modules' build artifacts</h3>
+<h3 id="how-to-build-an-mta-archive-from-the-modules-build-artifacts">How to build an MTA archive from the modules' build artifacts</h3>
 <table>
 <thead>
 <tr>
