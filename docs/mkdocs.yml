@@ -12,6 +12,7 @@ nav:
   - Contribution:
       - New Module: newmodule.md
       - New Builder: newbuilder.md
+      - Process: process.md
   - Support: support.md
   - Tips:
       - Performance: performance.md
