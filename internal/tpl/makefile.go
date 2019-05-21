@@ -6,13 +6,14 @@ import (
 	"path/filepath"
 	"text/template"
 
-	"github.com/SAP/cloud-mta/mta"
+	"github.com/pkg/errors"
 
 	"github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta-build-tool/internal/commands"
 	"github.com/SAP/cloud-mta-build-tool/internal/logs"
 	"github.com/SAP/cloud-mta-build-tool/internal/proc"
 	"github.com/SAP/cloud-mta-build-tool/internal/version"
+	"github.com/SAP/cloud-mta/mta"
 )
 
 type tplCfg struct {
@@ -28,7 +29,7 @@ func ExecuteMake(source, target, name, mode string, wdGetter func() (string, err
 	logs.Logger.Infof(`generating the "%v" file...`, name)
 	loc, err := dir.Location(source, target, dir.Dev, wdGetter)
 	if err != nil {
-		return fmt.Errorf(`generation of the "%v" file failed when initializing the location`, name)
+		return errors.Wrapf(err, `generation of the "%v" file failed when initializing the location`, name)
 	}
 	err = genMakefile(loc, loc, loc, name, mode)
 	if err != nil {
@@ -63,7 +64,7 @@ func makeFile(mtaParser dir.IMtaParser, loc dir.ITargetPath, makeFilename string
 	// ParseFile file
 	m, err := mtaParser.ParseFile()
 	if err != nil {
-		return fmt.Errorf(`generation of the "%v" file failed when reading the MTA file`, makeFilename)
+		return errors.Wrapf(err, `generation of the "%v" file failed when reading the MTA file`, makeFilename)
 	}
 
 	// Template data
@@ -72,7 +73,7 @@ func makeFile(mtaParser dir.IMtaParser, loc dir.ITargetPath, makeFilename string
 	// Create maps of the template method's
 	t, err := mapTpl(tpl.tplContent, tpl.preContent, tpl.postContent)
 	if err != nil {
-		return fmt.Errorf(`generation of the "%v" file failed when mapping the template`, makeFilename)
+		return errors.Wrapf(err, `generation of the "%v" file failed when mapping the template`, makeFilename)
 	}
 	// path for creating the file
 	target := loc.GetTarget()
@@ -84,7 +85,7 @@ func makeFile(mtaParser dir.IMtaParser, loc dir.ITargetPath, makeFilename string
 		e = dir.CloseFile(mf, e)
 	}()
 	if err != nil {
-		return fmt.Errorf(`generation of the "%v" file failed when creating the file`, makeFilename)
+		return errors.Wrapf(err, `generation of the "%v" file failed when creating the file`, makeFilename)
 	}
 	if mf != nil {
 		// Execute the template

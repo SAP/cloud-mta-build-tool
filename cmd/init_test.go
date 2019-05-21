@@ -38,10 +38,10 @@ var _ = Describe("Build", func() {
 		buildProjectCmdPlatform = "cf"
 		file, err := os.Create(filepath.Join(buildProjectCmdSrc, filepath.FromSlash("Makefile_tmp.mta")))
 		file.Close()
-		Ω(err).Should(BeNil())
+		Ω(err).Should(Succeed())
 		err = buildCmd.RunE(nil, []string{})
 		Ω(err).ShouldNot(BeNil())
 		err = os.Remove(filepath.Join(buildProjectCmdSrc, filepath.FromSlash("Makefile_tmp.mta")))
-		Ω(err).Should(BeNil())
+		Ω(err).Should(Succeed())
 	})
 })

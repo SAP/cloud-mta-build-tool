@@ -26,13 +26,13 @@ func ExecBuild(buildProjectCmdSrc, buildProjectCmdTrg, buildProjectCmdMode, buil
 	// Generate build script
 	err := tpl.ExecuteMake(buildProjectCmdSrc, "", makefileTmp, buildProjectCmdMode, wdGetter)
 	if err != nil {
-		return fmt.Errorf(`generation of the "%v" file failed`, makefileTmp)
+		return errors.Wrapf(err, `generation of the "%v" file failed`, makefileTmp)
 	}
 	err = wdExec([][]string{{buildProjectCmdSrc, "make", "-f", makefileTmp, " p=" + buildProjectCmdPlatform, " mtar=" + buildProjectCmdMtar, ` t="` + buildProjectCmdTrg + `"`, " strict=" + strconv.FormatBool(buildProjectCmdStrict), " mode=" + buildProjectCmdMode}})
 	error := os.Remove(filepath.Join(buildProjectCmdSrc, filepath.FromSlash(makefileTmp)))
 	if err != nil && error != nil {
 		// Remove Makefile_tmp.mta file from directory
-		return fmt.Errorf(`execution of the "%v" file failed; removing of the "%v" file failed`, makefileTmp, makefileTmp)
+		return errors.Wrapf(err, `execution of the "%v" file failed; removing of the "%v" file failed`, makefileTmp, makefileTmp)
 	} else if err != nil {
 		return fmt.Errorf(`execution of the "%v" file failed`, makefileTmp)
 	} else if error != nil {
