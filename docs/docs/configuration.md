@@ -88,7 +88,9 @@ modules:
 <br>
 
 ####Configuring global build
-If you would like to run some builder process before running builders of the specific modules, define it in the `build-parameters` section at global level in mta.yaml as follows:
+
+If you would like to run some builder process before running builders of the specific modules, define it by using the `build-parameters` section at global level in mta.yaml as follows:
+
 
 ```yaml
 
