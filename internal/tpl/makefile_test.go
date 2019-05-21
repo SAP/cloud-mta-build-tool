@@ -19,6 +19,10 @@ import (
 	"github.com/SAP/cloud-mta-build-tool/internal/version"
 )
 
+const (
+	makefile = "Makefile.mta"
+)
+
 var _ = BeforeSuite(func() {
 	logs.Logger = logs.NewLogger()
 })
@@ -77,16 +81,16 @@ makefile_version: 0.0.0
 				os.Remove(filepath.Join(wd, "testdata", "Makefile.mta"))
 			})
 			It("Sanity", func() {
-				Ω(ExecuteMake(filepath.Join(wd, "testdata"), filepath.Join(wd, "testdata"), "", os.Getwd)).Should(Succeed())
+				Ω(ExecuteMake(filepath.Join(wd, "testdata"), filepath.Join(wd, "testdata"), makefile, "", os.Getwd)).Should(Succeed())
 				Ω(filepath.Join(wd, "testdata", "Makefile.mta")).Should(BeAnExistingFile())
 			})
 			It("Fails on location initialization", func() {
-				Ω(ExecuteMake("", filepath.Join(wd, "testdata"), "", func() (string, error) {
+				Ω(ExecuteMake("", filepath.Join(wd, "testdata"), makefile, "", func() (string, error) {
 					return "", errors.New("err")
 				})).Should(HaveOccurred())
 			})
 			It("Fails on wrong mode", func() {
-				Ω(ExecuteMake(filepath.Join(wd, "testdata"), filepath.Join(wd, "testdata"), "wrong", os.Getwd)).Should(HaveOccurred())
+				Ω(ExecuteMake(filepath.Join(wd, "testdata"), filepath.Join(wd, "testdata"), makefile, "wrong", os.Getwd)).Should(HaveOccurred())
 			})
 		})
 
@@ -107,11 +111,11 @@ makefile_version: 0.0.0
 		})
 		It("genMakefile testing with wrong mta yaml file", func() {
 			ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata"), TargetPath: filepath.Join(wd, "testdata"), MtaFilename: "xxx.yaml"}
-			Ω(genMakefile(&ep, &ep, &ep, "")).Should(HaveOccurred())
+			Ω(genMakefile(&ep, &ep, &ep, makefile, "")).Should(HaveOccurred())
 		})
 		It("genMakefile testing with wrong mode", func() {
 			ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata")}
-			Ω(genMakefile(&ep, &ep, &ep, "wrongMode")).Should(HaveOccurred())
+			Ω(genMakefile(&ep, &ep, &ep, makefile, "wrongMode")).Should(HaveOccurred())
 		})
 	})
 

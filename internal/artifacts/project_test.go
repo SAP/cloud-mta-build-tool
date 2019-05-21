@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -42,6 +43,28 @@ var _ = Describe("Project", func() {
 			err := ExecuteProjectBuild(getTestPath("mta"), "dev", "pre", os.Getwd)
 			Ω(err.Error()).Should(ContainSubstring(`"command1"`))
 			Ω(err.Error()).Should(ContainSubstring("failed"))
+		})
+	})
+
+	var _ = Describe("ExecBuild", func() {
+		BeforeEach(func() {
+			os.Mkdir(getTestPath("result"), os.ModePerm)
+		})
+		AfterEach(func() {
+			os.RemoveAll(getTestPath("result"))
+		})
+		It("Sanity", func() {
+			err := ExecBuild(getTestPath("mta_with_zipped_module"), getResultPath(), "", "", "cf", true, os.Getwd, func(strings [][]string) error {
+				return nil
+			})
+			Ω(err).Should(BeNil())
+			Ω(filepath.Join(getResultPath(), "Makefile_tmp.mta")).ShouldNot(BeAnExistingFile())
+		})
+		It("Wrong - no platform", func() {
+			err := ExecBuild(getTestPath("mta_with_zipped_module"), getResultPath(), "", "", "", true, os.Getwd, func(strings [][]string) error {
+				return fmt.Errorf("failure")
+			})
+			Ω(err).ShouldNot(BeNil())
 		})
 	})
 
