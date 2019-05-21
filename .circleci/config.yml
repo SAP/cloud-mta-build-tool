@@ -48,7 +48,7 @@ jobs:
       - run: cf login -a $CF_API -o $ORG -s $SPACE -u $TECH_USER -p $TECH_PASS
       - run: cd integration &&  go test -tags=integration
 
-  deploy
+  deploy:
     docker:
       - image: circleci/golang:1.11.5
     working_directory: /go/src/github.com/SAP/cloud-mta-build-tool
