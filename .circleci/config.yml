@@ -33,7 +33,7 @@ jobs:
       - run: gover
       - run: goveralls -v -service=circle-ci -coverprofile=gover.coverprofile -repotoken $COVERALLS_TOKEN
 
-  integration_test:
+  test:
     docker:
       - image: shimit/mbt_multi:0.1.0
     working_directory: /go/src/github.com/SAP/cloud-mta-build-tool
@@ -48,8 +48,7 @@ jobs:
       - run: cf login -a $CF_API -o $ORG -s $SPACE -u $TECH_USER -p $TECH_PASS
       - run: cd integration &&  go test -tags=integration
 
-
-  release_new:
+  deploy:
     docker:
       - image: circleci/golang:1.11.5
     working_directory: /go/src/github.com/SAP/cloud-mta-build-tool
@@ -84,25 +83,47 @@ jobs:
 
 workflows:
   version: 2
-  build_integration:
+  on_pr_build:
     jobs:
-      - build
-
-  integration-test:
+      - build:
+          filters:
+            branches:
+              ignore: master
+              
+  on_merge_build_test:
     jobs:
-      - integration_test:
+      - build:
           filters:
             branches:
               only: master
-
-#  release:
-#    jobs:
-#      - release_new:
-#          filters:
-#            branches:
-#              ignore: /.*/
-#            tags:
-#              only: /v[0-9]+(\.[0-9]+)*(-.*)*/
-#          requires:
-#            - build
-#            - integration_test
+      - test:
+          requires:
+            - build
+          filters:
+            branches:
+              only: master
+              
+  on_tag_build_test_deploy:
+    jobs:
+      - build:
+          filters:  # required since `deploy` has tag filters AND requires `build`
+            tags:
+              only: /^v([0-9]+)(\.[0-9]+)(\.[0-9]+)/
+            branches:
+              ignore: /.*/
+      - test:
+          requires:
+            - build
+          filters:  # required since `deploy` has tag filters AND requires `test`
+            tags:
+              only: /^v([0-9]+)(\.[0-9]+)(\.[0-9]+)/
+            branches:
+              ignore: /.*/
+      - deploy:
+          requires:
+            - test
+          filters:  # job runs on tags for no branches
+            tags:
+              only: /^v([0-9]+)(\.[0-9]+)(\.[0-9]+)/
+            branches:
+              ignore: /.*/
