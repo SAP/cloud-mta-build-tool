@@ -64,7 +64,7 @@ var _ = Describe("Project", func() {
 			err := ExecBuild(getTestPath("mta_with_zipped_module"), getResultPath(), "", "", "", true, os.Getwd, func(strings [][]string) error {
 				return fmt.Errorf("failure")
 			})
-			Ω(err).ShouldNot(HaveOccurred())
+			Ω(err).Should(HaveOccurred())
 		})
 	})
 
