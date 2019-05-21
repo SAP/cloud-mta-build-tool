@@ -1,7 +1,5 @@
 
-### Overview
-Additional tools are required in your build environment for running specific builders.
-For more information about builders, see the `Configuration` section.
+Additional tools are required in your build environment for running specific builders. For more information about builders, see the [Configuration](configuration.md) section.
 
 | Builder | Prerequisite Tools &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;       
 | ------  | --------       
