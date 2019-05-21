@@ -17,6 +17,7 @@ const (
 // flags of init command
 var initCmdSrc string
 var initCmdTrg string
+var initCmdDesc string
 var initCmdName string
 var initCmdMode string
 
