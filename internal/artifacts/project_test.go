@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -45,6 +46,28 @@ var _ = Describe("Project", func() {
 		})
 	})
 
+	var _ = Describe("ExecBuild", func() {
+		BeforeEach(func() {
+			os.Mkdir(getTestPath("result"), os.ModePerm)
+		})
+		AfterEach(func() {
+			os.RemoveAll(getTestPath("result"))
+		})
+		It("Sanity", func() {
+			err := ExecBuild(getTestPath("mta_with_zipped_module"), getResultPath(), "", "", "cf", true, os.Getwd, func(strings [][]string) error {
+				return nil
+			})
+			Ω(err).Should(Succeed())
+			Ω(filepath.Join(getResultPath(), "Makefile_tmp.mta")).ShouldNot(BeAnExistingFile())
+		})
+		It("Wrong - no platform", func() {
+			err := ExecBuild(getTestPath("mta_with_zipped_module"), getResultPath(), "", "", "", true, os.Getwd, func(strings [][]string) error {
+				return fmt.Errorf("failure")
+			})
+			Ω(err).Should(HaveOccurred())
+		})
+	})
+
 	var _ = Describe("getProjectBuilderCommands", func() {
 		It("Builder and commands defined", func() {
 			projectBuild := mta.ProjectBuilder{
@@ -54,9 +77,8 @@ var _ = Describe("Project", func() {
 
 			cmds, err := getProjectBuilderCommands(projectBuild)
 			Ω(err).Should(Succeed())
-			Ω(len(cmds.Command)).Should(Equal(2))
-			Ω(cmds.Command[0]).Should(Equal("npm install"))
-			Ω(cmds.Command[1]).Should(Equal("npm prune --production"))
+			Ω(len(cmds.Command)).Should(Equal(1))
+			Ω(cmds.Command[0]).Should(Equal("npm install --production"))
 		})
 		It("Custom builder with no commands", func() {
 			projectBuild := mta.ProjectBuilder{
