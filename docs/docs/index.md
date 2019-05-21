@@ -32,4 +32,4 @@ All resource definitions are passed to the `mtad.yaml` file as is without mappin
 <br>
 ## <b>Creating MTA archive according to the MTA deploymnet descriptor (`mtad.yaml` file)</b>
 
-TBD
+Under construction

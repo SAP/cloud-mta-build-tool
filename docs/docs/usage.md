@@ -7,7 +7,7 @@
 | help    | `mbt [command] --help` or<br> `mbt [command] -h`    | Prints detailed information on the selected command.                           
 <br>
 
-### How to know the tool's version
+### How to find out the tool version
 
 | Command | Usage &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;       | Description                                                    
 | ------  | --------       |  ----------                                                
