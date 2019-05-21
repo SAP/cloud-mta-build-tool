@@ -22,7 +22,7 @@ You need to update your `mta.yaml` file to exclude `html5` modules from the resu
 
 #### New features in the Cloud MTA Build Tool
 
-* If you want to run a builder process before running builders of the specific modules, define it according to [global `before-all` build parameters](configuration.md#configuring_before_all_build).
+* If you want to run a builder process before running builders of the specific modules, define it using [global `before-all` build parameters](configuration.md#configuring-global-build).
 * You can define your own build commands as described here: [configuring `custom` builder](configuration.md#configuring-the-custom-builder).
 
 
@@ -30,6 +30,6 @@ You need to update your `mta.yaml` file to exclude `html5` modules from the resu
 
 The following features are supported by the [Multitarget Application Archive Builder](https://help.sap.com/viewer/58746c584026430a890170ac4d87d03b/Cloud/en-US/ba7dd5a47b7a4858a652d15f9673c28d.html) and will be provided in the Cloud MTA Build Tool soon:
 
-* Generation of MTA builds with extension files
+* MTA builds with extension files
 * Configuration of timeout sessions
 * Configuration of build artifact names
