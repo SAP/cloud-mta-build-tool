@@ -13,8 +13,8 @@ var _ = Describe("Assembly", func() {
 		os.RemoveAll(getTestPath("result"))
 	})
 
-	It("assemblyCommand - fails on missing mtad in the current location", func() {
-		Ω(assemblyCommand.RunE(nil, []string{})).Should(HaveOccurred())
+	It("assembleCommand - fails on missing mtad in the current location", func() {
+		Ω(assembleCommand.RunE(nil, []string{})).Should(HaveOccurred())
 	})
 
 })
