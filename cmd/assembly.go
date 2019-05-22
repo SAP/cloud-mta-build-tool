@@ -18,7 +18,7 @@ var assembleCmdMtarName string
 var assembleCmdParallel string
 
 // Assemble the MTA project post-build artifacts, without any build process
-var assemblyCommand = &cobra.Command{
+var assembleCommand = &cobra.Command{
 	Use:       "assemble",
 	Short:     "Assembles MTA Archive",
 	Long:      "Assembles MTA Archive",
@@ -34,13 +34,14 @@ var assemblyCommand = &cobra.Command{
 }
 
 func init() {
-	assemblyCommand.Flags().StringVarP(&assembleCmdSrc,
+	assembleCommand.Flags().StringVarP(&assembleCmdSrc,
 		"source", "s", "", "the path to the MTA project; the current path is set as the default")
-	assemblyCommand.Flags().StringVarP(&assembleCmdTrg,
+	assembleCommand.Flags().StringVarP(&assembleCmdTrg,
 		"target", "t", "", "the path to the MBT results folder; the current path is set as the default")
-	assemblyCommand.Flags().StringVarP(&assembleCmdMtarName,
+	assembleCommand.Flags().StringVarP(&assembleCmdMtarName,
 		"mtar", "m", "", "the archive name")
-	assemblyCommand.Flags().StringVarP(&assembleCmdParallel,
+	assembleCommand.Flags().StringVarP(&assembleCmdParallel,
 		"parallel", "p", "false", "if true content copying will run in parallel")
+	assembleCommand.Flags().BoolP("help", "h", false, `prints detailed information about the "assemble" command`)
 
 }

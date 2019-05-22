@@ -33,6 +33,7 @@ func init() {
 	initCmd.Flags().StringVarP(&initCmdTrg, "target", "t", "", "the path to the generated Makefile folder; the current path is set as the default")
 	initCmd.Flags().StringVarP(&initCmdMode, "mode", "m", "", `the mode of the Makefile generation; supported values: "default" and "verbose"`)
 	initCmd.Flags().MarkHidden("mode")
+	initCmd.Flags().BoolP("help", "h", false, `prints detailed information about the "init" command`)
 
 	// set flags of build command
 	buildCmd.Flags().StringVarP(&buildProjectCmdSrc, "source", "s", "", "the path to the MTA project; the current path is set as the default")
@@ -40,6 +41,7 @@ func init() {
 	buildCmd.Flags().StringVarP(&buildProjectCmdMtar, "mtar", "", "*", "the file name of the generated archive file")
 	buildCmd.Flags().StringVarP(&buildProjectCmdPlatform, "platform", "p", "", `the deployment platform; supported plaforms: "cf", "xsa", "neo"`)
 	buildCmd.Flags().BoolVarP(&buildProjectCmdStrict, "strict", "", true, `if set to true, duplicated fields and fields not defined in the "mta.yaml" schema are reported as errors; if set to false, they are reported as warnings`)
+	buildCmd.Flags().BoolP("help", "h", false, `prints detailed information about the "build" command`)
 }
 
 var initCmd = &cobra.Command{
