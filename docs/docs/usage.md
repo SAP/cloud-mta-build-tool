@@ -4,23 +4,23 @@
 | Command | Usage &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;       | Description                                                    
 | ------  | --------       |  ----------                                                
 | help    | `mbt -h`     | Prints all the available commands.                           
-| help    | `mbt [command] --help` or<br> `mbt [command] -h`    | Prints detailed information on the selected command.                           
-<br>
+| help    | `mbt [command] --help` or<br> `mbt [command] -h`    | Prints detailed information about the specified command.|
 
-### How to display the current tool version
+&nbsp;
+### How to find out the installed tool version
 
 | Command | Usage &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;       | Description                                                    
 | ------  | --------       |  ----------                                                
-| version | `mbt -v`     | Prints the current Cloud MTA Build Tool version.                                        |
-<br>
+| version | `mbt -v`     | Prints the current Cloud MTA Build Tool version.                                        <br>
 
+&nbsp;
 ### How to build an MTA archive from the project sources
 
 #### Prerequisites
 * `GNU Make 4.2.1` is installed in your build environment. 
 * Module build tools are installed in your build environment.
 
-For more information, see the corresponding `Download` and `Installation` sections.
+For more information, see the corresponding [`Download` and `Installation` sections](download.md).
 
 #### Quick start example
 
@@ -58,7 +58,7 @@ Use the `make` command to package the MTA project with the following parameters:
 | `mtar`    | string     |   Optional  | The file name of the generated archive file. If this parameter is omitted, the file name is created according to the following naming convention: <br><br> `<mta_application_ID>_<mta_application_version>.mtar` <br><br> If the parameter is provided, but does not include an extension, the `.mtar` extension is added. | `make -f Makefile.mta p=cf mtar=myMta`<br><br> `make -f Makefile.mta p=cf mtar=myMta.mtar`
 | `strict`    | Boolean     | Optional    | The default value is `true`. If set to `true`, the duplicated fields and fields that are not defined in the `mta.yaml` schema are reported as errors. If set to `false`, they are reported as warnings. | `make -f Makefile.mta p=cf strict=false`
 
-<br>
+&nbsp;
 ### How to build an MTA archive from the modules' build artifacts 
 
 | Command | Usage &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;       | Description                                                    

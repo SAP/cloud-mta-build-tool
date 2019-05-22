@@ -25,7 +25,7 @@ development descriptor (`mta.yaml` file) or from module build artifacts accordin
 ## Contributions
 
 Contributions are greatly appreciated.
-If you want to contribute, please follow [the guidelines](./.github/CONTRIBUTING.md).
+If you want to contribute, please follow [the guidelines](docs/docs/process.md).
 
 ## Support
 
