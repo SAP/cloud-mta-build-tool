@@ -36,7 +36,7 @@ func init() {
 		"", "the path to the MBT results folder; the current path is set as the default")
 	mtadCmd.Flags().StringVarP(&mtadCmdPlatform, "platform", "p", "cf",
 		`the deployment platform; supported plaforms: "cf", "xsa", "neo"`)
-	mtadCmd.Flags().BoolP("help", "h",  false,`prints detailed information about the "mtad" command`)
+	mtadCmd.Flags().BoolP("help", "h", false, `prints detailed information about the "mtad" command`)
 
 	// set flags of meta command
 	metaCmd.Flags().StringVarP(&metaCmdSrc, "source", "s", "",
@@ -47,7 +47,7 @@ func init() {
 		`the MTA descriptor; supported values: "dev" (development descriptor, default value) and "dep" (deployment descriptor)`)
 	metaCmd.Flags().StringVarP(&metaCmdPlatform, "platform", "p", "cf",
 		`the deployment platform; supported plaforms: "cf", "xsa", "neo"`)
-	metaCmd.Flags().BoolP("help", "h",  false,`prints detailed information about the "meta" command`)
+	metaCmd.Flags().BoolP("help", "h", false, `prints detailed information about the "meta" command`)
 
 	// set flags of mtar command
 	mtarCmd.Flags().StringVarP(&mtarCmdSrc, "source", "s", "",
@@ -61,7 +61,7 @@ func init() {
 	mtarCmd.Flags().StringVarP(&mtarCmdTrgProvided, "target_provided", "", "",
 		"the MTA target provided indicator; supported values: true, false")
 	mtarCmd.Flags().MarkHidden("target_provided")
-	mtarCmd.Flags().BoolP("help", "h",  false,`prints detailed information about the "mtar" command`)
+	mtarCmd.Flags().BoolP("help", "h", false, `prints detailed information about the "mtar" command`)
 
 }
 

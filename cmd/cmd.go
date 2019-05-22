@@ -44,7 +44,7 @@ func init() {
 		"the path to the MBT results folder; the current path is set as the default")
 	cleanupCmd.Flags().StringVarP(&cleanupCmdDesc, "desc", "d", "",
 		`the MTA descriptor; supported values: "dev" (development descriptor, default value) and "dep" (deployment descriptor)`)
-	cleanupCmd.Flags().BoolP("help", "h",  false,`prints detailed information about the "cleanup" command`)
+	cleanupCmd.Flags().BoolP("help", "h", false, `prints detailed information about the "cleanup" command`)
 
 	// set flags of validation command
 	validateCmd.Flags().StringVarP(&validateCmdSrc, "source", "s", "",
@@ -57,9 +57,9 @@ func init() {
 		`if set to true, duplicated fields and fields not defined in the "mta.yaml" schema are reported as errors; if set to false, they are reported as warnings`)
 	validateCmd.Flags().StringVarP(&validateCmdExclude, "exclude", "e", "",
 		`list of excluded semantic validations; supported validations: "paths", "names", "requires"`)
-	validateCmd.Flags().BoolP("help", "h",  false,`prints detailed information about the "validate" command`)
+	validateCmd.Flags().BoolP("help", "h", false, `prints detailed information about the "validate" command`)
 
-	generateCmd.Flags().BoolP("help", "h",  false,`prints detailed information about the "gen" command`)
+	generateCmd.Flags().BoolP("help", "h", false, `prints detailed information about the "gen" command`)
 
 }
 
