@@ -4,7 +4,8 @@
 | Command | Usage &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;       | Description                                                    
 | ------  | --------       |  ----------                                                
 | help    | `mbt -h`     | Prints all the available commands.                           
-| help    | `mbt [command] --help` or<br> `mbt [command] -h`    | Prints detailed information on the selected command.<br>                           
+| help    | `mbt [command] --help` or<br> `mbt [command] -h`    | Prints detailed information about the specified command.|
+
 &nbsp;
 ### How to find out the installed tool version
 
