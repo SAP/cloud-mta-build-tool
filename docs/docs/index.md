@@ -26,10 +26,10 @@ Each module is built using the build technology that is either associated with t
 
 For more details about how the design-time module types in the `mta.yaml` file are converted into deployment time module types in the `mtad.yaml` file according to the target platform, see [Module types conversion](https://github.com/SAP/cloud-mta-build-tool/blob/master/configs/platform_cfg.yaml). 
 
-If the MTA Build Tool encounters a module type in the `mta.yaml` file that is not listed in the configuration file, its definition is copied to the `mtad.yaml` file as is and the `.zip` builder is applied to the module (in other words, the archived module sources are packaged as the build result).
+If the MTA Build Tool encounters a module type in the `mta.yaml` file that is not listed in the configuration file, its definition is copied to the `mtad.yaml` file as is and the `zip` builder is applied to the module (in other words, the archived module sources are packaged as the build result).
 
 All resource definitions are passed to the `mtad.yaml` file as is without mapping and validations (for example, if the resource is supported in the target platform or if the specified parameters match the type).
 
-###<b>Creating an MTA Archive According to the MTA Deploymnet Descriptor (`mtad.yaml` file)</b>
+### <b>Creating an MTA Archive According to the MTA Deploymnet Descriptor (`mtad.yaml` file)</b>
 
-TBD
+Under construction

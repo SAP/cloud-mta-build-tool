@@ -14,7 +14,7 @@ You need to update your `mta.yaml` file to exclude `html5` modules from the resu
    build-parameters:
       supported-platforms: []
 ```
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; For more information about the `supported-platforms` build parameter, see [Configuring and Packaging Modules According to Target Platforms](configuration.md#configuring-and-packaging-modules-according-to-target-platforms)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; For more information about the `supported-platforms` build parameter, see [Configuring and Packaging Modules According to Target Platforms](configuration.md#configuring-and-packaging-modules-according-to-target-platforms).
 <br>
 * The following `build-parameters` are not supported by the Cloud MTA Build Tool: <ul><li>`npm-opts`<li>`grunt-opt`<li>`maven-opts`</ul>
 
@@ -24,11 +24,12 @@ You need to update your `mta.yaml` file to exclude `html5` modules from the resu
 
 #### New features in the Cloud MTA Build Tool
 
-* If you want to run a builder process before running builders of the specific modules, define it using [global `before-all` build parameters](configuration.md#configuring-global-build).
-
-<br>
-* You can define your own build commands as described here: [configuring `custom` builder](configuration.md#configuring-the-custom-builder).
-<br>
+* In addition to configuring build behaviour in `mta.yaml`, you can configure build process of the specific module or the whole project in the `Makefile.mta` file that you can generate the file using [`mbt init` command](usage.md#cloud-mta-build-tool-commands). The generated file contains default configurations for buidling MTA project according to our best practices.
+&nbsp;
+* If you want to run a builder process before running builders of the specific modules, define it using [global `before-all` build parameters](configuration.md#configuring-global-build).  
+&nbsp; 
+* You can define your own build commands as described here: [configuring `custom` builder](configuration.md#configuring-the-custom-builder). 
+&nbsp; 
 
 #### Features that are temporarily not available in the Cloud MTA Build Tool
 
