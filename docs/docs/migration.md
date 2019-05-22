@@ -5,7 +5,7 @@ If you have previously used the [Multitarget Application Archive Builder](https:
 #### Features that handled differently in the Cloud MTA Build Tool
 
 * For building an MTA project, the Cloud MTA build Tool uses `GNU Make` technology. Therefore, you should have `GNU Make` installed in your build environmnet. Please read the correponding sections for more information about [`GNU Make` installation](makefile.md) and [commands for building a project](usage.md#how-to-build-an-mta-archive-from-the-project-sources). 
-<br>
+&nbsp;
 * Packaging of HTML5 modules in `deploy_mode=html5-repo`
 You need to update your `mta.yaml` file to exclude `html5` modules from the resulting MTA archive. In order to do that, add the following to the `build-parameters` section for each  module of this type:
 
@@ -24,7 +24,7 @@ You need to update your `mta.yaml` file to exclude `html5` modules from the resu
 #### New features in the Cloud MTA Build Tool
 
 * In addition to configuring build behaviour in `mta.yaml`, you can configure build process of the specific module or the whole project in the `Makefile.mta` file that you can generate the file using [`mbt init` command](usage.md#cloud-mta-build-tool-commands). The generated file contains default configurations for buidling MTA project according to our best practices.
-&nbsp;
+&nbsp;&nbsp;
 * If you want to run a builder process before running builders of the specific modules, define it using [global `before-all` build parameters](configuration.md#configuring-global-build).  
 &nbsp; 
 * You can define your own build commands as described here: [configuring `custom` builder](configuration.md#configuring-the-custom-builder). 
