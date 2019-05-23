@@ -719,7 +719,7 @@ make -f Makefile.mta p=cf
 <tr>
 <td>init</td>
 <td><code>mbt init &lt;flags&gt;</code></td>
-<td>Generates the <code>Makefile.mta</code> file according to the MTA descriptor (<code>mta.yaml</code> file). <br> The <code>make</code> command uses the generated <code>Makefile.mta</code> file to package the MTA project. <br> Use the <code>mbt init</code> command with the following flags:<br><ul><li><code>-s (--source)</code> is the path to the MTA project; the current path is set as the default.<br> Example: <code>mbt init -s C:/TestProject</code> <li><code>-t (--target)</code> is the path to the generated <code>Makefile</code> folder; the current path is set as the default. <br> Example: <code>mbt init -t C:/TestFolder</code><li><code>-m (--mode)</code> is the mode of the <code>Makefile</code> generation; supported values are <code>default</code> and <code>verbose</code>.<br> Example: <code>mbt init -m default</code></td>
+<td>Generates the <code>Makefile.mta</code> file according to the MTA descriptor (<code>mta.yaml</code> file). <br> The <code>make</code> command uses the generated <code>Makefile.mta</code> file to package the MTA project. <br> Use the <code>mbt init</code> command with the following flags:<br><ul><li><code>-s (--source)</code> is the path to the MTA project; the current path is set as the default.<br> Example: <code>mbt init -s C:/TestProject</code> <li><code>-t (--target)</code> is the path to the generated <code>Makefile</code> folder; the current path is set as the default. <br> Example: <code>mbt init -t C:/TestFolder</code></td>
 </tr>
 </tbody>
 </table>
@@ -743,6 +743,13 @@ Use the <code>make</code> command to package the MTA project with the following 
 </tr>
 </thead>
 <tbody>
+<tr>
+<td><code>-f &lt;path to Makefile.mta&gt;</code></td>
+<td>string</td>
+<td>Mandatory</td>
+<td>The path to the Makefile.mta file that contains build configurations</td>
+<td><code>make -f Makefile.mta p=cf</code></td>
+</tr>
 <tr>
 <td><code>p</code></td>
 <td>string</td>

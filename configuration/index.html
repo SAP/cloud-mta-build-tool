@@ -386,8 +386,8 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#using-build-results-for-building-another-modulecopy-artifact" title="Using build results for building another modulecopy artifact" class="md-nav__link">
-    Using build results for building another modulecopy artifact
+  <a href="#using-build-results-for-building-another-module" title="Using build results for building another module" class="md-nav__link">
+    Using build results for building another module
   </a>
   
 </li>
@@ -631,8 +631,8 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#using-build-results-for-building-another-modulecopy-artifact" title="Using build results for building another modulecopy artifact" class="md-nav__link">
-    Using build results for building another modulecopy artifact
+  <a href="#using-build-results-for-building-another-module" title="Using build results for building another module" class="md-nav__link">
+    Using build results for building another module
   </a>
   
 </li>
@@ -735,7 +735,7 @@
 
 <h4 id="configuring-build-order">Configuring build order</h4>
 <p>You can define the dependencies between modules to ensure that they are built in a certain order. In addition, you can use the build results of one module to build another module.
-Also you can can configure a build step that is performed before building any of the modules.</p>
+Also you can can configure build steps that are performed before building any of the modules.</p>
 <h5 id="defining-module-build-order">Defining module build order</h5>
 <p>To define the build order of modules, in the <code>mta.yaml</code> file, add a <code>requires</code> section under the <code>build-parameters</code> section of the dependent module; that is, a module that should be built only after building another required module. Then specify the required module name as a property of the dependent module’s <code>requires</code> section.</p>
 <p>The example <code>mta.yaml</code> file below demonstrates how to build module A after module B:</p>
@@ -764,7 +764,7 @@ modules:
 <p><strong><em>CAUTION:</em></strong> Cyclical dependencies are not allowed. If such dependencies are found, the build fails.</p>
 </blockquote>
 <p><br></p>
-<h5 id="using-build-results-for-building-another-modulecopy-artifact">Using build results for building another <code>modulecopy</code> artifact</h5>
+<h5 id="using-build-results-for-building-another-module">Using build results for building another module</h5>
 <p>If you want to use the build results of module B for building module A, modify the <code>requires</code> section as follows:</p>
 <pre><code class="yaml">
 ID: myproject
@@ -790,7 +790,7 @@ modules:
 
 <p><br></p>
 <h4 id="configuring-a-global-build">Configuring a global build</h4>
-<p>If you want to run a builder process before running builders of the specific modules, define it by using the <code>build-parameters</code> section at the global level in the <code>mta.yaml</code> file as follows:</p>
+<p>If you want to run addtional build steps before running builders of the specific modules, define it by using the <code>build-parameters</code> section at global level in the <code>mta.yaml</code> file as follows:</p>
 <pre><code class="yaml">
 ID: myproject
 _schema-version: '3.1'
@@ -828,7 +828,7 @@ modules:
 </code></pre>
 
 <blockquote>
-<p><strong><em>NOTE:</em></strong> Only the following build parameters are considered when configuring a builder at the "before-all" level: <li><code>timeout</code><li><code>commands</code> (for the <code>custom</code> builder only)<li> <code>fetcher-opts</code> (for the <code>fetcher</code> builder only)
+<p><strong><em>NOTE:</em></strong> Only the following build parameters are considered when configuring a builder at the global level: <li><code>timeout</code><li><code>commands</code> (for the <code>custom</code> builder only)<li> <code>fetcher-opts</code> (for the <code>fetcher</code> builder only)
 <br></p>
 </blockquote>
 <h4 id="configuring-the-fetcher-builder">Configuring the <code>fetcher</code> builder</h4>
@@ -900,7 +900,7 @@ modules:
 <p><strong><em>NOTE:</em></strong> These parameters are not considered for the <code>fetcher</code> builder.</p>
 </blockquote>
 <h4 id="configuring-and-packaging-modules-according-to-target-platforms">Configuring and packaging modules according to target platforms</h4>
-<p>If you want to control which modules should be packaged into a multitarget application archive for a specific platform during a multitarget application build, use the <code>supported-platforms</code> build parameter as follows:</p>
+<p>If you want to control which modules should be packaged into a multitarget application archive for a specific platform, use the <code>supported-platforms</code> build parameter as follows:</p>
 <pre><code class="yaml">
 ID: myproject
 _schema-version: '2.0'
