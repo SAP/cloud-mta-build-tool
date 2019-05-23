@@ -26,7 +26,7 @@ To use a non-default builder for a module, specify its name in the builder param
 
 #### Configuring build order 
 You can define the dependencies between modules to ensure that they are built in a certain order. In addition, you can use the build results of one module to build another module.
-Also you can can configure a build step that is performed before building any of the modules.
+Also you can can configure build steps that are performed before building any of the modules.
 
 ##### Defining module build order
 To define the build order of modules, in the `mta.yaml` file, add a `requires` section under the `build-parameters` section of the dependent module; that is, a module that should be built only after building another required module. Then specify the required module name as a property of the dependent module’s `requires` section.
@@ -60,7 +60,7 @@ modules:
 > **_CAUTION:_** Cyclical dependencies are not allowed. If such dependencies are found, the build fails.
 
 <br>
-##### Using build results for building another `modulecopy` artifact
+##### Using build results for building another module
 
 If you want to use the build results of module B for building module A, modify the `requires` section as follows:
 
@@ -91,7 +91,7 @@ modules:
 
 #### Configuring a global build
 
-If you want to run a builder process before running builders of the specific modules, define it by using the `build-parameters` section at the global level in the `mta.yaml` file as follows:
+If you want to run addtional build steps before running builders of the specific modules, define it by using the `build-parameters` section at global level in the `mta.yaml` file as follows:
 
 
 ```yaml
@@ -132,7 +132,7 @@ modules:
  ...
      
 ```
-> **_NOTE:_** Only the following build parameters are considered when configuring a builder at the "before-all" level: <li>`timeout`<li>`commands` (for the `custom` builder only)<li> `fetcher-opts` (for the `fetcher` builder only)
+> **_NOTE:_** Only the following build parameters are considered when configuring a builder at the global level: <li>`timeout`<li>`commands` (for the `custom` builder only)<li> `fetcher-opts` (for the `fetcher` builder only)
 <br>
 
 #### Configuring the `fetcher` builder
@@ -202,7 +202,7 @@ For example:
 
 #### Configuring and packaging modules according to target platforms
 
-If you want to control which modules should be packaged into a multitarget application archive for a specific platform during a multitarget application build, use the `supported-platforms` build parameter as follows:
+If you want to control which modules should be packaged into a multitarget application archive for a specific platform, use the `supported-platforms` build parameter as follows:
 
 ```yaml
 
