@@ -62,10 +62,9 @@ var buildCmd = &cobra.Command{
 	Short: "Execute MTA project build",
 	Long:  "Building each of the modules in the MTA project and archiving",
 	Args:  cobra.NoArgs,
-	RunE: func(cmd *cobra.Command, args []string) error {
+	Run: func(cmd *cobra.Command, args []string) {
 		// Generate build script
 		err := artifacts.ExecBuild(buildProjectCmdSrc, buildProjectCmdTrg, "", buildProjectCmdMtar, buildProjectCmdPlatform, buildProjectCmdStrict, os.Getwd, exec.Execute)
 		logError(err)
-		return err
 	},
 }
