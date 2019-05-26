@@ -68,4 +68,6 @@ var buildCmd = &cobra.Command{
 		logError(err)
 		return err
 	},
+	SilenceUsage:  true,
+	SilenceErrors: true,
 }
