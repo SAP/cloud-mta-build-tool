@@ -65,9 +65,7 @@ var buildCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		// Generate build script
 		err := artifacts.ExecBuild(buildProjectCmdSrc, buildProjectCmdTrg, "", buildProjectCmdMtar, buildProjectCmdPlatform, buildProjectCmdStrict, os.Getwd, exec.Execute)
-		logError(err)
 		return err
 	},
-	SilenceUsage:  true,
-	SilenceErrors: true,
+	SilenceUsage: true,
 }
