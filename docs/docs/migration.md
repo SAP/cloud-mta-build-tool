@@ -6,7 +6,7 @@ If you have previously used the [Multitarget Application Archive Builder](https:
 
 <li> The Cloud MTA build Tool uses `GNU Make` technology for building an MTA project. Therefore, you should have `GNU Make` installed in your build environmnet. 
 
-For more information, see sections [`GNU Make` installation](makefile.md) and [commands for building a project](usage.md#how-to-build-an-mta-archive-from-the-project-sources). 
+For more information, see sections [GNU Make` installation](makefile.md) and [commands for building a project](usage.md#how-to-build-an-mta-archive-from-the-project-sources). 
 &nbsp;
 
 <li> Packaging of HTML5 modules in `deploy_mode=html5-repo`
