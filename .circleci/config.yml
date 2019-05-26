@@ -81,6 +81,18 @@ jobs:
 #         name: publish to npm
 #         command: npm publish
 
+  ghpages:
+    docker:
+      - image: squidfunk/mkdocs-material:4.3.1
+    working_directory: /go/src/github.com/SAP/cloud-mta-build-tool
+    steps:
+      - checkout
+      - run:
+          name: Release to GitHub Pages
+          command: |
+            cd docs
+            mkdocs gh-deploy --config-file ../docs/mkdocs.yml --remote-branch gh-pages
+
 workflows:
   version: 2
   on_pr_build:
@@ -123,6 +135,14 @@ workflows:
           requires:
             - test
           filters:  # job runs on tags for no branches
+            tags:
+              only: /^v([0-9]+)(\.[0-9]+)(\.[0-9]+)/
+            branches:
+              ignore: /.*/
+      - ghpages:
+          requires:
+            - test
+          filters:  # job runs on tags for no branches - just like deploy
             tags:
               only: /^v([0-9]+)(\.[0-9]+)(\.[0-9]+)/
             branches:
