@@ -4,7 +4,7 @@ If you have previously used the [Multitarget Application Archive Builder](https:
 
 #### Features that are handled differently in the Cloud MTA Build Tool
 
-*The Cloud MTA build Tool uses `GNU Make` technology for building an MTA project. Therefore, you should have `GNU Make` installed in your build environmnet. 
+* The Cloud MTA build Tool uses `GNU Make` technology for building an MTA project. Therefore, you should have `GNU Make` installed in your build environmnet. 
 
 For more information, see sections [`GNU Make` installation](makefile.md) and [commands for building a project](usage.md#how-to-build-an-mta-archive-from-the-project-sources). 
 &nbsp;
