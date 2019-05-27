@@ -64,15 +64,18 @@ jobs:
             echo "Current release: ${CURR_MBT_VERSION}"
             MBT_VERSION=$(echo $CURR_MBT_VERSION | awk -F. '{$NF = $NF + 1;} 1' | sed 's/ /./g')
             echo "New release: ${MBT_VERSION}"
+            #Update new version in files
             sed  -i "/\"version\":/s/${CURR_MBT_VERSION}/${MBT_VERSION}/" ./package.json
-            sed  -i "/\"version\":/s/${CURR_MBT_VERSION}/${MBT_VERSION}/" ./internal/version/version_cfg.go
             sed  -i "/cli_version:/s/${CURR_MBT_VERSION}/${MBT_VERSION}/" ./configs/version.yaml
             sed  -i "s/${CURR_MBT_VERSION}/${MBT_VERSION}/" ./VERSION
+            #Generate version file
+            go generate -run "go run ./internal/buildtools/embed.go -source=./configs/version.yaml -target=./internal/version/version_cfg.go -name=VersionConfig -package=version"
+            #Add all updated files to commit
             git add ./package.json ./internal/version/version_cfg.go ./configs/version.yaml ./VERSION
             git config user.email "${MBT_REPO_USER_EMAIL}"
             git config user.name "${MBT_REPO_USER}"
             git commit -m "[skip ci] Bump version ${MBT_VERSION}"
-            #Push quietly to prevent showing the token in log
+            #Push commit directly to master
             git push -q https://github.com/SAP/cloud-mta-build-tool.git master
       - run:
           name: release new version
