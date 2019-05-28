@@ -7,7 +7,7 @@
 | help    | `mbt [command] --help` or<br> `mbt [command] -h`    | Prints detailed information about the specified command.|
 
 &nbsp;
-### How to find out the installed tool version
+### How to find out the version of the installed tool
 
 | Command | Usage &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;       | Description                                                    
 | ------  | --------       |  ----------                                                
@@ -18,14 +18,16 @@
 
 #### Overview
 
-You can use one of the two approaches for building your MTA project:
-<li> One-step build using the `mbt build` command
-<li> Two-step build using a combination of the `mbt init` and `make` commands.<br>
+You can use one of the following two approaches for building your MTA project:
+- One-step build using the `mbt build` command
+- Two-step build using a combination of the `mbt init` and `make` commands.
+
+<li> DELETE Two-step build using a combination of the `mbt init` and `make` commands.<br>
 &nbsp;
 
-Both methods leverage the `GNU Make` technology for the actual build. Therefore, the correponding `make` commands that accepts a path to a build configuration file (`Makefile`) should be used. <br>
-If you are using the one-step approach, the tool generates a temporary build configuration file and automatically invokes the `make` command. The generated `Makefile` is deleted at the end of the build.  <br>
-The second approach allows you to generate the `Makefile` using the `mbt init` command. You can adjust the generated file according to your project needs and then build the MTA archive using the `make` command. In this case, we recommend you to include the generated `Makefile` to the project's source control management system to ensure that the same build process is applied across all the project's contributors regardless of the build environment. 
+Both methods leverage the `GNU Make` technology for the actual build. Therefore, you should use the correponding `make` commands that accept a path to the build configuration file (`Makefile`). <br>
+If you are using the one-step approach, the tool generates a temporary build configuration file and automatically invokes the `make` command. The generated `Makefile` is then deleted at the end of the build.  <br>
+The second approach allows you to generate the `Makefile` using the `mbt init` command. You can adjust the generated file according to your project needs and then build the MTA archive using the `make` command. In this case, we recommend that you include the generated `Makefile` in the project's source control management system to ensure that the same build process is applied across all the project's contributors, regardless of the build environment. 
 
 
 #### Prerequisites
@@ -39,13 +41,13 @@ For more information, see the corresponding [`Download` and `Installation` secti
 <b> Quick start example:</b>
 
 ```go
-// Executes the MTA project build for Cloud Foundry target environment.
+// Executes the MTA project build for the Cloud Foundry target environment.
 mbt build -p=cf
 
 ```
 
 <b>`mbt build`</b>
-Gnerates a temporary `Makefile` according to the MTA descriptor and runs the `make` command to package the MTA project into the MTA archive
+Generates a temporary `Makefile` according to the MTA descriptor and runs the `make` command to package the MTA project into the MTA archive.
 
 <b>Usage:</b> `mbt build <flags>`
 
@@ -88,8 +90,8 @@ Generates the `Makefile.mta` file according to the MTA descriptor (mta.yaml file
 
 | Flag        | Mandatory&nbsp;/<br>Optional        | Description&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                 | Examples&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                                    
 | -----------  | -------       |  ----------                          |  -----------------------------
-| `-s (--source)`   | Optional  | The path to the MTA project; the current path is set as the default..                              | `mbt init -s=C:/TestProject`
-| `-t (--target)`   | Optional  | The path to the generated Makefile folder; the current path is set as the default.   | `mbt init -t=C:/TestFolder`
+| `-s (--source)`   | Optional  | The path to the MTA project; the current path is set as the default.                              | `mbt init -s=C:/TestProject`
+| `-t (--target)`   | Optional  | The path to the generated `Makefile` folder; the current path is set as the default.   | `mbt init -t=C:/TestFolder`
 
 
 
@@ -97,7 +99,7 @@ Generates the `Makefile.mta` file according to the MTA descriptor (mta.yaml file
 
 <b>`make`</b>
 
-Pakages the MTA project into the MTA archive according to the `Makefile`
+Packages the MTA project into the MTA archive according to the `Makefile`.
 
 <b>Usage:</b> `make <parameters>`
 
@@ -105,10 +107,10 @@ Pakages the MTA project into the MTA archive according to the `Makefile`
 
 | Parameter        | Type | Mandatory&nbsp;/<br>Optional        | Description&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                 | Examples    
 | -----------  | ------ | -------       |  ----------                              |  --------------------------------------
-| `-f <path to Makefile.mta>`    | string     | Mandatory  | The path to the Makefile.mta file that contains build configurations                             | `make -f Makefile.mta p=cf`
-| `p`  | string     | Mandatory     | The name of the target deployment platform. <br>The supported deployment platforms are: <ul><li>`cf` for SAP Cloud Platform Cloud Foundry environment  <li>`neo` for the SAP Cloud Platform Neo environment <li>`xsa` for the SAP HANA XS advanced model                                     |`make -f Makefile.mta p=cf`
-| `t`    | string     | Optional  | The folder for the generated `MTAR` file. If this parameter is not provided, the `MTAR` file is saved in the `mta_archives` subfolder of the current folder. If the parameter is provided, the `MTAR` file is saved in the root of the folder provided by the argument.                              | `make -f Makefile.mta p=cf t=C:\temp`
-| `mtar`    | string     |   Optional  | The file name of the generated archive file. If this parameter is omitted, the file name is created according to the following naming convention: <br><br> `<mta_application_ID>_<mta_application_version>.mtar` <br><br> If the parameter is provided, but does not include an extension, the `.mtar` extension is added. | `make -f Makefile.mta p=cf mtar=myMta`<br><br> `make -f Makefile.mta p=cf mtar=myMta.mtar`
+| `-f <path to Makefile.mta>`    | string     | Mandatory  | The path to the `Makefile.mta` file that contains the build configurations.                             | `make -f Makefile.mta p=cf`
+| `p`  | string     | Mandatory     | The name of the target deployment platform. <br>The supported deployment platforms are: <ul><li>`cf` for the SAP Cloud Platform Cloud Foundry environment  <li>`neo` for the SAP Cloud Platform Neo environment <li>`xsa` for the SAP HANA XS advanced model                                     |`make -f Makefile.mta p=cf`
+| `t`    | string     | Optional  | The folder for the generated `MTAR` file. If this parameter is not provided, the `MTAR` file is saved in the `mta_archives` subfolder of the current folder. If the parameter is provided, the `MTAR` file is saved in the root of the folder provided by an argument.                              | `make -f Makefile.mta p=cf t=C:\temp`
+| `mtar`    | string     | Optional  | The file name of the generated archive file. If this parameter is omitted, the file name is created according to the following naming convention: <br><br> `<mta_application_ID>_<mta_application_version>.mtar` <br><br> If the parameter is provided, but does not include an extension, the `.mtar` extension is added. | `make -f Makefile.mta p=cf mtar=myMta`<br><br> `make -f Makefile.mta p=cf mtar=myMta.mtar`
 | `strict`    | Boolean     | Optional    | The default value is `true`. If set to `true`, the duplicated fields and fields that are not defined in the `mta.yaml` schema are reported as errors. If set to `false`, they are reported as warnings. | `make -f Makefile.mta p=cf strict=false`
 
 &nbsp;
