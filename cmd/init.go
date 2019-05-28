@@ -42,6 +42,7 @@ func init() {
 	buildCmd.Flags().StringVarP(&buildProjectCmdPlatform, "platform", "p", "", `the deployment platform; supported plaforms: "cf", "xsa", "neo"`)
 	buildCmd.Flags().BoolVarP(&buildProjectCmdStrict, "strict", "", true, `if set to true, duplicated fields and fields not defined in the "mta.yaml" schema are reported as errors; if set to false, they are reported as warnings`)
 	buildCmd.Flags().BoolP("help", "h", false, `prints detailed information about the "build" command`)
+	buildCmd.MarkFlagRequired("platform")
 }
 
 var initCmd = &cobra.Command{
