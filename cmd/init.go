@@ -37,7 +37,7 @@ func init() {
 
 	// set flags of build command
 	buildCmd.Flags().StringVarP(&buildProjectCmdSrc, "source", "s", "", "the path to the MTA project; the current path is set as the default")
-	buildCmd.Flags().StringVarP(&buildProjectCmdTrg, "target", "t", "$(CURDIR)/mta_archives", "the path to the MBT results folder; the current path is set as the default")
+	buildCmd.Flags().StringVarP(&buildProjectCmdTrg, "target", "t", "", "the path to the MBT results folder; the current path is set as the default")
 	buildCmd.Flags().StringVarP(&buildProjectCmdMtar, "mtar", "", "*", "the file name of the generated archive file")
 	buildCmd.Flags().StringVarP(&buildProjectCmdPlatform, "platform", "p", "", `the deployment platform; supported plaforms: "cf", "xsa", "neo"`)
 	buildCmd.Flags().BoolVarP(&buildProjectCmdStrict, "strict", "", true, `if set to true, duplicated fields and fields not defined in the "mta.yaml" schema are reported as errors; if set to false, they are reported as warnings`)
