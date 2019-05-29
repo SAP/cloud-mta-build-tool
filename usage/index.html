@@ -339,8 +339,8 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#how-to-find-out-the-installed-tool-version" title="How to find out the installed tool version" class="md-nav__link">
-    How to find out the installed tool version
+  <a href="#how-to-find-out-the-version-of-the-installed-tool" title="How to find out the version of the installed tool" class="md-nav__link">
+    How to find out the version of the installed tool
   </a>
   
 </li>
@@ -453,6 +453,18 @@
 
 
   <li class="md-nav__item">
+    <a href="../process/" title="Process" class="md-nav__link">
+      Process
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
     <a href="../newmodule/" title="New Module" class="md-nav__link">
       New Module
     </a>
@@ -467,18 +479,6 @@
   <li class="md-nav__item">
     <a href="../newbuilder/" title="New Builder" class="md-nav__link">
       New Builder
-    </a>
-  </li>
-
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
-    <a href="../process/" title="Process" class="md-nav__link">
-      Process
     </a>
   </li>
 
@@ -574,8 +574,8 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#how-to-find-out-the-installed-tool-version" title="How to find out the installed tool version" class="md-nav__link">
-    How to find out the installed tool version
+  <a href="#how-to-find-out-the-version-of-the-installed-tool" title="How to find out the version of the installed tool" class="md-nav__link">
+    How to find out the version of the installed tool
   </a>
   
 </li>
@@ -672,7 +672,7 @@
 </tbody>
 </table>
 <p>&nbsp;</p>
-<h3 id="how-to-find-out-the-installed-tool-version">How to find out the installed tool version</h3>
+<h3 id="how-to-find-out-the-version-of-the-installed-tool">How to find out the version of the installed tool</h3>
 <table>
 <thead>
 <tr>
@@ -692,13 +692,12 @@
 <p>&nbsp;</p>
 <h3 id="how-to-build-an-mta-archive-from-the-project-sources">How to build an MTA archive from the project sources</h3>
 <h4 id="overview">Overview</h4>
-<p>You can use one of the two approaches for building your MTA project:
-<li> One-step build using the <code>mbt build</code> command
-<li> Two-step build using a combination of the <code>mbt init</code> and <code>make</code> commands.<br>
-&nbsp;</p>
-<p>Both methods leverage the <code>GNU Make</code> technology for the actual build. Therefore, the correponding <code>make</code> commands that accepts a path to a build configuration file (<code>Makefile</code>) should be used. <br>
-If you are using the one-step approach, the tool generates a temporary build configuration file and automatically invokes the <code>make</code> command. The generated <code>Makefile</code> is deleted at the end of the build.  <br>
-The second approach allows you to generate the <code>Makefile</code> using the <code>mbt init</code> command. You can adjust the generated file according to your project needs and then build the MTA archive using the <code>make</code> command. In this case, we recommend you to include the generated <code>Makefile</code> to the project's source control management system to ensure that the same build process is applied across all the project's contributors regardless of the build environment. </p>
+<p>You can use one of the following two approaches for building your MTA project:
+- One-step build using the <code>mbt build</code> command
+- Two-step build using a combination of the <code>mbt init</code> and <code>make</code> commands.</p>
+<p>Both methods leverage the <code>GNU Make</code> technology for the actual build.  <br>
+If you are using the one-step approach, the tool generates a temporary build configuration file and automatically invokes the <code>make</code> command. The generated <code>Makefile</code> is then deleted at the end of the build.  <br>
+The second approach allows you to generate the <code>Makefile</code> using the <code>mbt init</code> command. You can adjust the generated file according to your project needs and then build the MTA archive using the <code>make</code> command. In this case, we recommend that you include the generated <code>Makefile</code> in the project's source control management system to ensure that the same build process is applied across all the project's contributors, regardless of the build environment. </p>
 <h4 id="prerequisites">Prerequisites</h4>
 <ul>
 <li><code>GNU Make 4.2.1</code> is installed in your build environment. </li>
@@ -707,13 +706,13 @@ The second approach allows you to generate the <code>Makefile</code> using the <
 <p>For more information, see the corresponding <a href="../download/"><code>Download</code> and <code>Installation</code> sections</a>.</p>
 <h4 id="one-step-build">One-step build</h4>
 <p><b> Quick start example:</b></p>
-<pre><code class="go">// Executes the MTA project build for Cloud Foundry target environment.
+<pre><code class="go">// Executes the MTA project build for the Cloud Foundry target environment.
 mbt build -p=cf
 
 </code></pre>
 
 <p><b><code>mbt build</code></b>
-Gnerates a temporary <code>Makefile</code> according to the MTA descriptor and runs the <code>make</code> command to package the MTA project into the MTA archive</p>
+Generates a temporary <code>Makefile</code> according to the MTA descriptor and runs the <code>make</code> command to package the MTA project into the MTA archive.</p>
 <p><b>Usage:</b> <code>mbt build &lt;flags&gt;</code></p>
 <p><b>Flags:</b></p>
 <table>
@@ -787,20 +786,20 @@ make -f Makefile.mta p=cf
 <tr>
 <td><code>-s (--source)</code></td>
 <td>Optional</td>
-<td>The path to the MTA project; the current path is set as the default..</td>
+<td>The path to the MTA project; the current path is set as the default.</td>
 <td><code>mbt init -s=C:/TestProject</code></td>
 </tr>
 <tr>
 <td><code>-t (--target)</code></td>
 <td>Optional</td>
-<td>The path to the generated Makefile folder; the current path is set as the default.</td>
+<td>The path to the generated <code>Makefile</code> folder; the current path is set as the default.</td>
 <td><code>mbt init -t=C:/TestFolder</code></td>
 </tr>
 </tbody>
 </table>
 <p>&nbsp;</p>
 <p><b><code>make</code></b></p>
-<p>Pakages the MTA project into the MTA archive according to the <code>Makefile</code></p>
+<p>Packages the MTA project into the MTA archive according to the <code>Makefile</code>.</p>
 <p><b>Usage:</b> <code>make &lt;parameters&gt;</code></p>
 <p><b>Parameters:</b></p>
 <table>
@@ -818,14 +817,14 @@ make -f Makefile.mta p=cf
 <td><code>-f &lt;path to Makefile.mta&gt;</code></td>
 <td>string</td>
 <td>Mandatory</td>
-<td>The path to the Makefile.mta file that contains build configurations</td>
+<td>The path to the <code>Makefile.mta</code> file that contains the build configurations.</td>
 <td><code>make -f Makefile.mta p=cf</code></td>
 </tr>
 <tr>
 <td><code>p</code></td>
 <td>string</td>
 <td>Mandatory</td>
-<td>The name of the target deployment platform. <br>The supported deployment platforms are: <ul><li><code>cf</code> for SAP Cloud Platform Cloud Foundry environment  <li><code>neo</code> for the SAP Cloud Platform Neo environment <li><code>xsa</code> for the SAP HANA XS advanced model</td>
+<td>The name of the target deployment platform. <br>The supported deployment platforms are: <ul><li><code>cf</code> for the SAP Cloud Platform Cloud Foundry environment  <li><code>neo</code> for the SAP Cloud Platform Neo environment <li><code>xsa</code> for the SAP HANA XS advanced model</td>
 <td><code>make -f Makefile.mta p=cf</code></td>
 </tr>
 <tr>
