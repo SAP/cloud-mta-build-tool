@@ -113,6 +113,10 @@ makefile_version: 0.0.0
 			ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata"), TargetPath: filepath.Join(wd, "testdata"), MtaFilename: "xxx.yaml"}
 			Ω(genMakefile(&ep, &ep, &ep, makefile, "")).Should(HaveOccurred())
 		})
+		It("genMakefile testing with wrong target folder (file path)", func() {
+			ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata"), TargetPath: filepath.Join(wd, "testdata", "mta.yaml"), MtaFilename: "xxx.yaml"}
+			Ω(genMakefile(&ep, &ep, &ep, makefile, "")).Should(HaveOccurred())
+		})
 		It("genMakefile testing with wrong mode", func() {
 			ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata")}
 			Ω(genMakefile(&ep, &ep, &ep, makefile, "wrongMode")).Should(HaveOccurred())

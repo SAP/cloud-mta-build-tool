@@ -61,6 +61,11 @@ func makeFile(mtaParser dir.IMtaParser, loc dir.ITargetPath, makeFilename string
 		File mta.MTA
 	}
 
+	err := dir.CreateDirIfNotExist(loc.GetTarget())
+	if err != nil {
+		return err
+	}
+
 	// ParseFile file
 	m, err := mtaParser.ParseFile()
 	if err != nil {
