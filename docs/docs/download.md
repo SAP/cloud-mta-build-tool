@@ -5,10 +5,10 @@
  
   1. [Download](https://github.com/SAP/cloud-mta-build-tool/releases) the **latest** binary file according to your operating system.
   2. Extract the archive file to the folder where you want to install the tool.
-  3. Add the binary file to your `~/bin` path according to your operating system:     
-        - Darwin / Linux
+  3. Add the binary file to your `~/bin` path according to your operating system:  &nbsp;   
+        * Darwin / Linux
           - Copy the binary file to the `~/usr/local/bin/` folder, for example: `cp mbt /usr/local/bin/`
-        - Windows
+        * Windows
           -  Copy the `mbt.exe` binary file to the `C:/Windows/` folder.
 
 **Install using npm**
