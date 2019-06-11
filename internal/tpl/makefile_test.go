@@ -113,7 +113,7 @@ makefile_version: 0.0.0
 		It("Create make file in folder that does not exist", func() {
 			ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata"), TargetPath: filepath.Join(wd, "testdata", "someFolder"), Descriptor: "dev"}
 			Ω(makeFile(&ep, &ep, makeFileName, &tpl)).Should(Succeed())
-			filename := filepath.Join(ep.GetTarget(),makeFileName)
+			filename := filepath.Join(ep.GetTarget(), makeFileName)
 			Ω(filename).Should(BeAnExistingFile())
 			Ω(getMakeFileContent(filename)).Should(Equal(expectedMakeFileContent))
 		})
