@@ -64,7 +64,7 @@ jobs:
             curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
             dep ensure
       - run:
-          name: bump release version
+          name: release new version
           command: |
             CURR_MBT_VERSION=$(cat ./VERSION)
             echo "Current release: ${CURR_MBT_VERSION}"
@@ -76,6 +76,7 @@ jobs:
             sed  -i "s/${CURR_MBT_VERSION}/${MBT_VERSION}/" ./VERSION
             #Generate version file
             go generate -run "go run ./internal/buildtools/embed.go -source=./configs/version.yaml -target=./internal/version/version_cfg.go -name=VersionConfig -package=version"
+            curl -sL https://git.io/goreleaser | bash
             #Add all updated files to commit
             git add ./package.json ./internal/version/version_cfg.go ./configs/version.yaml ./VERSION
             git config user.email "${MBT_REPO_USER_EMAIL}"
@@ -83,9 +84,6 @@ jobs:
             git commit -m "[skip ci] Bump version ${MBT_VERSION}"
             #Push commit directly to master
             git push -q https://github.com/SAP/cloud-mta-build-tool.git master
-      - run:
-          name: release new version
-          command: curl -sL https://git.io/goreleaser | bash
 #     - run:
 #         name: publish to npm
 #         command: npm publish
