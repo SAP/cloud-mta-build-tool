@@ -271,9 +271,12 @@ var _ = Describe("GetBuilder", func() {
 			Type: "node-js",
 			BuildParams: map[string]interface{}{
 				builderParam: "npm",
+				"npm-opts": map[interface{}]interface{}{
+					"no-optional": nil,
+				},
 			},
 		}
-		builder, custom, cmds, _, err := commands.GetBuilder(&m)
+		builder, custom, _, cmds, err := commands.GetBuilder(&m)
 		Ω(builder).Should(Equal("npm"))
 		Ω(custom).Should(Equal(true))
 		Ω(len(cmds)).Should(Equal(0))
@@ -320,7 +323,7 @@ var _ = Describe("GetBuilder", func() {
 		path := filepath.Join(dir, "testdata", "mtaWithFetcher.yaml")
 		// Read MTA file
 		yamlFile, err := ioutil.ReadFile(path)
-		Ω(err).Should(BeNil())
+		Ω(err).Should(Succeed())
 		m := mta.MTA{}
 		yaml.Unmarshal(yamlFile, &m)
 		builder, custom, options, cmds, err := commands.GetBuilder(m.Modules[0])
