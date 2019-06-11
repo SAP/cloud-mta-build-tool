@@ -41,7 +41,8 @@ func init() {
 	assembleCommand.Flags().StringVarP(&assembleCmdMtarName,
 		"mtar", "m", "", "the archive name")
 	assembleCommand.Flags().StringVarP(&assembleCmdParallel,
-		"parallel", "p", "false", "if true content copying will run in parallel")
+		"parallel", "p", "true", "if true content copying will run in parallel")
+	assembleCommand.Flags().MarkHidden("parallel")
 	assembleCommand.Flags().BoolP("help", "h", false, `prints detailed information about the "assemble" command`)
 
 }
