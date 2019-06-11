@@ -74,6 +74,7 @@ makefile_version: 0.0.0
 		})
 		AfterEach(func() {
 			os.Remove(makeFileFullPath)
+			os.RemoveAll(filepath.Join(wd, "testdata", "someFolder"))
 		})
 
 		var _ = Describe("ExecuteMake", func() {
@@ -108,6 +109,13 @@ makefile_version: 0.0.0
 			Ω(makeFile(&ep, &ep, makeFileName, &tpl)).Should(Succeed())
 			Ω(makeFileFullPath).Should(BeAnExistingFile())
 			Ω(getMakeFileContent(makeFileFullPath)).Should(Equal(expectedMakeFileContent))
+		})
+		It("Create make file in folder that does not exist", func() {
+			ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata"), TargetPath: filepath.Join(wd, "testdata", "someFolder"), Descriptor: "dev"}
+			Ω(makeFile(&ep, &ep, makeFileName, &tpl)).Should(Succeed())
+			filename := filepath.Join(ep.GetTarget(),makeFileName)
+			Ω(filename).Should(BeAnExistingFile())
+			Ω(getMakeFileContent(filename)).Should(Equal(expectedMakeFileContent))
 		})
 		It("genMakefile testing with wrong mta yaml file", func() {
 			ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata"), TargetPath: filepath.Join(wd, "testdata"), MtaFilename: "xxx.yaml"}
