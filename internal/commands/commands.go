@@ -82,8 +82,10 @@ func convert(m map[interface{}]interface{}) map[string]string {
 	res := make(map[string]string)
 	for key, value := range m {
 		strKey := key.(string)
-		strValue := value.(string)
-
+		strValue := ""
+		if value != nil {
+			strValue = value.(string)
+		}
 		res[strKey] = strValue
 	}
 
