@@ -58,6 +58,12 @@ jobs:
             - "34:86:26:17:59:ed:71:fa:b8:37:fc:d6:a4:68:af:0e"
       - checkout
       - run:
+          name: install dep
+          command: |
+            apk update && apk add curl git build-base bash
+            curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+            dep ensure
+      - run:
           name: bump release version
           command: |
             CURR_MBT_VERSION=$(cat ./VERSION)

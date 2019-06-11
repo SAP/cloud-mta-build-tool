@@ -27,6 +27,7 @@ docker*
 .dockerignore
 .DS_Store
 dist
+node_modules
 
 cover.html
 cover.out
