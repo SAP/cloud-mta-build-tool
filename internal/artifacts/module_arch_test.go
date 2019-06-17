@@ -466,6 +466,12 @@ module-types:
 			Ω(err).Should(Succeed())
 		})
 	})
+
+	var _ = Describe("isArchive", func() {
+		It("path not exists", func() {
+			Ω(isArchive(getTestPath("not_existing"))).Should(BeFalse())
+		})
+	})
 })
 
 func dirContainsAllElements(source string, elements map[string]bool, validateEntitiesCount bool) bool {

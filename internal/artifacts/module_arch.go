@@ -187,6 +187,10 @@ func convert(data []interface{}) []string {
 }
 
 func isArchive(path string) bool {
+	entry, err := os.Stat(path)
+	if err != nil || entry.IsDir() {
+		return false
+	}
 	ext := filepath.Ext(path)
 	return ext == ".zip" || ext == ".jar" || ext == ".war"
 }
