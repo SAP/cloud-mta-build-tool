@@ -90,6 +90,13 @@ jobs:
             #Tag
             git tag -a v${MBT_VERSION} -m "New release ${MBT_VERSION}"
             git push https://github.com/SAP/cloud-mta-build-tool.git v${MBT_VERSION}
+
+      - run:
+          name: export github token for releaser
+          command: |
+            export GITHUB_TOKEN=${GITHUB_TOKEN}
+
+
       - run:
           name: release new version
           command: |
