@@ -30,7 +30,7 @@ import (
 
 const (
 	pathSep        = string(os.PathSeparator)
-	dataZip        = pathSep + "data.zip"
+	dataZip        = "data.zip"
 	moduleEntry    = "MTA-Module"
 	requiredEntry  = "MTA-Requires"
 	resourceEntry  = "MTA-Resource"
@@ -74,7 +74,7 @@ func addModuleEntry(entries []entry, module *mta.Module, contentType, modulePath
 	if modulePath != "" {
 		moduleEntry := entry{
 			EntryName:   module.Name,
-			EntryPath:   modulePath,
+			EntryPath:   filepath.ToSlash(modulePath),
 			ContentType: contentType,
 			EntryType:   moduleEntry,
 		}
@@ -211,17 +211,17 @@ func getModulePath(module *mta.Module, targetPathGetter dir.ITargetPath, default
 		// module path not defined
 		path = module.Path
 	} else if definedArchive, _ := isArchive(buildResultPath); definedArchive {
-		path = filepath.ToSlash(filepath.Join(module.Name, filepath.Base(buildResultPath)))
+		path = filepath.Join(module.Name, filepath.Base(buildResultPath))
 	} else {
 		var expectedArtifactName string
 		if buildArtifactFileName == "" {
 			expectedArtifactName = dataZip
 		} else {
-			expectedArtifactName = pathSep + buildArtifactFileName + filepath.Ext(dataZip)
+			expectedArtifactName = buildArtifactFileName + filepath.Ext(dataZip)
 		}
 		// TODO should we check in the source directory? why should we check at all, except if it's in the assembly flow?
 		if existsFileInDirectories(module, []string{loc.GetSource(), loc.GetTargetTmpDir()}, expectedArtifactName) {
-			path = filepath.ToSlash(module.Name + expectedArtifactName)
+			path = filepath.Join(module.Name, expectedArtifactName)
 		} else {
 			path = filepath.Base(buildResultPath) // TODO is this relevant outside the assembly command flow?
 		}
@@ -230,7 +230,7 @@ func getModulePath(module *mta.Module, targetPathGetter dir.ITargetPath, default
 	// build-artifact-name is defined - use it with the original path's extension
 	if buildArtifactFileName != "" {
 		var resultFileName = buildArtifactFileName + filepath.Ext(path)
-		path = filepath.ToSlash(filepath.Join(module.Name, resultFileName))
+		path = filepath.Join(module.Name, resultFileName)
 	}
 
 	return path, nil
@@ -238,7 +238,7 @@ func getModulePath(module *mta.Module, targetPathGetter dir.ITargetPath, default
 
 func existsFileInDirectories(module *mta.Module, directories []string, filename string) bool {
 	for _, directory := range directories {
-		if _, err := os.Stat(filepath.Join(directory, filepath.ToSlash(module.Name+filename))); !os.IsNotExist(err) {
+		if _, err := os.Stat(filepath.Join(directory, filepath.Join(module.Name, filename))); !os.IsNotExist(err) {
 			return true
 		}
 	}

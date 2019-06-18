@@ -184,9 +184,9 @@ func archiveModuleToResultDir(buildResult string, requestedResultFileName string
 	if requestedResultFileName == "" {
 		resultFileName = dataZip
 	} else {
-		resultFileName = pathSep + requestedResultFileName + filepath.Ext(dataZip)
+		resultFileName = requestedResultFileName + filepath.Ext(dataZip)
 	}
-	moduleResultPath := resultDir + resultFileName
+	moduleResultPath := filepath.Join(resultDir, resultFileName)
 	// Archive the folder without the ignored files and/or subfolders, which are excluded from the package.
 	err := dir.Archive(buildResult, moduleResultPath, ignore)
 	if err != nil {
@@ -231,7 +231,7 @@ func isArchive(path string) (bool, error) {
 func copyModuleArchive(ep dir.IModule, modulePath, moduleName string) error {
 	logs.Logger.Infof(`copying the "%v" module's archive`, moduleName)
 	srcModulePath := ep.GetSourceModuleDir(modulePath)
-	moduleSrcZip := filepath.Join(srcModulePath, "data.zip")
+	moduleSrcZip := filepath.Join(srcModulePath, dataZip)
 	moduleTrgZipPath := ep.GetTargetModuleDir(moduleName)
 	// Create empty folder with name as before the zip process
 	// to put the file such as data.zip inside
@@ -239,7 +239,7 @@ func copyModuleArchive(ep dir.IModule, modulePath, moduleName string) error {
 	if err != nil {
 		return errors.Wrapf(err, `copying of the "%v" module's archive failed when creating the "%v" folder`, moduleName, moduleTrgZipPath)
 	}
-	moduleTrgZip := filepath.Join(moduleTrgZipPath, "data.zip")
+	moduleTrgZip := filepath.Join(moduleTrgZipPath, dataZip)
 	err = dir.CopyFile(moduleSrcZip, moduleTrgZip)
 	if err != nil {
 		return errors.Wrapf(err, `copying of the "%v" module's archive failed when copying "%v" to "%v"`, moduleName, moduleSrcZip, moduleTrgZip)
