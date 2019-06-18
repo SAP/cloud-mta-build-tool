@@ -164,14 +164,8 @@ func packModule(ep dir.IModule, deploymentDesc bool, module *mta.Module, moduleN
 }
 
 func copyModuleArchiveToResultDir(buildResult string, requestedResultFileName string, resultDir string, moduleName string) error {
-	var resultFileName string
-	if requestedResultFileName == "" {
-		resultFileName = filepath.Base(buildResult)
-	} else {
-		resultFileName = requestedResultFileName + filepath.Ext(buildResult)
-	}
-
-	err := dir.CopyFile(buildResult, filepath.Join(resultDir, resultFileName))
+	moduleResultPath := getModuleResultArtifactPath(buildResult, resultDir, requestedResultFileName)
+	err := dir.CopyFile(buildResult, moduleResultPath)
 	if err != nil {
 		return errors.Wrapf(err, `packing of the "%v" module failed when copying the "%s" path to the "%s" folder`,
 			moduleName, buildResult, resultDir)
@@ -179,14 +173,19 @@ func copyModuleArchiveToResultDir(buildResult string, requestedResultFileName st
 	return nil
 }
 
-func archiveModuleToResultDir(buildResult string, requestedResultFileName string, resultDir string, ignore []string, moduleName string) error {
+func getModuleResultArtifactPath(originalFile string, resultDir string, requestedResultFileName string) string {
 	var resultFileName string
 	if requestedResultFileName == "" {
-		resultFileName = dataZip
+		resultFileName = filepath.Base(originalFile)
 	} else {
-		resultFileName = requestedResultFileName + filepath.Ext(dataZip)
+		resultFileName = requestedResultFileName + filepath.Ext(originalFile)
 	}
 	moduleResultPath := filepath.Join(resultDir, resultFileName)
+	return moduleResultPath
+}
+
+func archiveModuleToResultDir(buildResult string, requestedResultFileName string, resultDir string, ignore []string, moduleName string) error {
+	moduleResultPath := getModuleResultArtifactPath(dataZip, resultDir, requestedResultFileName)
 	// Archive the folder without the ignored files and/or subfolders, which are excluded from the package.
 	err := dir.Archive(buildResult, moduleResultPath, ignore)
 	if err != nil {
