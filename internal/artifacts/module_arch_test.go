@@ -125,9 +125,9 @@ builders:
 			})
 			It("Build results - zip file not exists, fails", func() {
 				ep := dir.Loc{
-					SourcePath:  getTestPath("mta_with_zipped_module"),
-					TargetPath:  getResultPath(),
-					Descriptor:  "dev",
+					SourcePath: getTestPath("mta_with_zipped_module"),
+					TargetPath: getResultPath(),
+					Descriptor: "dev",
 				}
 				mod := mta.Module{
 					Name: "node-js",
