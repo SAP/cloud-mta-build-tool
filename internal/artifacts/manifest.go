@@ -206,7 +206,7 @@ func getModulePath(module *mta.Module, targetPathGetter dir.ITargetPath, default
 		buildArtifactFileName = module.BuildParams[buildArtifactName].(string)
 	}
 
-	var path = ""
+	var path string
 	if buildResultPath == "" {
 		// module path not defined
 		path = module.Path

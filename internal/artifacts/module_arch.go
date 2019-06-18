@@ -157,29 +157,38 @@ func packModule(ep dir.IModule, deploymentDesc bool, module *mta.Module, moduleN
 	}
 
 	if definedArchive {
-		if resultFileName == "" {
-			resultFileName = filepath.Base(buildResults)
-		} else {
-			resultFileName += filepath.Ext(buildResults)
-		}
-
-		err = dir.CopyFile(buildResults, filepath.Join(moduleZipPath, resultFileName))
-		if err != nil {
-			return errors.Wrapf(err, `packing of the "%v" module failed when copying the "%s" path to the "%s" folder`,
-				moduleName, buildResults, moduleZipPath)
-		}
-		return nil
+		return copyModuleArchiveToResultDir(buildResults, resultFileName, moduleZipPath, moduleName)
 	}
 
-	if resultFileName == "" {
+	return archiveModuleToResultDir(buildResults, resultFileName, moduleZipPath, getIgnores(module), moduleName)
+}
+
+func copyModuleArchiveToResultDir(buildResult string, requestedResultFileName string, resultDir string, moduleName string) error {
+	var resultFileName string
+	if requestedResultFileName == "" {
+		resultFileName = filepath.Base(buildResult)
+	} else {
+		resultFileName = requestedResultFileName + filepath.Ext(buildResult)
+	}
+
+	err := dir.CopyFile(buildResult, filepath.Join(resultDir, resultFileName))
+	if err != nil {
+		return errors.Wrapf(err, `packing of the "%v" module failed when copying the "%s" path to the "%s" folder`,
+			moduleName, buildResult, resultDir)
+	}
+	return nil
+}
+
+func archiveModuleToResultDir(buildResult string, requestedResultFileName string, resultDir string, ignore []string, moduleName string) error {
+	var resultFileName string
+	if requestedResultFileName == "" {
 		resultFileName = dataZip
 	} else {
-		resultFileName = pathSep + resultFileName + filepath.Ext(dataZip)
+		resultFileName = pathSep + requestedResultFileName + filepath.Ext(dataZip)
 	}
-	moduleZipFullPath := moduleZipPath + resultFileName
-	// get ignore - get files and/or subfolders to exclude from the package.
-	ignore := getIgnores(module)
-	err = dir.Archive(buildResults, moduleZipFullPath, ignore)
+	moduleResultPath := resultDir + resultFileName
+	// Archive the folder without the ignored files and/or subfolders, which are excluded from the package.
+	err := dir.Archive(buildResult, moduleResultPath, ignore)
 	if err != nil {
 		return errors.Wrapf(err, `packing of the "%v" module failed when archiving`, moduleName)
 	}
