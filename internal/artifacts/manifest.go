@@ -95,7 +95,7 @@ func getModulesEntries(targetPathGetter dir.ITargetPath, moduleList []*mta.Modul
 		if err != nil {
 			return nil, err
 		}
-		modulePath, err := getModulePath(mod, targetPathGetter, defaultBuildResult)
+		modulePath, err := getModuleArtifactPath(mod, targetPathGetter, defaultBuildResult)
 		if err != nil {
 			return nil, err
 		}
@@ -191,7 +191,8 @@ func getResourcePath(resource *mta.Resource) string {
 	return filepath.Clean(resource.Parameters["path"].(string))
 }
 
-func getModulePath(module *mta.Module, targetPathGetter dir.ITargetPath, defaultBuildResult string) (string, error) {
+// getModuleArtifactPath returns the path to the file/folder that should be archived in the mtar file for this module
+func getModuleArtifactPath(module *mta.Module, targetPathGetter dir.ITargetPath, defaultBuildResult string) (string, error) {
 	loc := targetPathGetter.(*dir.Loc)
 	// TODO check loc.IsDeploymentDescriptor()
 
