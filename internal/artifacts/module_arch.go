@@ -142,7 +142,15 @@ func packModule(ep dir.IModule, deploymentDesc bool, module *mta.Module, moduleN
 			moduleName)
 	}
 
-	if isArchive(buildResults) {
+	definedArchive := false
+	if buildResults != "" {
+		definedArchive, err = isArchive(buildResults)
+		if err != nil {
+			return errors.Wrapf(err, `could not find the "%s" build results`, buildResults)
+		}
+	}
+
+	if definedArchive {
 		err = dir.CopyFile(buildResults, filepath.Join(moduleZipPath, filepath.Base(buildResults)))
 		if err != nil {
 			return errors.Wrapf(err, `packing of the "%v" module failed when copying the "%s" path to the "%s" folder`,
@@ -181,13 +189,16 @@ func convert(data []interface{}) []string {
 	return aString
 }
 
-func isArchive(path string) bool {
+func isArchive(path string) (bool, error) {
 	entry, err := os.Stat(path)
-	if err != nil || entry.IsDir() {
-		return false
+	if err != nil {
+		return false, err
+	}
+	if entry.IsDir() {
+		return false, nil
 	}
 	ext := filepath.Ext(path)
-	return ext == ".zip" || ext == ".jar" || ext == ".war"
+	return ext == ".zip" || ext == ".jar" || ext == ".war", nil
 }
 
 // copyModuleArchive - copies module archive to temp directory

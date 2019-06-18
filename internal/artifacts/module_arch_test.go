@@ -123,6 +123,18 @@ builders:
 				Ω(packModule(&ep, false, &m, "node-js", "cf", "*.zip")).Should(Succeed())
 				Ω(getTestPath("result", ".mta_with_zipped_module_mta_build_tmp", "node-js", "abc.zip")).Should(BeAnExistingFile())
 			})
+			It("Build results - zip file not exists, fails", func() {
+				ep := dir.Loc{
+					SourcePath:  getTestPath("mta_with_zipped_module"),
+					TargetPath:  getResultPath(),
+					Descriptor:  "dev",
+				}
+				mod := mta.Module{
+					Name: "node-js",
+					Path: "notExists",
+				}
+				Ω(packModule(&ep, false, &mod, "node-js", "cf", "*.zip")).Should(HaveOccurred())
+			})
 
 			It("ignore case", func() {
 				m := mta.Module{
@@ -467,21 +479,18 @@ module-types:
 		})
 	})
 
-	var _ = Describe("isArchive", func() {
-		It("path not exists", func() {
-			Ω(isArchive(getTestPath("not_existing"))).Should(BeFalse())
-		})
-		It("path to archive", func() {
-			Ω(isArchive(getTestPath("mta_content_copy_test", "test.zip"))).Should(BeTrue())
-		})
-		It("path to folder", func() {
-			Ω(isArchive(getTestPath())).Should(BeFalse())
-		})
-		It("path to non archive file", func() {
-			Ω(isArchive(getTestPath("mta_content_copy_test", "test-content", "test"))).Should(BeFalse())
-		})
-
-	})
+	var _ = DescribeTable("isArchive", func(path string, expectedResult, expectedError bool) {
+		res, err := isArchive(path)
+		if expectedError {
+			Ω(err).Should(HaveOccurred())
+		} else {
+			Ω(res).Should(Equal(expectedResult))
+		}
+	},
+		Entry("path not exists", getTestPath("not_existing"), false, true),
+		Entry("path to archive", getTestPath("mta_content_copy_test", "test.zip"), true, false),
+		Entry("path to folder", getTestPath(), false, false),
+		Entry("path to non archive file", getTestPath("mta_content_copy_test", "test-content", "test"), false, false))
 })
 
 func dirContainsAllElements(source string, elements map[string]bool, validateEntitiesCount bool) bool {
