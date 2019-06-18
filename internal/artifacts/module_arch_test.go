@@ -471,6 +471,16 @@ module-types:
 		It("path not exists", func() {
 			Ω(isArchive(getTestPath("not_existing"))).Should(BeFalse())
 		})
+		It("path to archive", func() {
+			Ω(isArchive(getTestPath("mta_content_copy_test", "test.zip"))).Should(BeTrue())
+		})
+		It("path to folder", func() {
+			Ω(isArchive(getTestPath())).Should(BeFalse())
+		})
+		It("path to non archive file", func() {
+			Ω(isArchive(getTestPath("mta_content_copy_test", "test-content", "test"))).Should(BeFalse())
+		})
+
 	})
 })
 

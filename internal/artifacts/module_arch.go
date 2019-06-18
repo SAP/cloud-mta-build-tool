@@ -142,12 +142,7 @@ func packModule(ep dir.IModule, deploymentDesc bool, module *mta.Module, moduleN
 			moduleName)
 	}
 
-	entry, err := os.Stat(buildResults)
-	if err != nil {
-		return errors.Wrapf(err, `packing the "%v" module failed; the "%v" build results path does not exist`,
-			moduleName, buildResults)
-	}
-	if !entry.IsDir() && isArchive(buildResults) {
+	if isArchive(buildResults) {
 		err = dir.CopyFile(buildResults, filepath.Join(moduleZipPath, filepath.Base(buildResults)))
 		if err != nil {
 			return errors.Wrapf(err, `packing of the "%v" module failed when copying the "%s" path to the "%s" folder`,
