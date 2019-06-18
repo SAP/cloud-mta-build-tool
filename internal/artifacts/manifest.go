@@ -193,31 +193,52 @@ func getResourcePath(resource *mta.Resource) string {
 
 func getModulePath(module *mta.Module, targetPathGetter dir.ITargetPath, defaultBuildResult string) (string, error) {
 	loc := targetPathGetter.(*dir.Loc)
+	// TODO check loc.IsDeploymentDescriptor()
 
-	// get build results path - defined in build-params property or in
+	// get build results path - defined in the build-result property under build-params or in the module type
 	buildResultPath, _, err := buildops.GetBuildResultsPath(loc, module, defaultBuildResult)
 	if err != nil {
 		return "", err
 	}
 
+	var buildArtifactFileName = ""
+	if module.BuildParams != nil && module.BuildParams[buildArtifactName] != nil {
+		buildArtifactFileName = module.BuildParams[buildArtifactName].(string)
+	}
+
+	var path = ""
 	if buildResultPath == "" {
 		// module path not defined
-		return module.Path, nil
+		path = module.Path
+	} else if definedArchive, _ := isArchive(buildResultPath); definedArchive {
+		path = filepath.ToSlash(filepath.Join(module.Name, filepath.Base(buildResultPath)))
+	} else {
+		var expectedArtifactName string
+		if buildArtifactFileName == "" {
+			expectedArtifactName = dataZip
+		} else {
+			expectedArtifactName = pathSep + buildArtifactFileName + filepath.Ext(dataZip)
+		}
+		// TODO should we check in the source directory? why should we check at all, except if it's in the assembly flow?
+		if existsFileInDirectories(module, []string{loc.GetSource(), loc.GetTargetTmpDir()}, expectedArtifactName) {
+			path = filepath.ToSlash(module.Name + expectedArtifactName)
+		} else {
+			path = filepath.Base(buildResultPath) // TODO is this relevant outside the assembly command flow?
+		}
 	}
 
-	definedArchive, _ := isArchive(buildResultPath)
-
-	if definedArchive {
-		return filepath.ToSlash(filepath.Join(module.Name, filepath.Base(buildResultPath))), nil
-	} else if existsModuleZipInDirectories(module, []string{loc.GetSource(), loc.GetTargetTmpDir()}) {
-		return filepath.ToSlash(module.Name + dataZip), nil
+	// build-artifact-name is defined - use it with the original path's extension
+	if buildArtifactFileName != "" {
+		var resultFileName = buildArtifactFileName + filepath.Ext(path)
+		path = filepath.ToSlash(filepath.Join(module.Name, resultFileName))
 	}
-	return filepath.Base(buildResultPath), nil
+
+	return path, nil
 }
 
-func existsModuleZipInDirectories(module *mta.Module, directories []string) bool {
+func existsFileInDirectories(module *mta.Module, directories []string, filename string) bool {
 	for _, directory := range directories {
-		if _, err := os.Stat(filepath.Join(directory, filepath.ToSlash(module.Name+dataZip))); !os.IsNotExist(err) {
+		if _, err := os.Stat(filepath.Join(directory, filepath.ToSlash(module.Name+filename))); !os.IsNotExist(err) {
 			return true
 		}
 	}

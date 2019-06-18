@@ -17,7 +17,8 @@ import (
 )
 
 const (
-	ignore = "ignore"
+	ignore            = "ignore"
+	buildArtifactName = "build-artifact-name"
 )
 
 // ExecuteBuild - executes build of module
@@ -120,7 +121,7 @@ func packModule(ep dir.IModule, deploymentDesc bool, module *mta.Module, moduleN
 	if !buildops.PlatformDefined(module, platform) {
 		return nil
 	}
-
+	// TODO this is not supported - remove
 	if deploymentDesc {
 		return copyModuleArchive(ep, module.Path, moduleName)
 	}
@@ -150,8 +151,19 @@ func packModule(ep dir.IModule, deploymentDesc bool, module *mta.Module, moduleN
 		}
 	}
 
+	var resultFileName = ""
+	if module.BuildParams != nil && module.BuildParams[buildArtifactName] != nil {
+		resultFileName = module.BuildParams[buildArtifactName].(string)
+	}
+
 	if definedArchive {
-		err = dir.CopyFile(buildResults, filepath.Join(moduleZipPath, filepath.Base(buildResults)))
+		if resultFileName == "" {
+			resultFileName = filepath.Base(buildResults)
+		} else {
+			resultFileName += filepath.Ext(buildResults)
+		}
+
+		err = dir.CopyFile(buildResults, filepath.Join(moduleZipPath, resultFileName))
 		if err != nil {
 			return errors.Wrapf(err, `packing of the "%v" module failed when copying the "%s" path to the "%s" folder`,
 				moduleName, buildResults, moduleZipPath)
@@ -159,7 +171,12 @@ func packModule(ep dir.IModule, deploymentDesc bool, module *mta.Module, moduleN
 		return nil
 	}
 
-	moduleZipFullPath := moduleZipPath + dataZip
+	if resultFileName == "" {
+		resultFileName = dataZip
+	} else {
+		resultFileName = pathSep + resultFileName + filepath.Ext(dataZip)
+	}
+	moduleZipFullPath := moduleZipPath + resultFileName
 	// get ignore - get files and/or subfolders to exclude from the package.
 	ignore := getIgnores(module)
 	err = dir.Archive(buildResults, moduleZipFullPath, ignore)
@@ -214,7 +231,7 @@ func copyModuleArchive(ep dir.IModule, modulePath, moduleName string) error {
 		return errors.Wrapf(err, `copying of the "%v" module's archive failed when creating the "%v" folder`, moduleName, moduleTrgZipPath)
 	}
 	moduleTrgZip := filepath.Join(moduleTrgZipPath, "data.zip")
-	err = dir.CopyFile(moduleSrcZip, filepath.Join(moduleTrgZipPath, "data.zip"))
+	err = dir.CopyFile(moduleSrcZip, moduleTrgZip)
 	if err != nil {
 		return errors.Wrapf(err, `copying of the "%v" module's archive failed when copying "%v" to "%v"`, moduleName, moduleSrcZip, moduleTrgZip)
 	}
