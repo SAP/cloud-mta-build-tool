@@ -21,7 +21,7 @@
     - [x] Supports build options.
     - [x] Supports `ignore` files and folders.
     - [ ] Supports the definition of timeouts.
-    - [ ] Supports the naming of build artifacts.
+    - [x] Supports the naming of build artifacts.
   - [x] Supports semantic validations.
   - [x] Partially supports the advanced `mta.yaml` (3.1 > 3.2) schema.
 
