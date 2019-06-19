@@ -481,11 +481,11 @@ module-types:
 
 	var _ = DescribeTable("isArchive", func(path string, expectedResult, expectedError bool) {
 		res, err := isArchive(path)
+		Ω(res).Should(Equal(expectedResult))
 		if expectedError {
 			Ω(err).Should(HaveOccurred())
 		} else {
 			Ω(err).Should(Succeed())
-			Ω(res).Should(Equal(expectedResult))
 		}
 	},
 		Entry("path not exists", getTestPath("not_existing"), false, true),
