@@ -484,6 +484,7 @@ module-types:
 		if expectedError {
 			Ω(err).Should(HaveOccurred())
 		} else {
+			Ω(err).Should(Succeed())
 			Ω(res).Should(Equal(expectedResult))
 		}
 	},

@@ -195,7 +195,7 @@ func getModulePath(module *mta.Module, targetPathGetter dir.ITargetPath, default
 	loc := targetPathGetter.(*dir.Loc)
 
 	// get build results path - defined in build-params property or in
-	buildResultPath, buildResultDefined, err := buildops.GetBuildResultsPath(loc, module, defaultBuildResult)
+	buildResultPath, _, err := buildops.GetBuildResultsPath(loc, module, defaultBuildResult)
 	if err != nil {
 		return "", err
 	}
@@ -205,10 +205,7 @@ func getModulePath(module *mta.Module, targetPathGetter dir.ITargetPath, default
 		return module.Path, nil
 	}
 
-	definedArchive := false
-	if buildResultDefined {
-		definedArchive, _ = isArchive(buildResultPath)
-	}
+	definedArchive, _ := isArchive(buildResultPath)
 
 	if definedArchive {
 		return filepath.ToSlash(filepath.Join(module.Name, filepath.Base(buildResultPath))), nil
