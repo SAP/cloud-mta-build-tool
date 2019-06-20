@@ -146,7 +146,7 @@ func packModule(ep dir.IModule, deploymentDesc bool, module *mta.Module, moduleN
 	if buildResults != "" {
 		definedArchive, err = isArchive(buildResults)
 		if err != nil {
-			return errors.Wrapf(err, `packing of the "%v" module failed because could not find the "%s" build results`, moduleName, buildResults)
+			return errors.Wrapf(err, `packing of the "%v" module failed; could not find the "%s" build results`, moduleName, buildResults)
 		}
 	}
 
