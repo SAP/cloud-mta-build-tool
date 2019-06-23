@@ -38,9 +38,10 @@ func init() {
 	// set flags of build command
 	buildCmd.Flags().StringVarP(&buildProjectCmdSrc, "source", "s", "", "the path to the MTA project; the current path is set as the default")
 	buildCmd.Flags().StringVarP(&buildProjectCmdTrg, "target", "t", "", "the path to the MBT results folder; the current path is set as the default")
-	buildCmd.Flags().StringVarP(&buildProjectCmdMtar, "mtar", "", "*", "the file name of the generated archive file")
-	buildCmd.Flags().StringVarP(&buildProjectCmdPlatform, "platform", "p", "", `the deployment platform; supported plaforms: "cf", "xsa", "neo"`)
-	buildCmd.Flags().BoolVarP(&buildProjectCmdStrict, "strict", "", true, `if set to true, duplicated fields and fields not defined in the "mta.yaml" schema are reported as errors; if set to false, they are reported as warnings`)
+	buildCmd.Flags().StringVarP(&buildProjectCmdMtar, "mtar", "", "", "the file name of the generated archive file")
+	buildCmd.Flags().StringVarP(&buildProjectCmdPlatform, "platform", "p", "", `(required flag) the deployment platform; supported plaforms: "cf", "xsa", "neo"`)
+	buildCmd.Flags().BoolVarP(&buildProjectCmdStrict, "strict", "", true, `if set to true, duplicated fields and fields not defined in the "mta.yaml" schema are reported as errors;
+if set to false, they are reported as warnings`)
 	buildCmd.Flags().BoolP("help", "h", false, `prints detailed information about the "build" command`)
 	buildCmd.MarkFlagRequired("platform")
 }
@@ -60,8 +61,8 @@ var initCmd = &cobra.Command{
 // Execute MTA project build
 var buildCmd = &cobra.Command{
 	Use:   "build",
-	Short: "Execute MTA project build",
-	Long:  "Building each of the modules in the MTA project and archiving",
+	Short: "Executes MTA project build",
+	Long:  "Generates a temporary `Makefile` according to the MTA descriptor and runs the `make` command to package the MTA project into the MTA archive",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		// Generate build script
