@@ -195,14 +195,19 @@ func getModulePath(module *mta.Module, targetPathGetter dir.ITargetPath, default
 	loc := targetPathGetter.(*dir.Loc)
 
 	// get build results path - defined in build-params property or in
-	buildResultPath, buildResultDefined, err := buildops.GetBuildResultsPath(loc, module, defaultBuildResult)
+	buildResultPath, _, err := buildops.GetBuildResultsPath(loc, module, defaultBuildResult)
 	if err != nil {
 		return "", err
 	}
+
 	if buildResultPath == "" {
 		// module path not defined
 		return module.Path, nil
-	} else if buildResultDefined {
+	}
+
+	definedArchive, _ := isArchive(buildResultPath)
+
+	if definedArchive {
 		return filepath.ToSlash(filepath.Join(module.Name, filepath.Base(buildResultPath))), nil
 	} else if existsModuleZipInDirectories(module, []string{loc.GetSource(), loc.GetTargetTmpDir()}) {
 		return filepath.ToSlash(module.Name + dataZip), nil
