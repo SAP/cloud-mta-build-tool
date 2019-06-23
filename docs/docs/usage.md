@@ -119,8 +119,8 @@ Packages the MTA project into the MTA archive according to the `Makefile`.
 
 
 <b>`mbt assemble`</b>
-Creates an MTA archive .mtar file from the module build artifacts according to the MTA deployment descriptor (mtad.yaml file). 
-> <b>Note</b>: Make sure the path property of each module's mtad.yaml file points to the module's build artifacts that you want to package into the target MTA archive.
+Creates an MTA archive `MTAR` file from the module build artifacts according to the MTA deployment descriptor (`mtad.yaml` file). 
+> <b>Note</b>: Make sure the path property of each module's `mtad.yaml` file points to the module's build artifacts that you want to package into the target MTA archive.
 
 <b>Usage:</b> `mbt assemble <flags>`
 
@@ -128,6 +128,6 @@ Creates an MTA archive .mtar file from the module build artifacts according to t
 
 | Flag        | Mandatory&nbsp;/<br>Optional        | Description&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                 | Examples&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                                    
 | -----------  | -------       |  ----------                          |  -----------------------------
-| `-s (--source)`   | Optional  | The path to the folder where the project’s mtad.yaml file is located; the current path is set as the default.                              | `mbt assemble  -s=C:/TestProject`
+| `-s (--source)`   | Optional  | The path to the folder where the project’s `mtad.yaml` file is located; the current path is set as the default.                              | `mbt assemble  -s=C:/TestProject`
 | `-t (--target)`   | Optional  | The folder for the generated `MTAR` file. If this parameter is not provided, the `MTAR` file is saved in the `mta_archives` subfolder of the current folder. If the parameter is provided, the `MTAR` file is saved in the root of the folder provided by the argument.  | `mbt assemble  -t=C:/TestFolder`
-| `-m (--mtar)`   | Optional  | The file name of the generated archive file. If this parameter is omitted, the file name is created according to the following naming convention: <br><br> `<mta_application_ID>_<mta_application_version>.mtar` <br><br> If the parameter is provided, but does not include an extension, the `.mtar` extension is added.  | `mbt assemble  -m=anotherName`
+| `-m (--mtar)`   | Optional  | The name of the generated archive file. If this parameter is omitted, the file name is created according to the following naming convention: <br><br> `<mta_application_ID>_<mta_application_version>.mtar` <br><br> If the parameter is provided, but does not include an extension, the `.mtar` extension is added.  | `mbt assemble  -m=anotherName`
