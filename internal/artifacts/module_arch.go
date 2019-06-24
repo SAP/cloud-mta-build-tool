@@ -152,8 +152,8 @@ func packModule(ep dir.IModule, deploymentDesc bool, module *mta.Module, moduleN
 	}
 
 	var resultFileName = ""
-	if module.BuildParams != nil && module.BuildParams[buildArtifactName] != nil {
-		resultFileName = module.BuildParams[buildArtifactName].(string)
+	if module.BuildParams != nil {
+		resultFileName = getString(module.BuildParams[buildArtifactName], "")
 	}
 
 	if definedArchive {

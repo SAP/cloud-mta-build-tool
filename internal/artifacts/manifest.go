@@ -29,7 +29,6 @@ import (
 // This is used by the deploy service to track the build project.
 
 const (
-	pathSep        = string(os.PathSeparator)
 	dataZip        = "data.zip"
 	moduleEntry    = "MTA-Module"
 	requiredEntry  = "MTA-Requires"
@@ -191,6 +190,18 @@ func getResourcePath(resource *mta.Resource) string {
 	return filepath.Clean(resource.Parameters["path"].(string))
 }
 
+// getString returns the value if it's a string or the default value if not
+func getString(value interface{}, defaultValue string) string {
+	if value == nil {
+		return defaultValue
+	}
+	s, ok := value.(string)
+	if !ok {
+		return defaultValue
+	}
+	return s
+}
+
 // getModuleArtifactPath returns the path to the file/folder that should be archived in the mtar file for this module
 func getModuleArtifactPath(module *mta.Module, targetPathGetter dir.ITargetPath, defaultBuildResult string) (string, error) {
 	loc := targetPathGetter.(*dir.Loc)
@@ -203,8 +214,8 @@ func getModuleArtifactPath(module *mta.Module, targetPathGetter dir.ITargetPath,
 	}
 
 	var buildArtifactFileName = ""
-	if module.BuildParams != nil && module.BuildParams[buildArtifactName] != nil {
-		buildArtifactFileName = module.BuildParams[buildArtifactName].(string)
+	if module.BuildParams != nil {
+		buildArtifactFileName = getString(module.BuildParams[buildArtifactName], "")
 	}
 
 	var path string
@@ -239,7 +250,7 @@ func getModuleArtifactPath(module *mta.Module, targetPathGetter dir.ITargetPath,
 
 func existsFileInDirectories(module *mta.Module, directories []string, filename string) bool {
 	for _, directory := range directories {
-		if _, err := os.Stat(filepath.Join(directory, filepath.Join(module.Name, filename))); !os.IsNotExist(err) {
+		if _, err := os.Stat(filepath.Join(directory, module.Name, filename)); !os.IsNotExist(err) {
 			return true
 		}
 	}

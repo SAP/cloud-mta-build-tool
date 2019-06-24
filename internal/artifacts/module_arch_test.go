@@ -466,6 +466,7 @@ module-types:
 			err := CopyMtaContent(source, source, defaultDeploymentDescriptorParam, true, os.Getwd)
 			Ω(err).Should(Not(BeNil()))
 			fmt.Println(err.Error())
+			pathSep := string(os.PathSeparator)
 			Ω(err.Error()).Should(ContainSubstring(fmt.Sprintf(`failed to read the "%s%smtad.yaml" file: open %s%smtad.yaml`, source, pathSep, source, pathSep)))
 		})
 		It("Location initialization fails", func() {
