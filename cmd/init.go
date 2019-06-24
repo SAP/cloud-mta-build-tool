@@ -23,7 +23,7 @@ var initCmdMode string
 // flags of build command
 var buildProjectCmdSrc string
 var buildProjectCmdTrg string
-var buildProjectCmdMtar string
+var buildProjectCmdMtar = "*"
 var buildProjectCmdPlatform string
 var buildProjectCmdStrict bool
 
