@@ -17,7 +17,8 @@ import (
 )
 
 const (
-	ignore = "ignore"
+	ignore            = "ignore"
+	buildArtifactName = "build-artifact-name"
 )
 
 // ExecuteBuild - executes build of module
@@ -120,7 +121,7 @@ func packModule(ep dir.IModule, deploymentDesc bool, module *mta.Module, moduleN
 	if !buildops.PlatformDefined(module, platform) {
 		return nil
 	}
-
+	// TODO this is not supported - remove
 	if deploymentDesc {
 		return copyModuleArchive(ep, module.Path, moduleName)
 	}
@@ -150,19 +151,46 @@ func packModule(ep dir.IModule, deploymentDesc bool, module *mta.Module, moduleN
 		}
 	}
 
-	if definedArchive {
-		err = dir.CopyFile(buildResults, filepath.Join(moduleZipPath, filepath.Base(buildResults)))
+	var resultFileName = ""
+	if module.BuildParams != nil {
+		resultFileName, err = getString(module.BuildParams[buildArtifactName], "")
 		if err != nil {
-			return errors.Wrapf(err, `packing of the "%v" module failed when copying the "%s" path to the "%s" folder`,
-				moduleName, buildResults, moduleZipPath)
+			return errors.Wrapf(err, "the %s module has a non-string %s in its build parameters", module.Name, buildArtifactName)
 		}
-		return nil
 	}
 
-	moduleZipFullPath := moduleZipPath + dataZip
-	// get ignore - get files and/or subfolders to exclude from the package.
-	ignore := getIgnores(module)
-	err = dir.Archive(buildResults, moduleZipFullPath, ignore)
+	if definedArchive {
+		return copyModuleArchiveToResultDir(buildResults, resultFileName, moduleZipPath, moduleName)
+	}
+
+	return archiveModuleToResultDir(buildResults, resultFileName, moduleZipPath, getIgnores(module), moduleName)
+}
+
+func copyModuleArchiveToResultDir(buildResult string, requestedResultFileName string, resultDir string, moduleName string) error {
+	moduleResultPath := getModuleResultArtifactPath(buildResult, resultDir, requestedResultFileName)
+	err := dir.CopyFile(buildResult, moduleResultPath)
+	if err != nil {
+		return errors.Wrapf(err, `packing of the "%v" module failed when copying the "%s" path to the "%s" folder`,
+			moduleName, buildResult, resultDir)
+	}
+	return nil
+}
+
+func getModuleResultArtifactPath(originalFile string, resultDir string, requestedResultFileName string) string {
+	var resultFileName string
+	if requestedResultFileName == "" {
+		resultFileName = filepath.Base(originalFile)
+	} else {
+		resultFileName = requestedResultFileName + filepath.Ext(originalFile)
+	}
+	moduleResultPath := filepath.Join(resultDir, resultFileName)
+	return moduleResultPath
+}
+
+func archiveModuleToResultDir(buildResult string, requestedResultFileName string, resultDir string, ignore []string, moduleName string) error {
+	moduleResultPath := getModuleResultArtifactPath(dataZip, resultDir, requestedResultFileName)
+	// Archive the folder without the ignored files and/or subfolders, which are excluded from the package.
+	err := dir.Archive(buildResult, moduleResultPath, ignore)
 	if err != nil {
 		return errors.Wrapf(err, `packing of the "%v" module failed when archiving`, moduleName)
 	}
@@ -205,7 +233,7 @@ func isArchive(path string) (bool, error) {
 func copyModuleArchive(ep dir.IModule, modulePath, moduleName string) error {
 	logs.Logger.Infof(`copying the "%v" module's archive`, moduleName)
 	srcModulePath := ep.GetSourceModuleDir(modulePath)
-	moduleSrcZip := filepath.Join(srcModulePath, "data.zip")
+	moduleSrcZip := filepath.Join(srcModulePath, dataZip)
 	moduleTrgZipPath := ep.GetTargetModuleDir(moduleName)
 	// Create empty folder with name as before the zip process
 	// to put the file such as data.zip inside
@@ -213,8 +241,8 @@ func copyModuleArchive(ep dir.IModule, modulePath, moduleName string) error {
 	if err != nil {
 		return errors.Wrapf(err, `copying of the "%v" module's archive failed when creating the "%v" folder`, moduleName, moduleTrgZipPath)
 	}
-	moduleTrgZip := filepath.Join(moduleTrgZipPath, "data.zip")
-	err = dir.CopyFile(moduleSrcZip, filepath.Join(moduleTrgZipPath, "data.zip"))
+	moduleTrgZip := filepath.Join(moduleTrgZipPath, dataZip)
+	err = dir.CopyFile(moduleSrcZip, moduleTrgZip)
 	if err != nil {
 		return errors.Wrapf(err, `copying of the "%v" module's archive failed when copying "%v" to "%v"`, moduleName, moduleSrcZip, moduleTrgZip)
 	}

@@ -29,8 +29,7 @@ import (
 // This is used by the deploy service to track the build project.
 
 const (
-	pathSep        = string(os.PathSeparator)
-	dataZip        = pathSep + "data.zip"
+	dataZip        = "data.zip"
 	moduleEntry    = "MTA-Module"
 	requiredEntry  = "MTA-Requires"
 	resourceEntry  = "MTA-Resource"
@@ -74,7 +73,7 @@ func addModuleEntry(entries []entry, module *mta.Module, contentType, modulePath
 	if modulePath != "" {
 		moduleEntry := entry{
 			EntryName:   module.Name,
-			EntryPath:   modulePath,
+			EntryPath:   filepath.ToSlash(modulePath),
 			ContentType: contentType,
 			EntryType:   moduleEntry,
 		}
@@ -95,7 +94,7 @@ func getModulesEntries(targetPathGetter dir.ITargetPath, moduleList []*mta.Modul
 		if err != nil {
 			return nil, err
 		}
-		modulePath, err := getModulePath(mod, targetPathGetter, defaultBuildResult)
+		modulePath, err := getModuleArtifactPath(mod, targetPathGetter, defaultBuildResult)
 		if err != nil {
 			return nil, err
 		}
@@ -191,33 +190,70 @@ func getResourcePath(resource *mta.Resource) string {
 	return filepath.Clean(resource.Parameters["path"].(string))
 }
 
-func getModulePath(module *mta.Module, targetPathGetter dir.ITargetPath, defaultBuildResult string) (string, error) {
-	loc := targetPathGetter.(*dir.Loc)
+// getString returns the value if it's a string or the default value if not
+func getString(value interface{}, defaultValue string) (string, error) {
+	if value == nil {
+		return defaultValue, nil
+	}
+	s, ok := value.(string)
+	if !ok {
+		return defaultValue, errors.Errorf("%v is not a string value", value)
+	}
+	return s, nil
+}
 
-	// get build results path - defined in build-params property or in
+// getModuleArtifactPath returns the path to the file/folder that should be archived in the mtar file for this module
+func getModuleArtifactPath(module *mta.Module, targetPathGetter dir.ITargetPath, defaultBuildResult string) (string, error) {
+	loc := targetPathGetter.(*dir.Loc)
+	// TODO check loc.IsDeploymentDescriptor()
+
+	// get build results path - defined in the build-result property under build-params or in the module type
 	buildResultPath, _, err := buildops.GetBuildResultsPath(loc, module, defaultBuildResult)
 	if err != nil {
 		return "", err
 	}
 
+	var buildArtifactFileName = ""
+	if module.BuildParams != nil {
+		buildArtifactFileName, err = getString(module.BuildParams[buildArtifactName], "")
+		if err != nil {
+			return "", errors.Wrapf(err, "the %s module has a non-string %s in its build parameters", module.Name, buildArtifactName)
+		}
+	}
+
+	var path string
 	if buildResultPath == "" {
 		// module path not defined
-		return module.Path, nil
+		path = module.Path
+	} else if definedArchive, _ := isArchive(buildResultPath); definedArchive {
+		path = filepath.Join(module.Name, filepath.Base(buildResultPath))
+	} else {
+		var expectedArtifactName string
+		if buildArtifactFileName == "" {
+			expectedArtifactName = dataZip
+		} else {
+			expectedArtifactName = buildArtifactFileName + filepath.Ext(dataZip)
+		}
+		// TODO should we check in the source directory? why should we check at all, except if it's in the assembly flow?
+		if existsFileInDirectories(module, []string{loc.GetSource(), loc.GetTargetTmpDir()}, expectedArtifactName) {
+			path = filepath.Join(module.Name, expectedArtifactName)
+		} else {
+			path = filepath.Base(buildResultPath) // TODO is this relevant outside the assembly command flow?
+		}
 	}
 
-	definedArchive, _ := isArchive(buildResultPath)
-
-	if definedArchive {
-		return filepath.ToSlash(filepath.Join(module.Name, filepath.Base(buildResultPath))), nil
-	} else if existsModuleZipInDirectories(module, []string{loc.GetSource(), loc.GetTargetTmpDir()}) {
-		return filepath.ToSlash(module.Name + dataZip), nil
+	// build-artifact-name is defined - use it with the original path's extension
+	if buildArtifactFileName != "" {
+		var resultFileName = buildArtifactFileName + filepath.Ext(path)
+		path = filepath.Join(module.Name, resultFileName)
 	}
-	return filepath.Base(buildResultPath), nil
+
+	return path, nil
 }
 
-func existsModuleZipInDirectories(module *mta.Module, directories []string) bool {
+func existsFileInDirectories(module *mta.Module, directories []string, filename string) bool {
 	for _, directory := range directories {
-		if _, err := os.Stat(filepath.Join(directory, filepath.ToSlash(module.Name+dataZip))); !os.IsNotExist(err) {
+		if _, err := os.Stat(filepath.Join(directory, module.Name, filename)); !os.IsNotExist(err) {
 			return true
 		}
 	}
