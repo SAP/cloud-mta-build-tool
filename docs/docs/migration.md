@@ -10,12 +10,13 @@ For more information, see sections [`GNU Make` installation](makefile.md) and [c
 &nbsp;
 
 * Packaging of HTML5 modules in `deploy_mode=html5-repo`
-You need to update your `mta.yaml` file to exclude `html5` modules from the resulting MTA archive. In order to do that, add the following to the `build-parameters` section for each  module of this type:
+You need to update your `mta.yaml` file to exclude `html5` modules from the resulting MTA archive and configure the build result folder. In order to do that, add the following to the `build-parameters` section for each  module of this type:
 
 ```yaml
 
    build-parameters:
       supported-platforms: []
+      build-result: dist
 ```
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; For more information about the `supported-platforms` build parameter, see [Configuring and Packaging Modules According to Target Platforms](configuration.md#configuring-and-packaging-modules-according-to-target-platforms).
 &nbsp;&nbsp;
@@ -42,3 +43,4 @@ The following features are supported by the [Multitarget Application Archive Bui
 * Running MTA builds with extension files
 * Configuration of timeout sessions
 * Configuration of build artifact names
+* [Configuration of the deployment order](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/177d34d45e3d4fd99f4eeeffc5814cf1.html) 
