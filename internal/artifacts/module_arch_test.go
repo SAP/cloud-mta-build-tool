@@ -256,6 +256,18 @@ builders:
 					}
 					Ω(packModule(&ep, false, &m, "node-js", "cf", "")).Should(HaveOccurred())
 				})
+				It("fails when build-artifact-name is not a string value", func() {
+					m := mta.Module{
+						Name: "node-js",
+						Path: "node-js",
+						BuildParams: map[string]interface{}{
+							"build-artifact-name": 1,
+						},
+					}
+					err := packModule(&ep, false, &m, "node-js", "cf", "")
+					Ω(err).Should(HaveOccurred())
+					Ω(err.Error()).Should(ContainSubstring(`the node-js module has a non-string build-artifact-name in its build parameters`))
+				})
 				It("creates data.zip when build-artifact-name is data", func() {
 					m := mta.Module{
 						Name: "node-js",

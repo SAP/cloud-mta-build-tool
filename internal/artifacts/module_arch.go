@@ -153,7 +153,10 @@ func packModule(ep dir.IModule, deploymentDesc bool, module *mta.Module, moduleN
 
 	var resultFileName = ""
 	if module.BuildParams != nil {
-		resultFileName = getString(module.BuildParams[buildArtifactName], "")
+		resultFileName, err = getString(module.BuildParams[buildArtifactName], "")
+		if err != nil {
+			return errors.Wrapf(err, "the %s module has a non-string %s in its build parameters", module.Name, buildArtifactName)
+		}
 	}
 
 	if definedArchive {

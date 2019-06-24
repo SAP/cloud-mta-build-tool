@@ -191,15 +191,15 @@ func getResourcePath(resource *mta.Resource) string {
 }
 
 // getString returns the value if it's a string or the default value if not
-func getString(value interface{}, defaultValue string) string {
+func getString(value interface{}, defaultValue string) (string, error) {
 	if value == nil {
-		return defaultValue
+		return defaultValue, nil
 	}
 	s, ok := value.(string)
 	if !ok {
-		return defaultValue
+		return defaultValue, errors.Errorf("%v is not a string value", value)
 	}
-	return s
+	return s, nil
 }
 
 // getModuleArtifactPath returns the path to the file/folder that should be archived in the mtar file for this module
@@ -215,7 +215,10 @@ func getModuleArtifactPath(module *mta.Module, targetPathGetter dir.ITargetPath,
 
 	var buildArtifactFileName = ""
 	if module.BuildParams != nil {
-		buildArtifactFileName = getString(module.BuildParams[buildArtifactName], "")
+		buildArtifactFileName, err = getString(module.BuildParams[buildArtifactName], "")
+		if err != nil {
+			return "", errors.Wrapf(err, "the %s module has a non-string %s in its build parameters", module.Name, buildArtifactName)
+		}
 	}
 
 	var path string

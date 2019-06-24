@@ -253,6 +253,15 @@ var _ = Describe("manifest", func() {
 				golden := getFileContentWithCliVersion(getTestPath("golden_manifestBuildResultAndArtifact.mf"))
 				Ω(actual).Should(Equal(golden))
 			})
+			It("should fail when build-artifact-name is not a string value", func() {
+				Ω(os.MkdirAll(getTestPath("result", ".mta_mta_build_tmp", "node-js"), os.ModePerm)).Should(Succeed())
+				create(getTestPath("result", ".mta_mta_build_tmp", "node-js", "data.zip"))
+				loc := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath(), MtaFilename: "mtaBuildArtifactBad.yaml"}
+				mtaObj, _ := loc.ParseFile()
+				err := setManifestDesc(&loc, &loc, mtaObj.Modules, []*mta.Resource{}, []string{})
+				Ω(err).Should(HaveOccurred())
+				Ω(err.Error()).Should(ContainSubstring(`the node-js module has a non-string build-artifact-name in its build parameters`))
+			})
 			It("should fail when data.zip exists instead of the build artifact name", func() {
 				Ω(os.Mkdir(getTestPath("result", ".mta_mta_build_tmp", "node-js"), os.ModePerm)).Should(Succeed())
 				create(getTestPath("result", ".mta_mta_build_tmp", "node-js", "data.zip"))
