@@ -217,7 +217,8 @@ func getModuleArtifactPath(module *mta.Module, targetPathGetter dir.ITargetPath,
 	if module.BuildParams != nil {
 		buildArtifactFileName, err = getString(module.BuildParams[buildArtifactName], "")
 		if err != nil {
-			return "", errors.Wrapf(err, "the %s module has a non-string %s in its build parameters", module.Name, buildArtifactName)
+			return "", errors.Errorf("the build artifact name must be a string; change '%v' in the '%s' module for a string value",
+				module.BuildParams[buildArtifactName], module.Name)
 		}
 	}
 

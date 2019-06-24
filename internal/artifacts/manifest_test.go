@@ -260,7 +260,7 @@ var _ = Describe("manifest", func() {
 				mtaObj, _ := loc.ParseFile()
 				err := setManifestDesc(&loc, &loc, mtaObj.Modules, []*mta.Resource{}, []string{})
 				Ω(err).Should(HaveOccurred())
-				Ω(err.Error()).Should(ContainSubstring(`the node-js module has a non-string build-artifact-name in its build parameters`))
+				Ω(err.Error()).Should(ContainSubstring(`the build artifact name must be a string; change '1' in the 'node-js' module for a string value`))
 			})
 			It("should fail when data.zip exists instead of the build artifact name", func() {
 				Ω(os.Mkdir(getTestPath("result", ".mta_mta_build_tmp", "node-js"), os.ModePerm)).Should(Succeed())
