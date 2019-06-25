@@ -36,6 +36,6 @@ var _ = Describe("Build", func() {
 		buildProjectCmdTrg = getTestPath("result")
 		buildProjectCmdPlatform = "xxx"
 		err := buildCmd.RunE(nil, []string{})
-		Ω(err).ShouldNot(BeNil())
+		Ω(err).Should(HaveOccurred())
 	})
 })
