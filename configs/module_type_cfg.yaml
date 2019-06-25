@@ -63,3 +63,8 @@ module-types:
     path: "path to config file which override the following default commands"
     builder: npm
 
+  - name: business-logging
+    info: "build business logging deployer application"
+    path: "path to config file which override the following default commands"
+    builder: npm
+
