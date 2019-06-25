@@ -54,14 +54,14 @@ var _ = Describe("Project", func() {
 			os.RemoveAll(getTestPath("result"))
 		})
 		It("Sanity", func() {
-			err := ExecBuild(getTestPath("mta_with_zipped_module"), getResultPath(), "", "", "cf", true, os.Getwd, func(strings [][]string) error {
+			err := ExecBuild("Makefile_tmp.mta", getTestPath("mta_with_zipped_module"), getResultPath(), "", "", "cf", true, os.Getwd, func(strings [][]string) error {
 				return nil
 			})
 			Ω(err).Should(Succeed())
 			Ω(filepath.Join(getResultPath(), "Makefile_tmp.mta")).ShouldNot(BeAnExistingFile())
 		})
 		It("Wrong - no platform", func() {
-			err := ExecBuild(getTestPath("mta_with_zipped_module"), getResultPath(), "", "", "", true, os.Getwd, func(strings [][]string) error {
+			err := ExecBuild("Makefile_tmp.mta", getTestPath("mta_with_zipped_module"), getResultPath(), "", "", "", true, os.Getwd, func(strings [][]string) error {
 				return fmt.Errorf("failure")
 			})
 			Ω(err).Should(HaveOccurred())
