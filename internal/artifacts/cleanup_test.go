@@ -28,11 +28,3 @@ var _ = Describe("Cleanup", func() {
 	})
 })
 
-var _ = Describe("Cleanup", func() {
-	BeforeEach(func() {
-		os.MkdirAll(getTestPath("result1"), os.ModePerm)
-	})
-	AfterEach(func() {
-		os.RemoveAll(getTestPath("result1"))
-	})
-})

@@ -20,11 +20,12 @@ var _ = Describe("BuildParams", func() {
 
 	var _ = Describe("GetBuildResultsPath", func() {
 		var _ = DescribeTable("valid cases", func(module *mta.Module, expected string) {
-			path, _, err := GetBuildResultsPath(&dir.Loc{SourcePath: getTestPath("mtahtml5")}, module, expected)
+			loc := &dir.Loc{SourcePath: getTestPath("mtahtml5")}
+			path, _, _, err := GetModuleSourceArtifactPath(loc, false, module, expected)
 			Ω(err).Should(Succeed())
 			Ω(path).Should(HaveSuffix(expected))
 		},
-			Entry("Implicit Build Results Path", &mta.Module{Path: "mPath"}, ""),
+			Entry("Implicit Build Results Path", &mta.Module{Path: "testapp"}, ""),
 			Entry("Explicit Build Results Path",
 				&mta.Module{
 					Path:        "testapp",
@@ -33,8 +34,8 @@ var _ = Describe("BuildParams", func() {
 
 		It("empty path, no build results", func() {
 			module := &mta.Module{}
-			buildResult, _, _ := GetBuildResultsPath(
-				&dir.Loc{SourcePath: getTestPath("testbuildparams", "ui2", "deep", "folder")}, module, "")
+			buildResult, _, _, _ := GetModuleSourceArtifactPath(
+				&dir.Loc{SourcePath: getTestPath("testbuildparams", "ui2", "deep", "folder")}, false, module, "")
 			Ω(buildResult).Should(Equal(""))
 		})
 
@@ -43,8 +44,8 @@ var _ = Describe("BuildParams", func() {
 				Path:        "inui2",
 				BuildParams: map[string]interface{}{buildResultParam: "*.txt"},
 			}
-			buildResult, _, _ := GetBuildResultsPath(
-				&dir.Loc{SourcePath: getTestPath("testbuildparams", "ui2", "deep", "folder")}, module, "")
+			buildResult, _, _, _ := GetModuleSourceArtifactPath(
+				&dir.Loc{SourcePath: getTestPath("testbuildparams", "ui2", "deep", "folder")}, false, module, "")
 			Ω(buildResult).Should(HaveSuffix("anotherfile.txt"))
 		})
 
@@ -52,16 +53,16 @@ var _ = Describe("BuildParams", func() {
 			module := &mta.Module{
 				Path: "inui2",
 			}
-			buildResult, _, _ := GetBuildResultsPath(
-				&dir.Loc{SourcePath: getTestPath("testbuildparams", "ui2", "deep", "folder")}, module, "*.txt")
+			buildResult, _, _, _ := GetModuleSourceArtifactPath(
+				&dir.Loc{SourcePath: getTestPath("testbuildparams", "ui2", "deep", "folder")}, false, module, "*.txt")
 			Ω(buildResult).Should(HaveSuffix("anotherfile.txt"))
 		})
 		It("default build results - no file answers pattern", func() {
 			module := &mta.Module{
 				Path: "inui2",
 			}
-			_, _, err := GetBuildResultsPath(
-				&dir.Loc{SourcePath: getTestPath("testbuildparams", "ui2", "deep", "folder")}, module, "b*.txt")
+			_, _, _, err := GetModuleSourceArtifactPath(
+				&dir.Loc{SourcePath: getTestPath("testbuildparams", "ui2", "deep", "folder")}, false, module, "b*.txt")
 			Ω(err).Should(HaveOccurred())
 		})
 	})

@@ -29,7 +29,7 @@ var _ = Describe("Validate", func() {
 
 		})
 		It("Fails on project validation", func() {
-			Ω(ExecuteValidation(getTestPath("mtahtml5"), "dev", "", "true", "", os.Getwd)).Should(HaveOccurred())
+			Ω(ExecuteValidation(getTestPath("mtahtml5WithValidationProblems"), "dev", "", "true", "", os.Getwd)).Should(HaveOccurred())
 
 		})
 		It("Fails - wrong strictness indicator", func() {

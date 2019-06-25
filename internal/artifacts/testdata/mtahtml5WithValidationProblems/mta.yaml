@@ -12,14 +12,10 @@ modules:
    requires:
     - name: uaa_mtahtml5
     - name: dest_mtahtml5
-   build-parameters:
-    requires:
-    - name: ui5app2
-
 
  - name: ui5app2
    type: html5
-   path: testapp2
+   path: ui5app2
    parameters:
       disk-quota: 256M
       memory: 256M
@@ -32,7 +28,7 @@ resources:
    parameters:
       path: ./xs-security.json
       service-plan: application
-   type: com.company.xs.uaa
+   type: some.uaa
 
  - name: dest_mtahtml5
    parameters:

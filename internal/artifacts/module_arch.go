@@ -17,8 +17,7 @@ import (
 )
 
 const (
-	ignore            = "ignore"
-	buildArtifactName = "build-artifact-name"
+	ignore = "ignore"
 )
 
 // ExecuteBuild - executes build of module
@@ -33,7 +32,7 @@ func ExecuteBuild(source, target, desc, moduleName, platform string, wdGetter fu
 	if err != nil {
 		return err
 	}
-	err = buildModule(loc, loc, loc.IsDeploymentDescriptor(), moduleName, platform)
+	err = buildModule(loc, loc, loc, loc.IsDeploymentDescriptor(), moduleName, platform)
 	if err != nil {
 		return err
 	}
@@ -59,7 +58,7 @@ func ExecutePack(source, target, desc, moduleName, platform string, wdGetter fun
 		return errors.Wrapf(err, `packing of the "%v" module failed when getting commands`, moduleName)
 	}
 
-	err = packModule(loc, loc.IsDeploymentDescriptor(), module, moduleName, platform, defaultBuildResult)
+	err = packModule(loc, loc, loc.IsDeploymentDescriptor(), module, moduleName, platform, defaultBuildResult)
 	if err != nil {
 		return err
 	}
@@ -68,7 +67,7 @@ func ExecutePack(source, target, desc, moduleName, platform string, wdGetter fun
 }
 
 // buildModule - builds module
-func buildModule(mtaParser dir.IMtaParser, moduleLoc dir.IModule, deploymentDesc bool, moduleName, platform string) error {
+func buildModule(mtaParser dir.IMtaParser, moduleLoc dir.IModule, targetLoc dir.ITargetPath, deploymentDesc bool, moduleName, platform string) error {
 
 	// Get module respective command's to execute
 	module, mCmd, defaultBuildResults, err := commands.GetModuleAndCommands(mtaParser, moduleName)
@@ -99,7 +98,7 @@ func buildModule(mtaParser dir.IMtaParser, moduleLoc dir.IModule, deploymentDesc
 
 		// 3. Packing the modules build artifacts (include node modules)
 		// into the artifactsPath dir as data zip
-		e = packModule(moduleLoc, false, module, moduleName, platform, defaultBuildResults)
+		e = packModule(moduleLoc, targetLoc, false, module, moduleName, platform, defaultBuildResults)
 		if e != nil {
 			return e
 		}
@@ -116,17 +115,17 @@ func buildModule(mtaParser dir.IMtaParser, moduleLoc dir.IModule, deploymentDesc
 }
 
 // packModule - pack build module artifacts
-func packModule(ep dir.IModule, deploymentDesc bool, module *mta.Module, moduleName, platform, defaultBuildResult string) error {
+func packModule(source dir.IModule, target dir.ITargetPath, deploymentDesc bool, module *mta.Module, moduleName, platform, defaultBuildResult string) error {
 
 	if !buildops.PlatformDefined(module, platform) {
 		return nil
 	}
 	// TODO this is not supported - remove
 	if deploymentDesc {
-		return copyModuleArchive(ep, module.Path, moduleName)
+		return copyModuleArchive(source, module.Path, moduleName)
 	}
 	// Get module relative path
-	moduleZipPath := ep.GetTargetModuleDir(moduleName)
+	moduleZipPath := source.GetTargetModuleDir(moduleName)
 
 	logs.Logger.Info(fmt.Sprintf(`the build results of the "%v" module will be packed and saved in the "%v" folder`, moduleName, moduleZipPath))
 	// Create empty folder with name as before the zip process
@@ -137,61 +136,36 @@ func packModule(ep dir.IModule, deploymentDesc bool, module *mta.Module, moduleN
 	}
 	// zipping the build artifacts
 	logs.Logger.Infof(`zipping the %v module...`, moduleName)
-	buildResults, _, err := buildops.GetBuildResultsPath(ep, module, defaultBuildResult)
+	sourceArtifact, _, _, err := buildops.GetModuleSourceArtifactPath(source, deploymentDesc, module, defaultBuildResult)
 	if err != nil {
-		return errors.Wrapf(err, `packing the "%v" module failed while getting the build results path`,
+		return errors.Wrapf(err, `packing the "%v" module failed while getting the build source artifact`,
+			moduleName)
+	}
+	targetArtifact, toArchive, err := buildops.GetModuleTargetArtifactPath(source, target, deploymentDesc, module, defaultBuildResult, false)
+	if err != nil {
+		return errors.Wrapf(err, `packing the "%v" module failed while getting the build target artifact`,
 			moduleName)
 	}
 
-	definedArchive := false
-	if buildResults != "" {
-		definedArchive, err = isArchive(buildResults)
-		if err != nil {
-			return errors.Wrapf(err, `packing of the "%v" module failed; could not find the "%s" build results`, moduleName, buildResults)
-		}
+	if !toArchive {
+		return copyModuleArchiveToResultDir(sourceArtifact, targetArtifact, moduleName)
 	}
 
-	var resultFileName = ""
-	if module.BuildParams != nil {
-		resultFileName, err = getString(module.BuildParams[buildArtifactName], "")
-		if err != nil {
-			return errors.Errorf("the build artifact name must be a string; change '%v' in the '%s' module for a string value",
-				module.BuildParams[buildArtifactName], module.Name)
-		}
-	}
-
-	if definedArchive {
-		return copyModuleArchiveToResultDir(buildResults, resultFileName, moduleZipPath, moduleName)
-	}
-
-	return archiveModuleToResultDir(buildResults, resultFileName, moduleZipPath, getIgnores(module), moduleName)
+	return archiveModuleToResultDir(sourceArtifact, targetArtifact, getIgnores(module), moduleName)
 }
 
-func copyModuleArchiveToResultDir(buildResult string, requestedResultFileName string, resultDir string, moduleName string) error {
-	moduleResultPath := getModuleResultArtifactPath(buildResult, resultDir, requestedResultFileName)
-	err := dir.CopyFile(buildResult, moduleResultPath)
+func copyModuleArchiveToResultDir(source string, target string, moduleName string) error {
+	err := dir.CopyFile(source, target)
 	if err != nil {
-		return errors.Wrapf(err, `packing of the "%v" module failed when copying the "%s" path to the "%s" folder`,
-			moduleName, buildResult, resultDir)
+		return errors.Wrapf(err, `packing of the "%v" module failed when copying the "%s" path to the "%s"`,
+			moduleName, source, target)
 	}
 	return nil
 }
 
-func getModuleResultArtifactPath(originalFile string, resultDir string, requestedResultFileName string) string {
-	var resultFileName string
-	if requestedResultFileName == "" {
-		resultFileName = filepath.Base(originalFile)
-	} else {
-		resultFileName = requestedResultFileName + filepath.Ext(originalFile)
-	}
-	moduleResultPath := filepath.Join(resultDir, resultFileName)
-	return moduleResultPath
-}
-
-func archiveModuleToResultDir(buildResult string, requestedResultFileName string, resultDir string, ignore []string, moduleName string) error {
-	moduleResultPath := getModuleResultArtifactPath(dataZip, resultDir, requestedResultFileName)
+func archiveModuleToResultDir(buildResult string, requestedResultFileName string, ignore []string, moduleName string) error {
 	// Archive the folder without the ignored files and/or subfolders, which are excluded from the package.
-	err := dir.Archive(buildResult, moduleResultPath, ignore)
+	err := dir.Archive(buildResult, requestedResultFileName, ignore)
 	if err != nil {
 		return errors.Wrapf(err, `packing of the "%v" module failed when archiving`, moduleName)
 	}
@@ -216,18 +190,6 @@ func convert(data []interface{}) []string {
 		aString[i] = v.(string)
 	}
 	return aString
-}
-
-func isArchive(path string) (bool, error) {
-	entry, err := os.Stat(path)
-	if err != nil {
-		return false, err
-	}
-	if entry.IsDir() {
-		return false, nil
-	}
-	ext := filepath.Ext(path)
-	return ext == ".zip" || ext == ".jar" || ext == ".war", nil
 }
 
 // copyModuleArchive - copies module archive to temp directory

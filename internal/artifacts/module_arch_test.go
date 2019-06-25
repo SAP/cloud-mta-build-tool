@@ -120,7 +120,7 @@ builders:
 					TargetPath: getResultPath(),
 					Descriptor: "dev",
 				}
-				Ω(packModule(&ep, false, &m, "node-js", "cf", "*.zip")).Should(Succeed())
+				Ω(packModule(&ep, &ep, false, &m, "node-js", "cf", "*.zip")).Should(Succeed())
 				Ω(getTestPath("result", ".mta_with_zipped_module_mta_build_tmp", "node-js", "abc.zip")).Should(BeAnExistingFile())
 			})
 			It("Build results - zip file not exists, fails", func() {
@@ -133,7 +133,7 @@ builders:
 					Name: "node-js",
 					Path: "notExists",
 				}
-				Ω(packModule(&ep, false, &mod, "node-js", "cf", "*.zip")).Should(HaveOccurred())
+				Ω(packModule(&ep, &ep, false, &mod, "node-js", "cf", "*.zip")).Should(HaveOccurred())
 			})
 
 			It("zip file with ignored folder", func() {
@@ -150,7 +150,7 @@ builders:
 					TargetPath: getResultPath(),
 					Descriptor: "dev",
 				}
-				Ω(packModule(&ep, false, &m, "htmlapp2", "cf", "")).Should(Succeed())
+				Ω(packModule(&ep, &ep, false, &m, "htmlapp2", "cf", "")).Should(Succeed())
 				Ω(getTestPath("result", ".mta_mta_build_tmp", "htmlapp2", "data.zip")).Should(BeAnExistingFile())
 				validateArchiveContents([]string{"ignore"}, ep.GetTargetModuleZipPath("htmlapp2"), false)
 			})
@@ -161,7 +161,7 @@ builders:
 					TargetPath: getResultPath(),
 					Descriptor: "dev",
 				}
-				Ω(packModule(&ep, false, &m, "node-js", "cf", "m*.zip")).Should(HaveOccurred())
+				Ω(packModule(&ep, &ep, false, &m, "node-js", "cf", "m*.zip")).Should(HaveOccurred())
 			})
 
 			It("Deployment descriptor - Copy only data.zip", func() {
@@ -171,7 +171,7 @@ builders:
 					TargetPath: getResultPath(),
 					Descriptor: "dep",
 				}
-				Ω(packModule(&ep, true, &m, "node-js", "cf", "")).Should(Succeed())
+				Ω(packModule(&ep, &ep, true, &m, "node-js", "cf", "")).Should(Succeed())
 				Ω(getTestPath("result", ".mta_with_zipped_module_mta_build_tmp", "node-js", "data.zip")).Should(BeAnExistingFile())
 			})
 
@@ -182,7 +182,7 @@ builders:
 					TargetPath: getResultPath(),
 					Descriptor: "dev",
 				}
-				Ω(packModule(&ep, false, &m, "node-js", "cf", "")).Should(HaveOccurred())
+				Ω(packModule(&ep, &ep, false, &m, "node-js", "cf", "")).Should(HaveOccurred())
 			})
 			It("Target directory exists as a file", func() {
 				ep := dir.Loc{
@@ -192,7 +192,7 @@ builders:
 				}
 				Ω(os.MkdirAll(filepath.Join(ep.GetTarget(), ".mta_with_zipped_module_mta_build_tmp"), os.ModePerm)).Should(Succeed())
 				createFile("result", ".mta_with_zipped_module_mta_build_tmp", "node-js")
-				Ω(packModule(&ep, false, &m, "node-js", "cf", "")).Should(HaveOccurred())
+				Ω(packModule(&ep, &ep, false, &m, "node-js", "cf", "")).Should(HaveOccurred())
 			})
 			When("build-artifact-name is defined for the module", func() {
 				var ep dir.Loc
@@ -213,8 +213,8 @@ builders:
 							"build-artifact-name": "myresult",
 						},
 					}
-					Ω(packModule(&ep, false, &m, "node-js", "cf", "")).Should(Succeed())
-					resultLocation := getTestPath("result", ".mta_with_subfolder_mta_build_tmp", "node-js", "myresult.zip")
+					Ω(packModule(&ep, &ep, false, &m, "node-js", "cf", "")).Should(Succeed())
+					resultLocation := getTestPath("result", ".mta_with_subfolder_mta_build_tmp", "node-js", "res", "myresult.zip")
 					Ω(resultLocation).Should(BeAnExistingFile())
 					validateArchiveContents([]string{"file1"}, resultLocation, true)
 				})
@@ -226,7 +226,7 @@ builders:
 							"build-artifact-name": "myresult",
 						},
 					}
-					Ω(packModule(&ep, false, &m, "node-js", "cf", "")).Should(Succeed())
+					Ω(packModule(&ep, &ep, false, &m, "node-js", "cf", "")).Should(Succeed())
 					resultLocation := getTestPath("result", ".mta_with_subfolder_mta_build_tmp", "node-js", "myresult.zip")
 					Ω(resultLocation).Should(BeAnExistingFile())
 					validateArchiveContents([]string{"res/file1", "file2", "abc.war", "data.zip"}, resultLocation, true)
@@ -240,7 +240,7 @@ builders:
 							"build-artifact-name": "myresult",
 						},
 					}
-					Ω(packModule(&ep, false, &m, "node-js", "cf", "")).Should(Succeed())
+					Ω(packModule(&ep, &ep, false, &m, "node-js", "cf", "")).Should(Succeed())
 					resultLocation := getTestPath("result", ".mta_with_subfolder_mta_build_tmp", "node-js", "myresult.war")
 					Ω(resultLocation).Should(BeAnExistingFile())
 					validateArchiveContents([]string{"gulpfile.js", "server.js", "package.json"}, resultLocation, true)
@@ -254,7 +254,7 @@ builders:
 							"build-artifact-name": "myresult",
 						},
 					}
-					Ω(packModule(&ep, false, &m, "node-js", "cf", "")).Should(HaveOccurred())
+					Ω(packModule(&ep, &ep, false, &m, "node-js", "cf", "")).Should(HaveOccurred())
 				})
 				It("fails when build-artifact-name is not a string value", func() {
 					m := mta.Module{
@@ -264,9 +264,9 @@ builders:
 							"build-artifact-name": 1,
 						},
 					}
-					err := packModule(&ep, false, &m, "node-js", "cf", "")
+					err := packModule(&ep, &ep, false, &m, "node-js", "cf", "")
 					Ω(err).Should(HaveOccurred())
-					Ω(err.Error()).Should(ContainSubstring(`the build artifact name must be a string; change '1' in the 'node-js' module for a string value`))
+					Ω(err.Error()).Should(ContainSubstring(fmt.Sprintf(buildops.WrongBuildParamMsg, buildops.ArtifactNameMsgProperty, "1", "node-js")))
 				})
 				It("creates data.zip when build-artifact-name is data", func() {
 					m := mta.Module{
@@ -276,7 +276,7 @@ builders:
 							"build-artifact-name": "data",
 						},
 					}
-					Ω(packModule(&ep, false, &m, "node-js", "cf", "")).Should(Succeed())
+					Ω(packModule(&ep, &ep, false, &m, "node-js", "cf", "")).Should(Succeed())
 					resultLocation := getTestPath("result", ".mta_with_subfolder_mta_build_tmp", "node-js", "data.zip")
 					Ω(resultLocation).Should(BeAnExistingFile())
 					validateArchiveContents([]string{"res/file1", "file2", "abc.war", "data.zip"}, resultLocation, true)
@@ -289,7 +289,7 @@ builders:
 							"build-artifact-name": "file2",
 						},
 					}
-					Ω(packModule(&ep, false, &m, "node-js", "cf", "")).Should(Succeed())
+					Ω(packModule(&ep, &ep, false, &m, "node-js", "cf", "")).Should(Succeed())
 					resultLocation := getTestPath("result", ".mta_with_subfolder_mta_build_tmp", "node-js", "file2.zip")
 					Ω(resultLocation).Should(BeAnExistingFile())
 					validateArchiveContents([]string{"res/file1", "file2", "abc.war", "data.zip"}, resultLocation, true)
@@ -302,7 +302,7 @@ builders:
 							"build-artifact-name": "abc",
 						},
 					}
-					Ω(packModule(&ep, false, &m, "node-js", "cf", "")).Should(Succeed())
+					Ω(packModule(&ep, &ep, false, &m, "node-js", "cf", "")).Should(Succeed())
 					resultLocation := getTestPath("result", ".mta_with_subfolder_mta_build_tmp", "node-js", "abc.zip")
 					Ω(resultLocation).Should(BeAnExistingFile())
 					validateArchiveContents([]string{"res/file1", "file2", "abc.war", "data.zip"}, resultLocation, true)
@@ -316,7 +316,7 @@ builders:
 							"build-artifact-name": "abc",
 						},
 					}
-					Ω(packModule(&ep, false, &m, "node-js", "cf", "")).Should(Succeed())
+					Ω(packModule(&ep, &ep, false, &m, "node-js", "cf", "")).Should(Succeed())
 					resultLocation := getTestPath("result", ".mta_with_subfolder_mta_build_tmp", "node-js", "abc.war")
 					Ω(resultLocation).Should(BeAnExistingFile())
 					validateArchiveContents([]string{"gulpfile.js", "server.js", "package.json"}, resultLocation, true)
@@ -330,7 +330,7 @@ builders:
 							"build-artifact-name": "data",
 						},
 					}
-					Ω(packModule(&ep, false, &m, "node-js", "cf", "")).Should(Succeed())
+					Ω(packModule(&ep, &ep, false, &m, "node-js", "cf", "")).Should(Succeed())
 					resultLocation := getTestPath("result", ".mta_with_subfolder_mta_build_tmp", "node-js", "data.war")
 					Ω(resultLocation).Should(BeAnExistingFile())
 					validateArchiveContents([]string{"gulpfile.js", "server.js", "package.json"}, resultLocation, true)
@@ -351,7 +351,7 @@ builders:
 					buildops.SupportedPlatformsParam: []string{},
 				},
 			}
-			Ω(packModule(&ep, false, &mNoPlatforms, "node-js", "cf", "")).Should(Succeed())
+			Ω(packModule(&ep, &ep, false, &mNoPlatforms, "node-js", "cf", "")).Should(Succeed())
 			Ω(getTestPath("result", "mta_with_zipped_module_mta_build_tmp", "node-js", "data.zip")).
 				ShouldNot(BeAnExistingFile())
 		})
@@ -383,7 +383,7 @@ builders:
 
 			It("Sanity", func() {
 				ep := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath()}
-				Ω(buildModule(&ep, &ep, false, "node-js", "cf")).Should(Succeed())
+				Ω(buildModule(&ep, &ep, &ep, false, "node-js", "cf")).Should(Succeed())
 				Ω(ep.GetTargetModuleZipPath("node-js")).Should(BeAnExistingFile())
 			})
 
@@ -403,14 +403,14 @@ module-types:
 `)
 
 				ep := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath()}
-				Ω(buildModule(&ep, &ep, false, "node-js", "cf")).Should(HaveOccurred())
+				Ω(buildModule(&ep, &ep, &ep, false, "node-js", "cf")).Should(HaveOccurred())
 			})
 
 			It("Target folder exists as a file - dev", func() {
 				os.MkdirAll(getTestPath("result", ".mta_mta_build_tmp"), os.ModePerm)
 				ep := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath()}
 				createFile("result", ".mta_mta_build_tmp", "node-js")
-				Ω(buildModule(&ep, &ep, false, "node-js", "cf")).Should(HaveOccurred())
+				Ω(buildModule(&ep, &ep, &ep, false, "node-js", "cf")).Should(HaveOccurred())
 			})
 
 			It("Target folder exists as a file - dep", func() {
@@ -422,7 +422,7 @@ module-types:
 					MtaFilename: "mta.yaml",
 				}
 				createFile("result", "mta", "node-js")
-				Ω(buildModule(&ep, &ep, true, "node-js", "cf")).Should(HaveOccurred())
+				Ω(buildModule(&ep, &ep, &ep, true, "node-js", "cf")).Should(HaveOccurred())
 			})
 
 			It("Deployment Descriptor", func() {
@@ -431,14 +431,14 @@ module-types:
 					TargetPath:  getResultPath(),
 					MtaFilename: "mta.yaml",
 					Descriptor:  "dep"}
-				Ω(buildModule(&ep, &ep, true, "node-js", "cf")).Should(Succeed())
+				Ω(buildModule(&ep, &ep, &ep, true, "node-js", "cf")).Should(Succeed())
 				Ω(ep.GetTargetModuleZipPath("node-js")).Should(BeAnExistingFile())
 			})
 
 			var _ = DescribeTable("Invalid inputs", func(projectName, mtaFilename, moduleName string) {
 				ep := dir.Loc{SourcePath: getTestPath(projectName), TargetPath: getResultPath(), MtaFilename: mtaFilename}
 				Ω(ep.GetTargetTmpDir()).ShouldNot(BeADirectory())
-				Ω(buildModule(&ep, &ep, false, moduleName, "cf")).Should(HaveOccurred())
+				Ω(buildModule(&ep, &ep, &ep, false, moduleName, "cf")).Should(HaveOccurred())
 				Ω(ep.GetTargetTmpDir()).ShouldNot(BeADirectory())
 			},
 				Entry("Invalid path to application", "mta1", "mta.yaml", "node-js"),
@@ -624,19 +624,6 @@ module-types:
 		})
 	})
 
-	var _ = DescribeTable("isArchive", func(path string, expectedResult, expectedError bool) {
-		res, err := isArchive(path)
-		Ω(res).Should(Equal(expectedResult))
-		if expectedError {
-			Ω(err).Should(HaveOccurred())
-		} else {
-			Ω(err).Should(Succeed())
-		}
-	},
-		Entry("path not exists", getTestPath("not_existing"), false, true),
-		Entry("path to archive", getTestPath("mta_content_copy_test", "test.zip"), true, false),
-		Entry("path to folder", getTestPath(), false, false),
-		Entry("path to non archive file", getTestPath("mta_content_copy_test", "test-content", "test"), false, false))
 })
 
 func dirContainsAllElements(source string, elements map[string]bool, validateEntitiesCount bool) bool {

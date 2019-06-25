@@ -5,6 +5,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strings"
 	"text/template"
 
 	"github.com/pkg/errors"
@@ -34,6 +35,14 @@ const (
 	requiredEntry  = "MTA-Requires"
 	resourceEntry  = "MTA-Resource"
 	dirContentType = "text/directory"
+
+	// ModuleMsgProperty - module message property
+	ModuleMsgProperty = "module"
+	// ResourceMsgProperty - resource message property
+	ResourceMsgProperty = "resource"
+
+	// UnknownContentTypeMsg - unknown content type message
+	UnknownContentTypeMsg = `failed to generate the manifest file when getting the "%s" %s content type`
 )
 
 type entry struct {
@@ -44,7 +53,7 @@ type entry struct {
 }
 
 // setManifestDesc - Set the MANIFEST.MF file
-func setManifestDesc(ep dir.ITargetArtifacts, targetPathGetter dir.ITargetPath, mtaStr []*mta.Module,
+func setManifestDesc(source dir.ISourceModule, ep dir.ITargetArtifacts, targetPathGetter dir.ITargetPath, depDesc bool, mtaStr []*mta.Module,
 	mtaResources []*mta.Resource, modules []string) error {
 
 	contentTypes, err := conttype.GetContentTypes()
@@ -53,7 +62,7 @@ func setManifestDesc(ep dir.ITargetArtifacts, targetPathGetter dir.ITargetPath, 
 			"failed to generate the manifest file when getting the content types from the configuration")
 	}
 
-	entries, err := getModulesEntries(targetPathGetter, mtaStr, contentTypes, modules)
+	entries, err := getModulesEntries(source, targetPathGetter, depDesc, mtaStr, contentTypes, modules)
 	if err != nil {
 		return err
 	}
@@ -82,7 +91,7 @@ func addModuleEntry(entries []entry, module *mta.Module, contentType, modulePath
 	return result
 }
 
-func getModulesEntries(targetPathGetter dir.ITargetPath, moduleList []*mta.Module,
+func getModulesEntries(source dir.ISourceModule, targetPathGetter dir.ITargetPath, depDesc bool, moduleList []*mta.Module,
 	contentTypes *conttype.ContentTypes, modules []string) ([]entry, error) {
 
 	var entries []entry
@@ -94,20 +103,24 @@ func getModulesEntries(targetPathGetter dir.ITargetPath, moduleList []*mta.Modul
 		if err != nil {
 			return nil, err
 		}
-		modulePath, err := getModuleArtifactPath(mod, targetPathGetter, defaultBuildResult)
-		if err != nil {
-			return nil, err
-		}
-		contentType, err := getContentType(targetPathGetter, modulePath, contentTypes)
+		modulePath, _, err := buildops.GetModuleTargetArtifactPath(source, targetPathGetter, depDesc, mod, defaultBuildResult, true)
 		if err != nil {
 			return nil, errors.Wrapf(err,
-				`failed to generate the manifest file when getting the "%s" module content type`, mod.Name)
+				`failed to generate the manifest file when getting the artifact path of the "%s" module`, mod.Name)
 		}
 
-		entries = addModuleEntry(entries, mod, contentType, modulePath)
+		if modulePath != "" {
+			contentType, err := getContentType(modulePath, contentTypes)
+			if err != nil {
+				return nil, errors.Wrapf(err, UnknownContentTypeMsg, mod.Name, ModuleMsgProperty)
+			}
+
+			moduleEntryPath := strings.Replace(modulePath, targetPathGetter.GetTargetTmpDir(), "", -1)
+			entries = addModuleEntry(entries, mod, contentType, moduleEntryPath)
+		}
+
 		requiredDependenciesWithPath := getRequiredDependencies(mod)
-		requiredDependencyEntries, err :=
-			buildEntries(targetPathGetter, mod, requiredDependenciesWithPath, contentTypes)
+		requiredDependencyEntries, err := buildEntries(targetPathGetter, mod, requiredDependenciesWithPath, contentTypes)
 		if err != nil {
 			return nil, errors.Wrapf(err,
 				`failed to generate the manifest file when building the required entries of the "%s" module`,
@@ -118,21 +131,20 @@ func getModulesEntries(targetPathGetter dir.ITargetPath, moduleList []*mta.Modul
 	return entries, nil
 }
 
-func getResourcesEntries(targetPathGetter dir.ITargetPath, resources []*mta.Resource,
-	contentTypes *conttype.ContentTypes) ([]entry, error) {
+func getResourcesEntries(target dir.ITargetPath, resources []*mta.Resource, contentTypes *conttype.ContentTypes) ([]entry, error) {
 	var entries []entry
 	for _, resource := range resources {
 		if resource.Name == "" || resource.Parameters["path"] == nil {
 			continue
 		}
-		contentType, err := getContentType(targetPathGetter, getResourcePath(resource), contentTypes)
+		resourceRelativePath := getResourcePath(resource)
+		contentType, err := getContentType(filepath.Join(target.GetTargetTmpDir(), resourceRelativePath), contentTypes)
 		if err != nil {
-			return nil, errors.Wrapf(err,
-				`failed to generate the manifest file when getting the "%s" resource content type`, resource.Name)
+			return nil, errors.Wrapf(err, UnknownContentTypeMsg, resource.Name, ResourceMsgProperty)
 		}
 		resourceEntry := entry{
 			EntryName:   resource.Name,
-			EntryPath:   getResourcePath(resource),
+			EntryPath:   resourceRelativePath,
 			ContentType: contentType,
 			EntryType:   resourceEntry,
 		}
@@ -141,12 +153,10 @@ func getResourcesEntries(targetPathGetter dir.ITargetPath, resources []*mta.Reso
 	return entries, nil
 }
 
-func buildEntries(targetPathGetter dir.ITargetPath, module *mta.Module,
-	requiredDependencies []mta.Requires, contentTypes *conttype.ContentTypes) ([]entry, error) {
+func buildEntries(target dir.ITargetPath, module *mta.Module, requiredDependencies []mta.Requires, contentTypes *conttype.ContentTypes) ([]entry, error) {
 	result := make([]entry, 0)
 	for _, requiredDependency := range requiredDependencies {
-		contentType, err :=
-			getContentType(targetPathGetter, requiredDependency.Parameters["path"].(string), contentTypes)
+		contentType, err := getContentType(filepath.Join(target.GetTargetTmpDir(), requiredDependency.Parameters["path"].(string)), contentTypes)
 		if err != nil {
 			return nil, err
 		}
@@ -161,18 +171,17 @@ func buildEntries(targetPathGetter dir.ITargetPath, module *mta.Module,
 	return result, nil
 }
 
-func getContentType(targetPathGetter dir.ITargetPath, path string, contentTypes *conttype.ContentTypes) (string, error) {
-	fullPath := filepath.Join(targetPathGetter.GetTargetTmpDir(), path)
-	info, err := os.Stat(fullPath)
+func getContentType(path string, contentTypes *conttype.ContentTypes) (string, error) {
+	info, err := os.Stat(path)
 	if err != nil {
-		return "", fmt.Errorf(`the "%s" path does not exist; the content type was not defined`, fullPath)
+		return "", fmt.Errorf(`the "%s" path does not exist; the content type was not defined`, path)
 	}
 
 	if info.IsDir() {
 		return dirContentType, nil
 	}
 
-	extension := filepath.Ext(fullPath)
+	extension := filepath.Ext(path)
 	return conttype.GetContentType(contentTypes, extension)
 }
 
@@ -188,77 +197,6 @@ func getRequiredDependencies(module *mta.Module) []mta.Requires {
 
 func getResourcePath(resource *mta.Resource) string {
 	return filepath.Clean(resource.Parameters["path"].(string))
-}
-
-// getString returns the value if it's a string or the default value if not
-func getString(value interface{}, defaultValue string) (string, error) {
-	if value == nil {
-		return defaultValue, nil
-	}
-	s, ok := value.(string)
-	if !ok {
-		return defaultValue, errors.Errorf("%v is not a string value", value)
-	}
-	return s, nil
-}
-
-// getModuleArtifactPath returns the path to the file/folder that should be archived in the mtar file for this module
-func getModuleArtifactPath(module *mta.Module, targetPathGetter dir.ITargetPath, defaultBuildResult string) (string, error) {
-	loc := targetPathGetter.(*dir.Loc)
-	// TODO check loc.IsDeploymentDescriptor()
-
-	// get build results path - defined in the build-result property under build-params or in the module type
-	buildResultPath, _, err := buildops.GetBuildResultsPath(loc, module, defaultBuildResult)
-	if err != nil {
-		return "", err
-	}
-
-	var buildArtifactFileName = ""
-	if module.BuildParams != nil {
-		buildArtifactFileName, err = getString(module.BuildParams[buildArtifactName], "")
-		if err != nil {
-			return "", errors.Errorf("the build artifact name must be a string; change '%v' in the '%s' module for a string value",
-				module.BuildParams[buildArtifactName], module.Name)
-		}
-	}
-
-	var path string
-	if buildResultPath == "" {
-		// module path not defined
-		path = module.Path
-	} else if definedArchive, _ := isArchive(buildResultPath); definedArchive {
-		path = filepath.Join(module.Name, filepath.Base(buildResultPath))
-	} else {
-		var expectedArtifactName string
-		if buildArtifactFileName == "" {
-			expectedArtifactName = dataZip
-		} else {
-			expectedArtifactName = buildArtifactFileName + filepath.Ext(dataZip)
-		}
-		// TODO should we check in the source directory? why should we check at all, except if it's in the assembly flow?
-		if existsFileInDirectories(module, []string{loc.GetSource(), loc.GetTargetTmpDir()}, expectedArtifactName) {
-			path = filepath.Join(module.Name, expectedArtifactName)
-		} else {
-			path = filepath.Base(buildResultPath) // TODO is this relevant outside the assembly command flow?
-		}
-	}
-
-	// build-artifact-name is defined - use it with the original path's extension
-	if buildArtifactFileName != "" {
-		var resultFileName = buildArtifactFileName + filepath.Ext(path)
-		path = filepath.Join(module.Name, resultFileName)
-	}
-
-	return path, nil
-}
-
-func existsFileInDirectories(module *mta.Module, directories []string, filename string) bool {
-	for _, directory := range directories {
-		if _, err := os.Stat(filepath.Join(directory, module.Name, filename)); !os.IsNotExist(err) {
-			return true
-		}
-	}
-	return false
 }
 
 func genManifest(manifestPath string, entries []entry) (rerr error) {

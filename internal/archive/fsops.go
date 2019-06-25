@@ -38,6 +38,12 @@ func Archive(sourcePath, targetArchivePath string, ignore []string) (e error) {
 		return err
 	}
 
+	// create folder of archive file if not exists
+	err = os.MkdirAll(filepath.Dir(targetArchivePath), os.ModePerm)
+	if err != nil {
+		return err
+	}
+
 	// create archive file
 	zipfile, err := os.Create(targetArchivePath)
 	if err != nil {
