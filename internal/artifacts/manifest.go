@@ -115,7 +115,8 @@ func getModulesEntries(source dir.ISourceModule, targetPathGetter dir.ITargetPat
 				return nil, errors.Wrapf(err, UnknownContentTypeMsg, mod.Name, ModuleMsgProperty)
 			}
 
-			moduleEntryPath := strings.Replace(modulePath, targetPathGetter.GetTargetTmpDir(), "", -1)
+			// get relative path of the module entry (excluding leading slash)
+			moduleEntryPath := strings.Replace(modulePath, targetPathGetter.GetTargetTmpDir(), "", -1)[1:]
 			entries = addModuleEntry(entries, mod, contentType, moduleEntryPath)
 		}
 
