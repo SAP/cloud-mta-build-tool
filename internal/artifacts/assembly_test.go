@@ -1,7 +1,11 @@
 package artifacts
 
 import (
+	"archive/zip"
+	"fmt"
+	"io/ioutil"
 	"os"
+	"strings"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
@@ -19,6 +23,22 @@ var _ = Describe("Assembly", func() {
 			getTestPath("result"), "cf", "", "?", os.Getwd)
 		Ω(err).Should(Succeed())
 		Ω(getTestPath("result", "com.sap.xs2.samples.javahelloworld_0.1.0.mtar")).Should(BeAnExistingFile())
+	})
+	It("one-level-folder", func() {
+		err := Assembly(getTestPath("assembly", "one-level-folder"),
+			getTestPath("result"), "cf", "", "?", os.Getwd)
+		Ω(err).Should(Succeed())
+		mtarFile := getTestPath("result", "proj_0.1.0.mtar")
+		Ω(mtarFile).Should(BeAnExistingFile())
+		compareActualAndGolden(mtarFile, "MANIFEST.MF", getTestPath("assembly", "one-level-folder", "golden.mf"))
+	})
+	It("non-archive-path", func() {
+		err := Assembly(getTestPath("assembly", "non-archive-path"),
+			getTestPath("result"), "cf", "", "?", os.Getwd)
+		Ω(err).Should(Succeed())
+		mtarFile := getTestPath("result", "proj_0.1.0.mtar")
+		Ω(mtarFile).Should(BeAnExistingFile())
+		compareActualAndGolden(mtarFile, "MANIFEST.MF", getTestPath("assembly", "non-archive-path", "golden.mf"))
 	})
 	var _ = DescribeTable("Fails on location initialization", func(maxCalls int) {
 		calls := 0
@@ -40,3 +60,34 @@ var _ = Describe("Assembly", func() {
 	)
 
 })
+
+func getFileContentFromZip(path string, filename string) ([]byte, error) {
+	zipFile, err := zip.OpenReader(path)
+	if err != nil {
+		return nil, err
+	}
+	for _, file := range zipFile.File {
+		if strings.Contains(file.Name, filename) {
+			fc, err := file.Open()
+			defer fc.Close()
+			if err != nil {
+				return nil, err
+			}
+			c, err := ioutil.ReadAll(fc)
+			if err != nil {
+				return nil, err
+			}
+			return c, nil
+		}
+	}
+	return nil, fmt.Errorf(`file "%s" not found`, filename)
+}
+
+func compareActualAndGolden(pathToZip, filenameInZip, goldenFilePath string) {
+	actualContent, err := getFileContentFromZip(pathToZip, filenameInZip)
+	Ω(err).Should(Succeed())
+	expectedContent, err := ioutil.ReadFile(goldenFilePath)
+	Ω(err).Should(Succeed())
+	Ω(removeSpecialSymbols(actualContent)).Should(Equal(removeSpecialSymbols(expectedContent)))
+}
+

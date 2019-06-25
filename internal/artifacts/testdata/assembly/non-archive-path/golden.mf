@@ -1,0 +1,9 @@
+manifest-Version: 1.0
+Created-By: SAP Application Archive Builder v0.2.8
+
+Name: file.json
+MTA-Module: m1
+Content-Type: application/json
+
+Name: META-INF/mtad.yaml
+Content-Type: text/plain
