@@ -31,11 +31,11 @@ var _ = Describe("Build", func() {
 	AfterEach(func() {
 		os.RemoveAll(getTestPath("result"))
 	})
-	It("Sanity", func() {
+	It("Failure - wrong platform", func() {
 		buildProjectCmdSrc = getTestPath("mta")
 		buildProjectCmdTrg = getTestPath("result")
-		buildProjectCmdPlatform = "cf"
+		buildProjectCmdPlatform = "xxx"
 		err := buildCmd.RunE(nil, []string{})
-		Ω(err).Should(BeNil())
+		Ω(err).ShouldNot(BeNil())
 	})
 })
