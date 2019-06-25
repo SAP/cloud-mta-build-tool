@@ -27,4 +27,3 @@ var _ = Describe("Cleanup", func() {
 		})).Should(HaveOccurred())
 	})
 })
-

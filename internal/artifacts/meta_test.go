@@ -205,7 +205,7 @@ func (loc *testLoc) GetSourceModuleDir(modulePath string) string {
 	return loc.loc.GetSourceModuleDir(modulePath)
 }
 
-func createMtahtml5TmpFolder(){
+func createMtahtml5TmpFolder() {
 	os.MkdirAll(getTestPath("result", ".mtahtml5_mta_build_tmp", "testapp"), os.ModePerm)
 	os.MkdirAll(getTestPath("result", ".mtahtml5_mta_build_tmp", "ui5app2"), os.ModePerm)
 	os.MkdirAll(getTestPath("result", ".mtahtml5_mta_build_tmp", "ui5app"), os.ModePerm)
@@ -215,7 +215,7 @@ func createMtahtml5TmpFolder(){
 	createTmpFile(getTestPath("result", ".mtahtml5_mta_build_tmp", "xs-security.json"))
 }
 
-func createTmpFile(path string){
+func createTmpFile(path string) {
 	file, err := os.Create(path)
 	file.Close()
 	Ω(err).Should(Succeed())

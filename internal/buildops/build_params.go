@@ -174,7 +174,7 @@ func GetModuleSourceArtifactPath(loc dir.ISourceModule, depDesc bool, module *mt
 }
 
 // IsFolderOrArchive - check if file is a folder or an archive
-func IsFolderOrArchive(path string) (bool, bool, error){
+func IsFolderOrArchive(path string) (bool, bool, error) {
 	info, err := os.Stat(path)
 
 	if err != nil {
@@ -243,7 +243,7 @@ func GetModuleTargetArtifactPath(source dir.ISourceModule, loc dir.ITargetPath, 
 	return path, toArchive, nil
 }
 
-func getArtifactInfo(isFolder, isArchive bool, module *mta.Module, moduleSourceArtifactPath string) (bool, string, string, error){
+func getArtifactInfo(isFolder, isArchive bool, module *mta.Module, moduleSourceArtifactPath string) (bool, string, string, error) {
 	artifactName := ""
 	artifactExt := ""
 	toArchive := false

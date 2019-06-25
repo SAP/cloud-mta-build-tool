@@ -90,4 +90,3 @@ func compareActualAndGolden(pathToZip, filenameInZip, goldenFilePath string) {
 	Ω(err).Should(Succeed())
 	Ω(removeSpecialSymbols(actualContent)).Should(Equal(removeSpecialSymbols(expectedContent)))
 }
-
