@@ -2,7 +2,7 @@ var binwrap = require('binwrap');
 var path = require('path');
 
 var packageInfo = require(path.join(__dirname, 'package.json'));
-var version = '0.2.7'; //packageInfo.version;
+var version = packageInfo.version;
 var root = `https://github.com/SAP/cloud-mta-build-tool/releases/download/v${version}/cloud-mta-build-tool_${version}_`;
 
 module.exports = binwrap({
