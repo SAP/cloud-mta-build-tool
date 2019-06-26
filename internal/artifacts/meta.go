@@ -54,7 +54,7 @@ func generateMeta(parser dir.IMtaParser, source dir.ISourceModule, ep dir.ITarge
 
 	removeUndeployedModules(m, platform)
 	// Generate meta info dir with required content
-	err = genMetaInfo(source, ep, targetPathGetter, deploymentDescriptor, platform, m, []string{})
+	err = genMetaInfo(source, ep, targetPathGetter, deploymentDescriptor, platform, m)
 	if err != nil {
 		return err
 	}
@@ -63,10 +63,10 @@ func generateMeta(parser dir.IMtaParser, source dir.ISourceModule, ep dir.ITarge
 
 // genMetaInfo generates a MANIFEST.MF file and updates the build artifacts paths for deployment purposes.
 func genMetaInfo(source dir.ISourceModule, ep dir.ITargetArtifacts, targetPathGetter dir.ITargetPath, deploymentDesc bool,
-	platform string, mtaStr *mta.MTA, modules []string) (rerr error) {
+	platform string, mtaStr *mta.MTA) (rerr error) {
 
 	// Set the MANIFEST.MF file
-	err := setManifestDesc(source, ep, targetPathGetter, deploymentDesc, mtaStr.Modules, mtaStr.Resources, modules)
+	err := setManifestDesc(source, ep, targetPathGetter, deploymentDesc, mtaStr.Modules, mtaStr.Resources)
 	if err != nil {
 		return errors.Wrap(err, "failed to generate metadata when populating the manifest file")
 	}

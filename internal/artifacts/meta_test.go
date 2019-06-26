@@ -73,8 +73,7 @@ modules:
 			os.MkdirAll(getTestPath("result", ".testproject_mta_build_tmp", "htmlapp"), os.ModePerm)
 			os.Create(getTestPath("result", ".testproject_mta_build_tmp", "htmlapp", "data.zip"))
 			os.MkdirAll(getTestPath("result", ".testproject_mta_build_tmp", "META-INF"), os.ModePerm)
-			Ω(genMetaInfo(&ep, &ep, &ep, ep.IsDeploymentDescriptor(), "cf",
-				&m, []string{"htmlapp"})).Should(Succeed())
+			Ω(genMetaInfo(&ep, &ep, &ep, ep.IsDeploymentDescriptor(), "cf", &m)).Should(Succeed())
 			Ω(ep.GetManifestPath()).Should(BeAnExistingFile())
 			Ω(ep.GetMtadPath()).Should(BeAnExistingFile())
 		})
@@ -86,8 +85,7 @@ modules:
 			os.MkdirAll(getTestPath("result", ".testproject_mta_build_tmp", "META-INF"), os.ModePerm)
 			cfg := platform.PlatformConfig
 			platform.PlatformConfig = []byte(`very bad config`)
-			Ω(genMetaInfo(&ep, &ep, &ep, ep.IsDeploymentDescriptor(), "cf",
-				&m, []string{"htmlapp"})).Should(HaveOccurred())
+			Ω(genMetaInfo(&ep, &ep, &ep, ep.IsDeploymentDescriptor(), "cf", &m)).Should(HaveOccurred())
 			platform.PlatformConfig = cfg
 		})
 
@@ -95,8 +93,7 @@ modules:
 			loc := testLoc{ep}
 			m := mta.MTA{}
 			yaml.Unmarshal(mtaSingleModule, &m)
-			Ω(genMetaInfo(&loc, &ep, &ep, ep.IsDeploymentDescriptor(), "cf",
-				&m, []string{"htmlapp"})).Should(HaveOccurred())
+			Ω(genMetaInfo(&loc, &ep, &ep, ep.IsDeploymentDescriptor(), "cf", &m)).Should(HaveOccurred())
 		})
 
 		var _ = Describe("Fails on setManifestDesc", func() {
@@ -120,8 +117,7 @@ cli_version:["x"]
 			It("Fails on get version", func() {
 				m := mta.MTA{}
 				yaml.Unmarshal(mtaSingleModule, &m)
-				Ω(genMetaInfo(&ep, &ep, &ep, ep.IsDeploymentDescriptor(), "cf",
-					&m, []string{"htmlapp"})).Should(HaveOccurred())
+				Ω(genMetaInfo(&ep, &ep, &ep, ep.IsDeploymentDescriptor(), "cf", &m)).Should(HaveOccurred())
 			})
 		})
 	})

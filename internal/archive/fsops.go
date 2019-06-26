@@ -41,7 +41,7 @@ func Archive(sourcePath, targetArchivePath string, ignore []string) (e error) {
 	// create folder of archive file if not exists
 	err = os.MkdirAll(filepath.Dir(targetArchivePath), os.ModePerm)
 	if err != nil {
-		return err
+		return errors.Wrapf(err, `archiving failed when creating a "%s" folder`, targetArchivePath)
 	}
 
 	// create archive file
