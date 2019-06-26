@@ -24,22 +24,16 @@ var _ = Describe("Assembly", func() {
 		Ω(err).Should(Succeed())
 		Ω(getTestPath("result", "com.sap.xs2.samples.javahelloworld_0.1.0.mtar")).Should(BeAnExistingFile())
 	})
-	It("one-level-folder", func() {
-		err := Assembly(getTestPath("assembly", "one-level-folder"),
+	It("path variations", func() {
+		err := Assembly(getTestPath("assembly"),
 			getTestPath("result"), "cf", "", "?", os.Getwd)
 		Ω(err).Should(Succeed())
 		mtarFile := getTestPath("result", "proj_0.1.0.mtar")
 		Ω(mtarFile).Should(BeAnExistingFile())
-		compareActualAndGolden(mtarFile, "MANIFEST.MF", getTestPath("assembly", "one-level-folder", "golden.mf"))
+		compareActualAndGolden(mtarFile, "MANIFEST.MF", getTestPath("assembly", "golden.mf"))
 	})
-	It("non-archive-path", func() {
-		err := Assembly(getTestPath("assembly", "non-archive-path"),
-			getTestPath("result"), "cf", "", "?", os.Getwd)
-		Ω(err).Should(Succeed())
-		mtarFile := getTestPath("result", "proj_0.1.0.mtar")
-		Ω(mtarFile).Should(BeAnExistingFile())
-		compareActualAndGolden(mtarFile, "MANIFEST.MF", getTestPath("assembly", "non-archive-path", "golden.mf"))
-	})
+
+
 	var _ = DescribeTable("Fails on location initialization", func(maxCalls int) {
 		calls := 0
 		err := Assembly("",

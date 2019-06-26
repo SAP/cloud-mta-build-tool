@@ -56,57 +56,57 @@ builders:
 	var _ = Describe("ExecuteBuild", func() {
 
 		It("Sanity", func() {
-			Ω(ExecuteBuild(getTestPath("mta"), getResultPath(), "dev", "node-js", "cf", os.Getwd)).Should(Succeed())
+			Ω(ExecuteBuild(getTestPath("mta"), getResultPath(), dir.Dev, "node-js", "cf", os.Getwd)).Should(Succeed())
 			loc := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath()}
 			Ω(loc.GetTargetModuleZipPath("node-js")).Should(BeAnExistingFile())
 
 		})
 
 		It("Fails on platform validation", func() {
-			Ω(ExecuteBuild(getTestPath("mta"), getResultPath(), "dev", "node-js", "xx", os.Getwd)).Should(HaveOccurred())
+			Ω(ExecuteBuild(getTestPath("mta"), getResultPath(), dir.Dev, "node-js", "xx", os.Getwd)).Should(HaveOccurred())
 
 		})
 
 		It("Fails on location initialization", func() {
-			Ω(ExecuteBuild("", "", "dev", "ui5app", "cf", func() (string, error) {
+			Ω(ExecuteBuild("", "", dir.Dev, "ui5app", "cf", func() (string, error) {
 				return "", errors.New("err")
 			})).Should(HaveOccurred())
 		})
 
 		It("Fails on wrong module", func() {
-			Ω(ExecuteBuild(getTestPath("mta"), getResultPath(), "dev", "ui5app", "cf", os.Getwd)).Should(HaveOccurred())
+			Ω(ExecuteBuild(getTestPath("mta"), getResultPath(), dir.Dev, "ui5app", "cf", os.Getwd)).Should(HaveOccurred())
 		})
 	})
 
 	var _ = Describe("ExecutePack", func() {
 
 		It("Sanity", func() {
-			Ω(ExecutePack(getTestPath("mta"), getResultPath(), "dev", "node-js",
+			Ω(ExecutePack(getTestPath("mta"), getResultPath(), dir.Dev, "node-js",
 				"cf", os.Getwd)).Should(Succeed())
 			loc := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath()}
 			Ω(loc.GetTargetModuleZipPath("node-js")).Should(BeAnExistingFile())
 		})
 
 		It("Fails on platform validation", func() {
-			Ω(ExecutePack(getTestPath("mta"), getResultPath(), "dev", "node-js",
+			Ω(ExecutePack(getTestPath("mta"), getResultPath(), dir.Dev, "node-js",
 				"xx", os.Getwd)).Should(HaveOccurred())
 		})
 
 		It("Fails on location initialization", func() {
-			Ω(ExecutePack("", "", "dev", "ui5app", "cf", func() (string, error) {
+			Ω(ExecutePack("", "", dir.Dev, "ui5app", "cf", func() (string, error) {
 				return "", errors.New("err")
 			})).Should(HaveOccurred())
 		})
 
 		It("Fails on wrong module", func() {
-			Ω(ExecutePack(getTestPath("mta"), getResultPath(), "dev", "ui5appx",
+			Ω(ExecutePack(getTestPath("mta"), getResultPath(), dir.Dev, "ui5appx",
 				"cf", os.Getwd)).Should(HaveOccurred())
 		})
 
 		It("Target folder exists as file", func() {
 			os.MkdirAll(getTestPath("result", ".mta_mta_build_tmp"), os.ModePerm)
 			createFile("result", ".mta_mta_build_tmp", "node-js")
-			Ω(ExecutePack(getTestPath("mta"), getResultPath(), "dev", "node-js",
+			Ω(ExecutePack(getTestPath("mta"), getResultPath(), dir.Dev, "node-js",
 				"cf", os.Getwd)).Should(HaveOccurred())
 		})
 	})
@@ -118,7 +118,7 @@ builders:
 				ep := dir.Loc{
 					SourcePath: getTestPath("mta_with_zipped_module"),
 					TargetPath: getResultPath(),
-					Descriptor: "dev",
+					Descriptor: dir.Dev,
 				}
 				Ω(packModule(&ep, &ep, false, &m, "node-js", "cf", "*.zip")).Should(Succeed())
 				Ω(getTestPath("result", ".mta_with_zipped_module_mta_build_tmp", "node-js", "abc.zip")).Should(BeAnExistingFile())
@@ -127,7 +127,7 @@ builders:
 				ep := dir.Loc{
 					SourcePath: getTestPath("mta_with_zipped_module"),
 					TargetPath: getResultPath(),
-					Descriptor: "dev",
+					Descriptor: dir.Dev,
 				}
 				mod := mta.Module{
 					Name: "node-js",
@@ -148,7 +148,7 @@ builders:
 				ep := dir.Loc{
 					SourcePath: getTestPath("mta"),
 					TargetPath: getResultPath(),
-					Descriptor: "dev",
+					Descriptor: dir.Dev,
 				}
 				Ω(packModule(&ep, &ep, false, &m, "htmlapp2", "cf", "")).Should(Succeed())
 				Ω(getTestPath("result", ".mta_mta_build_tmp", "htmlapp2", "data.zip")).Should(BeAnExistingFile())
@@ -159,7 +159,7 @@ builders:
 				ep := dir.Loc{
 					SourcePath: getTestPath("mta_with_zipped_module"),
 					TargetPath: getResultPath(),
-					Descriptor: "dev",
+					Descriptor: dir.Dev,
 				}
 				Ω(packModule(&ep, &ep, false, &m, "node-js", "cf", "m*.zip")).Should(HaveOccurred())
 			})
@@ -169,7 +169,7 @@ builders:
 				ep := dir.Loc{
 					SourcePath: getTestPath("mta_with_zipped_module"),
 					TargetPath: getResultPath(),
-					Descriptor: "dep",
+					Descriptor: dir.Dep,
 				}
 				Ω(packModule(&ep, &ep, true, &m, "node-js", "cf", "")).Should(Succeed())
 				Ω(getTestPath("result", ".mta_with_zipped_module_mta_build_tmp", "node-js", "data.zip")).Should(BeAnExistingFile())
@@ -180,7 +180,7 @@ builders:
 				ep := dir.Loc{
 					SourcePath: getTestPath("mta_unknown"),
 					TargetPath: getResultPath(),
-					Descriptor: "dev",
+					Descriptor: dir.Dev,
 				}
 				Ω(packModule(&ep, &ep, false, &m, "node-js", "cf", "")).Should(HaveOccurred())
 			})
@@ -188,7 +188,7 @@ builders:
 				ep := dir.Loc{
 					SourcePath: getTestPath("mta_with_zipped_module"),
 					TargetPath: getResultPath(),
-					Descriptor: "dev",
+					Descriptor: dir.Dev,
 				}
 				Ω(os.MkdirAll(filepath.Join(ep.GetTarget(), ".mta_with_zipped_module_mta_build_tmp"), os.ModePerm)).Should(Succeed())
 				createFile("result", ".mta_with_zipped_module_mta_build_tmp", "node-js")
@@ -200,7 +200,7 @@ builders:
 					ep = dir.Loc{
 						SourcePath: getTestPath("mta_with_subfolder"),
 						TargetPath: getResultPath(),
-						Descriptor: "dev",
+						Descriptor: dir.Dev,
 					}
 				})
 
@@ -342,7 +342,7 @@ builders:
 			ep := dir.Loc{
 				SourcePath: getTestPath("mta_with_zipped_module"),
 				TargetPath: getResultPath(),
-				Descriptor: "dep",
+				Descriptor: dir.Dep,
 			}
 			mNoPlatforms := mta.Module{
 				Name: "node-js",
@@ -418,7 +418,7 @@ module-types:
 				ep := dir.Loc{
 					SourcePath:  getTestPath("mta"),
 					TargetPath:  getResultPath(),
-					Descriptor:  "dep",
+					Descriptor:  dir.Dep,
 					MtaFilename: "mta.yaml",
 				}
 				createFile("result", "mta", "node-js")
@@ -430,7 +430,7 @@ module-types:
 					SourcePath:  getTestPath("mta_with_zipped_module"),
 					TargetPath:  getResultPath(),
 					MtaFilename: "mta.yaml",
-					Descriptor:  "dep"}
+					Descriptor:  dir.Dep}
 				Ω(buildModule(&ep, &ep, &ep, true, "node-js", "cf")).Should(Succeed())
 				Ω(ep.GetTargetModuleZipPath("node-js")).Should(BeAnExistingFile())
 			})
@@ -469,20 +469,19 @@ module-types:
 
 	var _ = Describe("CopyMtaContent", func() {
 		var source string
-		defaultDeploymentDescriptorParam := "dep"
 		defaultDeploymentDescriptorName := "mtad.yaml"
 		BeforeEach(func() {
 			source, _ = ioutil.TempDir("", "testing-mta-content")
 		})
 		It("Without no deployment descriptor in the source directory", func() {
-			err := CopyMtaContent(source, source, defaultDeploymentDescriptorParam, true, os.Getwd)
+			err := CopyMtaContent(source, source, true, os.Getwd)
 			Ω(err).Should(Not(BeNil()))
 			fmt.Println(err.Error())
 			pathSep := string(os.PathSeparator)
 			Ω(err.Error()).Should(ContainSubstring(fmt.Sprintf(`failed to read the "%s%smtad.yaml" file: open %s%smtad.yaml`, source, pathSep, source, pathSep)))
 		})
 		It("Location initialization fails", func() {
-			err := CopyMtaContent("", source, defaultDeploymentDescriptorParam, false, func() (string, error) {
+			err := CopyMtaContent("", source, false, func() (string, error) {
 				return "", errors.New("error")
 			})
 			Ω(err).Should(Not(BeNil()))
@@ -494,8 +493,8 @@ module-types:
 			mta := generateTestMta(source, 2, 0, map[string]string{}, map[string]string{"test-module-0": "zip", "test-module-1": "folder"})
 			mtaBytes, _ := yaml.Marshal(mta)
 			ioutil.WriteFile(filepath.Join(source, defaultDeploymentDescriptorName), mtaBytes, os.ModePerm)
-			err := CopyMtaContent(source, source, defaultDeploymentDescriptorParam, true, os.Getwd)
-			Ω(err).Should((BeNil()))
+			err := CopyMtaContent(source, source, true, os.Getwd)
+			Ω(err).Should(Succeed())
 			info, _ := os.Stat(source)
 			Ω(dirContainsAllElements(source, map[string]bool{"." + info.Name() + dir.TempFolderSuffix: true}, false)).Should(Equal(true))
 			Ω(dirContainsAllElements(filepath.Join(source, "."+info.Name()+dir.TempFolderSuffix), map[string]bool{"test.zip": true, "test-content": true}, true)).Should(Equal(true))
@@ -505,8 +504,8 @@ module-types:
 			mta := generateTestMta(source, 1, 1, map[string]string{}, map[string]string{"test-resource-0": "zip", "test-module-0": "folder"})
 			mtaBytes, _ := yaml.Marshal(mta)
 			ioutil.WriteFile(filepath.Join(source, defaultDeploymentDescriptorName), mtaBytes, os.ModePerm)
-			err := CopyMtaContent(source, source, defaultDeploymentDescriptorParam, true, os.Getwd)
-			Ω(err).Should((BeNil()))
+			err := CopyMtaContent(source, source, true, os.Getwd)
+			Ω(err).Should(Succeed())
 			info, _ := os.Stat(source)
 			Ω(dirContainsAllElements(source, map[string]bool{"." + info.Name() + dir.TempFolderSuffix: true}, false)).Should(Equal(true))
 			Ω(dirContainsAllElements(filepath.Join(source, "."+info.Name()+dir.TempFolderSuffix), map[string]bool{"test.zip": true, "test-content": true}, true)).Should(Equal(true))
@@ -516,8 +515,8 @@ module-types:
 			mta := generateTestMta(source, 0, 2, map[string]string{}, map[string]string{"test-resource-0": "zip", "test-resource-1": "folder"})
 			mtaBytes, _ := yaml.Marshal(mta)
 			ioutil.WriteFile(filepath.Join(source, defaultDeploymentDescriptorName), mtaBytes, os.ModePerm)
-			err := CopyMtaContent(source, source, defaultDeploymentDescriptorParam, true, os.Getwd)
-			Ω(err).Should((BeNil()))
+			err := CopyMtaContent(source, source, true, os.Getwd)
+			Ω(err).Should(Succeed())
 			info, _ := os.Stat(source)
 			Ω(dirContainsAllElements(source, map[string]bool{"." + info.Name() + dir.TempFolderSuffix: true}, false)).Should(Equal(true))
 			Ω(dirContainsAllElements(filepath.Join(source, "."+info.Name()+dir.TempFolderSuffix), map[string]bool{"test.zip": true, "test-content": true}, true)).Should(Equal(true))
@@ -527,7 +526,7 @@ module-types:
 			mta := generateTestMta(source, 2, 2, map[string]string{}, map[string]string{"test-resource-0": "zip", "test-resource-1": "zip", "test-module-0": "zip", "test-module-1": "zip"})
 			mtaBytes, _ := yaml.Marshal(mta)
 			ioutil.WriteFile(filepath.Join(source, defaultDeploymentDescriptorName), mtaBytes, os.ModePerm)
-			err := CopyMtaContent(source, source, defaultDeploymentDescriptorParam, false, os.Getwd)
+			err := CopyMtaContent(source, source, false, os.Getwd)
 			Ω(err).Should((BeNil()))
 			info, _ := os.Stat(source)
 			Ω(dirContainsAllElements(source, map[string]bool{"." + info.Name() + dir.TempFolderSuffix: true}, false)).Should(Equal(true))
@@ -539,8 +538,8 @@ module-types:
 			mta := generateTestMta(source, 1, 0, map[string]string{"test-module-0": "test-required"}, map[string]string{"test-module-0": "folder", "test-required": "zip"})
 			mtaBytes, _ := yaml.Marshal(mta)
 			ioutil.WriteFile(filepath.Join(source, defaultDeploymentDescriptorName), mtaBytes, os.ModePerm)
-			err := CopyMtaContent(source, source, defaultDeploymentDescriptorParam, false, os.Getwd)
-			Ω(err).Should((BeNil()))
+			err := CopyMtaContent(source, source, false, os.Getwd)
+			Ω(err).Should(Succeed())
 			info, _ := os.Stat(source)
 			Ω(dirContainsAllElements(source, map[string]bool{"." + info.Name() + dir.TempFolderSuffix: true}, false)).Should(Equal(true))
 			Ω(dirContainsAllElements(filepath.Join(source, "."+info.Name()+dir.TempFolderSuffix), map[string]bool{"test.zip": true, "test-content": true}, true)).Should(Equal(true))
@@ -551,7 +550,7 @@ module-types:
 			mta.Modules[0].Requires[0].Parameters["path"] = "zip1"
 			mtaBytes, _ := yaml.Marshal(mta)
 			ioutil.WriteFile(filepath.Join(source, defaultDeploymentDescriptorName), mtaBytes, os.ModePerm)
-			err := CopyMtaContent(source, source, defaultDeploymentDescriptorParam, true, os.Getwd)
+			err := CopyMtaContent(source, source, true, os.Getwd)
 			Ω(err).Should(HaveOccurred())
 		})
 
@@ -560,8 +559,8 @@ module-types:
 			mta := generateTestMta(source, 1, 0, map[string]string{}, map[string]string{"test-module-0": "not-existing-contet"})
 			mtaBytes, _ := yaml.Marshal(mta)
 			ioutil.WriteFile(filepath.Join(source, defaultDeploymentDescriptorName), mtaBytes, os.ModePerm)
-			err := CopyMtaContent(source, source, defaultDeploymentDescriptorParam, false, os.Getwd)
-			Ω(err).Should(Not(BeNil()))
+			err := CopyMtaContent(source, source, false, os.Getwd)
+			Ω(err).Should(HaveOccurred())
 			Ω(err.Error()).Should(Equal(`"not-existing-content" does not exist in the MTA project location`))
 			info, _ := os.Stat(source)
 			Ω(dirContainsAllElements(source, map[string]bool{info.Name() + dir.TempFolderSuffix: true}, false)).Should(Equal(false))
@@ -573,8 +572,8 @@ module-types:
 			mta := generateTestMta(source, 2, 0, map[string]string{}, map[string]string{"test-module-0": "not-existing-contet", "test-module-1": "zip"})
 			mtaBytes, _ := yaml.Marshal(mta)
 			ioutil.WriteFile(filepath.Join(source, defaultDeploymentDescriptorName), mtaBytes, os.ModePerm)
-			err := CopyMtaContent(source, source, defaultDeploymentDescriptorParam, false, os.Getwd)
-			Ω(err).Should(Not(BeNil()))
+			err := CopyMtaContent(source, source, false, os.Getwd)
+			Ω(err).Should(HaveOccurred())
 			Ω(err.Error()).Should(Equal(`"not-existing-content" does not exist in the MTA project location`))
 			info, _ := os.Stat(source)
 			Ω(dirContainsAllElements(source, map[string]bool{info.Name() + dir.TempFolderSuffix: true}, false)).Should(Equal(false))
@@ -590,8 +589,8 @@ module-types:
 			mta := generateTestMta(source, 10, 0, map[string]string{}, modulesWithSameContent)
 			mtaBytes, _ := yaml.Marshal(mta)
 			ioutil.WriteFile(filepath.Join(source, defaultDeploymentDescriptorName), mtaBytes, os.ModePerm)
-			err := CopyMtaContent(source, source, defaultDeploymentDescriptorParam, false, os.Getwd)
-			Ω(err).Should((BeNil()))
+			err := CopyMtaContent(source, source, false, os.Getwd)
+			Ω(err).Should(Succeed())
 			info, _ := os.Stat(source)
 			Ω(dirContainsAllElements(source, map[string]bool{"." + info.Name() + dir.TempFolderSuffix: true}, false)).Should(Equal(true))
 			Ω(dirContainsAllElements(filepath.Join(source, "."+info.Name()+dir.TempFolderSuffix), map[string]bool{"test.zip": true}, true)).Should(Equal(true))

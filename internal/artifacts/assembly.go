@@ -19,7 +19,7 @@ func Assembly(source, target, platform, mtarName, copyInParallel string, getWd f
 		parallelCopy = false
 	}
 	// copy from source to target
-	err = CopyMtaContent(source, target, dir.Dep, parallelCopy, getWd)
+	err = CopyMtaContent(source, target, parallelCopy, getWd)
 	if err != nil {
 		return errors.Wrap(err, "assembly of the MTA project failed when copying the MTA content")
 	}

@@ -178,7 +178,7 @@ var _ = Describe("manifest", func() {
 			Ω(err).Should(Succeed())
 			err = setManifestDesc(&loc, &loc, &loc, true, mtaObj.Modules, mtaObj.Resources, []string{})
 			Ω(err).Should(HaveOccurred())
-			Ω(err.Error()).Should(ContainSubstring(`failed to generate the manifest file when getting the artifact path of the "java-hello-world" module`))
+			Ω(err.Error()).Should(ContainSubstring(fmt.Sprintf(wrongArtifactPathMsg, "java-hello-world")))
 		})
 		It("With missing resource", func() {
 			Ω(os.MkdirAll(getTestPath("result", ".assembly-sample_mta_build_tmp", "META-INF"), os.ModePerm)).Should(Succeed())
@@ -189,7 +189,7 @@ var _ = Describe("manifest", func() {
 			Ω(err).Should(Succeed())
 			err = setManifestDesc(&loc, &loc, &loc, true, mtaObj.Modules, mtaObj.Resources, []string{})
 			Ω(err).Should(HaveOccurred())
-			Ω(err.Error()).Should(ContainSubstring(`failed to generate the manifest file when getting the "java-uaa" resource content type`))
+			Ω(err.Error()).Should(ContainSubstring(fmt.Sprintf(unknownContentTypeMsg, "java-uaa", resourceMsgProperty)))
 
 		})
 		It("required resource with path fails when the path doesn't exist", func() {
@@ -202,8 +202,7 @@ var _ = Describe("manifest", func() {
 			err = setManifestDesc(&loc, &loc, &loc, true, mtaObj.Modules, mtaObj.Resources, []string{})
 			Ω(err).Should(HaveOccurred())
 			// This fails because the config-site-host.json file (from the path of the required java-site-host) doesn't exist
-			Ω(err.Error()).Should(
-				ContainSubstring(`failed to generate the manifest file when building the required entries of the "java-hello-world-backend" module`))
+			Ω(err.Error()).Should(ContainSubstring(fmt.Sprintf(requiredEntriesProblemMsg, "java-hello-world-backend")))
 		})
 		When("build-artifact-name is defined in the build parameters", func() {
 			It("should take the defined build artifact name when the build artifact exists", func() {
@@ -252,7 +251,7 @@ var _ = Describe("manifest", func() {
 				loc := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath(), MtaFilename: "mtaArtifactWithUnknownType.yaml"}
 				mtaObj, _ := loc.ParseFile()
 				err := setManifestDesc(&loc, &loc, &loc, false, mtaObj.Modules, []*mta.Resource{}, []string{})
-				Ω(err.Error()).Should(ContainSubstring(fmt.Sprintf(UnknownContentTypeMsg, "node-js", ModuleMsgProperty)))
+				Ω(err.Error()).Should(ContainSubstring(fmt.Sprintf(unknownContentTypeMsg, "node-js", moduleMsgProperty)))
 			})
 			It("should fail when build-artifact-name is not a string value", func() {
 				Ω(os.MkdirAll(getTestPath("result", ".mta_mta_build_tmp", "node-js"), os.ModePerm)).Should(Succeed())
@@ -270,7 +269,7 @@ var _ = Describe("manifest", func() {
 				mtaObj, _ := loc.ParseFile()
 				err := setManifestDesc(&loc, &loc, &loc, false, mtaObj.Modules, []*mta.Resource{}, []string{})
 				Ω(err).Should(HaveOccurred())
-				Ω(err.Error()).Should(ContainSubstring(`failed to generate the manifest file when getting the artifact path of the "node-js" module`))
+				Ω(err.Error()).Should(ContainSubstring(fmt.Sprintf(wrongArtifactPathMsg, "node-js")))
 			})
 			It("should fail when the build artifact doesn't exist in the module folder", func() {
 				Ω(os.MkdirAll(getTestPath("result", ".mta_mta_build_tmp", "node-js"), os.ModePerm)).Should(Succeed())
@@ -278,14 +277,14 @@ var _ = Describe("manifest", func() {
 				mtaObj, _ := loc.ParseFile()
 				err := setManifestDesc(&loc, &loc, &loc, false, mtaObj.Modules, []*mta.Resource{}, []string{})
 				Ω(err).Should(HaveOccurred())
-				Ω(err.Error()).Should(ContainSubstring(`failed to generate the manifest file when getting the artifact path of the "node-js" module`))
+				Ω(err.Error()).Should(ContainSubstring(fmt.Sprintf(wrongArtifactPathMsg, "node-js")))
 			})
 			It("should fail when the module folder doesn't exist", func() {
 				loc := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath(), MtaFilename: "mtaBuildArtifact.yaml"}
 				mtaObj, _ := loc.ParseFile()
 				err := setManifestDesc(&loc, &loc, &loc, false, mtaObj.Modules, []*mta.Resource{}, []string{})
 				Ω(err).Should(HaveOccurred())
-				Ω(err.Error()).Should(ContainSubstring(`failed to generate the manifest file when getting the artifact path of the "node-js" module`))
+				Ω(err.Error()).Should(ContainSubstring(fmt.Sprintf(wrongArtifactPathMsg, "node-js")))
 			})
 		})
 	})

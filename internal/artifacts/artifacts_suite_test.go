@@ -1,6 +1,7 @@
 package artifacts
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -35,6 +36,7 @@ func getResultPath() string {
 func removeSpecialSymbols(b []byte) string {
 	reg, _ := regexp.Compile("[^a-zA-Z0-9._{}]+")
 	s := string(b)
+	fmt.Println(s)
 	s = strings.Replace(s, "0xd, ", "", -1)
 	s = reg.ReplaceAllString(s, "")
 	return s

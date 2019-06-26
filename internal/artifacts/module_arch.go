@@ -214,10 +214,10 @@ func copyModuleArchive(ep dir.IModule, modulePath, moduleName string) error {
 
 // CopyMtaContent copies the content of all modules and resources which are presented in the deployment descriptor,
 // in the source directory, to the target directory
-func CopyMtaContent(source, target, desc string, copyInParallel bool, wdGetter func() (string, error)) error {
+func CopyMtaContent(source, target string, copyInParallel bool, wdGetter func() (string, error)) error {
 
 	logs.Logger.Info("copying the MTA content...")
-	loc, err := dir.Location(source, target, desc, wdGetter)
+	loc, err := dir.Location(source, target, dir.Dep, wdGetter)
 	if err != nil {
 		return errors.Wrap(err,
 			"copying the MTA content failed during the initialization of deployment descriptor location")
