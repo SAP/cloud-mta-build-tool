@@ -33,7 +33,6 @@ var _ = Describe("Assembly", func() {
 		compareActualAndGolden(mtarFile, "MANIFEST.MF", getTestPath("assembly", "golden.mf"))
 	})
 
-
 	var _ = DescribeTable("Fails on location initialization", func(maxCalls int) {
 		calls := 0
 		err := Assembly("",

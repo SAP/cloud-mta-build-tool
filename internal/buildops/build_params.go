@@ -28,7 +28,7 @@ const (
 	targetPathParam           = "target-path"
 
 	// WrongBuildResultMsg - message raised on wrong build result
-	WrongBuildResultMsg       = `the build result must be a string; change "%v" in the "%s" module for a string value`
+	WrongBuildResultMsg = `the build result must be a string; change "%v" in the "%s" module for a string value`
 	// WrongBuildArtifactNameMsg - message raised on wrong build artifact name
 	WrongBuildArtifactNameMsg = `the build artifact name must be a string; change "%v" in the "%s" module for a string value`
 	wrongPathMsg              = `could not find the "%s" module path`
@@ -129,7 +129,7 @@ func ProcessRequirements(ep dir.ISourceModule, mta *mta.MTA, requires *BuildRequ
 	}
 
 	// Build paths for artifacts copying
-	sourcePath, _,_, err := GetModuleSourceArtifactPath(ep, false, requiredModule, defaultBuildResult)
+	sourcePath, _, _, err := GetModuleSourceArtifactPath(ep, false, requiredModule, defaultBuildResult)
 	if err != nil {
 		return errors.Wrapf(err,
 			`the processing requirements of the "%v" module that is based on the "%v" module failed when getting the build results path`,
@@ -210,7 +210,7 @@ func GetModuleTargetArtifactPath(source dir.ISourceModule, loc dir.ITargetPath, 
 		if err != nil {
 			return "", false, err
 		}
-		artifactName, artifactExt,  err := getArtifactInfo(isArchive, module, moduleSourceArtifactPath)
+		artifactName, artifactExt, err := getArtifactInfo(isArchive, module, moduleSourceArtifactPath)
 		if err != nil {
 			return "", false, err
 		}
