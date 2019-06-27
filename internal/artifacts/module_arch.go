@@ -21,9 +21,9 @@ const (
 )
 
 // ExecuteBuild - executes build of module
-func ExecuteBuild(source, target, desc, moduleName, platform string, wdGetter func() (string, error)) error {
+func ExecuteBuild(source, target, moduleName, platform string, wdGetter func() (string, error)) error {
 	logs.Logger.Infof(`building the "%s" module...`, moduleName)
-	loc, err := dir.Location(source, target, desc, wdGetter)
+	loc, err := dir.Location(source, target, dir.Dev, wdGetter)
 	if err != nil {
 		return errors.Wrapf(err, `build of the "%s" module failed when initializing the location`, moduleName)
 	}
@@ -32,7 +32,7 @@ func ExecuteBuild(source, target, desc, moduleName, platform string, wdGetter fu
 	if err != nil {
 		return err
 	}
-	err = buildModule(loc, loc, loc, loc.IsDeploymentDescriptor(), moduleName, platform)
+	err = buildModule(loc, loc, loc, moduleName, platform)
 	if err != nil {
 		return err
 	}
@@ -40,10 +40,10 @@ func ExecuteBuild(source, target, desc, moduleName, platform string, wdGetter fu
 }
 
 // ExecutePack - executes packing of module
-func ExecutePack(source, target, desc, moduleName, platform string, wdGetter func() (string, error)) error {
+func ExecutePack(source, target, moduleName, platform string, wdGetter func() (string, error)) error {
 	logs.Logger.Infof(`packing the "%s" module...`, moduleName)
 
-	loc, err := dir.Location(source, target, desc, wdGetter)
+	loc, err := dir.Location(source, target, dir.Dev, wdGetter)
 	if err != nil {
 		return errors.Wrapf(err, `packing of the "%s" module failed when initializing the location`, moduleName)
 	}
@@ -67,7 +67,7 @@ func ExecutePack(source, target, desc, moduleName, platform string, wdGetter fun
 }
 
 // buildModule - builds module
-func buildModule(mtaParser dir.IMtaParser, moduleLoc dir.IModule, targetLoc dir.ITargetPath, deploymentDesc bool, moduleName, platform string) error {
+func buildModule(mtaParser dir.IMtaParser, moduleLoc dir.IModule, targetLoc dir.ITargetPath, moduleName, platform string) error {
 
 	// Get module respective command's to execute
 	module, mCmd, defaultBuildResults, err := commands.GetModuleAndCommands(mtaParser, moduleName)
@@ -75,35 +75,28 @@ func buildModule(mtaParser dir.IMtaParser, moduleLoc dir.IModule, targetLoc dir.
 		return errors.Wrapf(err, `build of the "%s" module failed when getting commands`, moduleName)
 	}
 
-	if !deploymentDesc {
-
-		// Development descriptor - build includes:
-		// 1. module dependencies processing
-		e := buildops.ProcessDependencies(mtaParser, moduleLoc, moduleName)
-		if e != nil {
-			return errors.Wrapf(e, `build of the "%s" module failed when processing dependencies`, moduleName)
-		}
-
-		// 2. module type dependent commands execution
-		modulePath := moduleLoc.GetSourceModuleDir(module.Path)
-
-		// Get module commands
-		commandList := commands.CmdConverter(modulePath, mCmd)
-
-		// Execute child-process with module respective commands
-		e = exec.Execute(commandList)
-		if e != nil {
-			return errors.Wrapf(e, `build of the "%s" module failed when executing commands`, moduleName)
-		}
-
-		// 3. Packing the modules build artifacts (include node modules)
-		// into the artifactsPath dir as data zip
-		e = packModule(moduleLoc, targetLoc, module, moduleName, platform, defaultBuildResults)
-		if e != nil {
-			return e
-		}
+	// Development descriptor - build includes:
+	// 1. module dependencies processing
+	e := buildops.ProcessDependencies(mtaParser, moduleLoc, moduleName)
+	if e != nil {
+		return errors.Wrapf(e, `build of the "%s" module failed when processing dependencies`, moduleName)
 	}
-	return nil
+
+	// 2. module type dependent commands execution
+	modulePath := moduleLoc.GetSourceModuleDir(module.Path)
+
+	// Get module commands
+	commandList := commands.CmdConverter(modulePath, mCmd)
+
+	// Execute child-process with module respective commands
+	e = exec.Execute(commandList)
+	if e != nil {
+		return errors.Wrapf(e, `build of the "%s" module failed when executing commands`, moduleName)
+	}
+
+	// 3. Packing the modules build artifacts (include node modules)
+	// into the artifactsPath dir as data zip
+	return packModule(moduleLoc, targetLoc, module, moduleName, platform, defaultBuildResults)
 }
 
 // packModule - pack build module artifacts

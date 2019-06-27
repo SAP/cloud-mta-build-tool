@@ -13,12 +13,12 @@ import (
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
 
-	"github.com/SAP/cloud-mta/mta"
 	"gopkg.in/yaml.v2"
 
 	"github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta-build-tool/internal/buildops"
 	"github.com/SAP/cloud-mta-build-tool/internal/commands"
+	"github.com/SAP/cloud-mta/mta"
 )
 
 var _ = Describe("ModuleArch", func() {
@@ -56,57 +56,57 @@ builders:
 	var _ = Describe("ExecuteBuild", func() {
 
 		It("Sanity", func() {
-			Ω(ExecuteBuild(getTestPath("mta"), getResultPath(), dir.Dev, "node-js", "cf", os.Getwd)).Should(Succeed())
+			Ω(ExecuteBuild(getTestPath("mta"), getResultPath(), "node-js", "cf", os.Getwd)).Should(Succeed())
 			loc := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath()}
 			Ω(loc.GetTargetModuleZipPath("node-js")).Should(BeAnExistingFile())
 
 		})
 
 		It("Fails on platform validation", func() {
-			Ω(ExecuteBuild(getTestPath("mta"), getResultPath(), dir.Dev, "node-js", "xx", os.Getwd)).Should(HaveOccurred())
+			Ω(ExecuteBuild(getTestPath("mta"), getResultPath(), "node-js", "xx", os.Getwd)).Should(HaveOccurred())
 
 		})
 
 		It("Fails on location initialization", func() {
-			Ω(ExecuteBuild("", "", dir.Dev, "ui5app", "cf", func() (string, error) {
+			Ω(ExecuteBuild("", "", "ui5app", "cf", func() (string, error) {
 				return "", errors.New("err")
 			})).Should(HaveOccurred())
 		})
 
 		It("Fails on wrong module", func() {
-			Ω(ExecuteBuild(getTestPath("mta"), getResultPath(), dir.Dev, "ui5app", "cf", os.Getwd)).Should(HaveOccurred())
+			Ω(ExecuteBuild(getTestPath("mta"), getResultPath(), "ui5app", "cf", os.Getwd)).Should(HaveOccurred())
 		})
 	})
 
 	var _ = Describe("ExecutePack", func() {
 
 		It("Sanity", func() {
-			Ω(ExecutePack(getTestPath("mta"), getResultPath(), dir.Dev, "node-js",
+			Ω(ExecutePack(getTestPath("mta"), getResultPath(), "node-js",
 				"cf", os.Getwd)).Should(Succeed())
 			loc := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath()}
 			Ω(loc.GetTargetModuleZipPath("node-js")).Should(BeAnExistingFile())
 		})
 
 		It("Fails on platform validation", func() {
-			Ω(ExecutePack(getTestPath("mta"), getResultPath(), dir.Dev, "node-js",
+			Ω(ExecutePack(getTestPath("mta"), getResultPath(), "node-js",
 				"xx", os.Getwd)).Should(HaveOccurred())
 		})
 
 		It("Fails on location initialization", func() {
-			Ω(ExecutePack("", "", dir.Dev, "ui5app", "cf", func() (string, error) {
+			Ω(ExecutePack("", "", "ui5app", "cf", func() (string, error) {
 				return "", errors.New("err")
 			})).Should(HaveOccurred())
 		})
 
 		It("Fails on wrong module", func() {
-			Ω(ExecutePack(getTestPath("mta"), getResultPath(), dir.Dev, "ui5appx",
+			Ω(ExecutePack(getTestPath("mta"), getResultPath(), "ui5appx",
 				"cf", os.Getwd)).Should(HaveOccurred())
 		})
 
 		It("Target folder exists as file", func() {
 			dir.CreateDirIfNotExist(getTestPath("result", ".mta_mta_build_tmp"))
 			createFile("result", ".mta_mta_build_tmp", "node-js")
-			Ω(ExecutePack(getTestPath("mta"), getResultPath(), dir.Dev, "node-js",
+			Ω(ExecutePack(getTestPath("mta"), getResultPath(), "node-js",
 				"cf", os.Getwd)).Should(HaveOccurred())
 		})
 	})
@@ -372,7 +372,7 @@ builders:
 
 			It("Sanity", func() {
 				ep := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath()}
-				Ω(buildModule(&ep, &ep, &ep, false, "node-js", "cf")).Should(Succeed())
+				Ω(buildModule(&ep, &ep, &ep, "node-js", "cf")).Should(Succeed())
 				Ω(ep.GetTargetModuleZipPath("node-js")).Should(BeAnExistingFile())
 			})
 
@@ -392,20 +392,20 @@ module-types:
 `)
 
 				ep := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath()}
-				Ω(buildModule(&ep, &ep, &ep, false, "node-js", "cf")).Should(HaveOccurred())
+				Ω(buildModule(&ep, &ep, &ep, "node-js", "cf")).Should(HaveOccurred())
 			})
 
 			It("Target folder exists as a file - dev", func() {
 				dir.CreateDirIfNotExist(getTestPath("result", ".mta_mta_build_tmp"))
 				ep := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath()}
 				createFile("result", ".mta_mta_build_tmp", "node-js")
-				Ω(buildModule(&ep, &ep, &ep, false, "node-js", "cf")).Should(HaveOccurred())
+				Ω(buildModule(&ep, &ep, &ep, "node-js", "cf")).Should(HaveOccurred())
 			})
 
 			var _ = DescribeTable("Invalid inputs", func(projectName, mtaFilename, moduleName string) {
 				ep := dir.Loc{SourcePath: getTestPath(projectName), TargetPath: getResultPath(), MtaFilename: mtaFilename}
 				Ω(ep.GetTargetTmpDir()).ShouldNot(BeADirectory())
-				Ω(buildModule(&ep, &ep, &ep, false, moduleName, "cf")).Should(HaveOccurred())
+				Ω(buildModule(&ep, &ep, &ep, moduleName, "cf")).Should(HaveOccurred())
 				Ω(ep.GetTargetTmpDir()).ShouldNot(BeADirectory())
 			},
 				Entry("Invalid path to application", "mta1", "mta.yaml", "node-js"),

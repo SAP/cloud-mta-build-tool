@@ -11,14 +11,12 @@ import (
 // flags of pack command
 var packCmdSrc string
 var packCmdTrg string
-var packCmdDesc string
 var packCmdModule string
 var packCmdPlatform string
 
 // flags of build command
 var buildCmdSrc string
 var buildCmdTrg string
-var buildCmdDesc string
 var buildCmdModule string
 var buildCmdPlatform string
 
@@ -29,8 +27,6 @@ func init() {
 		"the path to the MTA project; the current path is is set as the default")
 	packModuleCmd.Flags().StringVarP(&packCmdTrg, "target", "t", "",
 		"the path to the MBT results folder; the current path is set as the default")
-	packModuleCmd.Flags().StringVarP(&packCmdDesc, "desc", "d", "",
-		`the MTA descriptor; supported values: "dev" (development descriptor, default value) and "dep" (deployment descriptor)`)
 	packModuleCmd.Flags().StringVarP(&packCmdModule, "module", "m", "",
 		"the name of the module")
 	packModuleCmd.Flags().StringVarP(&packCmdPlatform, "platform", "p", "",
@@ -41,8 +37,6 @@ func init() {
 		"the path to the MTA project; the current path is set as the default")
 	buildModuleCmd.Flags().StringVarP(&buildCmdTrg, "target", "t", "",
 		"the path to the MBT results folder; the current path is set as the default")
-	buildModuleCmd.Flags().StringVarP(&buildCmdDesc, "desc", "d", "",
-		`the MTA descriptor; supported values: "dev" (development descriptor, default value) and "dep" (deployment descriptor)`)
 	buildModuleCmd.Flags().StringVarP(&buildCmdModule, "module", "m", "",
 		"the name of the module")
 	buildModuleCmd.Flags().StringVarP(&buildCmdPlatform, "platform", "p", "",
@@ -56,7 +50,7 @@ var buildModuleCmd = &cobra.Command{
 	Long:  "builds module and archives its artifacts",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		err := artifacts.ExecuteBuild(buildCmdSrc, buildCmdTrg, buildCmdDesc, buildCmdModule, buildCmdPlatform, os.Getwd)
+		err := artifacts.ExecuteBuild(buildCmdSrc, buildCmdTrg, buildCmdModule, buildCmdPlatform, os.Getwd)
 		logError(err)
 		return err
 	},
@@ -75,7 +69,7 @@ var packModuleCmd = &cobra.Command{
 	Long:  "packs the module artifacts after the build process",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		err := artifacts.ExecutePack(packCmdSrc, packCmdTrg, packCmdDesc, packCmdModule, packCmdPlatform, os.Getwd)
+		err := artifacts.ExecutePack(packCmdSrc, packCmdTrg, packCmdModule, packCmdPlatform, os.Getwd)
 		logError(err)
 		return err
 	},
