@@ -104,7 +104,7 @@ builders:
 		})
 
 		It("Target folder exists as file", func() {
-			os.MkdirAll(getTestPath("result", ".mta_mta_build_tmp"), os.ModePerm)
+			dir.CreateDirIfNotExist(getTestPath("result", ".mta_mta_build_tmp"))
 			createFile("result", ".mta_mta_build_tmp", "node-js")
 			Ω(ExecutePack(getTestPath("mta"), getResultPath(), dir.Dev, "node-js",
 				"cf", os.Getwd)).Should(HaveOccurred())
@@ -179,7 +179,7 @@ builders:
 					TargetPath: getResultPath(),
 					Descriptor: dir.Dev,
 				}
-				Ω(os.MkdirAll(filepath.Join(ep.GetTarget(), ".mta_with_zipped_module_mta_build_tmp"), os.ModePerm)).Should(Succeed())
+				Ω(dir.CreateDirIfNotExist(filepath.Join(ep.GetTarget(), ".mta_with_zipped_module_mta_build_tmp"))).Should(Succeed())
 				createFile("result", ".mta_with_zipped_module_mta_build_tmp", "node-js")
 				Ω(packModule(&ep, &ep, &m, "node-js", "cf", "")).Should(HaveOccurred())
 			})
@@ -396,32 +396,10 @@ module-types:
 			})
 
 			It("Target folder exists as a file - dev", func() {
-				os.MkdirAll(getTestPath("result", ".mta_mta_build_tmp"), os.ModePerm)
+				dir.CreateDirIfNotExist(getTestPath("result", ".mta_mta_build_tmp"))
 				ep := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath()}
 				createFile("result", ".mta_mta_build_tmp", "node-js")
 				Ω(buildModule(&ep, &ep, &ep, false, "node-js", "cf")).Should(HaveOccurred())
-			})
-
-			It("Target folder exists as a file - dep", func() {
-				os.MkdirAll(getTestPath("result", "mta"), os.ModePerm)
-				ep := dir.Loc{
-					SourcePath:  getTestPath("mta"),
-					TargetPath:  getResultPath(),
-					Descriptor:  dir.Dep,
-					MtaFilename: "mta.yaml",
-				}
-				createFile("result", "mta", "node-js")
-				Ω(buildModule(&ep, &ep, &ep, true, "node-js", "cf")).Should(HaveOccurred())
-			})
-
-			It("Deployment Descriptor", func() {
-				ep := dir.Loc{
-					SourcePath:  getTestPath("mta_with_zipped_module"),
-					TargetPath:  getResultPath(),
-					MtaFilename: "mta.yaml",
-					Descriptor:  dir.Dep}
-				Ω(buildModule(&ep, &ep, &ep, true, "node-js", "cf")).Should(Succeed())
-				Ω(ep.GetTargetModuleZipPath("node-js")).Should(BeAnExistingFile())
 			})
 
 			var _ = DescribeTable("Invalid inputs", func(projectName, mtaFilename, moduleName string) {
@@ -434,25 +412,6 @@ module-types:
 				Entry("Invalid module name", "mta", "mta.yaml", "xxx"),
 				Entry("Invalid module name wrong build params", "mtahtml5", "mtaWithWrongBuildParams.yaml", "ui5app"),
 			)
-		})
-	})
-
-	var _ = Describe("copyModuleArchive", func() {
-
-		It("Sanity", func() {
-			ep := dir.Loc{SourcePath: getTestPath("mta_with_zipped_module"), TargetPath: getResultPath()}
-			Ω(copyModuleArchive(&ep, "node-js", "node-js")).Should(Succeed())
-			Ω(ep.GetTargetModuleZipPath("node-js")).Should(BeAnExistingFile())
-		})
-		It("Invalid - no zip exists", func() {
-			ep := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath()}
-			Ω(copyModuleArchive(&ep, "node-js", "node-js")).Should(HaveOccurred())
-		})
-		It("Target directory exists as file", func() {
-			ep := dir.Loc{SourcePath: getTestPath("mta_with_zipped_module"), TargetPath: getResultPath()}
-			os.MkdirAll(getTestPath("result", ".mta_with_zipped_module_mta_build_tmp"), os.ModePerm)
-			createFile("result", ".mta_with_zipped_module_mta_build_tmp", "node-js")
-			Ω(copyModuleArchive(&ep, "node-js", "node-js")).Should(HaveOccurred())
 		})
 	})
 

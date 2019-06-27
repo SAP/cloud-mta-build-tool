@@ -2,6 +2,7 @@ package commands
 
 import (
 	"fmt"
+	dir "github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"os"
 	"path/filepath"
 
@@ -34,7 +35,7 @@ var _ = Describe("Commands", func() {
 	var _ = Describe("cleanup command", func() {
 
 		BeforeEach(func() {
-			os.MkdirAll(getTestPath("resultClean", "mtahtml5", "mtahtml5"), os.ModePerm)
+			dir.CreateDirIfNotExist(getTestPath("resultClean", "mtahtml5", "mtahtml5"))
 		})
 
 		AfterEach(func() {

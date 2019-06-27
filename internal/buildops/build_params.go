@@ -17,7 +17,8 @@ const (
 	// SupportedPlatformsParam - name of build-params property for supported platforms
 	SupportedPlatformsParam = "supported-platforms"
 
-	// ModuleArtifactDefaultName - module artifact default name
+	// ModuleArtifactDefaultName - the default name of the build artifact.
+	// It can be changed using properties like build-result or build-artifact-name in the build parameters.
 	ModuleArtifactDefaultName = "data.zip"
 	builderParam              = "builder"
 	requiresParam             = "requires"
@@ -28,7 +29,7 @@ const (
 	targetPathParam           = "target-path"
 
 	// WrongBuildResultMsg - message raised on wrong build result
-	WrongBuildResultMsg = `the build result must be a string; change "%v" in the "%s" module for a string value`
+	WrongBuildResultMsg = `the build result must be a string; change "%s" in the "%s" module for a string value`
 	// WrongBuildArtifactNameMsg - message raised on wrong build artifact name
 	WrongBuildArtifactNameMsg = `the build artifact name must be a string; change "%v" in the "%s" module for a string value`
 	wrongPathMsg              = `could not find the "%s" module path`
@@ -110,21 +111,21 @@ func ProcessRequirements(ep dir.ISourceModule, mta *mta.MTA, requires *BuildRequ
 	module, err := mta.GetModuleByName(moduleName)
 	if err != nil {
 		return errors.Wrapf(err,
-			`the processing requirements of the "%v" module that is based on the "%v" module failed when getting the "%v" module`,
+			`the processing requirements of the "%s" module that is based on the "%s" module failed when getting the "%s" module`,
 			moduleName, requires.Name, moduleName)
 	}
 
 	requiredModule, err := mta.GetModuleByName(requires.Name)
 	if err != nil {
 		return errors.Wrapf(err,
-			`the processing requirements of the "%v" module that is based on the "%v" module failed when getting the "%v" module`,
+			`the processing requirements of the "%s" module that is based on the "%s" module failed when getting the "%s" module`,
 			moduleName, requires.Name, requires.Name)
 	}
 
 	_, defaultBuildResult, err := commands.CommandProvider(*requiredModule)
 	if err != nil {
 		return errors.Wrapf(err,
-			`the processing requirements of the "%v" module that is based on the "%v" module failed when getting the "%v" module commands`,
+			`the processing requirements of the "%s" module that is based on the "%s" module failed when getting the "%s" module commands`,
 			moduleName, requires.Name, requires.Name)
 	}
 
@@ -132,7 +133,7 @@ func ProcessRequirements(ep dir.ISourceModule, mta *mta.MTA, requires *BuildRequ
 	sourcePath, _, _, err := GetModuleSourceArtifactPath(ep, false, requiredModule, defaultBuildResult)
 	if err != nil {
 		return errors.Wrapf(err,
-			`the processing requirements of the "%v" module that is based on the "%v" module failed when getting the build results path`,
+			`the processing requirements of the "%s" module that is based on the "%s" module failed when getting the build results path`,
 			moduleName, requires.Name)
 	}
 	targetPath := getRequiredTargetPath(ep, module, requires)
@@ -141,7 +142,7 @@ func ProcessRequirements(ep dir.ISourceModule, mta *mta.MTA, requires *BuildRequ
 	err = dir.CopyByPatterns(sourcePath, targetPath, requires.Artifacts)
 	if err != nil {
 		return errors.Wrapf(err,
-			`the processing requirements of the "%v" module that is based on the "%v" module failed when copying artifacts`,
+			`the processing requirements of the "%s" module that is based on the "%s" module failed when copying artifacts`,
 			moduleName, requiredModule.Name)
 	}
 	return nil
@@ -198,7 +199,7 @@ func findPath(pathOrPattern string) string {
 	return path
 }
 
-// GetModuleTargetArtifactPath - get the path to where the module's artifact should be created in the temp folder, from which it's archived in the mtar"
+// GetModuleTargetArtifactPath - get the path to where the module's artifact should be created in the temp folder, from which it's archived in the mtar
 func GetModuleTargetArtifactPath(source dir.ISourceModule, loc dir.ITargetPath, depDesc bool, module *mta.Module, defaultBuildResult string) (path string, toArchive bool, e error) {
 	if module.Path == "" {
 		return "", false, nil

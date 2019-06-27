@@ -191,7 +191,7 @@ func (ep *Loc) GetManifestPath() string {
 // ValidateDeploymentDescriptor validates the deployment descriptor.
 func ValidateDeploymentDescriptor(descriptor string) error {
 	if descriptor != "" && descriptor != Dev && descriptor != Dep {
-		return fmt.Errorf(`the "%v" descriptor is invalid; expected one of the following values: Dev, Dep`, descriptor)
+		return fmt.Errorf(`the "%s" descriptor is invalid; expected one of the following values: Dev, Dep`, descriptor)
 	}
 	return nil
 }

@@ -47,7 +47,7 @@ var _ = Describe("Commands", func() {
 			packCmdPlatform = "cf"
 			ep := dir.Loc{SourcePath: packCmdSrc, TargetPath: packCmdTrg}
 			targetTmpDir := ep.GetTargetTmpDir()
-			err := os.MkdirAll(targetTmpDir, os.ModePerm)
+			err := dir.CreateDirIfNotExist(targetTmpDir)
 			if err != nil {
 				logs.Logger.Error(err)
 			}

@@ -54,13 +54,13 @@ func ExecuteGenMtad(source, target, platform string, wdGetter func() (string, er
 	// get mta object
 	mtaStr, err := loc.ParseFile()
 	if err != nil {
-		return errors.Wrapf(err, `generation of the MTAD file failed when parsing the "%v" file`, loc.GetMtaYamlFilename())
+		return errors.Wrapf(err, `generation of the MTAD file failed when parsing the "%s" file`, loc.GetMtaYamlFilename())
 	}
 
 	// get extension object if defined
 	mtaExt, err := loc.ParseExtFile(platform)
 	if err != nil {
-		return errors.Wrapf(err, `generation of the MTAD file failed when parsing the "%v" file`, loc.GetMtaExtYamlPath(platform))
+		return errors.Wrapf(err, `generation of the MTAD file failed when parsing the "%s" file`, loc.GetMtaExtYamlPath(platform))
 	}
 
 	// merge mta and extension objects
@@ -98,7 +98,7 @@ func genMtad(mtaStr *mta.MTA, ep dir.ITargetArtifacts, deploymentDesc bool, plat
 		err := ConvertTypes(*mtaStr, platform)
 		if err != nil {
 			return errors.Wrapf(err,
-				`generation of the MTAD file failed when converting types according to the "%v" platform`,
+				`generation of the MTAD file failed when converting types according to the "%s" platform`,
 				platform)
 		}
 	}
@@ -157,7 +157,7 @@ func removeBuildParamsFromMta(loc dir.ITargetPath, mtaStr *mta.MTA) error {
 		m.BuildParams = map[string]interface{}{}
 		err := adaptModulePath(loc, m)
 		if err != nil {
-			return errors.Wrapf(err, `failed to clean the build parameters from the "%v" module`, m.Name)
+			return errors.Wrapf(err, `failed to clean the build parameters from the "%s" module`, m.Name)
 		}
 	}
 	return nil

@@ -181,7 +181,7 @@ var _ = Describe("FSOPS", func() {
 		It("Sanity", func() {
 			sourcePath := getFullPath("testdata", "level2", "level3")
 			targetPath := getFullPath("testdata", "result")
-			os.MkdirAll(targetPath, os.ModePerm)
+			CreateDirIfNotExist(targetPath)
 			files, _ := ioutil.ReadDir(sourcePath)
 			// Files wrapped to overwrite their methods
 			var filesWrapped []os.FileInfo
@@ -196,7 +196,7 @@ var _ = Describe("FSOPS", func() {
 		It("Sanity - copy in parallel", func() {
 			sourcePath := getFullPath("testdata", "level2", "level3")
 			targetPath := getFullPath("testdata", "result")
-			os.MkdirAll(targetPath, os.ModePerm)
+			CreateDirIfNotExist(targetPath)
 			files, _ := ioutil.ReadDir(sourcePath)
 			// Files wrapped to overwrite their methods
 			var filesWrapped []os.FileInfo
