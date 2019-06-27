@@ -19,7 +19,7 @@ func CreateDirIfNotExist(dir string) error {
 	info, err := os.Stat(dir)
 	if os.IsNotExist(err) {
 		err = os.MkdirAll(dir, os.ModePerm)
-	} else if err==nil && !info.IsDir() {
+	} else if err == nil && !info.IsDir() {
 		err = fmt.Errorf("creation of the %s folder failed because a file exists with the same name", dir)
 	}
 	return err

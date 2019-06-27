@@ -124,7 +124,7 @@ func packModule(source dir.IModule, target dir.ITargetPath, module *mta.Module, 
 	if err != nil {
 		return errors.Wrapf(err, `packing the "%s" module failed while getting the build artifact target path`,
 			moduleName)
-	}                 
+	}
 
 	if !toArchive {
 		return copyModuleArchiveToResultDir(sourceArtifact, targetArtifact, moduleName)
