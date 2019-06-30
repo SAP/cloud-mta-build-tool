@@ -67,27 +67,29 @@ var _ = Describe("FSOPS", func() {
 			os.RemoveAll(targetFilePath)
 		})
 
-		var _ = DescribeTable("Archive", func(source, target string, ignore []string, matcher GomegaMatcher, created bool) {
+		var _ = DescribeTable("Archive", func(source, target string, ignore []string, fails bool) {
 
-			Ω(Archive(source, target, ignore)).Should(matcher)
-			if created {
-				Ω(target).Should(BeAnExistingFile())
+			err := Archive(source, target, ignore)
+			if fails {
+				Ω(err).Should(HaveOccurred())
 			} else {
-				Ω(target).ShouldNot(BeAnExistingFile())
+				Ω(err).Should(Succeed())
+				Ω(target).Should(BeAnExistingFile())
 			}
 		},
 			Entry("Sanity",
-				getFullPath("testdata", "mtahtml5"), targetFilePath, nil, Succeed(), true),
+				getFullPath("testdata", "mtahtml5"), targetFilePath, nil, false),
+			Entry("Target is file",
+				getFullPath("testdata", "mtahtml5"), getFullPath("testdata"), nil, true),
 			Entry("Sanity - ignore folder",
-				getFullPath("testdata", "testproject"), targetFilePath, []string{"ui5app/"}, Succeed(), true),
+				getFullPath("testdata", "testproject"), targetFilePath, []string{"ui5app/"}, false),
 			Entry("Sanity - ignore file",
-				getFullPath("testdata", "testproject"), targetFilePath, []string{"ui5app/Gr*.js"}, Succeed(), true),
+				getFullPath("testdata", "testproject"), targetFilePath, []string{"ui5app/Gr*.js"}, false),
 			Entry("SourceIsNotFolder",
-				getFullPath("testdata", "level2", "level2_one.txt"), targetFilePath, nil, Succeed(), true),
+				getFullPath("testdata", "level2", "level2_one.txt"), targetFilePath, nil, false),
 			Entry("Target is empty string",
-				getFullPath("testdata", "mtahtml5"), "", nil, HaveOccurred(), false),
-			Entry("Source is empty string",
-				"", "", nil, HaveOccurred(), false),
+				getFullPath("testdata", "mtahtml5"), "", nil, true),
+			Entry("Source is empty string", "", "", nil, true),
 		)
 	})
 

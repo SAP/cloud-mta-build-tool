@@ -92,7 +92,7 @@ var _ = Describe("manifest", func() {
 			Ω(setManifestDesc(&loc, &loc, &loc, false, mtaObj.Modules, []*mta.Resource{})).Should(HaveOccurred())
 		})
 		It("entry for module with defined build-result has the build-result file", func() {
-			Ω(os.Mkdir(getTestPath("result", ".mta_mta_build_tmp", "node-js"), os.ModePerm)).Should(Succeed())
+			Ω(os.MkdirAll(getTestPath("result", ".mta_mta_build_tmp", "node-js"), os.ModePerm)).Should(Succeed())
 			createTmpFile(getTestPath("result", ".mta_mta_build_tmp", "node-js", "data1.zip"))
 			loc := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath(), MtaFilename: "mtaBuildResult.yaml"}
 			mtaObj, _ := loc.ParseFile()

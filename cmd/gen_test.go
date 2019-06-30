@@ -74,11 +74,9 @@ var _ = Describe("Commands", func() {
 			platform.PlatformConfig = config
 		})
 		It("Generate Mtar", func() {
-			dir.CreateDirIfNotExist(getTestPath("result", ".mtahtml5_mta_build_tmp", "testapp"))
 			dir.CreateDirIfNotExist(getTestPath("result", ".mtahtml5_mta_build_tmp", "ui5app2"))
 			file, _ := os.Create(getTestPath("result", ".mtahtml5_mta_build_tmp", "xs-security.json"))
 			file.Close()
-			dir.CreateDirIfNotExist(getTestPath("result", ".mtahtml5_mta_build_tmp", "ui5app2"))
 			dir.CreateDirIfNotExist(getTestPath("result", ".mtahtml5_mta_build_tmp", "ui5app"))
 			file, _ = os.Create(getTestPath("result", ".mtahtml5_mta_build_tmp", "ui5app", "data.zip"))
 			file.Close()

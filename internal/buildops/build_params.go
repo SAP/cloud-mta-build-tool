@@ -221,6 +221,8 @@ func GetModuleTargetArtifactPath(source dir.ISourceModule, loc dir.ITargetPath, 
 		var artifactRelPath string
 		if isFolder {
 			artifactRelPath = strings.Replace(moduleSourceArtifactPath, modulePath, "", 1)
+		} else if moduleSourceArtifactPath == modulePath {
+			artifactRelPath = ""
 		} else {
 			artifactRelPath = strings.Replace(filepath.Dir(moduleSourceArtifactPath), modulePath, "", 1)
 		}

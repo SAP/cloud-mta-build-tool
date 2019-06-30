@@ -21,6 +21,7 @@ modules:
 # supported platforms - not cf
   - name: m5
     type: java
+    path: data.jar
     build-parameters:
       supported-platforms: [neo]
 # path to non-archive file in root

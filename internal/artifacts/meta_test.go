@@ -1,7 +1,6 @@
 package artifacts
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 
@@ -139,19 +138,14 @@ cli_version:["x"]
 				Should(Equal(readFileContent(&dir.Loc{SourcePath: getTestPath("golden"), Descriptor: "dep"})))
 		})
 
-		It("Generate Meta - mta not exists", func() {
-			ep := dir.Loc{SourcePath: getTestPath("mtahtml5"), TargetPath: getResultPath(),
-				MtaFilename: "mtaNotExists.yaml"}
-			Ω(generateMeta(&ep, &ep, &ep, &ep, false, "cf")).Should(HaveOccurred())
-		})
-
 		It("Generate Meta fails on platform parsing", func() {
 			platformConfig := platform.PlatformConfig
 			platform.PlatformConfig = []byte("wrong config")
-			dir.CreateDirIfNotExist(getTestPath("result", ".mtahtml5_mta_build_tmp", "testapp"))
-			dir.CreateDirIfNotExist(getTestPath("result", ".mtahtml5_mta_build_tmp", "ui5app2"))
+			createMtahtml5TmpFolder()
 			ep := dir.Loc{SourcePath: getTestPath("mtahtml5"), TargetPath: getResultPath()}
-			Ω(generateMeta(&ep, &ep, &ep, &ep, false, "cf")).Should(HaveOccurred())
+			err := generateMeta(&ep, &ep, &ep, &ep, false, "cf")
+			Ω(err).Should(HaveOccurred())
+			Ω(err.Error()).Should(ContainSubstring(`generation of the MTAD file failed when converting types according to the "cf" platform: unmarshalling of the platforms failed`))
 			platform.PlatformConfig = platformConfig
 		})
 
@@ -161,17 +155,12 @@ cli_version:["x"]
 		})
 
 		It("Generate Mtar", func() {
-			dir.CreateDirIfNotExist(getTestPath("result", ".mtahtml5_mta_build_tmp", "testapp"))
-			dir.CreateDirIfNotExist(getTestPath("result", ".mtahtml5_mta_build_tmp", "ui5app2"))
+			createMtahtml5TmpFolder()
 			ep := dir.Loc{SourcePath: getTestPath("mtahtml5"), TargetPath: getResultPath()}
 			err := generateMeta(&ep, &ep, &ep, &ep, false, "cf")
-			if err != nil {
-				fmt.Println(err)
-			}
+			Ω(err).Should(Succeed())
 			mtarPath, err := generateMtar(&ep, &ep, &ep, true, "")
-			if err != nil {
-				fmt.Println(err)
-			}
+			Ω(err).Should(Succeed())
 			Ω(mtarPath).Should(BeAnExistingFile())
 		})
 	})
@@ -194,7 +183,7 @@ func (loc *testLoc) GetManifestPath() string {
 }
 
 func (loc *testLoc) GetMtarDir(targetProvided bool) string {
-	return loc.GetMtarDir(targetProvided)
+	return loc.loc.GetMtarDir(targetProvided)
 }
 
 func (loc *testLoc) GetSourceModuleDir(modulePath string) string {
