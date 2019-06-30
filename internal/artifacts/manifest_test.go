@@ -322,7 +322,7 @@ bad config
 
 	var _ = Describe("buildEntries", func() {
 		It("Sanity", func() {
-			err:= dir.CreateDirIfNotExist(getTestPath("result", ".result_mta_build_tmp", "node-js"))
+			err := dir.CreateDirIfNotExist(getTestPath("result", ".result_mta_build_tmp", "node-js"))
 			Ω(err).Should(Succeed())
 			mod := mta.Module{Name: "module1"}
 			requires := []mta.Requires{
