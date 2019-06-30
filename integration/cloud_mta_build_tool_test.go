@@ -327,8 +327,8 @@ modules:
 		It("Generate mtad", func() {
 			dir, _ := os.Getwd()
 			path := filepath.Join(dir, "testdata", "mta_demo")
-			os.MkdirAll(filepath.Join(path, ".mta_demo_mta_build_tmp", "node"), os.ModePerm)
-			os.MkdirAll(filepath.Join(path, ".mta_demo_mta_build_tmp", "node-js"), os.ModePerm)
+			dir.CreateDirIfNotExist(filepath.Join(path, ".mta_demo_mta_build_tmp", "node"))
+			dir.CreateDirIfNotExist(filepath.Join(path, ".mta_demo_mta_build_tmp", "node-js"))
 			bin := filepath.FromSlash(binPath)
 			_, err, _ := execute(bin, "gen mtad", path)
 			Ω(err).Should(Equal(""))

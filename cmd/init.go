@@ -2,6 +2,7 @@ package commands
 
 import (
 	"os"
+	"time"
 
 	"github.com/spf13/cobra"
 
@@ -65,8 +66,10 @@ var buildCmd = &cobra.Command{
 	Long:  "Generates a temporary `Makefile` according to the MTA descriptor and runs the `make` command to package the MTA project into the MTA archive",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
+		// Generate temp Makefile with unique id
+		makefileTmp := "Makefile_" + time.Now().Format("20060102150405") + ".mta"
 		// Generate build script
-		err := artifacts.ExecBuild(buildProjectCmdSrc, buildProjectCmdTrg, "", buildProjectCmdMtar, buildProjectCmdPlatform, buildProjectCmdStrict, os.Getwd, exec.Execute)
+		err := artifacts.ExecBuild(makefileTmp, buildProjectCmdSrc, buildProjectCmdTrg, "", buildProjectCmdMtar, buildProjectCmdPlatform, buildProjectCmdStrict, os.Getwd, exec.Execute)
 		return err
 	},
 	SilenceUsage: true,

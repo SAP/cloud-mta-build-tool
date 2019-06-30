@@ -22,7 +22,7 @@ const (
 )
 
 // ExecBuild - Execute MTA project build
-func ExecBuild(buildProjectCmdSrc, buildProjectCmdTrg, buildProjectCmdMode, buildProjectCmdMtar, buildProjectCmdPlatform string, buildProjectCmdStrict bool, wdGetter func() (string, error), wdExec func([][]string) error) error {
+func ExecBuild(makefileTmp, buildProjectCmdSrc, buildProjectCmdTrg, buildProjectCmdMode, buildProjectCmdMtar, buildProjectCmdPlatform string, buildProjectCmdStrict bool, wdGetter func() (string, error), wdExec func([][]string) error) error {
 	// Generate build script
 	err := tpl.ExecuteMake(buildProjectCmdSrc, "", makefileTmp, buildProjectCmdMode, wdGetter)
 	if err != nil {
