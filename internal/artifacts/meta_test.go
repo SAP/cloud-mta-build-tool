@@ -138,6 +138,14 @@ cli_version:["x"]
 				Should(Equal(readFileContent(&dir.Loc{SourcePath: getTestPath("golden"), Descriptor: "dep"})))
 		})
 
+		It("Generate Meta - mta not exists", func() {
+			ep := dir.Loc{SourcePath: getTestPath("mtahtml5"), TargetPath: getResultPath(),
+				MtaFilename: "mtaNotExists.yaml"}
+			err := generateMeta(&ep, &ep, &ep, &ep, false, "cf")
+			Ω(err).Should(HaveOccurred())
+			Ω(err.Error()).Should(ContainSubstring(`failed to read the "%s"`, ep.GetMtaYamlPath()))
+		})
+
 		It("Generate Meta fails on platform parsing", func() {
 			platformConfig := platform.PlatformConfig
 			platform.PlatformConfig = []byte("wrong config")

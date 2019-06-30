@@ -19,6 +19,19 @@ import (
 
 var _ = Describe("BuildParams", func() {
 
+	var _ = DescribeTable("valid cases", func(module *mta.Module, expected string) {
+		loc := &dir.Loc{SourcePath: getTestPath("mtahtml5")}
+		path, _, _, err := GetModuleSourceArtifactPath(loc, false, module, "")
+		Ω(err).Should(Succeed())
+		Ω(path).Should(Equal(expected))
+	},
+		Entry("Implicit Build Results Path", &mta.Module{Path: "testapp"}, getTestPath("mtahtml5", "testapp")),
+		Entry("Explicit Build Results Path",
+			&mta.Module{
+				Path:        "testapp",
+				BuildParams: map[string]interface{}{buildResultParam: filepath.Join("webapp", "controller")},
+			}, getTestPath("mtahtml5", "testapp", "webapp", "controller")))
+
 	var _ = Describe("GetBuildResultsPath", func() {
 		It("empty path, no build results", func() {
 			module := &mta.Module{}

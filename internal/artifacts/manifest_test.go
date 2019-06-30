@@ -322,7 +322,8 @@ bad config
 
 	var _ = Describe("buildEntries", func() {
 		It("Sanity", func() {
-			dir.CreateDirIfNotExist(getTestPath("result", ".result_mta_build_tmp", "node-js"))
+			err:= dir.CreateDirIfNotExist(getTestPath("result", ".result_mta_build_tmp", "node-js"))
+			Ω(err).Should(Succeed())
 			mod := mta.Module{Name: "module1"}
 			requires := []mta.Requires{
 				{
@@ -344,16 +345,6 @@ bad config
 
 	})
 })
-
-type testTargetPathGetter struct {
-}
-
-func (testTargetPathGetter) GetTarget() string {
-	return getTestPath("mta")
-}
-func (testTargetPathGetter) GetTargetTmpDir() string {
-	return getTestPath("mta")
-}
 
 type testWriter struct {
 }
