@@ -37,13 +37,16 @@ var _ = Describe("Commands", func() {
 		})
 
 		It("Generate Meta", func() {
-			os.MkdirAll(getTestPath("result", ".mtahtml5_mta_build_tmp", "testapp"), os.ModePerm)
+			dir.CreateDirIfNotExist(getTestPath("result", ".mtahtml5_mta_build_tmp", "testapp"))
 			file, _ := os.Create(getTestPath("result", ".mtahtml5_mta_build_tmp", "testapp", "data.zip"))
 			file.Close()
-			os.MkdirAll(getTestPath("result", ".mtahtml5_mta_build_tmp", "ui5app2"), os.ModePerm)
+			dir.CreateDirIfNotExist(getTestPath("result", ".mtahtml5_mta_build_tmp", "ui5app2"))
+			dir.CreateDirIfNotExist(getTestPath("result", ".mtahtml5_mta_build_tmp", "ui5app"))
 			file, _ = os.Create(getTestPath("result", ".mtahtml5_mta_build_tmp", "ui5app2", "data.zip"))
 			file.Close()
 			file, _ = os.Create(getTestPath("result", ".mtahtml5_mta_build_tmp", "xs-security.json"))
+			file.Close()
+			file, _ = os.Create(getTestPath("result", ".mtahtml5_mta_build_tmp", "ui5app", "data.zip"))
 			file.Close()
 			metaCmdSrc = getTestPath("mtahtml5")
 			ep = dir.Loc{SourcePath: metaCmdSrc, TargetPath: metaCmdTrg}
@@ -51,8 +54,8 @@ var _ = Describe("Commands", func() {
 			Ω(ep.GetMtadPath()).Should(BeAnExistingFile())
 		})
 		It("Generate Mtad - Sanity", func() {
-			os.MkdirAll(getTestPath("result", ".mtahtml5_mta_build_tmp", "testapp"), os.ModePerm)
-			os.MkdirAll(getTestPath("result", ".mtahtml5_mta_build_tmp", "ui5app2"), os.ModePerm)
+			dir.CreateDirIfNotExist(getTestPath("result", ".mtahtml5_mta_build_tmp", "testapp"))
+			dir.CreateDirIfNotExist(getTestPath("result", ".mtahtml5_mta_build_tmp", "ui5app2"))
 			mtadCmdSrc = getTestPath("mtahtml5")
 			mtadCmdPlatform = "cf"
 			Ω(mtadCmd.RunE(nil, []string{})).Should(Succeed())
@@ -71,9 +74,13 @@ var _ = Describe("Commands", func() {
 			platform.PlatformConfig = config
 		})
 		It("Generate Mtar", func() {
-			os.MkdirAll(getTestPath("result", ".mtahtml5_mta_build_tmp", "testapp"), os.ModePerm)
-			os.MkdirAll(getTestPath("result", ".mtahtml5_mta_build_tmp", "ui5app2"), os.ModePerm)
+			dir.CreateDirIfNotExist(getTestPath("result", ".mtahtml5_mta_build_tmp", "ui5app2"))
 			file, _ := os.Create(getTestPath("result", ".mtahtml5_mta_build_tmp", "xs-security.json"))
+			file.Close()
+			dir.CreateDirIfNotExist(getTestPath("result", ".mtahtml5_mta_build_tmp", "ui5app"))
+			file, _ = os.Create(getTestPath("result", ".mtahtml5_mta_build_tmp", "ui5app", "data.zip"))
+			file.Close()
+			file, _ = os.Create(getTestPath("result", ".mtahtml5_mta_build_tmp", "ui5app2", "data.zip"))
 			file.Close()
 			mtarCmdSrc = getTestPath("mtahtml5")
 			mtarCmdMtarName = ""

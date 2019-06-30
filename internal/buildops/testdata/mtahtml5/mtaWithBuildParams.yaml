@@ -19,7 +19,7 @@ modules:
 
  - name: ui5app2
    type: html5
-   path: ui5app2
+   path: testapp2
    parameters:
       disk-quota: 256M
       memory: 256M

@@ -1,7 +1,7 @@
 package buildops
 
 import (
-	"fmt"
+	"os"
 	"path/filepath"
 	"reflect"
 	"strings"
@@ -16,12 +16,23 @@ import (
 const (
 	// SupportedPlatformsParam - name of build-params property for supported platforms
 	SupportedPlatformsParam = "supported-platforms"
-	builderParam            = "builder"
-	requiresParam           = "requires"
-	buildResultParam        = "build-result"
-	nameParam               = "name"
-	artifactsParam          = "artifacts"
-	targetPathParam         = "target-path"
+
+	// ModuleArtifactDefaultName - the default name of the build artifact.
+	// It can be changed using properties like build-result or build-artifact-name in the build parameters.
+	ModuleArtifactDefaultName = "data.zip"
+	builderParam              = "builder"
+	requiresParam             = "requires"
+	buildResultParam          = "build-result"
+	nameParam                 = "name"
+	artifactsParam            = "artifacts"
+	buildArtifactNameParam    = "build-artifact-name"
+	targetPathParam           = "target-path"
+
+	// WrongBuildResultMsg - message raised on wrong build result
+	WrongBuildResultMsg = `the build result must be a string; change "%v" in the "%s" module for a string value`
+	// WrongBuildArtifactNameMsg - message raised on wrong build artifact name
+	WrongBuildArtifactNameMsg = `the build artifact name must be a string; change "%v" in the "%s" module for a string value`
+	wrongPathMsg              = `could not find the "%s" module path`
 )
 
 // BuildRequires - build requires section.
@@ -100,29 +111,29 @@ func ProcessRequirements(ep dir.ISourceModule, mta *mta.MTA, requires *BuildRequ
 	module, err := mta.GetModuleByName(moduleName)
 	if err != nil {
 		return errors.Wrapf(err,
-			`the processing requirements of the "%v" module that is based on the "%v" module failed when getting the "%v" module`,
+			`the processing requirements of the "%s" module that is based on the "%s" module failed when getting the "%s" module`,
 			moduleName, requires.Name, moduleName)
 	}
 
 	requiredModule, err := mta.GetModuleByName(requires.Name)
 	if err != nil {
 		return errors.Wrapf(err,
-			`the processing requirements of the "%v" module that is based on the "%v" module failed when getting the "%v" module`,
+			`the processing requirements of the "%s" module that is based on the "%s" module failed when getting the "%s" module`,
 			moduleName, requires.Name, requires.Name)
 	}
 
 	_, defaultBuildResult, err := commands.CommandProvider(*requiredModule)
 	if err != nil {
 		return errors.Wrapf(err,
-			`the processing requirements of the "%v" module that is based on the "%v" module failed when getting the "%v" module commands`,
+			`the processing requirements of the "%s" module that is based on the "%s" module failed when getting the "%s" module commands`,
 			moduleName, requires.Name, requires.Name)
 	}
 
 	// Build paths for artifacts copying
-	sourcePath, _, err := GetBuildResultsPath(ep, requiredModule, defaultBuildResult)
+	sourcePath, _, _, err := GetModuleSourceArtifactPath(ep, false, requiredModule, defaultBuildResult)
 	if err != nil {
 		return errors.Wrapf(err,
-			`the processing requirements of the "%v" module that is based on the "%v" module failed when getting the build results path`,
+			`the processing requirements of the "%s" module that is based on the "%s" module failed when getting the build results path`,
 			moduleName, requires.Name)
 	}
 	targetPath := getRequiredTargetPath(ep, module, requires)
@@ -131,42 +142,112 @@ func ProcessRequirements(ep dir.ISourceModule, mta *mta.MTA, requires *BuildRequ
 	err = dir.CopyByPatterns(sourcePath, targetPath, requires.Artifacts)
 	if err != nil {
 		return errors.Wrapf(err,
-			`the processing requirements of the "%v" module that is based on the "%v" module failed when copying artifacts`,
+			`the processing requirements of the "%s" module that is based on the "%s" module failed when copying artifacts`,
 			moduleName, requiredModule.Name)
 	}
 	return nil
 }
 
-// GetBuildResultsPath - provides path of build results
-func GetBuildResultsPath(ep dir.ISourceModule, module *mta.Module, defaultBuildResult string) (string, bool, error) {
-	var path string
-	if module.Path != "" {
-		path = ep.GetSourceModuleDir(module.Path)
-	} else {
+// GetModuleSourceArtifactPath - get the module's artifact that has to be archived in the mtar, from the project sources
+func GetModuleSourceArtifactPath(loc dir.ISourceModule, depDesc bool, module *mta.Module, defaultBuildResult string) (path string, isFolder, isArchive bool, e error) {
+	if module.Path == "" {
+		return "", false, false, nil
+	}
+	path = loc.GetSourceModuleDir(module.Path)
+	if !depDesc {
+		buildResult := defaultBuildResult
+		var ok bool
+		if module.BuildParams != nil && module.BuildParams[buildResultParam] != nil {
+			buildResult, ok = module.BuildParams[buildResultParam].(string)
+			if !ok {
+				return "", false, false, errors.Errorf(WrongBuildResultMsg, module.BuildParams[buildResultParam], module.Name)
+			}
+		}
+		if buildResult != "" {
+			path = findPath(filepath.Join(path, buildResult))
+		}
+	}
+	isArchive, isFolder, err := IsArchive(path)
+	if err != nil {
+		return "", false, false, errors.Wrapf(err, wrongPathMsg, path)
+	}
+	return path, isArchive, isFolder, nil
+}
+
+// IsArchive - check if file is a folder or an archive
+func IsArchive(path string) (isArchive, isFolder bool, e error) {
+	info, err := os.Stat(path)
+
+	if err != nil {
+		return false, false, err
+	}
+	isFolder = info.IsDir()
+	isArchive = false
+	if !isFolder {
+		ext := filepath.Ext(path)
+		isArchive = ext == ".zip" || ext == ".jar" || ext == ".war"
+	}
+	return isArchive, isFolder, nil
+}
+
+func findPath(pathOrPattern string) string {
+	path := pathOrPattern
+	sourceEntries, err := filepath.Glob(path)
+	if err == nil && len(sourceEntries) > 0 {
+		path = sourceEntries[0]
+	}
+	return path
+}
+
+// GetModuleTargetArtifactPath - get the path to where the module's artifact should be created in the temp folder, from which it's archived in the mtar
+func GetModuleTargetArtifactPath(source dir.ISourceModule, loc dir.ITargetPath, depDesc bool, module *mta.Module, defaultBuildResult string) (path string, toArchive bool, e error) {
+	if module.Path == "" {
 		return "", false, nil
 	}
-
-	buildResultsDefined := false
-	// if no sub-folder provided - build results will be saved in the module folder
-	if module.BuildParams != nil && module.BuildParams[buildResultParam] != nil {
-		// if sub-folder provided - build results are located in the subfolder of the module folder
-		path = filepath.Join(path, module.BuildParams[buildResultParam].(string))
-		buildResultsDefined = true
-	} else if defaultBuildResult != "" {
-		path = filepath.Join(path, defaultBuildResult)
-		buildResultsDefined = true
-	}
-
-	if buildResultsDefined {
-		sourceEntries, err := filepath.Glob(path)
+	if depDesc {
+		path = filepath.Join(loc.GetTargetTmpDir(), module.Path)
+	} else {
+		moduleSourceArtifactPath, isArchive, isFolder, err := GetModuleSourceArtifactPath(source, depDesc, module, defaultBuildResult)
 		if err != nil {
 			return "", false, err
-		} else if len(sourceEntries) == 0 {
-			return "", false, fmt.Errorf(`could not find the "%s" build results`, path)
 		}
-		return sourceEntries[0], true, nil
+		artifactName, artifactExt, err := getArtifactInfo(isArchive, module, moduleSourceArtifactPath)
+		if err != nil {
+			return "", false, err
+		}
+		toArchive = !isArchive
+
+		modulePath := source.GetSourceModuleDir(module.Path)
+		var artifactRelPath string
+		if isFolder {
+			artifactRelPath = strings.Replace(moduleSourceArtifactPath, modulePath, "", 1)
+		} else if moduleSourceArtifactPath == modulePath {
+			artifactRelPath = ""
+		} else {
+			artifactRelPath = strings.Replace(filepath.Dir(moduleSourceArtifactPath), modulePath, "", 1)
+		}
+		path = filepath.Join(loc.GetTargetTmpDir(), module.Name, artifactRelPath, artifactName+artifactExt)
 	}
-	return path, false, nil
+	return path, toArchive, nil
+}
+
+func getArtifactInfo(isArchive bool, module *mta.Module, moduleSourceArtifactPath string) (artifactName, artifactExt string, err error) {
+	var ok bool
+	var artifactFullName string
+	if isArchive {
+		artifactFullName = filepath.Base(moduleSourceArtifactPath)
+	} else {
+		artifactFullName = ModuleArtifactDefaultName
+	}
+	artifactExt = filepath.Ext(artifactFullName)
+	artifactName = artifactFullName[0 : len(artifactFullName)-len(artifactExt)]
+	if module.BuildParams != nil && module.BuildParams[buildArtifactNameParam] != nil {
+		artifactName, ok = module.BuildParams[buildArtifactNameParam].(string)
+		if !ok {
+			return "", "", errors.Errorf(WrongBuildArtifactNameMsg, module.BuildParams[buildArtifactNameParam], module.Name)
+		}
+	}
+	return
 }
 
 // getRequiredTargetPath - provides path of required artifacts

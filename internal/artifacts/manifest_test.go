@@ -2,6 +2,7 @@ package artifacts
 
 import (
 	"fmt"
+	"github.com/SAP/cloud-mta-build-tool/internal/buildops"
 	"io/ioutil"
 	"os"
 	"text/template"
@@ -21,31 +22,22 @@ import (
 var _ = Describe("manifest", func() {
 
 	BeforeEach(func() {
-		Ω(os.MkdirAll(getTestPath("result", ".mta_mta_build_tmp", "META-INF"), os.ModePerm)).Should(Succeed())
+		Ω(dir.CreateDirIfNotExist(getTestPath("result", ".mta_mta_build_tmp", "META-INF"))).Should(Succeed())
 	})
 
 	AfterEach(func() {
-		err1 := os.RemoveAll(getTestPath("result"))
-		err2 := os.RemoveAll(getTestPath("result1"))
-		err3 := os.RemoveAll(getTestPath("result2"))
-		Ω(err1).Should(Succeed())
-		Ω(err2).Should(Succeed())
-		Ω(err3).Should(Succeed())
+		Ω(os.RemoveAll(getTestPath("result"))).Should(Succeed())
 	})
 
 	var _ = Describe("setManifestDesc", func() {
 		It("Sanity", func() {
 			Ω(os.Mkdir(getTestPath("result", ".mta_mta_build_tmp", "node-js"), os.ModePerm)).Should(Succeed())
-			create(getTestPath("result", ".mta_mta_build_tmp", "node-js", "data.zip"))
-			create(getTestPath("result", ".mta_mta_build_tmp", "config-site-host.json"))
-			dirC, _ := ioutil.ReadDir(getTestPath("result", ".mta_mta_build_tmp"))
-			for _, c := range dirC {
-				fmt.Println(c.Name())
-			}
+			createTmpFile(getTestPath("result", ".mta_mta_build_tmp", "node-js", "data.zip"))
+			createTmpFile(getTestPath("result", ".mta_mta_build_tmp", "config-site-host.json"))
 			loc := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath()}
 			mtaObj, err := loc.ParseFile()
 			Ω(err).Should(Succeed())
-			Ω(setManifestDesc(&loc, &loc, mtaObj.Modules, []*mta.Resource{}, []string{})).Should(Succeed())
+			Ω(setManifestDesc(&loc, &loc, &loc, false, mtaObj.Modules, []*mta.Resource{})).Should(Succeed())
 			actual := getFileContent(getTestPath("result", ".mta_mta_build_tmp", "META-INF", "MANIFEST.MF"))
 			golden := getFileContent(getTestPath("golden_manifest.mf"))
 			v, _ := version.GetVersion()
@@ -54,19 +46,25 @@ var _ = Describe("manifest", func() {
 			fmt.Println(golden)
 			Ω(actual).Should(Equal(golden))
 		})
+		It("Unknown content type, assembly scenario", func() {
+			Ω(dir.CreateDirIfNotExist(getTestPath("result", ".mta_mta_build_tmp", "node-js"))).Should(Succeed())
+			createTmpFile(getTestPath("result", ".mta_mta_build_tmp", "node-js", "server.js"))
+			loc := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath(), Descriptor: dir.Dep}
+			mtaObj, err := loc.ParseFile()
+			Ω(err).Should(Succeed())
+			err = setManifestDesc(&loc, &loc, &loc, true, mtaObj.Modules, []*mta.Resource{})
+			Ω(err).Should(HaveOccurred())
+			Ω(err.Error()).Should(ContainSubstring(`content type for the ".js" extension is not defined`))
+		})
 		It("Sanity - with configuration provided", func() {
-			Ω(os.Mkdir(getTestPath("result", ".mta_mta_build_tmp", "node-js"), os.ModePerm)).Should(Succeed())
-			create(getTestPath("result", ".mta_mta_build_tmp", "node-js", "data.zip"))
-			create(getTestPath("result", ".mta_mta_build_tmp", "config-site-host.json"))
-			create(getTestPath("result", ".mta_mta_build_tmp", "xs-security.json"))
-			dirC, _ := ioutil.ReadDir(getTestPath("result", ".mta_mta_build_tmp"))
-			for _, c := range dirC {
-				fmt.Println(c.Name())
-			}
+			Ω(dir.CreateDirIfNotExist(getTestPath("result", ".mta_mta_build_tmp", "node-js"))).Should(Succeed())
+			createTmpFile(getTestPath("result", ".mta_mta_build_tmp", "node-js", "data.zip"))
+			createTmpFile(getTestPath("result", ".mta_mta_build_tmp", "config-site-host.json"))
+			createTmpFile(getTestPath("result", ".mta_mta_build_tmp", "xs-security.json"))
 			loc := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath(), MtaFilename: "mta_cfg.yaml"}
 			mtaObj, err := loc.ParseFile()
 			Ω(err).Should(Succeed())
-			Ω(setManifestDesc(&loc, &loc, mtaObj.Modules, []*mta.Resource{}, []string{})).Should(Succeed())
+			Ω(setManifestDesc(&loc, &loc, &loc, false, mtaObj.Modules, []*mta.Resource{})).Should(Succeed())
 			actual := getFileContent(getTestPath("result", ".mta_mta_build_tmp", "META-INF", "MANIFEST.MF"))
 			golden := getFileContent(getTestPath("golden_manifest_cfg.mf"))
 			v, _ := version.GetVersion()
@@ -77,34 +75,34 @@ var _ = Describe("manifest", func() {
 		})
 		It("wrong Commands configuration", func() {
 			Ω(os.Mkdir(getTestPath("result", ".mta_mta_build_tmp", "node-js"), os.ModePerm)).Should(Succeed())
-			create(getTestPath("result", ".mta_mta_build_tmp", "node-js", "data.zip"))
+			createTmpFile(getTestPath("result", ".mta_mta_build_tmp", "node-js", "data.zip"))
 			loc := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath()}
 			mtaObj, err := loc.ParseFile()
 			Ω(err).Should(Succeed())
 			moduleConf := commands.ModuleTypeConfig
 			commands.ModuleTypeConfig = []byte("bad module conf")
-			Ω(setManifestDesc(&loc, &loc, mtaObj.Modules, []*mta.Resource{}, []string{})).Should(HaveOccurred())
+			Ω(setManifestDesc(&loc, &loc, &loc, false, mtaObj.Modules, []*mta.Resource{})).Should(HaveOccurred())
 			commands.ModuleTypeConfig = moduleConf
 		})
 		It("module with defined build-result fails when build-result file does not exist in source directory", func() {
 			Ω(os.Mkdir(getTestPath("result", ".mta_mta_build_tmp", "node-js"), os.ModePerm)).Should(Succeed())
-			create(getTestPath("result", ".mta_mta_build_tmp", "node-js", "some.war"))
+			createTmpFile(getTestPath("result", ".mta_mta_build_tmp", "node-js", "some.war"))
 			loc := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath(), MtaFilename: "mtaWrongBuildResult.yaml"}
 			mtaObj, _ := loc.ParseFile()
-			Ω(setManifestDesc(&loc, &loc, mtaObj.Modules, []*mta.Resource{}, []string{})).Should(HaveOccurred())
+			Ω(setManifestDesc(&loc, &loc, &loc, false, mtaObj.Modules, []*mta.Resource{})).Should(HaveOccurred())
 		})
 		It("module with defined build-result fails when build-result file does not exist in target temp directory", func() {
 			Ω(os.Mkdir(getTestPath("result", ".mta_mta_build_tmp", "node-js"), os.ModePerm)).Should(Succeed())
 			loc := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath(), MtaFilename: "mtaWrongBuildResult2.yaml"}
 			mtaObj, _ := loc.ParseFile()
-			Ω(setManifestDesc(&loc, &loc, mtaObj.Modules, []*mta.Resource{}, []string{})).Should(HaveOccurred())
+			Ω(setManifestDesc(&loc, &loc, &loc, false, mtaObj.Modules, []*mta.Resource{})).Should(HaveOccurred())
 		})
 		It("entry for module with defined build-result has the build-result file", func() {
-			Ω(os.Mkdir(getTestPath("result", ".mta_mta_build_tmp", "node-js"), os.ModePerm)).Should(Succeed())
-			create(getTestPath("result", ".mta_mta_build_tmp", "node-js", "data1.zip"))
+			Ω(os.MkdirAll(getTestPath("result", ".mta_mta_build_tmp", "node-js"), os.ModePerm)).Should(Succeed())
+			createTmpFile(getTestPath("result", ".mta_mta_build_tmp", "node-js", "data1.zip"))
 			loc := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath(), MtaFilename: "mtaBuildResult.yaml"}
 			mtaObj, _ := loc.ParseFile()
-			Ω(setManifestDesc(&loc, &loc, mtaObj.Modules, []*mta.Resource{}, []string{})).Should(Succeed())
+			Ω(setManifestDesc(&loc, &loc, &loc, false, mtaObj.Modules, []*mta.Resource{})).Should(Succeed())
 			actual := getFileContent(getTestPath("result", ".mta_mta_build_tmp", "META-INF", "MANIFEST.MF"))
 			golden := getFileContent(getTestPath("golden_manifestBuildResult.mf"))
 			v, _ := version.GetVersion()
@@ -113,28 +111,9 @@ var _ = Describe("manifest", func() {
 			fmt.Println(golden)
 			Ω(actual).Should(Equal(golden))
 		})
-		It("Sanity - with list of modules provided; second module ignored", func() {
-			Ω(os.Mkdir(getTestPath("result", ".mta_mta_build_tmp", "node-js"), os.ModePerm)).Should(Succeed())
-			create(getTestPath("result", ".mta_mta_build_tmp", "node-js", "data.zip"))
-			dirC, _ := ioutil.ReadDir(getTestPath("result", ".mta_mta_build_tmp"))
-			for _, c := range dirC {
-				fmt.Println(c.Name())
-			}
-			loc := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath(), MtaFilename: "mta_2modules.yaml"}
-			mtaObj, err := loc.ParseFile()
-			Ω(err).Should(Succeed())
-			Ω(setManifestDesc(&loc, &loc, mtaObj.Modules, []*mta.Resource{}, []string{"node-js"})).Should(Succeed())
-			actual := getFileContent(getTestPath("result", ".mta_mta_build_tmp", "META-INF", "MANIFEST.MF"))
-			golden := getFileContent(getTestPath("golden_manifest.mf"))
-			v, _ := version.GetVersion()
-			golden = strings.Replace(golden, "{{cli_version}}", v.CliVersion, -1)
-			fmt.Println(actual)
-			fmt.Println(golden)
-			Ω(actual).Should(Equal(golden))
-		})
 		It("wrong content types configuration", func() {
 			Ω(os.Mkdir(getTestPath("result", ".mta_mta_build_tmp", "node-js"), os.ModePerm)).Should(Succeed())
-			create(getTestPath("result", ".mta_mta_build_tmp", "node-js", "data.zip"))
+			createTmpFile(getTestPath("result", ".mta_mta_build_tmp", "node-js", "data.zip"))
 			dirC, _ := ioutil.ReadDir(getTestPath("result", ".mta_mta_build_tmp"))
 			for _, c := range dirC {
 				fmt.Println(c.Name())
@@ -144,7 +123,7 @@ var _ = Describe("manifest", func() {
 			Ω(err).Should(Succeed())
 			contentTypesOrig := conttype.ContentTypeConfig
 			conttype.ContentTypeConfig = []byte(`wrong configuraion`)
-			Ω(setManifestDesc(&loc, &loc, mtaObj.Modules, []*mta.Resource{}, []string{})).Should(HaveOccurred())
+			Ω(setManifestDesc(&loc, &loc, &loc, false, mtaObj.Modules, []*mta.Resource{})).Should(HaveOccurred())
 			conttype.ContentTypeConfig = contentTypesOrig
 
 		})
@@ -153,7 +132,7 @@ var _ = Describe("manifest", func() {
 			loc := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath(), MtaFilename: "mta_no_paths.yaml"}
 			mtaObj, err := loc.ParseFile()
 			Ω(err).Should(Succeed())
-			Ω(setManifestDesc(&loc, &loc, mtaObj.Modules, []*mta.Resource{}, []string{})).Should(Succeed())
+			Ω(setManifestDesc(&loc, &loc, &loc, false, mtaObj.Modules, []*mta.Resource{})).Should(Succeed())
 			actual := getFileContent(getTestPath("result", ".mta_mta_build_tmp", "META-INF", "MANIFEST.MF"))
 			golden := getFileContent(getTestPath("golden_assembly_manifest_no_paths.mf"))
 			v, _ := version.GetVersion()
@@ -163,14 +142,14 @@ var _ = Describe("manifest", func() {
 			Ω(actual).Should(Equal(golden))
 		})
 		It("With resources", func() {
-			Ω(os.MkdirAll(getTestPath("result", ".assembly-sample_mta_build_tmp", "META-INF"), os.ModePerm)).Should(Succeed())
-			Ω(os.MkdirAll(getTestPath("result", ".assembly-sample_mta_build_tmp", "web"), os.ModePerm)).Should(Succeed())
-			create(getTestPath("result", ".assembly-sample_mta_build_tmp", "config-site-host.json"))
-			create(getTestPath("result", ".assembly-sample_mta_build_tmp", "xs-security.json"))
+			Ω(dir.CreateDirIfNotExist(getTestPath("result", ".assembly-sample_mta_build_tmp", "META-INF"))).Should(Succeed())
+			Ω(dir.CreateDirIfNotExist(getTestPath("result", ".assembly-sample_mta_build_tmp", "web"))).Should(Succeed())
+			createTmpFile(getTestPath("result", ".assembly-sample_mta_build_tmp", "config-site-host.json"))
+			createTmpFile(getTestPath("result", ".assembly-sample_mta_build_tmp", "xs-security.json"))
 			loc := dir.Loc{SourcePath: getTestPath("assembly-sample"), TargetPath: getResultPath(), Descriptor: "dep"}
 			mtaObj, err := loc.ParseFile()
 			Ω(err).Should(Succeed())
-			Ω(setManifestDesc(&loc, &loc, mtaObj.Modules, mtaObj.Resources, []string{})).Should(Succeed())
+			Ω(setManifestDesc(&loc, &loc, &loc, true, mtaObj.Modules, mtaObj.Resources)).Should(Succeed())
 			actual := getFileContent(getTestPath("result", ".assembly-sample_mta_build_tmp", "META-INF", "MANIFEST.MF"))
 			golden := getFileContent(getTestPath("golden_assembly_manifest.mf"))
 			v, _ := version.GetVersion()
@@ -180,111 +159,111 @@ var _ = Describe("manifest", func() {
 			Ω(actual).Should(Equal(golden))
 		})
 		It("With missing module path", func() {
-			Ω(os.MkdirAll(getTestPath("result", "assembly-sample_mta_build_tmp", "META-INF"), os.ModePerm)).Should(Succeed())
+			Ω(dir.CreateDirIfNotExist(getTestPath("result", "assembly-sample_mta_build_tmp", "META-INF"))).Should(Succeed())
 			loc := dir.Loc{SourcePath: getTestPath("assembly-sample"), TargetPath: getResultPath(), Descriptor: "dep"}
 			mtaObj, err := loc.ParseFile()
 			Ω(err).Should(Succeed())
-			err = setManifestDesc(&loc, &loc, mtaObj.Modules, mtaObj.Resources, []string{})
+			err = setManifestDesc(&loc, &loc, &loc, true, mtaObj.Modules, mtaObj.Resources)
 			Ω(err).Should(HaveOccurred())
-			Ω(err.Error()).Should(ContainSubstring(`failed to generate the manifest file when getting the "java-hello-world" module content type`))
+			Ω(err.Error()).Should(ContainSubstring(fmt.Sprintf(wrongArtifactPathMsg, "java-hello-world")))
 		})
 		It("With missing resource", func() {
-			Ω(os.MkdirAll(getTestPath("result1", ".assembly-sample_mta_build_tmp", "META-INF"), os.ModePerm)).Should(Succeed())
-			Ω(os.MkdirAll(getTestPath("result1", ".assembly-sample_mta_build_tmp", "web"), os.ModePerm)).Should(Succeed())
-			create(getTestPath("result1", ".assembly-sample_mta_build_tmp", "config-site-host.json"))
-			loc := dir.Loc{SourcePath: getTestPath("assembly-sample"), TargetPath: getTestPath("result1"), Descriptor: "dep"}
+			Ω(dir.CreateDirIfNotExist(getTestPath("result", ".assembly-sample_mta_build_tmp", "META-INF"))).Should(Succeed())
+			Ω(dir.CreateDirIfNotExist(getTestPath("result", ".assembly-sample_mta_build_tmp", "web"))).Should(Succeed())
+			createTmpFile(getTestPath("result", ".assembly-sample_mta_build_tmp", "config-site-host.json"))
+			loc := dir.Loc{SourcePath: getTestPath("assembly-sample"), TargetPath: getTestPath("result"), Descriptor: "dep"}
 			mtaObj, err := loc.ParseFile()
 			Ω(err).Should(Succeed())
-			err = setManifestDesc(&loc, &loc, mtaObj.Modules, mtaObj.Resources, []string{})
+			err = setManifestDesc(&loc, &loc, &loc, true, mtaObj.Modules, mtaObj.Resources)
 			Ω(err).Should(HaveOccurred())
-			Ω(err.Error()).Should(ContainSubstring(`failed to generate the manifest file when getting the "java-uaa" resource content type`))
+			Ω(err.Error()).Should(ContainSubstring(fmt.Sprintf(unknownResourceContentTypeMsg, "java-uaa")))
 
 		})
 		It("required resource with path fails when the path doesn't exist", func() {
-			Ω(os.MkdirAll(getTestPath("result2", ".assembly-sample_mta_build_tmp", "META-INF"), os.ModePerm)).Should(Succeed())
-			Ω(os.MkdirAll(getTestPath("result2", ".assembly-sample_mta_build_tmp", "web"), os.ModePerm)).Should(Succeed())
-			create(getTestPath("result2", ".assembly-sample_mta_build_tmp", "xs-security.json"))
-			loc := dir.Loc{SourcePath: getTestPath("assembly-sample"), TargetPath: getTestPath("result2"), Descriptor: "dep"}
+			Ω(dir.CreateDirIfNotExist(getTestPath("result", ".assembly-sample_mta_build_tmp", "META-INF"))).Should(Succeed())
+			Ω(dir.CreateDirIfNotExist(getTestPath("result", ".assembly-sample_mta_build_tmp", "web"))).Should(Succeed())
+			createTmpFile(getTestPath("result", ".assembly-sample_mta_build_tmp", "xs-security.json"))
+			loc := dir.Loc{SourcePath: getTestPath("assembly-sample"), TargetPath: getTestPath("result"), Descriptor: "dep"}
 			mtaObj, err := loc.ParseFile()
 			Ω(err).Should(Succeed())
-			err = setManifestDesc(&loc, &loc, mtaObj.Modules, mtaObj.Resources, []string{})
+			err = setManifestDesc(&loc, &loc, &loc, true, mtaObj.Modules, mtaObj.Resources)
 			Ω(err).Should(HaveOccurred())
 			// This fails because the config-site-host.json file (from the path of the required java-site-host) doesn't exist
-			Ω(err.Error()).Should(
-				ContainSubstring(`failed to generate the manifest file when building the required entries of the "java-hello-world-backend" module`))
+			Ω(err.Error()).Should(ContainSubstring(fmt.Sprintf(requiredEntriesProblemMsg, "java-hello-world-backend")))
 		})
 		When("build-artifact-name is defined in the build parameters", func() {
 			It("should take the defined build artifact name when the build artifact exists", func() {
-				Ω(os.MkdirAll(getTestPath("result", ".mta_mta_build_tmp", "node-js"), os.ModePerm)).Should(Succeed())
-				create(getTestPath("result", ".mta_mta_build_tmp", "node-js", "data2.zip"))
+				Ω(dir.CreateDirIfNotExist(getTestPath("result", ".mta_mta_build_tmp", "node-js"))).Should(Succeed())
+				createTmpFile(getTestPath("result", ".mta_mta_build_tmp", "node-js", "data2.zip"))
 				loc := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath(), MtaFilename: "mtaBuildArtifact.yaml"}
 				mtaObj, _ := loc.ParseFile()
-				Ω(setManifestDesc(&loc, &loc, mtaObj.Modules, []*mta.Resource{}, []string{})).Should(Succeed())
+				Ω(setManifestDesc(&loc, &loc, &loc, false, mtaObj.Modules, []*mta.Resource{})).Should(Succeed())
 				actual := getFileContent(getTestPath("result", ".mta_mta_build_tmp", "META-INF", "MANIFEST.MF"))
 				golden := getFileContentWithCliVersion(getTestPath("golden_manifestBuildArtifact.mf"))
 				Ω(actual).Should(Equal(golden))
 			})
-			It("should take the folder with the build artifact name when the build result is a folder", func() {
-				Ω(os.MkdirAll(getTestPath("result", ".mta_mta_build_tmp", "node-js", "data2"), os.ModePerm)).Should(Succeed())
+			It("should take the archive.zip with the build artifact name when the build result is a folder", func() {
+				Ω(dir.CreateDirIfNotExist(getTestPath("result", ".mta_mta_build_tmp", "node-js"))).Should(Succeed())
+				createTmpFile(getTestPath("result", ".mta_mta_build_tmp", "node-js", "data2.zip"))
 				loc := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath(), MtaFilename: "mtaBuildArtifact.yaml"}
 				mtaObj, _ := loc.ParseFile()
-				Ω(setManifestDesc(&loc, &loc, mtaObj.Modules, []*mta.Resource{}, []string{})).Should(Succeed())
+				Ω(setManifestDesc(&loc, &loc, &loc, false, mtaObj.Modules, []*mta.Resource{})).Should(Succeed())
 				actual := getFileContent(getTestPath("result", ".mta_mta_build_tmp", "META-INF", "MANIFEST.MF"))
-				golden := getFileContentWithCliVersion(getTestPath("golden_manifestBuildArtifactFolder.mf"))
+				golden := getFileContentWithCliVersion(getTestPath("golden_manifestBuildArtifact.mf"))
 				Ω(actual).Should(Equal(golden))
 			})
-			It("should take the folder with the build artifact name when the build result is the mta root folder", func() {
-				Ω(os.MkdirAll(getTestPath("result", ".mta_mta_build_tmp", "node-js", "data2"), os.ModePerm)).Should(Succeed())
+			It("should skip module with no path the build artifact name when the build result is the mta root folder", func() {
+				Ω(dir.CreateDirIfNotExist(getTestPath("result", ".mta_mta_build_tmp", "node-js", "data2"))).Should(Succeed())
 				loc := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath(), MtaFilename: "mtaBuildArtifactNoPath.yaml"}
 				mtaObj, err := loc.ParseFile()
 				Ω(err).Should(Succeed())
-				Ω(setManifestDesc(&loc, &loc, mtaObj.Modules, []*mta.Resource{}, []string{})).Should(Succeed())
+				Ω(setManifestDesc(&loc, &loc, &loc, false, mtaObj.Modules, []*mta.Resource{})).Should(Succeed())
 				actual := getFileContent(getTestPath("result", ".mta_mta_build_tmp", "META-INF", "MANIFEST.MF"))
-				golden := getFileContentWithCliVersion(getTestPath("golden_manifestBuildArtifactNoPath.mf"))
+				golden := getFileContentWithCliVersion(getTestPath("golden_assembly_manifest_no_paths.mf"))
 				Ω(actual).Should(Equal(golden))
 			})
 			It("should take the build artifact name when the build result is also defined", func() {
-				Ω(os.MkdirAll(getTestPath("result", ".mta_mta_build_tmp", "node-js"), os.ModePerm)).Should(Succeed())
-				create(getTestPath("result", ".mta_mta_build_tmp", "node-js", "ROOT.war"))
+				Ω(dir.CreateDirIfNotExist(getTestPath("result", ".mta_mta_build_tmp", "node-js"))).Should(Succeed())
+				createTmpFile(getTestPath("result", ".mta_mta_build_tmp", "node-js", "ROOT.war"))
 				loc := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath(), MtaFilename: "mtaBuildResultAndArtifact.yaml"}
 				mtaObj, _ := loc.ParseFile()
-				Ω(setManifestDesc(&loc, &loc, mtaObj.Modules, []*mta.Resource{}, []string{})).Should(Succeed())
+				Ω(setManifestDesc(&loc, &loc, &loc, false, mtaObj.Modules, []*mta.Resource{})).Should(Succeed())
 				actual := getFileContent(getTestPath("result", ".mta_mta_build_tmp", "META-INF", "MANIFEST.MF"))
 				golden := getFileContentWithCliVersion(getTestPath("golden_manifestBuildResultAndArtifact.mf"))
 				Ω(actual).Should(Equal(golden))
 			})
 			It("should fail when build-artifact-name is not a string value", func() {
-				Ω(os.MkdirAll(getTestPath("result", ".mta_mta_build_tmp", "node-js"), os.ModePerm)).Should(Succeed())
-				create(getTestPath("result", ".mta_mta_build_tmp", "node-js", "data.zip"))
+				Ω(dir.CreateDirIfNotExist(getTestPath("result", ".mta_mta_build_tmp", "node-js"))).Should(Succeed())
+				createTmpFile(getTestPath("result", ".mta_mta_build_tmp", "node-js", "data.zip"))
 				loc := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath(), MtaFilename: "mtaBuildArtifactBad.yaml"}
 				mtaObj, _ := loc.ParseFile()
-				err := setManifestDesc(&loc, &loc, mtaObj.Modules, []*mta.Resource{}, []string{})
+				err := setManifestDesc(&loc, &loc, &loc, false, mtaObj.Modules, []*mta.Resource{})
 				Ω(err).Should(HaveOccurred())
-				Ω(err.Error()).Should(ContainSubstring(`the build artifact name must be a string; change '1' in the 'node-js' module for a string value`))
+				Ω(err.Error()).Should(ContainSubstring(fmt.Sprintf(buildops.WrongBuildArtifactNameMsg, "1", "node-js")))
 			})
 			It("should fail when data.zip exists instead of the build artifact name", func() {
-				Ω(os.Mkdir(getTestPath("result", ".mta_mta_build_tmp", "node-js"), os.ModePerm)).Should(Succeed())
-				create(getTestPath("result", ".mta_mta_build_tmp", "node-js", "data.zip"))
+				Ω(dir.CreateDirIfNotExist(getTestPath("result", ".mta_mta_build_tmp", "node-js"))).Should(Succeed())
+				createTmpFile(getTestPath("result", ".mta_mta_build_tmp", "node-js", "data.zip"))
 				loc := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath(), MtaFilename: "mtaBuildArtifact.yaml"}
 				mtaObj, _ := loc.ParseFile()
-				err := setManifestDesc(&loc, &loc, mtaObj.Modules, []*mta.Resource{}, []string{})
+				err := setManifestDesc(&loc, &loc, &loc, false, mtaObj.Modules, []*mta.Resource{})
 				Ω(err).Should(HaveOccurred())
-				Ω(err.Error()).Should(ContainSubstring(`failed to generate the manifest file when getting the "node-js" module content type`))
+				Ω(err.Error()).Should(ContainSubstring(fmt.Sprintf(wrongArtifactPathMsg, "node-js")))
 			})
 			It("should fail when the build artifact doesn't exist in the module folder", func() {
-				Ω(os.Mkdir(getTestPath("result", ".mta_mta_build_tmp", "node-js"), os.ModePerm)).Should(Succeed())
+				Ω(dir.CreateDirIfNotExist(getTestPath("result", ".mta_mta_build_tmp", "node-js"))).Should(Succeed())
 				loc := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath(), MtaFilename: "mtaBuildArtifact.yaml"}
 				mtaObj, _ := loc.ParseFile()
-				err := setManifestDesc(&loc, &loc, mtaObj.Modules, []*mta.Resource{}, []string{})
+				err := setManifestDesc(&loc, &loc, &loc, false, mtaObj.Modules, []*mta.Resource{})
 				Ω(err).Should(HaveOccurred())
-				Ω(err.Error()).Should(ContainSubstring(`failed to generate the manifest file when getting the "node-js" module content type`))
+				Ω(err.Error()).Should(ContainSubstring(fmt.Sprintf(wrongArtifactPathMsg, "node-js")))
 			})
 			It("should fail when the module folder doesn't exist", func() {
 				loc := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath(), MtaFilename: "mtaBuildArtifact.yaml"}
 				mtaObj, _ := loc.ParseFile()
-				err := setManifestDesc(&loc, &loc, mtaObj.Modules, []*mta.Resource{}, []string{})
+				err := setManifestDesc(&loc, &loc, &loc, false, mtaObj.Modules, []*mta.Resource{})
 				Ω(err).Should(HaveOccurred())
-				Ω(err.Error()).Should(ContainSubstring(`failed to generate the manifest file when getting the "node-js" module content type`))
+				Ω(err.Error()).Should(ContainSubstring(fmt.Sprintf(wrongArtifactPathMsg, "node-js")))
 			})
 		})
 	})
@@ -343,7 +322,8 @@ bad config
 
 	var _ = Describe("buildEntries", func() {
 		It("Sanity", func() {
-			loc := testTargetPathGetter{}
+			err := dir.CreateDirIfNotExist(getTestPath("result", ".result_mta_build_tmp", "node-js"))
+			Ω(err).Should(Succeed())
 			mod := mta.Module{Name: "module1"}
 			requires := []mta.Requires{
 				{
@@ -353,7 +333,7 @@ bad config
 					},
 				},
 			}
-			entries, err := buildEntries(loc, &mod, requires, &conttype.ContentTypes{})
+			entries, err := buildEntries(&dir.Loc{SourcePath: getTestPath("result"), TargetPath: getTestPath("result")}, &mod, requires, &conttype.ContentTypes{})
 			Ω(len(entries)).Should(Equal(1))
 			Ω(err).Should(Succeed())
 			e := entries[0]
@@ -366,27 +346,11 @@ bad config
 	})
 })
 
-type testTargetPathGetter struct {
-}
-
-func (testTargetPathGetter) GetTarget() string {
-	return getTestPath("mta")
-}
-func (testTargetPathGetter) GetTargetTmpDir() string {
-	return getTestPath("mta")
-}
-
 type testWriter struct {
 }
 
 func (t *testWriter) Write(p []byte) (n int, err error) {
 	return 0, errors.New("err")
-}
-
-func create(path string) {
-	file, err := os.Create(path)
-	Ω(err).Should(Succeed())
-	Ω(file.Close()).Should(Succeed())
 }
 
 func getFileContentWithCliVersion(path string) string {

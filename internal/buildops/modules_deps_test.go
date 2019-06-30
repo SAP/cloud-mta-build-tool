@@ -81,7 +81,7 @@ var _ = Describe("ModulesDeps", func() {
 func readFile(file string) ([]byte, error) {
 	content, err := ioutil.ReadFile(file)
 	if err != nil {
-		return nil, errors.Wrapf(err, `failed to read the "%v" file`, file)
+		return nil, errors.Wrapf(err, `failed to read the "%s" file`, file)
 	}
 	s := string(content)
 	s = strings.Replace(s, "\r\n", "\r", -1)

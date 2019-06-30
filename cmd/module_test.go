@@ -47,14 +47,14 @@ var _ = Describe("Commands", func() {
 			packCmdPlatform = "cf"
 			ep := dir.Loc{SourcePath: packCmdSrc, TargetPath: packCmdTrg}
 			targetTmpDir := ep.GetTargetTmpDir()
-			err := os.MkdirAll(targetTmpDir, os.ModePerm)
+			err := dir.CreateDirIfNotExist(targetTmpDir)
 			if err != nil {
 				logs.Logger.Error(err)
 			}
 			f, _ := os.Create(filepath.Join(targetTmpDir, "ui5app"))
 			Ω(packModuleCmd.RunE(nil, []string{})).Should(HaveOccurred())
 			fmt.Println(str.String())
-			Ω(str.String()).Should(ContainSubstring(`packing of the "ui5app" module failed when creating`))
+			Ω(str.String()).Should(ContainSubstring(`packing of the "ui5app" module failed when archiving: archiving failed when creating`))
 
 			f.Close()
 			// cleanup command used for test temp file removal

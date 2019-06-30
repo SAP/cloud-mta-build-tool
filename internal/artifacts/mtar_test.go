@@ -21,20 +21,14 @@ var _ = Describe("Mtar", func() {
 
 		var _ = Describe("ExecuteGenMtar", func() {
 			It("Sanity, target provided", func() {
-				os.MkdirAll(getTestPath("result", ".mtahtml5_mta_build_tmp", "testapp"), os.ModePerm)
-				os.MkdirAll(getTestPath("result", ".mtahtml5_mta_build_tmp", "ui5app2"), os.ModePerm)
-				file, _ := os.Create(getTestPath("result", ".mtahtml5_mta_build_tmp", "xs-security.json"))
-				file.Close()
+				createMtahtml5TmpFolder()
 				Ω(ExecuteGenMeta(getTestPath("mtahtml5"), getResultPath(), "dev", "cf", os.Getwd)).Should(Succeed())
 				Ω(ExecuteGenMtar(getTestPath("mtahtml5"), getResultPath(), "true", "dev", "", os.Getwd)).Should(Succeed())
 				Ω(getTestPath("result", "mtahtml5_0.0.1.mtar")).Should(BeAnExistingFile())
 			})
 
 			It("Sanity, target not provided", func() {
-				os.MkdirAll(getTestPath("result", ".mtahtml5_mta_build_tmp", "testapp"), os.ModePerm)
-				os.MkdirAll(getTestPath("result", ".mtahtml5_mta_build_tmp", "ui5app2"), os.ModePerm)
-				file, _ := os.Create(getTestPath("result", ".mtahtml5_mta_build_tmp", "xs-security.json"))
-				file.Close()
+				createMtahtml5TmpFolder()
 				Ω(ExecuteGenMeta(getTestPath("mtahtml5"), getResultPath(), "dev", "cf", os.Getwd)).Should(Succeed())
 				Ω(ExecuteGenMtar(getTestPath("mtahtml5"), getResultPath(), "false", "dev", "", os.Getwd)).Should(Succeed())
 				Ω(getTestPath("result", "mta_archives", "mtahtml5_0.0.1.mtar")).Should(BeAnExistingFile())
@@ -53,12 +47,8 @@ var _ = Describe("Mtar", func() {
 
 		It("Generate Mtar - Sanity", func() {
 			ep := dir.Loc{SourcePath: getTestPath("mtahtml5"), TargetPath: getResultPath()}
-			os.MkdirAll(getTestPath("result", ".mtahtml5_mta_build_tmp", "testapp"), os.ModePerm)
-			os.MkdirAll(getTestPath("result", ".mtahtml5_mta_build_tmp", "ui5app2"), os.ModePerm)
-			os.MkdirAll(getTestPath("result", ".mtahtml5_mta_build_tmp", "META-INF"), os.ModePerm)
-			file, _ := os.Create(getTestPath("result", ".mtahtml5_mta_build_tmp", "xs-security.json"))
-			file.Close()
-			Ω(generateMeta(&ep, &ep, &ep, false, "cf")).Should(Succeed())
+			createMtahtml5TmpFolder()
+			Ω(generateMeta(&ep, &ep, &ep, &ep, false, "cf")).Should(Succeed())
 			mtarPath, err := generateMtar(&ep, &ep, &ep, true, "")
 			Ω(err).Should(Succeed())
 			Ω(mtarPath).Should(BeAnExistingFile())

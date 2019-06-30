@@ -17,7 +17,7 @@ import (
 var _ = Describe("Mtad", func() {
 
 	BeforeEach(func() {
-		os.MkdirAll(getTestPath("resultMtad"), os.ModePerm)
+		dir.CreateDirIfNotExist(getTestPath("resultMtad"))
 	})
 
 	AfterEach(func() {
@@ -26,12 +26,12 @@ var _ = Describe("Mtad", func() {
 
 	var _ = Describe("ExecuteGenMtad", func() {
 		It("Sanity", func() {
-			os.MkdirAll(getTestPath("resultMtad", ".mta_mta_build_tmp", "node-js"), os.ModePerm)
+			dir.CreateDirIfNotExist(getTestPath("resultMtad", ".mta_mta_build_tmp", "node-js"))
 			Ω(ExecuteGenMtad(getTestPath("mta"), getTestPath("resultMtad"), "cf", os.Getwd)).Should(Succeed())
 			Ω(getTestPath("resultMtad", "mtad.yaml")).Should(BeAnExistingFile())
 		})
 		It("Fails on creating META-INF folder", func() {
-			os.MkdirAll(getTestPath("resultMtad", ".mta_mta_build_tmp"), os.ModePerm)
+			dir.CreateDirIfNotExist(getTestPath("resultMtad", ".mta_mta_build_tmp"))
 			file, err := os.Create(getTestPath("resultMtad", ".mta_mta_build_tmp", "META-INF"))
 			Ω(err).Should(Succeed())
 			file.Close()
@@ -67,7 +67,7 @@ var _ = Describe("Mtad", func() {
 			ep := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getTestPath("resultMtad")}
 			metaPath := ep.GetMetaPath()
 			tmpDir := ep.GetTargetTmpDir()
-			os.MkdirAll(tmpDir, os.ModePerm)
+			dir.CreateDirIfNotExist(tmpDir)
 			file, err := os.Create(metaPath)
 			Ω(err).Should(Succeed())
 			mtaBytes, err := dir.Read(&ep)

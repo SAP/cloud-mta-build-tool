@@ -231,5 +231,5 @@ func moduleCmd(mta *mta.MTA, moduleName string) (*mta.Module, []string, string, 
 			return m, commandProvider.Command, buildResults, nil
 		}
 	}
-	return nil, nil, "", errors.Errorf(`the "%v" module is not defined in the MTA file`, moduleName)
+	return nil, nil, "", errors.Errorf(`the "%s" module is not defined in the MTA file`, moduleName)
 }

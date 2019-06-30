@@ -1,7 +1,6 @@
 package artifacts
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 
@@ -25,17 +24,14 @@ var _ = Describe("Meta", func() {
 	var _ = Describe("ExecuteGenMeta", func() {
 
 		It("Sanity", func() {
-			os.MkdirAll(getTestPath("result", ".mtahtml5_mta_build_tmp", "ui5app2"), os.ModePerm)
-			os.MkdirAll(getTestPath("result", ".mtahtml5_mta_build_tmp", "testapp"), os.ModePerm)
-			file, _ := os.Create(getTestPath("result", ".mtahtml5_mta_build_tmp", "xs-security.json"))
-			file.Close()
+			createMtahtml5TmpFolder()
 			Ω(ExecuteGenMeta(getTestPath("mtahtml5"), getResultPath(), "dev", "CF", os.Getwd)).Should(Succeed())
 			Ω(getTestPath("result", ".mtahtml5_mta_build_tmp", "META-INF", "MANIFEST.MF")).Should(BeAnExistingFile())
 			Ω(getTestPath("result", ".mtahtml5_mta_build_tmp", "META-INF", "mtad.yaml")).Should(BeAnExistingFile())
 		})
 
 		It("Fails on META-INF folder creation", func() {
-			os.MkdirAll(getTestPath("result", ".mtahtml5_mta_build_tmp"), os.ModePerm)
+			dir.CreateDirIfNotExist(getTestPath("result", ".mtahtml5_mta_build_tmp"))
 			file, _ := os.Create(getTestPath("result", ".mtahtml5_mta_build_tmp", "META-INF"))
 			file.Close()
 			Ω(ExecuteGenMeta(getTestPath("mtahtml5"), getResultPath(), "dev", "CF", os.Getwd)).Should(HaveOccurred())
@@ -47,8 +43,8 @@ var _ = Describe("Meta", func() {
 			})).Should(HaveOccurred())
 		})
 		It("Wrong platform", func() {
-			os.MkdirAll(getTestPath("result", ".mtahtml5_mta_build_tmp", "ui5app2"), os.ModePerm)
-			os.MkdirAll(getTestPath("result", ".mtahtml5_mta_build_tmp", "testapp"), os.ModePerm)
+			dir.CreateDirIfNotExist(getTestPath("result", ".mtahtml5_mta_build_tmp", "ui5app2"))
+			dir.CreateDirIfNotExist(getTestPath("result", ".mtahtml5_mta_build_tmp", "testapp"))
 			Ω(ExecuteGenMeta(getTestPath("mtahtml5"), getResultPath(), "dev", "xx", os.Getwd)).Should(HaveOccurred())
 
 		})
@@ -73,10 +69,10 @@ modules:
 		It("Sanity", func() {
 			m := mta.MTA{}
 			yaml.Unmarshal(mtaSingleModule, &m)
-			os.MkdirAll(getTestPath("result", ".testproject_mta_build_tmp", "app"), os.ModePerm)
-			os.MkdirAll(getTestPath("result", ".testproject_mta_build_tmp", "META-INF"), os.ModePerm)
-			Ω(genMetaInfo(&ep, &ep, ep.IsDeploymentDescriptor(), "cf",
-				&m, []string{"htmlapp"})).Should(Succeed())
+			dir.CreateDirIfNotExist(getTestPath("result", ".testproject_mta_build_tmp", "htmlapp"))
+			os.Create(getTestPath("result", ".testproject_mta_build_tmp", "htmlapp", "data.zip"))
+			dir.CreateDirIfNotExist(getTestPath("result", ".testproject_mta_build_tmp", "META-INF"))
+			Ω(genMetaInfo(&ep, &ep, &ep, ep.IsDeploymentDescriptor(), "cf", &m)).Should(Succeed())
 			Ω(ep.GetManifestPath()).Should(BeAnExistingFile())
 			Ω(ep.GetMtadPath()).Should(BeAnExistingFile())
 		})
@@ -84,12 +80,11 @@ modules:
 		It("Meta creation fails - fails on conversion by platform", func() {
 			m := mta.MTA{}
 			yaml.Unmarshal(mtaSingleModule, &m)
-			os.MkdirAll(getTestPath("result", ".testproject_mta_build_tmp", "app"), os.ModePerm)
-			os.MkdirAll(getTestPath("result", ".testproject_mta_build_tmp", "META-INF"), os.ModePerm)
+			dir.CreateDirIfNotExist(getTestPath("result", ".testproject_mta_build_tmp", "app"))
+			dir.CreateDirIfNotExist(getTestPath("result", ".testproject_mta_build_tmp", "META-INF"))
 			cfg := platform.PlatformConfig
 			platform.PlatformConfig = []byte(`very bad config`)
-			Ω(genMetaInfo(&ep, &ep, ep.IsDeploymentDescriptor(), "cf",
-				&m, []string{"htmlapp"})).Should(HaveOccurred())
+			Ω(genMetaInfo(&ep, &ep, &ep, ep.IsDeploymentDescriptor(), "cf", &m)).Should(HaveOccurred())
 			platform.PlatformConfig = cfg
 		})
 
@@ -97,8 +92,7 @@ modules:
 			loc := testLoc{ep}
 			m := mta.MTA{}
 			yaml.Unmarshal(mtaSingleModule, &m)
-			Ω(genMetaInfo(&loc, &ep, ep.IsDeploymentDescriptor(), "cf",
-				&m, []string{"htmlapp"})).Should(HaveOccurred())
+			Ω(genMetaInfo(&loc, &ep, &ep, ep.IsDeploymentDescriptor(), "cf", &m)).Should(HaveOccurred())
 		})
 
 		var _ = Describe("Fails on setManifestDesc", func() {
@@ -122,8 +116,7 @@ cli_version:["x"]
 			It("Fails on get version", func() {
 				m := mta.MTA{}
 				yaml.Unmarshal(mtaSingleModule, &m)
-				Ω(genMetaInfo(&ep, &ep, ep.IsDeploymentDescriptor(), "cf",
-					&m, []string{"htmlapp"})).Should(HaveOccurred())
+				Ω(genMetaInfo(&ep, &ep, &ep, ep.IsDeploymentDescriptor(), "cf", &m)).Should(HaveOccurred())
 			})
 		})
 	})
@@ -136,63 +129,46 @@ cli_version:["x"]
 		}
 
 		It("Generate Meta", func() {
-			os.MkdirAll(getTestPath("result", ".mtahtml5_mta_build_tmp", "testapp"), os.ModePerm)
-			os.MkdirAll(getTestPath("result", ".mtahtml5_mta_build_tmp", "ui5app2"), os.ModePerm)
-			os.MkdirAll(getTestPath("result", ".mtahtml5_mta_build_tmp", "META-INF"), os.ModePerm)
+			createMtahtml5TmpFolder()
 			file, _ := os.Create(getTestPath("result", ".mtahtml5_mta_build_tmp", "xs-security.json"))
 			file.Close()
 			ep := dir.Loc{SourcePath: getTestPath("mtahtml5"), TargetPath: getResultPath()}
-			generateMeta(&ep, &ep, &ep, false, "cf")
+			Ω(generateMeta(&ep, &ep, &ep, &ep, false, "cf")).Should(Succeed())
 			Ω(readFileContent(&dir.Loc{SourcePath: getTestPath("result", ".mtahtml5_mta_build_tmp", "META-INF"), Descriptor: "dep"})).
 				Should(Equal(readFileContent(&dir.Loc{SourcePath: getTestPath("golden"), Descriptor: "dep"})))
-		})
-
-		It("Generate Meta - with extension file", func() {
-			ep := dir.Loc{SourcePath: getTestPath("mtahtml5"), TargetPath: getResultPath()}
-			os.MkdirAll(getTestPath("result", ".mtahtml5_mta_build_tmp", "testapp"), os.ModePerm)
-			os.MkdirAll(getTestPath("result", ".mtahtml5_mta_build_tmp", "ui5app2"), os.ModePerm)
-			os.MkdirAll(getTestPath("result", ".mtahtml5_mta_build_tmp", "META-INF"), os.ModePerm)
-			file, _ := os.Create(getTestPath("result", ".mtahtml5_mta_build_tmp", "xs-security.json"))
-			file.Close()
-			Ω(generateMeta(&ep, &ep, &ep, false, "cf")).Should(Succeed())
-			actual := readFileContent(&dir.Loc{SourcePath: getTestPath("result", ".mtahtml5_mta_build_tmp", "META-INF"), Descriptor: "dep"})
-			golden := readFileContent(&dir.Loc{SourcePath: getTestPath("golden"), Descriptor: "dep"})
-			Ω(actual).Should(Equal(golden))
 		})
 
 		It("Generate Meta - mta not exists", func() {
 			ep := dir.Loc{SourcePath: getTestPath("mtahtml5"), TargetPath: getResultPath(),
 				MtaFilename: "mtaNotExists.yaml"}
-			Ω(generateMeta(&ep, &ep, &ep, false, "cf")).Should(HaveOccurred())
+			err := generateMeta(&ep, &ep, &ep, &ep, false, "cf")
+			Ω(err).Should(HaveOccurred())
+			Ω(err.Error()).Should(ContainSubstring(`failed to read the "%s"`, ep.GetMtaYamlPath()))
 		})
 
 		It("Generate Meta fails on platform parsing", func() {
 			platformConfig := platform.PlatformConfig
 			platform.PlatformConfig = []byte("wrong config")
-			os.MkdirAll(getTestPath("result", ".mtahtml5_mta_build_tmp", "testapp"), os.ModePerm)
-			os.MkdirAll(getTestPath("result", ".mtahtml5_mta_build_tmp", "ui5app2"), os.ModePerm)
+			createMtahtml5TmpFolder()
 			ep := dir.Loc{SourcePath: getTestPath("mtahtml5"), TargetPath: getResultPath()}
-			Ω(generateMeta(&ep, &ep, &ep, false, "cf")).Should(HaveOccurred())
+			err := generateMeta(&ep, &ep, &ep, &ep, false, "cf")
+			Ω(err).Should(HaveOccurred())
+			Ω(err.Error()).Should(ContainSubstring(`generation of the MTAD file failed when converting types according to the "cf" platform: unmarshalling of the platforms failed`))
 			platform.PlatformConfig = platformConfig
 		})
 
 		It("Generate Meta fails on mtad adaptation", func() {
 			ep := dir.Loc{SourcePath: getTestPath("mtahtml5"), TargetPath: getResultPath()}
-			Ω(generateMeta(&ep, &ep, &ep, false, "cf")).Should(HaveOccurred())
+			Ω(generateMeta(&ep, &ep, &ep, &ep, false, "cf")).Should(HaveOccurred())
 		})
 
 		It("Generate Mtar", func() {
-			os.MkdirAll(getTestPath("result", ".mtahtml5_mta_build_tmp", "testapp"), os.ModePerm)
-			os.MkdirAll(getTestPath("result", ".mtahtml5_mta_build_tmp", "ui5app2"), os.ModePerm)
+			createMtahtml5TmpFolder()
 			ep := dir.Loc{SourcePath: getTestPath("mtahtml5"), TargetPath: getResultPath()}
-			err := generateMeta(&ep, &ep, &ep, false, "cf")
-			if err != nil {
-				fmt.Println(err)
-			}
+			err := generateMeta(&ep, &ep, &ep, &ep, false, "cf")
+			Ω(err).Should(Succeed())
 			mtarPath, err := generateMtar(&ep, &ep, &ep, true, "")
-			if err != nil {
-				fmt.Println(err)
-			}
+			Ω(err).Should(Succeed())
 			Ω(mtarPath).Should(BeAnExistingFile())
 		})
 	})
@@ -215,5 +191,25 @@ func (loc *testLoc) GetManifestPath() string {
 }
 
 func (loc *testLoc) GetMtarDir(targetProvided bool) string {
-	return loc.GetMtarDir(targetProvided)
+	return loc.loc.GetMtarDir(targetProvided)
+}
+
+func (loc *testLoc) GetSourceModuleDir(modulePath string) string {
+	return loc.loc.GetSourceModuleDir(modulePath)
+}
+
+func createMtahtml5TmpFolder() {
+	dir.CreateDirIfNotExist(getTestPath("result", ".mtahtml5_mta_build_tmp", "testapp"))
+	dir.CreateDirIfNotExist(getTestPath("result", ".mtahtml5_mta_build_tmp", "ui5app2"))
+	dir.CreateDirIfNotExist(getTestPath("result", ".mtahtml5_mta_build_tmp", "ui5app"))
+	dir.CreateDirIfNotExist(getTestPath("result", ".mtahtml5_mta_build_tmp", "META-INF"))
+	createTmpFile(getTestPath("result", ".mtahtml5_mta_build_tmp", "ui5app", "data.zip"))
+	createTmpFile(getTestPath("result", ".mtahtml5_mta_build_tmp", "ui5app2", "data.zip"))
+	createTmpFile(getTestPath("result", ".mtahtml5_mta_build_tmp", "xs-security.json"))
+}
+
+func createTmpFile(path string) {
+	file, err := os.Create(path)
+	file.Close()
+	Ω(err).Should(Succeed())
 }

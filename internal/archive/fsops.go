@@ -19,8 +19,8 @@ func CreateDirIfNotExist(dir string) error {
 	info, err := os.Stat(dir)
 	if os.IsNotExist(err) {
 		err = os.MkdirAll(dir, os.ModePerm)
-	} else if !info.IsDir() {
-		err = fmt.Errorf("creation of the %v folder failed because a file exists with the same name", dir)
+	} else if err == nil && !info.IsDir() {
+		err = fmt.Errorf("creation of the %s folder failed because a file exists with the same name", dir)
 	}
 	return err
 }
@@ -36,6 +36,12 @@ func Archive(sourcePath, targetArchivePath string, ignore []string) (e error) {
 	info, err := os.Stat(sourcePath)
 	if err != nil {
 		return err
+	}
+
+	// create folder of archive file if not exists
+	err = CreateDirIfNotExist(filepath.Dir(targetArchivePath))
+	if err != nil {
+		return errors.Wrapf(err, `archiving failed when creating the "%s" folder`, targetArchivePath)
 	}
 
 	// create archive file
@@ -176,7 +182,7 @@ func CopyDir(src string, dst string, withParents bool, copyDirEntries func(entri
 	if !withParents && err != nil {
 		err = os.Mkdir(dst, os.ModePerm)
 	} else if err != nil {
-		err = os.MkdirAll(dst, os.ModePerm)
+		err = CreateDirIfNotExist(dst)
 	}
 	if err != nil {
 		return err
@@ -198,22 +204,22 @@ func CopyByPatterns(source, target string, patterns []string) error {
 		return nil
 	}
 
-	logs.Logger.Infof("copying the patterns [%v,...] from the %v folder to the %v folder",
+	logs.Logger.Infof("copying the patterns [%s,...] from the %s folder to the %s folder",
 		patterns[0], source, target)
 
 	infoTargetDir, err := os.Stat(target)
 	if err != nil {
-		err = os.MkdirAll(target, os.ModePerm)
+		err = CreateDirIfNotExist(target)
 		if err != nil {
 			return errors.Wrapf(err,
-				"copying the patterns [%v,...] from the %v folder to the %v folder failed when creating the target folder",
+				"copying the patterns [%s,...] from the %s folder to the %s folder failed when creating the target folder",
 				patterns[0], source, target)
 		}
-		logs.Logger.Infof(`the "%v" folder has been created`, target)
+		logs.Logger.Infof(`the "%s" folder has been created`, target)
 
 	} else if !infoTargetDir.IsDir() {
 		return errors.Errorf(
-			`copying the patterns [%v,...] from the "%v" folder to the "%v" folder failed because the target is not a folder`,
+			`copying the patterns [%s,...] from the "%s" folder to the "%s" folder failed because the target is not a folder`,
 			patterns[0], source, target)
 	}
 
@@ -229,7 +235,7 @@ func CopyByPatterns(source, target string, patterns []string) error {
 
 // copyByPattern - copy files/directories according to pattern
 func copyByPattern(source, target, pattern string) error {
-	logs.Logger.Infof(`copying the "%v" pattern from the "%v" folder to the "%v" folder`,
+	logs.Logger.Infof(`copying the "%s" pattern from the "%s" folder to the "%s" folder`,
 		pattern, source, target)
 	// build full pattern concatenating source path and pattern
 	fullPattern := filepath.Join(source, strings.Replace(pattern, "./", "", -1))
@@ -237,7 +243,7 @@ func copyByPattern(source, target, pattern string) error {
 	sourceEntries, err := filepath.Glob(fullPattern)
 	if err != nil {
 		return errors.Wrapf(err,
-			`copying the "%v" pattern from the "%v" folder to the "%v" folder failed when getting matching entries`,
+			`copying the "%s" pattern from the "%s" folder to the "%s" folder failed when getting matching entries`,
 			pattern, source, target)
 	}
 
@@ -254,7 +260,7 @@ func copyEntries(entries []string, source, target, pattern string) error {
 		info, err := os.Stat(entry)
 		if err != nil {
 			return errors.Wrapf(err,
-				`copying the "%v" pattern from the "%v" folder to the "%v" folder failed when getting the status of the source entry: %v`,
+				`copying the "%s" pattern from the "%s" folder to the "%s" folder failed when getting the status of the source entry: %s`,
 				pattern, source, target, entry)
 		}
 		targetEntry := filepath.Join(target, filepath.Base(entry))
@@ -265,7 +271,7 @@ func copyEntries(entries []string, source, target, pattern string) error {
 		}
 		if err != nil {
 			return errors.Wrapf(err,
-				`copying the "%v" pattern from the "%v" folder to the "%v" folder failed when copying the "%v" entry to the "%v" entry`,
+				`copying the "%s" pattern from the "%s" folder to the "%s" folder failed when copying the "%s" entry to the "%s" entry`,
 				pattern, source, target, entry, targetEntry)
 		}
 	}
@@ -290,7 +296,7 @@ func CopyEntries(entries []os.FileInfo, src, dst string) error {
 			// Todo check posix compatibility
 			if entry.Mode()&os.ModeSymlink != 0 {
 				logs.Logger.Infof(
-					`copying of the entries from the "%v" folder to the "%v" folder skipped the "%v" entry because its mode is a symbolic link`,
+					`copying of the entries from the "%s" folder to the "%s" folder skipped the "%s" entry because its mode is a symbolic link`,
 					src, dst, entry.Name())
 			} else {
 				err = CopyFileWithMode(srcPath, dstPath, entry.Mode())
@@ -336,7 +342,7 @@ func CopyEntriesInParallel(entries []os.FileInfo, src, dst string) (rerr error) 
 				// Todo check posix compatibility
 				if e.Mode()&os.ModeSymlink != 0 {
 					logs.Logger.Infof(
-						`copying of the entries from the "%v" folder to the "%v" folder skipped the "%v" entry because its mode is a symbolic link`,
+						`copying of the entries from the "%s" folder to the "%s" folder skipped the "%s" entry because its mode is a symbolic link`,
 						src, dst, e.Name())
 				} else {
 					err = CopyFileWithMode(srcPath, dstPath, e.Mode())
@@ -431,7 +437,7 @@ func Read(ep IMtaYaml) ([]byte, error) {
 func readFile(file string) ([]byte, error) {
 	content, err := ioutil.ReadFile(file)
 	if err != nil {
-		return nil, errors.Wrapf(err, `failed to read the "%v" file`, file)
+		return nil, errors.Wrapf(err, `failed to read the "%s" file`, file)
 	}
 	s := string(content)
 	s = strings.Replace(s, "\r\n", "\r", -1)

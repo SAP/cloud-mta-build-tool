@@ -2,6 +2,7 @@ package artifacts
 
 import (
 	"errors"
+	dir "github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"os"
 
 	. "github.com/onsi/ginkgo"
@@ -11,7 +12,7 @@ import (
 var _ = Describe("Cleanup", func() {
 
 	BeforeEach(func() {
-		os.MkdirAll(getTestPath("result", ".mtahtml5_mta_build_tmp"), os.ModePerm)
+		dir.CreateDirIfNotExist(getTestPath("result", ".mtahtml5_mta_build_tmp"))
 	})
 
 	AfterEach(func() {
@@ -25,14 +26,5 @@ var _ = Describe("Cleanup", func() {
 		Ω(ExecuteCleanup("", getTestPath("result"), "dev", func() (string, error) {
 			return "", errors.New("err")
 		})).Should(HaveOccurred())
-	})
-})
-
-var _ = Describe("Cleanup", func() {
-	BeforeEach(func() {
-		os.MkdirAll(getTestPath("result1"), os.ModePerm)
-	})
-	AfterEach(func() {
-		os.RemoveAll(getTestPath("result1"))
 	})
 })

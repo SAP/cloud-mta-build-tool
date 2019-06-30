@@ -1,6 +1,7 @@
 package buildops
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -18,23 +19,24 @@ import (
 
 var _ = Describe("BuildParams", func() {
 
-	var _ = Describe("GetBuildResultsPath", func() {
-		var _ = DescribeTable("valid cases", func(module *mta.Module, expected string) {
-			path, _, err := GetBuildResultsPath(&dir.Loc{SourcePath: getTestPath("mtahtml5")}, module, expected)
-			Ω(err).Should(Succeed())
-			Ω(path).Should(HaveSuffix(expected))
-		},
-			Entry("Implicit Build Results Path", &mta.Module{Path: "mPath"}, ""),
-			Entry("Explicit Build Results Path",
-				&mta.Module{
-					Path:        "testapp",
-					BuildParams: map[string]interface{}{buildResultParam: filepath.Join("webapp", "controller")},
-				}, "controller"))
+	var _ = DescribeTable("valid cases", func(module *mta.Module, expected string) {
+		loc := &dir.Loc{SourcePath: getTestPath("mtahtml5")}
+		path, _, _, err := GetModuleSourceArtifactPath(loc, false, module, "")
+		Ω(err).Should(Succeed())
+		Ω(path).Should(Equal(expected))
+	},
+		Entry("Implicit Build Results Path", &mta.Module{Path: "testapp"}, getTestPath("mtahtml5", "testapp")),
+		Entry("Explicit Build Results Path",
+			&mta.Module{
+				Path:        "testapp",
+				BuildParams: map[string]interface{}{buildResultParam: filepath.Join("webapp", "controller")},
+			}, getTestPath("mtahtml5", "testapp", "webapp", "controller")))
 
+	var _ = Describe("GetBuildResultsPath", func() {
 		It("empty path, no build results", func() {
 			module := &mta.Module{}
-			buildResult, _, _ := GetBuildResultsPath(
-				&dir.Loc{SourcePath: getTestPath("testbuildparams", "ui2", "deep", "folder")}, module, "")
+			buildResult, _, _, _ := GetModuleSourceArtifactPath(
+				&dir.Loc{SourcePath: getTestPath("testbuildparams", "ui2", "deep", "folder")}, false, module, "")
 			Ω(buildResult).Should(Equal(""))
 		})
 
@@ -43,8 +45,8 @@ var _ = Describe("BuildParams", func() {
 				Path:        "inui2",
 				BuildParams: map[string]interface{}{buildResultParam: "*.txt"},
 			}
-			buildResult, _, _ := GetBuildResultsPath(
-				&dir.Loc{SourcePath: getTestPath("testbuildparams", "ui2", "deep", "folder")}, module, "")
+			buildResult, _, _, _ := GetModuleSourceArtifactPath(
+				&dir.Loc{SourcePath: getTestPath("testbuildparams", "ui2", "deep", "folder")}, false, module, "")
 			Ω(buildResult).Should(HaveSuffix("anotherfile.txt"))
 		})
 
@@ -52,16 +54,16 @@ var _ = Describe("BuildParams", func() {
 			module := &mta.Module{
 				Path: "inui2",
 			}
-			buildResult, _, _ := GetBuildResultsPath(
-				&dir.Loc{SourcePath: getTestPath("testbuildparams", "ui2", "deep", "folder")}, module, "*.txt")
+			buildResult, _, _, _ := GetModuleSourceArtifactPath(
+				&dir.Loc{SourcePath: getTestPath("testbuildparams", "ui2", "deep", "folder")}, false, module, "*.txt")
 			Ω(buildResult).Should(HaveSuffix("anotherfile.txt"))
 		})
 		It("default build results - no file answers pattern", func() {
 			module := &mta.Module{
 				Path: "inui2",
 			}
-			_, _, err := GetBuildResultsPath(
-				&dir.Loc{SourcePath: getTestPath("testbuildparams", "ui2", "deep", "folder")}, module, "b*.txt")
+			_, _, _, err := GetModuleSourceArtifactPath(
+				&dir.Loc{SourcePath: getTestPath("testbuildparams", "ui2", "deep", "folder")}, false, module, "b*.txt")
 			Ω(err).Should(HaveOccurred())
 		})
 	})
@@ -161,6 +163,104 @@ var _ = Describe("BuildParams", func() {
 				mta.MTA{Modules: []*mta.Module{{Name: "ui1", Path: "ui1"}, {Name: "node", Path: "node"}}},
 				"node", ""))
 
+	})
+})
+
+var _ = Describe("GetModuleTargetArtifactPath", func() {
+	It("path is empty", func() {
+		loc := dir.Loc{}
+		path, _, err := GetModuleTargetArtifactPath(&loc, &loc, false, &mta.Module{}, "")
+		Ω(err).Should(Succeed())
+		Ω(path).Should(BeEmpty())
+	})
+	It("deployment descriptor", func() {
+		loc := dir.Loc{SourcePath: getTestPath("mtahtml5"), TargetPath: getTestPath("result")}
+		path, _, err := GetModuleTargetArtifactPath(&loc, &loc, true, &mta.Module{Path: "abc"}, "")
+		Ω(err).Should(Succeed())
+		Ω(path).Should(Equal(getTestPath("result", ".mtahtml5_mta_build_tmp", "abc")))
+	})
+	It("fails on wrong definition of build result", func() {
+		loc := dir.Loc{SourcePath: getTestPath("mtahtml5"), TargetPath: getTestPath("result")}
+		module := &mta.Module{
+			Name: "web",
+			Path: "webapp",
+			BuildParams: map[string]interface{}{
+				buildResultParam: 1,
+			},
+		}
+		_, _, err := GetModuleTargetArtifactPath(&loc, &loc, false, module, "")
+		Ω(err).Should(HaveOccurred())
+		Ω(err.Error()).Should(ContainSubstring(fmt.Sprintf(WrongBuildResultMsg, 1, "web")))
+	})
+	It("fails on wrong definition of build artifact name", func() {
+		loc := dir.Loc{SourcePath: getTestPath("mtahtml5"), TargetPath: getTestPath("result")}
+		module := &mta.Module{
+			Name: "web",
+			Path: filepath.Join("testapp", "webapp"),
+			BuildParams: map[string]interface{}{
+				buildArtifactNameParam: 1,
+			},
+		}
+		_, _, err := GetModuleTargetArtifactPath(&loc, &loc, false, module, "")
+		Ω(err).Should(HaveOccurred())
+		Ω(err.Error()).Should(ContainSubstring(fmt.Sprintf(WrongBuildArtifactNameMsg, 1, "web")))
+	})
+	It("artifact is a folder", func() {
+		loc := dir.Loc{SourcePath: getTestPath("mtahtml5"), TargetPath: getTestPath("result")}
+		module := &mta.Module{
+			Name: "web",
+			Path: filepath.Join("testapp", "webapp"),
+			BuildParams: map[string]interface{}{
+				buildArtifactNameParam: "test",
+			},
+		}
+		path, toArchive, err := GetModuleTargetArtifactPath(&loc, &loc, false, module, "")
+		Ω(err).Should(Succeed())
+		Ω(path).Should(Equal(getTestPath("result", ".mtahtml5_mta_build_tmp", "web", "test.zip")))
+		Ω(toArchive).Should(BeTrue())
+	})
+	It("artifact is a file", func() {
+		loc := dir.Loc{SourcePath: getTestPath("mtahtml5"), TargetPath: getTestPath("result")}
+		module := &mta.Module{
+			Name: "web",
+			Path: filepath.Join("testapp", "webapp", "Component.js"),
+			BuildParams: map[string]interface{}{
+				buildArtifactNameParam: "test",
+			},
+		}
+		path, toArchive, err := GetModuleTargetArtifactPath(&loc, &loc, false, module, "")
+		Ω(err).Should(Succeed())
+		Ω(path).Should(Equal(getTestPath("result", ".mtahtml5_mta_build_tmp", "web", "test.zip")))
+		Ω(toArchive).Should(BeTrue())
+	})
+	It("artifact is a file defined by build result", func() {
+		loc := dir.Loc{SourcePath: getTestPath("mtahtml5"), TargetPath: getTestPath("result")}
+		module := &mta.Module{
+			Name: "web",
+			Path: "testapp",
+			BuildParams: map[string]interface{}{
+				buildResultParam:       filepath.Join("webapp", "controller", "View1.controller.js"),
+				buildArtifactNameParam: "ctrl",
+			},
+		}
+		path, toArchive, err := GetModuleTargetArtifactPath(&loc, &loc, false, module, "")
+		Ω(err).Should(Succeed())
+		Ω(path).Should(Equal(getTestPath("result", ".mtahtml5_mta_build_tmp", "web", "webapp", "controller", "ctrl.zip")))
+		Ω(toArchive).Should(BeTrue())
+	})
+	It("artifact is an archive", func() {
+		loc := dir.Loc{SourcePath: getTestPath("mtahtml5"), TargetPath: getTestPath("result")}
+		module := &mta.Module{
+			Name: "web",
+			Path: filepath.Join("testapp", "webapp", "Component.jar"),
+			BuildParams: map[string]interface{}{
+				buildArtifactNameParam: "test",
+			},
+		}
+		path, toArchive, err := GetModuleTargetArtifactPath(&loc, &loc, false, module, "")
+		Ω(err).Should(Succeed())
+		Ω(path).Should(Equal(getTestPath("result", ".mtahtml5_mta_build_tmp", "web", "test.jar")))
+		Ω(toArchive).Should(BeFalse())
 	})
 })
 
