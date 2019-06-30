@@ -57,7 +57,7 @@ var _ = Describe("manifest", func() {
 			for _, c := range dirC {
 				fmt.Println(c.Name())
 			}
-			loc := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath(), Descriptor:dir.Dep}
+			loc := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath(), Descriptor: dir.Dep}
 			mtaObj, err := loc.ParseFile()
 			Ω(err).Should(Succeed())
 			err = setManifestDesc(&loc, &loc, &loc, true, mtaObj.Modules, []*mta.Resource{})

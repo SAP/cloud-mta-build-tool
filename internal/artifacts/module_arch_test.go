@@ -563,7 +563,7 @@ module-types:
 				getTestPath("result", "mta.yaml"), getTestPath("result"), false)).Should(HaveOccurred())
 		})
 	})
-	
+
 	var _ = Describe("cleanUpCopiedContent", func() {
 		It("Sanity", func() {
 			err := cleanUpCopiedContent(getTestPath(), []string{"result"})
