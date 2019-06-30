@@ -50,6 +50,20 @@ var _ = Describe("manifest", func() {
 			fmt.Println(golden)
 			Ω(actual).Should(Equal(golden))
 		})
+		It("Unknown content type, assembly scenario", func() {
+			Ω(os.Mkdir(getTestPath("result", ".mta_mta_build_tmp", "node-js"), os.ModePerm)).Should(Succeed())
+			createTmpFile(getTestPath("result", ".mta_mta_build_tmp", "node-js", "server.js"))
+			dirC, _ := ioutil.ReadDir(getTestPath("result", ".mta_mta_build_tmp"))
+			for _, c := range dirC {
+				fmt.Println(c.Name())
+			}
+			loc := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath(), Descriptor:dir.Dep}
+			mtaObj, err := loc.ParseFile()
+			Ω(err).Should(Succeed())
+			err = setManifestDesc(&loc, &loc, &loc, true, mtaObj.Modules, []*mta.Resource{})
+			Ω(err).Should(HaveOccurred())
+			Ω(err.Error()).Should(ContainSubstring(`content type for the ".js" extension is not defined`))
+		})
 		It("Sanity - with configuration provided", func() {
 			Ω(os.Mkdir(getTestPath("result", ".mta_mta_build_tmp", "node-js"), os.ModePerm)).Should(Succeed())
 			createTmpFile(getTestPath("result", ".mta_mta_build_tmp", "node-js", "data.zip"))

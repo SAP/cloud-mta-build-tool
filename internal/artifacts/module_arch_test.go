@@ -563,11 +563,19 @@ module-types:
 				getTestPath("result", "mta.yaml"), getTestPath("result"), false)).Should(HaveOccurred())
 		})
 	})
-
+	
 	var _ = Describe("cleanUpCopiedContent", func() {
 		It("Sanity", func() {
 			err := cleanUpCopiedContent(getTestPath(), []string{"result"})
 			Ω(err).Should(Succeed())
+		})
+	})
+
+	var _ = Describe("copyModuleArchiveToResultDir", func() {
+		It("target folder is file", func() {
+			err := copyModuleArchiveToResultDir(getTestPath("assembly", "data.jar"), getTestPath("assembly", "file", "file"), "m1")
+			Ω(err).Should(HaveOccurred())
+			Ω(err.Error()).Should(ContainSubstring("a file exists with the same name"))
 		})
 	})
 
