@@ -79,7 +79,7 @@ var _ = Describe("FSOPS", func() {
 		},
 			Entry("Sanity",
 				getFullPath("testdata", "mtahtml5"), targetFilePath, nil, false),
-			Entry("Target is file",
+			Entry("Target is folder",
 				getFullPath("testdata", "mtahtml5"), getFullPath("testdata"), nil, true),
 			Entry("Sanity - ignore folder",
 				getFullPath("testdata", "testproject"), targetFilePath, []string{"ui5app/"}, false),
