@@ -226,7 +226,7 @@ var _ = Describe("GetModuleTargetArtifactPath", func() {
 			Name: "web",
 			Path: "testapp",
 			BuildParams: map[string]interface{}{
-				buildResultParam: filepath.Join("webapp", "controller", "View1.controller.js"),
+				buildResultParam:       filepath.Join("webapp", "controller", "View1.controller.js"),
 				buildArtifactNameParam: "ctrl",
 			},
 		}
