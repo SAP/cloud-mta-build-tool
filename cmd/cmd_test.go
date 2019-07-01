@@ -30,7 +30,7 @@ var _ = Describe("Commands", func() {
 	})
 
 	var _ = Describe("cleanup command", func() {
- 		It("Sanity", func() {
+		It("Sanity", func() {
 			// cleanup command used for test temp file removal
 			cleanupCmdSrc = getTestPath("testdata", "mtahtml5")
 			cleanupCmdTrg = getTestPath("testdata", "result")
