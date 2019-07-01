@@ -1,7 +1,6 @@
 package commands
 
 import (
-	"fmt"
 	dir "github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"os"
 	"path/filepath"
@@ -22,10 +21,8 @@ var _ = Describe("Commands", func() {
 		buildCmdTrg = getTestPath("result")
 		cleanupCmdTrg = getTestPath("result")
 		logs.Logger = logs.NewLogger()
-		err := os.Mkdir(mtadCmdTrg, os.ModePerm)
-		if err != nil {
-			fmt.Println(err)
-		}
+		err := dir.CreateDirIfNotExist(mtadCmdTrg)
+		Ω(err).Should(Succeed())
 	})
 
 	AfterEach(func() {
@@ -33,16 +30,7 @@ var _ = Describe("Commands", func() {
 	})
 
 	var _ = Describe("cleanup command", func() {
-
-		BeforeEach(func() {
-			dir.CreateDirIfNotExist(getTestPath("resultClean", "mtahtml5", "mtahtml5"))
-		})
-
-		AfterEach(func() {
-			os.RemoveAll(getTestPath("resultClean"))
-		})
-
-		It("Sanity", func() {
+ 		It("Sanity", func() {
 			// cleanup command used for test temp file removal
 			cleanupCmdSrc = getTestPath("testdata", "mtahtml5")
 			cleanupCmdTrg = getTestPath("testdata", "result")

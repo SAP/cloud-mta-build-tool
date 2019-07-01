@@ -12,6 +12,8 @@ modules:
    requires:
     - name: uaa_mtahtml5
     - name: dest_mtahtml5
+   build-parameters:
+      supported-platforms: [cf]
 
  - name: ui5app2
    type: html5
@@ -22,6 +24,8 @@ modules:
    requires:
    - name: uaa_mtahtml5
    - name: dest_mtahtml5
+   build-parameters:
+     supported-platforms: [cf]
 
 resources:
  - name: uaa_mtahtml5

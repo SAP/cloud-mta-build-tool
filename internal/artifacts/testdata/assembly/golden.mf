@@ -25,7 +25,7 @@ Name: folder
 MTA-Module: m8
 Content-Type: text/directory
 
-Name: folder1
+Name: folder1/folder11
 MTA-Module: m9
 Content-Type: text/directory
 

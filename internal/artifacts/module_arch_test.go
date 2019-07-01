@@ -104,8 +104,8 @@ builders:
 		})
 
 		It("Target folder exists as file", func() {
-			dir.CreateDirIfNotExist(getTestPath("result", ".mta_mta_build_tmp"))
-			createFile("result", ".mta_mta_build_tmp", "node-js")
+			createDirInTempFolder("mta")
+			createFileInTmpFolder("mta", "node-js")
 			Ω(ExecutePack(getTestPath("mta"), getResultPath(), "node-js",
 				"cf", os.Getwd)).Should(HaveOccurred())
 		})
@@ -121,7 +121,7 @@ builders:
 					Descriptor: dir.Dev,
 				}
 				Ω(packModule(&ep, &ep, &m, "node-js", "cf", "*.zip")).Should(Succeed())
-				Ω(getTestPath("result", ".mta_with_zipped_module_mta_build_tmp", "node-js", "abc.zip")).Should(BeAnExistingFile())
+				Ω(getFullPathInTmpFolder("mta_with_zipped_module", "node-js", "abc.zip")).Should(BeAnExistingFile())
 			})
 			It("Build results - zip file not exists, fails", func() {
 				ep := dir.Loc{
@@ -151,7 +151,7 @@ builders:
 					Descriptor: dir.Dev,
 				}
 				Ω(packModule(&ep, &ep, &m, "htmlapp2", "cf", "")).Should(Succeed())
-				Ω(getTestPath("result", ".mta_mta_build_tmp", "htmlapp2", "data.zip")).Should(BeAnExistingFile())
+				Ω(getFullPathInTmpFolder("mta", "htmlapp2", "data.zip")).Should(BeAnExistingFile())
 				validateArchiveContents([]string{"ignore"}, ep.GetTargetModuleZipPath("htmlapp2"), false)
 			})
 
@@ -180,7 +180,7 @@ builders:
 					Descriptor: dir.Dev,
 				}
 				Ω(dir.CreateDirIfNotExist(filepath.Join(ep.GetTarget(), ".mta_with_zipped_module_mta_build_tmp"))).Should(Succeed())
-				createFile("result", ".mta_with_zipped_module_mta_build_tmp", "node-js")
+				createFileInTmpFolder("mta_with_zipped_module", "node-js")
 				Ω(packModule(&ep, &ep, &m, "node-js", "cf", "")).Should(HaveOccurred())
 			})
 			When("build-artifact-name is defined for the module", func() {
@@ -203,7 +203,7 @@ builders:
 						},
 					}
 					Ω(packModule(&ep, &ep, &m, "node-js", "cf", "")).Should(Succeed())
-					resultLocation := getTestPath("result", ".mta_with_subfolder_mta_build_tmp", "node-js", "res", "myresult.zip")
+					resultLocation := getFullPathInTmpFolder("mta_with_subfolder", "node-js", "res", "myresult.zip")
 					Ω(resultLocation).Should(BeAnExistingFile())
 					validateArchiveContents([]string{"file1"}, resultLocation, true)
 				})
@@ -216,7 +216,7 @@ builders:
 						},
 					}
 					Ω(packModule(&ep, &ep, &m, "node-js", "cf", "")).Should(Succeed())
-					resultLocation := getTestPath("result", ".mta_with_subfolder_mta_build_tmp", "node-js", "myresult.zip")
+					resultLocation := getFullPathInTmpFolder("mta_with_subfolder", "node-js", "myresult.zip")
 					Ω(resultLocation).Should(BeAnExistingFile())
 					validateArchiveContents([]string{"res/file1", "file2", "abc.war", "data.zip"}, resultLocation, true)
 				})
@@ -230,7 +230,7 @@ builders:
 						},
 					}
 					Ω(packModule(&ep, &ep, &m, "node-js", "cf", "")).Should(Succeed())
-					resultLocation := getTestPath("result", ".mta_with_subfolder_mta_build_tmp", "node-js", "myresult.war")
+					resultLocation := getFullPathInTmpFolder("mta_with_subfolder", "node-js", "myresult.war")
 					Ω(resultLocation).Should(BeAnExistingFile())
 					validateArchiveContents([]string{"gulpfile.js", "server.js", "package.json"}, resultLocation, true)
 				})
@@ -266,7 +266,7 @@ builders:
 						},
 					}
 					Ω(packModule(&ep, &ep, &m, "node-js", "cf", "")).Should(Succeed())
-					resultLocation := getTestPath("result", ".mta_with_subfolder_mta_build_tmp", "node-js", "data.zip")
+					resultLocation := getFullPathInTmpFolder("mta_with_subfolder", "node-js", "data.zip")
 					Ω(resultLocation).Should(BeAnExistingFile())
 					validateArchiveContents([]string{"res/file1", "file2", "abc.war", "data.zip"}, resultLocation, true)
 				})
@@ -398,7 +398,7 @@ module-types:
 			It("Target folder exists as a file - dev", func() {
 				dir.CreateDirIfNotExist(getTestPath("result", ".mta_mta_build_tmp"))
 				ep := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath()}
-				createFile("result", ".mta_mta_build_tmp", "node-js")
+				createFileInTmpFolder("mta", "node-js")
 				Ω(buildModule(&ep, &ep, &ep, "node-js", "cf")).Should(HaveOccurred())
 			})
 
@@ -650,16 +650,6 @@ func getContentPath(contentType, source string) string {
 	}
 
 	return "not-existing-content"
-}
-
-func createFileInGivenPath(path string) {
-	file, err := os.Create(path)
-	Ω(err).Should(Succeed())
-	file.Close()
-}
-
-func createFile(path ...string) {
-	createFileInGivenPath(getTestPath(path...))
 }
 
 func validateArchiveContents(expectedFilesInArchive []string, archiveLocation string, isExists bool) {

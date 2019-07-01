@@ -11,6 +11,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
+	dir "github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta-build-tool/internal/logs"
 )
 
@@ -43,4 +44,29 @@ func removeSpecialSymbols(b []byte) string {
 func getFileContent(filePath string) string {
 	expected, _ := ioutil.ReadFile(filePath)
 	return removeSpecialSymbols(expected)
+}
+
+func createFileInTmpFolder(projectName string, path ...string) {
+	file, err := os.Create(getFullPathInTmpFolder(projectName, path...))
+	Ω(err).Should(Succeed())
+	err = file.Close()
+	Ω(err).Should(Succeed())
+}
+
+func createFileInGivenPath(path string) {
+	file, err := os.Create(path)
+	Ω(err).Should(Succeed())
+	err = file.Close()
+	Ω(err).Should(Succeed())
+}
+
+func createDirInTempFolder(projectName string, path ...string) {
+	err := dir.CreateDirIfNotExist(getFullPathInTmpFolder(projectName, path...))
+	Ω(err).Should(Succeed())
+}
+
+func getFullPathInTmpFolder(projectName string, path ...string) string {
+	pathWithResultFolder := []string{"result", "." + projectName + "_mta_build_tmp"}
+	pathWithResultFolder = append(pathWithResultFolder, path...)
+	return getTestPath(pathWithResultFolder...)
 }

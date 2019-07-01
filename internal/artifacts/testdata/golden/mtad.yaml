@@ -4,7 +4,7 @@ version: 0.0.1
 modules:
 - name: ui5app
   type: javascript.nodejs
-  path: testapp
+  path: ui5app
   requires:
   - name: uaa_mtahtml5
   - name: dest_mtahtml5

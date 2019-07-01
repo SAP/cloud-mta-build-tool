@@ -151,7 +151,6 @@ func removeUndeployedModules(mtaStr *mta.MTA, platform string) {
 // if module has to be deployed we clean build parameters from module,
 // as this section is not used in MTAD yaml
 func removeBuildParamsFromMta(loc dir.ITargetPath, mtaStr *mta.MTA) error {
-
 	for _, m := range mtaStr.Modules {
 		// remove build parameters from modules with defined platforms
 		m.BuildParams = map[string]interface{}{}
@@ -164,19 +163,11 @@ func removeBuildParamsFromMta(loc dir.ITargetPath, mtaStr *mta.MTA) error {
 }
 
 func adaptModulePath(loc dir.ITargetPath, module *mta.Module) error {
-	if module.Path != "" {
-		// check existence of path in the temp folder
-		modulePath := filepath.Join(loc.GetTargetTmpDir(), module.Path)
-		_, err := os.Stat(modulePath)
-		// if path not exists, use the module name
-		if err != nil && os.IsNotExist(err) {
-			modulePath = filepath.Join(loc.GetTargetTmpDir(), module.Name)
-			_, e := os.Stat(modulePath)
-			if e != nil {
-				return err
-			}
-			module.Path = module.Name
-		}
+	modulePath := filepath.Join(loc.GetTargetTmpDir(), module.Name)
+	_, e := os.Stat(modulePath)
+	if e != nil {
+		return e
 	}
+	module.Path = module.Name
 	return nil
 }
