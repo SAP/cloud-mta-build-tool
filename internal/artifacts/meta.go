@@ -11,6 +11,10 @@ import (
 	"github.com/SAP/cloud-mta-build-tool/internal/platform"
 )
 
+const (
+	genMetaParsingMsg = "failed to generate metadata when parsing the MTA file"
+)
+
 // ExecuteGenMeta - generates metadata
 func ExecuteGenMeta(source, target, desc, platform string, wdGetter func() (string, error)) error {
 	logs.Logger.Info("generating the metadata...")
@@ -43,7 +47,7 @@ func generateMeta(parser dir.IMtaParser, source dir.ISourceModule, ep dir.ITarge
 	// parse MTA file
 	m, err := parser.ParseFile()
 	if err != nil {
-		return errors.Wrap(err, "failed to generate metadata when parsing the MTA file")
+		return errors.Wrap(err, genMetaParsingMsg)
 	}
 	// read MTA extension file
 	mExt, err := parser.ParseExtFile(platform)

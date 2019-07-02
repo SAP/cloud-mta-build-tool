@@ -55,7 +55,7 @@ func createFileInTmpFolder(projectName string, path ...string) {
 	Ω(err).Should(Succeed())
 }
 
-func createDirInTempFolder(projectName string, path ...string) {
+func createDirInTmpFolder(projectName string, path ...string) {
 	err := dir.CreateDirIfNotExist(getFullPathInTmpFolder(projectName, path...))
 	Ω(err).Should(Succeed())
 }

@@ -14,13 +14,18 @@ import (
 	"github.com/SAP/cloud-mta-build-tool/internal/logs"
 )
 
+const (
+	// FolderCreationFailedMsg - message raise when folder creation fails because of the existence file with identical name
+	FolderCreationFailedMsg = `creation of the %s folder failed because a file exists with the same name`
+)
+
 // CreateDirIfNotExist - Create new dir
 func CreateDirIfNotExist(dir string) error {
 	info, err := os.Stat(dir)
 	if os.IsNotExist(err) {
 		err = os.MkdirAll(dir, os.ModePerm)
 	} else if err == nil && !info.IsDir() {
-		err = fmt.Errorf("creation of the %s folder failed because a file exists with the same name", dir)
+		err = fmt.Errorf(FolderCreationFailedMsg, dir)
 	}
 	return err
 }

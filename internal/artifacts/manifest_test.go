@@ -21,7 +21,7 @@ import (
 var _ = Describe("manifest", func() {
 
 	BeforeEach(func() {
-		createDirInTempFolder("mta", "META-INF")
+		createDirInTmpFolder("mta", "META-INF")
 	})
 
 	AfterEach(func() {
@@ -30,7 +30,7 @@ var _ = Describe("manifest", func() {
 
 	var _ = Describe("setManifestDesc", func() {
 		It("Sanity", func() {
-			createDirInTempFolder("mta", "node-js")
+			createDirInTmpFolder("mta", "node-js")
 			createFileInTmpFolder("mta", "node-js", "data.zip")
 			createFileInTmpFolder("mta", "config-site-host.json")
 			loc := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath()}
@@ -46,7 +46,7 @@ var _ = Describe("manifest", func() {
 			Ω(actual).Should(Equal(golden))
 		})
 		It("Unknown content type, assembly scenario", func() {
-			createDirInTempFolder("mta", "node-js")
+			createDirInTmpFolder("mta", "node-js")
 			createFileInTmpFolder("mta", "node-js", "server.js")
 			loc := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath(), Descriptor: dir.Dep}
 			mtaObj, err := loc.ParseFile()
@@ -56,7 +56,7 @@ var _ = Describe("manifest", func() {
 			Ω(err.Error()).Should(ContainSubstring(`content type for the ".js" extension is not defined`))
 		})
 		It("Sanity - with configuration provided", func() {
-			createDirInTempFolder("mta", "node-js")
+			createDirInTmpFolder("mta", "node-js")
 			createFileInTmpFolder("mta", "node-js", "data.zip")
 			createFileInTmpFolder("mta", "config-site-host.json")
 			createFileInTmpFolder("mta", "xs-security.json")
@@ -73,7 +73,7 @@ var _ = Describe("manifest", func() {
 			Ω(actual).Should(Equal(golden))
 		})
 		It("wrong Commands configuration", func() {
-			createDirInTempFolder("mta", "node-js")
+			createDirInTmpFolder("mta", "node-js")
 			createFileInTmpFolder("mta", "node-js", "data.zip")
 			loc := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath()}
 			mtaObj, err := loc.ParseFile()
@@ -84,20 +84,20 @@ var _ = Describe("manifest", func() {
 			commands.ModuleTypeConfig = moduleConf
 		})
 		It("module with defined build-result fails when build-result file does not exist in source directory", func() {
-			createDirInTempFolder("mta", "node-js")
+			createDirInTmpFolder("mta", "node-js")
 			createFileInTmpFolder("mta", "node-js", "some.war")
 			loc := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath(), MtaFilename: "mtaWrongBuildResult.yaml"}
 			mtaObj, _ := loc.ParseFile()
 			Ω(setManifestDesc(&loc, &loc, &loc, false, mtaObj.Modules, []*mta.Resource{})).Should(HaveOccurred())
 		})
 		It("module with defined build-result fails when build-result file does not exist in target temp directory", func() {
-			createDirInTempFolder("mta", "node-js")
+			createDirInTmpFolder("mta", "node-js")
 			loc := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath(), MtaFilename: "mtaWrongBuildResult2.yaml"}
 			mtaObj, _ := loc.ParseFile()
 			Ω(setManifestDesc(&loc, &loc, &loc, false, mtaObj.Modules, []*mta.Resource{})).Should(HaveOccurred())
 		})
 		It("entry for module with defined build-result has the build-result file", func() {
-			createDirInTempFolder("mta", "node-js")
+			createDirInTmpFolder("mta", "node-js")
 			createFileInTmpFolder("mta", "node-js", "data1.zip")
 			loc := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath(), MtaFilename: "mtaBuildResult.yaml"}
 			mtaObj, _ := loc.ParseFile()
@@ -111,7 +111,7 @@ var _ = Describe("manifest", func() {
 			Ω(actual).Should(Equal(golden))
 		})
 		It("wrong content types configuration", func() {
-			createDirInTempFolder("mta", "node-js")
+			createDirInTmpFolder("mta", "node-js")
 			createFileInTmpFolder("mta", "node-js", "data.zip")
 			loc := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath()}
 			mtaObj, err := loc.ParseFile()
@@ -123,7 +123,7 @@ var _ = Describe("manifest", func() {
 
 		})
 		It("Sanity - module with no path is not added to the manifest", func() {
-			createDirInTempFolder("mta", "node-js")
+			createDirInTmpFolder("mta", "node-js")
 			loc := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath(), MtaFilename: "mta_no_paths.yaml"}
 			mtaObj, err := loc.ParseFile()
 			Ω(err).Should(Succeed())
@@ -137,8 +137,8 @@ var _ = Describe("manifest", func() {
 			Ω(actual).Should(Equal(golden))
 		})
 		It("With resources", func() {
-			createDirInTempFolder("assembly-sample", "META-INF")
-			createDirInTempFolder("assembly-sample", "web")
+			createDirInTmpFolder("assembly-sample", "META-INF")
+			createDirInTmpFolder("assembly-sample", "web")
 			createFileInTmpFolder("assembly-sample", "config-site-host.json")
 			createFileInTmpFolder("assembly-sample", "xs-security.json")
 			loc := dir.Loc{SourcePath: getTestPath("assembly-sample"), TargetPath: getResultPath(), Descriptor: "dep"}
@@ -154,7 +154,7 @@ var _ = Describe("manifest", func() {
 			Ω(actual).Should(Equal(golden))
 		})
 		It("With missing module path", func() {
-			createDirInTempFolder("assembly-sample", "META-INF")
+			createDirInTmpFolder("assembly-sample", "META-INF")
 			loc := dir.Loc{SourcePath: getTestPath("assembly-sample"), TargetPath: getResultPath(), Descriptor: "dep"}
 			mtaObj, err := loc.ParseFile()
 			Ω(err).Should(Succeed())
@@ -163,8 +163,8 @@ var _ = Describe("manifest", func() {
 			Ω(err.Error()).Should(ContainSubstring(fmt.Sprintf(wrongArtifactPathMsg, "java-hello-world")))
 		})
 		It("With missing resource", func() {
-			createDirInTempFolder("assembly-sample", "META-INF")
-			createDirInTempFolder("assembly-sample", "web")
+			createDirInTmpFolder("assembly-sample", "META-INF")
+			createDirInTmpFolder("assembly-sample", "web")
 			createFileInTmpFolder("assembly-sample", "config-site-host.json")
 			loc := dir.Loc{SourcePath: getTestPath("assembly-sample"), TargetPath: getTestPath("result"), Descriptor: "dep"}
 			mtaObj, err := loc.ParseFile()
@@ -175,8 +175,8 @@ var _ = Describe("manifest", func() {
 
 		})
 		It("required resource with path fails when the path doesn't exist", func() {
-			createDirInTempFolder("assembly-sample", "META-INF")
-			createDirInTempFolder("assembly-sample", "web")
+			createDirInTmpFolder("assembly-sample", "META-INF")
+			createDirInTmpFolder("assembly-sample", "web")
 			createFileInTmpFolder("assembly-sample", "xs-security.json")
 			loc := dir.Loc{SourcePath: getTestPath("assembly-sample"), TargetPath: getTestPath("result"), Descriptor: "dep"}
 			mtaObj, err := loc.ParseFile()
@@ -188,7 +188,7 @@ var _ = Describe("manifest", func() {
 		})
 		When("build-artifact-name is defined in the build parameters", func() {
 			It("should take the defined build artifact name when the build artifact exists", func() {
-				createDirInTempFolder("mta", "node-js")
+				createDirInTmpFolder("mta", "node-js")
 				createFileInTmpFolder("mta", "node-js", "data2.zip")
 				loc := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath(), MtaFilename: "mtaBuildArtifact.yaml"}
 				mtaObj, _ := loc.ParseFile()
@@ -198,7 +198,7 @@ var _ = Describe("manifest", func() {
 				Ω(actual).Should(Equal(golden))
 			})
 			It("should take the archive.zip with the build artifact name when the build result is a folder", func() {
-				createDirInTempFolder("mta", "node-js")
+				createDirInTmpFolder("mta", "node-js")
 				createFileInTmpFolder("mta", "node-js", "data2.zip")
 				loc := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath(), MtaFilename: "mtaBuildArtifact.yaml"}
 				mtaObj, _ := loc.ParseFile()
@@ -208,7 +208,7 @@ var _ = Describe("manifest", func() {
 				Ω(actual).Should(Equal(golden))
 			})
 			It("should skip the module when it has no path", func() {
-				createDirInTempFolder("mta", "node-js", "data2")
+				createDirInTmpFolder("mta", "node-js", "data2")
 				loc := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath(), MtaFilename: "mtaBuildArtifactNoPath.yaml"}
 				mtaObj, err := loc.ParseFile()
 				Ω(err).Should(Succeed())
@@ -218,7 +218,7 @@ var _ = Describe("manifest", func() {
 				Ω(actual).Should(Equal(golden))
 			})
 			It("should take the build artifact name when the build result is also defined", func() {
-				createDirInTempFolder("mta", "node-js")
+				createDirInTmpFolder("mta", "node-js")
 				createFileInTmpFolder("mta", "node-js", "ROOT.war")
 				loc := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath(), MtaFilename: "mtaBuildResultAndArtifact.yaml"}
 				mtaObj, _ := loc.ParseFile()
@@ -228,7 +228,7 @@ var _ = Describe("manifest", func() {
 				Ω(actual).Should(Equal(golden))
 			})
 			It("should fail when build-artifact-name is not a string value", func() {
-				createDirInTempFolder("mta", "node-js")
+				createDirInTmpFolder("mta", "node-js")
 				createFileInTmpFolder("mta", "node-js", "data.zip")
 				loc := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath(), MtaFilename: "mtaBuildArtifactBad.yaml"}
 				mtaObj, _ := loc.ParseFile()
@@ -237,7 +237,7 @@ var _ = Describe("manifest", func() {
 				Ω(err.Error()).Should(ContainSubstring(fmt.Sprintf(buildops.WrongBuildArtifactNameMsg, "1", "node-js")))
 			})
 			It("should fail when data.zip exists instead of the build artifact name", func() {
-				createDirInTempFolder("mta", "node-js")
+				createDirInTmpFolder("mta", "node-js")
 				createFileInTmpFolder("mta", "node-js", "data.zip")
 				loc := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath(), MtaFilename: "mtaBuildArtifact.yaml"}
 				mtaObj, _ := loc.ParseFile()
@@ -246,7 +246,7 @@ var _ = Describe("manifest", func() {
 				Ω(err.Error()).Should(ContainSubstring(fmt.Sprintf(wrongArtifactPathMsg, "node-js")))
 			})
 			It("should fail when the build artifact doesn't exist in the module folder", func() {
-				createDirInTempFolder("mta", "node-js")
+				createDirInTmpFolder("mta", "node-js")
 				loc := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath(), MtaFilename: "mtaBuildArtifact.yaml"}
 				mtaObj, _ := loc.ParseFile()
 				err := setManifestDesc(&loc, &loc, &loc, false, mtaObj.Modules, []*mta.Resource{})
@@ -317,7 +317,7 @@ bad config
 
 	var _ = Describe("buildEntries", func() {
 		It("Sanity", func() {
-			createDirInTempFolder("result", "node-js")
+			createDirInTmpFolder("result", "node-js")
 			mod := mta.Module{Name: "module1"}
 			requires := []mta.Requires{
 				{

@@ -47,10 +47,7 @@ func getFileContent(filePath string) string {
 }
 
 func createFileInTmpFolder(projectName string, path ...string) {
-	file, err := os.Create(getFullPathInTmpFolder(projectName, path...))
-	Ω(err).Should(Succeed())
-	err = file.Close()
-	Ω(err).Should(Succeed())
+	createFileInGivenPath(getFullPathInTmpFolder(projectName, path...))
 }
 
 func createFileInGivenPath(path string) {
@@ -60,7 +57,7 @@ func createFileInGivenPath(path string) {
 	Ω(err).Should(Succeed())
 }
 
-func createDirInTempFolder(projectName string, path ...string) {
+func createDirInTmpFolder(projectName string, path ...string) {
 	err := dir.CreateDirIfNotExist(getFullPathInTmpFolder(projectName, path...))
 	Ω(err).Should(Succeed())
 }

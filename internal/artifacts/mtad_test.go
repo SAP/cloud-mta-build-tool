@@ -26,12 +26,12 @@ var _ = Describe("Mtad", func() {
 
 	var _ = Describe("ExecuteGenMtad", func() {
 		It("Sanity", func() {
-			createDirInTempFolder("mta", "node-js")
+			createDirInTmpFolder("mta", "node-js")
 			Ω(ExecuteGenMtad(getTestPath("mta"), getTestPath("result"), "cf", os.Getwd)).Should(Succeed())
 			Ω(getTestPath("result", "mtad.yaml")).Should(BeAnExistingFile())
 		})
 		It("Fails on creating META-INF folder", func() {
-			createDirInTempFolder("mta")
+			createDirInTmpFolder("mta")
 			file, err := os.Create(getFullPathInTmpFolder("mta", "META-INF"))
 			Ω(err).Should(Succeed())
 			file.Close()

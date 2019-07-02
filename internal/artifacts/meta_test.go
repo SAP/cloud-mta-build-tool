@@ -1,6 +1,7 @@
 package artifacts
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 
@@ -31,24 +32,32 @@ var _ = Describe("Meta", func() {
 		})
 
 		It("Fails on META-INF folder creation", func() {
-			createDirInTempFolder("mtahtml5")
+			createDirInTmpFolder("mtahtml5")
 			createFileInTmpFolder("mtahtml5", "META-INF")
-			Ω(ExecuteGenMeta(getTestPath("mtahtml5"), getResultPath(), "dev", "CF", os.Getwd)).Should(HaveOccurred())
+			err := ExecuteGenMeta(getTestPath("mtahtml5"), getResultPath(), "dev", "CF", os.Getwd)
+			Ω(err).Should(HaveOccurred())
+			Ω(err.Error()).Should(Equal(fmt.Sprintf(dir.FolderCreationFailedMsg, getFullPathInTmpFolder("mtahtml5", "META-INF"))))
 		})
 
 		It("Wrong location - fails on Working directory get", func() {
-			Ω(ExecuteGenMeta("", "", "dev", "cf", func() (string, error) {
-				return "", errors.New("err")
-			})).Should(HaveOccurred())
+			err := ExecuteGenMeta("", "", "dev", "cf", func() (string, error) {
+				return "", errors.New("error of working dir get")
+			})
+			Ω(err).Should(HaveOccurred())
+			Ω(err.Error()).Should(ContainSubstring("error of working dir get"))
 		})
 		It("Wrong platform", func() {
-			createDirInTempFolder("mtahtml5", "ui5app2")
-			createDirInTempFolder("mtahtml5", "testapp")
-			Ω(ExecuteGenMeta(getTestPath("mtahtml5"), getResultPath(), "dev", "xx", os.Getwd)).Should(HaveOccurred())
+			createDirInTmpFolder("mtahtml5", "ui5app2")
+			createDirInTmpFolder("mtahtml5", "testapp")
+			err := ExecuteGenMeta(getTestPath("mtahtml5"), getResultPath(), "dev", "xx", os.Getwd)
+			Ω(err).Should(HaveOccurred())
+			Ω(err.Error()).Should(Equal(fmt.Sprintf(invalidPlatformMsg, "xx")))
 
 		})
 		It("generateMeta fails on wrong source path - parse mta fails", func() {
-			Ω(ExecuteGenMeta(getTestPath("mtahtml6"), getResultPath(), "dev", "cf", os.Getwd)).Should(HaveOccurred())
+			err := ExecuteGenMeta(getTestPath("mtahtml6"), getResultPath(), "dev", "cf", os.Getwd)
+			Ω(err).Should(HaveOccurred())
+			Ω(err.Error()).Should(ContainSubstring(genMetaParsingMsg))
 		})
 	})
 
@@ -68,9 +77,9 @@ modules:
 		It("Sanity", func() {
 			m := mta.MTA{}
 			Ω(yaml.Unmarshal(mtaSingleModule, &m)).Should(Succeed())
-			createDirInTempFolder("testproject", "htmlapp")
+			createDirInTmpFolder("testproject", "htmlapp")
 			createFileInTmpFolder("testproject", "htmlapp", "data.zip")
-			createDirInTempFolder("testproject", "META-INF")
+			createDirInTmpFolder("testproject", "META-INF")
 			Ω(genMetaInfo(&ep, &ep, &ep, ep.IsDeploymentDescriptor(), "cf", &m)).Should(Succeed())
 			Ω(ep.GetManifestPath()).Should(BeAnExistingFile())
 			Ω(ep.GetMtadPath()).Should(BeAnExistingFile())
@@ -79,8 +88,8 @@ modules:
 		It("Meta creation fails - fails on conversion by platform", func() {
 			m := mta.MTA{}
 			Ω(yaml.Unmarshal(mtaSingleModule, &m)).Should(Succeed())
-			createDirInTempFolder("testproject", "app")
-			createDirInTempFolder("testproject", "META-INF")
+			createDirInTmpFolder("testproject", "app")
+			createDirInTmpFolder("testproject", "META-INF")
 			cfg := platform.PlatformConfig
 			platform.PlatformConfig = []byte(`very bad config`)
 			Ω(genMetaInfo(&ep, &ep, &ep, ep.IsDeploymentDescriptor(), "cf", &m)).Should(HaveOccurred())
@@ -134,8 +143,8 @@ cli_version:["x"]
 			Ω(readFileContent(&dir.Loc{SourcePath: getFullPathInTmpFolder("mtahtml5", "META-INF"), Descriptor: "dep"})).
 				Should(Equal(readFileContent(&dir.Loc{SourcePath: getTestPath("golden"), Descriptor: "dep"})))
 		})
-		It("Generate Mtad - fails on missing paths in temp folder", func() {
-			createDirInTempFolder("mtahtml5", "META-INF")
+		It("Generate Mtad - fails on module path adaptation because of missing paths in temp folder", func() {
+			createDirInTmpFolder("mtahtml5", "META-INF")
 			createFileInTmpFolder("mtahtml5", "xs-security.json")
 			ep := dir.Loc{SourcePath: getTestPath("mtahtml5"), TargetPath: getResultPath()}
 			mtaStr, err := ep.ParseFile()
@@ -145,7 +154,7 @@ cli_version:["x"]
 			}
 			err = genMetaInfo(&ep, &ep, &ep, false, "neo", mtaStr)
 			Ω(err).Should(HaveOccurred())
-			Ω(err.Error()).Should(ContainSubstring(`failed to clean the build parameters from the "ui5app" module`))
+			Ω(err.Error()).Should(ContainSubstring(fmt.Sprintf(adaptationMsg, "ui5app")))
 		})
 
 		It("Generate Meta - mta not exists", func() {
@@ -209,9 +218,9 @@ func (loc *testLoc) GetSourceModuleDir(modulePath string) string {
 }
 
 func createMtahtml5TmpFolder() {
-	createDirInTempFolder("mtahtml5", "ui5app2")
-	createDirInTempFolder("mtahtml5", "ui5app")
-	createDirInTempFolder("mtahtml5", "META-INF")
+	createDirInTmpFolder("mtahtml5", "ui5app2")
+	createDirInTmpFolder("mtahtml5", "ui5app")
+	createDirInTmpFolder("mtahtml5", "META-INF")
 	createFileInTmpFolder("mtahtml5", "ui5app", "data.zip")
 	createFileInTmpFolder("mtahtml5", "ui5app2", "data.zip")
 	createFileInTmpFolder("mtahtml5", "xs-security.json")

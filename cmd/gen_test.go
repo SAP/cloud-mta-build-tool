@@ -28,8 +28,8 @@ var _ = Describe("Generate commands call", func() {
 	})
 
 	It("Generate Meta", func() {
-		createDirInTempFolder("mtahtml5", "ui5app2")
-		createDirInTempFolder("mtahtml5", "ui5app")
+		createDirInTmpFolder("mtahtml5", "ui5app2")
+		createDirInTmpFolder("mtahtml5", "ui5app")
 		createFileInTmpFolder("mtahtml5", "ui5app2", "data.zip")
 		createFileInTmpFolder("mtahtml5", "xs-security.json")
 		createFileInTmpFolder("mtahtml5", "ui5app", "data.zip")
@@ -39,8 +39,8 @@ var _ = Describe("Generate commands call", func() {
 		Ω(ep.GetMtadPath()).Should(BeAnExistingFile())
 	})
 	It("Generate Mtad - Sanity", func() {
-		createDirInTempFolder("mtahtml5", "ui5app")
-		createDirInTempFolder("mtahtml5", "ui5app2")
+		createDirInTmpFolder("mtahtml5", "ui5app")
+		createDirInTmpFolder("mtahtml5", "ui5app2")
 		mtadCmdSrc = getTestPath("mtahtml5")
 		mtadCmdPlatform = "cf"
 		Ω(mtadCmd.RunE(nil, []string{})).Should(Succeed())
@@ -59,8 +59,8 @@ var _ = Describe("Generate commands call", func() {
 		platform.PlatformConfig = config
 	})
 	It("Generate Mtar", func() {
-		createDirInTempFolder("mtahtml5", "ui5app2")
-		createDirInTempFolder("mtahtml5", "ui5app")
+		createDirInTmpFolder("mtahtml5", "ui5app2")
+		createDirInTmpFolder("mtahtml5", "ui5app")
 		createFileInTmpFolder("mtahtml5", "ui5app", "data.zip")
 		createFileInTmpFolder("mtahtml5", "ui5app2", "data.zip")
 		createFileInTmpFolder("mtahtml5", "xs-security.json")

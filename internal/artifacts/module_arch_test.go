@@ -104,7 +104,7 @@ builders:
 		})
 
 		It("Target folder exists as file", func() {
-			createDirInTempFolder("mta")
+			createDirInTmpFolder("mta")
 			createFileInTmpFolder("mta", "node-js")
 			Ω(ExecutePack(getTestPath("mta"), getResultPath(), "node-js",
 				"cf", os.Getwd)).Should(HaveOccurred())
