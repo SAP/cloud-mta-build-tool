@@ -39,7 +39,7 @@ modules:
 # path is folder
   - name: m9
     type: java
-    path: folder1
+    path: folder1/folder11
   - name: m10
     type: javascript.nodejs
     path: folder2

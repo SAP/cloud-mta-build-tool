@@ -17,46 +17,46 @@ import (
 var _ = Describe("Mtad", func() {
 
 	BeforeEach(func() {
-		dir.CreateDirIfNotExist(getTestPath("resultMtad"))
+		dir.CreateDirIfNotExist(getTestPath("result"))
 	})
 
 	AfterEach(func() {
-		os.RemoveAll(getTestPath("resultMtad"))
+		os.RemoveAll(getTestPath("result"))
 	})
 
 	var _ = Describe("ExecuteGenMtad", func() {
 		It("Sanity", func() {
-			dir.CreateDirIfNotExist(getTestPath("resultMtad", ".mta_mta_build_tmp", "node-js"))
-			Ω(ExecuteGenMtad(getTestPath("mta"), getTestPath("resultMtad"), "cf", os.Getwd)).Should(Succeed())
-			Ω(getTestPath("resultMtad", "mtad.yaml")).Should(BeAnExistingFile())
+			createDirInTmpFolder("mta", "node-js")
+			Ω(ExecuteGenMtad(getTestPath("mta"), getTestPath("result"), "cf", os.Getwd)).Should(Succeed())
+			Ω(getTestPath("result", "mtad.yaml")).Should(BeAnExistingFile())
 		})
 		It("Fails on creating META-INF folder", func() {
-			dir.CreateDirIfNotExist(getTestPath("resultMtad", ".mta_mta_build_tmp"))
-			file, err := os.Create(getTestPath("resultMtad", ".mta_mta_build_tmp", "META-INF"))
+			createDirInTmpFolder("mta")
+			file, err := os.Create(getFullPathInTmpFolder("mta", "META-INF"))
 			Ω(err).Should(Succeed())
 			file.Close()
-			Ω(ExecuteGenMtad(getTestPath("mta"), getTestPath("resultMtad"), "cf", os.Getwd)).Should(HaveOccurred())
+			Ω(ExecuteGenMtad(getTestPath("mta"), getTestPath("result"), "cf", os.Getwd)).Should(HaveOccurred())
 		})
 		It("Fails on location initialization", func() {
-			Ω(ExecuteGenMtad("", getTestPath("resultMtad"), "cf", func() (string, error) {
+			Ω(ExecuteGenMtad("", getTestPath("result"), "cf", func() (string, error) {
 				return "", errors.New("err")
 			})).Should(HaveOccurred())
 		})
 		It("Fails on platform validation", func() {
-			Ω(ExecuteGenMtad(getTestPath("mta"), getTestPath("resultMtad"), "ab", func() (string, error) {
+			Ω(ExecuteGenMtad(getTestPath("mta"), getTestPath("result"), "ab", func() (string, error) {
 				return "", errors.New("err")
 			})).Should(HaveOccurred())
 		})
 		It("Fails on wrong source path - parse fails", func() {
-			Ω(ExecuteGenMtad(getTestPath("mtax"), getTestPath("resultMtad"), "cf", os.Getwd)).Should(HaveOccurred())
+			Ω(ExecuteGenMtad(getTestPath("mtax"), getTestPath("result"), "cf", os.Getwd)).Should(HaveOccurred())
 		})
 		It("Fails on broken extension file - parse ext fails", func() {
-			Ω(ExecuteGenMtad(getTestPath("mtaWithBrokenExt"), getTestPath("resultMtad"), "cf", os.Getwd)).Should(HaveOccurred())
+			Ω(ExecuteGenMtad(getTestPath("mtaWithBrokenExt"), getTestPath("result"), "cf", os.Getwd)).Should(HaveOccurred())
 		})
 		It("Fails on broken platforms configuration", func() {
 			cfg := platform.PlatformConfig
 			platform.PlatformConfig = []byte("abc abc")
-			Ω(ExecuteGenMtad(getTestPath("mta"), getTestPath("resultMtad"), "cf", os.Getwd)).Should(HaveOccurred())
+			Ω(ExecuteGenMtad(getTestPath("mta"), getTestPath("result"), "cf", os.Getwd)).Should(HaveOccurred())
 			platform.PlatformConfig = cfg
 		})
 	})
@@ -64,7 +64,7 @@ var _ = Describe("Mtad", func() {
 	var _ = Describe("genMtad", func() {
 
 		It("Fails on META folder creation", func() {
-			ep := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getTestPath("resultMtad")}
+			ep := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getTestPath("result")}
 			metaPath := ep.GetMetaPath()
 			tmpDir := ep.GetTargetTmpDir()
 			dir.CreateDirIfNotExist(tmpDir)
@@ -78,7 +78,7 @@ var _ = Describe("Mtad", func() {
 			file.Close()
 		})
 		It("Fails on mtad marshalling", func() {
-			ep := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getTestPath("resultMtad")}
+			ep := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getTestPath("result")}
 			mtaBytes, err := dir.Read(&ep)
 			Ω(err).Should(Succeed())
 			mtaStr, err := mta.Unmarshal(mtaBytes)

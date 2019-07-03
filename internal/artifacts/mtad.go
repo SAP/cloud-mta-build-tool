@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/pkg/errors"
 
@@ -14,7 +15,11 @@ import (
 	"github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta-build-tool/internal/buildops"
 	"github.com/SAP/cloud-mta-build-tool/internal/logs"
-	"strings"
+)
+
+const (
+	invalidPlatformMsg = `the invalid target platform "%s"; supported platforms are: "cf", "neo", "xsa"`
+	adaptationMsg      = `failed to adapt the "%s" module path property`
 )
 
 type mtadLoc struct {
@@ -84,7 +89,7 @@ func ExecuteGenMtad(source, target, platform string, wdGetter func() (string, er
 func validatePlatform(platform string) (string, error) {
 	result := strings.ToLower(platform)
 	if result != "xsa" && result != "cf" && result != "neo" {
-		return "", fmt.Errorf(`the invalid target platform "%s"; supported platforms are: "cf", "neo", "xsa"`, platform)
+		return "", fmt.Errorf(invalidPlatformMsg, platform)
 	}
 	return result, nil
 }
@@ -151,32 +156,23 @@ func removeUndeployedModules(mtaStr *mta.MTA, platform string) {
 // if module has to be deployed we clean build parameters from module,
 // as this section is not used in MTAD yaml
 func removeBuildParamsFromMta(loc dir.ITargetPath, mtaStr *mta.MTA) error {
-
 	for _, m := range mtaStr.Modules {
 		// remove build parameters from modules with defined platforms
 		m.BuildParams = map[string]interface{}{}
 		err := adaptModulePath(loc, m)
 		if err != nil {
-			return errors.Wrapf(err, `failed to clean the build parameters from the "%s" module`, m.Name)
+			return errors.Wrapf(err, adaptationMsg, m.Name)
 		}
 	}
 	return nil
 }
 
 func adaptModulePath(loc dir.ITargetPath, module *mta.Module) error {
-	if module.Path != "" {
-		// check existence of path in the temp folder
-		modulePath := filepath.Join(loc.GetTargetTmpDir(), module.Path)
-		_, err := os.Stat(modulePath)
-		// if path not exists, use the module name
-		if err != nil && os.IsNotExist(err) {
-			modulePath = filepath.Join(loc.GetTargetTmpDir(), module.Name)
-			_, e := os.Stat(modulePath)
-			if e != nil {
-				return err
-			}
-			module.Path = module.Name
-		}
+	modulePath := filepath.Join(loc.GetTargetTmpDir(), module.Name)
+	_, e := os.Stat(modulePath)
+	if e != nil {
+		return e
 	}
+	module.Path = module.Name
 	return nil
 }

@@ -10,6 +10,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
+	dir "github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta-build-tool/internal/logs"
 )
 
@@ -45,4 +46,22 @@ func executeAndProvideOutput(execute func()) string {
 	os.Stdout = old // restoring the real stdout
 	out := <-outC
 	return out
+}
+
+func createFileInTmpFolder(projectName string, path ...string) {
+	file, err := os.Create(getFullPathInTmpFolder(projectName, path...))
+	Ω(err).Should(Succeed())
+	err = file.Close()
+	Ω(err).Should(Succeed())
+}
+
+func createDirInTmpFolder(projectName string, path ...string) {
+	err := dir.CreateDirIfNotExist(getFullPathInTmpFolder(projectName, path...))
+	Ω(err).Should(Succeed())
+}
+
+func getFullPathInTmpFolder(projectName string, path ...string) string {
+	pathWithResultFolder := []string{"result", "." + projectName + "_mta_build_tmp"}
+	pathWithResultFolder = append(pathWithResultFolder, path...)
+	return getTestPath(pathWithResultFolder...)
 }
