@@ -127,10 +127,6 @@ func walk(sourcePath string, baseDir string, archive *zip.Writer, ignore map[str
 			return
 		}
 
-		if info.IsDir() {
-			return
-		}
-
 		header, err := zip.FileInfoHeader(info)
 		if err != nil {
 			return err
@@ -141,13 +137,20 @@ func walk(sourcePath string, baseDir string, archive *zip.Writer, ignore map[str
 			header.Name = filepath.ToSlash(getRelativePath(path, baseDir))
 		}
 
-		// compress file
-		header.Method = zip.Deflate
+		if info.IsDir() {
+			header.Name += "/"
+		} else {
+			header.Method = zip.Deflate
+		}
 
 		// add new header and file to archive
 		writer, err := archive.CreateHeader(header)
 		if err != nil {
 			return err
+		}
+
+		if info.IsDir() {
+			return nil
 		}
 
 		file, err := os.Open(path)
