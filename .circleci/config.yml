@@ -70,6 +70,8 @@ jobs:
       - run:
           name: bump version
           command: |
+            #Make sure HEAD points to master
+            git checkout master
             CURR_MBT_VERSION=$(cat ./VERSION)
             echo "Current release: ${CURR_MBT_VERSION}"
             MBT_VERSION=$(echo $CURR_MBT_VERSION | awk -F. '{$NF = $NF + 1;} 1' | sed 's/ /./g')
