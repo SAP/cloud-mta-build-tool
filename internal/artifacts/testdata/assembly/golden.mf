@@ -1,5 +1,5 @@
 manifest-Version: 1.0
-Created-By: SAP Application Archive Builder v0.2.9
+Created-By: SAP Application Archive Builder v0.2.10
 
 Name: folder-with-archive/data.jar
 MTA-Module: m1
