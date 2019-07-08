@@ -90,20 +90,19 @@ jobs:
             #Tag
             git tag -a v${MBT_VERSION} -m "New release ${MBT_VERSION}"
             git push https://github.com/SAP/cloud-mta-build-tool.git v${MBT_VERSION}
-
       - run:
           name: export github token for releaser
           command: |
             export GITHUB_TOKEN=${GITHUB_TOKEN}
-
-
       - run:
           name: release new version
           command: |
             curl -sL https://git.io/goreleaser | bash
-#     - run:
-#         name: publish to npm
-#         command: npm publish
+      - run:
+          name: publish to npm
+          command: |
+            echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > ~/go/src/github.com/SAP/cloud-mta-build-tool/.npmrc
+            npm publish
 
   ghpages:
     docker:
@@ -112,7 +111,7 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Release to GitHub Pages
+          name: release to GitHub Pages
           command: |
             cd docs
             mkdocs gh-deploy --config-file ../docs/mkdocs.yml --remote-branch gh-pages
