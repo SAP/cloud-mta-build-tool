@@ -77,13 +77,14 @@ jobs:
             MBT_VERSION=$(echo $CURR_MBT_VERSION | awk -F. '{$NF = $NF + 1;} 1' | sed 's/ /./g')
             echo "New release: ${MBT_VERSION}"
             #Update new version in files
+            sed  -i "/Created-By:/s/${CURR_MBT_VERSION}/${MBT_VERSION}/" ./internal/artifacts/testdata/assembly/golden.mf
             sed  -i "/\"version\":/s/${CURR_MBT_VERSION}/${MBT_VERSION}/" ./package.json
             sed  -i "/cli_version:/s/${CURR_MBT_VERSION}/${MBT_VERSION}/" ./configs/version.yaml
             sed  -i "s/${CURR_MBT_VERSION}/${MBT_VERSION}/" ./VERSION
             #Generate version file
             go generate -run "go run ./internal/buildtools/embed.go -source=./configs/version.yaml -target=./internal/version/version_cfg.go -name=VersionConfig -package=version"
             #Add all updated files to commit
-            git add ./package.json ./configs/version.yaml ./VERSION ./internal/version/version_cfg.go
+            git add ./internal/artifacts/testdata/assembly/golden.mf ./package.json ./configs/version.yaml ./VERSION ./internal/version/version_cfg.go
             git config user.email "${MBT_REPO_USER_EMAIL}"
             git config user.name "${MBT_REPO_USER}"
             git commit -m "[skip ci] Bump version ${MBT_VERSION}"
