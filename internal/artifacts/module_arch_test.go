@@ -423,18 +423,15 @@ module-types:
 		})
 		It("Without no deployment descriptor in the source directory", func() {
 			err := CopyMtaContent(source, source, true, os.Getwd)
-			Ω(err).Should(Not(BeNil()))
-			fmt.Println(err.Error())
-			pathSep := string(os.PathSeparator)
-			Ω(err.Error()).Should(ContainSubstring(fmt.Sprintf(`failed to read the "%s%smtad.yaml" file: open %s%smtad.yaml`, source, pathSep, source, pathSep)))
+			Ω(err).Should(HaveOccurred())
+			Ω(err.Error()).Should(ContainSubstring(fmt.Sprintf(dir.ReadFailedMsg, filepath.Join(source, "mtad.yaml"))))
 		})
 		It("Location initialization fails", func() {
 			err := CopyMtaContent("", source, false, func() (string, error) {
 				return "", errors.New("error")
 			})
-			Ω(err).Should(Not(BeNil()))
-			fmt.Println(err.Error())
-			Ω(err.Error()).Should(Equal("copying the MTA content failed during the initialization of deployment descriptor location: failed to initialize the location when getting working directory: error"))
+			Ω(err).Should(HaveOccurred())
+			Ω(err.Error()).Should(ContainSubstring(copyContentFailedOnLocMsg))
 		})
 		It("With a deployment descriptor in the source directory with only modules paths as zip archives", func() {
 			createFileInGivenPath(filepath.Join(source, defaultDeploymentDescriptorName))
@@ -475,7 +472,7 @@ module-types:
 			mtaBytes, _ := yaml.Marshal(mta)
 			ioutil.WriteFile(filepath.Join(source, defaultDeploymentDescriptorName), mtaBytes, os.ModePerm)
 			err := CopyMtaContent(source, source, false, os.Getwd)
-			Ω(err).Should((BeNil()))
+			Ω(err).Should(Succeed())
 			info, _ := os.Stat(source)
 			Ω(dirContainsAllElements(source, map[string]bool{"." + info.Name() + dir.TempFolderSuffix: true}, false)).Should(Equal(true))
 			Ω(dirContainsAllElements(filepath.Join(source, "."+info.Name()+dir.TempFolderSuffix), map[string]bool{"test.zip": true}, true)).Should(Equal(true))
@@ -508,8 +505,7 @@ module-types:
 			mtaBytes, _ := yaml.Marshal(mta)
 			ioutil.WriteFile(filepath.Join(source, defaultDeploymentDescriptorName), mtaBytes, os.ModePerm)
 			err := CopyMtaContent(source, source, false, os.Getwd)
-			Ω(err).Should(HaveOccurred())
-			Ω(err.Error()).Should(Equal(`"not-existing-content" does not exist in the MTA project location`))
+			checkError(err, pathNotExistsMsg, "not-existing-content")
 			info, _ := os.Stat(source)
 			Ω(dirContainsAllElements(source, map[string]bool{info.Name() + dir.TempFolderSuffix: true}, false)).Should(Equal(false))
 			Ω(dirContainsAllElements(filepath.Join(source, info.Name()+dir.TempFolderSuffix), map[string]bool{}, true)).Should(Equal(true))
@@ -521,8 +517,7 @@ module-types:
 			mtaBytes, _ := yaml.Marshal(mta)
 			ioutil.WriteFile(filepath.Join(source, defaultDeploymentDescriptorName), mtaBytes, os.ModePerm)
 			err := CopyMtaContent(source, source, false, os.Getwd)
-			Ω(err).Should(HaveOccurred())
-			Ω(err.Error()).Should(Equal(`"not-existing-content" does not exist in the MTA project location`))
+			checkError(err, pathNotExistsMsg, "not-existing-content")
 			info, _ := os.Stat(source)
 			Ω(dirContainsAllElements(source, map[string]bool{info.Name() + dir.TempFolderSuffix: true}, false)).Should(Equal(false))
 			Ω(dirContainsAllElements(filepath.Join(source, info.Name()+dir.TempFolderSuffix), map[string]bool{}, true)).Should(Equal(true))
@@ -574,8 +569,7 @@ module-types:
 	var _ = Describe("copyModuleArchiveToResultDir", func() {
 		It("target folder is file", func() {
 			err := copyModuleArchiveToResultDir(getTestPath("assembly", "data.jar"), getTestPath("assembly", "file", "file"), "m1")
-			Ω(err).Should(HaveOccurred())
-			Ω(err.Error()).Should(ContainSubstring("a file exists with the same name"))
+			checkError(err, dir.FolderCreationFailedMsg, getTestPath("assembly", "file"))
 		})
 	})
 

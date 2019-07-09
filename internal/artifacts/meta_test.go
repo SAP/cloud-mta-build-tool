@@ -35,29 +35,24 @@ var _ = Describe("Meta", func() {
 			createDirInTmpFolder("mtahtml5")
 			createFileInTmpFolder("mtahtml5", "META-INF")
 			err := ExecuteGenMeta(getTestPath("mtahtml5"), getResultPath(), "dev", "CF", os.Getwd)
-			Ω(err).Should(HaveOccurred())
-			Ω(err.Error()).Should(Equal(fmt.Sprintf(dir.FolderCreationFailedMsg, getFullPathInTmpFolder("mtahtml5", "META-INF"))))
+			checkError(err, dir.FolderCreationFailedMsg, getFullPathInTmpFolder("mtahtml5", "META-INF"))
 		})
 
 		It("Wrong location - fails on Working directory get", func() {
 			err := ExecuteGenMeta("", "", "dev", "cf", func() (string, error) {
 				return "", errors.New("error of working dir get")
 			})
-			Ω(err).Should(HaveOccurred())
-			Ω(err.Error()).Should(ContainSubstring("error of working dir get"))
+			checkError(err, "error of working dir get")
 		})
 		It("Wrong platform", func() {
 			createDirInTmpFolder("mtahtml5", "ui5app2")
 			createDirInTmpFolder("mtahtml5", "testapp")
 			err := ExecuteGenMeta(getTestPath("mtahtml5"), getResultPath(), "dev", "xx", os.Getwd)
-			Ω(err).Should(HaveOccurred())
-			Ω(err.Error()).Should(Equal(fmt.Sprintf(invalidPlatformMsg, "xx")))
-
+			checkError(err, invalidPlatformMsg, "xx")
 		})
 		It("generateMeta fails on wrong source path - parse mta fails", func() {
 			err := ExecuteGenMeta(getTestPath("mtahtml6"), getResultPath(), "dev", "cf", os.Getwd)
-			Ω(err).Should(HaveOccurred())
-			Ω(err.Error()).Should(ContainSubstring(genMetaParsingMsg))
+			checkError(err, genMetaParsingMsg)
 		})
 	})
 
@@ -153,16 +148,14 @@ cli_version:["x"]
 				mtaStr.Modules[i].Path = ""
 			}
 			err = genMetaInfo(&ep, &ep, &ep, false, "neo", mtaStr)
-			Ω(err).Should(HaveOccurred())
-			Ω(err.Error()).Should(ContainSubstring(fmt.Sprintf(adaptationMsg, "ui5app")))
+			checkError(err, adaptationMsg, "ui5app")
 		})
 
 		It("Generate Meta - mta not exists", func() {
 			ep := dir.Loc{SourcePath: getTestPath("mtahtml5"), TargetPath: getResultPath(),
 				MtaFilename: "mtaNotExists.yaml"}
 			err := generateMeta(&ep, &ep, &ep, &ep, false, "cf")
-			Ω(err).Should(HaveOccurred())
-			Ω(err.Error()).Should(ContainSubstring(`failed to read the "%s"`, ep.GetMtaYamlPath()))
+			checkError(err, dir.ReadFailedMsg, ep.GetMtaYamlPath())
 		})
 
 		It("Generate Meta fails on platform parsing", func() {
@@ -172,13 +165,9 @@ cli_version:["x"]
 			ep := dir.Loc{SourcePath: getTestPath("mtahtml5"), TargetPath: getResultPath()}
 			err := generateMeta(&ep, &ep, &ep, &ep, false, "cf")
 			Ω(err).Should(HaveOccurred())
-			Ω(err.Error()).Should(ContainSubstring(`generation of the MTAD file failed when converting types according to the "cf" platform: unmarshalling of the platforms failed`))
+			Ω(err.Error()).Should(ContainSubstring(fmt.Sprintf(genMTADTypeTypeCnvMsg, "cf")))
+			Ω(err.Error()).Should(ContainSubstring(platform.UnmarshalFailedMsg))
 			platform.PlatformConfig = platformConfig
-		})
-
-		It("Generate Meta fails on mtad adaptation", func() {
-			ep := dir.Loc{SourcePath: getTestPath("mtahtml5"), TargetPath: getResultPath()}
-			Ω(generateMeta(&ep, &ep, &ep, &ep, false, "cf")).Should(HaveOccurred())
 		})
 
 		It("Generate Mtar", func() {

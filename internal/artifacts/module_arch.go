@@ -22,10 +22,10 @@ const (
 
 // ExecuteBuild - executes build of module
 func ExecuteBuild(source, target, moduleName, platform string, wdGetter func() (string, error)) error {
-	logs.Logger.Infof(`building the "%s" module...`, moduleName)
+	logs.Logger.Infof(buildMsg, moduleName)
 	loc, err := dir.Location(source, target, dir.Dev, wdGetter)
 	if err != nil {
-		return errors.Wrapf(err, `build of the "%s" module failed when initializing the location`, moduleName)
+		return errors.Wrapf(err, buildFailedOnLocMsg, moduleName)
 	}
 	// validate platform
 	platform, err = validatePlatform(platform)
@@ -41,11 +41,11 @@ func ExecuteBuild(source, target, moduleName, platform string, wdGetter func() (
 
 // ExecutePack - executes packing of module
 func ExecutePack(source, target, moduleName, platform string, wdGetter func() (string, error)) error {
-	logs.Logger.Infof(`packing the "%s" module...`, moduleName)
+	logs.Logger.Infof(packMsg, moduleName)
 
 	loc, err := dir.Location(source, target, dir.Dev, wdGetter)
 	if err != nil {
-		return errors.Wrapf(err, `packing of the "%s" module failed when initializing the location`, moduleName)
+		return errors.Wrapf(err, packFailedOnLocMsg, moduleName)
 	}
 	// validate platform
 	platform, err = validatePlatform(platform)
@@ -55,7 +55,7 @@ func ExecutePack(source, target, moduleName, platform string, wdGetter func() (s
 
 	module, _, defaultBuildResult, err := commands.GetModuleAndCommands(loc, moduleName)
 	if err != nil {
-		return errors.Wrapf(err, `packing of the "%s" module failed when getting commands`, moduleName)
+		return errors.Wrapf(err, packFailedOnCommandsMsg, moduleName)
 	}
 
 	err = packModule(loc, loc, module, moduleName, platform, defaultBuildResult)
@@ -72,14 +72,14 @@ func buildModule(mtaParser dir.IMtaParser, moduleLoc dir.IModule, targetLoc dir.
 	// Get module respective command's to execute
 	module, mCmd, defaultBuildResults, err := commands.GetModuleAndCommands(mtaParser, moduleName)
 	if err != nil {
-		return errors.Wrapf(err, `build of the "%s" module failed when getting commands`, moduleName)
+		return errors.Wrapf(err, buildFailedOnCommandsMsg, moduleName)
 	}
 
 	// Development descriptor - build includes:
 	// 1. module dependencies processing
 	e := buildops.ProcessDependencies(mtaParser, moduleLoc, moduleName)
 	if e != nil {
-		return errors.Wrapf(e, `build of the "%s" module failed when processing dependencies`, moduleName)
+		return errors.Wrapf(e, buildFailedOnDepsMsg, moduleName)
 	}
 
 	// 2. module type dependent commands execution
@@ -91,7 +91,7 @@ func buildModule(mtaParser dir.IMtaParser, moduleLoc dir.IModule, targetLoc dir.
 	// Execute child-process with module respective commands
 	e = exec.Execute(commandList)
 	if e != nil {
-		return errors.Wrapf(e, `build of the "%s" module failed when executing commands`, moduleName)
+		return errors.Wrapf(e, buildFailedOnExecCmdMsg, moduleName)
 	}
 
 	// 3. Packing the modules build artifacts (include node modules)
@@ -106,17 +106,15 @@ func packModule(source dir.IModule, target dir.ITargetPath, module *mta.Module, 
 		return nil
 	}
 
-	logs.Logger.Info(fmt.Sprintf(`the build results of the "%s" module will be packed and saved in the "%s" folder`, moduleName, source.GetTargetModuleDir(moduleName)))
+	logs.Logger.Info(fmt.Sprintf(buildResultMsg, moduleName, source.GetTargetModuleDir(moduleName)))
 
 	sourceArtifact, _, _, err := buildops.GetModuleSourceArtifactPath(source, false, module, defaultBuildResult)
 	if err != nil {
-		return errors.Wrapf(err, `packing the "%s" module failed while getting the build artifact`,
-			moduleName)
+		return errors.Wrapf(err, packFailedOnBuildArtifactMsg, moduleName)
 	}
 	targetArtifact, toArchive, err := buildops.GetModuleTargetArtifactPath(source, target, false, module, defaultBuildResult)
 	if err != nil {
-		return errors.Wrapf(err, `packing the "%s" module failed while getting the build artifact target path`,
-			moduleName)
+		return errors.Wrapf(err, packFailedOnTargetArtifactMsg, moduleName)
 	}
 
 	if !toArchive {
@@ -132,13 +130,12 @@ func copyModuleArchiveToResultDir(source, target, moduleName string) error {
 	modulePathInTmpFolder := filepath.Dir(target)
 	err := dir.CreateDirIfNotExist(modulePathInTmpFolder)
 	if err != nil {
-		return errors.Wrapf(err, `packing of the "%s" module failed when creating the "%s" folder`, moduleName, modulePathInTmpFolder)
+		return errors.Wrapf(err, packFailedOnFolderCreationMsg, moduleName, modulePathInTmpFolder)
 	}
 
 	err = dir.CopyFile(source, target)
 	if err != nil {
-		return errors.Wrapf(err, `packing of the "%s" module failed when copying the "%s" path to the "%s" path`,
-			moduleName, source, target)
+		return errors.Wrapf(err, packFailedOnCopyMsg, moduleName, source, target)
 	}
 	return nil
 }
@@ -147,7 +144,7 @@ func archiveModuleToResultDir(buildResult string, requestedResultFileName string
 	// Archive the folder without the ignored files and/or subfolders, which are excluded from the package.
 	err := dir.Archive(buildResult, requestedResultFileName, ignore)
 	if err != nil {
-		return errors.Wrapf(err, `packing of the "%s" module failed when archiving`, moduleName)
+		return errors.Wrapf(err, PackFailedOnArchMsg, moduleName)
 	}
 	return nil
 }
@@ -176,15 +173,14 @@ func convert(data []interface{}) []string {
 // in the source directory, to the target directory
 func CopyMtaContent(source, target string, copyInParallel bool, wdGetter func() (string, error)) error {
 
-	logs.Logger.Info("copying the MTA content...")
+	logs.Logger.Info(copyStartMsg)
 	loc, err := dir.Location(source, target, dir.Dep, wdGetter)
 	if err != nil {
-		return errors.Wrap(err,
-			"copying the MTA content failed during the initialization of deployment descriptor location")
+		return errors.Wrap(err, copyContentFailedOnLocMsg)
 	}
 	mtaObj, err := loc.ParseFile()
 	if err != nil {
-		return errors.Wrapf(err, `copying the MTA content failed when parsing the %s file`, loc.GetMtaYamlPath())
+		return errors.Wrapf(err, copyContentFailedOnParseMsg, loc.GetMtaYamlPath())
 	}
 	err = copyModuleContent(loc.GetSource(), loc.GetTargetTmpDir(), mtaObj, copyInParallel)
 	if err != nil {
@@ -234,17 +230,15 @@ func copyMtaContent(source, target string, mtaPaths []string, copyInParallel boo
 	for _, mtaPath := range mtaPaths {
 		sourceMtaContent := filepath.Join(source, mtaPath)
 		if doesNotExist(sourceMtaContent) {
-			return handleCopyMtaContentFailure(target, copiedMtaContents,
-				`"%s" does not exist in the MTA project location`, []interface{}{mtaPath})
+			return handleCopyMtaContentFailure(target, copiedMtaContents, pathNotExistsMsg, []interface{}{mtaPath})
 		}
 		copiedMtaContents = append(copiedMtaContents, mtaPath)
 		targetMtaContent := filepath.Join(target, mtaPath)
 		err := copyMtaContentFromPath(sourceMtaContent, targetMtaContent, mtaPath, target, copyInParallel)
 		if err != nil {
-			return handleCopyMtaContentFailure(target, copiedMtaContents,
-				`error copying the "%s" MTA content to the "%s" target directory because: %s`, []interface{}{mtaPath, source, err.Error()})
+			return handleCopyMtaContentFailure(target, copiedMtaContents, copyContentFailedMsg, []interface{}{mtaPath, source, err.Error()})
 		}
-		logs.Logger.Debugf(`copied "%s"`, mtaPath)
+		logs.Logger.Debugf(copyDoneMsg, mtaPath)
 	}
 
 	return nil
@@ -254,9 +248,9 @@ func handleCopyMtaContentFailure(targetLocation string, copiedMtaContents []stri
 	message string, messageArguments []interface{}) error {
 	errCleanup := cleanUpCopiedContent(targetLocation, copiedMtaContents)
 	if errCleanup == nil {
-		return fmt.Errorf(message, messageArguments...)
+		return errors.Errorf(message, messageArguments...)
 	}
-	return fmt.Errorf(message+"; cleanup failed", messageArguments...)
+	return errors.Errorf(message+cleanupFailedMsg, messageArguments...)
 }
 
 func copyMtaContentFromPath(sourceMtaContent, targetMtaContent, mtaContentPath, target string, copyInParallel bool) error {

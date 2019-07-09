@@ -27,12 +27,6 @@ const (
 	artifactsParam            = "artifacts"
 	buildArtifactNameParam    = "build-artifact-name"
 	targetPathParam           = "target-path"
-
-	// WrongBuildResultMsg - message raised on wrong build result
-	WrongBuildResultMsg = `the build result must be a string; change "%v" in the "%s" module for a string value`
-	// WrongBuildArtifactNameMsg - message raised on wrong build artifact name
-	WrongBuildArtifactNameMsg = `the build artifact name must be a string; change "%v" in the "%s" module for a string value`
-	wrongPathMsg              = `could not find the "%s" module path`
 )
 
 // BuildRequires - build requires section.
@@ -110,40 +104,30 @@ func ProcessRequirements(ep dir.ISourceModule, mta *mta.MTA, requires *BuildRequ
 	// validate module names - both in process and required
 	module, err := mta.GetModuleByName(moduleName)
 	if err != nil {
-		return errors.Wrapf(err,
-			`the processing requirements of the "%s" module that is based on the "%s" module failed when getting the "%s" module`,
-			moduleName, requires.Name, moduleName)
+		return errors.Wrapf(err, reqFailedOnModuleGetMsg, moduleName, requires.Name, moduleName)
 	}
 
 	requiredModule, err := mta.GetModuleByName(requires.Name)
 	if err != nil {
-		return errors.Wrapf(err,
-			`the processing requirements of the "%s" module that is based on the "%s" module failed when getting the "%s" module`,
-			moduleName, requires.Name, requires.Name)
+		return errors.Wrapf(err, reqFailedOnModuleGetMsg, moduleName, requires.Name, requires.Name)
 	}
 
 	_, defaultBuildResult, err := commands.CommandProvider(*requiredModule)
 	if err != nil {
-		return errors.Wrapf(err,
-			`the processing requirements of the "%s" module that is based on the "%s" module failed when getting the "%s" module commands`,
-			moduleName, requires.Name, requires.Name)
+		return errors.Wrapf(err, reqFailedOnCommandsGetMsg, moduleName, requires.Name, requires.Name)
 	}
 
 	// Build paths for artifacts copying
 	sourcePath, _, _, err := GetModuleSourceArtifactPath(ep, false, requiredModule, defaultBuildResult)
 	if err != nil {
-		return errors.Wrapf(err,
-			`the processing requirements of the "%s" module that is based on the "%s" module failed when getting the build results path`,
-			moduleName, requires.Name)
+		return errors.Wrapf(err, reqFailedOnBuildResultMsg, moduleName, requires.Name)
 	}
 	targetPath := getRequiredTargetPath(ep, module, requires)
 
 	// execute copy of artifacts
 	err = dir.CopyByPatterns(sourcePath, targetPath, requires.Artifacts)
 	if err != nil {
-		return errors.Wrapf(err,
-			`the processing requirements of the "%s" module that is based on the "%s" module failed when copying artifacts`,
-			moduleName, requiredModule.Name)
+		return errors.Wrapf(err, reqFailedOnCopyMsg, moduleName, requiredModule.Name)
 	}
 	return nil
 }

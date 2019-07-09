@@ -20,27 +20,25 @@ var _ = Describe("Project", func() {
 	var _ = Describe("ExecuteProjectBuild", func() {
 		It("Sanity - post phase", func() {
 			err := ExecuteProjectBuild(getTestPath("mtahtml5"), "dev", "post", os.Getwd)
-			Ω(err).Should(BeNil())
+			Ω(err).Should(Succeed())
 		})
 		It("wrong phase", func() {
 			err := ExecuteProjectBuild(getTestPath("mta"), "dev", "wrong phase", os.Getwd)
-			Ω(err).Should(HaveOccurred())
-			Ω(err.Error()).Should(Equal(`the "wrong phase" phase of mta project build is invalid; supported phases: "pre", "post"`))
+			checkError(err, UnsupportedPhaseMsg, "wrong phase")
 		})
 		It("wrong location", func() {
 			err := ExecuteProjectBuild(getTestPath("mta"), "xx", "pre", func() (string, error) {
 				return "", fmt.Errorf("error")
 			})
-			Ω(err).Should(HaveOccurred())
-			Ω(err.Error()).Should(ContainSubstring("failed to initialize the location when validating descriptor:"))
+			checkError(err, dir.InitLocFailedOnDescMsg)
 		})
 		It("mta.yaml not found", func() {
 			err := ExecuteProjectBuild(getTestPath("mta1"), "dev", "pre", os.Getwd)
-			Ω(err).Should(HaveOccurred())
-			Ω(err.Error()).Should(ContainSubstring("failed to read"))
+			checkError(err, dir.ReadFailedMsg, getTestPath("mta1", "mta.yaml"))
 		})
 		It("Sanity - custom builder", func() {
 			err := ExecuteProjectBuild(getTestPath("mta"), "dev", "pre", os.Getwd)
+			Ω(err).Should(HaveOccurred())
 			Ω(err.Error()).Should(ContainSubstring(`"command1"`))
 			Ω(err.Error()).Should(ContainSubstring("failed"))
 		})
@@ -48,10 +46,10 @@ var _ = Describe("Project", func() {
 
 	var _ = Describe("ExecBuild", func() {
 		BeforeEach(func() {
-			os.Mkdir(getTestPath("result"), os.ModePerm)
+			Ω(os.Mkdir(getTestPath("result"), os.ModePerm)).Should(Succeed())
 		})
 		AfterEach(func() {
-			os.RemoveAll(getTestPath("result"))
+			Ω(os.RemoveAll(getTestPath("result"))).Should(Succeed())
 		})
 		It("Sanity", func() {
 			err := ExecBuild("Makefile_tmp.mta", getTestPath("mta_with_zipped_module"), getResultPath(), "", "", "cf", true, os.Getwd, func(strings [][]string) error {
@@ -93,7 +91,7 @@ var _ = Describe("Project", func() {
 
 	var _ = Describe("execProjectBuilders", func() {
 		It("Before Defined with nothing to execute", func() {
-			builders := []mta.ProjectBuilder{}
+			var builders []mta.ProjectBuilder
 			projectBuild := mta.ProjectBuild{
 				BeforeAll: builders,
 			}
@@ -104,7 +102,7 @@ var _ = Describe("Project", func() {
 			Ω(execProjectBuilders(&dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath()}, &oMta, "pre")).Should(Succeed())
 		})
 		It("After Defined with nothing to execute", func() {
-			builders := []mta.ProjectBuilder{}
+			var builders []mta.ProjectBuilder
 			projectBuild := mta.ProjectBuild{
 				AfterAll: builders,
 			}
@@ -195,14 +193,14 @@ builders:
 			oMta := &mta.MTA{}
 			BeforeEach(func() {
 				mtaFile, _ := ioutil.ReadFile("./testdata/mta/mta.yaml")
-				yaml.Unmarshal(mtaFile, oMta)
+				Ω(yaml.Unmarshal(mtaFile, oMta)).Should(Succeed())
 			})
 		})
 		Context("pre & post builder commands - no builders defined", func() {
 			oMta := &mta.MTA{}
 			BeforeEach(func() {
 				mtaFile, _ := ioutil.ReadFile("./testdata/mta/mta.yaml")
-				yaml.Unmarshal(mtaFile, oMta)
+				Ω(yaml.Unmarshal(mtaFile, oMta)).Should(Succeed())
 				oMta.BuildParams.BeforeAll = nil
 				oMta.BuildParams.AfterAll = nil
 			})

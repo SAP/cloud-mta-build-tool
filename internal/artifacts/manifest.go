@@ -34,16 +34,6 @@ const (
 	requiredEntry  = "MTA-Requires"
 	resourceEntry  = "MTA-Resource"
 	dirContentType = "text/directory"
-
-	wrongArtifactPathMsg          = `failed to generate the manifest file when getting the artifact path of the "%s" module`
-	unknownModuleContentTypeMsg   = `failed to generate the manifest file when getting the "%s" module content type`
-	unknownResourceContentTypeMsg = `failed to generate the manifest file when getting the "%s" resource content type`
-	requiredEntriesProblemMsg     = `failed to generate the manifest file when building the required entries of the "%s" module`
-	contentTypeDefMsg             = `the "%s" path does not exist; the content type was not defined`
-	cliVersionMsg                 = "failed to generate the manifest file when getting the CLI version"
-	initMsg                       = "failed to generate the manifest file when initializing it"
-	populationMsg                 = "failed to generate the manifest file when populating the content"
-	contentTypeCfgMsg             = "failed to generate the manifest file when getting the content types from the configuration"
 )
 
 type entry struct {

@@ -23,8 +23,9 @@ var _ = Describe("Cleanup", func() {
 		Ω(getTestPath("result", ".mtahtml5_mta_build_tmp")).ShouldNot(BeADirectory())
 	})
 	It("Fails on location initialization", func() {
-		Ω(ExecuteCleanup("", getTestPath("result"), "dev", func() (string, error) {
+		err := ExecuteCleanup("", getTestPath("result"), "dev", func() (string, error) {
 			return "", errors.New("err")
-		})).Should(HaveOccurred())
+		})
+		checkError(err, cleanupFailedOnLocMsg)
 	})
 })

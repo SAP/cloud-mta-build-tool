@@ -11,10 +11,6 @@ import (
 	"github.com/SAP/cloud-mta-build-tool/internal/platform"
 )
 
-const (
-	genMetaParsingMsg = "failed to generate metadata when parsing the MTA file"
-)
-
 // ExecuteGenMeta - generates metadata
 func ExecuteGenMeta(source, target, desc, platform string, wdGetter func() (string, error)) error {
 	logs.Logger.Info("generating the metadata...")
@@ -72,7 +68,7 @@ func genMetaInfo(source dir.ISourceModule, ep dir.ITargetArtifacts, targetPathGe
 	// Set the MANIFEST.MF file
 	err := setManifestDesc(source, ep, targetPathGetter, deploymentDesc, mtaStr.Modules, mtaStr.Resources)
 	if err != nil {
-		return errors.Wrap(err, "failed to generate metadata when populating the manifest file")
+		return errors.Wrap(err, genMetaPopulatingMsg)
 	}
 
 	if !deploymentDesc {
@@ -84,7 +80,7 @@ func genMetaInfo(source dir.ISourceModule, ep dir.ITargetArtifacts, targetPathGe
 
 	err = genMtad(mtaStr, ep, deploymentDesc, platform, yaml.Marshal)
 	if err != nil {
-		return errors.Wrap(err, "failed to generate metadata when generating the MTAD file")
+		return errors.Wrap(err, genMetaMTADMsg)
 	}
 
 	return nil

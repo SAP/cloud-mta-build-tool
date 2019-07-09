@@ -3,6 +3,7 @@ package commands
 import (
 	"bytes"
 	"fmt"
+	"github.com/SAP/cloud-mta-build-tool/internal/artifacts"
 	"os"
 	"path/filepath"
 
@@ -33,7 +34,8 @@ var _ = Describe("Commands", func() {
 	})
 
 	AfterEach(func() {
-		os.RemoveAll(mtadCmdTrg)
+		err := os.RemoveAll(mtadCmdTrg)
+		Ω(err).Should(Succeed())
 	})
 
 	var _ = Describe("Pack and cleanup commands", func() {
@@ -48,15 +50,15 @@ var _ = Describe("Commands", func() {
 			ep := dir.Loc{SourcePath: packCmdSrc, TargetPath: packCmdTrg}
 			targetTmpDir := ep.GetTargetTmpDir()
 			err := dir.CreateDirIfNotExist(targetTmpDir)
-			if err != nil {
-				logs.Logger.Error(err)
-			}
-			f, _ := os.Create(filepath.Join(targetTmpDir, "ui5app"))
+			Ω(err).Should(Succeed())
+			f, err := os.Create(filepath.Join(targetTmpDir, "ui5app"))
+			Ω(err).Should(Succeed())
 			Ω(packModuleCmd.RunE(nil, []string{})).Should(HaveOccurred())
 			fmt.Println(str.String())
-			Ω(str.String()).Should(ContainSubstring(`packing of the "ui5app" module failed when archiving: archiving failed when creating`))
+			Ω(str.String()).Should(ContainSubstring(fmt.Sprintf(artifacts.PackFailedOnArchMsg, "ui5app")))
 
-			f.Close()
+			err = f.Close()
+			Ω(err).Should(Succeed())
 			// cleanup command used for test temp file removal
 			cleanupCmdSrc = packCmdSrc
 			Ω(cleanupCmd.RunE(nil, []string{})).Should(Succeed())
@@ -97,7 +99,8 @@ builders:
 		})
 
 		AfterEach(func() {
-			os.RemoveAll(getTestPath("result"))
+			err := os.RemoveAll(getTestPath("result"))
+			Ω(err).Should(Succeed())
 			commands.ModuleTypeConfig = make([]byte, len(config))
 			copy(commands.ModuleTypeConfig, config)
 		})

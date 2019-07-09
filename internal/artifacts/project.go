@@ -18,7 +18,6 @@ import (
 
 const (
 	copyInParallel = false
-	makefileTmp    = "Makefile_tmp.mta"
 )
 
 // ExecBuild - Execute MTA project build
@@ -36,11 +35,11 @@ func ExecBuild(makefileTmp, buildProjectCmdSrc, buildProjectCmdTrg, buildProject
 	error := os.Remove(filepath.Join(buildProjectCmdSrc, filepath.FromSlash(makefileTmp)))
 	if err != nil && error != nil {
 		// Remove Makefile_tmp.mta file from directory
-		return errors.Wrapf(err, `execution of the "%s" file failed; removing of the "%s" file failed`, makefileTmp, makefileTmp)
+		return errors.Wrapf(err, execAndRemoveFailedMsg, makefileTmp, makefileTmp)
 	} else if err != nil {
-		return fmt.Errorf(`execution of the "%s" file failed`, makefileTmp)
+		return fmt.Errorf(execFailedMsg, makefileTmp)
 	} else if error != nil {
-		return fmt.Errorf(`removing of the "%s" file failed`, makefileTmp)
+		return fmt.Errorf(removeFailedMsg, makefileTmp)
 	}
 	return err
 }
@@ -48,7 +47,7 @@ func ExecBuild(makefileTmp, buildProjectCmdSrc, buildProjectCmdTrg, buildProject
 // ExecuteProjectBuild - execute pre or post phase of project build
 func ExecuteProjectBuild(source, descriptor, phase string, getWd func() (string, error)) error {
 	if phase != "pre" && phase != "post" {
-		return fmt.Errorf(`the "%s" phase of mta project build is invalid; supported phases: "pre", "post"`, phase)
+		return fmt.Errorf(UnsupportedPhaseMsg, phase)
 	}
 	loc, err := dir.Location(source, "", descriptor, getWd)
 	if err != nil {
@@ -105,11 +104,11 @@ func getProjectBuilderCommands(builder mta.ProjectBuilder) (commands.CommandList
 	dummyModule.BuildParams["builder"] = builder.Builder
 	dummyModule.BuildParams["commands"] = builder.Commands
 	if builder.Builder == "custom" && builder.Commands == nil && len(builder.Commands) == 0 {
-		logs.Logger.Warn(`the "commands" property is missing in the "custom" builder`)
+		logs.Logger.Warn(commandsMissingMsg)
 		return commands.CommandList{Command: []string{}}, nil
 	}
 	if builder.Builder != "custom" && builder.Commands != nil && len(builder.Commands) != 0 {
-		logs.Logger.Warnf(`the "commands" property is not supported by the "%s" builder`, builder.Builder)
+		logs.Logger.Warnf(commandsNotSupportedMsg, builder.Builder)
 	}
 	builderCommands, _, err := commands.CommandProvider(dummyModule)
 	return builderCommands, err

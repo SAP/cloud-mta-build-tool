@@ -13,20 +13,20 @@ import (
 
 // ExecuteValidation - executes validation of MTA
 func ExecuteValidation(source, desc, mode, strict, exclude string, getWorkingDir func() (string, error)) error {
-	logs.Logger.Info("validating the MTA project")
+	logs.Logger.Info(validationMsg)
 
 	strictValue, err := strconv.ParseBool(strict)
 	if err != nil {
-		return fmt.Errorf(`the "%s" strictness value is wrong; boolean value expected`, strict)
+		return fmt.Errorf(wrongStrictnessMsg, strict)
 	}
 
 	loc, err := dir.Location(source, "", desc, getWorkingDir)
 	if err != nil {
-		return errors.Wrap(err, "validation failed when initializing the location")
+		return errors.Wrap(err, validationFailedOnLocMsg)
 	}
 	validateSchema, validateProject, err := validate.GetValidationMode(mode)
 	if err != nil {
-		return errors.Wrap(err, "validation failed when analyzing the validation mode")
+		return errors.Wrap(err, validationFailedOnModeMsg)
 	}
 	warn, err := validate.MtaYaml(source, loc.GetMtaYamlFilename(), validateSchema, validateProject, strictValue, exclude)
 	if warn != "" {
