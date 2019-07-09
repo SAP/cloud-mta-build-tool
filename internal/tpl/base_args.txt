@@ -1,4 +1,4 @@
-# Generated with MBT {{Version.CliVersion}}
+# Generated with Cloud MTA Builder {{Version.CliVersion}}
 version={{Version.MakeFile}}
 ifndef p
 $(error platform flag is expected. e.g. use make -f makefile.mta p=cf)
