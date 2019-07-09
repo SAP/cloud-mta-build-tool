@@ -30,7 +30,10 @@ var _ = Describe("Assembly", func() {
 		Ω(err).Should(Succeed())
 		mtarFile := getTestPath("result", "proj_0.1.0.mtar")
 		Ω(mtarFile).Should(BeAnExistingFile())
-		compareActualAndGolden(mtarFile, "MANIFEST.MF", getTestPath("assembly", "golden.mf"))
+		actualContent, err := getFileContentFromZip(mtarFile, "MANIFEST.MF")
+		Ω(err).Should(Succeed())
+		expectedContent := getFileContentWithCliVersion(getTestPath("assembly", "golden.mf"))
+		Ω(removeSpecialSymbols(actualContent)).Should(Equal(removeSpecialSymbols([]byte(expectedContent))))
 	})
 
 	var _ = DescribeTable("Fails on location initialization", func(maxCalls int) {
@@ -74,12 +77,4 @@ func getFileContentFromZip(path string, filename string) ([]byte, error) {
 		}
 	}
 	return nil, fmt.Errorf(`file "%s" not found`, filename)
-}
-
-func compareActualAndGolden(pathToZip, filenameInZip, goldenFilePath string) {
-	actualContent, err := getFileContentFromZip(pathToZip, filenameInZip)
-	Ω(err).Should(Succeed())
-	expectedContent, err := ioutil.ReadFile(goldenFilePath)
-	Ω(err).Should(Succeed())
-	Ω(removeSpecialSymbols(actualContent)).Should(Equal(removeSpecialSymbols(expectedContent)))
 }
