@@ -49,7 +49,7 @@ const (
 	packFailedOnFolderCreationMsg = `could not pack of the "%s" module when creating the "%s" folder`
 	packFailedOnCopyMsg           = `could not pack of the "%s" module when copying the "%s" path to the "%s" path`
 	// PackFailedOnArchMsg - message raised when pack fails during archiving the module
-	PackFailedOnArchMsg           = `could not pack of the "%s" module when archiving`
+	PackFailedOnArchMsg = `could not pack of the "%s" module when archiving`
 
 	copyContentFailedOnLocMsg   = `could not copy the MTA content when initializing the deployment descriptor location`
 	copyContentFailedOnParseMsg = `could not copy the MTA content when parsing the %s file`
@@ -62,11 +62,11 @@ const (
 	invalidPlatformMsg = `the invalid target platform "%s"; supported platforms are: "cf", "neo", "xsa"`
 	adaptationMsg      = `could not adapt the "%s" module path property`
 
+	// UnsupportedPhaseMsg - message raised when phase of mta project build is wrong
+	UnsupportedPhaseMsg     = `the "%s" phase of mta project build is invalid; supported phases: "pre", "post"`
 	execFailedMsg           = `could not execute the "%s" file`
 	removeFailedMsg         = `could not remove the "%s" file`
 	execAndRemoveFailedMsg  = `could not execute the "%s" file; could not remove the "%s" file`
-	// UnsupportedPhaseMsg - message raised when phase of mta project build is wrong
-	UnsupportedPhaseMsg     = `the "%s" phase of mta project build is invalid; supported phases: "pre", "post"`
 	commandsMissingMsg      = `the "commands" property is missing in the "custom" builder`
 	commandsNotSupportedMsg = `the "commands" property is not supported by the "%s" builder`
 
