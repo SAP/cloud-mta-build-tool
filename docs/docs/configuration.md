@@ -247,6 +247,23 @@ You can use these values or any combination of these values for the `supported-p
 This feature is not yet supported by the tool.
 
 #### Configuring the build artifact name
-This feature is not yet supported by the tool.
+The module build results are by default packaged into the resulting archive under the name “data”. You can change this name as needed using the `build-artifact-name` build parameter:  &nbsp;
+&nbsp;
 
+
+
+```yaml
+
+modules:
+  - name: db
+    type: hdb
+    path: db
+    build-parameters:
+      build-artifact-name: myfileName
+     
+```
+
+&nbsp;
+
+> **_NOTE:_** The file extension is not configurable; it is predefined by the module type (.zip or .war).
 
