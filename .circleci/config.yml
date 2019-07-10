@@ -103,7 +103,7 @@ jobs:
       - run:
           name: publish to npm
           command: |
-            echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > ~/go/src/github.com/SAP/cloud-mta-build-tool/.npmrc
+            echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > .npmrc
             npm publish
 
   ghpages:
