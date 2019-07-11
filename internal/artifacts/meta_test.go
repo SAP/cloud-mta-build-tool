@@ -158,17 +158,29 @@ cli_version:["x"]
 			checkError(err, dir.ReadFailedMsg, ep.GetMtaYamlPath())
 		})
 
-		It("Generate Meta fails on platform parsing", func() {
-			platformConfig := platform.PlatformConfig
-			platform.PlatformConfig = []byte("wrong config")
-			createMtahtml5TmpFolder()
-			ep := dir.Loc{SourcePath: getTestPath("mtahtml5"), TargetPath: getResultPath()}
-			err := generateMeta(&ep, &ep, &ep, &ep, false, "cf")
-			Ω(err).Should(HaveOccurred())
-			Ω(err.Error()).Should(ContainSubstring(fmt.Sprintf(genMTADTypeTypeCnvMsg, "cf")))
-			Ω(err.Error()).Should(ContainSubstring(platform.UnmarshalFailedMsg))
-			platform.PlatformConfig = platformConfig
+		Describe("mocking platform", func() {
+
+			var platformConfig []byte
+
+			BeforeEach(func() {
+				platformConfig = platform.PlatformConfig
+				platform.PlatformConfig = []byte("wrong config")
+			})
+
+			AfterEach(func() {
+				platform.PlatformConfig = platformConfig
+			})
+			
+			It("Generate Meta fails on platform parsing", func() {
+				createMtahtml5TmpFolder()
+				ep := dir.Loc{SourcePath: getTestPath("mtahtml5"), TargetPath: getResultPath()}
+				err := generateMeta(&ep, &ep, &ep, &ep, false, "cf")
+				Ω(err).Should(HaveOccurred())
+				Ω(err.Error()).Should(ContainSubstring(fmt.Sprintf(genMTADTypeTypeCnvMsg, "cf")))
+				Ω(err.Error()).Should(ContainSubstring(platform.UnmarshalFailedMsg))
+			})
 		})
+
 
 		It("Generate Mtar", func() {
 			createMtahtml5TmpFolder()

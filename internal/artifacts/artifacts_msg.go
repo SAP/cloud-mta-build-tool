@@ -3,10 +3,10 @@ package artifacts
 const (
 	assemblingMsg = `assembling the MTA project...`
 
-	assemblyFailedOnCopyMsg    = `assembly of the MTA project failed when copying the MTA content`
-	assemblyFailedOnMetaMsg    = `assembly of the MTA project failed when generating the meta information`
-	assemblyFailedOnMtarMsg    = `assembly of the MTA project failed when generating the MTA archive`
-	assemblyFailedOnCleanupMsg = `assembly of the MTA project failed when executing cleanup`
+	assemblyFailedOnCopyMsg    = `could not copy MTA artifacts to assemble`
+	assemblyFailedOnMetaMsg    = `could not generate the MTA metadata`
+	assemblyFailedOnMtarMsg    = `could not create the MTA archive`
+	assemblyFailedOnCleanupMsg = `could not clean temporary files`
 
 	cleanupMsg               = `cleaning temporary files...`
 	cleanupFailedOnLocMsg    = `cleanup failed when initializing the location`
@@ -46,10 +46,10 @@ const (
 	packFailedOnCommandsMsg       = `could not pack the "%s" module when getting commands`
 	packFailedOnBuildArtifactMsg  = `could not pack the "%s" module while getting the build artifact`
 	packFailedOnTargetArtifactMsg = `could not pack the "%s" module while getting the build artifact target path`
-	packFailedOnFolderCreationMsg = `could not pack of the "%s" module when creating the "%s" folder`
+	packFailedOnFolderCreationMsg = `could not pack the "%s" module when creating the "%s" folder`
 	packFailedOnCopyMsg           = `could not pack of the "%s" module when copying the "%s" path to the "%s" path`
 	// PackFailedOnArchMsg - message raised when pack fails during archiving the module
-	PackFailedOnArchMsg = `could not pack of the "%s" module when archiving`
+	PackFailedOnArchMsg = `could not pack the "%s" module when archiving`
 
 	copyContentFailedOnLocMsg   = `could not copy the MTA content when initializing the deployment descriptor location`
 	copyContentFailedOnParseMsg = `could not copy the MTA content when parsing the %s file`
@@ -57,13 +57,13 @@ const (
 	copyContentFailedMsg        = `could not copy the "%s" MTA content to the "%s" target directory because: %s`
 	copyStartMsg                = `copying the MTA content...`
 	copyDoneMsg                 = `copied "%s"`
-	cleanupFailedMsg            = `; cleanup failed`
+	cleanupFailedMsg            = `could not clean up`
 
-	invalidPlatformMsg = `the invalid target platform "%s"; supported platforms are: "cf", "neo", "xsa"`
+	invalidPlatformMsg = `invalid target platform "%s"; supported platforms are: "cf", "neo", "xsa"`
 	adaptationMsg      = `could not adapt the "%s" module path property`
 
 	// UnsupportedPhaseMsg - message raised when phase of mta project build is wrong
-	UnsupportedPhaseMsg     = `the "%s" phase of mta project build is invalid; supported phases: "pre", "post"`
+	UnsupportedPhaseMsg     = `the "%s" phase of MTA project build is invalid; supported phases: "pre", "post"`
 	execFailedMsg           = `could not execute the "%s" file`
 	removeFailedMsg         = `could not remove the "%s" file`
 	execAndRemoveFailedMsg  = `could not execute the "%s" file; could not remove the "%s" file`

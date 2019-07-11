@@ -4,24 +4,25 @@ const (
 	// FolderCreationFailedMsg - message raised when folder creation fails because of the existence file with identical name
 	FolderCreationFailedMsg = `could not create the "%s" folder because a file exists with the same name`
 
-	copyFailedOnGetStatusMsg         = `could not copy the "%s" pattern from the "%s" folder to the "%s" folder when getting the status of the source entry: %s`
-	copyFailedMsg                    = `could not copy the "%s" pattern from the "%s" folder to the "%s" folder when copying the "%s" entry to the "%s" entry`
-	archivingFailedOnCreateFolderMsg = `could not archive when creating the "%s" folder`
-	fileCreationFailedMsg            = `could not create of the "%s"" file failed`
-	copyByPatternFailedOnCreateMsg   = `could not copy the patterns [%s,...] from the "%s" folder to the "%s" folder when creating the target folder`
-	copyByPatternFailedOnTargetMsg   = `could not copy the patterns [%s,...] from the "%s" folder to the "%s" folder because the target is not a folder`
-	copyByPatternFailedOnMatchMsg    = `could not copy the "%s" pattern from the "%s" folder to the "%s" folder when getting matching entries`
-
-	// InitLocFailedOnDescMsg - message raised when location initialization failed on descriptor validation
-	InitLocFailedOnDescMsg = "could not initialize the location when validating descriptor"
+	copyFailedOnGetStatusMsg         = `could not copy files matching the "%s" pattern from the "%s" folder to the "%s" folder: could not get the status of the "%s" file or folder`
+	copyFailedMsg                    = `could not copy files matching the "%s" pattern from the "%s" folder to the "%s" folder: could not copy "%s" to "%s"`
+	archivingFailedOnCreateFolderMsg = `could not create the "%s" folder`
+	fileCreationFailedMsg            = `could not create the "%s"" file`
+	copyByPatternFailedOnCreateMsg   = `could not copy files matching the patterns [%s,...] from the "%s" folder to the "%s" folder: could not create the "%s" folder`
+	copyByPatternFailedOnTargetMsg   = `could not copy files matching the patterns [%s,...] from the "%s" folder to the "%s" folder: "%s" is not a folder`
+	copyByPatternFailedOnMatchMsg    = `could not copy files matching the "%s" pattern from the "%s" folder to the "%s": could not get list of files matching the "%s" pattern`
 
 	// InitLocFailedOnWorkDirMsg - message raised on getting working directory when initializing location
-	InitLocFailedOnWorkDirMsg = "could not initialize the location when getting working directory"
-	invalidDescMsg            = `the "%s" descriptor is invalid; expected one of the following values: Dev, Dep`
+	InitLocFailedOnWorkDirMsg = `could not get working directory`
 
-	copyByPatternMsg    = "copying the patterns [%s,...] from the %s folder to the %s folder"
-	skipSymbolicLinkMsg = `copying of the entries from the "%s" folder to the "%s" folder skipped the "%s" entry because its mode is a symbolic link`
+	// InvalidDescMsg - invalid descriptor
+	InvalidDescMsg = `the "%s" descriptor is invalid; expected one of the following values: Dev, Dep`
+
+	copyByPatternMsg    = `copying files matching the [%s,...] patterns from the "%s" folder to the "%s" folder`
+	skipSymbolicLinkMsg = `copying files from the "%s" folder to the "%s" folder: skipped the "%s" entry because it's a symbolic link`
 
 	// ReadFailedMsg - read failed message
 	ReadFailedMsg = `could not read the "%s" file`
+
+	folderCreatedMsg = `the "%s" folder has been created`
 )

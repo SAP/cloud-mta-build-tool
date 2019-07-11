@@ -40,7 +40,7 @@ func Archive(sourcePath, targetArchivePath string, ignore []string) (e error) {
 	// create folder of archive file if not exists
 	err = CreateDirIfNotExist(filepath.Dir(targetArchivePath))
 	if err != nil {
-		return errors.Wrapf(err, archivingFailedOnCreateFolderMsg, targetArchivePath)
+		return errors.Wrapf(err, archivingFailedOnCreateFolderMsg, filepath.Dir(targetArchivePath))
 	}
 
 	// create archive file
@@ -212,12 +212,12 @@ func CopyByPatterns(source, target string, patterns []string) error {
 	if err != nil {
 		err = CreateDirIfNotExist(target)
 		if err != nil {
-			return errors.Wrapf(err, copyByPatternFailedOnCreateMsg, patterns[0], source, target)
+			return errors.Wrapf(err, copyByPatternFailedOnCreateMsg, patterns[0], source, target, target)
 		}
-		logs.Logger.Infof(`the "%s" folder has been created`, target)
+		logs.Logger.Infof(folderCreatedMsg, target)
 
 	} else if !infoTargetDir.IsDir() {
-		return errors.Errorf(copyByPatternFailedOnTargetMsg, patterns[0], source, target)
+		return errors.Errorf(copyByPatternFailedOnTargetMsg, patterns[0], source, target, target)
 	}
 
 	for _, pattern := range patterns {
@@ -239,7 +239,7 @@ func copyByPattern(source, target, pattern string) error {
 	// get all entries matching the pattern
 	sourceEntries, err := filepath.Glob(fullPattern)
 	if err != nil {
-		return errors.Wrapf(err, copyByPatternFailedOnMatchMsg, pattern, source, target)
+		return errors.Wrapf(err, copyByPatternFailedOnMatchMsg, pattern, source, target, pattern)
 	}
 
 	err = copyEntries(sourceEntries, source, target, pattern)

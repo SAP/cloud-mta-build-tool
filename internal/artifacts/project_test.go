@@ -30,7 +30,7 @@ var _ = Describe("Project", func() {
 			err := ExecuteProjectBuild(getTestPath("mta"), "xx", "pre", func() (string, error) {
 				return "", fmt.Errorf("error")
 			})
-			checkError(err, dir.InitLocFailedOnDescMsg)
+			checkError(err, dir.InvalidDescMsg, "xx")
 		})
 		It("mta.yaml not found", func() {
 			err := ExecuteProjectBuild(getTestPath("mta1"), "dev", "pre", os.Getwd)

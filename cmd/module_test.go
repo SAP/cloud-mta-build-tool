@@ -3,9 +3,7 @@ package commands
 import (
 	"bytes"
 	"fmt"
-	"github.com/SAP/cloud-mta-build-tool/internal/artifacts"
 	"os"
-	"path/filepath"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
@@ -13,6 +11,7 @@ import (
 	"github.com/onsi/gomega/types"
 
 	"github.com/SAP/cloud-mta-build-tool/internal/archive"
+	"github.com/SAP/cloud-mta-build-tool/internal/artifacts"
 	"github.com/SAP/cloud-mta-build-tool/internal/commands"
 	"github.com/SAP/cloud-mta-build-tool/internal/logs"
 )
@@ -43,22 +42,15 @@ var _ = Describe("Commands", func() {
 			var str bytes.Buffer
 			// navigate log output to local string buffer. It will be used for error analysis
 			logs.Logger.SetOutput(&str)
-			// Target path has to be dir, but is currently created and opened as file
+			// Target path has to be dir, but is currently created as file
 			packCmdModule = "ui5app"
 			packCmdSrc = getTestPath("mtahtml5")
 			packCmdPlatform = "cf"
 			ep := dir.Loc{SourcePath: packCmdSrc, TargetPath: packCmdTrg}
-			targetTmpDir := ep.GetTargetTmpDir()
-			err := dir.CreateDirIfNotExist(targetTmpDir)
-			Ω(err).Should(Succeed())
-			f, err := os.Create(filepath.Join(targetTmpDir, "ui5app"))
-			Ω(err).Should(Succeed())
+			createDirInTmpFolder("mtahtml5")
+			createFileInTmpFolder("mtahtml5", "ui5app")
 			Ω(packModuleCmd.RunE(nil, []string{})).Should(HaveOccurred())
-			fmt.Println(str.String())
 			Ω(str.String()).Should(ContainSubstring(fmt.Sprintf(artifacts.PackFailedOnArchMsg, "ui5app")))
-
-			err = f.Close()
-			Ω(err).Should(Succeed())
 			// cleanup command used for test temp file removal
 			cleanupCmdSrc = packCmdSrc
 			Ω(cleanupCmd.RunE(nil, []string{})).Should(Succeed())

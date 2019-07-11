@@ -87,7 +87,7 @@ var _ = Describe("Path", func() {
 	It("ValidateDeploymentDescriptor - Invalid", func() {
 		err := ValidateDeploymentDescriptor("xxx")
 		Ω(err).Should(HaveOccurred())
-		Ω(err.Error()).Should(Equal(fmt.Sprintf(invalidDescMsg, "xxx")))
+		Ω(err.Error()).Should(Equal(fmt.Sprintf(InvalidDescMsg, "xxx")))
 	})
 	It("IsDeploymentDescriptor", func() {
 		location := Loc{}
@@ -151,9 +151,9 @@ var _ = Describe("Location", func() {
 	It("Fails on descriptor validation", func() {
 		_, err := Location("", "", "xx", os.Getwd)
 		Ω(err).Should(HaveOccurred())
-		Ω(err.Error()).Should(ContainSubstring(fmt.Sprintf(invalidDescMsg, "xx")))
+		Ω(err.Error()).Should(ContainSubstring(fmt.Sprintf(InvalidDescMsg, "xx")))
 	})
-	It("Fails on implicit source", func() {
+	It("Fails when it can't get the current working directory", func() {
 		_, err := Location("", "", Dev, func() (string, error) {
 			return "", errors.New("err")
 		})
