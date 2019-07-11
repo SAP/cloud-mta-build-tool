@@ -170,7 +170,7 @@ cli_version:["x"]
 			AfterEach(func() {
 				platform.PlatformConfig = platformConfig
 			})
-			
+
 			It("Generate Meta fails on platform parsing", func() {
 				createMtahtml5TmpFolder()
 				ep := dir.Loc{SourcePath: getTestPath("mtahtml5"), TargetPath: getResultPath()}
@@ -180,7 +180,6 @@ cli_version:["x"]
 				Ω(err.Error()).Should(ContainSubstring(platform.UnmarshalFailedMsg))
 			})
 		})
-
 
 		It("Generate Mtar", func() {
 			createMtahtml5TmpFolder()
