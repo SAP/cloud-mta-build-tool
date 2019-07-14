@@ -25,7 +25,7 @@ func ExecBuild(makefileTmp, buildProjectCmdSrc, buildProjectCmdTrg, buildProject
 	// Generate build script
 	err := tpl.ExecuteMake(buildProjectCmdSrc, "", makefileTmp, buildProjectCmdMode, wdGetter)
 	if err != nil {
-		return errors.Wrapf(err, `generation of the "%s" file failed`, makefileTmp)
+		return err
 	}
 	if buildProjectCmdTrg == "" {
 		err = wdExec([][]string{{buildProjectCmdSrc, "make", "-f", makefileTmp, " p=" + buildProjectCmdPlatform, " mtar=" + buildProjectCmdMtar, " strict=" + strconv.FormatBool(buildProjectCmdStrict), " mode=" + buildProjectCmdMode}})
