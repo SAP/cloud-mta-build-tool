@@ -47,7 +47,7 @@ const (
 	packFailedOnBuildArtifactMsg  = `could not pack the "%s" module while getting the build artifact`
 	packFailedOnTargetArtifactMsg = `could not pack the "%s" module while getting the build artifact target path`
 	packFailedOnFolderCreationMsg = `could not pack the "%s" module when creating the "%s" folder`
-	packFailedOnCopyMsg           = `could not pack of the "%s" module when copying the "%s" path to the "%s" path`
+	packFailedOnCopyMsg           = `could not pack the "%s" module when copying the "%s" path to the "%s" path`
 	// PackFailedOnArchMsg - message raised when pack fails during archiving the module
 	PackFailedOnArchMsg = `could not pack the "%s" module when archiving`
 

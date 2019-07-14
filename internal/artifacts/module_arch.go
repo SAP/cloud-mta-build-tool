@@ -250,7 +250,7 @@ func handleCopyMtaContentFailure(targetLocation string, copiedMtaContents []stri
 	if errCleanup == nil {
 		return errors.Errorf(message, messageArguments...)
 	}
-	return errors.Errorf(message+";"+cleanupFailedMsg, messageArguments...)
+	return errors.Errorf(message+"; "+cleanupFailedMsg, messageArguments...)
 }
 
 func copyMtaContentFromPath(sourceMtaContent, targetMtaContent, mtaContentPath, target string, copyInParallel bool) error {
