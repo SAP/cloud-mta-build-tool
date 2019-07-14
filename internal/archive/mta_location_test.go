@@ -2,6 +2,7 @@ package dir
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 
@@ -84,7 +85,9 @@ var _ = Describe("Path", func() {
 		Ω(ValidateDeploymentDescriptor("")).Should(Succeed())
 	})
 	It("ValidateDeploymentDescriptor - Invalid", func() {
-		Ω(ValidateDeploymentDescriptor("xxx")).Should(HaveOccurred())
+		err := ValidateDeploymentDescriptor("xxx")
+		Ω(err).Should(HaveOccurred())
+		Ω(err.Error()).Should(Equal(fmt.Sprintf(InvalidDescMsg, "xxx")))
 	})
 	It("IsDeploymentDescriptor", func() {
 		location := Loc{}
@@ -100,12 +103,12 @@ var _ = Describe("ParseFile MTA", func() {
 		ep := &Loc{SourcePath: filepath.Join(wd, "testdata")}
 		mta, err := ep.ParseFile()
 		Ω(mta).ShouldNot(BeNil())
-		Ω(err).Should(BeNil())
+		Ω(err).Should(Succeed())
 	})
 	It("Invalid filename", func() {
 		ep := &Loc{SourcePath: filepath.Join(wd, "testdata"), MtaFilename: "mtax.yaml"}
 		_, err := ep.ParseFile()
-		Ω(err).ShouldNot(BeNil())
+		Ω(err).Should(HaveOccurred())
 	})
 })
 
@@ -117,7 +120,7 @@ var _ = Describe("ParseExtFile MTA", func() {
 		ep := Loc{SourcePath: filepath.Join(wd, "testdata", "testproject")}
 		mta, err := ep.ParseExtFile("cf")
 		Ω(mta).ShouldNot(BeNil())
-		Ω(err).Should(BeNil())
+		Ω(err).Should(Succeed())
 	})
 	It("Invalid filename", func() {
 		ep := &Loc{SourcePath: filepath.Join(wd, "testdata", "testproject"), MtaFilename: "mtax.yaml"}
@@ -148,11 +151,13 @@ var _ = Describe("Location", func() {
 	It("Fails on descriptor validation", func() {
 		_, err := Location("", "", "xx", os.Getwd)
 		Ω(err).Should(HaveOccurred())
+		Ω(err.Error()).Should(ContainSubstring(fmt.Sprintf(InvalidDescMsg, "xx")))
 	})
-	It("Fails on implicit source", func() {
+	It("Fails when it can't get the current working directory", func() {
 		_, err := Location("", "", Dev, func() (string, error) {
 			return "", errors.New("err")
 		})
 		Ω(err).Should(HaveOccurred())
+		Ω(err.Error()).Should(ContainSubstring(InitLocFailedOnWorkDirMsg))
 	})
 })

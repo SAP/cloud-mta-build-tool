@@ -17,11 +17,6 @@ import (
 	"github.com/SAP/cloud-mta-build-tool/internal/logs"
 )
 
-const (
-	invalidPlatformMsg = `the invalid target platform "%s"; supported platforms are: "cf", "neo", "xsa"`
-	adaptationMsg      = `failed to adapt the "%s" module path property`
-)
-
 type mtadLoc struct {
 	path string
 }
@@ -59,13 +54,13 @@ func ExecuteGenMtad(source, target, platform string, wdGetter func() (string, er
 	// get mta object
 	mtaStr, err := loc.ParseFile()
 	if err != nil {
-		return errors.Wrapf(err, `generation of the MTAD file failed when parsing the "%s" file`, loc.GetMtaYamlFilename())
+		return errors.Wrapf(err, genMTADParsingMsg, loc.GetMtaYamlFilename())
 	}
 
 	// get extension object if defined
 	mtaExt, err := loc.ParseExtFile(platform)
 	if err != nil {
-		return errors.Wrapf(err, `generation of the MTAD file failed when parsing the "%s" file`, loc.GetMtaExtYamlPath(platform))
+		return errors.Wrapf(err, genMTADParsingMsg, loc.GetMtaExtYamlPath(platform))
 	}
 
 	// merge mta and extension objects
@@ -102,22 +97,20 @@ func genMtad(mtaStr *mta.MTA, ep dir.ITargetArtifacts, deploymentDesc bool, plat
 		// convert modules types according to platform
 		err := ConvertTypes(*mtaStr, platform)
 		if err != nil {
-			return errors.Wrapf(err,
-				`generation of the MTAD file failed when converting types according to the "%s" platform`,
-				platform)
+			return errors.Wrapf(err, genMTADTypeTypeCnvMsg, platform)
 		}
 	}
 
 	// Create readable Yaml before writing to file
 	mtad, err := marshal(mtaStr)
 	if err != nil {
-		return errors.Wrap(err, "generation of the MTAD file failed when marshalling the MTAD object")
+		return errors.Wrap(err, genMTADMarshMsg)
 	}
 	mtadPath := ep.GetMtadPath()
 	// Write back the MTAD to the META-INF folder
 	err = ioutil.WriteFile(mtadPath, mtad, os.ModePerm)
 	if err != nil {
-		return errors.Wrap(err, "generation of the MTAD file failed when writing")
+		return errors.Wrap(err, genMTADWriteMsg)
 	}
 	return nil
 }

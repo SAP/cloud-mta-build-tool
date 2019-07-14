@@ -2,7 +2,6 @@ package dir
 
 import (
 	"archive/zip"
-	"fmt"
 	"io"
 	"io/ioutil"
 	"os"
@@ -14,18 +13,13 @@ import (
 	"github.com/SAP/cloud-mta-build-tool/internal/logs"
 )
 
-const (
-	// FolderCreationFailedMsg - message raise when folder creation fails because of the existence file with identical name
-	FolderCreationFailedMsg = `creation of the %s folder failed because a file exists with the same name`
-)
-
 // CreateDirIfNotExist - Create new dir
 func CreateDirIfNotExist(dir string) error {
 	info, err := os.Stat(dir)
 	if os.IsNotExist(err) {
 		err = os.MkdirAll(dir, os.ModePerm)
 	} else if err == nil && !info.IsDir() {
-		err = fmt.Errorf(FolderCreationFailedMsg, dir)
+		err = errors.Errorf(FolderCreationFailedMsg, dir)
 	}
 	return err
 }
@@ -46,7 +40,7 @@ func Archive(sourcePath, targetArchivePath string, ignore []string) (e error) {
 	// create folder of archive file if not exists
 	err = CreateDirIfNotExist(filepath.Dir(targetArchivePath))
 	if err != nil {
-		return errors.Wrapf(err, `archiving failed when creating the "%s" folder`, targetArchivePath)
+		return errors.Wrapf(err, archivingFailedOnCreateFolderMsg, filepath.Dir(targetArchivePath))
 	}
 
 	// create archive file
@@ -171,7 +165,7 @@ func walk(sourcePath string, baseDir string, archive *zip.Writer, ignore map[str
 func CreateFile(path string) (file *os.File, err error) {
 	file, err = os.Create(path) // Truncates if file already exists
 	if err != nil {
-		return nil, errors.Wrapf(err, fmt.Sprintf("creation of the %s file failed", path))
+		return nil, errors.Wrapf(err, fileCreationFailedMsg, path)
 	}
 	// The caller needs to use defer.close
 	return file, err
@@ -212,23 +206,18 @@ func CopyByPatterns(source, target string, patterns []string) error {
 		return nil
 	}
 
-	logs.Logger.Infof("copying the patterns [%s,...] from the %s folder to the %s folder",
-		patterns[0], source, target)
+	logs.Logger.Infof(copyByPatternMsg, patterns[0], source, target)
 
 	infoTargetDir, err := os.Stat(target)
 	if err != nil {
 		err = CreateDirIfNotExist(target)
 		if err != nil {
-			return errors.Wrapf(err,
-				"copying the patterns [%s,...] from the %s folder to the %s folder failed when creating the target folder",
-				patterns[0], source, target)
+			return errors.Wrapf(err, copyByPatternFailedOnCreateMsg, patterns[0], source, target, target)
 		}
-		logs.Logger.Infof(`the "%s" folder has been created`, target)
+		logs.Logger.Infof(folderCreatedMsg, target)
 
 	} else if !infoTargetDir.IsDir() {
-		return errors.Errorf(
-			`copying the patterns [%s,...] from the "%s" folder to the "%s" folder failed because the target is not a folder`,
-			patterns[0], source, target)
+		return errors.Errorf(copyByPatternFailedOnTargetMsg, patterns[0], source, target, target)
 	}
 
 	for _, pattern := range patterns {
@@ -250,9 +239,7 @@ func copyByPattern(source, target, pattern string) error {
 	// get all entries matching the pattern
 	sourceEntries, err := filepath.Glob(fullPattern)
 	if err != nil {
-		return errors.Wrapf(err,
-			`copying the "%s" pattern from the "%s" folder to the "%s" folder failed when getting matching entries`,
-			pattern, source, target)
+		return errors.Wrapf(err, copyByPatternFailedOnMatchMsg, pattern, source, target, pattern)
 	}
 
 	err = copyEntries(sourceEntries, source, target, pattern)
@@ -267,9 +254,7 @@ func copyEntries(entries []string, source, target, pattern string) error {
 	for _, entry := range entries {
 		info, err := os.Stat(entry)
 		if err != nil {
-			return errors.Wrapf(err,
-				`copying the "%s" pattern from the "%s" folder to the "%s" folder failed when getting the status of the source entry: %s`,
-				pattern, source, target, entry)
+			return errors.Wrapf(err, copyFailedOnGetStatusMsg, pattern, source, target, entry)
 		}
 		targetEntry := filepath.Join(target, filepath.Base(entry))
 		if info.IsDir() {
@@ -278,9 +263,7 @@ func copyEntries(entries []string, source, target, pattern string) error {
 			err = CopyFileWithMode(entry, targetEntry, info.Mode())
 		}
 		if err != nil {
-			return errors.Wrapf(err,
-				`copying the "%s" pattern from the "%s" folder to the "%s" folder failed when copying the "%s" entry to the "%s" entry`,
-				pattern, source, target, entry, targetEntry)
+			return errors.Wrapf(err, copyFailedMsg, pattern, source, target, entry, targetEntry)
 		}
 	}
 	return nil
@@ -303,9 +286,7 @@ func CopyEntries(entries []os.FileInfo, src, dst string) error {
 		} else {
 			// Todo check posix compatibility
 			if entry.Mode()&os.ModeSymlink != 0 {
-				logs.Logger.Infof(
-					`copying of the entries from the "%s" folder to the "%s" folder skipped the "%s" entry because its mode is a symbolic link`,
-					src, dst, entry.Name())
+				logs.Logger.Infof(skipSymbolicLinkMsg, src, dst, entry.Name())
 			} else {
 				err = CopyFileWithMode(srcPath, dstPath, entry.Mode())
 			}
@@ -349,9 +330,7 @@ func CopyEntriesInParallel(entries []os.FileInfo, src, dst string) (rerr error) 
 			} else {
 				// Todo check posix compatibility
 				if e.Mode()&os.ModeSymlink != 0 {
-					logs.Logger.Infof(
-						`copying of the entries from the "%s" folder to the "%s" folder skipped the "%s" entry because its mode is a symbolic link`,
-						src, dst, e.Name())
+					logs.Logger.Infof(skipSymbolicLinkMsg, src, dst, e.Name())
 				} else {
 					err = CopyFileWithMode(srcPath, dstPath, e.Mode())
 				}
@@ -445,7 +424,7 @@ func Read(ep IMtaYaml) ([]byte, error) {
 func readFile(file string) ([]byte, error) {
 	content, err := ioutil.ReadFile(file)
 	if err != nil {
-		return nil, errors.Wrapf(err, `failed to read the "%s" file`, file)
+		return nil, errors.Wrapf(err, ReadFailedMsg, file)
 	}
 	s := string(content)
 	s = strings.Replace(s, "\r\n", "\r", -1)

@@ -191,7 +191,7 @@ func (ep *Loc) GetManifestPath() string {
 // ValidateDeploymentDescriptor validates the deployment descriptor.
 func ValidateDeploymentDescriptor(descriptor string) error {
 	if descriptor != "" && descriptor != Dev && descriptor != Dep {
-		return fmt.Errorf(`the "%s" descriptor is invalid; expected one of the following values: Dev, Dep`, descriptor)
+		return fmt.Errorf(InvalidDescMsg, descriptor)
 	}
 	return nil
 }
@@ -227,7 +227,7 @@ func Location(source, target, descriptor string, wdGetter func() (string, error)
 
 	err := ValidateDeploymentDescriptor(descriptor)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to initialize the location when validating descriptor")
+		return nil, err
 	}
 
 	var mtaFilename string
@@ -242,7 +242,7 @@ func Location(source, target, descriptor string, wdGetter func() (string, error)
 	if source == "" {
 		source, err = wdGetter()
 		if err != nil {
-			return nil, errors.Wrap(err, "failed to initialize the location when getting working directory")
+			return nil, errors.Wrap(err, InitLocFailedOnWorkDirMsg)
 		}
 	}
 	if target == "" {

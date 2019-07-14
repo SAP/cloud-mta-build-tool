@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"os"
-	"path/filepath"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
@@ -12,6 +11,7 @@ import (
 	"github.com/onsi/gomega/types"
 
 	"github.com/SAP/cloud-mta-build-tool/internal/archive"
+	"github.com/SAP/cloud-mta-build-tool/internal/artifacts"
 	"github.com/SAP/cloud-mta-build-tool/internal/commands"
 	"github.com/SAP/cloud-mta-build-tool/internal/logs"
 )
@@ -33,7 +33,8 @@ var _ = Describe("Commands", func() {
 	})
 
 	AfterEach(func() {
-		os.RemoveAll(mtadCmdTrg)
+		err := os.RemoveAll(mtadCmdTrg)
+		Ω(err).Should(Succeed())
 	})
 
 	var _ = Describe("Pack and cleanup commands", func() {
@@ -41,22 +42,15 @@ var _ = Describe("Commands", func() {
 			var str bytes.Buffer
 			// navigate log output to local string buffer. It will be used for error analysis
 			logs.Logger.SetOutput(&str)
-			// Target path has to be dir, but is currently created and opened as file
+			// Target path has to be dir, but is currently created as file
 			packCmdModule = "ui5app"
 			packCmdSrc = getTestPath("mtahtml5")
 			packCmdPlatform = "cf"
 			ep := dir.Loc{SourcePath: packCmdSrc, TargetPath: packCmdTrg}
-			targetTmpDir := ep.GetTargetTmpDir()
-			err := dir.CreateDirIfNotExist(targetTmpDir)
-			if err != nil {
-				logs.Logger.Error(err)
-			}
-			f, _ := os.Create(filepath.Join(targetTmpDir, "ui5app"))
+			createDirInTmpFolder("mtahtml5")
+			createFileInTmpFolder("mtahtml5", "ui5app")
 			Ω(packModuleCmd.RunE(nil, []string{})).Should(HaveOccurred())
-			fmt.Println(str.String())
-			Ω(str.String()).Should(ContainSubstring(`packing of the "ui5app" module failed when archiving: archiving failed when creating`))
-
-			f.Close()
+			Ω(str.String()).Should(ContainSubstring(fmt.Sprintf(artifacts.PackFailedOnArchMsg, "ui5app")))
 			// cleanup command used for test temp file removal
 			cleanupCmdSrc = packCmdSrc
 			Ω(cleanupCmd.RunE(nil, []string{})).Should(Succeed())
@@ -97,7 +91,8 @@ builders:
 		})
 
 		AfterEach(func() {
-			os.RemoveAll(getTestPath("result"))
+			err := os.RemoveAll(getTestPath("result"))
+			Ω(err).Should(Succeed())
 			commands.ModuleTypeConfig = make([]byte, len(config))
 			copy(commands.ModuleTypeConfig, config)
 		})

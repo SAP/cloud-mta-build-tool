@@ -37,7 +37,7 @@ func GetBuilder(module *mta.Module) (string, bool, map[string]string, []string, 
 		if builderName == customBuilder {
 			cmdsParam, ok := module.BuildParams[commandsParam]
 			if !ok {
-				logs.Logger.Warn(`the "commands" property is missing in the "custom" builder`)
+				logs.Logger.Warn(missingPropMsg)
 				return builderName, true, options, []string{}, nil
 			}
 			cmds, ok = cmdsParam.([]string)
@@ -56,7 +56,7 @@ func GetBuilder(module *mta.Module) (string, bool, map[string]string, []string, 
 				}
 			}
 			if !ok {
-				return builderName, true, options, cmds, fmt.Errorf(`the "commands" property is defined incorrectly; the property must contain a sequence of strings`)
+				return builderName, true, options, cmds, fmt.Errorf(wrongPropMsg)
 			}
 		}
 
@@ -98,11 +98,11 @@ func CommandProvider(module mta.Module) (CommandList, string, error) {
 	// Get config from ./commands_cfg.yaml as generated artifacts from source
 	moduleTypes, err := parseModuleTypes(ModuleTypeConfig)
 	if err != nil {
-		return CommandList{}, "", errors.Wrap(err, "failed to parse the module types configuration")
+		return CommandList{}, "", errors.Wrap(err, parseModuleCfgFailedMsg)
 	}
 	builderTypes, err := parseBuilders(BuilderTypeConfig)
 	if err != nil {
-		return CommandList{}, "", errors.Wrap(err, "failed to parse the builder types configuration")
+		return CommandList{}, "", errors.Wrap(err, parseBuilderCfgFailedMsg)
 	}
 	return mesh(&module, &moduleTypes, &builderTypes)
 }
@@ -130,9 +130,7 @@ func mesh(module *mta.Module, moduleTypes *ModuleTypes, builderTypes *Builders) 
 					// custom builder defined
 					// check that no commands defined for module type
 					if m.Commands != nil && len(m.Commands) > 0 {
-						return cmds, "", fmt.Errorf(
-							"the module type definition can include either the builder or the commands; the %s module type includes both",
-							m.Name)
+						return cmds, "", fmt.Errorf(wrongModuleTypeDefMsg, m.Name)
 					}
 					// continue with custom builders search
 					builder = m.Builder
@@ -196,7 +194,7 @@ func getCustomCommandsByBuilder(customCommands *Builders, builder string, cmds [
 		}
 	}
 
-	return nil, "", "", fmt.Errorf(`the "%s" builder is not defined in the custom commands configuration`, builder)
+	return nil, "", "", fmt.Errorf(undefinedBuilderMsg, builder)
 
 }
 
@@ -231,5 +229,5 @@ func moduleCmd(mta *mta.MTA, moduleName string) (*mta.Module, []string, string, 
 			return m, commandProvider.Command, buildResults, nil
 		}
 	}
-	return nil, nil, "", errors.Errorf(`the "%s" module is not defined in the MTA file`, moduleName)
+	return nil, nil, "", errors.Errorf(undefinedModuleMsg, moduleName)
 }

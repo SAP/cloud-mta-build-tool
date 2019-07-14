@@ -47,7 +47,7 @@ func generateMtar(targetLoc dir.ITargetPath, targetArtifacts dir.ITargetArtifact
 	// get MTA object
 	m, err := parser.ParseFile()
 	if err != nil {
-		return "", errors.Wrap(err, "generation of the the MTA archive failed when parsing the mta file")
+		return "", errors.Wrap(err, genMTARParsingMsg)
 	}
 	// get target temporary folder to be archived
 	targetTmpDir := targetLoc.GetTargetTmpDir()
@@ -59,7 +59,7 @@ func generateMtar(targetLoc dir.ITargetPath, targetArtifacts dir.ITargetArtifact
 	mtarPath := filepath.Join(mtarFolderPath, getMtarFileName(m, mtarName))
 	err = dir.Archive(targetTmpDir, mtarPath, nil)
 	if err != nil {
-		return "", errors.Wrap(err, "generation of the MTA archive failed when archiving")
+		return "", errors.Wrap(err, genMTARArchMsg)
 	}
 	return mtarPath, nil
 }

@@ -20,7 +20,7 @@ type graphNode struct {
 func ProvideModules(source, desc string, wdGetter func() (string, error)) error {
 	loc, err := dir.Location(source, "", desc, wdGetter)
 	if err != nil {
-		return errors.Wrap(err, "modules provider failed when initializing the location")
+		return errors.Wrap(err, locFailedMsg)
 	}
 	m, err := loc.ParseFile()
 	if err != nil {
@@ -115,7 +115,7 @@ func resolveGraph(graph *graphs, m *mta.MTA) ([]string, error) {
 		// If there aren't any ready nodes, then we have a circular dependency
 		if readyNodesSet.Cardinality() == 0 {
 			module1, module2 := provideCyclicModules(&overleft)
-			return nil, errors.Errorf(`circular dependency found between modules "%s" and "%s"`, module1, module2)
+			return nil, errors.Errorf(circularDepsMsg, module1, module2)
 		}
 		// Remove the ready nodes and add them to the resolved graphs
 		readyModulesIndexes := mapset.NewSet()

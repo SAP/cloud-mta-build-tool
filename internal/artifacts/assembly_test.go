@@ -11,6 +11,8 @@ import (
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"
+
+	dir "github.com/SAP/cloud-mta-build-tool/internal/archive"
 )
 
 var _ = Describe("Assembly", func() {
@@ -46,8 +48,7 @@ var _ = Describe("Assembly", func() {
 				}
 				return getTestPath("assembly-sample"), nil
 			})
-		Ω(err).Should(HaveOccurred())
-		Ω(err.Error()).Should(ContainSubstring("failed to initialize the location when getting working directory"))
+		checkError(err, dir.InitLocFailedOnWorkDirMsg)
 	},
 		Entry("fails on CopyMtaContent", 1),
 		Entry("fails on ExecuteGenMeta", 2),

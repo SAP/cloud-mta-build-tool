@@ -12,7 +12,7 @@ func Unmarshal(data []byte) (Platforms, error) {
 	platforms := Platforms{}
 	err := yaml.UnmarshalStrict(data, &platforms)
 	if err != nil {
-		return platforms, errors.Wrap(err, "unmarshalling of the platforms failed")
+		return platforms, errors.Wrap(err, UnmarshalFailedMsg)
 	}
 	return platforms, nil
 }
