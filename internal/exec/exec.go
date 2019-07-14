@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os/exec"
+	"strings"
 	"time"
 
 	"github.com/pkg/errors"
@@ -19,16 +20,50 @@ func makeCommand(params []string) *exec.Cmd {
 	return exec.Command(params[0])
 }
 
+// ExecuteWithTimeout executes child processes and waits for the results. If the timeout is reached an error is returned and
+// the child process is killed.
+func ExecuteWithTimeout(cmdParams [][]string, timeout string) error {
+	timeoutDuration, err := parseTimeoutString(timeout)
+	if err != nil {
+		return errors.Wrapf(err, execInvalidTimeoutMsg, timeout)
+	}
+	executeResultCh := make(chan error, 1)
+	terminateCh := make(chan struct{})
+	go func() {
+		executeResultCh <- executeWithTerminateCh(cmdParams, terminateCh)
+	}()
+
+	select {
+	case err = <-executeResultCh:
+		return err
+	case <-time.After(timeoutDuration):
+		close(terminateCh)
+		// Wait for executeWithTerminateCh to finish, to make sure we kill the running process
+		<-executeResultCh
+		return errors.Errorf(execTimeoutMsg, timeoutDuration.String())
+	}
+}
+
+func parseTimeoutString(timeoutString string) (time.Duration, error) {
+	if timeoutString == "" {
+		return 5 * time.Minute, nil
+	}
+	return time.ParseDuration(strings.TrimSpace(timeoutString))
+}
+
 // Execute - Execute child process and wait to results
 func Execute(cmdParams [][]string) error {
+	return executeWithTerminateCh(cmdParams, make(chan struct{}))
+}
 
+func executeWithTerminateCh(cmdParams [][]string, terminateCh <-chan struct{}) error {
 	for _, cp := range cmdParams {
 		var cmd *exec.Cmd
 		logs.Logger.Infof(execMsg, cp[1:])
 		cmd = makeCommand(cp[1:])
 		cmd.Dir = cp[0]
 
-		err := executeCommand(cmd)
+		err := executeCommand(cmd, terminateCh)
 		if err != nil {
 			return err
 		}
@@ -38,7 +73,7 @@ func Execute(cmdParams [][]string) error {
 }
 
 // executeCommand - executes individual command
-func executeCommand(cmd *exec.Cmd) error {
+func executeCommand(cmd *exec.Cmd, terminateCh <-chan struct{}) error {
 	logs.Logger.Debugf(execFileMsg, cmd.Path)
 
 	// During the running process get the standard output
@@ -55,29 +90,48 @@ func executeCommand(cmd *exec.Cmd) error {
 	// Start indicator
 	shutdownCh := make(chan struct{})
 	go indicator(shutdownCh)
+	defer close(shutdownCh) // Signal indicator() to terminate
 
-	// Execute the process immediately
+	// Start the process without waiting for it to finish
 	if err = cmd.Start(); err != nil {
 		return errors.Wrapf(err, execFailedOnStartMsg, cmd.Path)
 	}
-	// Stream command output:
-	// Creates a bufio.Scanner that will read from the pipe
-	// that supplies the output written by the process.
-	scanout, scanerr := scanner(stdout, stderr)
 
-	if scanerr.Err() != nil {
-		return errors.Wrapf(err, execFailedOnScanMsg, cmd.Path)
+	// Wait for the process to finish in a goroutine. We wait until it finishes or termination is requested via terminateCh.
+	finishedCh := make(chan error, 1)
+	go func() {
+		// Stream command output:
+		// Creates a bufio.Scanner that will read from the pipe
+		// that supplies the output written by the process.
+		// Note: this waits until the process finishes or an error occurs.
+		scanout, scanerr := scanner(stdout, stderr)
+
+		if scanerr.Err() != nil {
+			finishedCh <- errors.Wrapf(err, execFailedOnScanMsg, cmd.Path)
+			return
+		}
+
+		if scanout.Err() != nil {
+			finishedCh <- errors.Wrapf(err, execFailedOnErrorGetMsg, cmd.Path)
+			return
+		}
+
+		// Get execution success or failure
+		finishedCh <- cmd.Wait()
+	}()
+
+	select {
+	case err = <-finishedCh:
+		if err != nil {
+			return errors.Wrapf(err, execFailedOnFinishMsg, cmd.Path)
+		}
+	case <-terminateCh:
+		// Kill the process. We don't care if an error occurs here, we did our best and it doesn't affect the user.
+		_ = cmd.Process.Kill()
+		// Return an error so that we don't continue to the next process
+		return fmt.Errorf(execKilledMsg)
 	}
 
-	if scanout.Err() != nil {
-		return errors.Wrapf(err, execFailedOnErrorGetMsg, cmd.Path)
-	}
-
-	// Get execution success or failure:
-	if err = cmd.Wait(); err != nil {
-		return errors.Wrapf(err, execFailedOnFinishMsg, cmd.Path)
-	}
-	close(shutdownCh) // Signal indicator() to terminate
 	return nil
 }
 

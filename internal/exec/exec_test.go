@@ -45,7 +45,7 @@ var _ = Describe("Execute", func() {
 
 	var _ = DescribeTable("executeCommand Failures",
 		func(cmd *exec.Cmd) {
-			Ω(executeCommand(cmd)).Should(HaveOccurred())
+			Ω(executeCommand(cmd, make(chan struct{}))).Should(HaveOccurred())
 		},
 
 		Entry("fails on StdoutPipe", &exec.Cmd{Stdout: &testStr{}}),

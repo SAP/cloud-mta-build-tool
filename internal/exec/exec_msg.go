@@ -9,4 +9,7 @@ const (
 	execFailedOnScanMsg     = `could not execute the "%s" command when scanning the stdout and stderr pipes`
 	execFailedOnErrorGetMsg = `could not execute the "%s" command when receiving an error from the scanout object`
 	execFailedOnFinishMsg   = `could not execute the "%s" command when waiting for finish`
+	execInvalidTimeoutMsg   = `invalid timeout value "%s"`
+	execTimeoutMsg          = `commands timed out after %s`
+	execKilledMsg           = `process was terminated`
 )

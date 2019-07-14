@@ -90,7 +90,7 @@ func execProjectBuilder(builders []mta.ProjectBuilder, phase string) error {
 		}
 		cmds := commands.CmdConverter(".", builderCommands.Command)
 		// Execute commands
-		err = exec.Execute(cmds)
+		err = exec.ExecuteWithTimeout(cmds, builder.Timeout)
 		if err != nil {
 			return errors.Wrapf(err, errMessage, phase)
 		}
