@@ -40,7 +40,7 @@ func ExecuteWithTimeout(cmdParams [][]string, timeout string) error {
 		close(terminateCh)
 		// Wait for executeWithTerminateCh to finish, to make sure we kill the running process
 		<-executeResultCh
-		return errors.Errorf(execTimeoutMsg, timeoutDuration.String())
+		return errors.Errorf(ExecTimeoutMsg, timeoutDuration.String())
 	}
 }
 

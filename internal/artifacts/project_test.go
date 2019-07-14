@@ -12,6 +12,7 @@ import (
 
 	"github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta-build-tool/internal/commands"
+	"github.com/SAP/cloud-mta-build-tool/internal/exec"
 	"github.com/SAP/cloud-mta/mta"
 )
 
@@ -167,8 +168,20 @@ builders:
 			Ω(execProjectBuilder([]mta.ProjectBuilder{builder}, "pre")).Should(HaveOccurred())
 		})
 		It("Custom builder", func() {
-			builder := mta.ProjectBuilder{Builder: "custom", Commands: []string{`echo "aaa"`}}
+			builder := mta.ProjectBuilder{Builder: "custom", Commands: []string{`bash -c 'echo "aaa"'`}}
 			Ω(execProjectBuilder([]mta.ProjectBuilder{builder}, "pre")).Should(Succeed())
+		})
+
+		It("Succeeds on builder with timeout, when timeout isn't reached", func() {
+			builder := mta.ProjectBuilder{Builder: "custom", Commands: []string{`bash -c 'sleep 1'`}, Timeout: "10s"}
+			Ω(execProjectBuilder([]mta.ProjectBuilder{builder}, "pre")).Should(Succeed())
+		})
+
+		It("Fails on builder with timeout, when timeout is reached", func() {
+			builder := mta.ProjectBuilder{Builder: "custom", Commands: []string{`bash -c 'sleep 10'`}, Timeout: "2s"}
+			err := execProjectBuilder([]mta.ProjectBuilder{builder}, "post")
+			Ω(err).Should(HaveOccurred())
+			Ω(err.Error()).Should(ContainSubstring(fmt.Sprintf(exec.ExecTimeoutMsg, "2s")))
 		})
 
 		It("Fails on command execution", func() {

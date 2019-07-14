@@ -10,6 +10,7 @@ const (
 	execFailedOnErrorGetMsg = `could not execute the "%s" command when receiving an error from the scanout object`
 	execFailedOnFinishMsg   = `could not execute the "%s" command when waiting for finish`
 	execInvalidTimeoutMsg   = `invalid timeout value "%s"`
-	execTimeoutMsg          = `commands timed out after %s`
-	execKilledMsg           = `process was terminated`
+	// ExecTimeoutMsg is the error message that occurs when a timeout is reached during commands execution
+	ExecTimeoutMsg = `commands timed out after %s`
+	execKilledMsg  = `process was terminated`
 )

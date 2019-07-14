@@ -18,6 +18,7 @@ import (
 	"github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta-build-tool/internal/buildops"
 	"github.com/SAP/cloud-mta-build-tool/internal/commands"
+	"github.com/SAP/cloud-mta-build-tool/internal/exec"
 	"github.com/SAP/cloud-mta/mta"
 )
 
@@ -412,6 +413,20 @@ module-types:
 				Entry("Invalid module name", "mta", "mta.yaml", "xxx"),
 				Entry("Invalid module name wrong build params", "mtahtml5", "mtaWithWrongBuildParams.yaml", "ui5app"),
 			)
+
+			When("build parameters has timeout", func() {
+				It("succeeds when timeout is not exceeded", func() {
+					ep := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath(), MtaFilename: "mta_with_timeout.yaml"}
+					Ω(buildModule(&ep, &ep, &ep, "m2", "cf")).Should(Succeed())
+					Ω(ep.GetTargetModuleZipPath("m2")).Should(BeAnExistingFile())
+				})
+				It("fails when timeout is exceeded", func() {
+					ep := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath(), MtaFilename: "mta_with_timeout.yaml"}
+					err := buildModule(&ep, &ep, &ep, "m1", "cf")
+					Ω(err).Should(HaveOccurred())
+					Ω(err.Error()).Should(ContainSubstring(fmt.Sprintf(exec.ExecTimeoutMsg, "2s")))
+				})
+			})
 		})
 	})
 
