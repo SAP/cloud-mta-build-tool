@@ -86,7 +86,10 @@ func buildModule(mtaParser dir.IMtaParser, moduleLoc dir.IModule, targetLoc dir.
 	modulePath := moduleLoc.GetSourceModuleDir(module.Path)
 
 	// Get module commands
-	commandList := commands.CmdConverter(modulePath, mCmd)
+	commandList, e := commands.CmdConverter(modulePath, mCmd)
+	if e != nil {
+		return errors.Wrapf(e, buildFailedOnCommandsMsg, moduleName)
+	}
 
 	// Execute child-process with module respective commands
 	var timeout string

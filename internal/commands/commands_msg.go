@@ -8,4 +8,5 @@ const (
 	wrongModuleTypeDefMsg    = `the module type definition can include either the builder or the commands; the %s module type includes both`
 	undefinedBuilderMsg      = `the "%s" builder is not defined in the custom commands configuration`
 	undefinedModuleMsg       = `the "%s" module is not defined in the MTA file`
+	badCommandMsg            = `could not parse command "%s"`
 )
