@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/kballard/go-shellquote"
 	"github.com/pkg/errors"
 
 	"github.com/SAP/cloud-mta/mta"
@@ -199,12 +200,16 @@ func getCustomCommandsByBuilder(customCommands *Builders, builder string, cmds [
 }
 
 // CmdConverter - path and commands to execute
-func CmdConverter(mPath string, cmdList []string) [][]string {
+func CmdConverter(mPath string, cmdList []string) ([][]string, error) {
 	var cmd [][]string
 	for i := 0; i < len(cmdList); i++ {
-		cmd = append(cmd, append([]string{mPath}, strings.Split(cmdList[i], " ")...))
+		split, err := shellquote.Split(cmdList[i])
+		if err != nil {
+			return nil, errors.Wrapf(err, BadCommandMsg, cmdList[i])
+		}
+		cmd = append(cmd, append([]string{mPath}, split...))
 	}
-	return cmd
+	return cmd, nil
 }
 
 // GetModuleAndCommands - Get module from mta.yaml and

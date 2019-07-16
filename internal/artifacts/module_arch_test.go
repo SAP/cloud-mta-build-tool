@@ -18,6 +18,7 @@ import (
 	"github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta-build-tool/internal/buildops"
 	"github.com/SAP/cloud-mta-build-tool/internal/commands"
+	"github.com/SAP/cloud-mta-build-tool/internal/exec"
 	"github.com/SAP/cloud-mta/mta"
 )
 
@@ -395,8 +396,23 @@ module-types:
 				Ω(buildModule(&ep, &ep, &ep, "node-js", "cf")).Should(HaveOccurred())
 			})
 
+			It("fails when the command is invalid", func() {
+				commands.ModuleTypeConfig = []byte(`
+module-types:
+- name: nodejs
+  info: "build nodejs application"
+  path: "path to config file which override the following default commands"
+  commands:
+    - command: bash -c "sleep 1
+`)
+
+				ep := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath()}
+				err := buildModule(&ep, &ep, &ep, "node-js", "cf")
+				checkError(err, commands.BadCommandMsg, `bash -c "sleep 1`)
+			})
+
 			It("Target folder exists as a file - dev", func() {
-				dir.CreateDirIfNotExist(getTestPath("result", ".mta_mta_build_tmp"))
+				createDirInTmpFolder("mta")
 				ep := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath()}
 				createFileInTmpFolder("mta", "node-js")
 				Ω(buildModule(&ep, &ep, &ep, "node-js", "cf")).Should(HaveOccurred())
@@ -412,6 +428,24 @@ module-types:
 				Entry("Invalid module name", "mta", "mta.yaml", "xxx"),
 				Entry("Invalid module name wrong build params", "mtahtml5", "mtaWithWrongBuildParams.yaml", "ui5app"),
 			)
+
+			When("build parameters has timeout", func() {
+				It("succeeds when timeout is not exceeded", func() {
+					ep := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath(), MtaFilename: "mta_with_timeout.yaml"}
+					Ω(buildModule(&ep, &ep, &ep, "m2", "cf")).Should(Succeed())
+					Ω(ep.GetTargetModuleZipPath("m2")).Should(BeAnExistingFile())
+				})
+				It("fails when timeout is exceeded", func() {
+					ep := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath(), MtaFilename: "mta_with_timeout.yaml"}
+					err := buildModule(&ep, &ep, &ep, "m1", "cf")
+					checkError(err, exec.ExecTimeoutMsg, "2s")
+				})
+				It("fails when timeout is not a string", func() {
+					ep := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath(), MtaFilename: "mta_with_timeout.yaml"}
+					err := buildModule(&ep, &ep, &ep, "m3", "cf")
+					checkError(err, exec.ExecInvalidTimeoutMsg, "1")
+				})
+			})
 		})
 	})
 

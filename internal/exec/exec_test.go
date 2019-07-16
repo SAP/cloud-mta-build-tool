@@ -1,6 +1,7 @@
 package exec
 
 import (
+	"fmt"
 	"os/exec"
 	"time"
 
@@ -32,7 +33,7 @@ var _ = Describe("Execute", func() {
 		var _ = DescribeTable("Valid input", func(args [][]string) {
 			Ω(Execute(args)).Should(Succeed())
 		},
-			Entry("EchoTesting", [][]string{{"", "echo", "-n", `{"Name": "Bob", "Age": 32}`}}),
+			Entry("EchoTesting", [][]string{{"", "bash", "-c", `echo -n {"Name": "Bob", "Age": 32}`}}),
 			Entry("Dummy Go Testing", [][]string{{"", "go", "test", "exec_dummy_test.go"}}))
 
 		var _ = DescribeTable("Invalid input", func(args [][]string) {
@@ -45,7 +46,7 @@ var _ = Describe("Execute", func() {
 
 	var _ = DescribeTable("executeCommand Failures",
 		func(cmd *exec.Cmd) {
-			Ω(executeCommand(cmd)).Should(HaveOccurred())
+			Ω(executeCommand(cmd, make(chan struct{}))).Should(HaveOccurred())
 		},
 
 		Entry("fails on StdoutPipe", &exec.Cmd{Stdout: &testStr{}}),
@@ -77,4 +78,51 @@ var _ = Describe("Execute", func() {
 		// wg.Wait()
 	})
 
+	var _ = DescribeTable("parseTimeoutString",
+		func(timeout, expectedTimeout string, isError bool) {
+			duration, err := parseTimeoutString(timeout)
+			if isError {
+				Ω(err).Should(HaveOccurred())
+			} else {
+				Ω(err).Should(Succeed())
+				Ω(duration.String()).Should(Equal(expectedTimeout))
+			}
+
+		},
+		Entry("parses timeout with seconds", "3s", "3s", false),
+		Entry("parses timeout with minutes", "10m", "10m0s", false),
+		Entry("parses timeout with hours", "5h", "5h0m0s", false),
+		Entry("parses timeout with mixed time units", "10m3s", "10m3s", false),
+		Entry("returns default timeout when timeout is empty", "", "5m0s", false),
+		Entry("returns error for bad timeout", "abc", "", true),
+	)
+
+	DescribeTable("ExecuteWithTimeout",
+		func(args [][]string, timeout string, minSeconds, maxSeconds int, isError bool, expectedTimeout string) {
+			start := time.Now()
+			err := ExecuteWithTimeout(args, timeout)
+			elapsed := time.Since(start)
+			// Check error
+			if isError {
+				Ω(err).Should(HaveOccurred())
+				Ω(err.Error()).Should(ContainSubstring(fmt.Sprintf(ExecTimeoutMsg, expectedTimeout)))
+			} else {
+				Ω(err).Should(Succeed())
+			}
+
+			// Check elapsed time
+			Ω(elapsed).Should(BeNumerically(">=", time.Duration(minSeconds)*time.Second))
+			Ω(elapsed).Should(BeNumerically("<=", time.Duration(maxSeconds)*time.Second))
+		},
+		Entry("succeeds when timeout wasn't reached", [][]string{{"", "bash", "-c", "sleep 2"}}, "10s", 2, 5, false, ""),
+		Entry("fails when timeout was reached", [][]string{{"", "bash", "-c", "sleep 5"}}, "2s", 2, 3, true, "2s"),
+		Entry("fails when timeout was reached in the second command",
+			[][]string{{"", "bash", "-c", "sleep 2"}, {"", "bash", "-c", "sleep 3"}}, "4s", 4, 5, true, "4s"),
+	)
+
+	It("ExecuteWithTimeout fails when timeout value is invalid", func() {
+		err := ExecuteWithTimeout([][]string{{"bash", "-c", "sleep 1"}}, "1234")
+		Ω(err).Should(HaveOccurred())
+		Ω(err.Error()).Should(ContainSubstring(fmt.Sprintf(ExecInvalidTimeoutMsg, "1234")))
+	})
 })

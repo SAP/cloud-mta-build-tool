@@ -1,12 +1,14 @@
 package commands
 
 import (
+	"fmt"
+	"gopkg.in/yaml.v2"
 	"os"
 	"path/filepath"
 
 	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
-	"gopkg.in/yaml.v2"
 
 	"github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta/mta"
@@ -213,9 +215,31 @@ builders:
 				{"path", "npm", "install", "{{config}}"},
 				{"path", "grunt"},
 				{"path", "npm", "prune", "--production"}}
-			Ω(CmdConverter("path", cmdInput)).Should(Equal(cmdExpected))
+			result, e := CmdConverter("path", cmdInput)
+			Ω(e).Should(Succeed())
+			Ω(result).Should(Equal(cmdExpected))
 		})
 	})
+
+	DescribeTable("convert command with special characters", func(commandLine string, expected []string) {
+		result, e := CmdConverter("path", []string{commandLine})
+		Ω(e).Should(Succeed())
+		Ω(result, e).Should(Equal([][]string{append([]string{"path"}, expected...)}))
+	},
+		Entry("string in double quotes should not be split", `bash -c "a && b"`, []string{"bash", "-c", "a && b"}),
+		Entry("string in single quotes should not be split", `do 'some thing' new`, []string{"do", "some thing", "new"}),
+		Entry("escaped space should not be split", `do some\ thing new`, []string{"do", "some thing", "new"}),
+	)
+
+	DescribeTable("convert invalid command", func(commandLine string) {
+		_, e := CmdConverter("path", []string{commandLine})
+		Ω(e).Should(HaveOccurred())
+		Ω(e.Error()).Should(ContainSubstring(fmt.Sprintf(BadCommandMsg, commandLine)))
+	},
+		Entry("double quotes should match", `bash -c "a && b`),
+		Entry("single quotes should match", `do 'some thing new`),
+		Entry("mixed quotes should match", `bash -c "a && b'`),
+	)
 
 	var _ = Describe("moduleCmd", func() {
 		It("Sanity", func() {
