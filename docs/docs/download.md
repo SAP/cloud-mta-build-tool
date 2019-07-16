@@ -13,9 +13,11 @@ wget https://github.com/SAP/cloud-mta-build-tool/releases/download/<LATEST>/clou
 
 2. Extract the archive file to the folder where you want to install the tool.
 
-```//Example for Darwin/Linux:
+```
+//Example for Darwin/Linux:
 tar xvzf cloud-mta-build-tool_LATEST_Linux_amd64.tar.gz
 ```
+
 3. Add the binary file to your `~/bin` path according to your operating system:  
 
 * In Darwin / Linux, copy the binary file to the `~/usr/local/bin/` folder, for example: `cp mbt /usr/local/bin/`
