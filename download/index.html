@@ -483,27 +483,33 @@
                 
                 <p>You can install the Cloud MTA Build Tool (MBT) using either of these methods below:</p>
 <p><strong>Install manually</strong></p>
-<ol>
+<ul>
 <li><a href="https://github.com/SAP/cloud-mta-build-tool/releases">Download</a> the latest binary file according to your operating system.</li>
-</ol>
-<p><code>// Example for Darwin/Linux: 
-    wget https://github.com/SAP/cloud-mta-build-tool/releases/download/&lt;LATEST&gt;/cloud-mta-build-tool_&lt;LATEST&gt;_Linux_amd64.tar.gz</code></p>
-<ol>
-<li>Extract the archive file to the folder where you want to install the tool.</li>
-</ol>
-<p><code>//Example for Darwin/Linux:
-    tar xvzf cloud-mta-build-tool_LATEST_Linux_amd64.tar.gz</code></p>
-<ol>
+</ul>
+<pre><code>    // Example for Darwin/Linux: 
+    wget https://github.com/SAP/cloud-mta-build-tool/releases/download/&lt;LATEST&gt;/cloud-mta-build-tool_&lt;LATEST&gt;_Linux_amd64.tar.gz
+ ```
+
+   - Extract the archive file to the folder where you want to install the tool.
+
+ ```
+//Example for Darwin/Linux:
+  tar xvzf cloud-mta-build-tool_LATEST_Linux_amd64.tar.gz
+</code></pre>
+
+<ul>
 <li>
 <p>Add the binary file to your <code>~/bin</code> path according to your operating system:  </p>
-</li>
+<ul>
 <li>
 <p>In Darwin / Linux, copy the binary file to the <code>~/usr/local/bin/</code> folder, for example: <code>cp mbt /usr/local/bin/</code></p>
 </li>
 <li>
 <p>In Windows, copy the <code>mbt.exe</code> binary file to the <code>C:/Windows/</code> folder.</p>
 </li>
-</ol>
+</ul>
+</li>
+</ul>
 <p><strong>Install using npm</strong></p>
 <p>Run the command below.</p>
 <pre><code>npm install -g mbt
