@@ -123,6 +123,6 @@ var _ = Describe("Execute", func() {
 	It("ExecuteWithTimeout fails when timeout value is invalid", func() {
 		err := ExecuteWithTimeout([][]string{{"bash", "-c", "sleep 1"}}, "1234")
 		Ω(err).Should(HaveOccurred())
-		Ω(err.Error()).Should(ContainSubstring(fmt.Sprintf(execInvalidTimeoutMsg, "1234")))
+		Ω(err.Error()).Should(ContainSubstring(fmt.Sprintf(ExecInvalidTimeoutMsg, "1234")))
 	})
 })

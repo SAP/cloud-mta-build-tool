@@ -34,3 +34,19 @@ modules:
       - name: node-js_api
         properties:
           url: ${default-url}
+
+  - name: m3
+    type: nodejs
+    path: node-js
+    build-parameters:
+      builder: custom
+      commands:
+        - bash -c 'sleep 1'
+        - bash -c 'sleep 1'
+        - bash -c 'sleep 1'
+        - bash -c 'sleep 1'
+      timeout: 1
+    provides:
+      - name: node-js_api
+        properties:
+          url: ${default-url}

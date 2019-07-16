@@ -26,7 +26,7 @@ func makeCommand(params []string) *exec.Cmd {
 func ExecuteWithTimeout(cmdParams [][]string, timeout string) error {
 	timeoutDuration, err := parseTimeoutString(timeout)
 	if err != nil {
-		return errors.Wrapf(err, execInvalidTimeoutMsg, timeout)
+		return errors.Wrapf(err, ExecInvalidTimeoutMsg, timeout)
 	}
 	executeResultCh := make(chan error, 1)
 	terminateCh := make(chan struct{})

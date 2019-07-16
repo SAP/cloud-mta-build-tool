@@ -408,12 +408,11 @@ module-types:
 
 				ep := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath()}
 				err := buildModule(&ep, &ep, &ep, "node-js", "cf")
-				Ω(err).Should(HaveOccurred())
-				Ω(err.Error()).Should(ContainSubstring(fmt.Sprintf(commands.BadCommandMsg, `bash -c "sleep 1`)))
+				checkError(err, commands.BadCommandMsg, `bash -c "sleep 1`)
 			})
 
 			It("Target folder exists as a file - dev", func() {
-				dir.CreateDirIfNotExist(getTestPath("result", ".mta_mta_build_tmp"))
+				createDirInTmpFolder("mta")
 				ep := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath()}
 				createFileInTmpFolder("mta", "node-js")
 				Ω(buildModule(&ep, &ep, &ep, "node-js", "cf")).Should(HaveOccurred())
@@ -439,8 +438,12 @@ module-types:
 				It("fails when timeout is exceeded", func() {
 					ep := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath(), MtaFilename: "mta_with_timeout.yaml"}
 					err := buildModule(&ep, &ep, &ep, "m1", "cf")
-					Ω(err).Should(HaveOccurred())
-					Ω(err.Error()).Should(ContainSubstring(fmt.Sprintf(exec.ExecTimeoutMsg, "2s")))
+					checkError(err, exec.ExecTimeoutMsg, "2s")
+				})
+				It("fails when timeout is not a string", func() {
+					ep := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath(), MtaFilename: "mta_with_timeout.yaml"}
+					err := buildModule(&ep, &ep, &ep, "m3", "cf")
+					checkError(err, exec.ExecInvalidTimeoutMsg, "1")
 				})
 			})
 		})

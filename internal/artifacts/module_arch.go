@@ -94,7 +94,11 @@ func buildModule(mtaParser dir.IMtaParser, moduleLoc dir.IModule, targetLoc dir.
 	// Execute child-process with module respective commands
 	var timeout string
 	if module.BuildParams != nil && module.BuildParams["timeout"] != nil {
-		timeout, _ = module.BuildParams["timeout"].(string)
+		var ok bool
+		timeout, ok = module.BuildParams["timeout"].(string)
+		if !ok {
+			return errors.Errorf(exec.ExecInvalidTimeoutMsg, fmt.Sprint(module.BuildParams["timeout"]))
+		}
 	}
 	e = exec.ExecuteWithTimeout(commandList, timeout)
 	if e != nil {

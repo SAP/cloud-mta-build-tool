@@ -180,15 +180,13 @@ builders:
 		It("Fails on builder with timeout, when timeout is reached", func() {
 			builder := mta.ProjectBuilder{Builder: "custom", Commands: []string{`bash -c 'sleep 10'`}, Timeout: "2s"}
 			err := execProjectBuilder([]mta.ProjectBuilder{builder}, "post")
-			Ω(err).Should(HaveOccurred())
-			Ω(err.Error()).Should(ContainSubstring(fmt.Sprintf(exec.ExecTimeoutMsg, "2s")))
+			checkError(err, exec.ExecTimeoutMsg, "2s")
 		})
 
 		It("Fails on builder with invalid custom command", func() {
 			builder := mta.ProjectBuilder{Builder: "custom", Commands: []string{`bash -c 'sleep 10`}}
 			err := execProjectBuilder([]mta.ProjectBuilder{builder}, "post")
-			Ω(err).Should(HaveOccurred())
-			Ω(err.Error()).Should(ContainSubstring(fmt.Sprintf(commands.BadCommandMsg, `bash -c 'sleep 10`)))
+			checkError(err, commands.BadCommandMsg, `bash -c 'sleep 10`)
 		})
 
 		It("Fails on command execution", func() {
