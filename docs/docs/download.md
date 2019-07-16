@@ -5,15 +5,14 @@
 
 1. [Download](https://github.com/SAP/cloud-mta-build-tool/releases) the **latest** binary file according to your operating system.
 
-    ```
+   ```javascript
     // Example for Darwin/Linux: 
     wget https://github.com/SAP/cloud-mta-build-tool/releases/download/<LATEST>/cloud-mta-build-tool_<LATEST>_Linux_amd64.tar.gz
- 
-    ```
+   ```
 
 2. Extract the archive file to the folder where you want to install the tool.
 
-    ```
+   ```javascript
     //Example for Darwin/Linux:
     tar xvzf cloud-mta-build-tool_LATEST_Linux_amd64.tar.gz
     ```
