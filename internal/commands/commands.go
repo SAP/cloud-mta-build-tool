@@ -205,7 +205,7 @@ func CmdConverter(mPath string, cmdList []string) ([][]string, error) {
 	for i := 0; i < len(cmdList); i++ {
 		split, err := shellquote.Split(cmdList[i])
 		if err != nil {
-			return nil, errors.Wrapf(err, badCommandMsg, cmdList[i])
+			return nil, errors.Wrapf(err, BadCommandMsg, cmdList[i])
 		}
 		cmd = append(cmd, append([]string{mPath}, split...))
 	}

@@ -33,7 +33,7 @@ var _ = Describe("Execute", func() {
 		var _ = DescribeTable("Valid input", func(args [][]string) {
 			Ω(Execute(args)).Should(Succeed())
 		},
-			Entry("EchoTesting", [][]string{{"", "echo", "-n", `{"Name": "Bob", "Age": 32}`}}),
+			Entry("EchoTesting", [][]string{{"", "bash", "-c", `echo -n {"Name": "Bob", "Age": 32}`}}),
 			Entry("Dummy Go Testing", [][]string{{"", "go", "test", "exec_dummy_test.go"}}))
 
 		var _ = DescribeTable("Invalid input", func(args [][]string) {
@@ -97,7 +97,7 @@ var _ = Describe("Execute", func() {
 		Entry("returns error for bad timeout", "abc", "", true),
 	)
 
-	var _ = DescribeTable("ExecuteWithTimeout",
+	DescribeTable("ExecuteWithTimeout",
 		func(args [][]string, timeout string, minSeconds, maxSeconds int, isError bool, expectedTimeout string) {
 			start := time.Now()
 			err := ExecuteWithTimeout(args, timeout)
@@ -114,9 +114,15 @@ var _ = Describe("Execute", func() {
 			Ω(elapsed).Should(BeNumerically(">=", time.Duration(minSeconds)*time.Second))
 			Ω(elapsed).Should(BeNumerically("<=", time.Duration(maxSeconds)*time.Second))
 		},
-		Entry("succeeds when timeout wasn't reached", [][]string{{"", "bash", "-c", "sleep 2"}}, "7s", 2, 5, false, "5s"),
+		Entry("succeeds when timeout wasn't reached", [][]string{{"", "bash", "-c", "sleep 2"}}, "10s", 2, 5, false, ""),
 		Entry("fails when timeout was reached", [][]string{{"", "bash", "-c", "sleep 5"}}, "2s", 2, 3, true, "2s"),
 		Entry("fails when timeout was reached in the second command",
 			[][]string{{"", "bash", "-c", "sleep 2"}, {"", "bash", "-c", "sleep 3"}}, "4s", 4, 5, true, "4s"),
 	)
+
+	It("ExecuteWithTimeout fails when timeout value is invalid", func() {
+		err := ExecuteWithTimeout([][]string{{"bash", "-c", "sleep 1"}}, "1234")
+		Ω(err).Should(HaveOccurred())
+		Ω(err.Error()).Should(ContainSubstring(fmt.Sprintf(execInvalidTimeoutMsg, "1234")))
+	})
 })

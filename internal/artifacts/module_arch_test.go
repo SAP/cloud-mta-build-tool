@@ -396,6 +396,22 @@ module-types:
 				Ω(buildModule(&ep, &ep, &ep, "node-js", "cf")).Should(HaveOccurred())
 			})
 
+			It("fails when the command is invalid", func() {
+				commands.ModuleTypeConfig = []byte(`
+module-types:
+- name: nodejs
+  info: "build nodejs application"
+  path: "path to config file which override the following default commands"
+  commands:
+    - command: bash -c "sleep 1
+`)
+
+				ep := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath()}
+				err := buildModule(&ep, &ep, &ep, "node-js", "cf")
+				Ω(err).Should(HaveOccurred())
+				Ω(err.Error()).Should(ContainSubstring(fmt.Sprintf(commands.BadCommandMsg, `bash -c "sleep 1`)))
+			})
+
 			It("Target folder exists as a file - dev", func() {
 				dir.CreateDirIfNotExist(getTestPath("result", ".mta_mta_build_tmp"))
 				ep := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath()}

@@ -184,6 +184,13 @@ builders:
 			Ω(err.Error()).Should(ContainSubstring(fmt.Sprintf(exec.ExecTimeoutMsg, "2s")))
 		})
 
+		It("Fails on builder with invalid custom command", func() {
+			builder := mta.ProjectBuilder{Builder: "custom", Commands: []string{`bash -c 'sleep 10`}}
+			err := execProjectBuilder([]mta.ProjectBuilder{builder}, "post")
+			Ω(err).Should(HaveOccurred())
+			Ω(err.Error()).Should(ContainSubstring(fmt.Sprintf(commands.BadCommandMsg, `bash -c 'sleep 10`)))
+		})
+
 		It("Fails on command execution", func() {
 			buildersCfg := commands.BuilderTypeConfig
 			commands.BuilderTypeConfig =

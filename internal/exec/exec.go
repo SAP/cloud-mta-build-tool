@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/kballard/go-shellquote"
 	"github.com/pkg/errors"
 
 	"github.com/SAP/cloud-mta-build-tool/internal/logs"
@@ -59,7 +60,7 @@ func Execute(cmdParams [][]string) error {
 func executeWithTerminateCh(cmdParams [][]string, terminateCh <-chan struct{}) error {
 	for _, cp := range cmdParams {
 		var cmd *exec.Cmd
-		logs.Logger.Infof(execMsg, cp[1:])
+		logs.Logger.Infof(execMsg, shellquote.Join(cp[1:]...))
 		cmd = makeCommand(cp[1:])
 		cmd.Dir = cp[0]
 

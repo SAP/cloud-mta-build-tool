@@ -234,7 +234,7 @@ builders:
 	DescribeTable("convert invalid command", func(commandLine string) {
 		_, e := CmdConverter("path", []string{commandLine})
 		Ω(e).Should(HaveOccurred())
-		Ω(e.Error()).Should(ContainSubstring(fmt.Sprintf(badCommandMsg, commandLine)))
+		Ω(e.Error()).Should(ContainSubstring(fmt.Sprintf(BadCommandMsg, commandLine)))
 	},
 		Entry("double quotes should match", `bash -c "a && b`),
 		Entry("single quotes should match", `do 'some thing new`),
