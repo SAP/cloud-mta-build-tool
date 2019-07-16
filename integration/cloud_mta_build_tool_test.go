@@ -147,7 +147,7 @@ var _ = Describe("Integration - CloudMtaBuildTool", func() {
 			bin := filepath.FromSlash("make")
 			out, err, _ := execute(bin, "-f Makefile.mta p=xxx mtar=xyz1", path)
 			Ω(err).ShouldNot(BeEmpty())
-			Ω(out).Should(ContainSubstring(`ERROR the invalid target platform "xxx"; supported platforms are: "cf", "neo", "xsa"`))
+			Ω(out).Should(ContainSubstring(`ERROR invalid target platform "xxx"; supported platforms are: "cf", "neo", "xsa"`))
 			Ω(filepath.Join(dir, "testdata", "mta_demo", "mta_archives", "xyz1.mtar")).ShouldNot(BeAnExistingFile())
 		})
 
