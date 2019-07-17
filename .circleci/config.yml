@@ -81,7 +81,7 @@ jobs:
             sed  -i "/cli_version:/s/${CURR_MBT_VERSION}/${MBT_VERSION}/" ./configs/version.yaml
             sed  -i "s/${CURR_MBT_VERSION}/${MBT_VERSION}/" ./VERSION
             #Generate version file
-            go generate -run "go run ./internal/buildtools/embed.go -source=./configs/version.yaml -target=./internal/version/version_cfg.go -name=VersionConfig -package=version"
+            go generate -run "go run ./internal/buildtools/embed.go ./internal/buildtools/buildtools_msg.go -source=./configs/version.yaml -target=./internal/version/version_cfg.go -name=VersionConfig -package=version"
             #Add all updated files to commit
             git add ./package.json ./configs/version.yaml ./VERSION ./internal/version/version_cfg.go
             git config user.email "${MBT_REPO_USER_EMAIL}"
