@@ -97,22 +97,28 @@ var _ = Describe("Execute", func() {
 		Entry("returns error for bad timeout", "abc", "", true),
 	)
 
+	var executeTester = func(executor func() error, minSeconds, maxSeconds int, isError bool, expectedTimeout string) {
+		start := time.Now()
+		err := executor()
+		elapsed := time.Since(start)
+		// Check error
+		if isError {
+			Ω(err).Should(HaveOccurred())
+			Ω(err.Error()).Should(ContainSubstring(fmt.Sprintf(ExecTimeoutMsg, expectedTimeout)))
+		} else {
+			Ω(err).Should(Succeed())
+		}
+
+		// Check elapsed time
+		Ω(elapsed).Should(BeNumerically(">=", time.Duration(minSeconds)*time.Second))
+		Ω(elapsed).Should(BeNumerically("<=", time.Duration(maxSeconds)*time.Second))
+	}
+
 	DescribeTable("ExecuteWithTimeout",
 		func(args [][]string, timeout string, minSeconds, maxSeconds int, isError bool, expectedTimeout string) {
-			start := time.Now()
-			err := ExecuteWithTimeout(args, timeout)
-			elapsed := time.Since(start)
-			// Check error
-			if isError {
-				Ω(err).Should(HaveOccurred())
-				Ω(err.Error()).Should(ContainSubstring(fmt.Sprintf(ExecTimeoutMsg, expectedTimeout)))
-			} else {
-				Ω(err).Should(Succeed())
-			}
-
-			// Check elapsed time
-			Ω(elapsed).Should(BeNumerically(">=", time.Duration(minSeconds)*time.Second))
-			Ω(elapsed).Should(BeNumerically("<=", time.Duration(maxSeconds)*time.Second))
+			executeTester(func() error {
+				return ExecuteWithTimeout(args, timeout)
+			}, minSeconds, maxSeconds, isError, expectedTimeout)
 		},
 		Entry("succeeds when timeout wasn't reached", [][]string{{"", "bash", "-c", "sleep 2"}}, "10s", 2, 5, false, ""),
 		Entry("fails when timeout was reached", [][]string{{"", "bash", "-c", "sleep 5"}}, "2s", 2, 3, true, "2s"),
@@ -122,6 +128,24 @@ var _ = Describe("Execute", func() {
 
 	It("ExecuteWithTimeout fails when timeout value is invalid", func() {
 		err := ExecuteWithTimeout([][]string{{"bash", "-c", "sleep 1"}}, "1234")
+		Ω(err).Should(HaveOccurred())
+		Ω(err.Error()).Should(ContainSubstring(fmt.Sprintf(ExecInvalidTimeoutMsg, "1234")))
+	})
+
+	DescribeTable("ExecuteCommandsWithTimeout",
+		func(args []string, timeout string, minSeconds, maxSeconds int, isError bool, expectedTimeout string) {
+			executeTester(func() error {
+				return ExecuteCommandsWithTimeout(args, timeout)
+			}, minSeconds, maxSeconds, isError, expectedTimeout)
+		},
+		Entry("succeeds when timeout wasn't reached", []string{`bash -c "sleep 2"`}, "10s", 2, 5, false, ""),
+		Entry("fails when timeout was reached", []string{`bash -c 'sleep 5'`}, "2s", 2, 3, true, "2s"),
+		Entry("fails when timeout was reached in the second command",
+			[]string{`bash -c "sleep 2"`, `bash -c 'sleep 3'`}, "4s", 4, 5, true, "4s"),
+	)
+
+	It("ExecuteCommandsWithTimeout fails when timeout value is invalid", func() {
+		err := ExecuteCommandsWithTimeout([]string{`bash -c "sleep 1"`}, "1234")
 		Ω(err).Should(HaveOccurred())
 		Ω(err.Error()).Should(ContainSubstring(fmt.Sprintf(ExecInvalidTimeoutMsg, "1234")))
 	})

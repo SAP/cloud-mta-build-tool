@@ -5,7 +5,7 @@ modules = {{- range .File.Modules}} {{.Name}}{{end}}
 {{- range .File.Modules}}
 # build module {{.Name}}
 {{.Name}}: validate
-{{"\t"}}@cd "$(PROJ_DIR)/{{.Path}}" {{with $cmds := CommandProvider .}}{{range $i, $cmd:=$cmds.Command}} && {{.}}{{end}}{{end}}
+{{"\t"}}@cd "$(PROJ_DIR)/{{.Path}}" && mbt execute {{- if .BuildParams.timeout}} -t={{$.ConvertToShellArgument .BuildParams.timeout}}{{end}} {{- with $cmds := CommandProvider .}}{{range $i, $cmd:=$cmds.Command}} -c={{$.ConvertToShellArgument .}}{{end}}{{end}}
 # Pack module build artifacts
 {{"\t"}}@mbt module pack -m={{.Name}} -p=${p} -t=${t}
 {{end}}

@@ -30,17 +30,15 @@ pre_build: pre_validate
 
 # Set the current project repository path for general mta process
   PROJ_DIR := $(CURDIR)
-
 # List of modules
 modules = ui
 
 # Execute all modules builds
 # build module ui
 ui: validate
-	@cd $(PROJ_DIR)/ui && npm install && grunt
+	@cd "$(PROJ_DIR)/ui" && mbt execute -c='npm install' -c=grunt
 # Pack module build artifacts
 	@mbt module pack -m=ui -p=${p} -t=${t}
-
 
 # Create META-INF folder with MANIFEST.MF & mtad.yaml
 meta: $(modules) post_build

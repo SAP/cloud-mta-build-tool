@@ -1,0 +1,11 @@
+ID: testmta
+_schema-version: '3.2'
+version: 1.0.0
+
+modules:
+  - name: one_command
+    path: one_command
+    build-parameters:
+      builder: custom
+      commands:
+        - yarn

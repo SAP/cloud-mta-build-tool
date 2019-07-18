@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"text/template"
 
+	"github.com/kballard/go-shellquote"
 	"github.com/pkg/errors"
 
 	"github.com/SAP/cloud-mta-build-tool/internal/archive"
@@ -53,13 +54,21 @@ func genMakefile(mtaParser dir.IMtaParser, loc dir.ITargetPath, desc dir.IDescri
 	return err
 }
 
+type templateData struct {
+	File mta.MTA
+}
+
+// ConvertToShellArgument wraps a string in quotation marks if necessary and escapes necessary characters in it,
+// so it can be used as a shell argument or flag in the makefile
+func (data templateData) ConvertToShellArgument(s string) string {
+	return shellquote.Join(s)
+}
+
 // makeFile - generate makefile form templates
 func makeFile(mtaParser dir.IMtaParser, loc dir.ITargetPath, makeFilename string, tpl *tplCfg) (e error) {
 
 	// template data
-	var data struct {
-		File mta.MTA
-	}
+	data := templateData{}
 
 	err := dir.CreateDirIfNotExist(loc.GetTarget())
 	if err != nil {
