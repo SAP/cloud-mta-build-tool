@@ -11,6 +11,7 @@ import (
 	"github.com/kballard/go-shellquote"
 	"github.com/pkg/errors"
 
+	"github.com/SAP/cloud-mta-build-tool/internal/commands"
 	"github.com/SAP/cloud-mta-build-tool/internal/logs"
 )
 
@@ -19,6 +20,16 @@ func makeCommand(params []string) *exec.Cmd {
 		return exec.Command(params[0], params[1:]...)
 	}
 	return exec.Command(params[0])
+}
+
+// ExecuteCommandsWithTimeout parses the list of commands and executes them in the current working directory with a specified timeout.
+// If the timeout is reached an error is returned.
+func ExecuteCommandsWithTimeout(commandsList []string, timeout string) error {
+	commandList, err := commands.CmdConverter(".", commandsList)
+	if err != nil {
+		return err
+	}
+	return ExecuteWithTimeout(commandList, timeout)
 }
 
 // ExecuteWithTimeout executes child processes and waits for the results. If the timeout is reached an error is returned and

@@ -28,9 +28,9 @@ func ExecBuild(makefileTmp, buildProjectCmdSrc, buildProjectCmdTrg, buildProject
 		return err
 	}
 	if buildProjectCmdTrg == "" {
-		err = wdExec([][]string{{buildProjectCmdSrc, "make", "-f", makefileTmp, " p=" + buildProjectCmdPlatform, " mtar=" + buildProjectCmdMtar, " strict=" + strconv.FormatBool(buildProjectCmdStrict), " mode=" + buildProjectCmdMode}})
+		err = wdExec([][]string{{buildProjectCmdSrc, "make", "-f", makefileTmp, "p=" + buildProjectCmdPlatform, "mtar=" + buildProjectCmdMtar, "strict=" + strconv.FormatBool(buildProjectCmdStrict), "mode=" + buildProjectCmdMode}})
 	} else {
-		err = wdExec([][]string{{buildProjectCmdSrc, "make", "-f", makefileTmp, " p=" + buildProjectCmdPlatform, " mtar=" + buildProjectCmdMtar, ` t="` + buildProjectCmdTrg + `"`, " strict=" + strconv.FormatBool(buildProjectCmdStrict), " mode=" + buildProjectCmdMode}})
+		err = wdExec([][]string{{buildProjectCmdSrc, "make", "-f", makefileTmp, "p=" + buildProjectCmdPlatform, "mtar=" + buildProjectCmdMtar, `t="` + buildProjectCmdTrg + `"`, "strict=" + strconv.FormatBool(buildProjectCmdStrict), "mode=" + buildProjectCmdMode}})
 	}
 	// Remove Makefile_tmp.mta file from directory
 	error := os.Remove(filepath.Join(buildProjectCmdSrc, filepath.FromSlash(makefileTmp)))

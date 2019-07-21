@@ -5,7 +5,6 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
-	"regexp"
 	"runtime"
 	"strings"
 
@@ -28,11 +27,9 @@ var _ = BeforeSuite(func() {
 })
 
 func removeSpecialSymbols(b []byte) string {
-	reg, _ := regexp.Compile("[^a-zA-Z0-9]+")
 	s := string(b)
 	fmt.Println(s)
-	s = strings.Replace(s, "0xd, ", "", -1)
-	s = reg.ReplaceAllString(s, "")
+	s = strings.Replace(s, "\r", "", -1)
 	return s
 }
 
@@ -65,7 +62,7 @@ var _ = Describe("Makefile", func() {
 		expectedMakeFileContent = getMakeFileContent(expectedMakePath)
 	)
 
-	var _ = Describe("MakeFile Generation", func() {
+	Describe("MakeFile Generation", func() {
 		BeforeEach(func() {
 			version.VersionConfig = []byte(`
 cli_version: v0.0.0
@@ -73,13 +70,13 @@ makefile_version: 0.0.0
 `)
 		})
 		AfterEach(func() {
-			os.Remove(makeFileFullPath)
-			os.RemoveAll(filepath.Join(wd, "testdata", "someFolder"))
+			Ω(os.RemoveAll(makeFileFullPath)).Should(Succeed())
+			Ω(os.RemoveAll(filepath.Join(wd, "testdata", "someFolder"))).Should(Succeed())
 		})
 
-		var _ = Describe("ExecuteMake", func() {
+		Describe("ExecuteMake", func() {
 			AfterEach(func() {
-				os.Remove(filepath.Join(wd, "testdata", "Makefile.mta"))
+				Ω(os.RemoveAll(filepath.Join(wd, "testdata", "Makefile.mta"))).Should(Succeed())
 			})
 			It("Sanity", func() {
 				Ω(ExecuteMake(filepath.Join(wd, "testdata"), filepath.Join(wd, "testdata"), makefile, "", os.Getwd)).Should(Succeed())
@@ -99,7 +96,7 @@ makefile_version: 0.0.0
 			makeFilePath := filepath.Join(wd, "testdata")
 			file, _ := createMakeFile(makeFilePath, makeFileName)
 			Ω(file).ShouldNot(BeNil())
-			file.Close()
+			Ω(file.Close()).Should(Succeed())
 			Ω(makeFilePath).Should(BeAnExistingFile())
 			_, err := createMakeFile(makeFilePath, makeFileName)
 			Ω(err).Should(HaveOccurred())
@@ -129,9 +126,32 @@ makefile_version: 0.0.0
 			ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata")}
 			Ω(genMakefile(&ep, &ep, &ep, makefile, "wrongMode")).Should(HaveOccurred())
 		})
+
+		DescribeTable("generate module build in verbose make file", func(mtaFileName, moduleName, expectedModuleCommandsGen string) {
+			ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata", "modulegen"), TargetPath: filepath.Join(wd, "testdata"), Descriptor: "dev", MtaFilename: mtaFileName}
+			Ω(makeFile(&ep, &ep, makeFileName, &tpl)).Should(Succeed())
+			Ω(makeFileFullPath).Should(BeAnExistingFile())
+			makefileContent := getMakeFileContent(makeFileFullPath)
+
+			expectedModuleGen := fmt.Sprintf(`%s: validate
+	@cd "$(PROJ_DIR)/%s" && %s`, moduleName, moduleName, expectedModuleCommandsGen)
+			Ω(makefileContent).Should(ContainSubstring(removeSpecialSymbols([]byte(expectedModuleGen))))
+		},
+			Entry("module with one command", "one_command.yaml", "one_command", `mbt execute -c=yarn`),
+			Entry("module with no commands and no timeout",
+				"no_commands.yaml", "no_commands", `mbt execute`),
+			Entry("module with no commands and with timeout",
+				"no_commands_with_timeout.yaml", "no_commands_with_timeout", `mbt execute -t=3m`),
+			Entry("module with multiple commands",
+				"multiple_commands.yaml", "multiple_commands", `mbt execute -c='npm install' -c=grunt -c='npm prune --production'`),
+			Entry("module with command and timeout",
+				"command_with_timeout.yaml", "command_with_timeout", `mbt execute -t=2s -c='sleep 1'`),
+			Entry("module with commands with special characters",
+				"commands_with_special_chars.yaml", "commands_with_special_chars", `mbt execute -c='bash -c '\''echo "a"'\' -c='echo "a\b"'`),
+		)
 	})
 
-	var _ = DescribeTable("Makefile Generation Failed", func(testPath string, testTemplateFilename string) {
+	DescribeTable("Makefile Generation Failed", func(testPath string, testTemplateFilename string) {
 		wd, _ := os.Getwd()
 		testTemplate, _ := ioutil.ReadFile(filepath.Join(wd, "testdata", testTemplateFilename))
 		ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata"), TargetPath: filepath.Join(wd, "testdata")}
@@ -141,14 +161,14 @@ makefile_version: 0.0.0
 		Entry("Yaml not exists", "testdata1", "make_default.txt"),
 	)
 
-	var _ = DescribeTable("String in slice search", func(s string, slice []string, expected bool) {
+	DescribeTable("String in slice search", func(s string, slice []string, expected bool) {
 		Ω(stringInSlice(s, slice)).Should(Equal(expected))
 	},
 		Entry("positive test", "test1", []string{"test1", "foo"}, true),
 		Entry("negative test", "test1", []string{"--test", "foo"}, false),
 	)
 
-	var _ = Describe("genMakefile mode tests", func() {
+	Describe("genMakefile mode tests", func() {
 		DescribeTable("Positive", func(mode string, tpl tplCfg, isDep bool) {
 			Ω(getTplCfg(mode, isDep)).Should(Equal(tpl))
 		},
