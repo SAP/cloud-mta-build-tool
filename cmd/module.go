@@ -29,8 +29,8 @@ func init() {
 		"the path to the MBT results folder; the current path is set as the default")
 	packModuleCmd.Flags().StringVarP(&packCmdModule, "module", "m", "",
 		"the name of the module")
-	packModuleCmd.Flags().StringVarP(&packCmdPlatform, "platform", "p", "",
-		`the deployment platform; supported plaforms: "cf", "xsa", "neo"`)
+	packModuleCmd.Flags().StringVarP(&packCmdPlatform, "platform", "p", "cf",
+		`the deployment platform; supported platforms: "cf" (default value), "xsa", "neo"`)
 
 	// sets the flags of the command build module
 	buildModuleCmd.Flags().StringVarP(&buildCmdSrc, "source", "s", "",
@@ -39,8 +39,8 @@ func init() {
 		"the path to the MBT results folder; the current path is set as the default")
 	buildModuleCmd.Flags().StringVarP(&buildCmdModule, "module", "m", "",
 		"the name of the module")
-	buildModuleCmd.Flags().StringVarP(&buildCmdPlatform, "platform", "p", "",
-		`the deployment platform; supported plaforms: "cf", "xsa", "neo"`)
+	buildModuleCmd.Flags().StringVarP(&buildCmdPlatform, "platform", "p", "cf",
+		`the deployment platform; supported platforms: "cf" (default value), "xsa", "neo"`)
 }
 
 // buildModuleCmd - Build module
