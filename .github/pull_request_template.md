@@ -1,17 +1,17 @@
-Before submitting a pull request, Please make sure the following:
+Before submitting a pull request, please ensure the following:
 
 ## Description
 
 Please explain the changes you made.
 
-Link to design (if applicable)
+Add a link to the design (if applicable).
 
 ### Checklist
 - [ ] Code compiles correctly
 - [ ] Relevant tests were added (unit / contract / integration)
 - [ ] Relevant logs were added
-- [ ] Formating and linting run locally successfully
-- [ ] All tests passing
+- [ ] Formatting and linting run locally successfully
+- [ ] All tests pass
 - [ ] UA review
 - [ ] Design is documented
 - [ ] Extended the README / documentation, if necessary
