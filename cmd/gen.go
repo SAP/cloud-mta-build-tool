@@ -35,7 +35,7 @@ func init() {
 	mtadCmd.Flags().StringVarP(&mtadCmdTrg, "target", "t",
 		"", "the path to the MBT results folder; the current path is set as the default")
 	mtadCmd.Flags().StringVarP(&mtadCmdPlatform, "platform", "p", "cf",
-		`the deployment platform; supported plaforms: "cf", "xsa", "neo"`)
+		`the deployment platform; supported platforms: "cf" (default value), "xsa", "neo"`)
 	mtadCmd.Flags().BoolP("help", "h", false, `prints detailed information about the "mtad" command`)
 
 	// set flags of meta command
@@ -46,7 +46,7 @@ func init() {
 	metaCmd.Flags().StringVarP(&metaCmdDesc, "desc", "d", "",
 		`the MTA descriptor; supported values: "dev" (development descriptor, default value) and "dep" (deployment descriptor)`)
 	metaCmd.Flags().StringVarP(&metaCmdPlatform, "platform", "p", "cf",
-		`the deployment platform; supported plaforms: "cf", "xsa", "neo"`)
+		`the deployment platform; supported platforms: "cf" (default value), "xsa", "neo"`)
 	metaCmd.Flags().BoolP("help", "h", false, `prints detailed information about the "meta" command`)
 
 	// set flags of mtar command
