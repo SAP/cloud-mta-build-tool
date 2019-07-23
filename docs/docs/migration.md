@@ -41,4 +41,4 @@ The following features are supported by the [Multitarget Application Archive Bui
 
 
 * Running MTA builds with extension files
-* [Configuration of the deployment order](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/177d34d45e3d4fd99f4eeeffc5814cf1.html) 
+
