@@ -1,5 +1,6 @@
 # Generated with Cloud MTA Builder v0.0.0
 version=0.0.0
+MBT=mbt
 ifndef p
 $(error platform flag is expected. e.g. use make -f makefile.mta p=cf)
 endif
@@ -23,10 +24,10 @@ MAKEFLAGS += -j
 all: pre_validate pre_build validate ui meta mtar cleanup
 # Validate mta.yaml
 pre_validate:
-	@mbt validate -r=${strict} -e="paths"
+	@$(MBT) validate -r=${strict} -e="paths"
 
 pre_build: pre_validate
-	@mbt project build -p=pre
+	@$(MBT) project build -p=pre
 
 # Set the current project repository path for general mta process
   PROJ_DIR := $(CURDIR)
@@ -36,25 +37,25 @@ modules = ui
 # Execute all modules builds
 # build module ui
 ui: validate
-	@cd "$(PROJ_DIR)/ui" && mbt execute -c='npm install' -c=grunt
+	@cd "$(PROJ_DIR)/ui" && $(MBT) execute -c='npm install' -c=grunt
 # Pack module build artifacts
-	@mbt module pack -m=ui -p=${p} -t=${t}
+	@$(MBT) module pack -m=ui -p=${p} -t=${t}
 
 # Create META-INF folder with MANIFEST.MF & mtad.yaml
 meta: $(modules) post_build
-	@mbt gen meta -p=${p} -t=${t}
+	@$(MBT) gen meta -p=${p} -t=${t}
 
 post_build: $(modules)
-	@mbt project build -p=post
+	@$(MBT) project build -p=post
 
 # Validate mta.yaml
 validate: pre_build
-	@mbt validate -r=${strict}
+	@$(MBT) validate -r=${strict}
 
 # Pack as MTAR artifact
 mtar: $(modules) meta
-	@mbt gen mtar -t=${t} --mtar=${mtar} --target_provided=${target_provided}
+	@$(MBT) gen mtar -t=${t} --mtar=${mtar} --target_provided=${target_provided}
 
 cleanup: mtar
 # Remove tmp folder
-	@mbt clean -t=${t}
+	@$(MBT) clean -t=${t}

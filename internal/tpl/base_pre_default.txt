@@ -1,4 +1,4 @@
-modules := $(shell mbt provide modules -d=dev)
+modules := $(shell $(MBT) provide modules -d=dev)
 modules := $(subst ],,$(subst [,,$(modules)))
 # List of all the recipes to be executed during the build process
 .PHONY: all pre_validate pre_build validate $(modules) post_build meta mtar cleanup
@@ -10,8 +10,8 @@ cores:
 {{"\t"}}{{ OsCore.MAKEFLAGS  }}
 # Validate mta.yaml
 pre_validate:
-{{"\t"}}@mbt validate -r=${strict} -e="paths"
+{{"\t"}}@$(MBT) validate -r=${strict} -e="paths"
 pre_build: pre_validate
-{{"\t"}}@mbt project build -p=pre
+{{"\t"}}@$(MBT) project build -p=pre
 
 
