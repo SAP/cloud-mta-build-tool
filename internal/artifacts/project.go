@@ -33,7 +33,6 @@ func ExecBuild(makefileTmp, buildProjectCmdSrc, buildProjectCmdTrg, buildProject
 		err = wdExec([][]string{{buildProjectCmdSrc, "make", "-f", makefileTmp, "p=" + buildProjectCmdPlatform, "mtar=" + buildProjectCmdMtar, `t="` + buildProjectCmdTrg + `"`, "strict=" + strconv.FormatBool(buildProjectCmdStrict), "mode=" + buildProjectCmdMode}})
 	}
 	// Remove Makefile_tmp.mta file from directory
-	//var error error = nil
 	error := os.Remove(filepath.Join(buildProjectCmdSrc, filepath.FromSlash(makefileTmp)))
 	if err != nil && error != nil {
 		return errors.Wrapf(err, execAndRemoveFailedMsg, makefileTmp, makefileTmp)
