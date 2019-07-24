@@ -3,7 +3,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:d65a6b15e3af3e509838e6e5691ad26b9e9f6b504998e40b9a922a49a892d4e9"
+  digest = "1:8619025e0789235391fa1926697f8dc8c99a55b454e5f16f489d891b6ae62bfc"
   name = "github.com/SAP/cloud-mta"
   packages = [
     "internal/fs",
@@ -12,7 +12,7 @@
     "validations",
   ]
   pruneopts = "UT"
-  revision = "2d2e9c91abdb22934f212b6aeff8710d191e9dfa"
+  revision = "2e27ce09c2438eaf1342191aee78883b52cec0a6"
 
 [[projects]]
   digest = "1:e47d51dab652d26c3fba6f8cba403f922d02757a82abdc77e90df7948daf296e"
