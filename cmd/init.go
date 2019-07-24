@@ -54,7 +54,7 @@ var initCmd = &cobra.Command{
 	Args:  cobra.NoArgs,
 	Run: func(cmd *cobra.Command, args []string) {
 		// Generate build script
-		err := tpl.ExecuteMake(initCmdSrc, initCmdTrg, makefile, initCmdMode, os.Getwd)
+		err := tpl.ExecuteMake(initCmdSrc, initCmdTrg, makefile, initCmdMode, os.Getwd, true)
 		logError(err)
 	},
 }
@@ -69,7 +69,8 @@ var buildCmd = &cobra.Command{
 		// Generate temp Makefile with unique id
 		makefileTmp := "Makefile_" + time.Now().Format("20060102150405") + ".mta"
 		// Generate build script
-		err := artifacts.ExecBuild(makefileTmp, buildProjectCmdSrc, buildProjectCmdTrg, "", buildProjectCmdMtar, buildProjectCmdPlatform, buildProjectCmdStrict, os.Getwd, exec.Execute)
+		// Note: we can only use the non-default mbt (i.e. the current executable name) from inside the command itself because if this function runs from other places like tests it won't point to the MBT
+		err := artifacts.ExecBuild(makefileTmp, buildProjectCmdSrc, buildProjectCmdTrg, "", buildProjectCmdMtar, buildProjectCmdPlatform, buildProjectCmdStrict, os.Getwd, exec.Execute, false)
 		return err
 	},
 	SilenceUsage: true,

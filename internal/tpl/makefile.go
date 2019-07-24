@@ -26,13 +26,13 @@ type tplCfg struct {
 }
 
 // ExecuteMake - generate makefile
-func ExecuteMake(source, target, name, mode string, wdGetter func() (string, error)) error {
+func ExecuteMake(source, target, name, mode string, wdGetter func() (string, error), useDefaultMbt bool) error {
 	logs.Logger.Infof(`generating the "%s" file...`, name)
 	loc, err := dir.Location(source, target, dir.Dev, wdGetter)
 	if err != nil {
 		return errors.Wrapf(err, genFailedOnInitLocMsg, name)
 	}
-	err = genMakefile(loc, loc, loc, name, mode)
+	err = genMakefile(loc, loc, loc, name, mode, useDefaultMbt)
 	if err != nil {
 		return err
 	}
@@ -41,7 +41,7 @@ func ExecuteMake(source, target, name, mode string, wdGetter func() (string, err
 }
 
 // genMakefile - Generate the makefile
-func genMakefile(mtaParser dir.IMtaParser, loc dir.ITargetPath, desc dir.IDescriptor, makeFilename, mode string) error {
+func genMakefile(mtaParser dir.IMtaParser, loc dir.ITargetPath, desc dir.IDescriptor, makeFilename, mode string, useDefaultMbt bool) error {
 	tpl, err := getTplCfg(mode, desc.IsDeploymentDescriptor())
 	if err != nil {
 		return err
@@ -49,7 +49,7 @@ func genMakefile(mtaParser dir.IMtaParser, loc dir.ITargetPath, desc dir.IDescri
 	if err == nil {
 		tpl.depDesc = desc.GetDescriptor()
 		// Get project working directory
-		err = makeFile(mtaParser, loc, makeFilename, &tpl)
+		err = makeFile(mtaParser, loc, makeFilename, &tpl, useDefaultMbt)
 	}
 	return err
 }
@@ -65,7 +65,7 @@ func (data templateData) ConvertToShellArgument(s string) string {
 }
 
 // makeFile - generate makefile form templates
-func makeFile(mtaParser dir.IMtaParser, loc dir.ITargetPath, makeFilename string, tpl *tplCfg) (e error) {
+func makeFile(mtaParser dir.IMtaParser, loc dir.ITargetPath, makeFilename string, tpl *tplCfg, useDefaultMbt bool) (e error) {
 
 	// template data
 	data := templateData{}
@@ -85,7 +85,7 @@ func makeFile(mtaParser dir.IMtaParser, loc dir.ITargetPath, makeFilename string
 	data.File = *m
 
 	// Create maps of the template method's
-	t, err := mapTpl(tpl.tplContent, tpl.preContent, tpl.postContent)
+	t, err := mapTpl(tpl.tplContent, tpl.preContent, tpl.postContent, useDefaultMbt)
 	if err != nil {
 		return errors.Wrapf(err, genFailedOnTmplMapMsg, makeFilename)
 	}
@@ -108,8 +108,22 @@ func makeFile(mtaParser dir.IMtaParser, loc dir.ITargetPath, makeFilename string
 	return err
 }
 
+func getMbtPath(useDefaultMbt bool) string {
+	if useDefaultMbt {
+		return "mbt"
+	}
+	path, err := os.Executable()
+	// In case an error occurred we use default mbt
+	if err != nil {
+		return "mbt"
+	}
+	// If we're on windows the path with backslashes doesn't work with the makefile when running from bash
+	// (and it does work with slashes when running in windows cmd)
+	return filepath.ToSlash(path)
+}
+
 //noinspection GoUnusedParameter
-func mapTpl(templateContent []byte, BasePreContent []byte, BasePostContent []byte) (*template.Template, error) {
+func mapTpl(templateContent []byte, BasePreContent []byte, BasePostContent []byte, useDefaultMbt bool) (*template.Template, error) {
 	funcMap := template.FuncMap{
 		"CommandProvider": func(modules mta.Module) (commands.CommandList, error) {
 			cmds, _, err := commands.CommandProvider(modules)
@@ -117,6 +131,9 @@ func mapTpl(templateContent []byte, BasePreContent []byte, BasePostContent []byt
 		},
 		"OsCore":  proc.OsCore,
 		"Version": version.GetVersion,
+		"MbtPath": func() string {
+			return getMbtPath(useDefaultMbt)
+		},
 	}
 	fullTemplate := append(baseArgs, BasePreContent...)
 	fullTemplate = append(fullTemplate, templateContent...)
