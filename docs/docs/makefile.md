@@ -1,11 +1,7 @@
-### Overview
+In order to build an MTA archive from a project's source code in a Windows environment, you should install `GNU Make 4.2.1` on your machine.
 
-In order to build an MTA archive from a project's source code you should have `GNU Make 4.2.1` installed in your build environment. Then you can use the tool's  `mbt init` command that generates the `Makefile.mta` base on the project's MTA development desriptor `mta.yaml` file. The `Makefile.mta` file is used by the `make` command and provides the verbose build manifest, which can be changed according to the project needs. It is responsible for: <ul><li>Building each of the modules in the MTA project.<li>Invoking the MBT commands in the right order.<li>Archiving the MTA project.
-<br>
+You can download the executable from a source that you trust according to your processor (32-bit or 64-bit) to a local folder and then add the folder to the PATH environment variable.  For example, you can download the tool from [here](https://github.com/mbuilov/gnumake-windows).
 
-For more details about the commands, see the [Usage](usage.md) section.
+Alternatively, you can use [Chocolatey](https://chocolatey.org/packages/make) to install or upgrade `GNU Make`.
 
 
-#### Tip
-
-For Windows, use [Chocolatey](https://chocolatey.org/packages/make) to install or upgrade `GNU Make`.
