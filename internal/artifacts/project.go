@@ -32,16 +32,19 @@ func ExecBuild(makefileTmp, buildProjectCmdSrc, buildProjectCmdTrg, buildProject
 	} else {
 		err = wdExec([][]string{{buildProjectCmdSrc, "make", "-f", makefileTmp, "p=" + buildProjectCmdPlatform, "mtar=" + buildProjectCmdMtar, `t="` + buildProjectCmdTrg + `"`, "strict=" + strconv.FormatBool(buildProjectCmdStrict), "mode=" + buildProjectCmdMode}})
 	}
-	// Remove Makefile_tmp.mta file from directory
-	error := os.Remove(filepath.Join(buildProjectCmdSrc, filepath.FromSlash(makefileTmp)))
-	if err != nil && error != nil {
-		return errors.Wrapf(err, execAndRemoveFailedMsg, makefileTmp, makefileTmp)
-	} else if err != nil {
-		return errors.Wrapf(err, execFailedMsg, makefileTmp)
-	} else if error != nil {
-		return errors.Wrapf(error, removeFailedMsg, makefileTmp)
+	// Remove temporary Makefile
+	removeError := os.Remove(filepath.Join(buildProjectCmdSrc, filepath.FromSlash(makefileTmp)))
+	if removeError != nil {
+		removeError = errors.Wrapf(removeError, removeFailedMsg, makefileTmp)
 	}
-	return err
+
+	if err != nil {
+		if removeError != nil {
+			logs.Logger.Error(removeError)
+		}
+		return errors.Wrapf(err, execFailedMsg)
+	}
+	return removeError
 }
 
 // ExecuteProjectBuild - execute pre or post phase of project build
