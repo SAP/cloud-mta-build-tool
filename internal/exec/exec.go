@@ -51,7 +51,10 @@ func ExecuteWithTimeout(cmdParams [][]string, timeout string) error {
 	case <-time.After(timeoutDuration):
 		close(terminateCh)
 		// Wait for executeWithTerminateCh to finish, to make sure we kill the running process
-		<-executeResultCh
+		err = <-executeResultCh
+		if err != nil {
+			logs.Logger.Error(err)
+		}
 		return errors.Errorf(ExecTimeoutMsg, timeoutDuration.String())
 	}
 }
@@ -71,13 +74,14 @@ func Execute(cmdParams [][]string) error {
 func executeWithTerminateCh(cmdParams [][]string, terminateCh <-chan struct{}) error {
 	for _, cp := range cmdParams {
 		var cmd *exec.Cmd
-		logs.Logger.Infof(execMsg, shellquote.Join(cp[1:]...))
+		commandString := shellquote.Join(cp[1:]...)
+		logs.Logger.Infof(execMsg, commandString)
 		cmd = makeCommand(cp[1:])
 		cmd.Dir = cp[0]
 
 		err := executeCommand(cmd, terminateCh)
 		if err != nil {
-			return err
+			return errors.Wrapf(err, execFailed, commandString)
 		}
 
 	}
@@ -91,12 +95,12 @@ func executeCommand(cmd *exec.Cmd, terminateCh <-chan struct{}) error {
 	// During the running process get the standard output
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
-		return errors.Wrapf(err, execFailedOnStdoutMsg, cmd.Path)
+		return errors.Wrap(err, execFailedOnStdoutMsg)
 	}
 	// During the running process get the standard output
 	stderr, err := cmd.StderrPipe()
 	if err != nil {
-		return errors.Wrapf(err, execFailedOnStderrMsg, cmd.Path)
+		return errors.Wrap(err, execFailedOnStderrMsg)
 	}
 
 	// Start indicator
@@ -106,7 +110,7 @@ func executeCommand(cmd *exec.Cmd, terminateCh <-chan struct{}) error {
 
 	// Start the process without waiting for it to finish
 	if err = cmd.Start(); err != nil {
-		return errors.Wrapf(err, execFailedOnStartMsg, cmd.Path)
+		return err
 	}
 
 	// Wait for the process to finish in a goroutine. We wait until it finishes or termination is requested via terminateCh.
@@ -118,13 +122,13 @@ func executeCommand(cmd *exec.Cmd, terminateCh <-chan struct{}) error {
 		// Note: this waits until the process finishes or an error occurs.
 		scanout, scanerr := scanner(stdout, stderr)
 
-		if scanerr.Err() != nil {
-			finishedCh <- errors.Wrapf(err, execFailedOnScanMsg, cmd.Path)
+		if err := scanerr.Err(); err != nil {
+			finishedCh <- errors.Wrap(err, execFailedOnScanerrMsg)
 			return
 		}
 
-		if scanout.Err() != nil {
-			finishedCh <- errors.Wrapf(err, execFailedOnErrorGetMsg, cmd.Path)
+		if err := scanout.Err(); err != nil {
+			finishedCh <- errors.Wrap(err, execFailedOnScanoutMsg)
 			return
 		}
 
@@ -135,7 +139,7 @@ func executeCommand(cmd *exec.Cmd, terminateCh <-chan struct{}) error {
 	select {
 	case err = <-finishedCh:
 		if err != nil {
-			return errors.Wrapf(err, execFailedOnFinishMsg, cmd.Path)
+			return err
 		}
 	case <-terminateCh:
 		// Kill the process. We don't care if an error occurs here, we did our best and it doesn't affect the user.
