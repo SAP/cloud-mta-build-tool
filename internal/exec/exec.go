@@ -95,12 +95,12 @@ func executeCommand(cmd *exec.Cmd, terminateCh <-chan struct{}) error {
 	// During the running process get the standard output
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
-		return errors.Wrapf(err, execFailedOnStdoutMsg)
+		return errors.Wrap(err, execFailedOnStdoutMsg)
 	}
 	// During the running process get the standard output
 	stderr, err := cmd.StderrPipe()
 	if err != nil {
-		return errors.Wrapf(err, execFailedOnStderrMsg)
+		return errors.Wrap(err, execFailedOnStderrMsg)
 	}
 
 	// Start indicator
@@ -123,12 +123,12 @@ func executeCommand(cmd *exec.Cmd, terminateCh <-chan struct{}) error {
 		scanout, scanerr := scanner(stdout, stderr)
 
 		if err := scanerr.Err(); err != nil {
-			finishedCh <- errors.Wrapf(err, execFailedOnScanerrMsg)
+			finishedCh <- errors.Wrap(err, execFailedOnScanerrMsg)
 			return
 		}
 
 		if err := scanout.Err(); err != nil {
-			finishedCh <- errors.Wrapf(err, execFailedOnScanoutMsg)
+			finishedCh <- errors.Wrap(err, execFailedOnScanoutMsg)
 			return
 		}
 

@@ -42,7 +42,7 @@ func ExecBuild(makefileTmp, buildProjectCmdSrc, buildProjectCmdTrg, buildProject
 		if removeError != nil {
 			logs.Logger.Error(removeError)
 		}
-		return errors.Wrapf(err, execFailedMsg)
+		return errors.Wrap(err, execFailedMsg)
 	}
 	return removeError
 }
