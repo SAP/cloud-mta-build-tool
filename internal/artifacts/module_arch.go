@@ -100,7 +100,7 @@ func buildModule(mtaParser dir.IMtaParser, moduleLoc dir.IModule, targetLoc dir.
 			return errors.Errorf(exec.ExecInvalidTimeoutMsg, fmt.Sprint(module.BuildParams["timeout"]))
 		}
 	}
-	e = exec.ExecuteWithTimeout(commandList, timeout)
+	e = exec.ExecuteWithTimeout(commandList, timeout, true)
 	if e != nil {
 		return errors.Wrapf(e, buildFailedMsg, moduleName)
 	}

@@ -31,13 +31,13 @@ var _ = Describe("Execute", func() {
 	var _ = Describe("Execute call", func() {
 
 		var _ = DescribeTable("Valid input", func(args [][]string) {
-			Ω(Execute(args)).Should(Succeed())
+			Ω(Execute(args, false)).Should(Succeed())
 		},
 			Entry("EchoTesting", [][]string{{"", "bash", "-c", `echo -n {"Name": "Bob", "Age": 32}`}}),
 			Entry("Dummy Go Testing", [][]string{{"", "go", "test", "exec_dummy_test.go"}}))
 
 		var _ = DescribeTable("Invalid input", func(args [][]string) {
-			Ω(Execute(args)).Should(HaveOccurred())
+			Ω(Execute(args, false)).Should(HaveOccurred())
 		},
 			Entry("Valid command fails on input", [][]string{{"", "go", "test", "exec_unknown_test.go"}}),
 			Entry("Invalid command", [][]string{{"", "dateXXX"}}),
@@ -46,7 +46,7 @@ var _ = Describe("Execute", func() {
 
 	var _ = DescribeTable("executeCommand Failures",
 		func(cmd *exec.Cmd) {
-			Ω(executeCommand(cmd, make(chan struct{}))).Should(HaveOccurred())
+			Ω(executeCommand(cmd, make(chan struct{}), true)).Should(HaveOccurred())
 		},
 
 		Entry("fails on StdoutPipe", &exec.Cmd{Stdout: &testStr{}}),
@@ -117,7 +117,7 @@ var _ = Describe("Execute", func() {
 	DescribeTable("ExecuteWithTimeout",
 		func(args [][]string, timeout string, minSeconds, maxSeconds int, isError bool, expectedTimeout string) {
 			executeTester(func() error {
-				return ExecuteWithTimeout(args, timeout)
+				return ExecuteWithTimeout(args, timeout, true)
 			}, minSeconds, maxSeconds, isError, expectedTimeout)
 		},
 		Entry("succeeds when timeout wasn't reached", [][]string{{"", "bash", "-c", "sleep 2"}}, "10s", 2, 5, false, ""),
@@ -127,7 +127,7 @@ var _ = Describe("Execute", func() {
 	)
 
 	It("ExecuteWithTimeout fails when timeout value is invalid", func() {
-		err := ExecuteWithTimeout([][]string{{"bash", "-c", "sleep 1"}}, "1234")
+		err := ExecuteWithTimeout([][]string{{"bash", "-c", "sleep 1"}}, "1234", true)
 		Ω(err).Should(HaveOccurred())
 		Ω(err.Error()).Should(ContainSubstring(fmt.Sprintf(ExecInvalidTimeoutMsg, "1234")))
 	})
@@ -135,7 +135,7 @@ var _ = Describe("Execute", func() {
 	DescribeTable("ExecuteCommandsWithTimeout",
 		func(args []string, timeout string, minSeconds, maxSeconds int, isError bool, expectedTimeout string) {
 			executeTester(func() error {
-				return ExecuteCommandsWithTimeout(args, timeout)
+				return ExecuteCommandsWithTimeout(args, timeout, true)
 			}, minSeconds, maxSeconds, isError, expectedTimeout)
 		},
 		Entry("succeeds when timeout wasn't reached", []string{`bash -c "sleep 2"`}, "10s", 2, 5, false, ""),
@@ -145,7 +145,7 @@ var _ = Describe("Execute", func() {
 	)
 
 	It("ExecuteCommandsWithTimeout fails when timeout value is invalid", func() {
-		err := ExecuteCommandsWithTimeout([]string{`bash -c "sleep 1"`}, "1234")
+		err := ExecuteCommandsWithTimeout([]string{`bash -c "sleep 1"`}, "1234", true)
 		Ω(err).Should(HaveOccurred())
 		Ω(err.Error()).Should(ContainSubstring(fmt.Sprintf(ExecInvalidTimeoutMsg, "1234")))
 	})

@@ -17,7 +17,7 @@ var executeCommand = &cobra.Command{
 	Long:  "Execute commands in the current working directory with timeout",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		err := exec.ExecuteCommandsWithTimeout(executeCmdCommands, executeCmdTimeout)
+		err := exec.ExecuteCommandsWithTimeout(executeCmdCommands, executeCmdTimeout, true)
 		logError(err)
 		return err
 	},
