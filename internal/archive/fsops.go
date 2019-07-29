@@ -63,7 +63,7 @@ func Archive(sourcePath, targetArchivePath string, ignore []string) (e error) {
 	if info.IsDir() {
 		baseDir = sourcePath
 	} else {
-		baseDir = filepath.Base(sourcePath)
+		baseDir = filepath.Dir(sourcePath)
 	}
 
 	if !strings.HasSuffix(baseDir, string(os.PathSeparator)) {
@@ -121,21 +121,34 @@ func walk(sourcePath string, baseDir string, archive *zip.Writer, ignore map[str
 			return
 		}
 
+		// Don't add the base folder to the zip
+		if info.IsDir() {
+			pathWithSlash := path
+			if !strings.HasSuffix(pathWithSlash, string(os.PathSeparator)) {
+				pathWithSlash += string(os.PathSeparator)
+			}
+			if pathWithSlash == baseDir {
+				return
+			}
+		}
+
+		// Path in zip should be with slashes (in all operating systems)
+		pathInZip := filepath.ToSlash(getRelativePath(path, baseDir))
+
+		// Folders must end with "/"
+		if info.IsDir() {
+			pathInZip += "/"
+		}
+
 		header, err := zip.FileInfoHeader(info)
 		if err != nil {
 			return err
 		}
 
-		if baseDir != "" {
-			// care of UNIX-style separators of path in header
-			header.Name = filepath.ToSlash(getRelativePath(path, baseDir))
-		}
-
-		if info.IsDir() {
-			header.Name += "/"
-		} else {
+		if !info.IsDir() {
 			header.Method = zip.Deflate
 		}
+		header.Name = pathInZip
 
 		// add new header and file to archive
 		writer, err := archive.CreateHeader(header)
@@ -412,6 +425,9 @@ func changeTargetMode(source, target string) error {
 
 // getRelativePath - Remove the basePath from the fullPath and get only the relative
 func getRelativePath(fullPath, basePath string) string {
+	if basePath == "" {
+		return fullPath
+	}
 	return strings.TrimPrefix(fullPath, basePath)
 }
 
