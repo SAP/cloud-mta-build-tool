@@ -122,14 +122,8 @@ func walk(sourcePath string, baseDir string, archive *zip.Writer, ignore map[str
 		}
 
 		// Don't add the base folder to the zip
-		if info.IsDir() {
-			pathWithSlash := path
-			if !strings.HasSuffix(pathWithSlash, string(os.PathSeparator)) {
-				pathWithSlash += string(os.PathSeparator)
-			}
-			if pathWithSlash == baseDir {
-				return nil
-			}
+		if info.IsDir() && filepath.Clean(path) == filepath.Clean(baseDir) {
+			return nil
 		}
 
 		// Path in zip should be with slashes (in all operating systems)
