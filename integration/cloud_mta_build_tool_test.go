@@ -367,12 +367,12 @@ modules:
 		var mtaAssemblePath string
 
 		BeforeEach(func() {
-			mtaAssemblePath = currentWorkingDirectory + filepath.FromSlash("/testdata/mta_assemble")
 			currentWorkingDirectory, _ = os.Getwd()
+			mtaAssemblePath = currentWorkingDirectory + filepath.FromSlash("/testdata/mta_assemble")
 		})
 
 		AfterEach(func() {
-			os.RemoveAll(filepath.Join(mtaAssemblePath, "mta.assembly.example.mtar"))
+			Ω(os.RemoveAll(filepath.Join(mtaAssemblePath, "mta.assembly.example.mtar"))).Should(Succeed())
 			os.Chdir(currentWorkingDirectory)
 		})
 
