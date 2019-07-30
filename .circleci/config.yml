@@ -128,12 +128,6 @@ workflows:
           filters:
             branches:
               ignore: master
-      - test:
-          requires:
-            - build
-          filters:
-            branches:
-              ignore: master
 
   on_merge_build_test:
     jobs:
