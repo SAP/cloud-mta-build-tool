@@ -25,7 +25,7 @@ func ExecuteBuild(source, target, moduleName, platform string, wdGetter func() (
 	logs.Logger.Infof(buildMsg, moduleName)
 	loc, err := dir.Location(source, target, dir.Dev, wdGetter)
 	if err != nil {
-		return errors.Wrapf(err, buildFailedOnLocMsg, moduleName)
+		return errors.Wrapf(err, buildFailedMsg, moduleName)
 	}
 	// validate platform
 	platform, err = validatePlatform(platform)
@@ -100,9 +100,9 @@ func buildModule(mtaParser dir.IMtaParser, moduleLoc dir.IModule, targetLoc dir.
 			return errors.Errorf(exec.ExecInvalidTimeoutMsg, fmt.Sprint(module.BuildParams["timeout"]))
 		}
 	}
-	e = exec.ExecuteWithTimeout(commandList, timeout)
+	e = exec.ExecuteWithTimeout(commandList, timeout, true)
 	if e != nil {
-		return errors.Wrapf(e, buildFailedOnExecCmdMsg, moduleName)
+		return errors.Wrapf(e, buildFailedMsg, moduleName)
 	}
 
 	// 3. Packing the modules build artifacts (include node modules)

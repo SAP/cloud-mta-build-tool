@@ -35,10 +35,9 @@ const (
 	genMTARArchMsg    = `could not generate the MTA archive when archiving`
 
 	buildMsg                 = `building the "%s" module...`
-	buildFailedOnLocMsg      = `could not build the "%s" module when initializing the location`
-	buildFailedOnCommandsMsg = `could not build the "%s" module when getting commands`
-	buildFailedOnDepsMsg     = `could not build the "%s" module when processing dependencies`
-	buildFailedOnExecCmdMsg  = `could not build the "%s" module when executing commands`
+	buildFailedMsg           = `could not build the "%s" module`
+	buildFailedOnCommandsMsg = `could not get commands for the "%s" module`
+	buildFailedOnDepsMsg     = `could not process dependencies for the "%s" module`
 	buildResultMsg           = `the build results of the "%s" module will be packed and saved in the "%s" folder`
 
 	packMsg                       = `packing the "%s" module...`
@@ -64,9 +63,8 @@ const (
 
 	// UnsupportedPhaseMsg - message raised when phase of mta project build is wrong
 	UnsupportedPhaseMsg     = `the "%s" phase of MTA project build is invalid; supported phases: "pre", "post"`
-	execFailedMsg           = `could not execute the "%s" file`
+	execFailedMsg           = `could not build the MTA project`
 	removeFailedMsg         = `could not remove the "%s" file`
-	execAndRemoveFailedMsg  = `could not execute the "%s" file; could not remove the "%s" file`
 	commandsMissingMsg      = `the "commands" property is missing in the "custom" builder`
 	commandsNotSupportedMsg = `the "commands" property is not supported by the "%s" builder`
 

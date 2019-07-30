@@ -79,16 +79,16 @@ makefile_version: 0.0.0
 				Ω(os.RemoveAll(filepath.Join(wd, "testdata", "Makefile.mta"))).Should(Succeed())
 			})
 			It("Sanity", func() {
-				Ω(ExecuteMake(filepath.Join(wd, "testdata"), filepath.Join(wd, "testdata"), makefile, "", os.Getwd)).Should(Succeed())
+				Ω(ExecuteMake(filepath.Join(wd, "testdata"), filepath.Join(wd, "testdata"), makefile, "", os.Getwd, true)).Should(Succeed())
 				Ω(filepath.Join(wd, "testdata", "Makefile.mta")).Should(BeAnExistingFile())
 			})
 			It("Fails on location initialization", func() {
 				Ω(ExecuteMake("", filepath.Join(wd, "testdata"), makefile, "", func() (string, error) {
 					return "", errors.New("err")
-				})).Should(HaveOccurred())
+				}, true)).Should(HaveOccurred())
 			})
 			It("Fails on wrong mode", func() {
-				Ω(ExecuteMake(filepath.Join(wd, "testdata"), filepath.Join(wd, "testdata"), makefile, "wrong", os.Getwd)).Should(HaveOccurred())
+				Ω(ExecuteMake(filepath.Join(wd, "testdata"), filepath.Join(wd, "testdata"), makefile, "wrong", os.Getwd, true)).Should(HaveOccurred())
 			})
 		})
 
@@ -103,33 +103,33 @@ makefile_version: 0.0.0
 		})
 		It("Sanity", func() {
 			ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata"), TargetPath: filepath.Join(wd, "testdata"), Descriptor: "dev"}
-			Ω(makeFile(&ep, &ep, makeFileName, &tpl)).Should(Succeed())
+			Ω(makeFile(&ep, &ep, makeFileName, &tpl, true)).Should(Succeed())
 			Ω(makeFileFullPath).Should(BeAnExistingFile())
 			Ω(getMakeFileContent(makeFileFullPath)).Should(Equal(expectedMakeFileContent))
 		})
 		It("Create make file in folder that does not exist", func() {
 			ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata"), TargetPath: filepath.Join(wd, "testdata", "someFolder"), Descriptor: "dev"}
-			Ω(makeFile(&ep, &ep, makeFileName, &tpl)).Should(Succeed())
+			Ω(makeFile(&ep, &ep, makeFileName, &tpl, true)).Should(Succeed())
 			filename := filepath.Join(ep.GetTarget(), makeFileName)
 			Ω(filename).Should(BeAnExistingFile())
 			Ω(getMakeFileContent(filename)).Should(Equal(expectedMakeFileContent))
 		})
 		It("genMakefile testing with wrong mta yaml file", func() {
 			ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata"), TargetPath: filepath.Join(wd, "testdata"), MtaFilename: "xxx.yaml"}
-			Ω(genMakefile(&ep, &ep, &ep, makefile, "")).Should(HaveOccurred())
+			Ω(genMakefile(&ep, &ep, &ep, makefile, "", true)).Should(HaveOccurred())
 		})
 		It("genMakefile testing with wrong target folder (file path)", func() {
 			ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata"), TargetPath: filepath.Join(wd, "testdata", "mta.yaml"), MtaFilename: "xxx.yaml"}
-			Ω(genMakefile(&ep, &ep, &ep, makefile, "")).Should(HaveOccurred())
+			Ω(genMakefile(&ep, &ep, &ep, makefile, "", true)).Should(HaveOccurred())
 		})
 		It("genMakefile testing with wrong mode", func() {
 			ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata")}
-			Ω(genMakefile(&ep, &ep, &ep, makefile, "wrongMode")).Should(HaveOccurred())
+			Ω(genMakefile(&ep, &ep, &ep, makefile, "wrongMode", true)).Should(HaveOccurred())
 		})
 
 		DescribeTable("generate module build in verbose make file", func(mtaFileName, moduleName, expectedModuleCommandsGen string) {
 			ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata", "modulegen"), TargetPath: filepath.Join(wd, "testdata"), Descriptor: "dev", MtaFilename: mtaFileName}
-			Ω(makeFile(&ep, &ep, makeFileName, &tpl)).Should(Succeed())
+			Ω(makeFile(&ep, &ep, makeFileName, &tpl, true)).Should(Succeed())
 			Ω(makeFileFullPath).Should(BeAnExistingFile())
 			makefileContent := getMakeFileContent(makeFileFullPath)
 
@@ -137,17 +137,17 @@ makefile_version: 0.0.0
 	@cd "$(PROJ_DIR)/%s" && %s`, moduleName, moduleName, expectedModuleCommandsGen)
 			Ω(makefileContent).Should(ContainSubstring(removeSpecialSymbols([]byte(expectedModuleGen))))
 		},
-			Entry("module with one command", "one_command.yaml", "one_command", `mbt execute -c=yarn`),
+			Entry("module with one command", "one_command.yaml", "one_command", `$(MBT) execute -c=yarn`),
 			Entry("module with no commands and no timeout",
-				"no_commands.yaml", "no_commands", `mbt execute`),
+				"no_commands.yaml", "no_commands", `$(MBT) execute`),
 			Entry("module with no commands and with timeout",
-				"no_commands_with_timeout.yaml", "no_commands_with_timeout", `mbt execute -t=3m`),
+				"no_commands_with_timeout.yaml", "no_commands_with_timeout", `$(MBT) execute -t=3m`),
 			Entry("module with multiple commands",
-				"multiple_commands.yaml", "multiple_commands", `mbt execute -c='npm install' -c=grunt -c='npm prune --production'`),
+				"multiple_commands.yaml", "multiple_commands", `$(MBT) execute -c='npm install' -c=grunt -c='npm prune --production'`),
 			Entry("module with command and timeout",
-				"command_with_timeout.yaml", "command_with_timeout", `mbt execute -t=2s -c='sleep 1'`),
+				"command_with_timeout.yaml", "command_with_timeout", `$(MBT) execute -t=2s -c='sleep 1'`),
 			Entry("module with commands with special characters",
-				"commands_with_special_chars.yaml", "commands_with_special_chars", `mbt execute -c='bash -c '\''echo "a"'\' -c='echo "a\b"'`),
+				"commands_with_special_chars.yaml", "commands_with_special_chars", `$(MBT) execute -c='bash -c '\''echo "a"'\' -c='echo "a\b"'`),
 		)
 	})
 
@@ -155,7 +155,7 @@ makefile_version: 0.0.0
 		wd, _ := os.Getwd()
 		testTemplate, _ := ioutil.ReadFile(filepath.Join(wd, "testdata", testTemplateFilename))
 		ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata"), TargetPath: filepath.Join(wd, "testdata")}
-		Ω(makeFile(&ep, &ep, makeFileName, &tplCfg{relPath: testPath, tplContent: testTemplate, preContent: basePreVerbose, postContent: basePost, depDesc: "dev"})).Should(HaveOccurred())
+		Ω(makeFile(&ep, &ep, makeFileName, &tplCfg{relPath: testPath, tplContent: testTemplate, preContent: basePreVerbose, postContent: basePost, depDesc: "dev"}, true)).Should(HaveOccurred())
 	},
 		Entry("Wrong Template", "testdata", filepath.Join("testdata", "WrongMakeTmpl.txt")),
 		Entry("Yaml not exists", "testdata1", "make_default.txt"),

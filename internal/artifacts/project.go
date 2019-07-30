@@ -21,27 +21,30 @@ const (
 )
 
 // ExecBuild - Execute MTA project build
-func ExecBuild(makefileTmp, buildProjectCmdSrc, buildProjectCmdTrg, buildProjectCmdMode, buildProjectCmdMtar, buildProjectCmdPlatform string, buildProjectCmdStrict bool, wdGetter func() (string, error), wdExec func([][]string) error) error {
+func ExecBuild(makefileTmp, buildProjectCmdSrc, buildProjectCmdTrg, buildProjectCmdMode, buildProjectCmdMtar, buildProjectCmdPlatform string, buildProjectCmdStrict bool, wdGetter func() (string, error), wdExec func([][]string, bool) error, useDefaultMbt bool) error {
 	// Generate build script
-	err := tpl.ExecuteMake(buildProjectCmdSrc, "", makefileTmp, buildProjectCmdMode, wdGetter)
+	err := tpl.ExecuteMake(buildProjectCmdSrc, "", makefileTmp, buildProjectCmdMode, wdGetter, useDefaultMbt)
 	if err != nil {
 		return err
 	}
 	if buildProjectCmdTrg == "" {
-		err = wdExec([][]string{{buildProjectCmdSrc, "make", "-f", makefileTmp, "p=" + buildProjectCmdPlatform, "mtar=" + buildProjectCmdMtar, "strict=" + strconv.FormatBool(buildProjectCmdStrict), "mode=" + buildProjectCmdMode}})
+		err = wdExec([][]string{{buildProjectCmdSrc, "make", "-f", makefileTmp, "p=" + buildProjectCmdPlatform, "mtar=" + buildProjectCmdMtar, "strict=" + strconv.FormatBool(buildProjectCmdStrict), "mode=" + buildProjectCmdMode}}, false)
 	} else {
-		err = wdExec([][]string{{buildProjectCmdSrc, "make", "-f", makefileTmp, "p=" + buildProjectCmdPlatform, "mtar=" + buildProjectCmdMtar, `t="` + buildProjectCmdTrg + `"`, "strict=" + strconv.FormatBool(buildProjectCmdStrict), "mode=" + buildProjectCmdMode}})
+		err = wdExec([][]string{{buildProjectCmdSrc, "make", "-f", makefileTmp, "p=" + buildProjectCmdPlatform, "mtar=" + buildProjectCmdMtar, `t="` + buildProjectCmdTrg + `"`, "strict=" + strconv.FormatBool(buildProjectCmdStrict), "mode=" + buildProjectCmdMode}}, false)
 	}
-	// Remove Makefile_tmp.mta file from directory
-	error := os.Remove(filepath.Join(buildProjectCmdSrc, filepath.FromSlash(makefileTmp)))
-	if err != nil && error != nil {
-		return errors.Wrapf(err, execAndRemoveFailedMsg, makefileTmp, makefileTmp)
-	} else if err != nil {
-		return errors.Wrapf(err, execFailedMsg, makefileTmp)
-	} else if error != nil {
-		return errors.Wrapf(error, removeFailedMsg, makefileTmp)
+	// Remove temporary Makefile
+	removeError := os.Remove(filepath.Join(buildProjectCmdSrc, filepath.FromSlash(makefileTmp)))
+	if removeError != nil {
+		removeError = errors.Wrapf(removeError, removeFailedMsg, makefileTmp)
 	}
-	return err
+
+	if err != nil {
+		if removeError != nil {
+			logs.Logger.Error(removeError)
+		}
+		return errors.Wrap(err, execFailedMsg)
+	}
+	return removeError
 }
 
 // ExecuteProjectBuild - execute pre or post phase of project build
@@ -93,7 +96,7 @@ func execProjectBuilder(builders []mta.ProjectBuilder, phase string) error {
 			return errors.Wrapf(err, errMessage, phase)
 		}
 		// Execute commands
-		err = exec.ExecuteWithTimeout(cmds, builder.Timeout)
+		err = exec.ExecuteWithTimeout(cmds, builder.Timeout, true)
 		if err != nil {
 			return errors.Wrapf(err, errMessage, phase)
 		}

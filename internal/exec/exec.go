@@ -24,17 +24,17 @@ func makeCommand(params []string) *exec.Cmd {
 
 // ExecuteCommandsWithTimeout parses the list of commands and executes them in the current working directory with a specified timeout.
 // If the timeout is reached an error is returned.
-func ExecuteCommandsWithTimeout(commandsList []string, timeout string) error {
+func ExecuteCommandsWithTimeout(commandsList []string, timeout string, runIndicator bool) error {
 	commandList, err := commands.CmdConverter(".", commandsList)
 	if err != nil {
 		return err
 	}
-	return ExecuteWithTimeout(commandList, timeout)
+	return ExecuteWithTimeout(commandList, timeout, runIndicator)
 }
 
 // ExecuteWithTimeout executes child processes and waits for the results. If the timeout is reached an error is returned and
 // the child process is killed.
-func ExecuteWithTimeout(cmdParams [][]string, timeout string) error {
+func ExecuteWithTimeout(cmdParams [][]string, timeout string, runIndicator bool) error {
 	timeoutDuration, err := parseTimeoutString(timeout)
 	if err != nil {
 		return errors.Wrapf(err, ExecInvalidTimeoutMsg, timeout)
@@ -42,7 +42,7 @@ func ExecuteWithTimeout(cmdParams [][]string, timeout string) error {
 	executeResultCh := make(chan error, 1)
 	terminateCh := make(chan struct{})
 	go func() {
-		executeResultCh <- executeWithTerminateCh(cmdParams, terminateCh)
+		executeResultCh <- executeWithTerminateCh(cmdParams, terminateCh, runIndicator)
 	}()
 
 	select {
@@ -51,7 +51,10 @@ func ExecuteWithTimeout(cmdParams [][]string, timeout string) error {
 	case <-time.After(timeoutDuration):
 		close(terminateCh)
 		// Wait for executeWithTerminateCh to finish, to make sure we kill the running process
-		<-executeResultCh
+		err = <-executeResultCh
+		if err != nil {
+			logs.Logger.Error(err)
+		}
 		return errors.Errorf(ExecTimeoutMsg, timeoutDuration.String())
 	}
 }
@@ -64,20 +67,21 @@ func parseTimeoutString(timeoutString string) (time.Duration, error) {
 }
 
 // Execute - Execute child process and wait to results
-func Execute(cmdParams [][]string) error {
-	return executeWithTerminateCh(cmdParams, make(chan struct{}))
+func Execute(cmdParams [][]string, runIndicator bool) error {
+	return executeWithTerminateCh(cmdParams, make(chan struct{}), runIndicator)
 }
 
-func executeWithTerminateCh(cmdParams [][]string, terminateCh <-chan struct{}) error {
+func executeWithTerminateCh(cmdParams [][]string, terminateCh <-chan struct{}, runIndicator bool) error {
 	for _, cp := range cmdParams {
 		var cmd *exec.Cmd
-		logs.Logger.Infof(execMsg, shellquote.Join(cp[1:]...))
+		commandString := shellquote.Join(cp[1:]...)
+		logs.Logger.Infof(execMsg, commandString)
 		cmd = makeCommand(cp[1:])
 		cmd.Dir = cp[0]
 
-		err := executeCommand(cmd, terminateCh)
+		err := executeCommand(cmd, terminateCh, runIndicator)
 		if err != nil {
-			return err
+			return errors.Wrapf(err, execFailed, commandString)
 		}
 
 	}
@@ -85,28 +89,30 @@ func executeWithTerminateCh(cmdParams [][]string, terminateCh <-chan struct{}) e
 }
 
 // executeCommand - executes individual command
-func executeCommand(cmd *exec.Cmd, terminateCh <-chan struct{}) error {
+func executeCommand(cmd *exec.Cmd, terminateCh <-chan struct{}, runIndicator bool) error {
 	logs.Logger.Debugf(execFileMsg, cmd.Path)
 
 	// During the running process get the standard output
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
-		return errors.Wrapf(err, execFailedOnStdoutMsg, cmd.Path)
+		return errors.Wrap(err, execFailedOnStdoutMsg)
 	}
 	// During the running process get the standard output
 	stderr, err := cmd.StderrPipe()
 	if err != nil {
-		return errors.Wrapf(err, execFailedOnStderrMsg, cmd.Path)
+		return errors.Wrap(err, execFailedOnStderrMsg)
 	}
 
-	// Start indicator
-	shutdownCh := make(chan struct{})
-	go indicator(shutdownCh)
-	defer close(shutdownCh) // Signal indicator() to terminate
+	// Start indicator if required
+	if runIndicator {
+		shutdownCh := make(chan struct{})
+		go indicator(shutdownCh)
+		defer close(shutdownCh) // Signal indicator() to terminate
+	}
 
 	// Start the process without waiting for it to finish
 	if err = cmd.Start(); err != nil {
-		return errors.Wrapf(err, execFailedOnStartMsg, cmd.Path)
+		return err
 	}
 
 	// Wait for the process to finish in a goroutine. We wait until it finishes or termination is requested via terminateCh.
@@ -118,13 +124,13 @@ func executeCommand(cmd *exec.Cmd, terminateCh <-chan struct{}) error {
 		// Note: this waits until the process finishes or an error occurs.
 		scanout, scanerr := scanner(stdout, stderr)
 
-		if scanerr.Err() != nil {
-			finishedCh <- errors.Wrapf(err, execFailedOnScanMsg, cmd.Path)
+		if err := scanerr.Err(); err != nil {
+			finishedCh <- errors.Wrap(err, execFailedOnScanerrMsg)
 			return
 		}
 
-		if scanout.Err() != nil {
-			finishedCh <- errors.Wrapf(err, execFailedOnErrorGetMsg, cmd.Path)
+		if err := scanout.Err(); err != nil {
+			finishedCh <- errors.Wrap(err, execFailedOnScanoutMsg)
 			return
 		}
 
@@ -135,7 +141,7 @@ func executeCommand(cmd *exec.Cmd, terminateCh <-chan struct{}) error {
 	select {
 	case err = <-finishedCh:
 		if err != nil {
-			return errors.Wrapf(err, execFailedOnFinishMsg, cmd.Path)
+			return err
 		}
 	case <-terminateCh:
 		// Kill the process. We don't care if an error occurs here, we did our best and it doesn't affect the user.

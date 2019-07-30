@@ -1,5 +1,5 @@
 # Create folder for build artifacts
-MTR_DIR := $(shell mbt execute prepare)
+MTR_DIR := $(shell $(MBT) execute prepare)
 # Determine OS cores
 {{- range OsCore }}
 {{ .NPROCS  }}
@@ -21,19 +21,19 @@ modules = {{- range .File.Modules}} {{.Name}}{{end}}
 {{.Name}}:
 {{"\t"}}cd $(PROJ_DIR)/{{.Path}} && {{with $cmds := CommandProvider1 .}}{{range $i, $cmd:=$cmds.Command}}{{if gt $i 0 }} && {{end}}{{.}}{{end}}{{end}}
 # Pack module build artifacts
-{{"\t"}}@mbt execute pack $(MTR_DIR) {{.Path}} {{.Name}}
+{{"\t"}}@$(MBT) execute pack $(MTR_DIR) {{.Path}} {{.Name}}
 {{end}}
 # Create META-INF folder with MANIFEST.MF & mtad.yaml
 meta:
-{{"\t"}}@mbt execute meta $(MTR_DIR)
+{{"\t"}}@$(MBT) execute meta $(MTR_DIR)
 
 # Pack as MTAR artifact
 mtar: $(modules) meta
-{{"\t"}}@mbt execute mtar $(MTR_DIR) $(PROJ_DIR)
+{{"\t"}}@$(MBT) execute mtar $(MTR_DIR) $(PROJ_DIR)
 
 cleanup: mtar
 # Remove tmp folder
-{{"\t"}}@mbt execute clean $(MTR_DIR)
+{{"\t"}}@$(MBT) execute clean $(MTR_DIR)
 
 # Print available cores for parallel execution
 cores:

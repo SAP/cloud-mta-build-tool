@@ -40,7 +40,7 @@ For more information, see the corresponding [`Download` and `Installation` secti
 
 ```go
 // Executes the MTA project build for the Cloud Foundry target environment.
-mbt build -p=cf
+mbt build
 
 ```
 
@@ -53,7 +53,7 @@ Generates a temporary `Makefile` according to the MTA descriptor and runs the `m
 
 | Flag        | Mandatory&nbsp;/<br>Optional        | Description&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                 | Examples&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                                    
 | -----------  | -------       |  ----------                          |  -----------------------------
-| `-p (--platform)`   | Mandatory  | The name of the target deployment platform. <br>The supported deployment platforms are: <ul><li>`cf` for SAP Cloud Platform Cloud Foundry environment  <li>`neo` for the SAP Cloud Platform Neo environment <li>`xsa` for the SAP HANA XS advanced model                              | `mbt build -p=cf`
+| `-p (--platform)`   | Optional  | The name of the target deployment platform. <br>The supported deployment platforms are: <ul><li>`cf` for SAP Cloud Platform Cloud Foundry environment  <li>`neo` for the SAP Cloud Platform Neo environment <li>`xsa` for the SAP HANA XS advanced model</ul> If this parameter is not provided, the project is built for the SAP Cloud Platform Cloud Foundry environment                             | `mbt build -p=cf`
 | `-s (--source)`   | Optional  | The path to the MTA project; the current path is set as the default.                              | `mbt build -p=cf -s=C:/TestProject`
 | `-t (--target)`   | Optional  | The folder for the generated `MTAR` file. If this parameter is not provided, the `MTAR` file is saved in the `mta_archives` subfolder of the current folder. If the parameter is provided, the `MTAR` file is saved in the root of the folder provided by the argument.  | `mbt build -p=cf -t=C:/TestProject`
 | `--mtar`   | Optional  | The file name of the generated archive file. If this parameter is omitted, the file name is created according to the following naming convention: <br><br> `<mta_application_ID>_<mta_application_version>.mtar` <br><br> If the parameter is provided, but does not include an extension, the `.mtar` extension is added.  | `mbt build -p=cf --mtar=TestProject.mtar`
