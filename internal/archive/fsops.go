@@ -109,7 +109,7 @@ func CloseFile(file io.Closer, err error) error {
 func walk(sourcePath string, baseDir string, archive *zip.Writer, ignore map[string]interface{}) error {
 
 	// pack files of source into archive
-	return filepath.Walk(sourcePath, func(path string, info os.FileInfo, err error) (e error) {
+	return filepath.Walk(sourcePath, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
@@ -118,7 +118,7 @@ func walk(sourcePath string, baseDir string, archive *zip.Writer, ignore map[str
 			if info.IsDir() {
 				return filepath.SkipDir
 			}
-			return
+			return nil
 		}
 
 		// Don't add the base folder to the zip
@@ -128,7 +128,7 @@ func walk(sourcePath string, baseDir string, archive *zip.Writer, ignore map[str
 				pathWithSlash += string(os.PathSeparator)
 			}
 			if pathWithSlash == baseDir {
-				return
+				return nil
 			}
 		}
 
@@ -140,38 +140,42 @@ func walk(sourcePath string, baseDir string, archive *zip.Writer, ignore map[str
 			pathInZip += "/"
 		}
 
-		header, err := zip.FileInfoHeader(info)
-		if err != nil {
-			return err
-		}
-
-		if !info.IsDir() {
-			header.Method = zip.Deflate
-		}
-		header.Name = pathInZip
-
-		// add new header and file to archive
-		writer, err := archive.CreateHeader(header)
-		if err != nil {
-			return err
-		}
-
-		if info.IsDir() {
-			return nil
-		}
-
-		file, err := os.Open(path)
-		if err != nil {
-			return err
-		}
-		defer func() {
-			e = CloseFile(file, e)
-		}()
-
-		_, err = io.Copy(writer, file)
-
-		return err
+		return addToArchive(path, pathInZip, info, archive)
 	})
+}
+
+func addToArchive(path string, pathInZip string, info os.FileInfo, archive *zip.Writer) (e error) {
+	header, err := zip.FileInfoHeader(info)
+	if err != nil {
+		return err
+	}
+
+	header.Name = pathInZip
+	if !info.IsDir() {
+		header.Method = zip.Deflate
+	}
+
+	// add new header and file to archive
+	writer, err := archive.CreateHeader(header)
+	if err != nil {
+		return err
+	}
+
+	if info.IsDir() {
+		return nil
+	}
+
+	file, err := os.Open(path)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		e = CloseFile(file, e)
+	}()
+
+	_, err = io.Copy(writer, file)
+
+	return err
 }
 
 // CreateFile - create new file
