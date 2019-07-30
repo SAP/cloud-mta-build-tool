@@ -163,8 +163,8 @@ var _ = Describe("Integration - CloudMtaBuildTool", func() {
 				}
 				Ω(err).Should(Equal(""))
 
-				// Check the MTAR was generates
-				validateMtaArchiveContents([]string{"node-js/data.zip"}, filepath.Join(path, "mta_archives", "mta_demo_0.0.1.mtar"))
+				// Check the MTAR was generated
+				validateMtaArchiveContents([]string{"node/", "node/data.zip", "node-js/", "node-js/data.zip"}, filepath.Join(path, "mta_archives", "mta_demo_0.0.1.mtar"))
 			})
 
 			It("MBT build - wrong platform", func() {
@@ -250,7 +250,7 @@ modules:
 `))
 			Ω(e).Should(Succeed())
 			Ω(actual).Should(Equal(expected))
-			validateMtaArchiveContents([]string{"node-js/data.zip"}, filepath.Join(path, "mta_archives", "mta_demo_0.0.1.mtar"))
+			validateMtaArchiveContents([]string{"node/", "node/data.zip", "node-js/", "node-js/data.zip"}, filepath.Join(path, "mta_archives", "mta_demo_0.0.1.mtar"))
 		})
 		It("Generate MTAR for mta_java", func() {
 
@@ -295,7 +295,7 @@ modules:
 			//`))
 			//			Ω(e).Should(Succeed())
 			//			Ω(actual).Should(Equal(expected))
-			//			validateMtaArchiveContents([]string{"META-INF/MANIFEST.MF", "META-INF/mtad.yaml", "myModule/java-xsahaa-1.1.2.war"}, filepath.Join(path, "mta_archives", "com.fetcher.project_0.0.1.mtar"))
+			//			validateMtaArchiveContents([]string{"myModule/", "myModule/java-xsahaa-1.1.2.war"}, filepath.Join(path, "mta_archives", "com.fetcher.project_0.0.1.mtar"))
 		})
 	})
 
@@ -365,10 +365,18 @@ modules:
 	var _ = Describe("Assemble MTAR", func() {
 		var currentWorkingDirectory string
 		var mtaAssemblePath string
-		It("Assemble MTAR", func() {
+
+		BeforeEach(func() {
 			currentWorkingDirectory, _ = os.Getwd()
 			mtaAssemblePath = currentWorkingDirectory + filepath.FromSlash("/testdata/mta_assemble")
+		})
 
+		AfterEach(func() {
+			Ω(os.RemoveAll(filepath.Join(mtaAssemblePath, "mta.assembly.example.mtar"))).Should(Succeed())
+			os.Chdir(currentWorkingDirectory)
+		})
+
+		It("Assemble MTAR", func() {
 			bin := filepath.FromSlash(binPath)
 			cmdOut, err, _ := execute(bin, "assemble", mtaAssemblePath)
 			Ω(err).Should(Equal(""))
@@ -380,9 +388,12 @@ modules:
 			Ω(cmdOut).Should(ContainSubstring("the MTA archive generated at: " + filepath.Join(mtaAssemblePath, "mta_archives", "mta.assembly.example_1.3.3.mtar") + "\n"))
 			Ω(cmdOut).Should(ContainSubstring("cleaning temporary files..." + "\n"))
 			Ω(filepath.Join(mtaAssemblePath, "mta_archives", "mta.assembly.example_1.3.3.mtar")).Should(BeAnExistingFile())
-			validateMtaArchiveContents([]string{"META-INF/mtad.yaml", "META-INF/MANIFEST.MF", "node.zip", "xs-security.json"}, filepath.Join(mtaAssemblePath, "mta_archives", "mta.assembly.example_1.3.3.mtar"))
-			os.Remove(filepath.Join(mtaAssemblePath, "mta.assembly.example.mtar"))
-			os.Chdir(currentWorkingDirectory)
+			validateMtaArchiveContents([]string{
+				"node.zip", "xs-security.json",
+				"node/", "node/.eslintrc", "node/.eslintrc.ext", "node/.gitignore", "node/.npmrc", "node/jest.json", "node/package.json", "node/runTest.js", "node/server.js",
+				"node/.che/", "node/.che/project.json",
+				"node/tests/", "node/tests/sample-spec.js",
+			}, filepath.Join(mtaAssemblePath, "mta_archives", "mta.assembly.example_1.3.3.mtar"))
 		})
 	})
 })
@@ -409,18 +420,21 @@ func getFileContentFromZip(path string, filename string) ([]byte, error) {
 	return nil, fmt.Errorf(`file "%s" not found`, filename)
 }
 
-func validateMtaArchiveContents(expectedFilesInArchive []string, archiveLocation string) {
+func validateMtaArchiveContents(expectedAdditionalFilesInArchive []string, archiveLocation string) {
+	expectedFilesInArchive := append(expectedAdditionalFilesInArchive, "META-INF/", "META-INF/MANIFEST.MF", "META-INF/mtad.yaml")
 	archiveReader, err := zip.OpenReader(archiveLocation)
-	Ω(err).Should(BeNil())
+	Ω(err).Should(Succeed())
 	defer archiveReader.Close()
 	var filesInArchive []string
 	for _, file := range archiveReader.File {
 		filesInArchive = append(filesInArchive, file.Name)
 	}
 	for _, expectedFile := range expectedFilesInArchive {
-		Ω(contains(expectedFile, filesInArchive)).Should(BeTrue())
+		Ω(contains(expectedFile, filesInArchive)).Should(BeTrue(), fmt.Sprintf("expected %s to be in the archive; archive contains %v", expectedFile, filesInArchive))
 	}
-
+	for _, existingFile := range filesInArchive {
+		Ω(contains(existingFile, expectedFilesInArchive)).Should(BeTrue(), fmt.Sprintf("did not expect %s to be in the archive; archive contains %v", existingFile, filesInArchive))
+	}
 }
 
 func contains(element string, elements []string) bool {

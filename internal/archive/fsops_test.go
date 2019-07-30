@@ -1,7 +1,9 @@
 package dir
 
 import (
+	"archive/zip"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -64,10 +66,10 @@ var _ = Describe("FSOPS", func() {
 		var targetFilePath = getFullPath("testdata", "arch.mbt")
 
 		AfterEach(func() {
-			os.RemoveAll(targetFilePath)
+			Ω(os.RemoveAll(targetFilePath)).Should(Succeed())
 		})
 
-		var _ = DescribeTable("Archive", func(source, target string, ignore []string, fails bool) {
+		var _ = DescribeTable("Archive", func(source, target string, ignore []string, fails bool, expectedFiles []string) {
 
 			err := Archive(source, target, ignore)
 			if fails {
@@ -75,21 +77,40 @@ var _ = Describe("FSOPS", func() {
 			} else {
 				Ω(err).Should(Succeed())
 				Ω(target).Should(BeAnExistingFile())
+				validateArchiveContents(expectedFiles, target)
 			}
 		},
 			Entry("Sanity",
-				getFullPath("testdata", "mtahtml5"), targetFilePath, nil, false),
+				getFullPath("testdata", "mtahtml5"), targetFilePath, nil, false, []string{
+					"mta.sh", "mta.yaml",
+					"ui5app/", "ui5app/Gruntfile.js",
+					"ui5app/webapp/", "ui5app/webapp/Component.js", "ui5app/webapp/index.html",
+					"ui5app/webapp/controller/", "ui5app/webapp/controller/View1.controller.js",
+					"ui5app/webapp/css/", "ui5app/webapp/css/style.css",
+					"ui5app/webapp/i18n/", "ui5app/webapp/i18n/i18n.properties",
+					"ui5app/webapp/model/", "ui5app/webapp/model/models.js",
+					"ui5app/webapp/view/", "ui5app/webapp/view/View1.view.xml",
+				}),
 			Entry("Target is folder",
-				getFullPath("testdata", "mtahtml5"), getFullPath("testdata"), nil, true),
+				getFullPath("testdata", "mtahtml5"), getFullPath("testdata"), nil, true, nil),
 			Entry("Sanity - ignore folder",
-				getFullPath("testdata", "testproject"), targetFilePath, []string{"ui5app/"}, false),
+				getFullPath("testdata", "testproject"), targetFilePath, []string{"ui5app/"}, false, []string{
+					"cf-mtaext.yaml", "mta.sh", "mta.yaml",
+				}),
 			Entry("Sanity - ignore file",
-				getFullPath("testdata", "testproject"), targetFilePath, []string{"ui5app/Gr*.js"}, false),
+				getFullPath("testdata", "testproject"), targetFilePath, []string{"ui5app/Gr*.js"}, false, []string{
+					"cf-mtaext.yaml", "mta.sh", "mta.yaml",
+					"ui5app/",
+					"ui5app/webapp/", "ui5app/webapp/Component.js", "ui5app/webapp/index.html",
+					"ui5app/webapp/controller/", "ui5app/webapp/controller/View1.controller.js",
+					"ui5app/webapp/model/", "ui5app/webapp/model/models.js",
+					"ui5app/webapp/view/", "ui5app/webapp/view/View1.view.xml",
+				}),
 			Entry("SourceIsNotFolder",
-				getFullPath("testdata", "level2", "level2_one.txt"), targetFilePath, nil, false),
+				getFullPath("testdata", "level2", "level2_one.txt"), targetFilePath, nil, false, []string{"level2_one.txt"}),
 			Entry("Target is empty string",
-				getFullPath("testdata", "mtahtml5"), "", nil, true),
-			Entry("Source is empty string", "", "", nil, true),
+				getFullPath("testdata", "mtahtml5"), "", nil, true, nil),
+			Entry("Source is empty string", "", "", nil, true, nil),
 		)
 	})
 
@@ -378,4 +399,29 @@ func (f *testCloser) Close() error {
 		return errors.New("failed to close")
 	}
 	return nil
+}
+
+func validateArchiveContents(expectedFilesInArchive []string, archiveLocation string) {
+	archiveReader, err := zip.OpenReader(archiveLocation)
+	Ω(err).Should(Succeed())
+	defer archiveReader.Close()
+	var filesInArchive []string
+	for _, file := range archiveReader.File {
+		filesInArchive = append(filesInArchive, file.Name)
+	}
+	for _, expectedFile := range expectedFilesInArchive {
+		Ω(contains(expectedFile, filesInArchive)).Should(BeTrue(), fmt.Sprintf("expected %s to be in the archive; archive contains %v", expectedFile, filesInArchive))
+	}
+	for _, existingFile := range filesInArchive {
+		Ω(contains(existingFile, expectedFilesInArchive)).Should(BeTrue(), fmt.Sprintf("did not expect %s to be in the archive; archive contains %v", existingFile, filesInArchive))
+	}
+}
+
+func contains(element string, elements []string) bool {
+	for _, el := range elements {
+		if el == element {
+			return true
+		}
+	}
+	return false
 }
