@@ -2,7 +2,6 @@ package artifacts
 
 import (
 	"fmt"
-	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -45,40 +44,7 @@ func ExecuteGenMtad(source, target, platform string, wdGetter func() (string, er
 		return errors.Wrap(err, "generation of the MTAD file failed when initializing the location")
 	}
 
-	// validate platform
-	platform, err = validatePlatform(platform)
-	if err != nil {
-		return err
-	}
-
-	// get mta object
-	mtaStr, err := loc.ParseFile()
-	if err != nil {
-		return errors.Wrapf(err, genMTADParsingMsg, loc.GetMtaYamlFilename())
-	}
-
-	// get extension object if defined
-	mtaExt, err := loc.ParseExtFile(platform)
-	if err != nil {
-		return errors.Wrapf(err, genMTADParsingMsg, loc.GetMtaExtYamlPath(platform))
-	}
-
-	// merge mta and extension objects
-	mta.Merge(mtaStr, mtaExt)
-	// init mtad object from the extended mta
-	removeUndeployedModules(mtaStr, platform)
-
-	err = dir.CreateDirIfNotExist(loc.GetMetaPath())
-	if err != nil {
-		return err
-	}
-
-	err = removeBuildParamsFromMta(loc, mtaStr)
-	if err != nil {
-		return err
-	}
-
-	return genMtad(mtaStr, &mtadLoc{target}, false, platform, yaml.Marshal)
+	return executeGenMetaByLocation(loc, &mtadLoc{target}, platform, false)
 }
 
 func validatePlatform(platform string) (string, error) {
