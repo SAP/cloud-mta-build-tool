@@ -22,11 +22,10 @@ const (
 	populationMsg                 = `could not generate the manifest file when populating the content`
 	contentTypeCfgMsg             = `could not generate the manifest file when getting the content types from the configuration`
 
-	genMetaParsingMsg    = `could not generate metadata when parsing the MTA file`
+	genMetaParsingMsg    = `could not generate metadata when parsing the "%s" file`
 	genMetaPopulatingMsg = `could not generate metadata when populating the manifest file`
 	genMetaMTADMsg       = `could not generate metadata when generating the MTAD file`
 
-	genMTADParsingMsg     = `could not generate the MTAD file when parsing the "%s" file`
 	genMTADTypeTypeCnvMsg = `could not generate the MTAD file when converting types according to the "%s" platform`
 	genMTADMarshMsg       = `could not generate the MTAD file when marshalling the MTAD object`
 	genMTADWriteMsg       = `could not generate the MTAD file when writing`

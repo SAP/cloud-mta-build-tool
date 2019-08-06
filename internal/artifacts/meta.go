@@ -18,67 +18,68 @@ func ExecuteGenMeta(source, target, desc, platform string, wdGetter func() (stri
 	if err != nil {
 		return errors.Wrap(err, "failed to generate metadata when initializing the location")
 	}
+	return executeGenMetaByLocation(loc, loc, platform, true)
+}
+
+func executeGenMetaByLocation(loc *dir.Loc, targetArtifacts dir.ITargetArtifacts, platform string, createMetaInf bool) error {
 	// validate platform
-	platform, err = validatePlatform(platform)
+	platform, err := validatePlatform(platform)
 	if err != nil {
 		return err
 	}
 
-	err = dir.CreateDirIfNotExist(loc.GetMetaPath())
+	err = dir.CreateDirIfNotExist(targetArtifacts.GetMetaPath())
 	if err != nil {
 		return err
 	}
 
-	err = generateMeta(loc, loc, loc, loc, loc.IsDeploymentDescriptor(), platform)
-	if err != nil {
-		return err
-	}
-	return nil
+	err = generateMeta(loc, targetArtifacts, loc.IsDeploymentDescriptor(), platform, createMetaInf)
+	return err
 }
 
 // generateMeta - generate metadata artifacts
-func generateMeta(parser dir.IMtaParser, source dir.ISourceModule, ep dir.ITargetArtifacts, targetPathGetter dir.ITargetPath,
-	deploymentDescriptor bool, platform string) error {
+func generateMeta(loc *dir.Loc, targetArtifacts dir.ITargetArtifacts, deploymentDescriptor bool, platform string, createMetaInf bool) error {
 
 	// parse MTA file
-	m, err := parser.ParseFile()
+	m, err := loc.ParseFile()
 	if err != nil {
-		return errors.Wrap(err, genMetaParsingMsg)
+		return errors.Wrapf(err, genMetaParsingMsg, loc.GetMtaYamlFilename())
 	}
-	// read MTA extension file
-	mExt, err := parser.ParseExtFile(platform)
-	if err == nil {
-		// merge MTA with extension
-		mta.Merge(m, mExt)
+	// parse MTA extension file
+	mExt, err := loc.ParseExtFile(platform)
+	if err != nil {
+		return errors.Wrapf(err, genMetaParsingMsg, loc.GetMtaExtYamlPath(platform))
 	}
+
+	// merge MTA with extension
+	mta.Merge(m, mExt)
 
 	removeUndeployedModules(m, platform)
 	// Generate meta info dir with required content
-	err = genMetaInfo(source, ep, targetPathGetter, deploymentDescriptor, platform, m)
-	if err != nil {
-		return err
-	}
-	return nil
+	err = genMetaInfo(loc, targetArtifacts, loc, deploymentDescriptor, platform, m, createMetaInf)
+	return err
 }
 
 // genMetaInfo generates a MANIFEST.MF file and updates the build artifacts paths for deployment purposes.
 func genMetaInfo(source dir.ISourceModule, ep dir.ITargetArtifacts, targetPathGetter dir.ITargetPath, deploymentDesc bool,
-	platform string, mtaStr *mta.MTA) (rerr error) {
+	platform string, mtaStr *mta.MTA, createMetaInf bool) (rerr error) {
 
-	// Set the MANIFEST.MF file
-	err := setManifestDesc(source, ep, targetPathGetter, deploymentDesc, mtaStr.Modules, mtaStr.Resources)
-	if err != nil {
-		return errors.Wrap(err, genMetaPopulatingMsg)
+	if createMetaInf {
+		// Set the MANIFEST.MF file
+		err := setManifestDesc(source, ep, targetPathGetter, deploymentDesc, mtaStr.Modules, mtaStr.Resources)
+		if err != nil {
+			return errors.Wrap(err, genMetaPopulatingMsg)
+		}
 	}
 
 	if !deploymentDesc {
-		err = removeBuildParamsFromMta(targetPathGetter, mtaStr)
+		err := removeBuildParamsFromMta(targetPathGetter, mtaStr)
 		if err != nil {
 			return err
 		}
 	}
 
-	err = genMtad(mtaStr, ep, deploymentDesc, platform, yaml.Marshal)
+	err := genMtad(mtaStr, ep, deploymentDesc, platform, yaml.Marshal)
 	if err != nil {
 		return errors.Wrap(err, genMetaMTADMsg)
 	}
