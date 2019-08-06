@@ -25,7 +25,7 @@ func (loc *mtadLoc) GetMtadPath() string {
 }
 
 func (loc *mtadLoc) GetMetaPath() string {
-	return loc.path
+	return filepath.Clean(loc.path)
 }
 
 func (loc *mtadLoc) GetManifestPath() string {
