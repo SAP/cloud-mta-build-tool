@@ -63,7 +63,7 @@ func Archive(sourcePath, targetArchivePath string, ignore []string) (e error) {
 	if info.IsDir() {
 		baseDir = sourcePath
 	} else {
-		baseDir = filepath.Base(sourcePath)
+		baseDir = filepath.Dir(sourcePath)
 	}
 
 	if !strings.HasSuffix(baseDir, string(os.PathSeparator)) {
@@ -109,7 +109,7 @@ func CloseFile(file io.Closer, err error) error {
 func walk(sourcePath string, baseDir string, archive *zip.Writer, ignore map[string]interface{}) error {
 
 	// pack files of source into archive
-	return filepath.Walk(sourcePath, func(path string, info os.FileInfo, err error) (e error) {
+	return filepath.Walk(sourcePath, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
@@ -118,47 +118,58 @@ func walk(sourcePath string, baseDir string, archive *zip.Writer, ignore map[str
 			if info.IsDir() {
 				return filepath.SkipDir
 			}
-			return
-		}
-
-		header, err := zip.FileInfoHeader(info)
-		if err != nil {
-			return err
-		}
-
-		if baseDir != "" {
-			// care of UNIX-style separators of path in header
-			header.Name = filepath.ToSlash(getRelativePath(path, baseDir))
-		}
-
-		if info.IsDir() {
-			header.Name += "/"
-		} else {
-			header.Method = zip.Deflate
-		}
-
-		// add new header and file to archive
-		writer, err := archive.CreateHeader(header)
-		if err != nil {
-			return err
-		}
-
-		if info.IsDir() {
 			return nil
 		}
 
-		file, err := os.Open(path)
-		if err != nil {
-			return err
+		// Don't add the base folder to the zip
+		if info.IsDir() && filepath.Clean(path) == filepath.Clean(baseDir) {
+			return nil
 		}
-		defer func() {
-			e = CloseFile(file, e)
-		}()
 
-		_, err = io.Copy(writer, file)
+		// Path in zip should be with slashes (in all operating systems)
+		pathInZip := filepath.ToSlash(getRelativePath(path, baseDir))
 
-		return err
+		// Folders must end with "/"
+		if info.IsDir() {
+			pathInZip += "/"
+		}
+
+		return addToArchive(path, pathInZip, info, archive)
 	})
+}
+
+func addToArchive(path string, pathInZip string, info os.FileInfo, archive *zip.Writer) (e error) {
+	header, err := zip.FileInfoHeader(info)
+	if err != nil {
+		return err
+	}
+
+	header.Name = pathInZip
+	if !info.IsDir() {
+		header.Method = zip.Deflate
+	}
+
+	// add new header and file to archive
+	writer, err := archive.CreateHeader(header)
+	if err != nil {
+		return err
+	}
+
+	if info.IsDir() {
+		return nil
+	}
+
+	file, err := os.Open(path)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		e = CloseFile(file, e)
+	}()
+
+	_, err = io.Copy(writer, file)
+
+	return err
 }
 
 // CreateFile - create new file
@@ -412,6 +423,9 @@ func changeTargetMode(source, target string) error {
 
 // getRelativePath - Remove the basePath from the fullPath and get only the relative
 func getRelativePath(fullPath, basePath string) string {
+	if basePath == "" {
+		return fullPath
+	}
 	return strings.TrimPrefix(fullPath, basePath)
 }
 
