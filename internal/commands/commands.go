@@ -72,22 +72,36 @@ func getOpts(module *mta.Module, optsParamName string) map[string]string {
 	options := module.BuildParams[optsParamName]
 	optionsMap := make(map[string]string)
 	if options != nil {
-		optionsMap = convert(options.(map[interface{}]interface{}))
+		optionsMapS, ok := options.(map[string]interface{})
+		if !ok {
+			optionsMapS = ConvertMap(options.(map[interface{}]interface{}))
+		}
+		optionsMap = convert(optionsMapS)
 	}
 
 	return optionsMap
 }
 
-// Convert type map[interface{}]interface{} to map[string]string
-func convert(m map[interface{}]interface{}) map[string]string {
+// Convert type map[string]interface{} to map[string]string
+func convert(m map[string]interface{}) map[string]string {
 	res := make(map[string]string)
-	for key, value := range m {
-		strKey := key.(string)
+	for strKey, value := range m {
 		strValue := ""
 		if value != nil {
 			strValue = value.(string)
 		}
 		res[strKey] = strValue
+	}
+
+	return res
+}
+
+// ConvertMap converts type map[interface{}]interface{} to map[string]interface{}
+func ConvertMap(m map[interface{}]interface{}) map[string]interface{} {
+	res := make(map[string]interface{})
+	for key, value := range m {
+		strKey := key.(string)
+		res[strKey] = value
 	}
 
 	return res

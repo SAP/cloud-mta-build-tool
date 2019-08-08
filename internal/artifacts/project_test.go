@@ -8,7 +8,6 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"gopkg.in/yaml.v3"
 
 	"github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta-build-tool/internal/commands"
@@ -208,19 +207,11 @@ builders:
 			commands.BuilderTypeConfig = buildersCfg
 		})
 		Context("pre & post builder commands", func() {
-			oMta := &mta.MTA{}
-			BeforeEach(func() {
+			It("parses pre and post commands", func() {
 				mtaFile, _ := ioutil.ReadFile("./testdata/mta/mta.yaml")
-				Ω(yaml.Unmarshal(mtaFile, oMta)).Should(Succeed())
-			})
-		})
-		Context("pre & post builder commands - no builders defined", func() {
-			oMta := &mta.MTA{}
-			BeforeEach(func() {
-				mtaFile, _ := ioutil.ReadFile("./testdata/mta/mta.yaml")
-				Ω(yaml.Unmarshal(mtaFile, oMta)).Should(Succeed())
-				oMta.BuildParams.BeforeAll = nil
-				oMta.BuildParams.AfterAll = nil
+				var err error
+				_, err = mta.Unmarshal(mtaFile)
+				Ω(err).Should(Succeed())
 			})
 		})
 	})

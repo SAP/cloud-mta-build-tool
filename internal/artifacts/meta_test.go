@@ -8,7 +8,6 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"
-	"gopkg.in/yaml.v2"
 
 	"github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta-build-tool/internal/platform"
@@ -70,32 +69,32 @@ modules:
 `)
 
 		It("Sanity", func() {
-			m := mta.MTA{}
-			Ω(yaml.Unmarshal(mtaSingleModule, &m)).Should(Succeed())
+			m, err := mta.Unmarshal(mtaSingleModule)
+			Ω(err).Should(Succeed())
 			createDirInTmpFolder("testproject", "htmlapp")
 			createFileInTmpFolder("testproject", "htmlapp", "data.zip")
 			createDirInTmpFolder("testproject", "META-INF")
-			Ω(genMetaInfo(&ep, &ep, &ep, ep.IsDeploymentDescriptor(), "cf", &m, true)).Should(Succeed())
+			Ω(genMetaInfo(&ep, &ep, &ep, ep.IsDeploymentDescriptor(), "cf", m, true)).Should(Succeed())
 			Ω(ep.GetManifestPath()).Should(BeAnExistingFile())
 			Ω(ep.GetMtadPath()).Should(BeAnExistingFile())
 		})
 
 		It("Meta creation fails - fails on conversion by platform", func() {
-			m := mta.MTA{}
-			Ω(yaml.Unmarshal(mtaSingleModule, &m)).Should(Succeed())
+			m, err := mta.Unmarshal(mtaSingleModule)
+			Ω(err).Should(Succeed())
 			createDirInTmpFolder("testproject", "app")
 			createDirInTmpFolder("testproject", "META-INF")
 			cfg := platform.PlatformConfig
 			platform.PlatformConfig = []byte(`very bad config`)
-			Ω(genMetaInfo(&ep, &ep, &ep, ep.IsDeploymentDescriptor(), "cf", &m, true)).Should(HaveOccurred())
+			Ω(genMetaInfo(&ep, &ep, &ep, ep.IsDeploymentDescriptor(), "cf", m, true)).Should(HaveOccurred())
 			platform.PlatformConfig = cfg
 		})
 
 		It("Fails on create file for manifest path", func() {
 			loc := testLoc{ep}
-			m := mta.MTA{}
-			Ω(yaml.Unmarshal(mtaSingleModule, &m)).Should(Succeed())
-			Ω(genMetaInfo(&loc, &ep, &ep, ep.IsDeploymentDescriptor(), "cf", &m, true)).Should(HaveOccurred())
+			m, err := mta.Unmarshal(mtaSingleModule)
+			Ω(err).Should(Succeed())
+			Ω(genMetaInfo(&loc, &ep, &ep, ep.IsDeploymentDescriptor(), "cf", m, true)).Should(HaveOccurred())
 		})
 
 		var _ = Describe("Fails on setManifestDesc", func() {
@@ -117,9 +116,9 @@ cli_version:["x"]
 			})
 
 			It("Fails on get version", func() {
-				m := mta.MTA{}
-				Ω(yaml.Unmarshal(mtaSingleModule, &m)).Should(Succeed())
-				Ω(genMetaInfo(&ep, &ep, &ep, ep.IsDeploymentDescriptor(), "cf", &m, true)).Should(HaveOccurred())
+				m, err := mta.Unmarshal(mtaSingleModule)
+				Ω(err).Should(Succeed())
+				Ω(genMetaInfo(&ep, &ep, &ep, ep.IsDeploymentDescriptor(), "cf", m, true)).Should(HaveOccurred())
 			})
 		})
 	})
