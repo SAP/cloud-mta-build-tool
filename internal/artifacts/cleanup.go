@@ -13,7 +13,7 @@ import (
 func ExecuteCleanup(source, target, desc string, wdGetter func() (string, error)) error {
 	logs.Logger.Info(cleanupMsg)
 	// Remove temp folder
-	loc, err := dir.Location(source, target, desc, wdGetter)
+	loc, err := dir.Location(source, target, desc, nil, wdGetter)
 	if err != nil {
 		return errors.Wrap(err, cleanupFailedOnLocMsg)
 	}

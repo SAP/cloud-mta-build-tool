@@ -79,16 +79,16 @@ makefile_version: 0.0.0
 				Ω(os.RemoveAll(filepath.Join(wd, "testdata", "Makefile.mta"))).Should(Succeed())
 			})
 			It("Sanity", func() {
-				Ω(ExecuteMake(filepath.Join(wd, "testdata"), filepath.Join(wd, "testdata"), makefile, "", os.Getwd, true)).Should(Succeed())
+				Ω(ExecuteMake(filepath.Join(wd, "testdata"), filepath.Join(wd, "testdata"), nil, makefile, "", os.Getwd, true)).Should(Succeed())
 				Ω(filepath.Join(wd, "testdata", "Makefile.mta")).Should(BeAnExistingFile())
 			})
 			It("Fails on location initialization", func() {
-				Ω(ExecuteMake("", filepath.Join(wd, "testdata"), makefile, "", func() (string, error) {
+				Ω(ExecuteMake("", filepath.Join(wd, "testdata"), nil, makefile, "", func() (string, error) {
 					return "", errors.New("err")
 				}, true)).Should(HaveOccurred())
 			})
 			It("Fails on wrong mode", func() {
-				Ω(ExecuteMake(filepath.Join(wd, "testdata"), filepath.Join(wd, "testdata"), makefile, "wrong", os.Getwd, true)).Should(HaveOccurred())
+				Ω(ExecuteMake(filepath.Join(wd, "testdata"), filepath.Join(wd, "testdata"), nil, makefile, "wrong", os.Getwd, true)).Should(HaveOccurred())
 			})
 		})
 
@@ -103,33 +103,33 @@ makefile_version: 0.0.0
 		})
 		It("Sanity", func() {
 			ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata"), TargetPath: filepath.Join(wd, "testdata"), Descriptor: "dev"}
-			Ω(makeFile(&ep, &ep, makeFileName, &tpl, true)).Should(Succeed())
+			Ω(makeFile(&ep, &ep, nil, makeFileName, &tpl, true)).Should(Succeed())
 			Ω(makeFileFullPath).Should(BeAnExistingFile())
 			Ω(getMakeFileContent(makeFileFullPath)).Should(Equal(expectedMakeFileContent))
 		})
 		It("Create make file in folder that does not exist", func() {
 			ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata"), TargetPath: filepath.Join(wd, "testdata", "someFolder"), Descriptor: "dev"}
-			Ω(makeFile(&ep, &ep, makeFileName, &tpl, true)).Should(Succeed())
+			Ω(makeFile(&ep, &ep, nil, makeFileName, &tpl, true)).Should(Succeed())
 			filename := filepath.Join(ep.GetTarget(), makeFileName)
 			Ω(filename).Should(BeAnExistingFile())
 			Ω(getMakeFileContent(filename)).Should(Equal(expectedMakeFileContent))
 		})
 		It("genMakefile testing with wrong mta yaml file", func() {
 			ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata"), TargetPath: filepath.Join(wd, "testdata"), MtaFilename: "xxx.yaml"}
-			Ω(genMakefile(&ep, &ep, &ep, makefile, "", true)).Should(HaveOccurred())
+			Ω(genMakefile(&ep, &ep, &ep, nil, makefile, "", true)).Should(HaveOccurred())
 		})
 		It("genMakefile testing with wrong target folder (file path)", func() {
 			ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata"), TargetPath: filepath.Join(wd, "testdata", "mta.yaml"), MtaFilename: "xxx.yaml"}
-			Ω(genMakefile(&ep, &ep, &ep, makefile, "", true)).Should(HaveOccurred())
+			Ω(genMakefile(&ep, &ep, &ep, nil, makefile, "", true)).Should(HaveOccurred())
 		})
 		It("genMakefile testing with wrong mode", func() {
 			ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata")}
-			Ω(genMakefile(&ep, &ep, &ep, makefile, "wrongMode", true)).Should(HaveOccurred())
+			Ω(genMakefile(&ep, &ep, &ep, nil, makefile, "wrongMode", true)).Should(HaveOccurred())
 		})
 
 		DescribeTable("generate module build in verbose make file", func(mtaFileName, moduleName, expectedModuleCommandsGen string) {
 			ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata", "modulegen"), TargetPath: filepath.Join(wd, "testdata"), Descriptor: "dev", MtaFilename: mtaFileName}
-			Ω(makeFile(&ep, &ep, makeFileName, &tpl, true)).Should(Succeed())
+			Ω(makeFile(&ep, &ep, nil, makeFileName, &tpl, true)).Should(Succeed())
 			Ω(makeFileFullPath).Should(BeAnExistingFile())
 			makefileContent := getMakeFileContent(makeFileFullPath)
 
@@ -155,7 +155,7 @@ makefile_version: 0.0.0
 		wd, _ := os.Getwd()
 		testTemplate, _ := ioutil.ReadFile(filepath.Join(wd, "testdata", testTemplateFilename))
 		ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata"), TargetPath: filepath.Join(wd, "testdata")}
-		Ω(makeFile(&ep, &ep, makeFileName, &tplCfg{relPath: testPath, tplContent: testTemplate, preContent: basePreVerbose, postContent: basePost, depDesc: "dev"}, true)).Should(HaveOccurred())
+		Ω(makeFile(&ep, &ep, nil, makeFileName, &tplCfg{relPath: testPath, tplContent: testTemplate, preContent: basePreVerbose, postContent: basePost, depDesc: "dev"}, true)).Should(HaveOccurred())
 	},
 		Entry("Wrong Template", "testdata", filepath.Join("testdata", "WrongMakeTmpl.txt")),
 		Entry("Yaml not exists", "testdata1", "make_default.txt"),

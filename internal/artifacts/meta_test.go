@@ -26,7 +26,7 @@ var _ = Describe("Meta", func() {
 
 		It("Sanity", func() {
 			createMtahtml5TmpFolder()
-			Ω(ExecuteGenMeta(getTestPath("mtahtml5"), getResultPath(), "dev", "CF", os.Getwd)).Should(Succeed())
+			Ω(ExecuteGenMeta(getTestPath("mtahtml5"), getResultPath(), "dev", nil, "CF", os.Getwd)).Should(Succeed())
 			Ω(getFullPathInTmpFolder("mtahtml5", "META-INF", "MANIFEST.MF")).Should(BeAnExistingFile())
 			Ω(getFullPathInTmpFolder("mtahtml5", "META-INF", "mtad.yaml")).Should(BeAnExistingFile())
 		})
@@ -34,12 +34,12 @@ var _ = Describe("Meta", func() {
 		It("Fails on META-INF folder creation", func() {
 			createDirInTmpFolder("mtahtml5")
 			createFileInTmpFolder("mtahtml5", "META-INF")
-			err := ExecuteGenMeta(getTestPath("mtahtml5"), getResultPath(), "dev", "CF", os.Getwd)
+			err := ExecuteGenMeta(getTestPath("mtahtml5"), getResultPath(), "dev", nil, "CF", os.Getwd)
 			checkError(err, dir.FolderCreationFailedMsg, getFullPathInTmpFolder("mtahtml5", "META-INF"))
 		})
 
 		It("Wrong location - fails on Working directory get", func() {
-			err := ExecuteGenMeta("", "", "dev", "cf", func() (string, error) {
+			err := ExecuteGenMeta("", "", "dev", nil, "cf", func() (string, error) {
 				return "", errors.New("error of working dir get")
 			})
 			checkError(err, "error of working dir get")
@@ -47,12 +47,12 @@ var _ = Describe("Meta", func() {
 		It("Wrong platform", func() {
 			createDirInTmpFolder("mtahtml5", "ui5app2")
 			createDirInTmpFolder("mtahtml5", "testapp")
-			err := ExecuteGenMeta(getTestPath("mtahtml5"), getResultPath(), "dev", "xx", os.Getwd)
+			err := ExecuteGenMeta(getTestPath("mtahtml5"), getResultPath(), "dev", nil, "xx", os.Getwd)
 			checkError(err, invalidPlatformMsg, "xx")
 		})
 		It("generateMeta fails on wrong source path - parse mta fails", func() {
-			err := ExecuteGenMeta(getTestPath("mtahtml6"), getResultPath(), "dev", "cf", os.Getwd)
-			checkError(err, genMetaParsingMsg, "mta.yaml")
+			err := ExecuteGenMeta(getTestPath("mtahtml6"), getResultPath(), "dev", nil, "cf", os.Getwd)
+			checkError(err, dir.ReadFailedMsg, getTestPath("mtahtml6", "mta.yaml"))
 		})
 	})
 

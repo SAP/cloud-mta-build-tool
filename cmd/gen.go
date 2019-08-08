@@ -11,12 +11,14 @@ import (
 // mtad command flags
 var mtadCmdSrc string
 var mtadCmdTrg string
+var mtadCmdExtensions []string
 var mtadCmdPlatform string
 
 // meta command flags
 var metaCmdSrc string
 var metaCmdTrg string
 var metaCmdDesc string
+var metaExtensions []string
 var metaCmdPlatform string
 
 // mtar command flags
@@ -24,6 +26,7 @@ var mtarCmdSrc string
 var mtarCmdTrg string
 var mtarCmdDesc string
 var mtarCmdTrgProvided string
+var mtarCmdExtensions []string
 var mtarCmdMtarName string
 
 // init - inits flags of init command
@@ -34,6 +37,8 @@ func init() {
 		"the path to the MTA project; the current path is set as the default")
 	mtadCmd.Flags().StringVarP(&mtadCmdTrg, "target", "t",
 		"", "the path to the MBT results folder; the current path is set as the default")
+	mtadCmd.Flags().StringSliceVarP(&mtadCmdExtensions, "extensions", "e", nil,
+		"the MTA extension descriptors")
 	mtadCmd.Flags().StringVarP(&mtadCmdPlatform, "platform", "p", "cf",
 		`the deployment platform; supported platforms: "cf" (default value), "xsa", "neo"`)
 	mtadCmd.Flags().BoolP("help", "h", false, `prints detailed information about the "mtad" command`)
@@ -45,6 +50,8 @@ func init() {
 		"the path to the MBT results folder; the current path is set as the default")
 	metaCmd.Flags().StringVarP(&metaCmdDesc, "desc", "d", "",
 		`the MTA descriptor; supported values: "dev" (development descriptor, default value) and "dep" (deployment descriptor)`)
+	metaCmd.Flags().StringSliceVarP(&metaExtensions, "extensions", "e", nil,
+		"the MTA extension descriptors")
 	metaCmd.Flags().StringVarP(&metaCmdPlatform, "platform", "p", "cf",
 		`the deployment platform; supported platforms: "cf" (default value), "xsa", "neo"`)
 	metaCmd.Flags().BoolP("help", "h", false, `prints detailed information about the "meta" command`)
@@ -56,11 +63,13 @@ func init() {
 		"the path to the MBT results folder; the current path is set as the default")
 	mtarCmd.Flags().StringVarP(&mtarCmdDesc, "desc", "d", "",
 		`the MTA descriptor; supported values: "dev" (development descriptor, default value) and "dep" (deployment descriptor)`)
+	mtarCmd.Flags().StringSliceVarP(&mtarCmdExtensions, "extensions", "e", nil,
+		"the MTA extension descriptors")
 	mtarCmd.Flags().StringVarP(&mtarCmdMtarName, "mtar", "m", "*",
 		"the archive name")
 	mtarCmd.Flags().StringVarP(&mtarCmdTrgProvided, "target_provided", "", "",
 		"the MTA target provided indicator; supported values: true, false")
-	mtarCmd.Flags().MarkHidden("target_provided")
+	_ = mtarCmd.Flags().MarkHidden("target_provided")
 	mtarCmd.Flags().BoolP("help", "h", false, `prints detailed information about the "mtar" command`)
 
 }
@@ -72,7 +81,7 @@ var mtadCmd = &cobra.Command{
 	Long:  "Generates deployment descriptor (mtad.yaml) from development descriptor (mta.yaml)",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		err := artifacts.ExecuteGenMtad(mtadCmdSrc, mtadCmdTrg, mtadCmdPlatform, os.Getwd)
+		err := artifacts.ExecuteGenMtad(mtadCmdSrc, mtadCmdTrg, mtadCmdExtensions, mtadCmdPlatform, os.Getwd)
 		logError(err)
 		return err
 	},
@@ -87,7 +96,7 @@ var metaCmd = &cobra.Command{
 	Long:  "Generates META-INF folder with manifest and MTAD files",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		err := artifacts.ExecuteGenMeta(metaCmdSrc, metaCmdTrg, metaCmdDesc, metaCmdPlatform, os.Getwd)
+		err := artifacts.ExecuteGenMeta(metaCmdSrc, metaCmdTrg, metaCmdDesc, metaExtensions, metaCmdPlatform, os.Getwd)
 		logError(err)
 		return err
 	},
@@ -103,7 +112,7 @@ var mtarCmd = &cobra.Command{
 	Long:  "Generates MTA archive from the folder with all artifacts",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		err := artifacts.ExecuteGenMtar(mtarCmdSrc, mtarCmdTrg, mtarCmdTrgProvided, mtarCmdDesc, mtarCmdMtarName, os.Getwd)
+		err := artifacts.ExecuteGenMtar(mtarCmdSrc, mtarCmdTrg, mtarCmdTrgProvided, mtarCmdDesc, mtadCmdExtensions, mtarCmdMtarName, os.Getwd)
 		logError(err)
 		return err
 	},

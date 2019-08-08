@@ -124,13 +124,13 @@ func executeCommand(cmd *exec.Cmd, terminateCh <-chan struct{}, runIndicator boo
 		// Note: this waits until the process finishes or an error occurs.
 		scanout, scanerr := scanner(stdout, stderr)
 
-		if err := scanerr.Err(); err != nil {
-			finishedCh <- errors.Wrap(err, execFailedOnScanerrMsg)
+		if err1 := scanerr.Err(); err1 != nil {
+			finishedCh <- errors.Wrap(err1, execFailedOnScanerrMsg)
 			return
 		}
 
-		if err := scanout.Err(); err != nil {
-			finishedCh <- errors.Wrap(err, execFailedOnScanoutMsg)
+		if err2 := scanout.Err(); err2 != nil {
+			finishedCh <- errors.Wrap(err2, execFailedOnScanoutMsg)
 			return
 		}
 

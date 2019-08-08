@@ -25,4 +25,13 @@ const (
 	ReadFailedMsg = `could not read the "%s" file`
 
 	folderCreatedMsg = `the "%s" folder has been created`
+
+	parseExtFileFailed = `the "%s" file is not a valid MTA extension descriptor`
+	// ParseMtaYamlFileFailedMsg - parse of mta yaml file failed
+	ParseMtaYamlFileFailedMsg = `the "%s" file is not a valid MTA descriptor`
+	extensionIDSameAsMtaIDMsg = `the "%s" extension descriptor file has the same ID "%s" as the "%s" file`
+	duplicateExtensionIDMsg   = `more than 1 extension descriptor file ("%s", "%s", ...) has the same ID "%s"`
+	duplicateExtendsMsg       = `more than 1 extension descriptor file ("%s", "%s", ...) extends the same ID "%s"`
+	extendsMsg                = `file "%s" extends "%s"`
+	unknownExtendsMsg         = `some MTA extension descriptors extend unknown IDs: %s`
 )

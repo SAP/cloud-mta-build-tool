@@ -16,6 +16,7 @@ var cleanupCmdDesc string
 
 var validateCmdSrc string
 var validateCmdDesc string
+var validateCmdExtensions []string
 var validateCmdMode string
 var validateCmdStrict string
 var validateCmdExclude string
@@ -53,6 +54,8 @@ func init() {
 		`the validation mode; supported values: "schema", "semantic" (default)`)
 	validateCmd.Flags().StringVarP(&validateCmdDesc, "desc", "d", "",
 		`the MTA descriptor; supported values: "dev" (development descriptor, default value) and "dep" (deployment descriptor)`)
+	validateCmd.Flags().StringSliceVarP(&validateCmdExtensions, "extensions", "x", nil,
+		"the MTA extension descriptors")
 	validateCmd.Flags().StringVarP(&validateCmdStrict, "strict", "r", "true",
 		`if set to true, duplicated fields and fields not defined in the "mta.yaml" schema are reported as errors; if set to false, they are reported as warnings`)
 	validateCmd.Flags().StringVarP(&validateCmdExclude, "exclude", "e", "",
@@ -122,7 +125,7 @@ var validateCmd = &cobra.Command{
 	Long:  "MBT validation",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		err := artifacts.ExecuteValidation(validateCmdSrc, validateCmdDesc, validateCmdMode, validateCmdStrict, validateCmdExclude, os.Getwd)
+		err := artifacts.ExecuteValidation(validateCmdSrc, validateCmdDesc, validateCmdExtensions, validateCmdMode, validateCmdStrict, validateCmdExclude, os.Getwd)
 		logError(err)
 		return err
 	},

@@ -21,9 +21,9 @@ const (
 )
 
 // ExecuteBuild - executes build of module
-func ExecuteBuild(source, target, moduleName, platform string, wdGetter func() (string, error)) error {
+func ExecuteBuild(source, target string, extensions []string, moduleName, platform string, wdGetter func() (string, error)) error {
 	logs.Logger.Infof(buildMsg, moduleName)
-	loc, err := dir.Location(source, target, dir.Dev, wdGetter)
+	loc, err := dir.Location(source, target, dir.Dev, extensions, wdGetter)
 	if err != nil {
 		return errors.Wrapf(err, buildFailedMsg, moduleName)
 	}
@@ -40,10 +40,10 @@ func ExecuteBuild(source, target, moduleName, platform string, wdGetter func() (
 }
 
 // ExecutePack - executes packing of module
-func ExecutePack(source, target, moduleName, platform string, wdGetter func() (string, error)) error {
+func ExecutePack(source, target string, extensions []string, moduleName, platform string, wdGetter func() (string, error)) error {
 	logs.Logger.Infof(packMsg, moduleName)
 
-	loc, err := dir.Location(source, target, dir.Dev, wdGetter)
+	loc, err := dir.Location(source, target, dir.Dev, extensions, wdGetter)
 	if err != nil {
 		return errors.Wrapf(err, packFailedOnLocMsg, moduleName)
 	}
@@ -182,16 +182,16 @@ func convert(data []interface{}) []string {
 
 // CopyMtaContent copies the content of all modules and resources which are presented in the deployment descriptor,
 // in the source directory, to the target directory
-func CopyMtaContent(source, target string, copyInParallel bool, wdGetter func() (string, error)) error {
+func CopyMtaContent(source, target string, extensions []string, copyInParallel bool, wdGetter func() (string, error)) error {
 
 	logs.Logger.Info(copyStartMsg)
-	loc, err := dir.Location(source, target, dir.Dep, wdGetter)
+	loc, err := dir.Location(source, target, dir.Dep, extensions, wdGetter)
 	if err != nil {
 		return errors.Wrap(err, copyContentFailedOnLocMsg)
 	}
 	mtaObj, err := loc.ParseFile()
 	if err != nil {
-		return errors.Wrapf(err, copyContentFailedOnParseMsg, loc.GetMtaYamlPath())
+		return errors.Wrapf(err, copyContentFailedMsg)
 	}
 	err = copyModuleContent(loc.GetSource(), loc.GetTargetTmpDir(), mtaObj, copyInParallel)
 	if err != nil {
@@ -247,7 +247,7 @@ func copyMtaContent(source, target string, mtaPaths []string, copyInParallel boo
 		targetMtaContent := filepath.Join(target, mtaPath)
 		err := copyMtaContentFromPath(sourceMtaContent, targetMtaContent, mtaPath, target, copyInParallel)
 		if err != nil {
-			return handleCopyMtaContentFailure(target, copiedMtaContents, copyContentFailedMsg, []interface{}{mtaPath, source, err.Error()})
+			return handleCopyMtaContentFailure(target, copiedMtaContents, copyContentCopyFailedMsg, []interface{}{mtaPath, source, err.Error()})
 		}
 		logs.Logger.Debugf(copyDoneMsg, mtaPath)
 	}

@@ -1,17 +1,17 @@
 # Create META-INF folder with MANIFEST.MF & mtad.yaml
 meta: $(modules) post_build
-{{"\t"}}@$(MBT) gen meta -p=${p} -t=${t}
+{{"\t"}}@$(MBT) gen meta -p=${p} -t=${t} {{- ExtensionsArg "-e"}}
 
 post_build: $(modules)
-{{"\t"}}@$(MBT) project build -p=post
+{{"\t"}}@$(MBT) project build -p=post {{- ExtensionsArg "-e"}}
 
 # Validate mta.yaml
 validate: pre_build
-{{"\t"}}@$(MBT) validate -r=${strict}
+{{"\t"}}@$(MBT) validate -r=${strict} {{- ExtensionsArg "-x"}}
 
 # Pack as MTAR artifact
 mtar: $(modules) meta
-{{"\t"}}@$(MBT) gen mtar -t=${t} --mtar=${mtar} --target_provided=${target_provided}
+{{"\t"}}@$(MBT) gen mtar -t=${t} --mtar=${mtar} --target_provided=${target_provided} {{- ExtensionsArg "-e"}}
 
 cleanup: mtar
 # Remove tmp folder

@@ -333,7 +333,7 @@ var _ = Describe("FSOPS", func() {
 				path:     getFullPath("testdata", "testproject", "mta.yaml"),
 				err:      nil,
 			}
-			res, resErr := ReadExt(&test, "cf")
+			res, resErr := ReadExt(&test, "mta.yaml") // TODO use extension file
 			Ω(res).ShouldNot(BeNil())
 			Ω(resErr).Should(BeNil())
 		})
