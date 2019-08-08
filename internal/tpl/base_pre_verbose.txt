@@ -7,7 +7,7 @@
 all: pre_validate pre_build validate {{- range .File.Modules}} {{.Name}}{{end}} meta mtar cleanup
 # Validate mta.yaml
 pre_validate:
-{{"\t"}}@$(MBT) validate -r=${strict} -e="paths" {{- ExtensionsArg "-x"}}
+{{"\t"}}@$(MBT) validate -r=${strict} -x="paths" {{- ExtensionsArg "-e"}}
 
 pre_build: pre_validate
 {{"\t"}}@$(MBT) project build -p=pre {{- ExtensionsArg "-e"}}

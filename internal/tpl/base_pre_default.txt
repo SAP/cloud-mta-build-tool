@@ -10,7 +10,7 @@ cores:
 {{"\t"}}{{ OsCore.MAKEFLAGS  }}
 # Validate mta.yaml
 pre_validate:
-{{"\t"}}@$(MBT) validate -r=${strict} -e="paths" {{- ExtensionsArg "-x"}}
+{{"\t"}}@$(MBT) validate -r=${strict} -x="paths" {{- ExtensionsArg "-e"}}
 pre_build: pre_validate
 {{"\t"}}@$(MBT) project build -p=pre {{- ExtensionsArg "-e"}}
 

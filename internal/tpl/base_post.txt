@@ -7,7 +7,7 @@ post_build: $(modules)
 
 # Validate mta.yaml
 validate: pre_build
-{{"\t"}}@$(MBT) validate -r=${strict} {{- ExtensionsArg "-x"}}
+{{"\t"}}@$(MBT) validate -r=${strict} {{- ExtensionsArg "-e"}}
 
 # Pack as MTAR artifact
 mtar: $(modules) meta

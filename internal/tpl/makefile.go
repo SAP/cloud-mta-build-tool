@@ -84,15 +84,15 @@ func makeFile(mtaParser dir.IMtaParser, loc dir.ITargetPath, extensionFilePaths 
 	// Template data
 	data.File = *m
 
+	// path for creating the file
+	target := loc.GetTarget()
+	path := filepath.Join(target, tpl.relPath)
+
 	// Create maps of the template method's
-	t, err := mapTpl(tpl.tplContent, tpl.preContent, tpl.postContent, useDefaultMbt, extensionFilePaths)
+	t, err := mapTpl(tpl.tplContent, tpl.preContent, tpl.postContent, useDefaultMbt, extensionFilePaths, path)
 	if err != nil {
 		return errors.Wrapf(err, genFailedOnTmplMapMsg, makeFilename)
 	}
-	// path for creating the file
-	target := loc.GetTarget()
-
-	path := filepath.Join(target, tpl.relPath)
 	// Create genMakefile file for the template
 	mf, err := createMakeFile(path, makeFilename)
 	defer func() {
@@ -123,7 +123,7 @@ func getMbtPath(useDefaultMbt bool) string {
 }
 
 //noinspection GoUnusedParameter
-func mapTpl(templateContent []byte, BasePreContent []byte, BasePostContent []byte, useDefaultMbt bool, extensions []string) (*template.Template, error) {
+func mapTpl(templateContent []byte, BasePreContent []byte, BasePostContent []byte, useDefaultMbt bool, extensions []string, makefileDir string) (*template.Template, error) {
 	funcMap := template.FuncMap{
 		"CommandProvider": func(modules mta.Module) (commands.CommandList, error) {
 			cmds, _, err := commands.CommandProvider(modules)
@@ -138,7 +138,17 @@ func mapTpl(templateContent []byte, BasePreContent []byte, BasePostContent []byt
 			if len(extensions) == 0 {
 				return ""
 			}
-			return fmt.Sprintf(` %s="%s"`, argName, strings.Join(extensions, ","))
+			// We want to use a path relative to the makefile if possible, instead of an absolute pah
+			relExtPaths := make([]string, len(extensions))
+			for i, ext := range extensions {
+				relPath, err := filepath.Rel(makefileDir, ext)
+				if err != nil {
+					// Use the original path if the relative path can't be determined
+					relPath = ext
+				}
+				relExtPaths[i] = filepath.Join("$(CURDIR)", relPath)
+			}
+			return fmt.Sprintf(` %s="%s"`, argName, strings.Join(relExtPaths, ","))
 		},
 	}
 	fullTemplate := append(baseArgs, BasePreContent...)

@@ -54,11 +54,11 @@ func init() {
 		`the validation mode; supported values: "schema", "semantic" (default)`)
 	validateCmd.Flags().StringVarP(&validateCmdDesc, "desc", "d", "",
 		`the MTA descriptor; supported values: "dev" (development descriptor, default value) and "dep" (deployment descriptor)`)
-	validateCmd.Flags().StringSliceVarP(&validateCmdExtensions, "extensions", "x", nil,
+	validateCmd.Flags().StringSliceVarP(&validateCmdExtensions, "extensions", "e", nil,
 		"the MTA extension descriptors")
 	validateCmd.Flags().StringVarP(&validateCmdStrict, "strict", "r", "true",
 		`if set to true, duplicated fields and fields not defined in the "mta.yaml" schema are reported as errors; if set to false, they are reported as warnings`)
-	validateCmd.Flags().StringVarP(&validateCmdExclude, "exclude", "e", "",
+	validateCmd.Flags().StringVarP(&validateCmdExclude, "exclude", "x", "",
 		`list of excluded semantic validations; supported validations: "paths", "names", "requires"`)
 	validateCmd.Flags().BoolP("help", "h", false, `prints detailed information about the "validate" command`)
 
