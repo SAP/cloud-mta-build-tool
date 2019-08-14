@@ -102,8 +102,7 @@ version: 0.0.1
 
 build-parameters:
   before-all:
-    builders:
-      - builder: npm
+    - builder: npm
 
 modules:
  ...
@@ -170,7 +169,16 @@ You can define your own build commands by configuring a `custom` builder as foll
      
 ```
 
-When used for configuring a module builder, you can omit the `commands` parameters; then no build is performed and the module's root folder or a folder specified in the `build-result` is packaged into the MTA archive.
+When used for configuring a module builder, you can leave the `commands` parameter list empty:
+
+```yaml
+
+- name: my_module
+  build-parameters:
+      builder: custom
+      commands: []
+```
+In this case, no build is performed and the module's root folder or a folder specified in the `build-result` is packaged into the MTA archive.
 
 #### Configuring module build artifacts to package into MTA archive
 You can configure the following build parameters to define artifacts to package into the MTA archive for the specific module:
