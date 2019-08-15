@@ -118,21 +118,21 @@ var _ = Describe("Provide", func() {
 	It("Valid path to yaml", func() {
 
 		out := executeAndProvideOutput(func() {
-			Ω(ProvideModules(filepath.Join("testdata", "mtahtml5"), "dev", os.Getwd)).Should(Succeed())
+			Ω(ProvideModules(filepath.Join("testdata", "mtahtml5"), "dev", nil, os.Getwd)).Should(Succeed())
 		})
 		Ω(out).Should(ContainSubstring("[ui5app ui5app2]"))
 	})
 
 	It("Invalid path to yaml", func() {
-		Ω(ProvideModules(filepath.Join("testdata", "mtahtml6"), "dev", os.Getwd)).Should(HaveOccurred())
+		Ω(ProvideModules(filepath.Join("testdata", "mtahtml6"), "dev", nil, os.Getwd)).Should(HaveOccurred())
 	})
 
 	It("Invalid modules dependencies", func() {
-		Ω(ProvideModules(filepath.Join("testdata", "testWithWrongBuildParams"), "dev", os.Getwd)).Should(HaveOccurred())
+		Ω(ProvideModules(filepath.Join("testdata", "testWithWrongBuildParams"), "dev", nil, os.Getwd)).Should(HaveOccurred())
 	})
 
 	It("Invalid working folder getter", func() {
-		Ω(ProvideModules("", "dev", func() (string, error) {
+		Ω(ProvideModules("", "dev", nil, func() (string, error) {
 			return "", errors.New("err")
 		})).Should(HaveOccurred())
 	})

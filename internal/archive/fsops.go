@@ -447,6 +447,6 @@ func readFile(file string) ([]byte, error) {
 }
 
 // ReadExt returns mta extension byte slice.
-func ReadExt(ep IMtaExtYaml, platform string) ([]byte, error) {
-	return readFile(ep.GetMtaExtYamlPath(platform))
+func ReadExt(ep IMtaExtYaml, extFileName string) ([]byte, error) {
+	return readFile(ep.GetMtaExtYamlPath(extFileName))
 }

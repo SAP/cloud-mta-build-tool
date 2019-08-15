@@ -329,11 +329,11 @@ var _ = Describe("FSOPS", func() {
 	var _ = Describe("ReadExt", func() {
 		It("Sanity", func() {
 			test := testMtaYamlStr{
-				fullpath: getFullPath("testdata", "testproject", "mta.yaml"),
-				path:     getFullPath("testdata", "testproject", "mta.yaml"),
+				fullpath: getFullPath("testdata", "testext", "mta.yaml"),
+				path:     getFullPath("testdata", "testext", "mta.yaml"),
 				err:      nil,
 			}
-			res, resErr := ReadExt(&test, "cf")
+			res, resErr := ReadExt(&test, "cf-mtaext.yaml")
 			Ω(res).ShouldNot(BeNil())
 			Ω(resErr).Should(BeNil())
 		})

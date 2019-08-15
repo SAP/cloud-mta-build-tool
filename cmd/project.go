@@ -10,6 +10,7 @@ import (
 
 var projectBuildCmdSrc string
 var projectBuildCmdDesc string
+var projectBuildCmdExtensions []string
 var projectBuildCmdPhase string
 
 func init() {
@@ -17,6 +18,8 @@ func init() {
 		"source", "s", "", "the path to the MTA project; the current path is set as the default")
 	projectBuildCmd.Flags().StringVarP(&projectBuildCmdDesc,
 		"desc", "d", "", `the MTA descriptor; supported values: "dev" (development descriptor, default value) and "dep" (deployment descriptor)`)
+	projectBuildCmd.Flags().StringSliceVarP(&projectBuildCmdExtensions, "extensions", "e", nil,
+		"the MTA extension descriptors")
 	projectBuildCmd.Flags().StringVarP(&projectBuildCmdPhase,
 		"phase", "p", "", `the project build phase; supported values: "pre" and "post"`)
 }
@@ -27,7 +30,7 @@ var projectBuildCmd = &cobra.Command{
 	Short: "Run the MTA project pre and post build commands",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		err := artifacts.ExecuteProjectBuild(projectBuildCmdSrc, projectBuildCmdDesc, projectBuildCmdPhase, os.Getwd)
+		err := artifacts.ExecuteProjectBuild(projectBuildCmdSrc, projectBuildCmdDesc, projectBuildCmdExtensions, projectBuildCmdPhase, os.Getwd)
 		logError(err)
 		return err
 	},

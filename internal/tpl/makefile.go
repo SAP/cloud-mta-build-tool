@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"text/template"
 
 	"github.com/kballard/go-shellquote"
@@ -26,13 +27,13 @@ type tplCfg struct {
 }
 
 // ExecuteMake - generate makefile
-func ExecuteMake(source, target, name, mode string, wdGetter func() (string, error), useDefaultMbt bool) error {
+func ExecuteMake(source, target string, extensions []string, name, mode string, wdGetter func() (string, error), useDefaultMbt bool) error {
 	logs.Logger.Infof(`generating the "%s" file...`, name)
-	loc, err := dir.Location(source, target, dir.Dev, wdGetter)
+	loc, err := dir.Location(source, target, dir.Dev, extensions, wdGetter)
 	if err != nil {
 		return errors.Wrapf(err, genFailedOnInitLocMsg, name)
 	}
-	err = genMakefile(loc, loc, loc, name, mode, useDefaultMbt)
+	err = genMakefile(loc, loc, loc, loc.GetExtensionFilePaths(), name, mode, useDefaultMbt)
 	if err != nil {
 		return err
 	}
@@ -41,15 +42,14 @@ func ExecuteMake(source, target, name, mode string, wdGetter func() (string, err
 }
 
 // genMakefile - Generate the makefile
-func genMakefile(mtaParser dir.IMtaParser, loc dir.ITargetPath, desc dir.IDescriptor, makeFilename, mode string, useDefaultMbt bool) error {
+func genMakefile(mtaParser dir.IMtaParser, loc dir.ITargetPath, desc dir.IDescriptor, extensionFilePaths []string, makeFilename, mode string, useDefaultMbt bool) error {
 	tpl, err := getTplCfg(mode, desc.IsDeploymentDescriptor())
 	if err != nil {
 		return err
 	}
 	if err == nil {
 		tpl.depDesc = desc.GetDescriptor()
-		// Get project working directory
-		err = makeFile(mtaParser, loc, makeFilename, &tpl, useDefaultMbt)
+		err = makeFile(mtaParser, loc, extensionFilePaths, makeFilename, &tpl, useDefaultMbt)
 	}
 	return err
 }
@@ -65,7 +65,7 @@ func (data templateData) ConvertToShellArgument(s string) string {
 }
 
 // makeFile - generate makefile form templates
-func makeFile(mtaParser dir.IMtaParser, loc dir.ITargetPath, makeFilename string, tpl *tplCfg, useDefaultMbt bool) (e error) {
+func makeFile(mtaParser dir.IMtaParser, loc dir.ITargetPath, extensionFilePaths []string, makeFilename string, tpl *tplCfg, useDefaultMbt bool) (e error) {
 
 	// template data
 	data := templateData{}
@@ -78,21 +78,21 @@ func makeFile(mtaParser dir.IMtaParser, loc dir.ITargetPath, makeFilename string
 	// ParseFile file
 	m, err := mtaParser.ParseFile()
 	if err != nil {
-		return errors.Wrapf(err, genFailedOnReadMsg, makeFilename)
+		return errors.Wrapf(err, genFailedMsg, makeFilename)
 	}
 
 	// Template data
 	data.File = *m
 
+	// path for creating the file
+	target := loc.GetTarget()
+	path := filepath.Join(target, tpl.relPath)
+
 	// Create maps of the template method's
-	t, err := mapTpl(tpl.tplContent, tpl.preContent, tpl.postContent, useDefaultMbt)
+	t, err := mapTpl(tpl.tplContent, tpl.preContent, tpl.postContent, useDefaultMbt, extensionFilePaths, path)
 	if err != nil {
 		return errors.Wrapf(err, genFailedOnTmplMapMsg, makeFilename)
 	}
-	// path for creating the file
-	target := loc.GetTarget()
-
-	path := filepath.Join(target, tpl.relPath)
 	// Create genMakefile file for the template
 	mf, err := createMakeFile(path, makeFilename)
 	defer func() {
@@ -122,8 +122,27 @@ func getMbtPath(useDefaultMbt bool) string {
 	return filepath.ToSlash(path)
 }
 
-//noinspection GoUnusedParameter
-func mapTpl(templateContent []byte, BasePreContent []byte, BasePostContent []byte, useDefaultMbt bool) (*template.Template, error) {
+func getExtensionsArg(extensions []string, makefileDirPath string, argName string) string {
+	if len(extensions) == 0 {
+		return ""
+	}
+
+	// We want to use a path relative to the makefile if possible, instead of an absolute path
+	relExtPaths := make([]string, len(extensions))
+	for i, ext := range extensions {
+		relPath, err := filepath.Rel(makefileDirPath, ext)
+		if err != nil {
+			// Use the original path if the relative path can't be determined
+			relExtPaths[i] = ext
+		} else {
+			// Note: we can't use filepath.Join because it considers $(CURDIR) to be a path part so .. will remove it
+			relExtPaths[i] = "$(CURDIR)" + string(filepath.Separator) + relPath
+		}
+	}
+	return fmt.Sprintf(` %s="%s"`, argName, strings.Join(relExtPaths, ","))
+}
+
+func mapTpl(templateContent []byte, BasePreContent []byte, BasePostContent []byte, useDefaultMbt bool, extensions []string, makefileDirPath string) (*template.Template, error) {
 	funcMap := template.FuncMap{
 		"CommandProvider": func(modules mta.Module) (commands.CommandList, error) {
 			cmds, _, err := commands.CommandProvider(modules)
@@ -133,6 +152,9 @@ func mapTpl(templateContent []byte, BasePreContent []byte, BasePostContent []byt
 		"Version": version.GetVersion,
 		"MbtPath": func() string {
 			return getMbtPath(useDefaultMbt)
+		},
+		"ExtensionsArg": func(argName string) string {
+			return getExtensionsArg(extensions, makefileDirPath, argName)
 		},
 	}
 	fullTemplate := append(baseArgs, BasePreContent...)

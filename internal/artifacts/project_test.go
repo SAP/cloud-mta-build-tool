@@ -19,25 +19,25 @@ var _ = Describe("Project", func() {
 
 	var _ = Describe("ExecuteProjectBuild", func() {
 		It("Sanity - post phase", func() {
-			err := ExecuteProjectBuild(getTestPath("mtahtml5"), "dev", "post", os.Getwd)
+			err := ExecuteProjectBuild(getTestPath("mtahtml5"), "dev", nil, "post", os.Getwd)
 			Ω(err).Should(Succeed())
 		})
 		It("wrong phase", func() {
-			err := ExecuteProjectBuild(getTestPath("mta"), "dev", "wrong phase", os.Getwd)
+			err := ExecuteProjectBuild(getTestPath("mta"), "dev", nil, "wrong phase", os.Getwd)
 			checkError(err, UnsupportedPhaseMsg, "wrong phase")
 		})
 		It("wrong location", func() {
-			err := ExecuteProjectBuild(getTestPath("mta"), "xx", "pre", func() (string, error) {
+			err := ExecuteProjectBuild(getTestPath("mta"), "xx", nil, "pre", func() (string, error) {
 				return "", fmt.Errorf("error")
 			})
 			checkError(err, dir.InvalidDescMsg, "xx")
 		})
 		It("mta.yaml not found", func() {
-			err := ExecuteProjectBuild(getTestPath("mta1"), "dev", "pre", os.Getwd)
+			err := ExecuteProjectBuild(getTestPath("mta1"), "dev", nil, "pre", os.Getwd)
 			checkError(err, dir.ReadFailedMsg, getTestPath("mta1", "mta.yaml"))
 		})
 		It("Sanity - custom builder", func() {
-			err := ExecuteProjectBuild(getTestPath("mta"), "dev", "pre", os.Getwd)
+			err := ExecuteProjectBuild(getTestPath("mta"), "dev", nil, "pre", os.Getwd)
 			Ω(err).Should(HaveOccurred())
 			Ω(err.Error()).Should(ContainSubstring(`"command1"`))
 			Ω(err.Error()).Should(ContainSubstring("failed"))
@@ -52,14 +52,14 @@ var _ = Describe("Project", func() {
 			Ω(os.RemoveAll(getTestPath("result"))).Should(Succeed())
 		})
 		It("Sanity", func() {
-			err := ExecBuild("Makefile_tmp.mta", getTestPath("mta_with_zipped_module"), getResultPath(), "", "", "cf", true, os.Getwd, func(strings [][]string, b bool) error {
+			err := ExecBuild("Makefile_tmp.mta", getTestPath("mta_with_zipped_module"), getResultPath(), nil, "", "", "cf", true, os.Getwd, func(strings [][]string, b bool) error {
 				return nil
 			}, true)
 			Ω(err).Should(Succeed())
 			Ω(filepath.Join(getResultPath(), "Makefile_tmp.mta")).ShouldNot(BeAnExistingFile())
 		})
 		It("Wrong - no platform", func() {
-			err := ExecBuild("Makefile_tmp.mta", getTestPath("mta_with_zipped_module"), getResultPath(), "", "", "", true, os.Getwd, func(strings [][]string, b bool) error {
+			err := ExecBuild("Makefile_tmp.mta", getTestPath("mta_with_zipped_module"), getResultPath(), nil, "", "", "", true, os.Getwd, func(strings [][]string, b bool) error {
 				return fmt.Errorf("failure")
 			}, true)
 			Ω(err).Should(HaveOccurred())

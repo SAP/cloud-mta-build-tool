@@ -12,9 +12,9 @@ import (
 )
 
 // ExecuteGenMeta - generates metadata
-func ExecuteGenMeta(source, target, desc, platform string, wdGetter func() (string, error)) error {
+func ExecuteGenMeta(source, target, desc string, extensions []string, platform string, wdGetter func() (string, error)) error {
 	logs.Logger.Info("generating the metadata...")
-	loc, err := dir.Location(source, target, desc, wdGetter)
+	loc, err := dir.Location(source, target, desc, extensions, wdGetter)
 	if err != nil {
 		return errors.Wrap(err, "failed to generate metadata when initializing the location")
 	}
@@ -43,16 +43,8 @@ func generateMeta(loc *dir.Loc, targetArtifacts dir.ITargetArtifacts, deployment
 	// parse MTA file
 	m, err := loc.ParseFile()
 	if err != nil {
-		return errors.Wrapf(err, genMetaParsingMsg, loc.GetMtaYamlFilename())
+		return errors.Wrapf(err, genMetaMsg)
 	}
-	// parse MTA extension file
-	mExt, err := loc.ParseExtFile(platform)
-	if err != nil {
-		return errors.Wrapf(err, genMetaParsingMsg, loc.GetMtaExtYamlPath(platform))
-	}
-
-	// merge MTA with extension
-	mta.Merge(m, mExt)
 
 	removeUndeployedModules(m, platform)
 	// Generate meta info dir with required content

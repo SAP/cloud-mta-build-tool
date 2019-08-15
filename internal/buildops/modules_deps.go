@@ -17,8 +17,8 @@ type graphNode struct {
 }
 
 // ProvideModules - provides modules in order of their dependencies
-func ProvideModules(source, desc string, wdGetter func() (string, error)) error {
-	loc, err := dir.Location(source, "", desc, wdGetter)
+func ProvideModules(source, desc string, extensions []string, wdGetter func() (string, error)) error {
+	loc, err := dir.Location(source, "", desc, extensions, wdGetter)
 	if err != nil {
 		return errors.Wrap(err, locFailedMsg)
 	}

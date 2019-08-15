@@ -4,23 +4,12 @@ version: 0.0.1
 
 build-parameters:
   before-all:
-    builders:
-      - builder: mybuilder
-        timeout: 6m30s
-        build-artifact-name: myfileName
-        options:
-          execute:
-            - command1
-            - command2
+    - builder: mybuilder
+      timeout: 6m30s
   after-all:
-    builders:
-      - builder: otherbuilder
-        timeout: 6m30s
-        build-artifact-name: myfileName
-        options:
-          execute:
-            - command1
-            - command2
+    - builder: otherbuilder
+      timeout: 6m30s
+
 modules:
   - name: node-js
     type: nodejs

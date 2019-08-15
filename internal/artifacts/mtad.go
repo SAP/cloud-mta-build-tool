@@ -37,9 +37,9 @@ func (loc *mtadLoc) GetMtarDir(targetProvided bool) string {
 }
 
 // ExecuteGenMtad - generates MTAD from MTA
-func ExecuteGenMtad(source, target, platform string, wdGetter func() (string, error)) error {
+func ExecuteGenMtad(source, target string, extensions []string, platform string, wdGetter func() (string, error)) error {
 	logs.Logger.Info("generating the MTAD file...")
-	loc, err := dir.Location(source, target, dir.Dev, wdGetter)
+	loc, err := dir.Location(source, target, dir.Dev, extensions, wdGetter)
 	if err != nil {
 		return errors.Wrap(err, "generation of the MTAD file failed when initializing the location")
 	}
