@@ -18,7 +18,7 @@ var mtadCmdPlatform string
 var metaCmdSrc string
 var metaCmdTrg string
 var metaCmdDesc string
-var metaExtensions []string
+var metaCmdExtensions []string
 var metaCmdPlatform string
 
 // mtar command flags
@@ -50,7 +50,7 @@ func init() {
 		"the path to the MBT results folder; the current path is set as the default")
 	metaCmd.Flags().StringVarP(&metaCmdDesc, "desc", "d", "",
 		`the MTA descriptor; supported values: "dev" (development descriptor, default value) and "dep" (deployment descriptor)`)
-	metaCmd.Flags().StringSliceVarP(&metaExtensions, "extensions", "e", nil,
+	metaCmd.Flags().StringSliceVarP(&metaCmdExtensions, "extensions", "e", nil,
 		"the MTA extension descriptors")
 	metaCmd.Flags().StringVarP(&metaCmdPlatform, "platform", "p", "cf",
 		`the deployment platform; supported platforms: "cf" (default value), "xsa", "neo"`)
@@ -96,7 +96,7 @@ var metaCmd = &cobra.Command{
 	Long:  "Generates META-INF folder with manifest and MTAD files",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		err := artifacts.ExecuteGenMeta(metaCmdSrc, metaCmdTrg, metaCmdDesc, metaExtensions, metaCmdPlatform, os.Getwd)
+		err := artifacts.ExecuteGenMeta(metaCmdSrc, metaCmdTrg, metaCmdDesc, metaCmdExtensions, metaCmdPlatform, os.Getwd)
 		logError(err)
 		return err
 	},

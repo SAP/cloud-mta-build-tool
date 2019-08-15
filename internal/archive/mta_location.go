@@ -272,9 +272,7 @@ func (ep *Loc) getSortedExtensions(mtaID string) ([]*mta.EXT, error) {
 	}
 
 	// Verify chain of extensions and put the extensions in a slice by extends order
-	extFiles, err := sortAndVerifyExtendsChain(extensionFileNames, mtaID, extendsMap, ep)
-
-	return extFiles, err
+	return sortAndVerifyExtendsChain(extensionFileNames, mtaID, extendsMap, ep)
 }
 
 func parseExtensionsWithDetails(extensionFileNames []string, ep *Loc) ([]extensionDetails, error) {

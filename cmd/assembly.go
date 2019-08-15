@@ -14,7 +14,7 @@ const (
 
 var assembleCmdSrc string
 var assembleCmdTrg string
-var assembleExtensions []string
+var assembleCmdExtensions []string
 var assembleCmdMtarName string
 var assembleCmdParallel string
 
@@ -26,7 +26,7 @@ var assembleCommand = &cobra.Command{
 	ValidArgs: []string{"Deployment descriptor location"},
 	Args:      cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		err := artifacts.Assembly(assembleCmdSrc, assembleCmdTrg, assembleExtensions, defaultPlatform, assembleCmdMtarName, assembleCmdParallel, os.Getwd)
+		err := artifacts.Assembly(assembleCmdSrc, assembleCmdTrg, assembleCmdExtensions, defaultPlatform, assembleCmdMtarName, assembleCmdParallel, os.Getwd)
 		logError(err)
 		return err
 	},
@@ -39,7 +39,7 @@ func init() {
 		"source", "s", "", "the path to the MTA project; the current path is set as the default")
 	assembleCommand.Flags().StringVarP(&assembleCmdTrg,
 		"target", "t", "", "the path to the MBT results folder; the current path is set as the default")
-	assembleCommand.Flags().StringSliceVarP(&assembleExtensions, "extensions", "e", nil,
+	assembleCommand.Flags().StringSliceVarP(&assembleCmdExtensions, "extensions", "e", nil,
 		"the MTA extension descriptors")
 	assembleCommand.Flags().StringVarP(&assembleCmdMtarName,
 		"mtar", "m", "", "the archive name")

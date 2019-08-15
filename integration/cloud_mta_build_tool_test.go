@@ -91,9 +91,6 @@ var _ = Describe("Integration - CloudMtaBuildTool", func() {
 			path := filepath.Join(dir, "testdata", "mta_demo")
 			bin := filepath.FromSlash(binPath)
 			_, err, _ := execute(bin, "init", path)
-			if len(err) > 0 {
-				fmt.Println(err)
-			}
 			Ω(err).Should(Equal(""))
 
 			// Check the MakeFile was generated
@@ -105,9 +102,6 @@ var _ = Describe("Integration - CloudMtaBuildTool", func() {
 			path := filepath.Join(dir, "testdata", "mta_java")
 			bin := filepath.FromSlash(binPath)
 			_, err, _ := execute(bin, "init", path)
-			if len(err) > 0 {
-				fmt.Println(err)
-			}
 			Ω(err).Should(Equal(""))
 
 			// Check the MakeFile was generated
@@ -131,11 +125,7 @@ var _ = Describe("Integration - CloudMtaBuildTool", func() {
 			path := dir + filepath.FromSlash("/testdata/mta_demo")
 			bin := filepath.FromSlash("make")
 			cmdOut, err, _ := execute(bin, "-f Makefile.mta p=cf mtar=abc t="+path, path)
-			if len(err) > 0 {
-				fmt.Println(err)
-			}
 			Ω(err).Should(Equal(""))
-			fmt.Println(cmdOut)
 			Ω(cmdOut).ShouldNot(BeEmpty())
 			// Check the archive was generated
 			Ω(filepath.Join(dir, "testdata", "mta_demo", "abc.mtar")).Should(BeAnExistingFile())
@@ -159,9 +149,6 @@ var _ = Describe("Integration - CloudMtaBuildTool", func() {
 				path := filepath.Join(dir, "testdata", "mta_demo")
 				bin := filepath.FromSlash(binPath)
 				_, err, _ := execute(bin, "build -p=cf", path)
-				if len(err) > 0 {
-					fmt.Println(err)
-				}
 				Ω(err).Should(Equal(""))
 
 				// Check the MTAR was generated
@@ -215,12 +202,8 @@ parameters:
 			dir, _ := os.Getwd()
 			path := dir + filepath.FromSlash("/testdata/mta_demo")
 			bin := filepath.FromSlash("make")
-			cmdOut, err, _ := execute(bin, "-f Makefile.mta p=cf", path)
-			if len(err) > 0 {
-				fmt.Println(err)
-			}
+			_, err, _ := execute(bin, "-f Makefile.mta p=cf", path)
 			Ω(err).Should(Equal(""))
-			fmt.Println(cmdOut)
 			// Check the archive was generated
 			mtarFilename := filepath.Join(dir, "testdata", "mta_demo", "mta_archives", demoArchiveName)
 			Ω(filepath.Join(dir, "testdata", "mta_demo", "mta_archives", demoArchiveName)).Should(BeAnExistingFile())
@@ -258,12 +241,8 @@ modules:
 			//dir, _ := os.Getwd()
 			//path := dir + filepath.FromSlash("/testdata/mta_java")
 			//bin := filepath.FromSlash("make")
-			//cmdOut, err, _ := execute(bin, "-f Makefile.mta p=cf", path)
-			//			if len(err) > 0 {
-			//				fmt.Println(err)
-			//			}
+			//_, err, _ := execute(bin, "-f Makefile.mta p=cf", path)
 			//			Ω(err).Should(Equal(""))
-			//			fmt.Println(cmdOut)
 			//			// Check the archive was generated
 			//			mtarFilename := filepath.Join(dir, "testdata", "mta_java", "mta_archives", javaArchiveName)
 			//			Ω(filepath.Join(dir, "testdata", "mta_java", "mta_archives", javaArchiveName)).Should(BeAnExistingFile())
@@ -346,9 +325,6 @@ modules:
 			It("MBT build for mta_demo with extension", func() {
 				bin := filepath.FromSlash(binPath)
 				_, err, _ := execute(bin, "build -e=ext.mtaext -p=cf", path)
-				if len(err) > 0 {
-					fmt.Println(err)
-				}
 				Ω(err).Should(Equal(""))
 				validateMtar()
 			})
@@ -356,9 +332,7 @@ modules:
 			It("MBT init and run make for mta_demo with extension - non-verbose", func() {
 				bin := filepath.FromSlash(binPath)
 				cmdOut, err, _ := execute(bin, "init -e=ext.mtaext", path)
-				if len(err) > 0 {
-					fmt.Println(err)
-				}
+				Ω(err).Should(Equal(""))
 				Ω(cmdOut).ShouldNot(BeNil())
 				// Read the MakeFile was generated
 				Ω(makefileName).Should(BeAnExistingFile())
@@ -370,9 +344,7 @@ modules:
 			It("MBT init and run make for mta_demo with extension - verbose", func() {
 				bin := filepath.FromSlash(binPath)
 				cmdOut, err, _ := execute(bin, "init -m=verbose -e=ext.mtaext", path)
-				if len(err) > 0 {
-					fmt.Println(err)
-				}
+				Ω(err).Should(Equal(""))
 				Ω(cmdOut).ShouldNot(BeNil())
 				// Read the MakeFile was generated
 				Ω(makefileName).Should(BeAnExistingFile())
@@ -392,9 +364,7 @@ modules:
 			path := filepath.Join(dir, "testdata", "mta_demo")
 			bin := filepath.FromSlash(binPath)
 			cmdOut, err, _ := execute(bin, "init -m=verbose", path)
-			if len(err) > 0 {
-				fmt.Println(err)
-			}
+			Ω(err).Should(Equal(""))
 			Ω(cmdOut).ShouldNot(BeNil())
 			// Read the MakeFile was generated
 			Ω(filepath.Join(dir, "testdata", "mta_demo", "Makefile.mta")).Should(BeAnExistingFile())
@@ -564,9 +534,6 @@ func resourceCleanup(appName string) {
 	path := dir + filepath.FromSlash("/testdata/mta_demo")
 	bin := filepath.FromSlash("cf")
 	cmdOut, err, _ := execute(bin, "delete "+appName+" -r -f", path)
-	if len(err) > 0 {
-		fmt.Println(err)
-	}
 	Ω(err).Should(Equal(""))
 	Ω(cmdOut).ShouldNot(BeEmpty())
 }

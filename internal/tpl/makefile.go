@@ -122,8 +122,28 @@ func getMbtPath(useDefaultMbt bool) string {
 	return filepath.ToSlash(path)
 }
 
-//noinspection GoUnusedParameter
-func mapTpl(templateContent []byte, BasePreContent []byte, BasePostContent []byte, useDefaultMbt bool, extensions []string, makefileDir string) (*template.Template, error) {
+func getExtensionsArg(extensions []string, makefileDirPath string, argName string) string {
+	if len(extensions) == 0 {
+		return ""
+	}
+
+	// We want to use a path relative to the makefile if possible, instead of an absolute path
+	relExtPaths := make([]string, len(extensions))
+	for i, ext := range extensions {
+		relPath, err := filepath.Rel(makefileDirPath, ext)
+		if err != nil {
+			// Use the original path if the relative path can't be determined
+			relExtPaths[i] = ext
+		} else {
+			// Note: we can't use filepath.Join because it considers $(CURDIR) to be a path part so .. will remove it
+			relExtPaths[i] = "$(CURDIR)" + string(filepath.Separator) + relPath
+		}
+	}
+	ret := fmt.Sprintf(` %s="%s"`, argName, strings.Join(relExtPaths, ","))
+	return ret
+}
+
+func mapTpl(templateContent []byte, BasePreContent []byte, BasePostContent []byte, useDefaultMbt bool, extensions []string, makefileDirPath string) (*template.Template, error) {
 	funcMap := template.FuncMap{
 		"CommandProvider": func(modules mta.Module) (commands.CommandList, error) {
 			cmds, _, err := commands.CommandProvider(modules)
@@ -135,20 +155,7 @@ func mapTpl(templateContent []byte, BasePreContent []byte, BasePostContent []byt
 			return getMbtPath(useDefaultMbt)
 		},
 		"ExtensionsArg": func(argName string) string {
-			if len(extensions) == 0 {
-				return ""
-			}
-			// We want to use a path relative to the makefile if possible, instead of an absolute pah
-			relExtPaths := make([]string, len(extensions))
-			for i, ext := range extensions {
-				relPath, err := filepath.Rel(makefileDir, ext)
-				if err != nil {
-					// Use the original path if the relative path can't be determined
-					relPath = ext
-				}
-				relExtPaths[i] = filepath.Join("$(CURDIR)", relPath)
-			}
-			return fmt.Sprintf(` %s="%s"`, argName, strings.Join(relExtPaths, ","))
+			return getExtensionsArg(extensions, makefileDirPath, argName)
 		},
 	}
 	fullTemplate := append(baseArgs, BasePreContent...)

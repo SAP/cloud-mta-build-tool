@@ -28,7 +28,6 @@ var _ = BeforeSuite(func() {
 
 func removeSpecialSymbols(b []byte) string {
 	s := string(b)
-	fmt.Println(s)
 	s = strings.Replace(s, "\r", "", -1)
 	return s
 }
@@ -180,4 +179,24 @@ makefile_version: 0.0.0
 			Ω(err).Should(MatchError(`the "test" command is not supported`))
 		})
 	})
+
+	var absPath = func(path string) string {
+		s, _ := filepath.Abs(path)
+		return s
+	}
+	sep := string(filepath.Separator)
+	DescribeTable("getExtensionsArg", func(extensions []string, makefileDirPath string, expected string) {
+		Ω(getExtensionsArg(extensions, makefileDirPath, "-e")).Should(Equal(expected))
+	},
+		Entry("empty list returns empty string", []string{}, "", ""),
+		Entry("nil returns empty string", nil, "", ""),
+		Entry("extension path is returned relative to the makefile path when it's in the same folder",
+			[]string{absPath("my.mtaext")}, absPath("."), ` -e="$(CURDIR)`+sep+`my.mtaext"`),
+		Entry("extension path is returned relative to the makefile path when it's in an inner folder",
+			[]string{absPath(filepath.Join("inner", "my.mtaext"))}, absPath("."), ` -e="$(CURDIR)`+sep+"inner"+sep+`my.mtaext"`),
+		Entry("extension path is returned relative to the makefile path when it's in an outer folder",
+			[]string{absPath("my.mtaext")}, absPath("inner"), ` -e="$(CURDIR)`+sep+".."+sep+`my.mtaext"`),
+		Entry("extension paths are separated by a comma",
+			[]string{absPath("my.mtaext"), absPath("second.mtaext")}, absPath("."), ` -e="$(CURDIR)`+sep+`my.mtaext,$(CURDIR)`+sep+`second.mtaext"`),
+	)
 })
