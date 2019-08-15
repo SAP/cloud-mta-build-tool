@@ -418,7 +418,7 @@ var _ = Describe("GetBuilder", func() {
 	It("fetcher builder defined by build params from mta.yaml", func() {
 		currDir, err := os.Getwd()
 		Ω(err).Should(Succeed())
-		loc, err := dir.Location(filepath.Join(currDir, "testdata"), "", "dev", os.Getwd)
+		loc, err := dir.Location(filepath.Join(currDir, "testdata"), "", "dev", nil, os.Getwd)
 		Ω(err).Should(Succeed())
 		loc.MtaFilename = "mtaWithFetcher.yaml"
 		m, err := loc.ParseFile()
