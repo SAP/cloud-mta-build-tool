@@ -139,8 +139,7 @@ func getExtensionsArg(extensions []string, makefileDirPath string, argName strin
 			relExtPaths[i] = "$(CURDIR)" + string(filepath.Separator) + relPath
 		}
 	}
-	ret := fmt.Sprintf(` %s="%s"`, argName, strings.Join(relExtPaths, ","))
-	return ret
+	return fmt.Sprintf(` %s="%s"`, argName, strings.Join(relExtPaths, ","))
 }
 
 func mapTpl(templateContent []byte, BasePreContent []byte, BasePostContent []byte, useDefaultMbt bool, extensions []string, makefileDirPath string) (*template.Template, error) {
