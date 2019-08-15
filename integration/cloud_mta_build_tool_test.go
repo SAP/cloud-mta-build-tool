@@ -54,7 +54,6 @@ var _ = Describe("Integration - CloudMtaBuildTool", func() {
 		Ω(os.RemoveAll(filepath.FromSlash("./testdata/mta_demo/mtad.yaml"))).Should(Succeed())
 		Ω(os.RemoveAll(filepath.FromSlash("./testdata/mta_demo/abc.mtar"))).Should(Succeed())
 		Ω(os.RemoveAll(filepath.FromSlash("./testdata/mta_demo/mta_archives"))).Should(Succeed())
-		Ω(os.RemoveAll(filepath.FromSlash("./testdata/mta_assemble/mta_archives"))).Should(Succeed())
 		Ω(os.RemoveAll(filepath.FromSlash("./testdata/mta_java/myModule/target"))).Should(Succeed())
 		Ω(os.RemoveAll(filepath.FromSlash("./testdata/mta_java/Makefile.mta"))).Should(Succeed())
 		Ω(os.RemoveAll(filepath.FromSlash("./testdata/mta_java/mtad.yaml"))).Should(Succeed())
@@ -381,8 +380,8 @@ modules:
 		It("Generate mtad", func() {
 			dir, _ := os.Getwd()
 			path := filepath.Join(dir, "testdata", "mta_demo")
-			os.MkdirAll(filepath.Join(path, ".mta_demo_mta_build_tmp", "node"), os.ModePerm)
-			os.MkdirAll(filepath.Join(path, ".mta_demo_mta_build_tmp", "node-js"), os.ModePerm)
+			Ω(os.MkdirAll(filepath.Join(path, ".mta_demo_mta_build_tmp", "node"), os.ModePerm)).Should(Succeed())
+			Ω(os.MkdirAll(filepath.Join(path, ".mta_demo_mta_build_tmp", "node-js"), os.ModePerm)).Should(Succeed())
 			bin := filepath.FromSlash(binPath)
 			_, err, _ := execute(bin, "gen mtad", path)
 			Ω(err).Should(Equal(""))
@@ -390,8 +389,26 @@ modules:
 			Ω(mtadPath).Should(BeAnExistingFile())
 			content, _ := ioutil.ReadFile(mtadPath)
 			mtadObj, _ := mta.Unmarshal(content)
+			Ω(len(mtadObj.Modules)).Should(Equal(2))
 			Ω(mtadObj.Modules[0].Type).Should(Equal("javascript.nodejs"))
 			Ω(mtadObj.Modules[1].Type).Should(Equal("javascript.nodejs"))
+		})
+
+		It("Generate mtad with mta extension", func() {
+			dir, _ := os.Getwd()
+			path := filepath.Join(dir, "testdata", "mta_demo")
+			Ω(os.MkdirAll(filepath.Join(path, ".mta_demo_mta_build_tmp", "node"), os.ModePerm)).Should(Succeed())
+			Ω(os.MkdirAll(filepath.Join(path, ".mta_demo_mta_build_tmp", "node-js"), os.ModePerm)).Should(Succeed())
+			bin := filepath.FromSlash(binPath)
+			_, err, _ := execute(bin, `gen mtad -e="ext.mtaext"`, path)
+			Ω(err).Should(Equal(""))
+			mtadPath := filepath.Join(path, "mtad.yaml")
+			Ω(mtadPath).Should(BeAnExistingFile())
+			content, _ := ioutil.ReadFile(mtadPath)
+			mtadObj, _ := mta.Unmarshal(content)
+			Ω(len(mtadObj.Modules)).Should(Equal(1))
+			Ω(mtadObj.Modules[0].Name).Should(Equal("node"))
+			Ω(mtadObj.Modules[0].Type).Should(Equal("javascript.nodejs"))
 		})
 	})
 
@@ -419,15 +436,18 @@ modules:
 	var _ = Describe("Assemble MTAR", func() {
 		var currentWorkingDirectory string
 		var mtaAssemblePath string
+		var resultMtarPath string
 
 		BeforeEach(func() {
 			currentWorkingDirectory, _ = os.Getwd()
 			mtaAssemblePath = currentWorkingDirectory + filepath.FromSlash("/testdata/mta_assemble")
+			resultMtarPath = filepath.Join(mtaAssemblePath, "mta_archives", "mta.assembly.example_1.3.3.mtar")
 		})
 
 		AfterEach(func() {
 			Ω(os.RemoveAll(filepath.Join(mtaAssemblePath, "mta.assembly.example.mtar"))).Should(Succeed())
-			os.Chdir(currentWorkingDirectory)
+			Ω(os.Chdir(currentWorkingDirectory)).Should(Succeed())
+			Ω(os.RemoveAll(filepath.FromSlash("./testdata/mta_assemble/mta_archives"))).Should(Succeed())
 		})
 
 		It("Assemble MTAR", func() {
@@ -439,15 +459,60 @@ modules:
 			Ω(cmdOut).Should(ContainSubstring("copying the MTA content..." + "\n"))
 			Ω(cmdOut).Should(ContainSubstring("generating the metadata..." + "\n"))
 			Ω(cmdOut).Should(ContainSubstring("generating the MTA archive..." + "\n"))
-			Ω(cmdOut).Should(ContainSubstring("the MTA archive generated at: " + filepath.Join(mtaAssemblePath, "mta_archives", "mta.assembly.example_1.3.3.mtar") + "\n"))
+			Ω(cmdOut).Should(ContainSubstring("the MTA archive generated at: " + resultMtarPath + "\n"))
 			Ω(cmdOut).Should(ContainSubstring("cleaning temporary files..." + "\n"))
-			Ω(filepath.Join(mtaAssemblePath, "mta_archives", "mta.assembly.example_1.3.3.mtar")).Should(BeAnExistingFile())
+			Ω(resultMtarPath).Should(BeAnExistingFile())
 			validateMtaArchiveContents([]string{
 				"node.zip", "xs-security.json",
 				"node/", "node/.eslintrc", "node/.eslintrc.ext", "node/.gitignore", "node/.npmrc", "node/jest.json", "node/package.json", "node/runTest.js", "node/server.js",
 				"node/.che/", "node/.che/project.json",
 				"node/tests/", "node/tests/sample-spec.js",
-			}, filepath.Join(mtaAssemblePath, "mta_archives", "mta.assembly.example_1.3.3.mtar"))
+			}, resultMtarPath)
+		})
+
+		It("Assemble MTAR with MTA extension", func() {
+			bin := filepath.FromSlash(binPath)
+			cmdOut, err, _ := execute(bin, fmt.Sprintf(`assemble -e="my.mtaext"`), mtaAssemblePath)
+			Ω(err).Should(Equal(""))
+			Ω(cmdOut).ShouldNot(Equal(""))
+			Ω(resultMtarPath).Should(BeAnExistingFile())
+			// TODO the assemble command copies the contents of excluded modules to the archive (unrelated to the extension files) even though
+			// the modules are removed from the mtad.yaml and manifest.mf
+			validateMtaArchiveContents([]string{
+				"node.zip", "xs-security.json",
+				"node/", "node/.eslintrc", "node/.eslintrc.ext", "node/.gitignore", "node/.npmrc", "node/jest.json", "node/package.json", "node/runTest.js", "node/server.js",
+				"node/.che/", "node/.che/project.json",
+				"node/tests/", "node/tests/sample-spec.js",
+			}, resultMtarPath)
+			mtadContent, e := getFileContentFromZip(resultMtarPath, "mtad.yaml")
+			Ω(e).Should(Succeed())
+			actual, e := mta.Unmarshal(mtadContent)
+			Ω(e).Should(Succeed())
+			expected, e := mta.Unmarshal([]byte(`
+_schema-version: "3"
+ID: mta.assembly.example
+version: 1.3.3
+modules:
+  - name: example2
+    type: javascript.nodejs
+    path: node.zip
+    provides:
+      - name: backend
+        properties:
+          url: "${default-url}"
+    requires:
+      - name: assembly-uaa
+resources:
+  - name: mta-assembly-uaa
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service: xsuaa
+      service-plan: space
+      path: xs-security.json
+
+`))
+			Ω(e).Should(Succeed())
+			Ω(actual).Should(Equal(expected))
 		})
 	})
 })
@@ -553,7 +618,7 @@ func executeEverySecond(bin string, args string, path string) (string, error str
 }
 
 // Execute commands and get outputs
-func execute(bin string, args string, path string) (string, error string, cmd *exec.Cmd) {
+func execute(bin string, args string, path string) (output string, error string, cmd *exec.Cmd) {
 	// Provide list of commands
 	cmd = exec.Command(bin, strings.Split(args, " ")...)
 	// bin path
