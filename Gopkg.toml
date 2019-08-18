@@ -26,8 +26,8 @@
 
 
 [[constraint]]
+  branch = "master"
   name = "github.com/SAP/cloud-mta"
-  branch = "0.0.5"
 
 [[constraint]]
   name = "github.com/deckarep/golang-set"
@@ -68,6 +68,3 @@
 [prune]
   go-tests = true
   unused-packages = true
-  
-  
-  
