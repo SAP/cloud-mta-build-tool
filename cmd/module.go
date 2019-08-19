@@ -11,12 +11,14 @@ import (
 // flags of pack command
 var packCmdSrc string
 var packCmdTrg string
+var packCmdExtensions []string
 var packCmdModule string
 var packCmdPlatform string
 
 // flags of build command
 var buildCmdSrc string
 var buildCmdTrg string
+var buildCmdExtensions []string
 var buildCmdModule string
 var buildCmdPlatform string
 
@@ -27,6 +29,8 @@ func init() {
 		"the path to the MTA project; the current path is is set as the default")
 	packModuleCmd.Flags().StringVarP(&packCmdTrg, "target", "t", "",
 		"the path to the MBT results folder; the current path is set as the default")
+	packModuleCmd.Flags().StringSliceVarP(&packCmdExtensions, "extensions", "e", nil,
+		"the MTA extension descriptors")
 	packModuleCmd.Flags().StringVarP(&packCmdModule, "module", "m", "",
 		"the name of the module")
 	packModuleCmd.Flags().StringVarP(&packCmdPlatform, "platform", "p", "cf",
@@ -37,6 +41,8 @@ func init() {
 		"the path to the MTA project; the current path is set as the default")
 	buildModuleCmd.Flags().StringVarP(&buildCmdTrg, "target", "t", "",
 		"the path to the MBT results folder; the current path is set as the default")
+	buildModuleCmd.Flags().StringSliceVarP(&buildCmdExtensions, "extensions", "e", nil,
+		"the MTA extension descriptors")
 	buildModuleCmd.Flags().StringVarP(&buildCmdModule, "module", "m", "",
 		"the name of the module")
 	buildModuleCmd.Flags().StringVarP(&buildCmdPlatform, "platform", "p", "cf",
@@ -50,7 +56,7 @@ var buildModuleCmd = &cobra.Command{
 	Long:  "builds module and archives its artifacts",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		err := artifacts.ExecuteBuild(buildCmdSrc, buildCmdTrg, buildCmdModule, buildCmdPlatform, os.Getwd)
+		err := artifacts.ExecuteBuild(buildCmdSrc, buildCmdTrg, buildCmdExtensions, buildCmdModule, buildCmdPlatform, os.Getwd)
 		logError(err)
 		return err
 	},
@@ -69,7 +75,7 @@ var packModuleCmd = &cobra.Command{
 	Long:  "packs the module artifacts after the build process",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		err := artifacts.ExecutePack(packCmdSrc, packCmdTrg, packCmdModule, packCmdPlatform, os.Getwd)
+		err := artifacts.ExecutePack(packCmdSrc, packCmdTrg, packCmdExtensions, packCmdModule, packCmdPlatform, os.Getwd)
 		logError(err)
 		return err
 	},

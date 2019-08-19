@@ -48,7 +48,7 @@ func getBuildRequires(module *mta.Module) []BuildRequires {
 			// cast requirement to generic map
 			reqMap, ok := reqI.(map[string]interface{})
 			if !ok {
-				reqMap = convert(reqI.(map[interface{}]interface{}))
+				reqMap = commands.ConvertMap(reqI.(map[interface{}]interface{}))
 			}
 			// init resulting typed requirement
 			reqStr := BuildRequires{
@@ -71,17 +71,6 @@ func getBuildRequires(module *mta.Module) []BuildRequires {
 		return buildRequires
 	}
 	return nil
-}
-
-// Convert type map[interface{}]interface{} to map[string]interface{}
-func convert(m map[interface{}]interface{}) map[string]interface{} {
-	res := make(map[string]interface{})
-	for key, value := range m {
-		strKey := key.(string)
-		res[strKey] = value
-	}
-
-	return res
 }
 
 // getStrParam - get string parameter from the map

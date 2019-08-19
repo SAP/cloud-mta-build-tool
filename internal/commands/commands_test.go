@@ -262,10 +262,10 @@ modules:
     path: app
 `)
 
-			m := mta.MTA{}
+			m, err := mta.Unmarshal(mtaCF)
 			// parse mta yaml
-			Ω(yaml.Unmarshal(mtaCF, &m)).Should(Succeed())
-			module, commands, _, err := moduleCmd(&m, "htmlapp")
+			Ω(err).Should(Succeed())
+			module, commands, _, err := moduleCmd(m, "htmlapp")
 			Ω(err).Should(Succeed())
 			Ω(module.Path).Should(Equal("app"))
 			Ω(commands).Should(Equal([]string{"npm install --production"}))
@@ -285,10 +285,10 @@ modules:
       builder: npm
 `)
 
-			m := mta.MTA{}
+			m, err := mta.Unmarshal(mtaCF)
 			// parse mta yaml
-			Ω(yaml.Unmarshal(mtaCF, &m)).Should(Succeed())
-			module, commands, _, err := moduleCmd(&m, "htmlapp")
+			Ω(err).Should(Succeed())
+			module, commands, _, err := moduleCmd(m, "htmlapp")
 			Ω(err).Should(BeNil())
 			Ω(module.Path).Should(Equal("app"))
 			Ω(commands).Should(Equal([]string{"npm install --production"}))
@@ -311,10 +311,10 @@ modules:
          repo-coordinates: com.sap.xs.java:xs-audit-log-api:1.2.3
 
 `)
-			m := mta.MTA{}
+			m, err := mta.Unmarshal(mtaCF)
 			// parse mta yaml
-			Ω(yaml.Unmarshal(mtaCF, &m)).Should(Succeed())
-			module, commands, _, err := moduleCmd(&m, "htmlapp")
+			Ω(err).Should(Succeed())
+			module, commands, _, err := moduleCmd(m, "htmlapp")
 			Ω(err).Should(BeNil())
 			Ω(module.Path).Should(Equal("app"))
 			Ω(commands).Should(Equal([]string{"mvn -B dependency:copy -Dartifact=com.sap.xs.java:xs-audit-log-api:1.2.3 -DoutputDirectory=./target"}))

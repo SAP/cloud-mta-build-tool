@@ -22,16 +22,15 @@ const (
 	populationMsg                 = `could not generate the manifest file when populating the content`
 	contentTypeCfgMsg             = `could not generate the manifest file when getting the content types from the configuration`
 
-	genMetaParsingMsg    = `could not generate metadata when parsing the MTA file`
+	genMetaMsg           = `could not generate metadata`
 	genMetaPopulatingMsg = `could not generate metadata when populating the manifest file`
 	genMetaMTADMsg       = `could not generate metadata when generating the MTAD file`
 
-	genMTADParsingMsg     = `could not generate the MTAD file when parsing the "%s" file`
 	genMTADTypeTypeCnvMsg = `could not generate the MTAD file when converting types according to the "%s" platform`
 	genMTADMarshMsg       = `could not generate the MTAD file when marshalling the MTAD object`
 	genMTADWriteMsg       = `could not generate the MTAD file when writing`
 
-	genMTARParsingMsg = `could not generate the MTA archive when parsing the mta file`
+	genMTARParsingMsg = `could not generate the MTA archive`
 	genMTARArchMsg    = `could not generate the MTA archive when archiving`
 
 	buildMsg                 = `building the "%s" module...`
@@ -50,13 +49,13 @@ const (
 	// PackFailedOnArchMsg - message raised when pack fails during archiving the module
 	PackFailedOnArchMsg = `could not pack the "%s" module when archiving`
 
-	copyContentFailedOnLocMsg   = `could not copy the MTA content when initializing the deployment descriptor location`
-	copyContentFailedOnParseMsg = `could not copy the MTA content when parsing the %s file`
-	pathNotExistsMsg            = `the "%s" path does not exist in the MTA project location`
-	copyContentFailedMsg        = `could not copy the "%s" MTA content to the "%s" target directory because: %s`
-	copyStartMsg                = `copying the MTA content...`
-	copyDoneMsg                 = `copied "%s"`
-	cleanupFailedMsg            = `could not clean up`
+	copyContentFailedOnLocMsg = `could not copy the MTA content when initializing the deployment descriptor location`
+	copyContentFailedMsg      = `could not copy the MTA content`
+	pathNotExistsMsg          = `the "%s" path does not exist in the MTA project location`
+	copyContentCopyFailedMsg  = `could not copy the "%s" MTA content to the "%s" target directory because: %s`
+	copyStartMsg              = `copying the MTA content...`
+	copyDoneMsg               = `copied "%s"`
+	cleanupFailedMsg          = `could not clean up`
 
 	invalidPlatformMsg = `invalid target platform "%s"; supported platforms are: "cf", "neo", "xsa"`
 	adaptationMsg      = `could not adapt the "%s" module path property`

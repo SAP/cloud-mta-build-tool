@@ -145,7 +145,7 @@ platform:
 				{Name: "java", Type: "java.tomee", Path: "app4", Properties: map[string]interface{}{"TARGET_RUNTIME": "tomee"}},
 			},
 		}
-		platforms := Platforms{[]Modules{
+		platformsObj := Platforms{[]Modules{
 			{Name: "cf",
 				Modules: []Properties{
 					{NativeType: "java", PlatformType: "java.tomee", Properties: map[string]string{"TARGET_RUNTIME": "tomee"}},
@@ -153,7 +153,7 @@ platform:
 				},
 			},
 		}}
-		ConvertTypes(mtaObj, platforms, "cf")
+		ConvertTypes(mtaObj, platformsObj, "cf")
 		Ω(mtaObj).Should(Equal(expected))
 	})
 

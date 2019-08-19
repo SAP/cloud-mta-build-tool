@@ -2,11 +2,8 @@ package buildops
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
-
-	"gopkg.in/yaml.v2"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
@@ -371,7 +368,7 @@ var _ = Describe("GetBuilder", func() {
 			Type: "node-js",
 			BuildParams: map[string]interface{}{
 				builderParam: "npm",
-				"npm-opts": map[interface{}]interface{}{
+				"npm-opts": map[string]interface{}{
 					"no-optional": nil,
 				},
 			},
@@ -419,13 +416,14 @@ var _ = Describe("GetBuilder", func() {
 		Ω(err).Should(Succeed())
 	})
 	It("fetcher builder defined by build params from mta.yaml", func() {
-		dir, _ := os.Getwd()
-		path := filepath.Join(dir, "testdata", "mtaWithFetcher.yaml")
-		// Read MTA file
-		yamlFile, err := ioutil.ReadFile(path)
+		currDir, err := os.Getwd()
 		Ω(err).Should(Succeed())
-		m := mta.MTA{}
-		yaml.Unmarshal(yamlFile, &m)
+		loc, err := dir.Location(filepath.Join(currDir, "testdata"), "", "dev", nil, os.Getwd)
+		Ω(err).Should(Succeed())
+		loc.MtaFilename = "mtaWithFetcher.yaml"
+		m, err := loc.ParseFile()
+		Ω(err).Should(Succeed())
+
 		builder, custom, options, cmds, err := commands.GetBuilder(m.Modules[0])
 		Ω(options).Should(Equal(map[string]string{
 			"repo-type":        "maven",

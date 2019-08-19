@@ -3,6 +3,7 @@ package dir
 import (
 	"fmt"
 	"path/filepath"
+	"strings"
 
 	"github.com/pkg/errors"
 
@@ -86,6 +87,8 @@ type Loc struct {
 	MtaFilename string
 	// Descriptor - indicator of deployment descriptor usage (mtad.yaml)
 	Descriptor string
+	// ExtensionFileNames - list of MTA extension descriptors (could be empty)
+	ExtensionFileNames []string
 }
 
 // GetSource gets the processed project path;
@@ -168,9 +171,15 @@ func (ep *Loc) GetMtaYamlPath() string {
 	return filepath.Join(ep.GetSource(), ep.GetMtaYamlFilename())
 }
 
-// GetMtaExtYamlPath gets the MTA extension .yaml file path.
-func (ep *Loc) GetMtaExtYamlPath(platform string) string {
-	return filepath.Join(ep.GetSource(), platform+"-mtaext.yaml")
+// GetMtaExtYamlPath gets the full MTA extension file path by file name or path.
+// If the file name is an absolute path it's returned as is. Otherwise the returned path is relative
+// to the source folder.
+func (ep *Loc) GetMtaExtYamlPath(extFileName string) string {
+	if filepath.IsAbs(extFileName) {
+		return extFileName
+	}
+
+	return filepath.Join(ep.GetSource(), extFileName)
 }
 
 // GetMetaPath gets the path to the generated META-INF directory.
@@ -201,29 +210,143 @@ func (ep *Loc) IsDeploymentDescriptor() bool {
 	return ep.Descriptor == Dep
 }
 
-// ParseFile returns a reference to the MTA object from a given mta.yaml file.
-func (ep *Loc) ParseFile() (*mta.MTA, error) {
+// ParseMtaFile returns a reference to the MTA object from a given mta.yaml file.
+func (ep *Loc) ParseMtaFile() (*mta.MTA, error) {
 	yamlContent, err := Read(ep)
 	if err != nil {
 		return nil, err
 	}
 	// Parse MTA file
-	return mta.Unmarshal(yamlContent)
+	mtaFile, err := mta.Unmarshal(yamlContent)
+	if err != nil {
+		return mtaFile, errors.Wrapf(err, ParseMtaYamlFileFailedMsg, ep.GetMtaYamlFilename())
+	}
+	return mtaFile, nil
 }
 
-// ParseExtFile returns a reference to the MTA object from a given mta.yaml file.
-func (ep *Loc) ParseExtFile(platform string) (*mta.EXT, error) {
-	yamlContent, err := ReadExt(ep, platform)
+// ParseFile returns a reference to the MTA object resulting from the given mta.yaml file merged with the extension descriptors.
+func (ep *Loc) ParseFile() (*mta.MTA, error) {
+	mtaFile, err := ep.ParseMtaFile()
 	if err != nil {
-		// extension is not mandatory
-		return &mta.EXT{}, nil
+		return mtaFile, err
+	}
+	extensions, err := ep.getSortedExtensions(mtaFile.ID)
+	if err != nil {
+		return mtaFile, err
+	}
+	for _, extFile := range extensions {
+		// TODO error handling once Merge returns an error
+		mta.Merge(mtaFile, extFile)
+	}
+	return mtaFile, nil
+}
+
+type extensionDetails struct {
+	fileName string
+	ext      *mta.EXT
+}
+
+func (ep *Loc) getSortedExtensions(mtaID string) ([]*mta.EXT, error) {
+	extensionFileNames := ep.ExtensionFileNames
+
+	// Parse all extension files and put them in a slice of extension details (the extension with the file name)
+	extensions, err := parseExtensionsWithDetails(extensionFileNames, ep)
+	if err != nil {
+		return nil, err
+	}
+
+	// Make sure each extension has its own ID
+	err = checkExtensionIDsUniqueness(extensionFileNames, extensions, mtaID, ep)
+	if err != nil {
+		return nil, err
+	}
+
+	// Make sure each extension extends a different ID and put them in a map of extends -> extension details
+	extendsMap := make(map[string]extensionDetails, len(extensionFileNames))
+	for _, details := range extensions {
+		if value, ok := extendsMap[details.ext.Extends]; ok {
+			return nil, errors.Errorf(duplicateExtendsMsg,
+				ep.GetMtaExtYamlPath(value.fileName), ep.GetMtaExtYamlPath(details.fileName), details.ext.Extends)
+		}
+		extendsMap[details.ext.Extends] = details
+	}
+
+	// Verify chain of extensions and put the extensions in a slice by extends order
+	return sortAndVerifyExtendsChain(extensionFileNames, mtaID, extendsMap, ep)
+}
+
+func parseExtensionsWithDetails(extensionFileNames []string, ep *Loc) ([]extensionDetails, error) {
+	extensions := make([]extensionDetails, len(extensionFileNames))
+	for i, extFileName := range extensionFileNames {
+		extFile, err := ep.ParseExtFile(extFileName)
+		if err != nil {
+			return nil, err
+		}
+		extensions[i] = extensionDetails{extFileName, extFile}
+	}
+	return extensions, nil
+}
+
+func checkExtensionIDsUniqueness(extensionFileNames []string, extensions []extensionDetails, mtaID string, ep *Loc) error {
+	extensionIDMap := make(map[string]extensionDetails, len(extensionFileNames))
+	for _, details := range extensions {
+		if details.ext.ID == mtaID {
+			return errors.Errorf(extensionIDSameAsMtaIDMsg,
+				ep.GetMtaExtYamlPath(details.fileName), mtaID, ep.GetMtaYamlFilename())
+		}
+		if value, ok := extensionIDMap[details.ext.ID]; ok {
+			return errors.Errorf(duplicateExtensionIDMsg,
+				ep.GetMtaExtYamlPath(value.fileName), ep.GetMtaExtYamlPath(details.fileName), details.ext.ID)
+		}
+		extensionIDMap[details.ext.ID] = details
+	}
+	return nil
+}
+
+func sortAndVerifyExtendsChain(extensionFileNames []string, mtaID string, extendsMap map[string]extensionDetails, ep IMtaExtYaml) ([]*mta.EXT, error) {
+	extFiles := make([]*mta.EXT, 0, len(extensionFileNames))
+	currExtends := mtaID
+	value, ok := extendsMap[currExtends]
+	for ok {
+		extFiles = append(extFiles, value.ext)
+		delete(extendsMap, currExtends)
+		currExtends = value.ext.ID
+		value, ok = extendsMap[currExtends]
+	}
+	// Check if there are extensions which extend unknown files
+	if len(extendsMap) > 0 {
+		// Build an error that looks like this:
+		// `some MTA extension descriptors extend unknown IDs: file "myext.mtaext" extends "ext1"; file "aaa.mtaext" extends "ext2"`
+		fileParts := make([]string, 0, len(extendsMap))
+		for extends, details := range extendsMap {
+			fileParts = append(fileParts, fmt.Sprintf(extendsMsg, ep.GetMtaExtYamlPath(details.fileName), extends))
+		}
+		return nil, errors.Errorf(unknownExtendsMsg, strings.Join(fileParts, `; `))
+	}
+	return extFiles, nil
+}
+
+// GetExtensionFilePaths returns the MTA extension descriptor full paths
+func (ep *Loc) GetExtensionFilePaths() []string {
+	paths := make([]string, len(ep.ExtensionFileNames))
+	for i, fileName := range ep.ExtensionFileNames {
+		paths[i] = ep.GetMtaExtYamlPath(fileName)
+	}
+	return paths
+}
+
+// ParseExtFile returns a reference to the MTA extension descriptor object of the extension file.
+func (ep *Loc) ParseExtFile(extFileName string) (*mta.EXT, error) {
+	yamlContent, err := ReadExt(ep, extFileName)
+	if err != nil {
+		return nil, errors.Wrapf(err, parseExtFileFailed, ep.GetMtaExtYamlPath(extFileName))
 	}
 	// Parse MTA extension file
 	return mta.UnmarshalExt(yamlContent)
 }
 
 // Location - provides Location parameters of MTA
-func Location(source, target, descriptor string, wdGetter func() (string, error)) (*Loc, error) {
+func Location(source, target, descriptor string, extensions []string, wdGetter func() (string, error)) (*Loc, error) {
 
 	err := ValidateDeploymentDescriptor(descriptor)
 	if err != nil {
@@ -249,9 +372,10 @@ func Location(source, target, descriptor string, wdGetter func() (string, error)
 		target = source
 	}
 	return &Loc{
-		SourcePath:  filepath.Join(source),
-		TargetPath:  filepath.Join(target),
-		MtaFilename: mtaFilename,
-		Descriptor:  descriptor,
+		SourcePath:         filepath.Join(source),
+		TargetPath:         filepath.Join(target),
+		MtaFilename:        mtaFilename,
+		Descriptor:         descriptor,
+		ExtensionFileNames: extensions,
 	}, nil
 }

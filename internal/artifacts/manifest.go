@@ -100,9 +100,9 @@ func getModulesEntries(source dir.ISourceModule, targetPathGetter dir.ITargetPat
 		}
 
 		if modulePath != "" {
-			contentType, err := getContentType(modulePath, contentTypes)
-			if err != nil {
-				return nil, errors.Wrapf(err, unknownModuleContentTypeMsg, mod.Name)
+			contentType, err1 := getContentType(modulePath, contentTypes)
+			if err1 != nil {
+				return nil, errors.Wrapf(err1, unknownModuleContentTypeMsg, mod.Name)
 			}
 
 			// get relative path of the module entry (excluding leading slash)

@@ -21,9 +21,9 @@ const (
 )
 
 // ExecBuild - Execute MTA project build
-func ExecBuild(makefileTmp, buildProjectCmdSrc, buildProjectCmdTrg, buildProjectCmdMode, buildProjectCmdMtar, buildProjectCmdPlatform string, buildProjectCmdStrict bool, wdGetter func() (string, error), wdExec func([][]string, bool) error, useDefaultMbt bool) error {
+func ExecBuild(makefileTmp, buildProjectCmdSrc, buildProjectCmdTrg string, extensions []string, buildProjectCmdMode, buildProjectCmdMtar, buildProjectCmdPlatform string, buildProjectCmdStrict bool, wdGetter func() (string, error), wdExec func([][]string, bool) error, useDefaultMbt bool) error {
 	// Generate build script
-	err := tpl.ExecuteMake(buildProjectCmdSrc, "", makefileTmp, buildProjectCmdMode, wdGetter, useDefaultMbt)
+	err := tpl.ExecuteMake(buildProjectCmdSrc, "", extensions, makefileTmp, buildProjectCmdMode, wdGetter, useDefaultMbt)
 	if err != nil {
 		return err
 	}
@@ -48,11 +48,11 @@ func ExecBuild(makefileTmp, buildProjectCmdSrc, buildProjectCmdTrg, buildProject
 }
 
 // ExecuteProjectBuild - execute pre or post phase of project build
-func ExecuteProjectBuild(source, descriptor, phase string, getWd func() (string, error)) error {
+func ExecuteProjectBuild(source, descriptor string, extensions []string, phase string, getWd func() (string, error)) error {
 	if phase != "pre" && phase != "post" {
 		return fmt.Errorf(UnsupportedPhaseMsg, phase)
 	}
-	loc, err := dir.Location(source, "", descriptor, getWd)
+	loc, err := dir.Location(source, "", descriptor, extensions, getWd)
 	if err != nil {
 		return err
 	}
