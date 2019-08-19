@@ -2,6 +2,7 @@ package artifacts
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 
@@ -190,6 +191,44 @@ cli_version:["x"]
 			Ω(mtarPath).Should(BeAnExistingFile())
 		})
 	})
+	Describe("ExecuteMerge", func() {
+		It("Succeeds with single mtaext file", func() {
+			resultFileName := "result.yaml"
+			err := ExecuteMerge(getTestPath("mta_with_ext"), getResultPath(), []string{"cf-mtaext.yaml"}, resultFileName, os.Getwd)
+			Ω(err).Should(Succeed())
+			Ω(getTestPath("result", resultFileName)).Should(BeAnExistingFile())
+			compareMTAContent(getTestPath("mta_with_ext", "golden1.yaml"), getTestPath("result", resultFileName))
+		})
+		It("Succeeds with two mtaext files", func() {
+			resultFileName := "result.yaml"
+			err := ExecuteMerge(getTestPath("mta_with_ext"), getResultPath(), []string{"other.mtaext", "cf-mtaext.yaml"}, resultFileName, os.Getwd)
+			Ω(err).Should(Succeed())
+			Ω(getTestPath("result", resultFileName)).Should(BeAnExistingFile())
+			compareMTAContent(getTestPath("mta_with_ext", "golden2.yaml"), getTestPath("result", resultFileName))
+		})
+		It("Fails when the result file already exists", func() {
+			resultFileName := "result.yaml"
+			resultFilePath := getTestPath("result", resultFileName)
+			Ω(dir.CreateDirIfNotExist(getResultPath())).Should(Succeed())
+			createFileInGivenPath(resultFilePath)
+
+			err := ExecuteMerge(getTestPath("mta_with_ext"), getResultPath(), []string{"cf-mtaext.yaml"}, resultFileName, os.Getwd)
+			checkError(err, mergeFailedOnFileCreationMsg, resultFilePath)
+		})
+		It("Fails when the result directory is a file", func() {
+			resultFileName := "result.yaml"
+			Ω(dir.CreateDirIfNotExist(filepath.Dir(getResultPath()))).Should(Succeed())
+			createFileInGivenPath(getResultPath())
+
+			err := ExecuteMerge(getTestPath("mta_with_ext"), getResultPath(), []string{"cf-mtaext.yaml"}, resultFileName, os.Getwd)
+			checkError(err, dir.FolderCreationFailedMsg, getResultPath())
+		})
+		It("Fails when the mtaext file doesn't exist", func() {
+			resultFileName := "result.yaml"
+			err := ExecuteMerge(getTestPath("mta_with_ext"), getResultPath(), []string{"invalid.yaml"}, resultFileName, os.Getwd)
+			checkError(err, dir.ReadFailedMsg, getTestPath("mta_with_ext", "invalid.yaml"))
+		})
+	})
 })
 
 type testLoc struct {
@@ -223,4 +262,16 @@ func createMtahtml5TmpFolder() {
 	createFileInTmpFolder("mtahtml5", "ui5app", "data.zip")
 	createFileInTmpFolder("mtahtml5", "ui5app2", "data.zip")
 	createFileInTmpFolder("mtahtml5", "xs-security.json")
+}
+
+func compareMTAContent(expectedFileName string, actualFileName string) {
+	actual, err := ioutil.ReadFile(expectedFileName)
+	Ω(err).Should(Succeed())
+	actualMta, err := mta.Unmarshal([]byte(actual))
+	Ω(err).Should(Succeed())
+	expected, err := ioutil.ReadFile(actualFileName)
+	Ω(err).Should(Succeed())
+	expectedMta, err := mta.Unmarshal([]byte(expected))
+	Ω(err).Should(Succeed())
+	Ω(actualMta).Should(Equal(expectedMta))
 }
