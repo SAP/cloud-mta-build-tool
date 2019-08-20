@@ -17,7 +17,7 @@ var mergeCmdName string
 var mergeCmd = &cobra.Command{
 	Use:   "merge",
 	Short: "Merges mta.yaml with MTA extension descriptors",
-	Long:  "Generates a development descriptor (mta.yaml) from a development descriptor (mta.yaml) and a list of MTA extension descriptors",
+	Long:  "Generates an MTA development descriptor with the given name from an MTA development descriptor (mta.yaml) and a list of MTA extension descriptors",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		err := artifacts.ExecuteMerge(mergeCmdSrc, mergeCmdTrg, mergeCmdExtensions, mergeCmdName, os.Getwd)
@@ -34,7 +34,6 @@ func init() {
 		"", "the path to the MBT results folder; the current path is set as the default")
 	mergeCmd.Flags().StringSliceVarP(&mergeCmdExtensions, "extensions", "e", nil,
 		"the MTA extension descriptors")
-	mergeCmd.Flags().StringVarP(&mergeCmdName, "target-name", "n", "",
+	mergeCmd.Flags().StringVarP(&mergeCmdName, "target-file-name", "n", "",
 		`(required) the result file name`)
-	mergeCmd.Flags().BoolP("help", "h", false, `prints detailed information about the "merge" command`)
 }
