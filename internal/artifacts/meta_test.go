@@ -206,6 +206,10 @@ cli_version:["x"]
 			Ω(getTestPath("result", resultFileName)).Should(BeAnExistingFile())
 			compareMTAContent(getTestPath("mta_with_ext", "golden2.yaml"), getTestPath("result", resultFileName))
 		})
+		It("Fails when the result file name is not sent", func() {
+			err := ExecuteMerge(getTestPath("mta_with_ext"), getResultPath(), []string{"cf-mtaext.yaml"}, "", os.Getwd)
+			checkError(err, mergeNameRequiredMsg)
+		})
 		It("Fails when the result file already exists", func() {
 			resultFileName := "result.yaml"
 			resultFilePath := getTestPath("result", resultFileName)

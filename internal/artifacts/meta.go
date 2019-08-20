@@ -116,7 +116,7 @@ func ExecuteMerge(source, target string, extensions []string, name string, wdGet
 	if _, err = os.Stat(mtaPath); err == nil {
 		return fmt.Errorf(mergeFailedOnFileCreationMsg, mtaPath)
 	}
-	err = dir.CreateDirIfNotExist(target)
+	err = dir.CreateDirIfNotExist(filepath.Clean(target))
 	if err != nil {
 		return err
 	}
