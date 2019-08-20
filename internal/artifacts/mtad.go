@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -65,6 +66,15 @@ func genMtad(mtaStr *mta.MTA, ep dir.ITargetArtifacts, deploymentDesc bool, plat
 		if err != nil {
 			return errors.Wrapf(err, genMTADTypeTypeCnvMsg, platform)
 		}
+	}
+
+	schemaVersionSlice := strings.Split(*mtaStr.SchemaVersion, ".")
+	schemaVersion, err := strconv.Atoi(schemaVersionSlice[0])
+	if err != nil {
+		return errors.Wrap(err, genMetaMTADMsg)
+	}
+	if schemaVersion < 3 {
+		*mtaStr.SchemaVersion = "3.3"
 	}
 
 	// Create readable Yaml before writing to file
