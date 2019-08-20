@@ -192,27 +192,27 @@ cli_version:["x"]
 		})
 	})
 	Describe("ExecuteMerge", func() {
+		resultFileName := "result.yaml"
+		resultFilePath := getTestPath("result", resultFileName)
+
 		It("Succeeds with single mtaext file", func() {
-			resultFileName := "result.yaml"
 			err := ExecuteMerge(getTestPath("mta_with_ext"), getResultPath(), []string{"cf-mtaext.yaml"}, resultFileName, os.Getwd)
 			Ω(err).Should(Succeed())
-			Ω(getTestPath("result", resultFileName)).Should(BeAnExistingFile())
-			compareMTAContent(getTestPath("mta_with_ext", "golden1.yaml"), getTestPath("result", resultFileName))
+			Ω(resultFilePath).Should(BeAnExistingFile())
+			compareMTAContent(getTestPath("mta_with_ext", "golden1.yaml"), resultFilePath)
 		})
 		It("Succeeds with two mtaext files", func() {
-			resultFileName := "result.yaml"
 			err := ExecuteMerge(getTestPath("mta_with_ext"), getResultPath(), []string{"other.mtaext", "cf-mtaext.yaml"}, resultFileName, os.Getwd)
 			Ω(err).Should(Succeed())
-			Ω(getTestPath("result", resultFileName)).Should(BeAnExistingFile())
-			compareMTAContent(getTestPath("mta_with_ext", "golden2.yaml"), getTestPath("result", resultFileName))
+			Ω(resultFilePath).Should(BeAnExistingFile())
+			compareMTAContent(getTestPath("mta_with_ext", "golden2.yaml"), resultFilePath)
 		})
 		It("Fails when the result file name is not sent", func() {
 			err := ExecuteMerge(getTestPath("mta_with_ext"), getResultPath(), []string{"cf-mtaext.yaml"}, "", os.Getwd)
 			checkError(err, mergeNameRequiredMsg)
 		})
 		It("Fails when the result file already exists", func() {
-			resultFileName := "result.yaml"
-			resultFilePath := getTestPath("result", resultFileName)
+			resultFilePath := resultFilePath
 			Ω(dir.CreateDirIfNotExist(getResultPath())).Should(Succeed())
 			createFileInGivenPath(resultFilePath)
 
@@ -220,7 +220,6 @@ cli_version:["x"]
 			checkError(err, mergeFailedOnFileCreationMsg, resultFilePath)
 		})
 		It("Fails when the result directory is a file", func() {
-			resultFileName := "result.yaml"
 			Ω(dir.CreateDirIfNotExist(filepath.Dir(getResultPath()))).Should(Succeed())
 			createFileInGivenPath(getResultPath())
 
@@ -228,7 +227,6 @@ cli_version:["x"]
 			checkError(err, dir.FolderCreationFailedMsg, getResultPath())
 		})
 		It("Fails when the mtaext file doesn't exist", func() {
-			resultFileName := "result.yaml"
 			err := ExecuteMerge(getTestPath("mta_with_ext"), getResultPath(), []string{"invalid.yaml"}, resultFileName, os.Getwd)
 			checkError(err, dir.ReadFailedMsg, getTestPath("mta_with_ext", "invalid.yaml"))
 		})

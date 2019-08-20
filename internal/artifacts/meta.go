@@ -2,13 +2,13 @@ package artifacts
 
 import (
 	"fmt"
-	"github.com/pkg/errors"
-	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 
 	"github.com/SAP/cloud-mta/mta"
+	"github.com/pkg/errors"
+	"gopkg.in/yaml.v2"
 
 	"github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta-build-tool/internal/logs"
