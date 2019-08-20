@@ -72,6 +72,7 @@ const (
 	validationFailedOnLocMsg  = `could not validate when initializing the location`
 	validationFailedOnModeMsg = `could not validate when analyzing the validation mode`
 
+	mergeInfoMsg                 = `merging the "mta.yaml" file with the MTA extension descriptors...`
 	mergeNameRequiredMsg         = `the mandatory parameter target name is missing`
 	mergeFailedOnFileCreationMsg = `could not create the "%s" file because it already exists`
 )

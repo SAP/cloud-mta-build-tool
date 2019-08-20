@@ -96,6 +96,8 @@ func ConvertTypes(mtaStr mta.MTA, platformName string) error {
 
 // ExecuteMerge merges mta.yaml and MTA extension descriptors and writes the result to a file with the given name
 func ExecuteMerge(source, target string, extensions []string, name string, wdGetter func() (string, error)) error {
+	logs.Logger.Info(mergeInfoMsg)
+
 	if name == "" {
 		return fmt.Errorf(mergeNameRequiredMsg)
 	}
