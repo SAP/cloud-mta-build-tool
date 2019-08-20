@@ -68,13 +68,9 @@ func genMtad(mtaStr *mta.MTA, ep dir.ITargetArtifacts, deploymentDesc bool, plat
 		}
 	}
 
-	schemaVersionSlice := strings.Split(*mtaStr.SchemaVersion, ".")
-	schemaVersion, err := strconv.Atoi(schemaVersionSlice[0])
+	err := adjustSchemaVersion(mtaStr)
 	if err != nil {
 		return errors.Wrap(err, genMetaMTADMsg)
-	}
-	if schemaVersion < 3 {
-		*mtaStr.SchemaVersion = "3.3"
 	}
 
 	// Create readable Yaml before writing to file
@@ -143,5 +139,17 @@ func adaptModulePath(loc dir.ITargetPath, module *mta.Module) error {
 		return e
 	}
 	module.Path = module.Name
+	return nil
+}
+
+func adjustSchemaVersion(mtaStr *mta.MTA) error {
+	schemaVersionSlice := strings.Split(*mtaStr.SchemaVersion, ".")
+	schemaVersion, err := strconv.Atoi(schemaVersionSlice[0])
+	if err != nil {
+		return err
+	}
+	if schemaVersion < 3 {
+		*mtaStr.SchemaVersion = "3.3"
+	}
 	return nil
 }
