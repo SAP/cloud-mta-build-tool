@@ -231,9 +231,9 @@ cli_version:["x"]
 		})
 		It("Fails when wdGetter fails", func() {
 			err := ExecuteMerge("", getResultPath(), []string{"cf-mtaext.yaml"}, resultFileName, func() (string, error) {
-				return "", errors.New("an error occurred!")
+				return "", errors.New("an error occurred")
 			})
-			checkError(err, "an error occurred!")
+			checkError(err, "an error occurred")
 		})
 	})
 })
