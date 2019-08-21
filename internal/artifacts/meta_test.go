@@ -212,7 +212,6 @@ cli_version:["x"]
 			checkError(err, mergeNameRequiredMsg)
 		})
 		It("Fails when the result file already exists", func() {
-			resultFilePath := resultFilePath
 			Ω(dir.CreateDirIfNotExist(getResultPath())).Should(Succeed())
 			createFileInGivenPath(resultFilePath)
 
