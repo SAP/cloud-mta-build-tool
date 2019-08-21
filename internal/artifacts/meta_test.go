@@ -229,6 +229,12 @@ cli_version:["x"]
 			err := ExecuteMerge(getTestPath("mta_with_ext"), getResultPath(), []string{"invalid.yaml"}, resultFileName, os.Getwd)
 			checkError(err, dir.ReadFailedMsg, getTestPath("mta_with_ext", "invalid.yaml"))
 		})
+		It("Fails when wdGetter fails", func() {
+			err := ExecuteMerge("", getResultPath(), []string{"cf-mtaext.yaml"}, resultFileName, func() (string, error) {
+				return "", errors.New("an error occurred!")
+			})
+			checkError(err, "an error occurred!")
+		})
 	})
 })
 
