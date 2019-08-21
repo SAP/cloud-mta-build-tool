@@ -3,7 +3,7 @@ meta: $(modules) post_build
 {{"\t"}}@$(MBT) gen meta -p=${p} -t=${t} {{- ExtensionsArg "-e"}}
 
 post_build: $(modules)
-{{"\t"}}@$(MBT) project build -p=post {{- ExtensionsArg "-e"}}
+{{"\t"}}@$(MBT) project build -p=post -t=${t} {{- ExtensionsArg "-e"}}
 
 # Validate mta.yaml
 validate: pre_build

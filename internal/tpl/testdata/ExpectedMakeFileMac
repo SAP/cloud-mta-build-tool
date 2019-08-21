@@ -46,7 +46,7 @@ meta: $(modules) post_build
 	@$(MBT) gen meta -p=${p} -t=${t}
 
 post_build: $(modules)
-	@$(MBT) project build -p=post
+	@$(MBT) project build -p=post -t=${t}
 
 # Validate mta.yaml
 validate: pre_build
