@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -65,6 +66,11 @@ func genMtad(mtaStr *mta.MTA, ep dir.ITargetArtifacts, deploymentDesc bool, plat
 		if err != nil {
 			return errors.Wrapf(err, genMTADTypeTypeCnvMsg, platform)
 		}
+	}
+
+	err := adjustSchemaVersion(mtaStr)
+	if err != nil {
+		return errors.Wrap(err, genMetaMTADMsg)
 	}
 
 	// Create readable Yaml before writing to file
@@ -133,5 +139,17 @@ func adaptModulePath(loc dir.ITargetPath, module *mta.Module) error {
 		return e
 	}
 	module.Path = module.Name
+	return nil
+}
+
+func adjustSchemaVersion(mtaStr *mta.MTA) error {
+	schemaVersionSlice := strings.Split(*mtaStr.SchemaVersion, ".")
+	schemaVersion, err := strconv.Atoi(schemaVersionSlice[0])
+	if err != nil {
+		return err
+	}
+	if schemaVersion < 3 {
+		*mtaStr.SchemaVersion = "3.3"
+	}
 	return nil
 }
