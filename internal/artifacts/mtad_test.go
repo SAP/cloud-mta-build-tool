@@ -87,6 +87,14 @@ var _ = Describe("Mtad", func() {
 				return nil, errors.New("err")
 			})).Should(HaveOccurred())
 		})
+		It("Fails on mtad schema version change", func() {
+			ep := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getTestPath("result"), MtaFilename: "mtaBadSchemaVersion.yaml"}
+			mtaBytes, err := dir.Read(&ep)
+			Ω(err).Should(Succeed())
+			mtaStr, err := mta.Unmarshal(mtaBytes)
+			Ω(err).Should(Succeed())
+			Ω(genMtad(mtaStr, &ep, ep.IsDeploymentDescriptor(), "cf", yaml.Marshal)).Should(HaveOccurred())
+		})
 	})
 
 })
