@@ -13,12 +13,10 @@ import (
 
 var _ = Describe("Merge commands call", func() {
 	AfterEach(func() {
-		dir, _ := os.Getwd()
-		Ω(os.RemoveAll(filepath.Join(dir, "testdata", "mtaext", "result.yaml"))).Should(Succeed())
+		Ω(os.RemoveAll(getTestPath("mtaext", "result.yaml"))).Should(Succeed())
 	})
 	It("merges with one extension", func() {
-		dir, _ := os.Getwd()
-		path := filepath.Join(dir, "testdata", "mtaext")
+		path := getTestPath("mtaext")
 		mergeCmdSrc = path
 		mergeCmdTrg = getTestPath("result")
 		mergeCmdExtensions = []string{"ext.mtaext"}
