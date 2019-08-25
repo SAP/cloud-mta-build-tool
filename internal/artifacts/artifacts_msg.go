@@ -73,6 +73,6 @@ const (
 	validationFailedOnModeMsg = `could not validate when analyzing the validation mode`
 
 	mergeInfoMsg                 = `merging the "mta.yaml" file with the MTA extension descriptors...`
-	mergeNameRequiredMsg         = `the mandatory parameter target-file-name is missing`
-	mergeFailedOnFileCreationMsg = `could not create the "%s" file because it already exists`
+	mergeNameRequiredMsg         = `could not find the mandatory parameter "target-file-name"`
+	mergeFailedOnFileCreationMsg = `the "%s" file already exists`
 )
