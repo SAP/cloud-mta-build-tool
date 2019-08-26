@@ -16,8 +16,8 @@ var mergeCmdName string
 // Merge mta.yaml with mta extension files and write the result.
 var mergeCmd = &cobra.Command{
 	Use:   "merge",
-	Short: "Merges mta.yaml with MTA extension descriptors",
-	Long:  "Generates an MTA development descriptor with the given name from an MTA development descriptor (mta.yaml) and a list of MTA extension descriptors",
+	Short: `Merges the "mta.yaml" file with the MTA extension descriptors`,
+	Long:  `Merges the "mta.yaml" file with the MTA extension descriptors`,
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		err := artifacts.ExecuteMerge(mergeCmdSrc, mergeCmdTrg, mergeCmdExtensions, mergeCmdName, os.Getwd)
