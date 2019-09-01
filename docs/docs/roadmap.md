@@ -26,7 +26,7 @@
   - [x] Partially supports the advanced `mta.yaml` (3.1 > 3.2) schema.
 
 
-###  Milestone 3 - (Q3 - 2019) 
+###  Milestone 3 - (Q3 - Q4  - 2019) 
  
   - [ ] Supports multi-schema.
   - [ ] Supports the enhancing of schema validations.
