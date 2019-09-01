@@ -13,24 +13,25 @@
 ### Milestone 2 - (Q2 - 2019)
 
   - [x] Supports the generation of verbose `Makefile` files.
-  - [ ] Supports MTA extensions.
+  - [x] Supports MTA extensions.
   - [x] Supports the building of Java and Maven applications.
   - [x] Supports ZIP builds.
   - [x] Supports fetcher builds.
-  - [ ] Supports build parameters:
+  - [x] Supports build parameters:
     - [x] Supports build options.
     - [x] Supports `ignore` files and folders.
-    - [ ] Supports the definition of timeouts.
+    - [x] Supports the definition of timeouts.
     - [x] Supports the naming of build artifacts.
   - [x] Supports semantic validations.
   - [x] Partially supports the advanced `mta.yaml` (3.1 > 3.2) schema.
 
 
-###  Milestone 3 - (Q4 - 2019) 
+
+###  Milestone 3 - (Q3 - Q4  - 2019) 
  
   - [ ] Supports multi-schema.
-  - [ ] Supports the enhancing of schema validations.
-  - [ ] Supports the generation of an `mtad.yaml` file from an `mta.yaml` file.
+  - [x] Supports the enhancing of schema validations.
+  - [x] Supports the generation of an `mtad.yaml` file from an `mta.yaml` file.
   - [ ] Supports parallel execution for the default `Makefile` file.
   - [ ] Supports incremental builds; in other words, one module at a time.
 
