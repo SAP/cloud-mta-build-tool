@@ -26,7 +26,7 @@
   - [x] Partially supports the advanced `mta.yaml` (3.1 > 3.2) schema.
 
 
-###  Milestone 3 - (Q3 - 2019) 
+###  Milestone 3 - (Q4 - 2019) 
  
   - [ ] Supports multi-schema.
   - [ ] Supports the enhancing of schema validations.
@@ -34,7 +34,7 @@
   - [ ] Supports parallel execution for the default `Makefile` file.
   - [ ] Supports incremental builds; in other words, one module at a time.
 
-###  Milestone 4 - (Q3 - 2019)
+###  Milestone 4 - (Q4 - 2019)
 
  - [ ] Supports the extensibility framework.
  - [ ] Fully supports the advanced `mta.yaml` (3.1 > 3.2) schema.
