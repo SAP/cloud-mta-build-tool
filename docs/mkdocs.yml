@@ -22,8 +22,8 @@ nav:
 
 theme:
   name: 'material'
-  favicon: logo.png
-  logo: logo.png
+  favicon: images/logo_blue.png
+  logo: images/logo_white.png
 
 
   palette:
