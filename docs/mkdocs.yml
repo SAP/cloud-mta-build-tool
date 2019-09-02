@@ -22,6 +22,7 @@ nav:
 
 theme:
   name: 'material'
+  favicon: logo.png
 
   palette:
     primary: 'blue'
