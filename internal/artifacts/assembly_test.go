@@ -18,7 +18,7 @@ import (
 var _ = Describe("Assembly", func() {
 
 	AfterEach(func() {
-		os.RemoveAll(getTestPath("result"))
+		Ω(os.RemoveAll(getTestPath("result"))).Should(Succeed())
 	})
 	It("Sanity", func() {
 		err := Assembly(getTestPath("assembly-sample"),
@@ -63,6 +63,7 @@ func getFileContentFromZip(path string, filename string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer zipFile.Close()
 	for _, file := range zipFile.File {
 		if strings.Contains(file.Name, filename) {
 			fc, err := file.Open()
