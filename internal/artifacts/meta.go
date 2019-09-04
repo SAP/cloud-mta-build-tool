@@ -1,14 +1,18 @@
 package artifacts
 
 import (
-	"github.com/pkg/errors"
+	"fmt"
 	"gopkg.in/yaml.v2"
+	"io/ioutil"
+	"os"
+	"path/filepath"
 
-	"github.com/SAP/cloud-mta/mta"
+	"github.com/pkg/errors"
 
 	"github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta-build-tool/internal/logs"
 	"github.com/SAP/cloud-mta-build-tool/internal/platform"
+	"github.com/SAP/cloud-mta/mta"
 )
 
 // ExecuteGenMeta - generates metadata
@@ -87,5 +91,38 @@ func ConvertTypes(mtaStr mta.MTA, platformName string) error {
 		// Modify MTAD object according to platform types
 		platform.ConvertTypes(mtaStr, platformCfg, platformName)
 	}
+	return err
+}
+
+// ExecuteMerge merges mta.yaml and MTA extension descriptors and writes the result to a file with the given name
+func ExecuteMerge(source, target string, extensions []string, name string, wdGetter func() (string, error)) error {
+	logs.Logger.Info(mergeInfoMsg)
+
+	if name == "" {
+		return fmt.Errorf(mergeNameRequiredMsg)
+	}
+	loc, err := dir.Location(source, target, dir.Dev, extensions, wdGetter)
+	if err != nil {
+		return err
+	}
+	m, err := loc.ParseFile()
+	if err != nil {
+		return err
+	}
+	merged, err := yaml.Marshal(m)
+	if err != nil {
+		return err
+	}
+	mtaPath := filepath.Join(target, name)
+	// Check the file doesn't already exist
+	if _, err = os.Stat(mtaPath); err == nil {
+		return fmt.Errorf(mergeFailedOnFileCreationMsg, mtaPath)
+	}
+	err = dir.CreateDirIfNotExist(filepath.Clean(target))
+	if err != nil {
+		return err
+	}
+	// Write the mta file to the selected folder
+	err = ioutil.WriteFile(mtaPath, merged, os.ModePerm)
 	return err
 }

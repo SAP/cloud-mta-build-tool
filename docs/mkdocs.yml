@@ -22,6 +22,10 @@ nav:
 
 theme:
   name: 'material'
+  favicon: images/logo_blue.png
+  logo: images/logo_white.png
+
+
   palette:
     primary: 'blue'
 edit_uri: edit/master/docs/docs/

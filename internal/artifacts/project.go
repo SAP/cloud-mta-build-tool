@@ -48,11 +48,11 @@ func ExecBuild(makefileTmp, buildProjectCmdSrc, buildProjectCmdTrg string, exten
 }
 
 // ExecuteProjectBuild - execute pre or post phase of project build
-func ExecuteProjectBuild(source, descriptor string, extensions []string, phase string, getWd func() (string, error)) error {
+func ExecuteProjectBuild(source, target, descriptor string, extensions []string, phase string, getWd func() (string, error)) error {
 	if phase != "pre" && phase != "post" {
 		return fmt.Errorf(UnsupportedPhaseMsg, phase)
 	}
-	loc, err := dir.Location(source, "", descriptor, extensions, getWd)
+	loc, err := dir.Location(source, target, descriptor, extensions, getWd)
 	if err != nil {
 		return err
 	}
