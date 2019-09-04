@@ -25,8 +25,8 @@ import (
 
 const (
 	demoArchiveName = "mta_demo_0.0.1.mtar"
-	javaArchiveName = "com.fetcher.project_0.0.1.mtar"
-	binPath         = "mbt"
+	//javaArchiveName = "com.fetcher.project_0.0.1.mtar"
+	binPath = "mbt"
 )
 
 var _ = Describe("Integration - CloudMtaBuildTool", func() {
@@ -120,7 +120,7 @@ var _ = Describe("Integration - CloudMtaBuildTool", func() {
 	var _ = Describe("Generate MTAR", func() {
 		It("Generate MTAR with provided target and mtar name", func() {
 			dir, _ := os.Getwd()
-			os.RemoveAll(filepath.Join(dir, "testdata", "mta_demo", demoArchiveName))
+			Ω(os.RemoveAll(filepath.Join(dir, "testdata", "mta_demo", demoArchiveName))).Should(Succeed())
 			path := dir + filepath.FromSlash("/testdata/mta_demo")
 			bin := filepath.FromSlash("make")
 			cmdOut, err, _ := execute(bin, "-f Makefile.mta p=cf mtar=abc t="+path, path)
@@ -178,7 +178,7 @@ var _ = Describe("Integration - CloudMtaBuildTool", func() {
 			actual, e := mta.Unmarshal(mtadContent)
 			Ω(e).Should(Succeed())
 			expected, e := mta.Unmarshal([]byte(`
-_schema-version: "2.1"
+_schema-version: "3.3"
 ID: mta_demo
 version: 0.0.1
 modules:
@@ -212,7 +212,7 @@ parameters:
 			actual, e := mta.Unmarshal(mtadContent)
 			Ω(e).Should(Succeed())
 			expected, e := mta.Unmarshal([]byte(`
-_schema-version: "2.1"
+_schema-version: "3.3"
 ID: mta_demo
 version: 0.0.1
 modules:
@@ -235,47 +235,47 @@ modules:
 			Ω(actual).Should(Equal(expected))
 			validateMtaArchiveContents([]string{"node/", "node/data.zip", "node-js/", "node-js/data.zip"}, filepath.Join(path, "mta_archives", "mta_demo_0.0.1.mtar"))
 		})
-		It("Generate MTAR for mta_java", func() {
-
-			//dir, _ := os.Getwd()
-			//path := dir + filepath.FromSlash("/testdata/mta_java")
-			//bin := filepath.FromSlash("make")
-			//_, err, _ := execute(bin, "-f Makefile.mta p=cf", path)
-			//			Ω(err).Should(Equal(""))
-			//			// Check the archive was generated
-			//			mtarFilename := filepath.Join(dir, "testdata", "mta_java", "mta_archives", javaArchiveName)
-			//			Ω(filepath.Join(dir, "testdata", "mta_java", "mta_archives", javaArchiveName)).Should(BeAnExistingFile())
-			//			// check that module with unsupported platform 'cf' is presented in mtad.yaml
-			//			mtadContent, e := getFileContentFromZip(mtarFilename, "mtad.yaml")
-			//			Ω(e).Should(Succeed())
-			//			actual, e := mta.Unmarshal(mtadContent)
-			//			Ω(e).Should(Succeed())
-			//			expected, e := mta.Unmarshal([]byte(`
-			//_schema-version: 2.0.0
-			//ID: com.fetcher.project
-			//version: 0.0.1
-			//modules:
-			//- name: myModule
-			//  type: java.tomcat
-			//  path: myModule
-			//  requires:
-			//  - name: otracker-uaa
-			//  - name: otracker-managed-hdi
-			//  parameters:
-			//    buildpack: sap_java_buildpack
-			//    stack: cflinuxfs3
-			//resources:
-			//- name: otracker-uaa
-			//  type: com.sap.xs.uaa-space
-			//  parameters:
-			//    config-path: xs-security.json
-			//- name: otracker-managed-hdi
-			//  type: com.sap.xs.managed-hdi-container
-			//`))
-			//			Ω(e).Should(Succeed())
-			//			Ω(actual).Should(Equal(expected))
-			//			validateMtaArchiveContents([]string{"myModule/", "myModule/java-xsahaa-1.1.2.war"}, filepath.Join(path, "mta_archives", "com.fetcher.project_0.0.1.mtar"))
-		})
+		//It("Generate MTAR for mta_java", func() {
+		//
+		//	dir, _ := os.Getwd()
+		//	path := dir + filepath.FromSlash("/testdata/mta_java")
+		//	bin := filepath.FromSlash("make")
+		//	_, err, _ := execute(bin, "-f Makefile.mta p=cf", path)
+		//				Ω(err).Should(Equal(""))
+		//				// Check the archive was generated
+		//				mtarFilename := filepath.Join(dir, "testdata", "mta_java", "mta_archives", javaArchiveName)
+		//				Ω(filepath.Join(dir, "testdata", "mta_java", "mta_archives", javaArchiveName)).Should(BeAnExistingFile())
+		//				// check that module with unsupported platform 'cf' is presented in mtad.yaml
+		//				mtadContent, e := getFileContentFromZip(mtarFilename, "mtad.yaml")
+		//				Ω(e).Should(Succeed())
+		//				actual, e := mta.Unmarshal(mtadContent)
+		//				Ω(e).Should(Succeed())
+		//				expected, e := mta.Unmarshal([]byte(`
+		//	_schema-version: 2.0.0
+		//	ID: com.fetcher.project
+		//	version: 0.0.1
+		//	modules:
+		//	- name: myModule
+		//	 type: java.tomcat
+		//	 path: myModule
+		//	 requires:
+		//	 - name: otracker-uaa
+		//	 - name: otracker-managed-hdi
+		//	 parameters:
+		//	   buildpack: sap_java_buildpack
+		//	   stack: cflinuxfs3
+		//	resources:
+		//	- name: otracker-uaa
+		//	 type: com.sap.xs.uaa-space
+		//	 parameters:
+		//	   config-path: xs-security.json
+		//	- name: otracker-managed-hdi
+		//	 type: com.sap.xs.managed-hdi-container
+		//	`))
+		//				Ω(e).Should(Succeed())
+		//				Ω(actual).Should(Equal(expected))
+		//				validateMtaArchiveContents([]string{"myModule/", "myModule/java-xsahaa-1.1.2.war"}, filepath.Join(path, "mta_archives", "com.fetcher.project_0.0.1.mtar"))
+		//})
 
 		When("Running MBT commands with MTA extension descriptors", func() {
 			var path string
@@ -305,7 +305,7 @@ modules:
 				actual, e := mta.Unmarshal(mtadContent)
 				Ω(e).Should(Succeed())
 				expected, e := mta.Unmarshal([]byte(`
-_schema-version: "2.1"
+_schema-version: "3.3"
 ID: mta_demo
 version: 0.0.1
 modules:
@@ -430,6 +430,52 @@ modules:
 			}
 			Ω(err).Should(Equal(""))
 			Ω(cmdOut).Should(Equal("'200'"))
+		})
+	})
+
+	var _ = Describe("Generate merged mta.yaml", func() {
+		AfterEach(func() {
+			dir, _ := os.Getwd()
+			Ω(os.RemoveAll(filepath.Join(dir, "testdata", "mta_demo", "result.yaml"))).Should(Succeed())
+		})
+		It("merges with one extension", func() {
+			dir, _ := os.Getwd()
+			path := filepath.Join(dir, "testdata", "mta_demo")
+			bin := filepath.FromSlash(binPath)
+			_, err, _ := execute(bin, `merge -e=ext.mtaext -n=result.yaml`, path)
+			Ω(err).Should(Equal(""))
+			mtadPath := filepath.Join(path, "result.yaml")
+			Ω(mtadPath).Should(BeAnExistingFile())
+			content, _ := ioutil.ReadFile(mtadPath)
+			mtaObj, _ := mta.Unmarshal(content)
+			expected, e := mta.Unmarshal([]byte(`
+ID: mta_demo
+_schema-version: '2.1'
+version: 0.0.1
+
+modules:
+- name: node
+  type: nodejs
+  path: node
+  provides:
+  - name: node_api
+    properties:
+      url: ${default-url}
+  build-parameters:
+    supported-platforms: [cf]
+- name: node-js
+  type: nodejs
+  path: node-js
+  provides:
+  - name: node-js_api
+    properties:
+      url: ${default-url}
+  build-parameters:
+    builder: zip
+    supported-platforms: [neo]
+`))
+			Ω(e).Should(Succeed())
+			Ω(mtaObj).Should(Equal(expected))
 		})
 	})
 

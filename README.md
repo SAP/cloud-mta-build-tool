@@ -1,10 +1,11 @@
+<p align="center"><img width="350" height="281" src="logo.png" alt="MBT logo"></p>
+
+<br />
+
 [![CircleCI](https://circleci.com/gh/SAP/cloud-mta-build-tool.svg?style=svg&circle-token=ecedd1dce3592adcd72ee4c61481972c32dcfad7)](https://circleci.com/gh/SAP/cloud-mta-build-tool)
 [![Go Report Card](https://goreportcard.com/badge/github.com/SAP/cloud-mta-build-tool)](https://goreportcard.com/report/github.com/SAP/cloud-mta-build-tool)
 ![GitHub license](https://img.shields.io/badge/license-Apache_2.0-blue.svg)
 ![pre-alpha](https://img.shields.io/badge/Release-pre--alpha-orange.svg)
-
-> <b>Disclaimer</b>: The Cloud MTA Build Tool is under heavy development and is currently in a `pre-alpha` stage.
-                   Some functionality is still missing and the APIs are subject to change; use at your own risk.
 
 
 

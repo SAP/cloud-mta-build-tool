@@ -71,4 +71,8 @@ const (
 	wrongStrictnessMsg        = `the "%s" strictness value is wrong; boolean value expected`
 	validationFailedOnLocMsg  = `could not validate when initializing the location`
 	validationFailedOnModeMsg = `could not validate when analyzing the validation mode`
+
+	mergeInfoMsg                 = `merging the "mta.yaml" file with the MTA extension descriptors...`
+	mergeNameRequiredMsg         = `could not find the mandatory parameter "target-file-name"`
+	mergeFailedOnFileCreationMsg = `the "%s" file already exists`
 )
