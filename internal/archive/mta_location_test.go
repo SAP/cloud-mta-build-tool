@@ -253,6 +253,16 @@ var _ = Describe("ParseFile", func() {
 		Ω(err).Should(HaveOccurred())
 		Ω(err.Error()).Should(ContainSubstring("ui5app3"))
 	})
+
+	It("fails when the sent extensions don't extend this mta.yaml", func() {
+		ep := Loc{
+			SourcePath:         filepath.Join(wd, "testdata", "testext"),
+			ExtensionFileNames: []string{"other.mtaext"},
+		}
+		_, err := ep.ParseFile()
+		Ω(err).Should(HaveOccurred())
+		Ω(err.Error()).Should(ContainSubstring(fmt.Sprintf(unknownExtendsMsg, "")))
+	})
 })
 
 var _ = Describe("getSortedExtensions", func() {
