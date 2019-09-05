@@ -243,6 +243,16 @@ var _ = Describe("ParseFile", func() {
 		Ω(err).Should(HaveOccurred())
 		Ω(err.Error()).Should(ContainSubstring(fmt.Sprintf(versionMismatchMsg, "3.1", "mtahtml5ext", "2.1")))
 	})
+
+	It("fails when an the extension cannot be merged", func() {
+		ep := Loc{
+			SourcePath:         filepath.Join(wd, "testdata", "testext"),
+			ExtensionFileNames: []string{"bad_module.mtaext"},
+		}
+		_, err := ep.ParseFile()
+		Ω(err).Should(HaveOccurred())
+		Ω(err.Error()).Should(ContainSubstring("ui5app3"))
+	})
 })
 
 var _ = Describe("getSortedExtensions", func() {
