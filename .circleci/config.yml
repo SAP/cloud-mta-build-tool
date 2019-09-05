@@ -53,6 +53,7 @@ jobs:
   deploy:
     docker:
       - image: circleci/golang:1.11.5
+      - image: circleci/node:12.6.0
     working_directory: /go/src/github.com/SAP/cloud-mta-build-tool
     steps:
       - add_ssh_keys:
