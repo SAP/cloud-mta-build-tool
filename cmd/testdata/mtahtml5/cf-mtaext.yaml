@@ -1,5 +1,6 @@
 _schema-version: 2.1.0
-ID: com.company.vs.samples.odata.eb
+ID: com.company.vs.samples.odata.eb.ext
+extends: com.company.vs.samples.odata.eb
 version: 0.3.0
 
 parameters:
@@ -8,8 +9,6 @@ parameters:
 modules:
 
 - name: eb-java
-  type: java
-  path: srv
   requires:
   - name: ed-aaa
     properties:
@@ -39,8 +38,6 @@ modules:
       url: '${default-url}'
 
 - name: eb-db
-  type: hdb
-  path: db
   requires:
   - name: ed-aaa
 
@@ -48,7 +45,6 @@ modules:
 ### UI related artifacts
 
 - name: eb-uideployer
-  type: com.company.htm.application-content
   requires:
   - name: ed-apprepo-dt
   build-parameters:
@@ -68,8 +64,6 @@ modules:
     - name: eb-ui-md-materialmaster
 
 - name: eb-ui-conf-eb
-  type: htm
-  path: ui-conf-eb
   parameters:
     disk-quota: 256M
     memory: 256M
@@ -77,14 +71,11 @@ modules:
     builder: grunt
   requires:
   - name: java
-    group: destinations
     properties:
       name: java
       url: '~{url}'
 
 - name: eb-ui-conf-extensionfunction
-  type: htm
-  path: ui-conf-extensionfunction
   parameters:
     disk-quota: 256M
     memory: 256M
@@ -92,14 +83,11 @@ modules:
     builder: grunt
   requires:
   - name: java
-    group: destinations
     properties:
       name: java
       url: '~{url}'
 
 - name: eb-ui-conf-movementcategory
-  type: htm
-  path: ui-conf-movementcategory
   parameters:
     disk-quota: 256M
     memory: 256M
@@ -107,14 +95,11 @@ modules:
     builder: grunt
   requires:
   - name: java
-    group: destinations
     properties:
       name: java
       url: '~{url}'
 
 - name: eb-ui-conf-stockledgercharacteristic
-  type: htm
-  path: ui-conf-stockledgercharacteristic
   parameters:
     disk-quota: 256M
     memory: 256M
@@ -122,14 +107,11 @@ modules:
     builder: grunt
   requires:
   - name: java
-    group: destinations
     properties:
       name: java
       url: '~{url}'
 
 - name: eb-ui-conf-taxrate
-  type: htm
-  path: ui-conf-taxrate
   parameters:
     disk-quota: 256M
     memory: 256M
@@ -143,8 +125,6 @@ modules:
       url: '~{url}'
 
 - name: eb-ui-conf-taxwarehouse
-  type: htm
-  path: ui-conf-taxwarehouse
   parameters:
     disk-quota: 256M
     memory: 256M
@@ -152,14 +132,11 @@ modules:
     builder: grunt
   requires:
   - name: java
-    group: destinations
     properties:
       name: java
       url: '~{url}'
 
 - name: eb-ui-md-materialmaster
-  type: htm
-  path: ui-md-materialmaster
   parameters:
     disk-quota: 256M
     memory: 256M
@@ -167,14 +144,11 @@ modules:
     builder: grunt
   requires:
   - name: java
-    group: destinations
     properties:
       name: java
       url: '~{url}'
 
 - name: eb-ui-md-shiptomaster
-  type: htm
-  path: ui-md-shiptomaster
   parameters:
     disk-quota: 256M
     memory: 256M
@@ -182,14 +156,11 @@ modules:
     builder: grunt
   requires:
   - name: java
-    group: destinations
     properties:
       name: java
       url: '~{url}'
 
 - name: eb-ui-stockledgerlineitem
-  type: htm
-  path: ui-stockledgerlineitem
   parameters:
     disk-quota: 256M
     memory: 256M
@@ -197,14 +168,11 @@ modules:
     builder: grunt
   requires:
   - name: java
-    group: destinations
     properties:
       name: java
       url: '~{url}'
 
 - name: eb-ui-stockledgerlineitem-alp
-  type: htm
-  path: ui-stockledgerlineitem-alp
   parameters:
     disk-quota: 256M
     memory: 256M
@@ -212,14 +180,11 @@ modules:
     builder: grunt
   requires:
   - name: java
-    group: destinations
     properties:
       name: java
       url: '~{url}'
 
 - name: eb-ui-stockledgerprocessingerror
-  type: htm
-  path: ui-stockledgerprocessingerror
   parameters:
     disk-quota: 256M
     memory: 256M
@@ -227,14 +192,11 @@ modules:
     builder: grunt
   requires:
   - name: java
-    group: destinations
     properties:
       name: java
       url: '~{url}'
 
 - name: eb-approuter
-  type: approuter.nodejs
-  path: approuter
   parameters:
     disk-quota: 256M
     memory: 256M
@@ -246,19 +208,16 @@ modules:
   - name: ed-dest
   - name: ed-con
   - name: java
-    group: destinations
     properties:
       name: ed-backend
       url: ~{url}
       forwardAuthToken: true
   - name: eb-msahaa
-    group: destinations
     properties:
       name: msAHAA_BACKEND
       url: ~{url}
       forwardAuthToken: true
   - name: orca-remote-qbuilder-aaa
-    group: destinations
     properties:
       name: orca-remote-qbuilder-aaa
       url: ~{url}
@@ -277,8 +236,6 @@ modules:
         }
       ]
 - name: eb-ftp-content
-  type: com.company.portal.site-content
-  path: ftp-content
   parameters:
     memory: 128M
     buildpack: https://github.com/cloudfoundry
@@ -291,8 +248,6 @@ modules:
 ### Supporting artifacts
 
 - name: eb-sb
-  type: nodejs
-  path: service-broker/
   properties:
     SBF_BROKER_CREDENTIALS: >
       {
@@ -336,12 +291,10 @@ modules:
 
 resources:
 - name: ed-aaa
-  type: com.company.ms.aaa-container
   properties:
     aaa-container-name: '${service-name}'
 
 - name: ed-bbb
-  type: com.company.ms.bbb
   parameters:
     service-name: ed-bbb
     config:
@@ -414,7 +367,6 @@ resources:
         token-validity: 31536000
 
 - name: ed-sb-bbb
-  type: org.cloudfoundry.managed-service
   parameters:
     service: msbbb
     service-plan: broker
@@ -428,38 +380,32 @@ resources:
       - $XcompanyPNAME.ExecuteTaxCalc
 
 - name: ed-job-scheduler
-  type: org.cloudfoundry.managed-service
   parameters:
     service: jobscheduler
     service-plan: dev
 
 - name: ed-con
-  type: org.cloudfoundry.managed-service
   parameters:
     service: connectivity
     service-plan: lite
 
 - name: ed-dest
-  type: org.cloudfoundry.managed-service
   parameters:
     service: destination
     service-plan: lite
 
 
 - name: ed-apprepo-rt
-  type: org.cloudfoundry.managed-service
   parameters:
     service: htm-apps-repo
     service-plan: app-runtime
 
 - name: ed-apprepo-dt
-  type: org.cloudfoundry.managed-service
   parameters:
     service: htm-apps-repo
     service-plan: app-host
 
 - name: ed-portal
-  type: org.cloudfoundry.managed-service
   parameters:
     service-plan: standard
     service: portal
@@ -469,7 +415,6 @@ resources:
     url: 'https://company.com/'
 
 - name: ed-rabbit
-  type: org.cloudfoundry.managed-service
   parameters:
     service: rabbitmq
     service-plan: v3.6-dev
