@@ -5,7 +5,7 @@
 [![CircleCI](https://circleci.com/gh/SAP/cloud-mta-build-tool.svg?style=svg&circle-token=ecedd1dce3592adcd72ee4c61481972c32dcfad7)](https://circleci.com/gh/SAP/cloud-mta-build-tool)
 [![Go Report Card](https://goreportcard.com/badge/github.com/SAP/cloud-mta-build-tool)](https://goreportcard.com/report/github.com/SAP/cloud-mta-build-tool)
 ![GitHub license](https://img.shields.io/badge/license-Apache_2.0-blue.svg)
-![pre-alpha](https://img.shields.io/badge/Release-pre--alpha-orange.svg)
+![Beta](https://img.shields.io/badge/Release-Beta-orange.svg)
 
 
 
