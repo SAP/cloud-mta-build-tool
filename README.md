@@ -7,6 +7,7 @@
 [![Coverage Status](https://coveralls.io/repos/github/SAP/cloud-mta-build-tool/badge.svg?branch=cover)](https://coveralls.io/github/SAP/cloud-mta-build-tool?branch=cover) 
 ![GitHub license](https://img.shields.io/badge/license-Apache_2.0-blue.svg)
 ![Beta](https://img.shields.io/badge/Release-Beta-orange.svg)
+[![GitHub stars](https://img.shields.io/badge/contributions-welcome-orange.svg)](docs/docs/process.md)
 
 
 
