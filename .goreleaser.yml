@@ -1,7 +1,5 @@
 project_name: cloud-mta-build-tool
 before:
-#  hooks:
-#    - go generate ./...
 builds:
   - goos:
       - linux
