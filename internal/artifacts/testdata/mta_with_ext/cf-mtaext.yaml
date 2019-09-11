@@ -1,1 +1,0 @@
-ID: mtahtml5extextends: mtahtml5_schema-version: '2.1'version: 0.0.1modules: - name: ui5app   properties:      my_prop: 1 - name: ui5app2   type: html5   parameters:      memory: 512M

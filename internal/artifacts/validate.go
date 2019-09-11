@@ -3,6 +3,7 @@ package artifacts
 import (
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/pkg/errors"
 
@@ -24,13 +25,33 @@ func ExecuteValidation(source, desc string, extensions []string, mode, strict, e
 	if err != nil {
 		return errors.Wrap(err, validationFailedOnLocMsg)
 	}
-	validateSchema, validateProject, err := validate.GetValidationMode(mode)
+	validateSchema, validateSemantic, err := validate.GetValidationMode(mode)
 	if err != nil {
 		return errors.Wrap(err, validationFailedOnModeMsg)
 	}
-	warn, err := validate.MtaYaml(source, loc.GetMtaYamlFilename(), validateSchema, validateProject, strictValue, exclude)
+
+	var validationErrors []string
+	warn, err := validate.MtaYaml(source, loc.GetMtaYamlFilename(), validateSchema, validateSemantic, strictValue, exclude)
 	if warn != "" {
-		logs.Logger.Warn(warn)
+		logs.Logger.Warnf("%s: %s", loc.GetMtaYamlFilename(), warn)
 	}
-	return err
+	if err != nil {
+		validationErrors = append(validationErrors, err.Error())
+	}
+
+	for _, ext := range loc.GetExtensionFilePaths() {
+		warn, err = validate.Mtaext(source, ext, validateSchema, validateSemantic, strictValue, exclude)
+		if warn != "" {
+			logs.Logger.Warnf("%s: %s", ext, warn)
+		}
+		if err != nil {
+			validationErrors = append(validationErrors, err.Error())
+		}
+	}
+
+	if len(validationErrors) > 0 {
+		return errors.New(strings.Join(validationErrors, "\n"))
+	}
+
+	return nil
 }
