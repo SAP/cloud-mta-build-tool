@@ -3,7 +3,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:250e17236b22c6527198d0b6adc74e76e0e0bdeef47fa98cbeadc488432e03f5"
+  digest = "1:2959063bc10ed23f7078d531edbbb3bdccd572936dd9f15a36b0ff23b218af78"
   name = "github.com/SAP/cloud-mta"
   packages = [
     "internal/fs",
@@ -12,7 +12,7 @@
     "validations",
   ]
   pruneopts = "UT"
-  revision = "e4819957f47ded672697d999d459e72a09803bfb"
+  revision = "3955fee8d0ab47770b351a3fc152d4ca433d944d"
 
 [[projects]]
   digest = "1:e47d51dab652d26c3fba6f8cba403f922d02757a82abdc77e90df7948daf296e"
@@ -384,11 +384,11 @@
 
 [[projects]]
   branch = "v3"
-  digest = "1:779222b9ba282af681a4a202584a7cfd3cc811ce5a25de45f0c7eb35b320b577"
+  digest = "1:8c78d1c8c4200a1e22f230e90fe907d16f04ed1f9821951f60956e0fec5ac75a"
   name = "gopkg.in/yaml.v3"
   packages = ["."]
   pruneopts = "UT"
-  revision = "cdc409dda467df8d60dc5c7d18f38e810979de95"
+  revision = "35294daf730cc7a4cafa7aa2783d770681301c06"
 
 [solve-meta]
   analyzer-name = "dep"
