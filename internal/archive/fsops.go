@@ -75,7 +75,7 @@ func Archive(sourcePath, targetArchivePath string, ignore []string) (e error) {
 		return err
 	}
 
-	err = walk(sourcePath, baseDir, archive, ignoreMap)
+	err = walk(sourcePath, baseDir, "", "", archive, ignoreMap)
 	return err
 }
 
@@ -106,7 +106,7 @@ func CloseFile(file io.Closer, err error) error {
 	return err
 }
 
-func walk(sourcePath string, baseDir string, archive *zip.Writer, ignore map[string]interface{}) error {
+func walk(sourcePath string, baseDir, symLinkPath, linkedPath string, archive *zip.Writer, ignore map[string]interface{}) error {
 
 	// pack files of source into archive
 	return filepath.Walk(sourcePath, func(path string, info os.FileInfo, err error) error {
@@ -121,21 +121,76 @@ func walk(sourcePath string, baseDir string, archive *zip.Writer, ignore map[str
 			return nil
 		}
 
+		if info.Mode()&os.ModeSymlink != 0 {
+			return addSymbolicLinkToArchive(path, baseDir, symLinkPath, linkedPath, archive, ignore)
+		}
+
 		// Don't add the base folder to the zip
 		if info.IsDir() && filepath.Clean(path) == filepath.Clean(baseDir) {
 			return nil
 		}
 
-		// Path in zip should be with slashes (in all operating systems)
-		pathInZip := filepath.ToSlash(getRelativePath(path, baseDir))
-
-		// Folders must end with "/"
-		if info.IsDir() {
-			pathInZip += "/"
-		}
+		pathInZip := getPathInZip(path, baseDir, symLinkPath, linkedPath, info)
 
 		return addToArchive(path, pathInZip, info, archive)
 	})
+}
+
+func getPathInZip(path string, baseDir, symLinkPath, linkedPath string, info os.FileInfo) string {
+	// Path in zip should be with slashes (in all operating systems)
+	if filepath.Clean(path) == filepath.Clean(baseDir) {
+		return ""
+	}
+	var pathInZip string
+
+	if linkedPath != "" {
+		relPath := getRelativePath(path, linkedPath)
+		pathInZip = filepath.Join(symLinkPath, relPath)
+	} else {
+		pathInZip = getRelativePath(path, baseDir)
+	}
+	pathInZip = filepath.ToSlash(pathInZip)
+
+	// Folders must end with "/"
+	if info.IsDir() {
+		pathInZip += "/"
+	}
+	return pathInZip
+}
+
+func addSymbolicLinkToArchive(path string, baseDir, parentSymLinkPath, parentLinkedPath string, archive *zip.Writer, ignore map[string]interface{}) (e error) {
+	// get path that symbolic link points to
+	linkedPath, err := os.Readlink(path)
+	if err != nil {
+		return err
+	}
+	linkedInfo, err := os.Stat(linkedPath)
+	if err != nil {
+		return err
+	}
+
+	pathInZip := getPathInZip(path, baseDir, parentSymLinkPath, parentLinkedPath, linkedInfo)
+
+	if !linkedInfo.IsDir() || filepath.Clean(path) != filepath.Clean(baseDir) {
+		err = addToArchive(linkedPath, pathInZip, linkedInfo, archive)
+		if err != nil {
+			return err
+		}
+	}
+
+	if linkedInfo.IsDir() {
+		files, err := ioutil.ReadDir(linkedPath)
+		if err != nil {
+			return err
+		}
+		for _, file := range files {
+			err = walk(filepath.Join(linkedPath, file.Name()), baseDir, pathInZip, linkedPath, archive, ignore)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }
 
 func addToArchive(path string, pathInZip string, info os.FileInfo, archive *zip.Writer) (e error) {
@@ -426,7 +481,7 @@ func getRelativePath(fullPath, basePath string) string {
 	if basePath == "" {
 		return fullPath
 	}
-	return strings.TrimPrefix(fullPath, basePath)
+	return strings.TrimPrefix(strings.TrimPrefix(fullPath, basePath), string(filepath.Separator))
 }
 
 // Read returns mta byte slice.

@@ -111,7 +111,30 @@ var _ = Describe("FSOPS", func() {
 			Entry("Target is empty string",
 				getFullPath("testdata", "mtahtml5"), "", nil, true, nil),
 			Entry("Source is empty string", "", "", nil, true, nil),
+			// folder module (which is symbolic link itself) is archived
+			// it points to folder moduleNew that consists of symlink pointing to content and package.json
+			// etc... thus we check a complex case consisting of normal files/folders and symbolic links that are also
+			// files and folders
+			Entry("symbolic links",
+				getFullPath("testdata", "testsymlink", "module"), targetFilePath, nil, false,
+				[]string{"package.json", "symlink/", "symlink/symlink2/", "symlink/symlink2/symlink3.txt",
+					"symlink/symlink2/test3.txt", "symlink/test.txt", "symlink/test_dir/", "symlink/test_dir/test1.txt"}),
 		)
+	})
+
+	var _ = Describe("addSymbolicLinkToArchive - failures", func() {
+		It("not a symbolic link", func() {
+			Ω(addSymbolicLinkToArchive(getFullPath("testdata", "testsymlink", "test4.txt"),
+				getFullPath("testdata", "testsymlink"), "", "", nil, nil)).Should(HaveOccurred())
+		})
+		It("broken symbolic link (points to the deleted folder)", func() {
+			Ω(addSymbolicLinkToArchive(getFullPath("testdata", "testsymlink", "brokensymlink"),
+				getFullPath("testdata", "testsymlink"), "", "", nil, nil)).Should(HaveOccurred())
+		})
+		It("link to folder with broken symbolic link", func() {
+			Ω(addSymbolicLinkToArchive(getFullPath("testdata", "testsymlink", "link_to_folder_with_broken_symlink"),
+				getFullPath("testdata", "testsymlink", "link_to_folder_with_broken_symlink"), "", "", nil, nil)).Should(HaveOccurred())
+		})
 	})
 
 	var _ = Describe("Create File", func() {
@@ -293,9 +316,15 @@ var _ = Describe("FSOPS", func() {
 		)
 	})
 
-	It("getRelativePath", func() {
-		Ω(getRelativePath(getFullPath("abc", "xyz", "fff"),
-			filepath.Join(getFullPath()))).Should(Equal(string(filepath.Separator) + filepath.Join("abc", "xyz", "fff")))
+	var _ = Describe("getRelativePath", func() {
+		It("non empty base path", func() {
+			Ω(getRelativePath(getFullPath("abc", "xyz", "fff"),
+				filepath.Join(getFullPath()))).Should(Equal(filepath.Join("abc", "xyz", "fff")))
+		})
+
+		It("empty base path", func() {
+			Ω(getRelativePath(getFullPath("abc", "xyz", "fff"), "")).Should(Equal(getFullPath("abc", "xyz", "fff")))
+		})
 	})
 
 	It("copyByPattern - fails because target is file", func() {
