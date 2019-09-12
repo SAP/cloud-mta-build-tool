@@ -13,6 +13,34 @@ import (
 	"github.com/SAP/cloud-mta-build-tool/internal/logs"
 )
 
+type fileInfoProviderI interface {
+	isSymbolicLink(file os.FileInfo) bool
+	isDir(file os.FileInfo) bool
+	readlink(path string) (string, error)
+	stat(name string) (os.FileInfo, error)
+}
+
+type standardFileInfoProvider struct {
+}
+
+func (provider *standardFileInfoProvider) isSymbolicLink(file os.FileInfo) bool {
+	return file.Mode()&os.ModeSymlink != 0
+}
+
+func (provider *standardFileInfoProvider) isDir(file os.FileInfo) bool {
+	return file.IsDir()
+}
+
+func (provider *standardFileInfoProvider) readlink(path string) (string, error) {
+	return os.Readlink(path)
+}
+
+func (provider *standardFileInfoProvider) stat(name string) (os.FileInfo, error) {
+	return os.Stat(name)
+}
+
+var fileInfoProvider fileInfoProviderI = &standardFileInfoProvider{}
+
 // CreateDirIfNotExist - Create new dir
 func CreateDirIfNotExist(dir string) error {
 	info, err := os.Stat(dir)
@@ -121,7 +149,7 @@ func walk(sourcePath string, baseDir, symLinkPath, linkedPath string, archive *z
 			return nil
 		}
 
-		if info.Mode()&os.ModeSymlink != 0 {
+		if fileInfoProvider.isSymbolicLink(info) {
 			return addSymbolicLinkToArchive(path, baseDir, symLinkPath, linkedPath, archive, ignore)
 		}
 
@@ -160,25 +188,25 @@ func getPathInZip(path string, baseDir, symLinkPath, linkedPath string, info os.
 
 func addSymbolicLinkToArchive(path string, baseDir, parentSymLinkPath, parentLinkedPath string, archive *zip.Writer, ignore map[string]interface{}) (e error) {
 	// get path that symbolic link points to
-	linkedPath, err := os.Readlink(path)
+	linkedPath, err := fileInfoProvider.readlink(path)
 	if err != nil {
 		return err
 	}
-	linkedInfo, err := os.Stat(linkedPath)
+	linkedInfo, err := fileInfoProvider.stat(linkedPath)
 	if err != nil {
 		return err
 	}
 
 	pathInZip := getPathInZip(path, baseDir, parentSymLinkPath, parentLinkedPath, linkedInfo)
 
-	if !linkedInfo.IsDir() || filepath.Clean(path) != filepath.Clean(baseDir) {
+	if !fileInfoProvider.isDir(linkedInfo) || filepath.Clean(path) != filepath.Clean(baseDir) {
 		err = addToArchive(linkedPath, pathInZip, linkedInfo, archive)
 		if err != nil {
 			return err
 		}
 	}
 
-	if linkedInfo.IsDir() {
+	if fileInfoProvider.isDir(linkedInfo) {
 		files, err := ioutil.ReadDir(linkedPath)
 		if err != nil {
 			return err

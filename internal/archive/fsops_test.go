@@ -65,12 +65,16 @@ var _ = Describe("FSOPS", func() {
 	var _ = Describe("Archive", func() {
 		var targetFilePath = getFullPath("testdata", "arch.mbt")
 
+		BeforeEach(func() {
+			fileInfoProvider = &mockFileInfoProvider{}
+		})
+
 		AfterEach(func() {
+			fileInfoProvider = &standardFileInfoProvider{}
 			Ω(os.RemoveAll(targetFilePath)).Should(Succeed())
 		})
 
 		var _ = DescribeTable("Archive", func(source, target string, ignore []string, fails bool, expectedFiles []string) {
-
 			err := Archive(source, target, ignore)
 			if fails {
 				Ω(err).Should(HaveOccurred())
@@ -116,13 +120,24 @@ var _ = Describe("FSOPS", func() {
 			// etc... thus we check a complex case consisting of normal files/folders and symbolic links that are also
 			// files and folders
 			Entry("symbolic links",
-				getFullPath("testdata", "testsymlink", "module"), targetFilePath, nil, false,
-				[]string{"package.json", "symlink/", "symlink/symlink2/", "symlink/symlink2/symlink3.txt",
-					"symlink/symlink2/test3.txt", "symlink/test.txt", "symlink/test_dir/", "symlink/test_dir/test1.txt"}),
+				getFullPath("testdata", "testsymlink", "module_symlink_dir"), targetFilePath, nil, false,
+				[]string{"module_symlink_dir/", "module_symlink_dir/symlink_dir/", "module_symlink_dir/package.json",
+					"module_symlink_dir/symlink_dir/test_dir/", "module_symlink_dir/symlink_dir/test_dir/test1.txt",
+					"module_symlink_dir/symlink_dir/test.txt",
+					"module_symlink_dir/symlink_dir/symlink2_dir/", "module_symlink_dir/symlink_dir/symlink2_dir/test3.txt",
+					"module_symlink_dir/symlink_dir/symlink2_dir/symlink3.txt"}),
 		)
 	})
 
 	var _ = Describe("addSymbolicLinkToArchive - failures", func() {
+		BeforeEach(func() {
+			fileInfoProvider = &mockFileInfoProvider{}
+		})
+
+		AfterEach(func() {
+			fileInfoProvider = &standardFileInfoProvider{}
+		})
+
 		It("not a symbolic link", func() {
 			Ω(addSymbolicLinkToArchive(getFullPath("testdata", "testsymlink", "test4.txt"),
 				getFullPath("testdata", "testsymlink"), "", "", nil, nil)).Should(HaveOccurred())
@@ -132,8 +147,8 @@ var _ = Describe("FSOPS", func() {
 				getFullPath("testdata", "testsymlink"), "", "", nil, nil)).Should(HaveOccurred())
 		})
 		It("link to folder with broken symbolic link", func() {
-			Ω(addSymbolicLinkToArchive(getFullPath("testdata", "testsymlink", "link_to_folder_with_broken_symlink"),
-				getFullPath("testdata", "testsymlink", "link_to_folder_with_broken_symlink"), "", "", nil, nil)).Should(HaveOccurred())
+			Ω(addSymbolicLinkToArchive(getFullPath("testdata", "testsymlink", "link_to_folder_with_broken_symlink_dir"),
+				getFullPath("testdata", "testsymlink", "link_to_folder_with_broken_symlink_dir"), "", "", nil, nil)).Should(HaveOccurred())
 		})
 	})
 
@@ -381,6 +396,27 @@ var _ = Describe("FSOPS", func() {
 		Entry("New error", true, nil, errors.New("failed to close")),
 		Entry("Original and new errors", true, errors.New("original error"), errors.New("original error")),
 	)
+
+	var _ = Describe("fileInfoProvider", func() {
+		It("isSymbolicLink", func() {
+			fileInfo, err := os.Stat(getFullPath("testdata"))
+			Ω(err).Should(Succeed())
+			Ω(fileInfoProvider.isSymbolicLink(fileInfo)).Should(BeFalse())
+		})
+		It("isDir", func() {
+			fileInfo, err := os.Stat(getFullPath("testdata"))
+			Ω(err).Should(Succeed())
+			Ω(fileInfoProvider.isDir(fileInfo)).Should(BeTrue())
+		})
+		It("readlink", func() {
+			_, err := fileInfoProvider.readlink(getFullPath("testdata"))
+			Ω(err).Should(HaveOccurred())
+		})
+		It("stat", func() {
+			_, err := fileInfoProvider.stat(getFullPath("testdata"))
+			Ω(err).Should(Succeed())
+		})
+	})
 })
 
 func countFilesInDir(name string) int {
@@ -453,4 +489,44 @@ func contains(element string, elements []string) bool {
 		}
 	}
 	return false
+}
+
+type mockFileInfoProvider struct {
+}
+
+func (provider *mockFileInfoProvider) isSymbolicLink(file os.FileInfo) bool {
+	return strings.Contains(file.Name(), "symlink")
+}
+
+func (provider *mockFileInfoProvider) isDir(file os.FileInfo) bool {
+	if provider.isSymbolicLink(file) {
+		return strings.Contains(file.Name(), "_dir")
+	}
+	return file.IsDir()
+}
+
+func (provider *mockFileInfoProvider) readlink(path string) (string, error) {
+	switch path {
+	case getFullPath("testdata", "testsymlink", "module_symlink_dir"):
+		return getFullPath("testdata", "testsymlink", "moduleNew"), nil
+	case getFullPath("testdata", "testsymlink", "moduleNew", "symlink_dir"):
+		return getFullPath("testdata", "testsymlink", "content"), nil
+	case getFullPath("testdata", "testsymlink", "content", "symlink2_dir"):
+		return getFullPath("testdata", "testsymlink", "another_content"), nil
+	case getFullPath("testdata", "testsymlink", "another_content", "symlink3.txt"):
+		return getFullPath("testdata", "testsymlink", "test4.txt"), nil
+	case getFullPath("testdata", "testsymlink", "folder_with_broken_symlink", "broken_symlink2"):
+		return "", errors.New("broken link")
+	case getFullPath("testdata", "testsymlink", "link_tobrokensymlink_dir"):
+		return getFullPath("testdata", "testsymlink", "folder_with_broken_symlink"), nil
+	case getFullPath("testdata", "testsymlink", "brokensymlink"):
+		return getFullPath("testdata", "testsymlink", "unexisting_folder"), nil
+	case getFullPath("testdata", "testsymlink", "link_to_folder_with_broken_symlink_dir"):
+		return getFullPath("testdata", "testsymlink", "link_tobrokensymlink_dir"), nil
+	}
+	return os.Readlink(path)
+}
+
+func (provider *mockFileInfoProvider) stat(name string) (os.FileInfo, error) {
+	return os.Stat(name)
 }
