@@ -9,6 +9,8 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
+
+	"github.com/SAP/cloud-mta/mta"
 )
 
 func getPath(relPath ...string) string {
@@ -167,8 +169,7 @@ var _ = Describe("ParseExtFile", func() {
 		_, e := ep.ParseExtFile("neo-mtaext.yaml")
 		Ω(e).Should(HaveOccurred())
 	})
-	// Skipped because mta.UnmarshalExt accepts everything and there's no way to create an invalid yaml file currently
-	XIt("Invalid file content", func() {
+	It("Invalid file content", func() {
 		ep := &Loc{SourcePath: filepath.Join(wd, "testdata", "testext")}
 		_, e := ep.ParseExtFile("invalid.mtaext")
 		Ω(e).Should(HaveOccurred())
@@ -231,6 +232,36 @@ var _ = Describe("ParseFile", func() {
 		Ω(err).Should(Succeed())
 		Ω(module2.Parameters).ShouldNot(BeNil())
 		Ω(module2.Parameters["memory"]).Should(Equal("1024M"))
+	})
+
+	It("fails when an extension version mismatches the MTA version", func() {
+		ep := Loc{
+			SourcePath:         filepath.Join(wd, "testdata", "testext"),
+			ExtensionFileNames: []string{"bad_version.mtaext", "other.mtaext"},
+		}
+		_, err := ep.ParseFile()
+		Ω(err).Should(HaveOccurred())
+		Ω(err.Error()).Should(ContainSubstring(fmt.Sprintf(versionMismatchMsg, "3.1", "mtahtml5ext", "2.1")))
+	})
+
+	It("fails when an the extension cannot be merged", func() {
+		ep := Loc{
+			SourcePath:         filepath.Join(wd, "testdata", "testext"),
+			ExtensionFileNames: []string{"bad_module.mtaext"},
+		}
+		_, err := ep.ParseFile()
+		Ω(err).Should(HaveOccurred())
+		Ω(err.Error()).Should(ContainSubstring("ui5app3"))
+	})
+
+	It("fails when the sent extensions don't extend this mta.yaml", func() {
+		ep := Loc{
+			SourcePath:         filepath.Join(wd, "testdata", "testext"),
+			ExtensionFileNames: []string{"other.mtaext"},
+		}
+		_, err := ep.ParseFile()
+		Ω(err).Should(HaveOccurred())
+		Ω(err.Error()).Should(ContainSubstring(fmt.Sprintf(unknownExtendsMsg, "")))
 	})
 })
 
@@ -325,6 +356,34 @@ var _ = Describe("getSortedExtensions", func() {
 		Entry("extensions are not in the order of the chain", []string{"third.mtaext", "cf-mtaext.yaml", "other.mtaext"}, []string{"mtahtml5ext", "mtahtml5ext2", "mtahtml5ext3"}),
 	)
 })
+
+var _ = DescribeTable("checkSchemaVersionMatches", func(mtaVersion *string, extVersion *string, expectedError bool) {
+	err := checkSchemaVersionMatches(&mta.MTA{SchemaVersion: mtaVersion}, &mta.EXT{SchemaVersion: extVersion})
+	if expectedError {
+		Ω(err).Should(HaveOccurred())
+	} else {
+		Ω(err).Should(Succeed())
+	}
+},
+	Entry("nil versions", nil, nil, false),
+	Entry("empty versions", ptr(""), ptr(""), false),
+	Entry("mta version is empty, ext version isn't empty", ptr(""), ptr("3.1"), true),
+	Entry("mta version isn't empty, ext version is empty", ptr("2.1"), ptr(""), true),
+	Entry("different major versions when minor version is specified", ptr("2.1"), ptr("3.1"), true),
+	Entry("different major versions when minor version isn't specified", ptr("2"), ptr("3"), true),
+	Entry("different minor versions", ptr("3.3"), ptr("3.1"), false),
+	Entry("mta version is major.minor, ext only has major part", ptr("3.1"), ptr("3"), false),
+	Entry("mta version only has major part, ext is major.minor", ptr("3"), ptr("3.2"), false),
+	Entry("different patch version", ptr("3.2.1"), ptr("3.2.2"), false),
+	Entry("only mta has patch version", ptr("3.2.1"), ptr("3.2"), false),
+	Entry("same version - major", ptr("3"), ptr("3"), false),
+	Entry("same version - major.minor", ptr("3.3"), ptr("3.3"), false),
+	Entry("same version - major.minor.patch", ptr("3.4.5"), ptr("3.4.5"), false),
+)
+
+func ptr(str string) *string {
+	return &str
+}
 
 var _ = Describe("Location", func() {
 	It("Dev Descritor", func() {

@@ -235,8 +235,16 @@ func (ep *Loc) ParseFile() (*mta.MTA, error) {
 		return mtaFile, err
 	}
 	for _, extFile := range extensions {
-		// TODO error handling once Merge returns an error
-		mta.Merge(mtaFile, extFile)
+		// Check there is no version mismatch - the extension must have the same major.minor as the MTA
+		err = checkSchemaVersionMatches(mtaFile, extFile)
+		if err != nil {
+			return mtaFile, err
+		}
+
+		err = mta.Merge(mtaFile, extFile)
+		if err != nil {
+			return mtaFile, err
+		}
 	}
 	return mtaFile, nil
 }
@@ -326,6 +334,23 @@ func sortAndVerifyExtendsChain(extensionFileNames []string, mtaID string, extend
 	return extFiles, nil
 }
 
+func checkSchemaVersionMatches(mta *mta.MTA, ext *mta.EXT) error {
+	mtaVersion := ""
+	if mta.SchemaVersion != nil {
+		mtaVersion = *mta.SchemaVersion
+	}
+	extVersion := ""
+	if ext.SchemaVersion != nil {
+		extVersion = *ext.SchemaVersion
+	}
+
+	if strings.SplitN(mtaVersion, ".", 2)[0] != strings.SplitN(extVersion, ".", 2)[0] {
+		return errors.Errorf(versionMismatchMsg, extVersion, ext.ID, mtaVersion)
+	}
+
+	return nil
+}
+
 // GetExtensionFilePaths returns the MTA extension descriptor full paths
 func (ep *Loc) GetExtensionFilePaths() []string {
 	paths := make([]string, len(ep.ExtensionFileNames))
@@ -339,10 +364,15 @@ func (ep *Loc) GetExtensionFilePaths() []string {
 func (ep *Loc) ParseExtFile(extFileName string) (*mta.EXT, error) {
 	yamlContent, err := ReadExt(ep, extFileName)
 	if err != nil {
-		return nil, errors.Wrapf(err, parseExtFileFailed, ep.GetMtaExtYamlPath(extFileName))
+		return nil, err
 	}
+
 	// Parse MTA extension file
-	return mta.UnmarshalExt(yamlContent)
+	mtaExt, err := mta.UnmarshalExt(yamlContent)
+	if err != nil {
+		return mtaExt, errors.Wrapf(err, parseExtFileFailed, ep.GetMtaExtYamlPath(extFileName))
+	}
+	return mtaExt, nil
 }
 
 // Location - provides Location parameters of MTA
