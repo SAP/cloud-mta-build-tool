@@ -178,7 +178,7 @@ var _ = Describe("Integration - CloudMtaBuildTool", func() {
 			actual, e := mta.Unmarshal(mtadContent)
 			Ω(e).Should(Succeed())
 			expected, e := mta.Unmarshal([]byte(`
-_schema-version: "3.3"
+_schema-version: "3.1"
 ID: mta_demo
 version: 0.0.1
 modules:
@@ -212,7 +212,7 @@ parameters:
 			actual, e := mta.Unmarshal(mtadContent)
 			Ω(e).Should(Succeed())
 			expected, e := mta.Unmarshal([]byte(`
-_schema-version: "3.3"
+_schema-version: "3.1"
 ID: mta_demo
 version: 0.0.1
 modules:
@@ -305,7 +305,7 @@ modules:
 				actual, e := mta.Unmarshal(mtadContent)
 				Ω(e).Should(Succeed())
 				expected, e := mta.Unmarshal([]byte(`
-_schema-version: "3.3"
+_schema-version: "3.1"
 ID: mta_demo
 version: 0.0.1
 modules:
