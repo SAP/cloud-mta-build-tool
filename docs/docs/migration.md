@@ -39,10 +39,4 @@ If you try to build the project without these changes, the build tool will ident
 * You can define your own build commands as described here: [configuring `custom` builder](configuration.md#configuring-the-custom-builder). 
 &nbsp; 
 
-#### Features that are temporarily not available in the Cloud MTA Build Tool
-
-The following features are supported by the [Multitarget Application Archive Builder](https://help.sap.com/viewer/58746c584026430a890170ac4d87d03b/Cloud/en-US/ba7dd5a47b7a4858a652d15f9673c28d.html) and will be provided in the Cloud MTA Build Tool soon:
-
-
-* Running MTA builds with extension files
 
