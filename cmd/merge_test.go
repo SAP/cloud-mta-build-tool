@@ -13,7 +13,7 @@ import (
 
 var _ = Describe("Merge commands call", func() {
 	AfterEach(func() {
-		Ω(os.RemoveAll(getTestPath("mtaext", "result.yaml"))).Should(Succeed())
+		Ω(os.RemoveAll(getTestPath("result", "result.yaml"))).Should(Succeed())
 	})
 	It("merges with one extension", func() {
 		path := getTestPath("mtaext")
@@ -26,8 +26,10 @@ var _ = Describe("Merge commands call", func() {
 
 		mtadPath := filepath.Join(mergeCmdTrg, "result.yaml")
 		Ω(mtadPath).Should(BeAnExistingFile())
-		content, _ := ioutil.ReadFile(mtadPath)
-		mtaObj, _ := mta.Unmarshal(content)
+		content, e := ioutil.ReadFile(mtadPath)
+		Ω(e).Should(Succeed())
+		mtaObj, e := mta.Unmarshal(content)
+		Ω(e).Should(Succeed())
 		expected, e := mta.Unmarshal([]byte(`
 ID: mta_demo
 _schema-version: '2.1'
