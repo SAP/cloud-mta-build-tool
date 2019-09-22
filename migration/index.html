@@ -599,7 +599,9 @@ You need to update your <code>mta.yaml</code> file to exclude <code>html5</code>
 <ul>
 <li>The following <code>build-parameters</code> are not supported by the Cloud MTA Build Tool: <ul><li><code>npm-opts</code><li><code>grunt-opt</code><li><code>maven-opts</code></ul></li>
 </ul>
-<p>If you need to change the default build behavior defined for the corresponding builder, see <a href="../configuration/#configuring-the-custom-builder">configure <code>custom</code> builder</a>. For a complete list of available builders and their default behaviors, see <a href="https://github.com/SAP/cloud-mta-build-tool/blob/master/configs/builder_type_cfg.yaml">Builders execution commands</a>.</p>
+<p>If you need to change the default build behavior defined for the corresponding builder, see <a href="../configuration/#configuring-the-custom-builder">configure <code>custom</code> builder</a>. For a complete list of available builders and their default behaviors, see <a href="https://github.com/SAP/cloud-mta-build-tool/blob/master/configs/builder_type_cfg.yaml">Builders execution commands</a>.
+&nbsp;
+* In the <a href="https://help.sap.com/viewer/58746c584026430a890170ac4d87d03b/Cloud/en-US/ba7dd5a47b7a4858a652d15f9673c28d.html">Multitarget Application Archive Builder</a> it was allowed to give the same names to a module and to one of its provided property sets. The Cloud MTA Build tool strictly validates that names of artifacts that can be referenced in the <code>requires</code> section (module, resources, and provided property) are unique within the <code>mta.yaml</code> file. This is to ensure that the referenced artifact can be unambiguously resolved when its name is used in the <code>requires</code> section. When migrating to the tool, make sure the names of the mentioned artifacts are unique in the <code>mta.yaml</code> file.</p>
 <hr />
 <p><strong>NOTE</strong>
 If you try to build the project without these changes, the build tool will identify the cases and will fail the build with the corresponding errors.</p>
