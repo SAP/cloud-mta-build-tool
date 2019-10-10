@@ -27,6 +27,6 @@
   },
   "homepage": "https://github.com/SAP/cloud-mta-build-tool#readme",
   "dependencies": {
-    "binwrap": "^0.2.1"
+    "binwrap": "0.2.2"
   }
 }
