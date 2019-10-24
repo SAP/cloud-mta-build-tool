@@ -60,7 +60,7 @@ func CreateDirIfNotExist(dir string) error {
 func Archive(sourcePath, targetArchivePath string, ignore []string) (e error) {
 
 	// check that folder to be packed exist
-	info, err := os.Stat(sourcePath)
+	info, err := fileInfoProvider.stat(sourcePath)
 	if err != nil {
 		return err
 	}
@@ -103,15 +103,28 @@ func Archive(sourcePath, targetArchivePath string, ignore []string) (e error) {
 		return err
 	}
 
-	err = walk(sourcePath, baseDir, "", "", archive, ignoreMap)
+	err = walk(sourcePath, baseDir, "", "", archive, make(map[string]bool), ignoreMap)
 	return err
 }
 
 // getIgnoresMap - getIgnores Helper
 func getIgnoredEntries(ignore []string, sourcePath string) (map[string]interface{}, error) {
+
+	info, err := fileInfoProvider.stat(sourcePath)
+	if err != nil {
+		return nil, err
+	}
+	regularSourcePath := sourcePath
+	if fileInfoProvider.isSymbolicLink(info) {
+		regularSourcePath, _, _, err = dereferenceSymlink(sourcePath, make(map[string]bool))
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	ignoredEntriesMap := map[string]interface{}{}
 	for _, ign := range ignore {
-		path := filepath.Join(sourcePath, ign)
+		path := filepath.Join(regularSourcePath, ign)
 		entries, err := filepath.Glob(path)
 		if err != nil {
 			return nil, err
@@ -134,7 +147,9 @@ func CloseFile(file io.Closer, err error) error {
 	return err
 }
 
-func walk(sourcePath string, baseDir, symLinkPath, linkedPath string, archive *zip.Writer, ignore map[string]interface{}) error {
+func walk(sourcePath string, baseDir, symLinkPathInZip, linkedPath string, archive *zip.Writer,
+	symlinks map[string]bool,
+	ignore map[string]interface{}) error {
 
 	// pack files of source into archive
 	return filepath.Walk(sourcePath, func(path string, info os.FileInfo, err error) error {
@@ -150,7 +165,7 @@ func walk(sourcePath string, baseDir, symLinkPath, linkedPath string, archive *z
 		}
 
 		if fileInfoProvider.isSymbolicLink(info) {
-			return addSymbolicLinkToArchive(path, baseDir, symLinkPath, linkedPath, archive, ignore)
+			return addSymbolicLinkToArchive(path, baseDir, symLinkPathInZip, linkedPath, archive, symlinks, ignore)
 		}
 
 		// Don't add the base folder to the zip
@@ -158,14 +173,13 @@ func walk(sourcePath string, baseDir, symLinkPath, linkedPath string, archive *z
 			return nil
 		}
 
-		pathInZip := getPathInZip(path, baseDir, symLinkPath, linkedPath, info)
+		pathInZip := getPathInZip(path, baseDir, symLinkPathInZip, linkedPath, info)
 
 		return addToArchive(path, pathInZip, info, archive)
 	})
 }
 
 func getPathInZip(path string, baseDir, symLinkPath, linkedPath string, info os.FileInfo) string {
-	// Path in zip should be with slashes (in all operating systems)
 	if filepath.Clean(path) == filepath.Clean(baseDir) {
 		return ""
 	}
@@ -177,6 +191,8 @@ func getPathInZip(path string, baseDir, symLinkPath, linkedPath string, info os.
 	} else {
 		pathInZip = getRelativePath(path, baseDir)
 	}
+
+	// Path in zip should be with slashes (in all operating systems)
 	pathInZip = filepath.ToSlash(pathInZip)
 
 	// Folders must end with "/"
@@ -186,13 +202,55 @@ func getPathInZip(path string, baseDir, symLinkPath, linkedPath string, info os.
 	return pathInZip
 }
 
-func addSymbolicLinkToArchive(path string, baseDir, parentSymLinkPath, parentLinkedPath string, archive *zip.Writer, ignore map[string]interface{}) (e error) {
-	// get path that symbolic link points to
-	linkedPath, err := fileInfoProvider.readlink(path)
-	if err != nil {
-		return err
+func symlinkReferencesPredecessor(path string, predecessors map[string]bool) bool {
+	_, ok := predecessors[path]
+	return ok
+}
+
+func dereferenceSymlink(path string, predecessors map[string]bool) (string, os.FileInfo, []string, error) {
+
+	var paths []string
+	var linkedInfo os.FileInfo
+	var linkedPath string
+	var err error
+
+	currentPath := path
+	isSymlink := true
+	for isSymlink {
+		predecessors[currentPath] = true
+		paths = append(paths, currentPath)
+		// get path that symbolic link points to
+		linkedPath, err = fileInfoProvider.readlink(currentPath)
+		if err != nil {
+			return "", nil, nil, err
+		}
+
+		if symlinkReferencesPredecessor(linkedPath, predecessors) {
+			return "", nil, nil, errors.Errorf(recursiveSymLinkMsg, linkedPath)
+		}
+		linkedInfo, err = fileInfoProvider.stat(linkedPath)
+		if err != nil {
+			return "", nil, nil, err
+		}
+		if !fileInfoProvider.isSymbolicLink(linkedInfo) {
+			isSymlink = false
+		} else {
+			currentPath = linkedPath
+			predecessors[currentPath] = true
+		}
 	}
-	linkedInfo, err := fileInfoProvider.stat(linkedPath)
+	return linkedPath, linkedInfo, paths, nil
+}
+
+func addSymbolicLinkToArchive(path string, baseDir, parentSymLinkPath, parentLinkedPath string, archive *zip.Writer,
+	predecessors map[string]bool, ignore map[string]interface{}) (e error) {
+
+	if symlinkReferencesPredecessor(path, predecessors) {
+		return errors.Errorf(recursiveSymLinkMsg, path)
+	}
+
+	linkedPath, linkedInfo, paths, err := dereferenceSymlink(path, predecessors)
+
 	if err != nil {
 		return err
 	}
@@ -212,11 +270,14 @@ func addSymbolicLinkToArchive(path string, baseDir, parentSymLinkPath, parentLin
 			return err
 		}
 		for _, file := range files {
-			err = walk(filepath.Join(linkedPath, file.Name()), baseDir, pathInZip, linkedPath, archive, ignore)
+			err = walk(filepath.Join(linkedPath, file.Name()), baseDir, pathInZip, linkedPath, archive, predecessors, ignore)
 			if err != nil {
 				return err
 			}
 		}
+	}
+	for _, currentPath := range paths {
+		delete(predecessors, currentPath)
 	}
 	return nil
 }
@@ -506,7 +567,7 @@ func changeTargetMode(source, target string) error {
 
 // getRelativePath - Remove the basePath from the fullPath and get only the relative
 func getRelativePath(fullPath, basePath string) string {
-	if basePath == "" {
+	if basePath == "" || !strings.HasPrefix(fullPath, basePath) {
 		return fullPath
 	}
 	return strings.TrimPrefix(strings.TrimPrefix(fullPath, basePath), string(filepath.Separator))
