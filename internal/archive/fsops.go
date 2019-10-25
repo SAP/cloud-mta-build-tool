@@ -276,10 +276,15 @@ func addSymbolicLinkToArchive(path string, baseDir, parentSymLinkPath, parentLin
 			}
 		}
 	}
+	deleteAddedPredecessors(predecessors, paths)
+
+	return nil
+}
+
+func deleteAddedPredecessors(predecessors map[string]bool, paths []string) {
 	for _, currentPath := range paths {
 		delete(predecessors, currentPath)
 	}
-	return nil
 }
 
 func addToArchive(path string, pathInZip string, info os.FileInfo, archive *zip.Writer) (e error) {

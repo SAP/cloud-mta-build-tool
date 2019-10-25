@@ -222,7 +222,7 @@ var _ = Describe("FSOPS", func() {
 			Entry("2 steps recursion", "symlink_recursion_2step_a"),
 			Entry("3 steps recursion", "symlink_recursion_3step_a"),
 			Entry("sibling folders with recursion", "dir_with_recursive_symlink", "subdir", "symlink_dir_to_sibling"),
-			Entry("recursion to upper folder", "dir_with_recursive_symlink", "subdir", "symlink_dir_recursion_to_parent_dir"), )
+			Entry("recursion to upper folder", "dir_with_recursive_symlink", "subdir", "symlink_dir_recursion_to_parent_dir"))
 	})
 
 	var _ = Describe("Create File", func() {
