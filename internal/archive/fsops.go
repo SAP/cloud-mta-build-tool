@@ -117,9 +117,8 @@ func getBaseDir(path string, info os.FileInfo) (string, error) {
 	// Skip headers to support jar archive structure
 	if regularInfo.IsDir() {
 		return path, nil
-	} else {
-		return filepath.Dir(path), nil
 	}
+	return filepath.Dir(path), nil
 }
 
 // getIgnoresMap - getIgnores Helper
