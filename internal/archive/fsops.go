@@ -104,11 +104,11 @@ func Archive(sourcePath, targetArchivePath string, ignore []string) (e error) {
 	return err
 }
 
-func getBaseDir(path string, info os.FileInfo) (string, error){
+func getBaseDir(path string, info os.FileInfo) (string, error) {
 	var err error
 	regularInfo := info
 	if fileInfoProvider.isSymbolicLink(info) {
-		_, regularInfo, _, err= dereferenceSymlink(path, make(map[string]bool))
+		_, regularInfo, _, err = dereferenceSymlink(path, make(map[string]bool))
 		if err != nil {
 			return "", err
 		}
