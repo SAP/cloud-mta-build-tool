@@ -86,12 +86,9 @@ func Archive(sourcePath, targetArchivePath string, ignore []string) (e error) {
 		e = CloseFile(archive, e)
 	}()
 
-	// Skip headers to support jar archive structure
-	var baseDir string
-	if info.IsDir() {
-		baseDir = sourcePath
-	} else {
-		baseDir = filepath.Dir(sourcePath)
+	baseDir, err := getBaseDir(sourcePath, info)
+	if err != nil {
+		return err
 	}
 
 	if !strings.HasSuffix(baseDir, string(os.PathSeparator)) {
@@ -105,6 +102,24 @@ func Archive(sourcePath, targetArchivePath string, ignore []string) (e error) {
 
 	err = walk(sourcePath, baseDir, "", "", archive, make(map[string]bool), ignoreMap)
 	return err
+}
+
+func getBaseDir(path string, info os.FileInfo) (string, error){
+	var err error
+	regularInfo := info
+	if fileInfoProvider.isSymbolicLink(info) {
+		_, regularInfo, _, err= dereferenceSymlink(path, make(map[string]bool))
+		if err != nil {
+			return "", err
+		}
+	}
+
+	// Skip headers to support jar archive structure
+	if regularInfo.IsDir() {
+		return path, nil
+	} else {
+		return filepath.Dir(path), nil
+	}
 }
 
 // getIgnoresMap - getIgnores Helper

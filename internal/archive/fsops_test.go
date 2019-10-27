@@ -122,14 +122,14 @@ var _ = Describe("FSOPS", func() {
 			// files and folders
 			Entry("symbolic links",
 				getFullPath("testdata", "testsymlink", "symlink_dir_to_moduleNew"), targetFilePath, nil, false,
-				[]string{"symlink_dir_to_moduleNew/", "symlink_dir_to_moduleNew/symlink_dir_to_content/", "symlink_dir_to_moduleNew/package.json",
-					"symlink_dir_to_moduleNew/symlink_dir_to_content/test_dir/", "symlink_dir_to_moduleNew/symlink_dir_to_content/test_dir/test1.txt",
-					"symlink_dir_to_moduleNew/symlink_dir_to_content/test.txt",
-					"symlink_dir_to_moduleNew/symlink_dir_to_content/symlink_dir_to_another_content/", "symlink_dir_to_moduleNew/symlink_dir_to_content/symlink_dir_to_another_content/test3.txt",
-					"symlink_dir_to_moduleNew/symlink_dir_to_content/symlink_dir_to_another_content/symlink_to_test4.txt"}),
+				[]string{"symlink_dir_to_content/", "package.json",
+					"symlink_dir_to_content/test_dir/", "symlink_dir_to_content/test_dir/test1.txt",
+					"symlink_dir_to_content/test.txt",
+					"symlink_dir_to_content/symlink_dir_to_another_content/", "symlink_dir_to_content/symlink_dir_to_another_content/test3.txt",
+					"symlink_dir_to_content/symlink_dir_to_another_content/symlink_to_test4.txt"}),
 			Entry("symbolic links with ignore",
 				getFullPath("testdata", "testsymlink", "symlink_dir_to_moduleNew"), targetFilePath, []string{"symlink_dir_to_content"}, false,
-				[]string{"symlink_dir_to_moduleNew/", "symlink_dir_to_moduleNew/package.json"}),
+				[]string{"package.json"}),
 		)
 	})
 
