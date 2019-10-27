@@ -98,6 +98,8 @@ var _ = Describe("FSOPS", func() {
 				}),
 			Entry("Target is folder",
 				getFullPath("testdata", "mtahtml5"), getFullPath("testdata"), nil, true, nil),
+			Entry("Source is broken symbolic link",
+				getFullPath("testdata", "testsymlink", "symlink_broken"), targetFilePath, nil, true, nil),
 			Entry("Sanity - ignore folder",
 				getFullPath("testdata", "testproject"), targetFilePath, []string{"ui5app/"}, false, []string{
 					"cf-mtaext.yaml", "mta.sh", "mta.yaml",
