@@ -150,11 +150,19 @@ var _ = Describe("FSOPS", func() {
 				Ω(err).Should(HaveOccurred())
 			})
 
-			It("ignored symlink", func() {
+			It("ignored symlink to folder", func() {
 				entries, err := getIgnoredEntries([]string{"symlink_dir_to_content"}, getFullPath("testdata", "testsymlink", "symlink_dir_to_moduleNew"))
 				Ω(err).Should(Succeed())
 				Ω(len(entries)).Should(Equal(1))
 				_, ok := entries[getFullPath("testdata", "testsymlink", "moduleNew", "symlink_dir_to_content")]
+				Ω(ok).Should(BeTrue())
+			})
+
+			It("ignored symlink to file", func() {
+				entries, err := getIgnoredEntries([]string{filepath.Join("another_content", "symlink_to_test4.txt")}, getFullPath("testdata", "testsymlink"))
+				Ω(err).Should(Succeed())
+				Ω(len(entries)).Should(Equal(1))
+				_, ok := entries[getFullPath("testdata", "testsymlink", "another_content", "symlink_to_test4.txt")]
 				Ω(ok).Should(BeTrue())
 			})
 
@@ -598,7 +606,7 @@ func (provider *mockFileInfoProvider) readlink(path string) (string, error) {
 		scanner.Scan()
 		return "", errors.New(scanner.Text())
 	}
-	textSplit := strings.Split(text, ",")
+	textSplit := strings.Split(text, "/")
 	fullPath := getFullPath("testdata", "testsymlink")
 	for _, textElement := range textSplit {
 		fullPath = filepath.Join(fullPath, textElement)

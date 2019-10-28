@@ -250,7 +250,6 @@ func dereferenceSymlink(path string, predecessors map[string]bool) (string, os.F
 			isSymlink = false
 		} else {
 			currentPath = linkedPath
-			predecessors[currentPath] = true
 		}
 	}
 	return linkedPath, linkedInfo, paths, nil
