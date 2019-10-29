@@ -36,4 +36,6 @@ const (
 	unknownExtendsMsg         = `some MTA extension descriptors extend unknown IDs: %s`
 
 	versionMismatchMsg = `the "%s" schema version found in the MTA extension descriptor with ID "%s" does not match the "%s" schema version found in the MTA descriptor`
+
+	recursiveSymLinkMsg = `the "%s" symbolic path is recursive`
 )
