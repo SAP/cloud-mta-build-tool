@@ -34,4 +34,8 @@ const (
 	duplicateExtendsMsg       = `more than 1 extension descriptor file ("%s", "%s", ...) extends the same ID ("%s")`
 	extendsMsg                = `the "%s" file extends "%s"`
 	unknownExtendsMsg         = `some MTA extension descriptors extend unknown IDs: %s`
+
+	versionMismatchMsg = `the "%s" schema version found in the MTA extension descriptor with ID "%s" does not match the "%s" schema version found in the MTA descriptor`
+
+	recursiveSymLinkMsg = `the "%s" symbolic path is recursive`
 )

@@ -4,7 +4,6 @@ jobs:
   build:
     docker:
       - image: circleci/golang:1.11.5
-      - image: circleci/node:12.6.0
 
     environment:
       - DEP_VERSION: 0.5.4
@@ -50,10 +49,9 @@ jobs:
       - run: cf login -a $CF_API -o $ORG -s $SPACE -u $TECH_USER -p $TECH_PASS
       - run: cd integration &&  go test -tags=integration
 
-  deploy:
+  release:
     docker:
       - image: circleci/golang:1.11.5
-      - image: circleci/node:12.6.0
     working_directory: /go/src/github.com/SAP/cloud-mta-build-tool
     steps:
       - add_ssh_keys:
@@ -103,6 +101,13 @@ jobs:
           name: release new version
           command: |
             curl -sL https://git.io/goreleaser | bash
+            
+  publish:
+    docker:
+      - image: circleci/node:12.6.0
+    working_directory: /go/src/github.com/SAP/cloud-mta-build-tool
+    steps:
+      - checkout
       - run:
           name: publish to npm
           command: |
@@ -152,7 +157,7 @@ workflows:
   on_tag_build_test_deploy:
     jobs:
       - build:
-          filters:  # required since `deploy` has tag filters AND requires `build`
+          filters:  # required since `release` has tag filters AND requires `build`
             tags:
               only: /release/
             branches:
@@ -160,15 +165,15 @@ workflows:
       - test:
           requires:
             - build
-          filters:  # required since `deploy` has tag filters AND requires `test`
+          filters:  # required since `release` has tag filters AND requires `test`
             tags:
               only: /release/
             branches:
               ignore: /.*/
-      - deploy:
+      - release:
           requires:
             - test
-          filters:  # job runs on tags for no branches
+          filters:  # job runs on tag 'release' for no branches
             tags:
               only: /release/
             branches:
@@ -176,8 +181,16 @@ workflows:
       - ghpages:
           requires:
             - test
-          filters:  # job runs on tags for no branches - just like deploy
+          filters:  # job runs on tag 'release' for no branches
             tags:
               only: /release/
+            branches:
+              ignore: /.*/
+      - publish:
+          requires:
+            - release
+          filters:  # job runs on tag starts with v* for no branches
+            tags:
+              only: /^v*/
             branches:
               ignore: /.*/

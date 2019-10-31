@@ -149,7 +149,7 @@ func adjustSchemaVersion(mtaStr *mta.MTA) error {
 		return err
 	}
 	if schemaVersion < 3 {
-		*mtaStr.SchemaVersion = "3.3"
+		*mtaStr.SchemaVersion = "3.1"
 	}
 	return nil
 }

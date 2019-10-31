@@ -119,7 +119,7 @@ func getMbtPath(useDefaultMbt bool) string {
 	}
 	// If we're on windows the path with backslashes doesn't work with the makefile when running from bash
 	// (and it does work with slashes when running in windows cmd)
-	return filepath.ToSlash(path)
+	return shellquote.Join(filepath.ToSlash(path))
 }
 
 func getExtensionsArg(extensions []string, makefileDirPath string, argName string) string {

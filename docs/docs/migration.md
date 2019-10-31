@@ -24,6 +24,10 @@ You need to update your `mta.yaml` file to exclude `html5` modules from the resu
 
   If you need to change the default build behavior defined for the corresponding builder, see [configure `custom` builder](configuration.md#configuring-the-custom-builder). For a complete list of available builders and their default behaviors, see [Builders execution commands](https://github.com/SAP/cloud-mta-build-tool/blob/master/configs/builder_type_cfg.yaml).
   
+&nbsp;
+
+* In the [Multitarget Application Archive Builder](https://help.sap.com/viewer/58746c584026430a890170ac4d87d03b/Cloud/en-US/ba7dd5a47b7a4858a652d15f9673c28d.html) it was allowed to give the same names to a module and to one of its provided property sets. The Cloud MTA Build tool strictly validates that names of artifacts that can be referenced in the `requires` section (module, resources, and provided property) are unique within the `mta.yaml` file. This is to ensure that the referenced artifact can be unambiguously resolved when its name is used in the `requires` section. When migrating to the tool, make sure the names of the mentioned artifacts are unique in the `mta.yaml` file.
+  
 ---
 **NOTE**
 If you try to build the project without these changes, the build tool will identify the cases and will fail the build with the corresponding errors.
@@ -39,10 +43,4 @@ If you try to build the project without these changes, the build tool will ident
 * You can define your own build commands as described here: [configuring `custom` builder](configuration.md#configuring-the-custom-builder). 
 &nbsp; 
 
-#### Features that are temporarily not available in the Cloud MTA Build Tool
-
-The following features are supported by the [Multitarget Application Archive Builder](https://help.sap.com/viewer/58746c584026430a890170ac4d87d03b/Cloud/en-US/ba7dd5a47b7a4858a652d15f9673c28d.html) and will be provided in the Cloud MTA Build Tool soon:
-
-
-* Running MTA builds with extension files
 

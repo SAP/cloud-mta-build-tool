@@ -13,6 +13,34 @@ import (
 	"github.com/SAP/cloud-mta-build-tool/internal/logs"
 )
 
+type fileInfoProviderI interface {
+	isSymbolicLink(file os.FileInfo) bool
+	isDir(file os.FileInfo) bool
+	readlink(path string) (string, error)
+	stat(name string) (os.FileInfo, error)
+}
+
+type standardFileInfoProvider struct {
+}
+
+func (provider *standardFileInfoProvider) isSymbolicLink(file os.FileInfo) bool {
+	return file.Mode()&os.ModeSymlink != 0
+}
+
+func (provider *standardFileInfoProvider) isDir(file os.FileInfo) bool {
+	return file.IsDir()
+}
+
+func (provider *standardFileInfoProvider) readlink(path string) (string, error) {
+	return os.Readlink(path)
+}
+
+func (provider *standardFileInfoProvider) stat(name string) (os.FileInfo, error) {
+	return os.Stat(name)
+}
+
+var fileInfoProvider fileInfoProviderI = &standardFileInfoProvider{}
+
 // CreateDirIfNotExist - Create new dir
 func CreateDirIfNotExist(dir string) error {
 	info, err := os.Stat(dir)
@@ -32,7 +60,7 @@ func CreateDirIfNotExist(dir string) error {
 func Archive(sourcePath, targetArchivePath string, ignore []string) (e error) {
 
 	// check that folder to be packed exist
-	info, err := os.Stat(sourcePath)
+	info, err := fileInfoProvider.stat(sourcePath)
 	if err != nil {
 		return err
 	}
@@ -58,12 +86,9 @@ func Archive(sourcePath, targetArchivePath string, ignore []string) (e error) {
 		e = CloseFile(archive, e)
 	}()
 
-	// Skip headers to support jar archive structure
-	var baseDir string
-	if info.IsDir() {
-		baseDir = sourcePath
-	} else {
-		baseDir = filepath.Dir(sourcePath)
+	baseDir, err := getBaseDir(sourcePath, info)
+	if err != nil {
+		return err
 	}
 
 	if !strings.HasSuffix(baseDir, string(os.PathSeparator)) {
@@ -75,15 +100,45 @@ func Archive(sourcePath, targetArchivePath string, ignore []string) (e error) {
 		return err
 	}
 
-	err = walk(sourcePath, baseDir, archive, ignoreMap)
+	err = walk(sourcePath, baseDir, "", "", archive, make(map[string]bool), ignoreMap)
 	return err
+}
+
+func getBaseDir(path string, info os.FileInfo) (string, error) {
+	var err error
+	regularInfo := info
+	if fileInfoProvider.isSymbolicLink(info) {
+		_, regularInfo, _, err = dereferenceSymlink(path, make(map[string]bool))
+		if err != nil {
+			return "", err
+		}
+	}
+
+	// Skip headers to support jar archive structure
+	if regularInfo.IsDir() {
+		return path, nil
+	}
+	return filepath.Dir(path), nil
 }
 
 // getIgnoresMap - getIgnores Helper
 func getIgnoredEntries(ignore []string, sourcePath string) (map[string]interface{}, error) {
+
+	info, err := fileInfoProvider.stat(sourcePath)
+	if err != nil {
+		return nil, err
+	}
+	regularSourcePath := sourcePath
+	if fileInfoProvider.isSymbolicLink(info) {
+		regularSourcePath, _, _, err = dereferenceSymlink(sourcePath, make(map[string]bool))
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	ignoredEntriesMap := map[string]interface{}{}
 	for _, ign := range ignore {
-		path := filepath.Join(sourcePath, ign)
+		path := filepath.Join(regularSourcePath, ign)
 		entries, err := filepath.Glob(path)
 		if err != nil {
 			return nil, err
@@ -106,7 +161,9 @@ func CloseFile(file io.Closer, err error) error {
 	return err
 }
 
-func walk(sourcePath string, baseDir string, archive *zip.Writer, ignore map[string]interface{}) error {
+func walk(sourcePath string, baseDir, symLinkPathInZip, linkedPath string, archive *zip.Writer,
+	symlinks map[string]bool,
+	ignore map[string]interface{}) error {
 
 	// pack files of source into archive
 	return filepath.Walk(sourcePath, func(path string, info os.FileInfo, err error) error {
@@ -121,21 +178,126 @@ func walk(sourcePath string, baseDir string, archive *zip.Writer, ignore map[str
 			return nil
 		}
 
+		if fileInfoProvider.isSymbolicLink(info) {
+			return addSymbolicLinkToArchive(path, baseDir, symLinkPathInZip, linkedPath, archive, symlinks, ignore)
+		}
+
 		// Don't add the base folder to the zip
 		if info.IsDir() && filepath.Clean(path) == filepath.Clean(baseDir) {
 			return nil
 		}
 
-		// Path in zip should be with slashes (in all operating systems)
-		pathInZip := filepath.ToSlash(getRelativePath(path, baseDir))
-
-		// Folders must end with "/"
-		if info.IsDir() {
-			pathInZip += "/"
-		}
+		pathInZip := getPathInZip(path, baseDir, symLinkPathInZip, linkedPath, info)
 
 		return addToArchive(path, pathInZip, info, archive)
 	})
+}
+
+func getPathInZip(path string, baseDir, symLinkPath, linkedPath string, info os.FileInfo) string {
+	if filepath.Clean(path) == filepath.Clean(baseDir) {
+		return ""
+	}
+	var pathInZip string
+
+	if linkedPath != "" {
+		relPath := getRelativePath(path, linkedPath)
+		pathInZip = filepath.Join(symLinkPath, relPath)
+	} else {
+		pathInZip = getRelativePath(path, baseDir)
+	}
+
+	// Path in zip should be with slashes (in all operating systems)
+	pathInZip = filepath.ToSlash(pathInZip)
+
+	// Folders must end with "/"
+	if info.IsDir() {
+		pathInZip += "/"
+	}
+	return pathInZip
+}
+
+func symlinkReferencesPredecessor(path string, predecessors map[string]bool) bool {
+	_, ok := predecessors[path]
+	return ok
+}
+
+func dereferenceSymlink(path string, predecessors map[string]bool) (string, os.FileInfo, []string, error) {
+
+	var paths []string
+	var linkedInfo os.FileInfo
+	var linkedPath string
+	var err error
+
+	currentPath := path
+	isSymlink := true
+	for isSymlink {
+		predecessors[currentPath] = true
+		paths = append(paths, currentPath)
+		// get path that symbolic link points to
+		linkedPath, err = fileInfoProvider.readlink(currentPath)
+		if err != nil {
+			return "", nil, nil, err
+		}
+
+		if symlinkReferencesPredecessor(linkedPath, predecessors) {
+			return "", nil, nil, errors.Errorf(recursiveSymLinkMsg, linkedPath)
+		}
+		linkedInfo, err = fileInfoProvider.stat(linkedPath)
+		if err != nil {
+			return "", nil, nil, err
+		}
+		if !fileInfoProvider.isSymbolicLink(linkedInfo) {
+			isSymlink = false
+		} else {
+			currentPath = linkedPath
+		}
+	}
+	return linkedPath, linkedInfo, paths, nil
+}
+
+func addSymbolicLinkToArchive(path string, baseDir, parentSymLinkPath, parentLinkedPath string, archive *zip.Writer,
+	predecessors map[string]bool, ignore map[string]interface{}) (e error) {
+
+	if symlinkReferencesPredecessor(path, predecessors) {
+		return errors.Errorf(recursiveSymLinkMsg, path)
+	}
+
+	linkedPath, linkedInfo, paths, err := dereferenceSymlink(path, predecessors)
+
+	if err != nil {
+		return err
+	}
+
+	pathInZip := getPathInZip(path, baseDir, parentSymLinkPath, parentLinkedPath, linkedInfo)
+
+	if !fileInfoProvider.isDir(linkedInfo) || filepath.Clean(path) != filepath.Clean(baseDir) {
+		err = addToArchive(linkedPath, pathInZip, linkedInfo, archive)
+		if err != nil {
+			return err
+		}
+	}
+
+	if fileInfoProvider.isDir(linkedInfo) {
+		files, err := ioutil.ReadDir(linkedPath)
+		if err != nil {
+			return err
+		}
+		for _, file := range files {
+			err = walk(filepath.Join(linkedPath, file.Name()), baseDir, pathInZip, linkedPath, archive, predecessors, ignore)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	deleteAddedPredecessors(predecessors, paths)
+
+	return nil
+}
+
+func deleteAddedPredecessors(predecessors map[string]bool, paths []string) {
+	for _, currentPath := range paths {
+		delete(predecessors, currentPath)
+	}
 }
 
 func addToArchive(path string, pathInZip string, info os.FileInfo, archive *zip.Writer) (e error) {
@@ -423,10 +585,10 @@ func changeTargetMode(source, target string) error {
 
 // getRelativePath - Remove the basePath from the fullPath and get only the relative
 func getRelativePath(fullPath, basePath string) string {
-	if basePath == "" {
+	if basePath == "" || !strings.HasPrefix(fullPath, basePath) {
 		return fullPath
 	}
-	return strings.TrimPrefix(fullPath, basePath)
+	return strings.TrimPrefix(strings.TrimPrefix(fullPath, basePath), string(filepath.Separator))
 }
 
 // Read returns mta byte slice.

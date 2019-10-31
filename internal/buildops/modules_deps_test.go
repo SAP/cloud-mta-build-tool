@@ -73,7 +73,7 @@ var _ = Describe("ModulesDeps", func() {
 			mtaContent, _ := readFile(getTestPath("mtahtml5", "mtaRequiredModuleNotDefined.yaml"))
 			mtaStr, _ := mta.Unmarshal(mtaContent)
 			_, err := GetModulesNames(mtaStr)
-			Ω(err.Error()).Should(Equal("the abc module is not defined "))
+			Ω(err.Error()).Should(Equal(`the "abc" module is not defined`))
 		})
 	})
 })
