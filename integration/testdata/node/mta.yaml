@@ -1,0 +1,16 @@
+_schema-version: "2.0.0"
+ID: "com.sap.dummy.fiori"
+version: 1.0.0
+
+parameters:
+  hcp-deployer-version: "1.0.0"
+
+modules:
+  - name: "dummy-fiori"
+    type: html5
+    path: .
+    parameters:
+       version: 1.0.0-${timestamp}
+    build-parameters:
+       builder: grunt
+       build-result: dist
