@@ -1,0 +1,10 @@
+{
+  "type": ["string", "object"],
+  "minLength": 1, "format": "regex",
+  "additionalProperties": false,
+  "properties": {
+    "path": { "type": "string", "minLength": 1, "format": "regex" },
+    "matchCase": { "type": "boolean" }
+  },
+  "required": ["path"]
+}

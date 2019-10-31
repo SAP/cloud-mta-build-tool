@@ -1,0 +1,30 @@
+{
+  "type": ["string", "array", "object"],
+  "minProperties": 1,
+  "additionalProperties": false,
+  "properties": {
+    "GET": { "$ref": "#/definitions/scopeTemplate" },
+    "POST": { "$ref": "#/definitions/scopeTemplate" },
+    "HEAD": { "$ref": "#/definitions/scopeTemplate" },
+    "PUT": { "$ref": "#/definitions/scopeTemplate" },
+    "DELETE": { "$ref": "#/definitions/scopeTemplate" },
+    "TRACE": { "$ref": "#/definitions/scopeTemplate" },
+    "PATCH": { "$ref": "#/definitions/scopeTemplate" },
+    "OPTIONS": { "$ref": "#/definitions/scopeTemplate" },
+    "CONNECT": { "$ref": "#/definitions/scopeTemplate" },
+    "default": { "$ref": "#/definitions/scopeTemplate" }
+  },
+  "minLength": 1,
+  "minItems": 1,
+  "items": { "type": "string", "minLength": 1 },
+
+  "definitions": {
+    "scopeTemplate": {
+      "id": "scopeTemplate",
+      "type": ["string", "array"],
+      "minLength": 1,
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 1 }
+    }
+  }
+}

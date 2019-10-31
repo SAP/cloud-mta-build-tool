@@ -1,0 +1,5 @@
+{
+  "id" : "Destinations",
+  "type": "array",
+  "format": "no-duplicate-names"
+}

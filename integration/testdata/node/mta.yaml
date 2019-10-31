@@ -1,0 +1,45 @@
+ID: mta_demo
+_schema-version: '2.1'
+version: 0.0.2
+
+modules:
+ - name: node
+   type: html5
+   path: node
+   provides:
+    - name: node_api
+      properties:
+         url: ${default-url}
+   build-parameters:
+      supported-platforms: [cf]
+      builder: npm
+
+
+ - name: ui5
+   type: html5
+   path: ui5
+   parameters:
+      disk-quota: 256M
+      memory: 256M
+   requires:
+    - name: uaa_mta_demo2
+    - name: dest_mta_demo2
+
+
+
+
+
+resources:
+ - name: uaa_mta_demo2
+   parameters:
+      path: ./xs-security.json
+      service-plan: application
+      service: xsuaa
+   type: org.cloudfoundry.managed-service
+
+ - name: dest_mta_demo2
+   parameters:
+      service-plan: lite
+      service: destination
+   type: org.cloudfoundry.managed-service
+
