@@ -11,8 +11,4 @@ modules:
       version: 1.0.0
     build-parameters:
       builder: maven
-      maven-opts:
-       command: [ clean, package ]
-       defines:
-          skipTests: true
-      build-result: "*.jar"
+      build-result: "target/*.jar"

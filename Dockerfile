@@ -2,12 +2,20 @@ FROM openjdk:8-jdk-slim
 
 ARG MTA_USER_HOME=/home/mta
 ARG MBT_VERSION=0.3.3
-
+ARG GO_VERSION=1.13.4
 ARG NODE_VERSION=v12.13.0
 ARG MAVEN_VERSION=3.6.2
-
 ENV PYTHON /usr/bin/python2.7
 ENV M2_HOME=/opt/maven/apache-maven-${MAVEN_VERSION}
+
+# go setup
+ENV GOPATH /go
+ENV PATH $GOPATH/bin:/usr/local/go/bin:$PATH
+ENV CGO_ENABLED=0
+ENV GOOS=linux
+RUN mkdir -p "$GOPATH/src" "$GOPATH/bin" && chmod -R 777 "$GOPATH"
+
+RUN mkdir -p ${GOPATH}/src ${GOPATH}/bin
 
 RUN apt-get update && \
     apt-get install --yes --no-install-recommends curl git  && \
@@ -22,6 +30,10 @@ RUN apt-get update && \
     # config NPM
     npm config set @sap:registry https://npm.sap.com --global && \
     echo "[INFO] installing maven." && \
+
+    # installing Golang
+    curl -O https://storage.googleapis.com/golang/go${GO_VERSION}.linux-amd64.tar.gz && tar -xvf go${GO_VERSION}.linux-amd64.tar.gz && \
+    mv go /usr/local && \
 
     # update maven home
      M2_BASE="$(dirname ${M2_HOME})" && \
@@ -58,12 +70,9 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 ENV PATH=$PATH:./node_modules/.bin HOME=${MTA_USER_HOME}
-
 WORKDIR /project
-
 USER mta
-
-RUN mbt -v
+#RUN mbt -v && go version  && mvn -v && node -v
 
 
 
