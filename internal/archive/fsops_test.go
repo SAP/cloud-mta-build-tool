@@ -177,9 +177,20 @@ var _ = Describe("FSOPS", func() {
 		})
 
 		var _ = Describe("dereferenceSymlink", func() {
-			It("wrong path", func() {
+			It("wrong file path", func() {
 				_, _, _, err := dereferenceSymlink(getFullPath("testdata", "notexists"), make(map[string]bool))
 				Ω(err).Should(HaveOccurred())
+			})
+			It("wrong relative path in symlink", func() {
+				fileInfoProvider = &mockFileInfoProvider{ReturnRelativePath: true}
+				_, _, _, err := dereferenceSymlink(getFullPath("testdata", "testsymlink", "symlink_broken"), make(map[string]bool))
+				Ω(err).Should(HaveOccurred())
+			})
+			It("existing relative path in symlink", func() {
+				fileInfoProvider = &mockFileInfoProvider{ReturnRelativePath: true}
+				path, _, _, err := dereferenceSymlink(getFullPath("testdata", "testsymlink", "symlink_dir_to_moduleNew"), make(map[string]bool))
+				Ω(err).Should(Succeed())
+				Ω(path).Should(Equal(getFullPath("testdata", "testsymlink", "moduleNew")))
 			})
 		})
 	})
@@ -589,6 +600,7 @@ func contains(element string, elements []string) bool {
 }
 
 type mockFileInfoProvider struct {
+	ReturnRelativePath bool
 }
 
 func (provider *mockFileInfoProvider) isSymbolicLink(file os.FileInfo) bool {
@@ -616,7 +628,11 @@ func (provider *mockFileInfoProvider) readlink(path string) (string, error) {
 		return "", errors.New(scanner.Text())
 	}
 	textSplit := strings.Split(text, "/")
-	fullPath := getFullPath("testdata", "testsymlink")
+	if provider.ReturnRelativePath {
+		return filepath.Join(textSplit...), nil
+	}
+	// Resolve path
+	fullPath := filepath.Dir(path)
 	for _, textElement := range textSplit {
 		fullPath = filepath.Join(fullPath, textElement)
 	}
