@@ -186,7 +186,7 @@ makefile_version: 0.0.0
 	@$(MBT) cp -s=%s -t=%s -p=\*
 	@$(MBT) cp -s=%s -t=%s -p=\*`,
 				escapePath(modulegen, "client1", "dist"), escapePath(modulegen, "public", "dep1_result"),
-				escapePath(modulegen, "client2", "target", "\\*.war"), escapePath(modulegen, "public"))),
+				escapePath(modulegen, "client2", "target/*.war"), escapePath(modulegen, "public"))),
 		)
 	})
 
