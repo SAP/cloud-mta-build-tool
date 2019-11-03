@@ -8,6 +8,7 @@ import (
 	"runtime"
 	"strings"
 
+	"github.com/kballard/go-shellquote"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
@@ -35,6 +36,10 @@ func removeSpecialSymbols(b []byte) string {
 func getMakeFileContent(filePath string) string {
 	expected, _ := ioutil.ReadFile(filePath)
 	return removeSpecialSymbols(expected)
+}
+
+func escapePath(parts ...string) string {
+	return shellquote.Join(filepath.Join(parts...))
 }
 
 var _ = Describe("Makefile", func() {
@@ -102,33 +107,41 @@ makefile_version: 0.0.0
 		})
 		It("Sanity", func() {
 			ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata"), TargetPath: filepath.Join(wd, "testdata"), Descriptor: "dev"}
-			Ω(makeFile(&ep, &ep, nil, makeFileName, &tpl, true)).Should(Succeed())
+			Ω(makeFile(&ep, &ep, &ep, nil, makeFileName, &tpl, true)).Should(Succeed())
 			Ω(makeFileFullPath).Should(BeAnExistingFile())
 			Ω(getMakeFileContent(makeFileFullPath)).Should(Equal(expectedMakeFileContent))
 		})
 		It("Create make file in folder that does not exist", func() {
 			ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata"), TargetPath: filepath.Join(wd, "testdata", "someFolder"), Descriptor: "dev"}
-			Ω(makeFile(&ep, &ep, nil, makeFileName, &tpl, true)).Should(Succeed())
+			Ω(makeFile(&ep, &ep, &ep, nil, makeFileName, &tpl, true)).Should(Succeed())
 			filename := filepath.Join(ep.GetTarget(), makeFileName)
 			Ω(filename).Should(BeAnExistingFile())
 			Ω(getMakeFileContent(filename)).Should(Equal(expectedMakeFileContent))
 		})
 		It("genMakefile testing with wrong mta yaml file", func() {
 			ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata"), TargetPath: filepath.Join(wd, "testdata"), MtaFilename: "xxx.yaml"}
-			Ω(genMakefile(&ep, &ep, &ep, nil, makefile, "", true)).Should(HaveOccurred())
+			Ω(genMakefile(&ep, &ep, &ep, &ep, nil, makefile, "", true)).Should(HaveOccurred())
 		})
 		It("genMakefile testing with wrong target folder (file path)", func() {
 			ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata"), TargetPath: filepath.Join(wd, "testdata", "mta.yaml"), MtaFilename: "xxx.yaml"}
-			Ω(genMakefile(&ep, &ep, &ep, nil, makefile, "", true)).Should(HaveOccurred())
+			Ω(genMakefile(&ep, &ep, &ep, &ep, nil, makefile, "", true)).Should(HaveOccurred())
 		})
 		It("genMakefile testing with wrong mode", func() {
 			ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata")}
-			Ω(genMakefile(&ep, &ep, &ep, nil, makefile, "wrongMode", true)).Should(HaveOccurred())
+			Ω(genMakefile(&ep, &ep, &ep, &ep, nil, makefile, "wrongMode", true)).Should(HaveOccurred())
 		})
+
+		DescribeTable("genMakefile should fail when there is a circular build dependency between modules", func(mode string) {
+			ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata"), TargetPath: filepath.Join(wd, "testdata"), MtaFilename: "circular.yaml"}
+			Ω(genMakefile(&ep, &ep, &ep, &ep, nil, makefile, mode, true)).Should(HaveOccurred())
+		},
+			Entry("in default mode", ""),
+			Entry("in verbose mode", "verbose"),
+		)
 
 		DescribeTable("generate module build in verbose make file", func(mtaFileName, moduleName, expectedModuleCommandsGen string) {
 			ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata", "modulegen"), TargetPath: filepath.Join(wd, "testdata"), Descriptor: "dev", MtaFilename: mtaFileName}
-			Ω(makeFile(&ep, &ep, nil, makeFileName, &tpl, true)).Should(Succeed())
+			Ω(makeFile(&ep, &ep, &ep, nil, makeFileName, &tpl, true)).Should(Succeed())
 			Ω(makeFileFullPath).Should(BeAnExistingFile())
 			makefileContent := getMakeFileContent(makeFileFullPath)
 
@@ -148,13 +161,40 @@ makefile_version: 0.0.0
 			Entry("module with commands with special characters",
 				"commands_with_special_chars.yaml", "commands_with_special_chars", `$(MBT) execute -c='bash -c '\''echo "a"'\' -c='echo "a\b"'`),
 		)
+
+		modulegen := filepath.Join(wd, "testdata", "modulegen")
+		DescribeTable("generate module build with dependencies in verbose make file", func(mtaFileName, moduleName, modulePath, expectedModuleDepNames string, expectedModuleDepCopyCommands string) {
+			ep := dir.Loc{SourcePath: modulegen, TargetPath: filepath.Join(wd, "testdata"), Descriptor: "dev", MtaFilename: mtaFileName}
+			Ω(makeFile(&ep, &ep, &ep, nil, makeFileName, &tpl, true)).Should(Succeed())
+			Ω(makeFileFullPath).Should(BeAnExistingFile())
+			makefileContent := getMakeFileContent(makeFileFullPath)
+
+			expectedModuleGen := fmt.Sprintf(`%s: validate %s%s
+	@cd "$(PROJ_DIR)/%s" &&`, moduleName, expectedModuleDepNames, expectedModuleDepCopyCommands, modulePath)
+			Ω(makefileContent).Should(ContainSubstring(removeSpecialSymbols([]byte(expectedModuleGen))))
+		},
+			Entry("dependency with artifacts", "dep_with_patterns.yaml", "module1", "public", `dep`, fmt.Sprintf(`
+	@$(MBT) cp -s=%s -t=%s -p=dist/\* -p=some_dir -p=a\*.txt`, escapePath(modulegen, "client"), escapePath(modulegen, "public"))),
+			Entry("module with two dependencies", "two_deps.yaml", "my_proj_ui_deployer", "my_proj_ui_deployer", `ui5module1 ui5module2`, fmt.Sprintf(`
+	@$(MBT) cp -s=%s -t=%s -p=./\*
+	@$(MBT) cp -s=%s -t=%s -p=./\*`,
+				escapePath(modulegen, "ui5module1", "dist"), escapePath(modulegen, "my_proj_ui_deployer", "resources", "ui5module1"),
+				escapePath(modulegen, "ui5module2", "dist"), escapePath(modulegen, "my_proj_ui_deployer", "resources", "ui5module2"))),
+			Entry("dependency with target-path", "dep_with_artifacts_and_targetpath.yaml", "module1", "public", `module1-dep`, fmt.Sprintf(`
+	@$(MBT) cp -s=%s -t=%s -p=dist/\*`, escapePath(modulegen, "client"), escapePath(modulegen, "public", "client"))),
+			Entry("dependent module with build-result and module with artifacts and target-path", "dep_with_build_results.yaml", "module1", "public", `dep1 dep2`, fmt.Sprintf(`
+	@$(MBT) cp -s=%s -t=%s -p=\*
+	@$(MBT) cp -s=%s -t=%s -p=\*`,
+				escapePath(modulegen, "client1", "dist"), escapePath(modulegen, "public", "dep1_result"),
+				escapePath(modulegen, "client2", "target", "\\*.war"), escapePath(modulegen, "public"))),
+		)
 	})
 
 	DescribeTable("Makefile Generation Failed", func(testPath string, testTemplateFilename string) {
 		wd, _ := os.Getwd()
 		testTemplate, _ := ioutil.ReadFile(filepath.Join(wd, "testdata", testTemplateFilename))
 		ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata"), TargetPath: filepath.Join(wd, "testdata")}
-		Ω(makeFile(&ep, &ep, nil, makeFileName, &tplCfg{relPath: testPath, tplContent: testTemplate, preContent: basePreVerbose, postContent: basePost, depDesc: "dev"}, true)).Should(HaveOccurred())
+		Ω(makeFile(&ep, &ep, &ep, nil, makeFileName, &tplCfg{relPath: testPath, tplContent: testTemplate, preContent: basePreVerbose, postContent: basePost, depDesc: "dev"}, true)).Should(HaveOccurred())
 	},
 		Entry("Wrong Template", "testdata", filepath.Join("testdata", "WrongMakeTmpl.txt")),
 		Entry("Yaml not exists", "testdata1", "make_default.txt"),
