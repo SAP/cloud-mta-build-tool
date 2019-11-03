@@ -459,6 +459,8 @@ var _ = Describe("FSOPS", func() {
 			Entry("Wrong pattern ",
 				getFullPath("testdata", "result"), "ui2", []string{"[a,b"}),
 			Entry("Empty target path", "", "ui2", []string{"[a,b"}),
+			Entry("Source path doesn't exist",
+				getFullPath("testdata", "result"), "aaa", []string{"*"}),
 		)
 	})
 

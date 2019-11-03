@@ -170,6 +170,11 @@ var _ = Describe("GetModuleTargetArtifactPath", func() {
 		Ω(err).Should(Succeed())
 		Ω(path).Should(BeEmpty())
 	})
+	It("fails when path doesn't exist", func() {
+		loc := dir.Loc{SourcePath: getTestPath("mtahtml5"), TargetPath: getTestPath("result")}
+		_, _, err := GetModuleTargetArtifactPath(&loc, &loc, false, &mta.Module{Path: "abc"}, "")
+		Ω(err).Should(HaveOccurred())
+	})
 	It("deployment descriptor", func() {
 		loc := dir.Loc{SourcePath: getTestPath("mtahtml5"), TargetPath: getTestPath("result")}
 		path, _, err := GetModuleTargetArtifactPath(&loc, &loc, true, &mta.Module{Path: "abc"}, "")

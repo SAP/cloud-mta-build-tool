@@ -17,6 +17,7 @@ import (
 	"github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta-build-tool/internal/logs"
 	"github.com/SAP/cloud-mta-build-tool/internal/version"
+	"github.com/SAP/cloud-mta/mta"
 )
 
 const (
@@ -239,4 +240,25 @@ makefile_version: 0.0.0
 		Entry("extension paths are separated by a comma",
 			[]string{absPath("my.mtaext"), absPath("second.mtaext")}, absPath("."), ` -e="$(CURDIR)`+sep+`my.mtaext,$(CURDIR)`+sep+`second.mtaext"`),
 	)
+
+	It("GetModuleDeps returns error when module doesn't exist", func() {
+		data := templateData{File: mta.MTA{}}
+		_, err := data.GetModuleDeps("unknown")
+		Ω(err).Should(HaveOccurred())
+	})
+
+	It("GetModuleDeps returns error when module has dependency that doesn't exist", func() {
+		data := templateData{File: mta.MTA{Modules: []*mta.Module{
+			{
+				Name: "m1",
+				BuildParams: map[string]interface{}{
+					"requires": []interface{}{
+						map[string]interface{}{"name": "unknown"},
+					},
+				},
+			},
+		}}}
+		_, err := data.GetModuleDeps("m1")
+		Ω(err).Should(HaveOccurred())
+	})
 })
