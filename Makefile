@@ -10,6 +10,7 @@ all:format clean dir gen build-linux build-darwin build-windows copy test
 
 GOCMD=go
 GOBUILD=$(GOCMD) build
+GOLANGCI_VERSION = 1.21.0
 
 # Binary names
 BINARY_NAME=mbt
@@ -19,8 +20,8 @@ format :
 	go fmt ./...
 
 tools:
-	curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh| sh -s -- -b $(go env GOPATH)/bin v1.21.0
-	golangci-lint version
+	curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | bash -s -- -b /usr/local/bin v${GOLANGCI_VERSION}
+	golangci-lint --version
 
 lint:
 	@echo "Start project linting"
