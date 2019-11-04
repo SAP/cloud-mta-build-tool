@@ -21,9 +21,8 @@ format :
 
 tools:
 	@echo "download golangci-lint"
-	curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh| sh -s latest
-#	curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh| sh -s -- -b $(go env GOPATH)/bin latest
-#	golangci-lint --version
+	curl -sLO https://github.com/golangci/golangci-lint/releases/download/v${GOLANGCI_VERSION}/golangci-lint-${GOLANGCI_VERSION}-linux-amd64.tar.gz
+	tar -xzvf golangci-lint-${GOLANGCI_VERSION}-linux-amd64.tar.gz
 
 lint:
 	@echo "Start project linting"
