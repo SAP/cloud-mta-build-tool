@@ -19,13 +19,13 @@ format :
 	go fmt ./...
 
 tools:
-	curl -L https://git.io/vp6lP | bash -s -- -b $(GOPATH)/bin/ v3.0.0
-	gometalinter --version
+	curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh| sh -s v1.21.0
+	golangci-lint version
 
 lint:
 	@echo "Start project linting"
-	gometalinter --config=gometalinter.json ./...
-	@echo "Done"
+	golangci-lint run --config .golangci.yml
+	@echo "done"
 
 # execute general tests
 test:

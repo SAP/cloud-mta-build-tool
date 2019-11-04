@@ -1,6 +1,7 @@
 package artifacts
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/SAP/cloud-mta/mta"
@@ -17,7 +18,10 @@ import (
 var _ = Describe("Mtad", func() {
 
 	BeforeEach(func() {
-		dir.CreateDirIfNotExist(getTestPath("result"))
+		e := dir.CreateDirIfNotExist(getTestPath("result"))
+		if e != nil {
+			fmt.Println("error occurred during dir creation process")
+		}
 	})
 
 	AfterEach(func() {
@@ -67,7 +71,10 @@ var _ = Describe("Mtad", func() {
 			ep := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getTestPath("result")}
 			metaPath := ep.GetMetaPath()
 			tmpDir := ep.GetTargetTmpDir()
-			dir.CreateDirIfNotExist(tmpDir)
+			e := dir.CreateDirIfNotExist(tmpDir)
+			if e != nil {
+				fmt.Println("error occurred during dir creation process")
+			}
 			file, err := os.Create(metaPath)
 			Ω(err).Should(Succeed())
 			mtaBytes, err := dir.Read(&ep)

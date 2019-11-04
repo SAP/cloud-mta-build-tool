@@ -56,7 +56,10 @@ var _ = Describe("FSOPS", func() {
 			Entry("DirectoryExists", getFullPath("testdata", "level2", "level3")),
 		)
 		It("Fails because file with the same name exists", func() {
-			CreateDirIfNotExist(getFullPath("testdata", "level2", "result"))
+			err := CreateDirIfNotExist(getFullPath("testdata", "level2", "result"))
+			if err != nil {
+				fmt.Println("error occurred during directory creation")
+			}
 			file, _ := os.Create(getFullPath("testdata", "level2", "result", "file"))
 			file.Close()
 			Ω(CreateDirIfNotExist(getFullPath("testdata", "level2", "result", "file"))).Should(HaveOccurred())
@@ -325,7 +328,10 @@ var _ = Describe("FSOPS", func() {
 		It("Sanity", func() {
 			sourcePath := getFullPath("testdata", "level2", "level3")
 			targetPath := getFullPath("testdata", "result")
-			CreateDirIfNotExist(targetPath)
+			err := CreateDirIfNotExist(targetPath)
+			if err != nil {
+				fmt.Println("error occurred during dir creation")
+			}
 			files, _ := ioutil.ReadDir(sourcePath)
 			// Files wrapped to overwrite their methods
 			var filesWrapped []os.FileInfo
@@ -340,7 +346,10 @@ var _ = Describe("FSOPS", func() {
 		It("Sanity - copy in parallel", func() {
 			sourcePath := getFullPath("testdata", "level2", "level3")
 			targetPath := getFullPath("testdata", "result")
-			CreateDirIfNotExist(targetPath)
+			err := CreateDirIfNotExist(targetPath)
+			if err != nil {
+				fmt.Println("error occurred during dir creation")
+			}
 			files, _ := ioutil.ReadDir(sourcePath)
 			// Files wrapped to overwrite their methods
 			var filesWrapped []os.FileInfo

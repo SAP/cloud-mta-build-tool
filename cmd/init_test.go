@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"fmt"
 	"os"
 
 	. "github.com/onsi/ginkgo"
@@ -10,7 +11,10 @@ import (
 var _ = Describe("Init", func() {
 
 	BeforeEach(func() {
-		os.Mkdir(getTestPath("result"), os.ModePerm)
+		err := os.Mkdir(getTestPath("result"), os.ModePerm)
+		if err != nil {
+			fmt.Println("error occurred during dir creation")
+		}
 	})
 	AfterEach(func() {
 		os.RemoveAll(getTestPath("result"))
@@ -26,10 +30,16 @@ var _ = Describe("Init", func() {
 var _ = Describe("Build", func() {
 
 	BeforeEach(func() {
-		os.Mkdir(getTestPath("result"), os.ModePerm)
+		err := os.Mkdir(getTestPath("result"), os.ModePerm)
+		if err != nil {
+			fmt.Println("error occurred during dir creation")
+		}
 	})
 	AfterEach(func() {
-		os.RemoveAll(getTestPath("result"))
+		err := os.RemoveAll(getTestPath("result"))
+		if err != nil {
+			fmt.Println("error occurred during dir cleanup")
+		}
 	})
 	It("Failure - wrong platform", func() {
 		buildProjectCmdSrc = getTestPath("mta")
