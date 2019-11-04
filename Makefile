@@ -23,6 +23,7 @@ tools:
 	@echo "download golangci-lint"
 	curl -sLO https://github.com/golangci/golangci-lint/releases/download/v${GOLANGCI_VERSION}/golangci-lint-${GOLANGCI_VERSION}-linux-amd64.tar.gz
 	tar -xzvf golangci-lint-${GOLANGCI_VERSION}-linux-amd64.tar.gz
+	cp golangci-lint-${GOLANGCI_VERSION}-linux-amd64/golangci-lint /usr/local/bin/golangci-lint && chmod +x /usr/local/bin/golangci-lint
 
 lint:
 	@echo "Start project linting"
