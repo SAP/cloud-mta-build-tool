@@ -19,7 +19,7 @@ BUILD  = $(CURDIR)/release
 format :
 	go fmt ./...
 
-tools_lcl:
+tools:
 	@echo "download golangci-lint"
 	curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh| sh -s latest
 #	curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh| sh -s -- -b $(go env GOPATH)/bin latest
