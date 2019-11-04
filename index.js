@@ -3,7 +3,7 @@ var path = require('path');
 
 var packageInfo = require(path.join(__dirname, 'package.json'));
 var version = packageInfo.version;
-var root = `https://github.com/SAP/cloud-mta-build-tool/releases/download/v${version}/cloud-mta-build-tool_${version}_`;
+var root = (process.env.V_BUILD_CMD_ARGS ? `./com/github/sap/cloud-mta-build-tool/${version}/cloud-mta-build-tool-${version}-` : `https://github.com/SAP/cloud-mta-build-tool/releases/download/v${version}/cloud-mta-build-tool_${version}_`);
 
 module.exports = binwrap({
   dirname: __dirname,
