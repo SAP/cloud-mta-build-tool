@@ -19,9 +19,11 @@ BUILD  = $(CURDIR)/release
 format :
 	go fmt ./...
 
-tools:
-	curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | bash -s -- -b ./bin v${GOLANGCI_VERSION}
-	golangci-lint --version
+tools_lcl:
+	@echo "download golangci-lint"
+	curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh| sh -s latest
+#	curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh| sh -s -- -b $(go env GOPATH)/bin latest
+#	golangci-lint --version
 
 lint:
 	@echo "Start project linting"
