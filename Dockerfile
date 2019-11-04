@@ -1,22 +1,20 @@
 FROM openjdk:8-jdk-slim
 
+# Build time variables
 ARG MTA_USER_HOME=/home/mta
 ARG MBT_VERSION=0.3.3
 ARG GO_VERSION=1.13.4
 ARG NODE_VERSION=v12.13.0
 ARG MAVEN_VERSION=3.6.2
+
 ENV PYTHON /usr/bin/python2.7
 ENV M2_HOME=/opt/maven/apache-maven-${MAVEN_VERSION}
-
-# go setup
 ENV GOPATH /go
 ENV PATH $GOPATH/bin:/usr/local/go/bin:$PATH
 ENV CGO_ENABLED=0
 ENV GOOS=linux
-RUN mkdir -p "$GOPATH/src" "$GOPATH/bin" && chmod -R 777 "$GOPATH"
 
-RUN mkdir -p ${GOPATH}/src ${GOPATH}/bin
-
+# Download required env tools
 RUN apt-get update && \
     apt-get install --yes --no-install-recommends curl git  && \
 
@@ -34,6 +32,8 @@ RUN apt-get update && \
     # installing Golang
     curl -O https://storage.googleapis.com/golang/go${GO_VERSION}.linux-amd64.tar.gz && tar -xvf go${GO_VERSION}.linux-amd64.tar.gz && \
     mv go /usr/local && \
+    mkdir -p "$GOPATH/src" "$GOPATH/bin" && chmod -R 777 "$GOPATH" && \
+    mkdir -p ${GOPATH}/src ${GOPATH}/bin && \
 
     # update maven home
      M2_BASE="$(dirname ${M2_HOME})" && \
