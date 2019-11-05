@@ -10,6 +10,7 @@ all:format clean dir gen build-linux build-darwin build-windows copy test
 
 GOCMD=go
 GOBUILD=$(GOCMD) build
+GOLANGCI_VERSION = 1.21.0
 
 # Binary names
 BINARY_NAME=mbt
@@ -19,13 +20,17 @@ format :
 	go fmt ./...
 
 tools:
-	curl -L https://git.io/vp6lP | bash -s -- -b $(GOPATH)/bin/ v3.0.0
-	gometalinter --version
+tools:
+	@echo "download golangci-lint"
+	curl -sLO https://github.com/golangci/golangci-lint/releases/download/v${GOLANGCI_VERSION}/golangci-lint-${GOLANGCI_VERSION}-linux-amd64.tar.gz
+	tar -xzvf golangci-lint-${GOLANGCI_VERSION}-linux-amd64.tar.gz
+	cp golangci-lint-${GOLANGCI_VERSION}-linux-amd64/golangci-lint $(GOPATH)/bin
+	@echo "done"
 
 lint:
 	@echo "Start project linting"
-	gometalinter --config=gometalinter.json ./...
-	@echo "Done"
+	golangci-lint run --config .golangci.yml
+	@echo "done linting"
 
 # execute general tests
 test:

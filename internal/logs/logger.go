@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"github.com/sirupsen/logrus"
-	"github.com/x-cray/logrus-prefixed-formatter"
+	pref "github.com/x-cray/logrus-prefixed-formatter"
 )
 
 const (
@@ -28,7 +28,7 @@ func NewLogger() *logrus.Logger {
 	logger := &logrus.Logger{
 		Out:   os.Stdout,
 		Level: level,
-		Formatter: &prefixed.TextFormatter{
+		Formatter: &pref.TextFormatter{
 			DisableColors:   false,
 			TimestampFormat: "2006-01-02 15:04:05",
 			FullTimestamp:   true,

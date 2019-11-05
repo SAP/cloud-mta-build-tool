@@ -1,6 +1,7 @@
 package version
 
 import (
+	"fmt"
 	"testing"
 
 	. "github.com/onsi/ginkgo"
@@ -19,7 +20,10 @@ var _ = Describe("Version", func() {
 cli_version: 5.2
 makefile_version: 10.5.3
 `)
-		yaml.Unmarshal([]byte("cli_version:5.2"), &VersionConfig)
+		err := yaml.Unmarshal([]byte("cli_version:5.2"), &VersionConfig)
+		if err != nil {
+			fmt.Println("error occurred during the unmarshal process")
+		}
 		Ω(GetVersion()).Should(Equal(Version{CliVersion: "5.2", MakeFile: "10.5.3"}))
 	})
 })

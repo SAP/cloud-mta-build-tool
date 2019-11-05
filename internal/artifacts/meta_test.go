@@ -274,11 +274,11 @@ func createMtahtml5TmpFolder() {
 func compareMTAContent(expectedFileName string, actualFileName string) {
 	actual, err := ioutil.ReadFile(expectedFileName)
 	Ω(err).Should(Succeed())
-	actualMta, err := mta.Unmarshal([]byte(actual))
+	actualMta, err := mta.Unmarshal(actual)
 	Ω(err).Should(Succeed())
 	expected, err := ioutil.ReadFile(actualFileName)
 	Ω(err).Should(Succeed())
-	expectedMta, err := mta.Unmarshal([]byte(expected))
+	expectedMta, err := mta.Unmarshal(expected)
 	Ω(err).Should(Succeed())
 	Ω(actualMta).Should(Equal(expectedMta))
 }
