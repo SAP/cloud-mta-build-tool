@@ -13,11 +13,9 @@ jobs:
       - run: go version
       - run: go env
       - run:
-          name: install dep
+          name: install dependencies
           command: |
-            apk update && apk add curl git build-base bash
-            curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
-            dep ensure
+            go mod vendor
       - run: go test -v ./...
       - run: sudo chown circleci:circleci /go/bin
       - run: make tools
