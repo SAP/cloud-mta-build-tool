@@ -13,11 +13,9 @@ jobs:
       - run: go version
       - run: go env
       - run:
-          name: install dep
+          name: install dependencies
           command: |
-            apk update && apk add curl git build-base bash
-            curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
-            dep ensure
+            go mod vendor
       - run: go test -v ./...
       - run: sudo chown circleci:circleci /go/bin
       - run: make tools
@@ -36,16 +34,14 @@ jobs:
 
   test:
     docker:
-      - image: shimit/mbt_multi:0.1.0
+      - image: shimit/mbt_multi:0.3.0
     working_directory: /go/src/github.com/SAP/cloud-mta-build-tool
     steps:
       - checkout
       - run:
-          name: install dep
+          name: install dependencies
           command: |
-            apk update && apk add curl git build-base bash
-            curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
-            dep ensure
+            go mod vendor
       - run: cf login -a $CF_API -o $ORG -s $SPACE -u $TECH_USER -p $TECH_PASS
       - run: cd integration &&  go test -tags=integration
 
@@ -59,11 +55,9 @@ jobs:
             - "34:86:26:17:59:ed:71:fa:b8:37:fc:d6:a4:68:af:0e"
       - checkout
       - run:
-          name: install dep
+          name: install dependencies
           command: |
-            apk update && apk add curl git build-base bash
-            curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
-            dep ensure
+            go mod vendor
       - run:
           name: remove dummy release tag
           command: |

@@ -20,7 +20,6 @@ format :
 	go fmt ./...
 
 tools:
-tools:
 	@echo "download golangci-lint"
 	curl -sLO https://github.com/golangci/golangci-lint/releases/download/v${GOLANGCI_VERSION}/golangci-lint-${GOLANGCI_VERSION}-linux-amd64.tar.gz
 	tar -xzvf golangci-lint-${GOLANGCI_VERSION}-linux-amd64.tar.gz
