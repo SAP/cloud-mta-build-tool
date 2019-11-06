@@ -52,7 +52,7 @@ func init() {
 	executeCommand.Flags().StringArrayVarP(&executeCmdCommands,
 		"commands", "c", nil, "commands to run")
 	executeCommand.Flags().StringVarP(&executeCmdTimeout,
-		"timeout", "t", "", "the timeout after which the run stops, in the format [123h][123m][123s]; 5m is set as the default")
+		"timeout", "t", "", "the timeout after which the run stops, in the format [123h][123m][123s]; 10m is set as the default")
 
 	// set flags of copy command
 	copyCmd.Flags().StringVarP(&copyCmdSrc, "source", "s", "",
