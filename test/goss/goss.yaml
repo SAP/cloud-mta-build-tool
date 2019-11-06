@@ -1,0 +1,45 @@
+# GOSS Manual: https://github.com/aelsabbahy/goss/blob/master/docs/manual.md
+# CMD: GOSS_FILES_PATH=./test/goss dgoss run --interactive --volume $PWD:/project devxci/mbtci
+package:
+  git:
+    installed: true
+  python2.7:
+    installed: true
+user:
+  mta:
+    exists: true
+    uid: 1000
+    gid: 1000
+    groups:
+    - mta
+    home: /home/mta
+    shell: /bin/bash
+command:
+  mbt --version:
+    exit-status: 0
+    stdout:
+    - v0.3.3
+    timeout: 10000
+  mvn --version:
+    exit-status: 0
+    stdout:
+    - Apache Maven 3.6.2
+    timeout: 10000
+  node --version:
+    exit-status: 0
+    stdout:
+    - v12.13.0
+    timeout: 10000
+  curl --version:
+    exit-status: 127
+    timeout: 10000
+  npm config get registry:
+    exit-status: 0
+    stdout:
+    - https://registry.npmjs.org/
+    timeout: 10000
+  npm config get @sap:registry:
+    exit-status: 0
+    stdout:
+    - https://npm.sap.com
+    timeout: 10000
