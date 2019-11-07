@@ -431,8 +431,18 @@ func CopyByPatterns(source, target string, patterns []string) error {
 func copyByPattern(source, target, pattern string) error {
 	logs.Logger.Infof(`copying the "%s" pattern from the "%s" folder to the "%s" folder`,
 		pattern, source, target)
-	// build full pattern concatenating source path and pattern
-	fullPattern := filepath.Join(source, strings.Replace(pattern, "./", "", -1))
+	// Check if the source is a file or a folder. If it's a file, the pattern "*" should copy the file itself.
+	info, err := os.Stat(source)
+	if err != nil {
+		return err
+	}
+	var fullPattern string
+	if !info.IsDir() && pattern == "*" {
+		fullPattern = source
+	} else {
+		// build full pattern concatenating source path and pattern
+		fullPattern = filepath.Join(source, strings.Replace(pattern, "./", "", -1))
+	}
 	// get all entries matching the pattern
 	sourceEntries, err := filepath.Glob(fullPattern)
 	if err != nil {
