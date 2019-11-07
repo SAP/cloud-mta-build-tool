@@ -34,9 +34,11 @@ modules = ui
 # Execute all modules builds
 # build module ui
 ui: validate
+	@echo 'INFO building the "ui" module...'
 	@$(MBT) execute -d="$(PROJ_DIR)/ui" -c='npm install' -c=grunt
 # Pack module build artifacts
 	@$(MBT) module pack -m=ui -p=${p} -t=${t}
+	@echo 'INFO finished building the "ui" module'
 
 # Create META-INF folder with MANIFEST.MF & mtad.yaml
 meta: $(modules) post_build

@@ -34,6 +34,7 @@ const (
 	genMTARArchMsg    = `could not generate the MTA archive when archiving`
 
 	buildMsg                 = `building the "%s" module...`
+	buildFinishedMsg         = `finished building the "%s" module`
 	buildFailedMsg           = `could not build the "%s" module`
 	buildFailedOnCommandsMsg = `could not get commands for the "%s" module`
 	buildFailedOnDepsMsg     = `could not process dependencies for the "%s" module`

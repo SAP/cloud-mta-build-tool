@@ -48,7 +48,7 @@ func init() {
 	buildCmd.Flags().StringVarP(&buildCmdMtar, "mtar", "", "", "The file name of the generated archive file")
 	buildCmd.Flags().StringVarP(&buildCmdPlatform, "platform", "p", "cf", `The deployment platform; supported platforms: "cf", "xsa", "neo"`)
 	buildCmd.Flags().BoolVarP(&buildCmdStrict, "strict", "", true, `If set to true, duplicated fields and fields not defined in the "mta.yaml" schema are reported as errors; if set to false, they are reported as warnings`)
-	buildCmd.Flags().StringVarP(&buildCmdMode, "mode", "m", "", `(experimental) The mode of the Makefile generation; supported values: "default" and "verbose"`)
+	buildCmd.Flags().StringVarP(&buildCmdMode, "mode", "m", "", `(beta) The mode of the Makefile generation; supported values: "default" and "verbose"`)
 	_ = buildCmd.Flags().MarkHidden("mode")
 	buildCmd.Flags().IntVarP(&buildCmdJobs, "jobs", "j", 0, fmt.Sprintf(`The number of make recipes to execute simultaneously when building the project; if 0 or less, the number of available CPUs (limited to %d) is used. Used only in verbose mode.`, artifacts.MaxMakeParallel))
 	_ = buildCmd.Flags().MarkHidden("jobs")
