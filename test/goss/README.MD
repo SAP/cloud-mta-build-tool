@@ -10,7 +10,7 @@
 docker build -t devxci/mbtci .
 ```
 
-2.
+2. Run `dgoss` command:
 
 ```shell
 GOSS_FILES_PATH=./test/goss dgoss run --interactive --volume $PWD:/project devxci/mbtci
