@@ -1,6 +1,6 @@
 # Testing the Container with DGOSS
 
-[GOSS](https://github.com/aelsabbahy/goss) is a *server validation tool* and together with [DGOSS](https://github.com/aelsabbahy/goss/tree/master/extras/dgoss) it can be used to validate Docker conteiners.
+[GOSS](https://github.com/aelsabbahy/goss) is a *server validation tool* and together with [DGOSS](https://github.com/aelsabbahy/goss/tree/master/extras/dgoss) it can be used to validate Docker containers.
 
 ## Execute the Tests
 
