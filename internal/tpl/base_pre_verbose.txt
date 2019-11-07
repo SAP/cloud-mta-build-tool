@@ -1,6 +1,3 @@
-# Determine OS cores
-{{ OsCore.NPROCS  }}
-{{ OsCore.MAKEFLAGS  }}
 # List of all the recipes to be executed during the build process
 .PHONY: pre_validate pre_build validate {{- range .File.Modules}} {{.Name}}{{end}} meta mtar cleanup
 # Default target compile all

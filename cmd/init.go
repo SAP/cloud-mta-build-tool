@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"fmt"
 	"os"
 	"time"
 
@@ -22,12 +23,14 @@ var initCmdExtensions []string
 var initCmdMode string
 
 // flags of build command
-var buildProjectCmdSrc string
-var buildProjectCmdTrg string
-var buildProjectCmdExtensions []string
-var buildProjectCmdMtar = "*"
-var buildProjectCmdPlatform string
-var buildProjectCmdStrict bool
+var buildCmdSrc string
+var buildCmdTrg string
+var buildCmdExtensions []string
+var buildCmdMtar = "*"
+var buildCmdPlatform string
+var buildCmdStrict bool
+var buildCmdMode string
+var buildCmdJobs int
 
 func init() {
 	// set flags for init command
@@ -39,12 +42,16 @@ func init() {
 	initCmd.Flags().BoolP("help", "h", false, `Displays detailed information about the "init" command`)
 
 	// set flags of build command
-	buildCmd.Flags().StringVarP(&buildProjectCmdSrc, "source", "s", "", "The path to the MTA project; the current path is set as the default")
-	buildCmd.Flags().StringVarP(&buildProjectCmdTrg, "target", "t", "", "The path to the results folder; the current path is set as the default")
-	buildCmd.Flags().StringSliceVarP(&buildProjectCmdExtensions, "extensions", "e", nil, "The MTA extension descriptors")
-	buildCmd.Flags().StringVarP(&buildProjectCmdMtar, "mtar", "", "", "The file name of the generated archive file")
-	buildCmd.Flags().StringVarP(&buildProjectCmdPlatform, "platform", "p", "cf", `The deployment platform; supported platforms: "cf", "xsa", "neo"`)
-	buildCmd.Flags().BoolVarP(&buildProjectCmdStrict, "strict", "", true, `If set to true, duplicated fields and fields not defined in the "mta.yaml" schema are reported as errors; if set to false, they are reported as warnings`)
+	buildCmd.Flags().StringVarP(&buildCmdSrc, "source", "s", "", "The path to the MTA project; the current path is set as the default")
+	buildCmd.Flags().StringVarP(&buildCmdTrg, "target", "t", "", "The path to the results folder; the current path is set as the default")
+	buildCmd.Flags().StringSliceVarP(&buildCmdExtensions, "extensions", "e", nil, "The MTA extension descriptors")
+	buildCmd.Flags().StringVarP(&buildCmdMtar, "mtar", "", "", "The file name of the generated archive file")
+	buildCmd.Flags().StringVarP(&buildCmdPlatform, "platform", "p", "cf", `The deployment platform; supported platforms: "cf", "xsa", "neo"`)
+	buildCmd.Flags().BoolVarP(&buildCmdStrict, "strict", "", true, `If set to true, duplicated fields and fields not defined in the "mta.yaml" schema are reported as errors; if set to false, they are reported as warnings`)
+	buildCmd.Flags().StringVarP(&buildCmdMode, "mode", "m", "", `(experimental) The mode of the Makefile generation; supported values: "default" and "verbose"`)
+	_ = buildCmd.Flags().MarkHidden("mode")
+	buildCmd.Flags().IntVarP(&buildCmdJobs, "jobs", "j", 0, fmt.Sprintf(`The number of make recipes to execute simultaneously when building the project; if 0 or less, the number of available CPUs (limited to %d) is used. Used only in verbose mode.`, artifacts.MaxMakeParallel))
+	_ = buildCmd.Flags().MarkHidden("jobs")
 	buildCmd.Flags().BoolP("help", "h", false, `Displays detailed information about the "build" command`)
 }
 
@@ -71,7 +78,7 @@ var buildCmd = &cobra.Command{
 		makefileTmp := "Makefile_" + time.Now().Format("20060102150405") + ".mta"
 		// Generate build script
 		// Note: we can only use the non-default mbt (i.e. the current executable name) from inside the command itself because if this function runs from other places like tests it won't point to the MBT
-		err := artifacts.ExecBuild(makefileTmp, buildProjectCmdSrc, buildProjectCmdTrg, buildProjectCmdExtensions, "", buildProjectCmdMtar, buildProjectCmdPlatform, buildProjectCmdStrict, os.Getwd, exec.Execute, false)
+		err := artifacts.ExecBuild(makefileTmp, buildCmdSrc, buildCmdTrg, buildCmdExtensions, buildCmdMode, buildCmdMtar, buildCmdPlatform, buildCmdStrict, buildCmdJobs, os.Getwd, exec.Execute, false)
 		return err
 	},
 	SilenceUsage: true,

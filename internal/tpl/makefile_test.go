@@ -5,7 +5,6 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
-	"runtime"
 	"strings"
 
 	. "github.com/onsi/ginkgo"
@@ -45,26 +44,14 @@ func escapeProjPath(parts ...string) string {
 var _ = Describe("Makefile", func() {
 
 	var (
-		tpl              = tplCfg{tplContent: makeVerbose, relPath: "", preContent: basePreVerbose, postContent: basePost, depDesc: "dev"}
-		makeFileName     = "MakeFileTest.mta"
-		wd, _            = os.Getwd()
-		expectedMakePath = func() string {
-			var filename string
-			switch runtime.GOOS {
-			case "linux":
-				filename = "ExpectedMakeFileLinux"
-			case "darwin":
-				filename = "ExpectedMakeFileMac"
-			default:
-				filename = "ExpectedMakeFileWindows"
-			}
-			return filepath.Join(wd, "testdata", filename)
-		}()
-		makeFileFullPath = func() string {
-			return filepath.Join(wd, "testdata", makeFileName)
-		}()
-		expectedMakeFileContent = getMakeFileContent(expectedMakePath)
+		tpl          = tplCfg{tplContent: makeVerbose, relPath: "", preContent: basePreVerbose, postContent: basePost, depDesc: "dev"}
+		makeFileName = "MakeFileTest.mta"
 	)
+
+	wd, _ := os.Getwd()
+	expectedMakePath := filepath.Join(wd, "testdata", "ExpectedMakeFile")
+	expectedMakeFileContent := getMakeFileContent(expectedMakePath)
+	makeFileFullPath := filepath.Join(wd, "testdata", makeFileName)
 
 	Describe("MakeFile Generation", func() {
 		BeforeEach(func() {

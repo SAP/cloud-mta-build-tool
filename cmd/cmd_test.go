@@ -1,32 +1,26 @@
 package commands
 
 import (
-	dir "github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"os"
 	"path/filepath"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
+	dir "github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta-build-tool/internal/logs"
 )
 
 var _ = Describe("Commands", func() {
 
 	BeforeEach(func() {
-		mtadCmdTrg = getTestPath("result")
-		metaCmdTrg = getTestPath("result")
-		mtarCmdTrg = getTestPath("result")
-		packCmdTrg = getTestPath("result")
-		buildCmdTrg = getTestPath("result")
 		cleanupCmdTrg = getTestPath("result")
 		logs.Logger = logs.NewLogger()
-		err := dir.CreateDirIfNotExist(mtadCmdTrg)
-		Ω(err).Should(Succeed())
+		Ω(dir.CreateDirIfNotExist(cleanupCmdTrg)).Should(Succeed())
 	})
 
 	AfterEach(func() {
-		os.RemoveAll(mtadCmdTrg)
+		Ω(os.RemoveAll(cleanupCmdTrg)).Should(Succeed())
 	})
 
 	var _ = Describe("cleanup command", func() {
