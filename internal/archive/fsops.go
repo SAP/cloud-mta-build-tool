@@ -377,8 +377,7 @@ func CopyDir(src string, dst string, withParents bool, copyDirEntries func(entri
 }
 
 // FindPath returns the path or its first match in case it's a pattern. If the path doesn't exist an error is returned.
-func FindPath(pathOrPattern string) (string, error) {
-	path := pathOrPattern
+func FindPath(path string) (string, error) {
 	sourceEntries, err := filepath.Glob(path)
 	if err == nil && len(sourceEntries) > 0 {
 		return sourceEntries[0], nil
@@ -586,10 +585,7 @@ func CopyFile(src, dst string) (rerr error) {
 	if err != nil {
 		return err
 	}
-	err = changeTargetMode(src, dst)
-
-	return err
-
+	return changeTargetMode(src, dst)
 }
 
 func WriteFile(in io.Reader, dst string) (rerr error) {
