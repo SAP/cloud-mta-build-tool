@@ -2,8 +2,10 @@ package artifacts
 
 import (
 	"errors"
-	dir "github.com/SAP/cloud-mta-build-tool/internal/archive"
+	"fmt"
 	"os"
+
+	dir "github.com/SAP/cloud-mta-build-tool/internal/archive"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -12,7 +14,10 @@ import (
 var _ = Describe("Cleanup", func() {
 
 	BeforeEach(func() {
-		dir.CreateDirIfNotExist(getTestPath("result", ".mtahtml5_mta_build_tmp"))
+		err := dir.CreateDirIfNotExist(getTestPath("result", ".mtahtml5_mta_build_tmp"))
+		if err != nil {
+			fmt.Println("error occurred during directory creation")
+		}
 	})
 
 	AfterEach(func() {

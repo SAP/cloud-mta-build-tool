@@ -61,7 +61,7 @@ func ExecuteWithTimeout(cmdParams [][]string, timeout string, runIndicator bool)
 
 func parseTimeoutString(timeoutString string) (time.Duration, error) {
 	if timeoutString == "" {
-		return 5 * time.Minute, nil
+		return 10 * time.Minute, nil
 	}
 	return time.ParseDuration(strings.TrimSpace(timeoutString))
 }

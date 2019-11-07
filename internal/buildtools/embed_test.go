@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -14,12 +15,19 @@ import (
 var _ = Describe("Embed", func() {
 	BeforeEach(func() {
 		templatePath = ""
-		os.Mkdir("./testdata/result", os.ModePerm)
+		err := os.Mkdir("./testdata/result", os.ModePerm)
+		if err != nil {
+			fmt.Println("error occurred while trying to create new folder")
+		}
+
 	})
 
 	AfterEach(func() {
 		wd, _ := os.Getwd()
-		os.RemoveAll(filepath.Join(wd, "testdata", "result"))
+		err := os.RemoveAll(filepath.Join(wd, "testdata", "result"))
+		if err != nil {
+			fmt.Println("error occurred while trying to remove test artifacts")
+		}
 	})
 
 	It("sanity", func() {

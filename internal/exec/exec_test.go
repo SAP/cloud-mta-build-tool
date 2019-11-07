@@ -93,7 +93,7 @@ var _ = Describe("Execute", func() {
 		Entry("parses timeout with minutes", "10m", "10m0s", false),
 		Entry("parses timeout with hours", "5h", "5h0m0s", false),
 		Entry("parses timeout with mixed time units", "10m3s", "10m3s", false),
-		Entry("returns default timeout when timeout is empty", "", "5m0s", false),
+		Entry("returns default timeout when timeout is empty", "", "10m0s", false),
 		Entry("returns error for bad timeout", "abc", "", true),
 	)
 

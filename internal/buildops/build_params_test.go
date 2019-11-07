@@ -276,7 +276,10 @@ var _ = Describe("Process complex list of requirements", func() {
 		for _, m := range mtaObj.Modules {
 			if m.Name == "node" {
 				for _, r := range getBuildRequires(m) {
-					ProcessRequirements(&lp, mtaObj, &r, "node")
+					err := ProcessRequirements(&lp, mtaObj, &r, "node")
+					if err != nil {
+						fmt.Println("error occurred during build process requirements ")
+					}
 				}
 			}
 		}

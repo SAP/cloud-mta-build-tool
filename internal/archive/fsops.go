@@ -236,15 +236,21 @@ func dereferenceSymlink(path string, predecessors map[string]bool) (string, os.F
 		// get path that symbolic link points to
 		linkedPath, err = fileInfoProvider.readlink(currentPath)
 		if err != nil {
-			return "", nil, nil, err
+			return "", nil, nil, errors.Wrapf(err, badSymLink, currentPath)
 		}
 
 		if symlinkReferencesPredecessor(linkedPath, predecessors) {
 			return "", nil, nil, errors.Errorf(recursiveSymLinkMsg, linkedPath)
 		}
+
+		// Resolve relative path
+		if !filepath.IsAbs(linkedPath) {
+			linkedPath = filepath.Join(filepath.Dir(currentPath), linkedPath)
+		}
+
 		linkedInfo, err = fileInfoProvider.stat(linkedPath)
 		if err != nil {
-			return "", nil, nil, err
+			return "", nil, nil, errors.Wrapf(err, badSymLink, currentPath)
 		}
 		if !fileInfoProvider.isSymbolicLink(linkedInfo) {
 			isSymlink = false

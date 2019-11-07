@@ -56,7 +56,10 @@ var _ = Describe("FSOPS", func() {
 			Entry("DirectoryExists", getFullPath("testdata", "level2", "level3")),
 		)
 		It("Fails because file with the same name exists", func() {
-			CreateDirIfNotExist(getFullPath("testdata", "level2", "result"))
+			err := CreateDirIfNotExist(getFullPath("testdata", "level2", "result"))
+			if err != nil {
+				fmt.Println("error occurred during directory creation")
+			}
 			file, _ := os.Create(getFullPath("testdata", "level2", "result", "file"))
 			file.Close()
 			Ω(CreateDirIfNotExist(getFullPath("testdata", "level2", "result", "file"))).Should(HaveOccurred())
@@ -174,9 +177,20 @@ var _ = Describe("FSOPS", func() {
 		})
 
 		var _ = Describe("dereferenceSymlink", func() {
-			It("wrong path", func() {
+			It("wrong file path", func() {
 				_, _, _, err := dereferenceSymlink(getFullPath("testdata", "notexists"), make(map[string]bool))
 				Ω(err).Should(HaveOccurred())
+			})
+			It("wrong relative path in symlink", func() {
+				fileInfoProvider = &mockFileInfoProvider{ReturnRelativePath: true}
+				_, _, _, err := dereferenceSymlink(getFullPath("testdata", "testsymlink", "symlink_broken"), make(map[string]bool))
+				Ω(err).Should(HaveOccurred())
+			})
+			It("existing relative path in symlink", func() {
+				fileInfoProvider = &mockFileInfoProvider{ReturnRelativePath: true}
+				path, _, _, err := dereferenceSymlink(getFullPath("testdata", "testsymlink", "symlink_dir_to_moduleNew"), make(map[string]bool))
+				Ω(err).Should(Succeed())
+				Ω(path).Should(Equal(getFullPath("testdata", "testsymlink", "moduleNew")))
 			})
 		})
 	})
@@ -325,7 +339,10 @@ var _ = Describe("FSOPS", func() {
 		It("Sanity", func() {
 			sourcePath := getFullPath("testdata", "level2", "level3")
 			targetPath := getFullPath("testdata", "result")
-			CreateDirIfNotExist(targetPath)
+			err := CreateDirIfNotExist(targetPath)
+			if err != nil {
+				fmt.Println("error occurred during dir creation")
+			}
 			files, _ := ioutil.ReadDir(sourcePath)
 			// Files wrapped to overwrite their methods
 			var filesWrapped []os.FileInfo
@@ -340,7 +357,10 @@ var _ = Describe("FSOPS", func() {
 		It("Sanity - copy in parallel", func() {
 			sourcePath := getFullPath("testdata", "level2", "level3")
 			targetPath := getFullPath("testdata", "result")
-			CreateDirIfNotExist(targetPath)
+			err := CreateDirIfNotExist(targetPath)
+			if err != nil {
+				fmt.Println("error occurred during dir creation")
+			}
 			files, _ := ioutil.ReadDir(sourcePath)
 			// Files wrapped to overwrite their methods
 			var filesWrapped []os.FileInfo
@@ -580,6 +600,7 @@ func contains(element string, elements []string) bool {
 }
 
 type mockFileInfoProvider struct {
+	ReturnRelativePath bool
 }
 
 func (provider *mockFileInfoProvider) isSymbolicLink(file os.FileInfo) bool {
@@ -607,7 +628,11 @@ func (provider *mockFileInfoProvider) readlink(path string) (string, error) {
 		return "", errors.New(scanner.Text())
 	}
 	textSplit := strings.Split(text, "/")
-	fullPath := getFullPath("testdata", "testsymlink")
+	if provider.ReturnRelativePath {
+		return filepath.Join(textSplit...), nil
+	}
+	// Resolve path
+	fullPath := filepath.Dir(path)
 	for _, textElement := range textSplit {
 		fullPath = filepath.Join(fullPath, textElement)
 	}
