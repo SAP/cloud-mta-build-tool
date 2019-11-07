@@ -19,10 +19,10 @@ command:
   curl --version:
     exit-status: 127
   # verify installed JAVA version
-  java --version:
+  java -version:
     exit-status: 0
-    stdout:
-      - 1.8.0.22
+    stderr:
+    - openjdk version "1.8.0
   # verify installed Cloud MTA Build Tool version
   mbt --version:
     exit-status: 0
@@ -38,13 +38,13 @@ command:
     exit-status: 0
     stdout:
     - v12.13.0
-  # verify NPM registry configuration
-  npm config get registry:
-    exit-status: 0
-    stdout:
-    - https://registry.npmjs.org/
   # verify NPM @sap-scope registry configuration
   npm config get @sap:registry:
     exit-status: 0
     stdout:
     - https://npm.sap.com
+  # verify NPM registry configuration
+  npm config get registry:
+    exit-status: 0
+    stdout:
+    - https://registry.npmjs.org/
