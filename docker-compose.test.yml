@@ -4,15 +4,15 @@ services:
   goss:
     image: aelsabbahy/goss
     volumes:
-      - goss-executable:/goss
+    - goss-executable:/goss
     command: goss --version
   sut:
     build: .
     depends_on:
-      - goss
+    - goss
     volumes:
-      - .:/project
-      - goss-executable:/goss
+    - .:/project
+    - goss-executable:/goss
     command: /goss/goss --gossfile test/goss/goss.yaml validate --format documentation --color
 volumes:
   goss-executable:
