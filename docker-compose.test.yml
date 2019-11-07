@@ -8,7 +8,7 @@ services:
     command: goss --version
   sut:
     build: .
-    depends_on: 
+    depends_on:
       - goss
     volumes:
       - .:/project
