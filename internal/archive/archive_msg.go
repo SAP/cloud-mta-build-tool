@@ -11,6 +11,7 @@ const (
 	copyByPatternFailedOnCreateMsg   = `could not copy files matching the patterns [%s,...] from the "%s" folder to the "%s" folder: could not create the "%s" folder`
 	copyByPatternFailedOnTargetMsg   = `could not copy files matching the patterns [%s,...] from the "%s" folder to the "%s" folder: "%s" is not a folder`
 	copyByPatternFailedOnMatchMsg    = `could not copy files matching the "%s" pattern from the "%s" folder to the "%s": could not get list of files matching the "%s" pattern`
+	wrongPathMsg                     = `could not find the "%s" path`
 
 	// InitLocFailedOnWorkDirMsg - message raised on getting working directory when initializing location
 	InitLocFailedOnWorkDirMsg = `could not get working directory`

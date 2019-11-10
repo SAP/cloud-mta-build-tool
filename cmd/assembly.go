@@ -20,11 +20,10 @@ var assembleCmdParallel string
 
 // Assemble the MTA project post-build artifacts, without any build process
 var assembleCommand = &cobra.Command{
-	Use:       "assemble",
-	Short:     "Assembles MTA Archive",
-	Long:      "Assembles MTA Archive",
-	ValidArgs: []string{"Deployment descriptor location"},
-	Args:      cobra.NoArgs,
+	Use:   "assemble",
+	Short: "Generates an MTA archive according to the MTA deployment descriptor (mtad.yaml)",
+	Long:  "Generates an MTA archive according to the MTA deployment descriptor (mtad.yaml)",
+	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		err := artifacts.Assembly(assembleCmdSrc, assembleCmdTrg, assembleCmdExtensions, defaultPlatform, assembleCmdMtarName, assembleCmdParallel, os.Getwd)
 		logError(err)
@@ -36,16 +35,16 @@ var assembleCommand = &cobra.Command{
 
 func init() {
 	assembleCommand.Flags().StringVarP(&assembleCmdSrc,
-		"source", "s", "", "the path to the MTA project; the current path is set as the default")
+		"source", "s", "", "The path to the MTA project; the current path is set as the default")
 	assembleCommand.Flags().StringVarP(&assembleCmdTrg,
-		"target", "t", "", "the path to the MBT results folder; the current path is set as the default")
+		"target", "t", "", "The path to the results folder; the current path is set as the default")
 	assembleCommand.Flags().StringSliceVarP(&assembleCmdExtensions, "extensions", "e", nil,
-		"the MTA extension descriptors")
+		"The MTA extension descriptors")
 	assembleCommand.Flags().StringVarP(&assembleCmdMtarName,
-		"mtar", "m", "", "the archive name")
+		"mtar", "m", "", "The archive name")
 	assembleCommand.Flags().StringVarP(&assembleCmdParallel,
-		"parallel", "p", "true", "if true content copying will run in parallel")
+		"parallel", "p", "true", "If true content copying will run in parallel")
 	_ = assembleCommand.Flags().MarkHidden("parallel")
-	assembleCommand.Flags().BoolP("help", "h", false, `prints detailed information about the "assemble" command`)
+	assembleCommand.Flags().BoolP("help", "h", false, `Displays detailed information about the "assemble" command`)
 
 }

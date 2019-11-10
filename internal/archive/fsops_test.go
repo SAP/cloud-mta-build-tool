@@ -138,6 +138,47 @@ var _ = Describe("FSOPS", func() {
 		)
 	})
 
+	var _ = Describe("FindPath", func() {
+		It("returns file path for existing file", func() {
+			path := getFullPath("testdata", "findpath", "folder1", "file1.txt")
+			found, err := FindPath(path)
+			Ω(err).Should(Succeed())
+			Ω(found).Should(Equal(path))
+		})
+		It("returns folder path for existing folder", func() {
+			path := getFullPath("testdata", "findpath", "folder1")
+			found, err := FindPath(path)
+			Ω(err).Should(Succeed())
+			Ω(found).Should(Equal(path))
+		})
+		It("returns first found file for pattern", func() {
+			path := getFullPath("testdata", "findpath", "folder1", "*.txt")
+			found, err := FindPath(path)
+			Ω(err).Should(Succeed())
+			Ω(found).Should(Equal(getFullPath("testdata", "findpath", "folder1", "file1.txt")))
+		})
+		It("returns first found folder for pattern", func() {
+			path := getFullPath("testdata", "findpath", "folder*")
+			found, err := FindPath(path)
+			Ω(err).Should(Succeed())
+			Ω(found).Should(Equal(getFullPath("testdata", "findpath", "folder1")))
+		})
+		It("returns error when path is not found for path", func() {
+			path := getFullPath("testdata", "findpath", "fff")
+			_, err := FindPath(path)
+			Ω(err).Should(HaveOccurred())
+		})
+		It("returns error when no files or folders are found for pattern", func() {
+			path := getFullPath("testdata", "findpath", "fff*")
+			_, err := FindPath(path)
+			Ω(err).Should(HaveOccurred())
+		})
+		It("returns error when pattern is invalid", func() {
+			_, err := FindPath(getFullPath("testdata", "findpath", "*["))
+			Ω(err).Should(HaveOccurred())
+		})
+	})
+
 	var _ = Describe("utils", func() {
 		BeforeEach(func() {
 			fileInfoProvider = &mockFileInfoProvider{}
@@ -333,7 +374,7 @@ var _ = Describe("FSOPS", func() {
 	var _ = Describe("Copy Entries", func() {
 
 		AfterEach(func() {
-			os.RemoveAll(getFullPath("testdata", "result"))
+			Ω(os.RemoveAll(getFullPath("testdata", "result"))).Should(Succeed())
 		})
 
 		It("Sanity", func() {
@@ -352,7 +393,6 @@ var _ = Describe("FSOPS", func() {
 			}
 			Ω(CopyEntries(filesWrapped, sourcePath, targetPath)).Should(Succeed())
 			Ω(countFilesInDir(sourcePath) - 1).Should(Equal(countFilesInDir(targetPath)))
-			os.RemoveAll(targetPath)
 		})
 		It("Sanity - copy in parallel", func() {
 			sourcePath := getFullPath("testdata", "level2", "level3")
@@ -370,55 +410,74 @@ var _ = Describe("FSOPS", func() {
 			}
 			Ω(CopyEntriesInParallel(filesWrapped, sourcePath, targetPath)).Should(Succeed())
 			Ω(countFilesInDir(sourcePath) - 1).Should(Equal(countFilesInDir(targetPath)))
-			os.RemoveAll(targetPath)
 		})
 	})
 
 	var _ = Describe("Copy By Patterns", func() {
 
 		AfterEach(func() {
-			os.RemoveAll(getFullPath("testdata", "result"))
+			Ω(os.RemoveAll(getFullPath("testdata", "result"))).Should(Succeed())
 		})
 
-		var _ = DescribeTable("Valid Cases", func(modulePath string, patterns, expectedFiles []string) {
-			sourcePath := getFullPath("testdata", "testbuildparams", modulePath)
+		var _ = DescribeTable("Valid Cases", func(sourceFolder string, patterns, expectedFiles []string) {
+			sourcePath := getFullPath("testdata", "testbuildparams", sourceFolder)
 			targetPath := getFullPath("testdata", "result")
 			Ω(CopyByPatterns(sourcePath, targetPath, patterns)).Should(Succeed())
-			for _, file := range expectedFiles {
-				Ω(file).Should(BeAnExistingFile())
-			}
+			validateFilesInDir(targetPath, expectedFiles)
 		},
 			Entry("Single file", "ui2",
 				[]string{"deep/folder/inui2/anotherfile.txt"},
-				[]string{getFullPath("testdata", "result", "anotherfile.txt")}),
+				[]string{"anotherfile.txt"}),
 			Entry("Wildcard for 2 files", "ui2",
 				[]string{"deep/*/inui2/another*"},
-				[]string{getFullPath("testdata", "result", "anotherfile.txt"),
-					getFullPath("testdata", "result", "anotherfile2.txt")}),
+				[]string{"anotherfile.txt", "anotherfile2.txt"}),
 			Entry("Wildcard for 2 files - dot start", "ui2",
 				[]string{"./deep/*/inui2/another*"},
-				[]string{getFullPath("testdata", "result", "anotherfile.txt"),
-					getFullPath("testdata", "result", "anotherfile2.txt")}),
+				[]string{"anotherfile.txt", "anotherfile2.txt"}),
 			Entry("Specific folder of second level", "ui2",
 				[]string{"*/folder/*"},
-				[]string{
-					getFullPath("testdata", "result", "inui2", "anotherfile.txt"),
-					getFullPath("testdata", "result", "inui2", "anotherfile2.txt")}),
+				[]string{"inui2/", "inui2/anotherfile.txt", "inui2/anotherfile2.txt"}),
 			Entry("All", "ui1",
 				[]string{"*"},
-				[]string{getFullPath("testdata", "result", "webapp", "Component.js")}),
+				[]string{
+					"webapp/",
+					"webapp/controller/", "webapp/controller/View1.controller.js",
+					"webapp/i18n/", "webapp/i18n/i18n.properties",
+					"webapp/model/", "webapp/model/models.js",
+					"webapp/view/", "webapp/view/View1.view.xml",
+					"webapp/Component.js",
+				}),
 			Entry("Dot", "ui1",
 				[]string{"."},
-				[]string{getFullPath("testdata", "result", "ui1", "webapp", "Component.js")}),
+				[]string{
+					"ui1/",
+					"ui1/webapp/",
+					"ui1/webapp/controller/", "ui1/webapp/controller/View1.controller.js",
+					"ui1/webapp/i18n/", "ui1/webapp/i18n/i18n.properties",
+					"ui1/webapp/model/", "ui1/webapp/model/models.js",
+					"ui1/webapp/view/", "ui1/webapp/view/View1.view.xml",
+					"ui1/webapp/Component.js",
+				}),
 			Entry("Multiple patterns", "ui2", //
 				[]string{"deep/folder/inui2/anotherfile.txt", "*/folder/"},
-				[]string{
-					getFullPath("testdata", "result", "folder", "inui2", "anotherfile.txt"),
-					getFullPath("testdata", "result", "anotherfile.txt")}),
-			Entry("Empty patterns", "ui2",
-				[]string{},
+				[]string{"folder/", "folder/inui2/", "folder/inui2/anotherfile.txt", "folder/inui2/anotherfile2.txt", "anotherfile.txt"}),
+			Entry("File with * pattern copies the file", "mta.yaml",
+				[]string{"*"},
+				[]string{"mta.yaml"}),
+			Entry("File with non-* pattern doesn't copy the file", "mta.yaml",
+				[]string{"*a*"},
 				[]string{}),
+			Entry("File with several patterns", "mta.yaml",
+				[]string{"*", "a/", "*.*"},
+				[]string{"mta.yaml"}),
 		)
+
+		It("doesn't create the target folder if there are no patterns", func() {
+			sourcePath := getFullPath("testdata", "testbuildparams", "ui2")
+			targetPath := getFullPath("testdata", "result")
+			Ω(CopyByPatterns(sourcePath, targetPath, []string{})).Should(Succeed())
+			Ω(targetPath).ShouldNot(BeADirectory())
+		})
 
 		var _ = DescribeTable("Invalid Cases", func(targetPath, modulePath string, patterns []string) {
 			sourcePath := getFullPath("testdata", "testbuildparams", modulePath)
@@ -431,6 +490,8 @@ var _ = Describe("FSOPS", func() {
 			Entry("Wrong pattern ",
 				getFullPath("testdata", "result"), "ui2", []string{"[a,b"}),
 			Entry("Empty target path", "", "ui2", []string{"[a,b"}),
+			Entry("Source path doesn't exist",
+				getFullPath("testdata", "result"), "aaa", []string{"*"}),
 		)
 	})
 
@@ -587,6 +648,39 @@ func validateArchiveContents(expectedFilesInArchive []string, archiveLocation st
 	}
 	for _, existingFile := range filesInArchive {
 		Ω(contains(existingFile, expectedFilesInArchive)).Should(BeTrue(), fmt.Sprintf("did not expect %s to be in the archive; archive contains %v", existingFile, filesInArchive))
+	}
+}
+
+// Check the folder exists and includes exactly the expected files
+func validateFilesInDir(src string, expectedFilesInDir []string) {
+	// List all files in the folder recursively
+	filesInDir := make([]string, 0)
+	err := filepath.Walk(src, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		// Don't include the folder itself
+		if filepath.Clean(path) == filepath.Clean(src) {
+			return nil
+		}
+		relPath, err := filepath.Rel(src, path)
+		if err != nil {
+			return err
+		}
+		relPath = filepath.ToSlash(relPath)
+		if info.IsDir() {
+			relPath += "/"
+		}
+		filesInDir = append(filesInDir, relPath)
+		return nil
+	})
+	Ω(err).Should(Succeed())
+
+	for _, expectedFile := range expectedFilesInDir {
+		Ω(contains(expectedFile, filesInDir)).Should(BeTrue(), fmt.Sprintf("expected %s to be in the directory; directory contains %v", expectedFile, filesInDir))
+	}
+	for _, existingFile := range filesInDir {
+		Ω(contains(existingFile, expectedFilesInDir)).Should(BeTrue(), fmt.Sprintf("did not expect %s to be in the directory; directory contains %v", existingFile, filesInDir))
 	}
 }
 

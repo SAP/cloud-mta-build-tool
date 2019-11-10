@@ -20,6 +20,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
+	dir "github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta/mta"
 )
 
@@ -374,6 +375,36 @@ modules:
 			Ω(filepath.Join(dir, "testdata", "mta_demo", "mta_archives", demoArchiveName)).Should(BeAnExistingFile())
 		})
 
+		It("Generate Verbose Makefile with module dependencies", func() {
+			dir, _ := os.Getwd()
+			path := filepath.Join(dir, "testdata", "moduledep")
+			archivePath := filepath.Join(path, "mta_archives", "f1_0.0.1.mtar")
+			tempZipPath := filepath.Join(path, "mta_archives", "data.zip")
+
+			Ω(os.RemoveAll(filepath.Join(path, "Makefile.mta"))).Should(Succeed())
+			Ω(os.RemoveAll(archivePath)).Should(Succeed())
+			Ω(os.RemoveAll(filepath.Join(path, "public", "client"))).Should(Succeed())
+			Ω(os.RemoveAll(tempZipPath)).Should(Succeed())
+
+			bin := filepath.FromSlash(binPath)
+			cmdOut, errString, _ := execute(bin, "init -m=verbose", path)
+			Ω(errString).Should(Equal(""))
+			Ω(cmdOut).ShouldNot(BeNil())
+			// Check the MakeFile was generated
+			Ω(filepath.Join(path, "Makefile.mta")).Should(BeAnExistingFile())
+
+			// Generate mtar
+			bin = filepath.FromSlash("make")
+			execute(bin, "-f Makefile.mta p=cf", path)
+			// Check the archive was generated
+			Ω(archivePath).Should(BeAnExistingFile())
+			validateMtaArchiveContents([]string{"module_with_dep/", "module_with_dep/data.zip"}, archivePath)
+
+			// Extract data.zip and check its content
+			err := extractFileFromZip(archivePath, "module_with_dep/data.zip", tempZipPath)
+			Ω(err).Should(Succeed())
+			validateArchiveContents([]string{"package.json", "client/", "client/client_package.json"}, tempZipPath)
+		})
 	})
 
 	var _ = Describe("MBT gen commands", func() {
@@ -586,13 +617,48 @@ func getFileContentFromZip(path string, filename string) ([]byte, error) {
 	return nil, fmt.Errorf(`file "%s" not found`, filename)
 }
 
+func extractFileFromZip(archivePath string, filename string, dst string) (error) {
+	zipFile, err := zip.OpenReader(archivePath)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		_ = zipFile.Close()
+	}()
+	var fileToExtract *zip.File = nil
+	for _, file := range zipFile.File {
+		if strings.Contains(file.Name, filename) {
+			fileToExtract = file
+		}
+	}
+	if fileToExtract == nil {
+		return fmt.Errorf(`file "%s" not found`, filename)
+	}
+
+	in, err := fileToExtract.Open()
+	if err != nil {
+		return err
+	}
+	defer func() {
+		_ = in.Close()
+	}()
+	err = dir.WriteFile(in, dst)
+	return err
+}
+
 func validateMtaArchiveContents(expectedAdditionalFilesInArchive []string, archiveLocation string) {
 	expectedFilesInArchive := append(expectedAdditionalFilesInArchive, "META-INF/", "META-INF/MANIFEST.MF", "META-INF/mtad.yaml")
-	archiveReader, err := zip.OpenReader(archiveLocation)
+	validateArchiveContents(expectedFilesInArchive, archiveLocation)
+}
+
+func validateArchiveContents(expectedFilesInArchive []string, archiveLocation string) {
+	archive, err := zip.OpenReader(archiveLocation)
 	Ω(err).Should(Succeed())
-	defer archiveReader.Close()
+	defer func() {
+		_ = archive.Close()
+	}()
 	var filesInArchive []string
-	for _, file := range archiveReader.File {
+	for _, file := range archive.File {
 		filesInArchive = append(filesInArchive, file.Name)
 	}
 	for _, expectedFile := range expectedFilesInArchive {

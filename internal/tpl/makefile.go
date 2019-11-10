@@ -11,6 +11,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/SAP/cloud-mta-build-tool/internal/archive"
+	"github.com/SAP/cloud-mta-build-tool/internal/buildops"
 	"github.com/SAP/cloud-mta-build-tool/internal/commands"
 	"github.com/SAP/cloud-mta-build-tool/internal/logs"
 	"github.com/SAP/cloud-mta-build-tool/internal/proc"
@@ -33,7 +34,7 @@ func ExecuteMake(source, target string, extensions []string, name, mode string, 
 	if err != nil {
 		return errors.Wrapf(err, genFailedOnInitLocMsg, name)
 	}
-	err = genMakefile(loc, loc, loc, loc.GetExtensionFilePaths(), name, mode, useDefaultMbt)
+	err = genMakefile(loc, loc, loc, loc, loc.GetExtensionFilePaths(), name, mode, useDefaultMbt)
 	if err != nil {
 		return err
 	}
@@ -42,20 +43,28 @@ func ExecuteMake(source, target string, extensions []string, name, mode string, 
 }
 
 // genMakefile - Generate the makefile
-func genMakefile(mtaParser dir.IMtaParser, loc dir.ITargetPath, desc dir.IDescriptor, extensionFilePaths []string, makeFilename, mode string, useDefaultMbt bool) error {
+func genMakefile(mtaParser dir.IMtaParser, loc dir.ITargetPath, srcLoc dir.ISourceModule, desc dir.IDescriptor, extensionFilePaths []string, makeFilename, mode string, useDefaultMbt bool) error {
 	tpl, err := getTplCfg(mode, desc.IsDeploymentDescriptor())
 	if err != nil {
 		return err
 	}
 	if err == nil {
 		tpl.depDesc = desc.GetDescriptor()
-		err = makeFile(mtaParser, loc, extensionFilePaths, makeFilename, &tpl, useDefaultMbt)
+		err = makeFile(mtaParser, loc, srcLoc, extensionFilePaths, makeFilename, &tpl, useDefaultMbt)
 	}
 	return err
 }
 
 type templateData struct {
 	File mta.MTA
+	Loc  dir.ISourceModule
+}
+
+type templateDepData struct {
+	Name       string
+	SourcePath string
+	TargetPath string
+	Patterns   []string
 }
 
 // ConvertToShellArgument wraps a string in quotation marks if necessary and escapes necessary characters in it,
@@ -64,8 +73,25 @@ func (data templateData) ConvertToShellArgument(s string) string {
 	return shellquote.Join(s)
 }
 
+func (data templateData) GetModuleDeps(moduleName string) ([]templateDepData, error) {
+	module, e := data.File.GetModuleByName(moduleName)
+	if e != nil {
+		return nil, e
+	}
+	requires := buildops.GetBuildRequires(module)
+	templateDeps := make([]templateDepData, len(requires))
+	for index, req := range requires {
+		sourcePath, targetPath, artifacts, e := buildops.GetRequiresArtifacts(data.Loc, &data.File, &req, moduleName, false)
+		if e != nil {
+			return nil, e
+		}
+		templateDeps[index] = templateDepData{req.Name, sourcePath, targetPath, artifacts}
+	}
+	return templateDeps, nil
+}
+
 // makeFile - generate makefile form templates
-func makeFile(mtaParser dir.IMtaParser, loc dir.ITargetPath, extensionFilePaths []string, makeFilename string, tpl *tplCfg, useDefaultMbt bool) (e error) {
+func makeFile(mtaParser dir.IMtaParser, loc dir.ITargetPath, srcLoc dir.ISourceModule, extensionFilePaths []string, makeFilename string, tpl *tplCfg, useDefaultMbt bool) (e error) {
 
 	// template data
 	data := templateData{}
@@ -81,8 +107,16 @@ func makeFile(mtaParser dir.IMtaParser, loc dir.ITargetPath, extensionFilePaths 
 		return errors.Wrapf(err, genFailedMsg, makeFilename)
 	}
 
+	// Check for circular build dependencies between the modules. The error message from make is not clear so we
+	// should give an error here during the generation of the makefile.
+	_, e = buildops.GetModulesNames(m)
+	if e != nil {
+		return e
+	}
+
 	// Template data
 	data.File = *m
+	data.Loc = srcLoc
 
 	// path for creating the file
 	target := loc.GetTarget()

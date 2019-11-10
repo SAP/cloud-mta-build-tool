@@ -25,7 +25,7 @@ var validateCmdExclude string
 func init() {
 
 	// Add command to the root
-	rootCmd.AddCommand(initCmd, buildCmd, validateCmd, cleanupCmd, provideCmd, generateCmd, moduleCmd, assembleCommand, projectCmd, mergeCmd, executeCommand)
+	rootCmd.AddCommand(initCmd, buildCmd, validateCmd, cleanupCmd, provideCmd, generateCmd, moduleCmd, assembleCommand, projectCmd, mergeCmd, executeCommand, copyCmd)
 	// Build module
 	provideCmd.AddCommand(provideModuleCmd)
 	// generate immutable commands
@@ -36,42 +36,45 @@ func init() {
 	projectCmd.AddCommand(projectBuildCmd)
 
 	// set flags of cleanup command
-	rootCmd.Flags().BoolP("version", "v", false, "version for MBT")
+	rootCmd.Flags().BoolP("version", "v", false, "Displays the Cloud MTA Build Tool version")
+	rootCmd.SetVersionTemplate(rootCmd.Version)
+	rootCmd.Flags().BoolP("help", "h", false, "Displays detailed information about the Cloud MTA Build Tool commands; for more information see https://sap.github.io/cloud-mta-build-tool/usage/")
 
 	// set flags of cleanup command
 	cleanupCmd.Flags().StringVarP(&cleanupCmdSrc, "source", "s", "",
-		"the path to the MTA project; the current path is set as the default")
+		"The path to the MTA project; the current path is set as the default")
 	cleanupCmd.Flags().StringVarP(&cleanupCmdTrg, "target", "t", "",
-		"the path to the MBT results folder; the current path is set as the default")
+		"The path to the results folder; the current path is set as the default")
 	cleanupCmd.Flags().StringVarP(&cleanupCmdDesc, "desc", "d", "",
-		`the MTA descriptor; supported values: "dev" (development descriptor, default value) and "dep" (deployment descriptor)`)
-	cleanupCmd.Flags().BoolP("help", "h", false, `prints detailed information about the "cleanup" command`)
+		`The MTA descriptor; supported values: "dev" (development descriptor, default value) and "dep" (deployment descriptor)`)
+	cleanupCmd.Flags().BoolP("help", "h", false, `Displays detailed information about the "cleanup" command`)
 
 	// set flags of validation command
 	validateCmd.Flags().StringVarP(&validateCmdSrc, "source", "s", "",
-		"the path to the MTA project; the current path is set as the default")
+		"The path to the MTA project; the current path is set as the default")
 	validateCmd.Flags().StringVarP(&validateCmdMode, "mode", "m", "",
-		`the validation mode; supported values: "schema", "semantic" (default)`)
+		`The validation mode; supported values: "schema", "semantic" (default)`)
 	validateCmd.Flags().StringVarP(&validateCmdDesc, "desc", "d", "",
-		`the MTA descriptor; supported values: "dev" (development descriptor, default value) and "dep" (deployment descriptor)`)
+		`The MTA descriptor; supported values: "dev" (development descriptor, default value) and "dep" (deployment descriptor)`)
 	validateCmd.Flags().StringSliceVarP(&validateCmdExtensions, "extensions", "e", nil,
-		"the MTA extension descriptors")
+		"The MTA extension descriptors")
 	validateCmd.Flags().StringVarP(&validateCmdStrict, "strict", "r", "true",
-		`if set to true, duplicated fields and fields not defined in the "mta.yaml" schema are reported as errors; if set to false, they are reported as warnings`)
+		`If set to true, duplicated fields and fields not defined in the "mta.yaml" schema are reported as errors; if set to false, they are reported as warnings`)
 	validateCmd.Flags().StringVarP(&validateCmdExclude, "exclude", "x", "",
-		`list of excluded semantic validations; supported validations: "paths", "names", "requires"`)
-	validateCmd.Flags().BoolP("help", "h", false, `prints detailed information about the "validate" command`)
+		`List of excluded semantic validations; supported validations: "paths", "names", "requires"`)
+	validateCmd.Flags().BoolP("help", "h", false, `Displays detailed information about the "validate" command`)
 
-	generateCmd.Flags().BoolP("help", "h", false, `prints detailed information about the "gen" command`)
+	generateCmd.Flags().BoolP("help", "h", false, `Displays detailed information about the "gen" command`)
 
 }
 
 // generateCmd - Parent of all generation commands
 var generateCmd = &cobra.Command{
-	Use:   "gen",
-	Short: "Generation commands",
-	Long:  "Generation commands",
-	Run:   nil,
+	Use:    "gen",
+	Short:  "Generation commands",
+	Long:   "Generation commands",
+	Run:    nil,
+	Hidden: true,
 }
 
 // Parent command - MTA info provider
@@ -113,8 +116,8 @@ var cleanupCmd = &cobra.Command{
 		logError(err)
 		return err
 	},
-	SilenceUsage:  true,
 	Hidden:        true,
+	SilenceUsage:  true,
 	SilenceErrors: true,
 }
 
@@ -129,6 +132,7 @@ var validateCmd = &cobra.Command{
 		logError(err)
 		return err
 	},
+	Hidden:        true,
 	SilenceUsage:  true,
 	SilenceErrors: true,
 }
@@ -141,6 +145,6 @@ func logError(err error) {
 }
 
 func cliVersion() string {
-	v, _ := version.GetVersion()
-	return v.CliVersion
+	v, _ := version.GetVersionMessage()
+	return v
 }

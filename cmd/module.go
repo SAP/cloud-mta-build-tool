@@ -26,34 +26,34 @@ func init() {
 
 	// sets the flags of of the command pack module
 	packModuleCmd.Flags().StringVarP(&packCmdSrc, "source", "s", "",
-		"the path to the MTA project; the current path is is set as the default")
+		"The path to the MTA project; the current path is is set as the default")
 	packModuleCmd.Flags().StringVarP(&packCmdTrg, "target", "t", "",
-		"the path to the MBT results folder; the current path is set as the default")
+		"The path to the results folder; the current path is set as the default")
 	packModuleCmd.Flags().StringSliceVarP(&packCmdExtensions, "extensions", "e", nil,
-		"the MTA extension descriptors")
+		"The MTA extension descriptors")
 	packModuleCmd.Flags().StringVarP(&packCmdModule, "module", "m", "",
-		"the name of the module")
+		"The name of the module")
 	packModuleCmd.Flags().StringVarP(&packCmdPlatform, "platform", "p", "cf",
-		`the deployment platform; supported platforms: "cf" (default value), "xsa", "neo"`)
+		`The deployment platform; supported platforms: "cf", "xsa", "neo"`)
 
 	// sets the flags of the command build module
 	buildModuleCmd.Flags().StringVarP(&buildCmdSrc, "source", "s", "",
-		"the path to the MTA project; the current path is set as the default")
+		"The path to the MTA project; the current path is set as the default")
 	buildModuleCmd.Flags().StringVarP(&buildCmdTrg, "target", "t", "",
-		"the path to the MBT results folder; the current path is set as the default")
+		"The path to the results folder; the current path is set as the default")
 	buildModuleCmd.Flags().StringSliceVarP(&buildCmdExtensions, "extensions", "e", nil,
-		"the MTA extension descriptors")
+		"The MTA extension descriptors")
 	buildModuleCmd.Flags().StringVarP(&buildCmdModule, "module", "m", "",
-		"the name of the module")
+		"The name of the module")
 	buildModuleCmd.Flags().StringVarP(&buildCmdPlatform, "platform", "p", "cf",
-		`the deployment platform; supported platforms: "cf" (default value), "xsa", "neo"`)
+		`The deployment platform; supported platforms: "cf", "xsa", "neo"`)
 }
 
 // buildModuleCmd - Build module
 var buildModuleCmd = &cobra.Command{
 	Use:   "build",
-	Short: "builds module",
-	Long:  "builds module and archives its artifacts",
+	Short: "Builds module",
+	Long:  "Builds module and archives its artifacts",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		err := artifacts.ExecuteBuild(buildCmdSrc, buildCmdTrg, buildCmdExtensions, buildCmdModule, buildCmdPlatform, os.Getwd)
@@ -71,8 +71,8 @@ var buildModuleCmd = &cobra.Command{
 // the module folder gets the module name
 var packModuleCmd = &cobra.Command{
 	Use:   "pack",
-	Short: "packs module artifacts",
-	Long:  "packs the module artifacts after the build process",
+	Short: "Packs module artifacts",
+	Long:  "Packs the module artifacts after the build process",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		err := artifacts.ExecutePack(packCmdSrc, packCmdTrg, packCmdExtensions, packCmdModule, packCmdPlatform, os.Getwd)

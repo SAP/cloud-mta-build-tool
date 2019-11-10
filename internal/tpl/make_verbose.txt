@@ -4,7 +4,8 @@ modules = {{- range .File.Modules}} {{.Name}}{{end}}
 # Execute all modules builds
 {{- range .File.Modules}}
 # build module {{.Name}}
-{{.Name}}: validate
+{{.Name}}: validate {{- range $.GetModuleDeps .Name}} {{.Name}}{{end}}
+{{- range $.GetModuleDeps .Name}}{{"\n\t"}}@$(MBT) cp -s={{$.ConvertToShellArgument .SourcePath}} -t={{$.ConvertToShellArgument .TargetPath}} {{- range .Patterns}} -p={{$.ConvertToShellArgument .}}{{end}}{{end}}
 {{"\t"}}@cd "$(PROJ_DIR)/{{.Path}}" && $(MBT) execute {{- if .BuildParams.timeout}} -t={{$.ConvertToShellArgument .BuildParams.timeout}}{{end}} {{- with $cmds := CommandProvider .}}{{range $i, $cmd:=$cmds.Command}} -c={{$.ConvertToShellArgument .}}{{end}}{{end}}
 # Pack module build artifacts
 {{"\t"}}@$(MBT) module pack -m={{.Name}} -p=${p} -t=${t} {{- ExtensionsArg "-e"}}
