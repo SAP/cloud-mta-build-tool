@@ -21,9 +21,9 @@ func init() {
 
 // rootCmd represents the base command
 var rootCmd = &cobra.Command{
-	Use:     "MBT",
-	Short:   "MTA Build tool",
-	Long:    "MTA Build tool V2",
+	Use:     "mbt",
+	Short:   "Cloud MTA Build Tool",
+	Long:    "Cloud MTA Build Tool",
 	Version: cliVersion(),
 	Args:    cobra.MaximumNArgs(1),
 }

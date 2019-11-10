@@ -34,43 +34,43 @@ func init() {
 
 	// set flags of mtad command
 	mtadCmd.Flags().StringVarP(&mtadCmdSrc, "source", "s", "",
-		"the path to the MTA project; the current path is set as the default")
+		"The path to the MTA project; the current path is set as the default")
 	mtadCmd.Flags().StringVarP(&mtadCmdTrg, "target", "t",
-		"", "the path to the MBT results folder; the current path is set as the default")
+		"", "The path to the results folder; the current path is set as the default")
 	mtadCmd.Flags().StringSliceVarP(&mtadCmdExtensions, "extensions", "e", nil,
-		"the MTA extension descriptors")
+		"The MTA extension descriptors")
 	mtadCmd.Flags().StringVarP(&mtadCmdPlatform, "platform", "p", "cf",
-		`the deployment platform; supported platforms: "cf" (default value), "xsa", "neo"`)
-	mtadCmd.Flags().BoolP("help", "h", false, `prints detailed information about the "mtad" command`)
+		`The deployment platform; supported platforms: "cf", "xsa", "neo"`)
+	mtadCmd.Flags().BoolP("help", "h", false, `Displays detailed information about the "mtad" command`)
 
 	// set flags of meta command
 	metaCmd.Flags().StringVarP(&metaCmdSrc, "source", "s", "",
-		"the path to the MTA project; the current path is set as the default")
+		"The path to the MTA project; the current path is set as the default")
 	metaCmd.Flags().StringVarP(&metaCmdTrg, "target", "t", "",
-		"the path to the MBT results folder; the current path is set as the default")
+		"The path to the results folder; the current path is set as the default")
 	metaCmd.Flags().StringVarP(&metaCmdDesc, "desc", "d", "",
-		`the MTA descriptor; supported values: "dev" (development descriptor, default value) and "dep" (deployment descriptor)`)
+		`The MTA descriptor; supported values: "dev" (development descriptor, default value) and "dep" (deployment descriptor)`)
 	metaCmd.Flags().StringSliceVarP(&metaCmdExtensions, "extensions", "e", nil,
-		"the MTA extension descriptors")
+		"The MTA extension descriptors")
 	metaCmd.Flags().StringVarP(&metaCmdPlatform, "platform", "p", "cf",
-		`the deployment platform; supported platforms: "cf" (default value), "xsa", "neo"`)
-	metaCmd.Flags().BoolP("help", "h", false, `prints detailed information about the "meta" command`)
+		`The deployment platform; supported platforms: "cf", "xsa", "neo"`)
+	metaCmd.Flags().BoolP("help", "h", false, `Displays detailed information about the "meta" command`)
 
 	// set flags of mtar command
 	mtarCmd.Flags().StringVarP(&mtarCmdSrc, "source", "s", "",
-		"the path to the MTA project; the current path is set as the default")
+		"The path to the MTA project; the current path is set as the default")
 	mtarCmd.Flags().StringVarP(&mtarCmdTrg, "target", "t", "",
-		"the path to the MBT results folder; the current path is set as the default")
+		"The path to the results folder; the current path is set as the default")
 	mtarCmd.Flags().StringVarP(&mtarCmdDesc, "desc", "d", "",
-		`the MTA descriptor; supported values: "dev" (development descriptor, default value) and "dep" (deployment descriptor)`)
+		`The MTA descriptor; supported values: "dev" (development descriptor, default value) and "dep" (deployment descriptor)`)
 	mtarCmd.Flags().StringSliceVarP(&mtarCmdExtensions, "extensions", "e", nil,
-		"the MTA extension descriptors")
+		"The MTA extension descriptors")
 	mtarCmd.Flags().StringVarP(&mtarCmdMtarName, "mtar", "m", "*",
-		"the archive name")
+		"The archive name")
 	mtarCmd.Flags().StringVarP(&mtarCmdTrgProvided, "target_provided", "", "",
-		"the MTA target provided indicator; supported values: true, false")
+		"The MTA target provided indicator; supported values: true, false")
 	_ = mtarCmd.Flags().MarkHidden("target_provided")
-	mtarCmd.Flags().BoolP("help", "h", false, `prints detailed information about the "mtar" command`)
+	mtarCmd.Flags().BoolP("help", "h", false, `Displays detailed information about the "mtar" command`)
 
 }
 
@@ -85,6 +85,7 @@ var mtadCmd = &cobra.Command{
 		logError(err)
 		return err
 	},
+	Hidden:        true,
 	SilenceUsage:  true,
 	SilenceErrors: true,
 }

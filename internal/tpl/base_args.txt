@@ -1,4 +1,4 @@
-# Generated with Cloud MTA Builder {{Version.CliVersion}}
+# Generated with Cloud MTA Build Tool version {{Version.CliVersion}}
 version={{Version.MakeFile}}
 MBT={{MbtPath}}
 ifndef p
