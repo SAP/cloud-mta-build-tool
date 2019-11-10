@@ -25,8 +25,8 @@ var executeCommand = &cobra.Command{
 		logError(err)
 		return err
 	},
-	SilenceUsage:  true,
 	Hidden:        true,
+	SilenceUsage:  true,
 	SilenceErrors: true,
 }
 
@@ -42,23 +42,23 @@ var copyCmd = &cobra.Command{
 		logError(err)
 		return err
 	},
-	SilenceUsage:  true,
 	Hidden:        true,
+	SilenceUsage:  true,
 	SilenceErrors: true,
 }
 
 func init() {
 	// set flag of execute command
 	executeCommand.Flags().StringArrayVarP(&executeCmdCommands,
-		"commands", "c", nil, "commands to run")
+		"commands", "c", nil, "Commands to run")
 	executeCommand.Flags().StringVarP(&executeCmdTimeout,
-		"timeout", "t", "", "the timeout after which the run stops, in the format [123h][123m][123s]; 10m is set as the default")
+		"timeout", "t", "", "The timeout after which the run stops, in the format [123h][123m][123s]; 10m is set as the default")
 
 	// set flags of copy command
 	copyCmd.Flags().StringVarP(&copyCmdSrc, "source", "s", "",
-		"the path to the source folder")
+		"The path to the source folder")
 	copyCmd.Flags().StringVarP(&copyCmdTrg, "target", "t", "",
-		"the path to the target folder")
+		"The path to the target folder")
 	copyCmd.Flags().StringArrayVarP(&copyCmdPatterns,
-		"patterns", "p", nil, "patterns for matching the files and folders to copy")
+		"patterns", "p", nil, "Patterns for matching the files and folders to copy")
 }

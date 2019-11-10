@@ -70,7 +70,7 @@ var _ = Describe("Makefile", func() {
 	Describe("MakeFile Generation", func() {
 		BeforeEach(func() {
 			version.VersionConfig = []byte(`
-cli_version: v0.0.0
+cli_version: 0.0.0
 makefile_version: 0.0.0
 `)
 		})
