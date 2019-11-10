@@ -12,8 +12,11 @@
   
 ```
   $ cat .npmrc
+
   @sap:registry=https://npm.sap.com/
-  ```
+
+```
+
  For more detail's, refer to npm [docs](https://docs.npmjs.com/files/npmrc)
   
 
