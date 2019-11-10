@@ -376,6 +376,18 @@ func CopyDir(src string, dst string, withParents bool, copyDirEntries func(entri
 	return copyDirEntries(entries, src, dst)
 }
 
+// FindPath returns the path or its first match in case it's a pattern. If the path doesn't exist an error is returned.
+func FindPath(path string) (string, error) {
+	sourceEntries, err := filepath.Glob(path)
+	if err == nil && len(sourceEntries) > 0 {
+		return sourceEntries[0], nil
+	}
+	if err != nil {
+		return "", errors.Wrapf(err, wrongPathMsg, path)
+	}
+	return "", errors.Errorf(wrongPathMsg, path)
+}
+
 // CopyByPatterns - copy files/directories according to patterns
 // from source folder to target folder
 // patterns are relative to source folder
@@ -386,6 +398,12 @@ func CopyByPatterns(source, target string, patterns []string) error {
 	}
 
 	logs.Logger.Infof(copyByPatternMsg, patterns[0], source, target)
+
+	// Resolve the source pattern if necessary
+	source, err := FindPath(source)
+	if err != nil {
+		return err
+	}
 
 	infoTargetDir, err := os.Stat(target)
 	if err != nil {
@@ -573,6 +591,14 @@ func CopyFile(src, dst string) (rerr error) {
 		rerr = CloseFile(in, rerr)
 	}()
 
+	err = WriteFile(in, dst)
+	if err != nil {
+		return err
+	}
+	return changeTargetMode(src, dst)
+}
+
+func WriteFile(in io.Reader, dst string) (rerr error) {
 	out, err := os.Create(dst)
 	if err != nil {
 		return err
@@ -582,13 +608,7 @@ func CopyFile(src, dst string) (rerr error) {
 	}()
 
 	_, err = io.Copy(out, in)
-	if err != nil {
-		return err
-	}
-	err = changeTargetMode(src, dst)
-
 	return err
-
 }
 
 func changeTargetMode(source, target string) error {

@@ -3,11 +3,15 @@ package commands
 import (
 	"github.com/spf13/cobra"
 
+	"github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta-build-tool/internal/exec"
 )
 
 var executeCmdCommands []string
 var executeCmdTimeout string
+var copyCmdSrc string
+var copyCmdTrg string
+var copyCmdPatterns []string
 
 // Execute commands in the current working directory with a timeout.
 // This is used in verbose make files for implementing a timeout on module builds.
@@ -26,10 +30,35 @@ var executeCommand = &cobra.Command{
 	SilenceErrors: true,
 }
 
+// Copy files matching the specified patterns from the source path to the target path.
+// This is used in verbose make files for copying artifacts from a module's dependencies before building the module.
+var copyCmd = &cobra.Command{
+	Use:   "cp",
+	Short: "Copy files by patterns",
+	Long:  "Copy files by patterns",
+	Args:  cobra.NoArgs,
+	RunE: func(cmd *cobra.Command, args []string) error {
+		err := dir.CopyByPatterns(copyCmdSrc, copyCmdTrg, copyCmdPatterns)
+		logError(err)
+		return err
+	},
+	SilenceUsage:  true,
+	Hidden:        true,
+	SilenceErrors: true,
+}
+
 func init() {
 	// set flag of execute command
 	executeCommand.Flags().StringArrayVarP(&executeCmdCommands,
 		"commands", "c", nil, "commands to run")
 	executeCommand.Flags().StringVarP(&executeCmdTimeout,
 		"timeout", "t", "", "the timeout after which the run stops, in the format [123h][123m][123s]; 10m is set as the default")
+
+	// set flags of copy command
+	copyCmd.Flags().StringVarP(&copyCmdSrc, "source", "s", "",
+		"the path to the source folder")
+	copyCmd.Flags().StringVarP(&copyCmdTrg, "target", "t", "",
+		"the path to the target folder")
+	copyCmd.Flags().StringArrayVarP(&copyCmdPatterns,
+		"patterns", "p", nil, "patterns for matching the files and folders to copy")
 }

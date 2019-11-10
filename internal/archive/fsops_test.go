@@ -138,6 +138,47 @@ var _ = Describe("FSOPS", func() {
 		)
 	})
 
+	var _ = Describe("FindPath", func() {
+		It("returns file path for existing file", func() {
+			path := getFullPath("testdata", "findpath", "folder1", "file1.txt")
+			found, err := FindPath(path)
+			Ω(err).Should(Succeed())
+			Ω(found).Should(Equal(path))
+		})
+		It("returns folder path for existing folder", func() {
+			path := getFullPath("testdata", "findpath", "folder1")
+			found, err := FindPath(path)
+			Ω(err).Should(Succeed())
+			Ω(found).Should(Equal(path))
+		})
+		It("returns first found file for pattern", func() {
+			path := getFullPath("testdata", "findpath", "folder1", "*.txt")
+			found, err := FindPath(path)
+			Ω(err).Should(Succeed())
+			Ω(found).Should(Equal(getFullPath("testdata", "findpath", "folder1", "file1.txt")))
+		})
+		It("returns first found folder for pattern", func() {
+			path := getFullPath("testdata", "findpath", "folder*")
+			found, err := FindPath(path)
+			Ω(err).Should(Succeed())
+			Ω(found).Should(Equal(getFullPath("testdata", "findpath", "folder1")))
+		})
+		It("returns error when path is not found for path", func() {
+			path := getFullPath("testdata", "findpath", "fff")
+			_, err := FindPath(path)
+			Ω(err).Should(HaveOccurred())
+		})
+		It("returns error when no files or folders are found for pattern", func() {
+			path := getFullPath("testdata", "findpath", "fff*")
+			_, err := FindPath(path)
+			Ω(err).Should(HaveOccurred())
+		})
+		It("returns error when pattern is invalid", func() {
+			_, err := FindPath(getFullPath("testdata", "findpath", "*["))
+			Ω(err).Should(HaveOccurred())
+		})
+	})
+
 	var _ = Describe("utils", func() {
 		BeforeEach(func() {
 			fileInfoProvider = &mockFileInfoProvider{}
@@ -333,7 +374,7 @@ var _ = Describe("FSOPS", func() {
 	var _ = Describe("Copy Entries", func() {
 
 		AfterEach(func() {
-			os.RemoveAll(getFullPath("testdata", "result"))
+			Ω(os.RemoveAll(getFullPath("testdata", "result"))).Should(Succeed())
 		})
 
 		It("Sanity", func() {
@@ -352,7 +393,6 @@ var _ = Describe("FSOPS", func() {
 			}
 			Ω(CopyEntries(filesWrapped, sourcePath, targetPath)).Should(Succeed())
 			Ω(countFilesInDir(sourcePath) - 1).Should(Equal(countFilesInDir(targetPath)))
-			os.RemoveAll(targetPath)
 		})
 		It("Sanity - copy in parallel", func() {
 			sourcePath := getFullPath("testdata", "level2", "level3")
@@ -370,7 +410,6 @@ var _ = Describe("FSOPS", func() {
 			}
 			Ω(CopyEntriesInParallel(filesWrapped, sourcePath, targetPath)).Should(Succeed())
 			Ω(countFilesInDir(sourcePath) - 1).Should(Equal(countFilesInDir(targetPath)))
-			os.RemoveAll(targetPath)
 		})
 	})
 
@@ -451,6 +490,8 @@ var _ = Describe("FSOPS", func() {
 			Entry("Wrong pattern ",
 				getFullPath("testdata", "result"), "ui2", []string{"[a,b"}),
 			Entry("Empty target path", "", "ui2", []string{"[a,b"}),
+			Entry("Source path doesn't exist",
+				getFullPath("testdata", "result"), "aaa", []string{"*"}),
 		)
 	})
 

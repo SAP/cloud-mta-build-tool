@@ -119,7 +119,7 @@ func packModule(source dir.IModule, target dir.ITargetPath, module *mta.Module, 
 
 	logs.Logger.Info(fmt.Sprintf(buildResultMsg, moduleName, source.GetTargetModuleDir(moduleName)))
 
-	sourceArtifact, _, _, err := buildops.GetModuleSourceArtifactPath(source, false, module, defaultBuildResult)
+	sourceArtifact, err := buildops.GetModuleSourceArtifactPath(source, false, module, defaultBuildResult, true)
 	if err != nil {
 		return errors.Wrapf(err, packFailedOnBuildArtifactMsg, moduleName)
 	}
