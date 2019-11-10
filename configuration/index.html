@@ -539,15 +539,27 @@
       
 
 
+  <li class="md-nav__item">
+    <a href="../troubleshooting/" title="Troubleshooting" class="md-nav__link">
+      Troubleshooting
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
   <li class="md-nav__item md-nav__item--nested">
     
-      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-8" type="checkbox" id="nav-8">
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-9" type="checkbox" id="nav-9">
     
-    <label class="md-nav__link" for="nav-8">
+    <label class="md-nav__link" for="nav-9">
       Tips
     </label>
     <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
-      <label class="md-nav__title" for="nav-8">
+      <label class="md-nav__title" for="nav-9">
         Tips
       </label>
       <ul class="md-nav__list" data-md-scrollfix>
@@ -942,7 +954,7 @@ modules:
 <p>If the <code>supported-platforms</code> build parameter is not used, the module is packaged for any target platform.</p>
 <p>You can use these values or any combination of these values for the <code>supported-platforms</code> build parameter: <ul><li><code>CF</code> for the SAP Cloud Platform Cloud Foundry environment  <li><code>NEO</code> for the SAP Cloud Platform Neo environment <li><code>XSA</code> for the SAP HANA XS advanced model </p>
 <h4 id="configuring-timeout-sessions">Configuring timeout sessions</h4>
-<p>When you build a specific module, there is a default 10-minute timeout allowance. After this time, the build will fail. You can configure the time allowed for timeout when performing a build by adding the <code>timeout</code> property to the module build parameters. The timeout property uses the <code>&lt;number of hours&gt;h&lt;number of minutes&gt;m&lt;number of seconds&gt;s</code> format.
+<p>When you build a specific module, there is a default 5-minute timeout allowance. After this time, the build will fail. You can configure the time allowed for timeout when performing a build by adding the <code>timeout</code> property to the module build parameters. The timeout property uses the <code>&lt;number of hours&gt;h&lt;number of minutes&gt;m&lt;number of seconds&gt;s</code> format.
 <br></p>
 <p>For example:</p>
 <pre><code class="yaml">

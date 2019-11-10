@@ -494,15 +494,27 @@
       
 
 
+  <li class="md-nav__item">
+    <a href="../troubleshooting/" title="Troubleshooting" class="md-nav__link">
+      Troubleshooting
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
   <li class="md-nav__item md-nav__item--nested">
     
-      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-8" type="checkbox" id="nav-8">
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-9" type="checkbox" id="nav-9">
     
-    <label class="md-nav__link" for="nav-8">
+    <label class="md-nav__link" for="nav-9">
       Tips
     </label>
     <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
-      <label class="md-nav__title" for="nav-8">
+      <label class="md-nav__title" for="nav-9">
         Tips
       </label>
       <ul class="md-nav__list" data-md-scrollfix>
@@ -647,7 +659,7 @@ request changes to it, or close it with an explanation. </p>
 <h2 id="before-submitting-a-pull-request-please-make-sure-the-following-is-done">Before submitting a pull request, please make sure the following is done:</h2>
 <ol>
 <li>Fork the repository and create your branch from master.</li>
-<li>Run <a href="https://github.com/golang/dep">dep</a> ensure in the repository root.</li>
+<li>Run <code>go mod vendor</code> in the repository root.</li>
 <li>If you’ve fixed a bug or added code that should be tested, add tests!</li>
 <li>See commit prefix section</li>
 <li>Ensure the test suite passes via <code>go test -v ./...</code> Tip: you can use command <code>make test</code>.</li>
@@ -658,8 +670,7 @@ request changes to it, or close it with an explanation. </p>
 </ol>
 <h2 id="contribution-prerequisites">Contribution Prerequisites</h2>
 <ol>
-<li>You have <a href="https://golang.org/dl/">go</a> installed at v1.11+</li>
-<li>You have <a href="https://github.com/golang/dep">dep</a> installed at v0.5.0+</li>
+<li>You have <a href="https://golang.org/dl/">go</a> installed at v1.13+</li>
 <li>You are familiar with <a href="https://git-scm.com/">GIT</a> </li>
 </ol>
 <h2 id="commit-prefix">Commit Prefix</h2>
