@@ -157,14 +157,14 @@ func scanner(stdout io.Reader, stderr io.Reader) (*bufio.Scanner, *bufio.Scanner
 	scanout := bufio.NewScanner(stdout)
 	scanerr := bufio.NewScanner(stderr)
 	// instructs the scanner to read the input by runes instead of the default by-lines.
-	scanout.Split(bufio.ScanRunes)
-	for scanout.Scan() {
-		fmt.Print(scanout.Text())
-	}
-	// instructs the scanner to read the input by runes instead of the default by-lines.
 	scanerr.Split(bufio.ScanRunes)
 	for scanerr.Scan() {
 		fmt.Print(scanerr.Text())
+	}
+	// instructs the scanner to read the input by runes instead of the default by-lines.
+	scanout.Split(bufio.ScanRunes)
+	for scanout.Scan() {
+		fmt.Print(scanout.Text())
 	}
 	return scanout, scanerr
 }
