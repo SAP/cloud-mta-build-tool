@@ -154,18 +154,23 @@ func executeCommand(cmd *exec.Cmd, terminateCh <-chan struct{}, runIndicator boo
 }
 
 func scanner(stdout io.Reader, stderr io.Reader) (*bufio.Scanner, *bufio.Scanner) {
+
+	// instructs the scanner to read the input by runes instead of the default by-lines
 	scanout := bufio.NewScanner(stdout)
-	scanerr := bufio.NewScanner(stderr)
-	// instructs the scanner to read the input by runes instead of the default by-lines.
-	scanerr.Split(bufio.ScanRunes)
-	for scanerr.Scan() {
-		fmt.Print(scanerr.Text())
-	}
-	// instructs the scanner to read the input by runes instead of the default by-lines.
 	scanout.Split(bufio.ScanRunes)
-	for scanout.Scan() {
-		fmt.Print(scanout.Text())
-	}
+	go func() {
+		for scanout.Scan() {
+			fmt.Print(scanout.Text())
+		}
+	}()
+	// instructs the scanner to read the input by runes instead of the default by-lines
+	scanerr := bufio.NewScanner(stderr)
+	scanerr.Split(bufio.ScanRunes)
+	go func() {
+		for scanerr.Scan() {
+			fmt.Print(scanerr.Text())
+		}
+	}()
 	return scanout, scanerr
 }
 
