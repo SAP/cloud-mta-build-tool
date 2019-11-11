@@ -27,7 +27,7 @@ command:
   mbt --version:
     exit-status: 0
     stdout:
-    - v0.3.3
+    - v0.3.7
   # verify installed MAVEN VERSION
   mvn --version:
     exit-status: 0
