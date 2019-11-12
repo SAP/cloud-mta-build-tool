@@ -670,12 +670,8 @@ func getFileContentFromZip(path string, filename string) ([]byte, error) {
 			if err != nil {
 				return nil, err
 			}
-			defer fc.Close()
-			c, err := ioutil.ReadAll(fc)
-			if err != nil {
-				return nil, err
-			}
-			return c, nil
+			defer fc.Close() // If we got here there won't be another loop iteration
+			return ioutil.ReadAll(fc)
 		}
 	}
 	return nil, fmt.Errorf(`file "%s" not found`, filename)
