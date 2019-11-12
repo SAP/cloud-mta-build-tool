@@ -9,6 +9,7 @@ import (
 
 var executeCmdCommands []string
 var executeCmdTimeout string
+var executeCmdDir string
 var copyCmdSrc string
 var copyCmdTrg string
 var copyCmdPatterns []string
@@ -18,10 +19,10 @@ var copyCmdPatterns []string
 var executeCommand = &cobra.Command{
 	Use:   "execute",
 	Short: "Execute commands with timeout",
-	Long:  "Execute commands in the current working directory with timeout",
+	Long:  "Execute commands with timeout",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		err := exec.ExecuteCommandsWithTimeout(executeCmdCommands, executeCmdTimeout, true)
+		err := exec.ExecuteCommandsWithTimeout(executeCmdCommands, executeCmdTimeout, executeCmdDir, true)
 		logError(err)
 		return err
 	},
@@ -53,6 +54,8 @@ func init() {
 		"commands", "c", nil, "Commands to run")
 	executeCommand.Flags().StringVarP(&executeCmdTimeout,
 		"timeout", "t", "", "The timeout after which the run stops, in the format [123h][123m][123s]; 10m is set as the default")
+	executeCommand.Flags().StringVarP(&executeCmdDir,
+		"dir", "d", "", "The path to the folder in which to execute the commands; the current path is set as the default")
 
 	// set flags of copy command
 	copyCmd.Flags().StringVarP(&copyCmdSrc, "source", "s", "",

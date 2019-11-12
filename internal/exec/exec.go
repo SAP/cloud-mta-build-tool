@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os/exec"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -24,8 +25,8 @@ func makeCommand(params []string) *exec.Cmd {
 
 // ExecuteCommandsWithTimeout parses the list of commands and executes them in the current working directory with a specified timeout.
 // If the timeout is reached an error is returned.
-func ExecuteCommandsWithTimeout(commandsList []string, timeout string, runIndicator bool) error {
-	commandList, err := commands.CmdConverter(".", commandsList)
+func ExecuteCommandsWithTimeout(commandsList []string, timeout string, path string, runIndicator bool) error {
+	commandList, err := commands.CmdConverter(filepath.Clean(path), commandsList)
 	if err != nil {
 		return err
 	}

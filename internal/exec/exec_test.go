@@ -2,7 +2,9 @@ package exec
 
 import (
 	"fmt"
+	"os"
 	"os/exec"
+	"path/filepath"
 	"time"
 
 	. "github.com/onsi/ginkgo"
@@ -135,7 +137,7 @@ var _ = Describe("Execute", func() {
 	DescribeTable("ExecuteCommandsWithTimeout",
 		func(args []string, timeout string, minSeconds, maxSeconds int, isError bool, expectedTimeout string) {
 			executeTester(func() error {
-				return ExecuteCommandsWithTimeout(args, timeout, true)
+				return ExecuteCommandsWithTimeout(args, timeout, "", true)
 			}, minSeconds, maxSeconds, isError, expectedTimeout)
 		},
 		Entry("succeeds when timeout wasn't reached", []string{`bash -c "sleep 2"`}, "10s", 2, 5, false, ""),
@@ -144,8 +146,20 @@ var _ = Describe("Execute", func() {
 			[]string{`bash -c "sleep 2"`, `bash -c 'sleep 3'`}, "4s", 4, 5, true, "4s"),
 	)
 
+	Describe("ExecuteCommandsWithTimeout tests with cleanup", func() {
+		wd, _ := os.Getwd()
+		path := filepath.Join(wd, "testdata")
+		AfterEach(func() {
+			Ω(os.RemoveAll(filepath.Join(path, "b.txt"))).Should(Succeed())
+		})
+		It("ExecuteCommandsWithTimeout is executed in the requested directory", func() {
+			Ω(ExecuteCommandsWithTimeout([]string{`bash -c 'cp a.txt b.txt'`}, "10m", path, true)).Should(Succeed())
+			Ω(filepath.Join(path, "b.txt")).Should(BeAnExistingFile())
+		})
+	})
+
 	It("ExecuteCommandsWithTimeout fails when timeout value is invalid", func() {
-		err := ExecuteCommandsWithTimeout([]string{`bash -c "sleep 1"`}, "1234", true)
+		err := ExecuteCommandsWithTimeout([]string{`bash -c "sleep 1"`}, "1234", ".", true)
 		Ω(err).Should(HaveOccurred())
 		Ω(err.Error()).Should(ContainSubstring(fmt.Sprintf(ExecInvalidTimeoutMsg, "1234")))
 	})
