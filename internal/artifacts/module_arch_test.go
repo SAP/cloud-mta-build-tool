@@ -471,10 +471,7 @@ module-types:
 			createFileInGivenPath(filepath.Join(source, defaultDeploymentDescriptorName))
 			mta := generateTestMta(source, 2, 0, map[string]string{}, map[string]string{"test-module-0": "zip", "test-module-1": "folder"})
 			mtaBytes, _ := yaml.Marshal(mta)
-			e := ioutil.WriteFile(filepath.Join(source, defaultDeploymentDescriptorName), mtaBytes, os.ModePerm)
-			if e != nil {
-				fmt.Println("error occurred during file creation")
-			}
+			Ω(ioutil.WriteFile(filepath.Join(source, defaultDeploymentDescriptorName), mtaBytes, os.ModePerm)).Should(Succeed())
 			err := CopyMtaContent(source, source, nil, true, os.Getwd)
 			Ω(err).Should(Succeed())
 			info, _ := os.Stat(source)
@@ -485,10 +482,7 @@ module-types:
 			createFileInGivenPath(filepath.Join(source, defaultDeploymentDescriptorName))
 			mta := generateTestMta(source, 1, 1, map[string]string{}, map[string]string{"test-resource-0": "zip", "test-module-0": "folder"})
 			mtaBytes, _ := yaml.Marshal(mta)
-			e := ioutil.WriteFile(filepath.Join(source, defaultDeploymentDescriptorName), mtaBytes, os.ModePerm)
-			if e != nil {
-				fmt.Println("error occurred during file creation")
-			}
+			Ω(ioutil.WriteFile(filepath.Join(source, defaultDeploymentDescriptorName), mtaBytes, os.ModePerm)).Should(Succeed())
 			err := CopyMtaContent(source, source, nil, true, os.Getwd)
 			Ω(err).Should(Succeed())
 			info, _ := os.Stat(source)
@@ -499,10 +493,7 @@ module-types:
 			createFileInGivenPath(filepath.Join(source, defaultDeploymentDescriptorName))
 			mta := generateTestMta(source, 0, 2, map[string]string{}, map[string]string{"test-resource-0": "zip", "test-resource-1": "folder"})
 			mtaBytes, _ := yaml.Marshal(mta)
-			e := ioutil.WriteFile(filepath.Join(source, defaultDeploymentDescriptorName), mtaBytes, os.ModePerm)
-			if e != nil {
-				fmt.Println("error occurred during file creation")
-			}
+			Ω(ioutil.WriteFile(filepath.Join(source, defaultDeploymentDescriptorName), mtaBytes, os.ModePerm)).Should(Succeed())
 			err := CopyMtaContent(source, source, nil, true, os.Getwd)
 			Ω(err).Should(Succeed())
 			info, _ := os.Stat(source)
@@ -513,10 +504,7 @@ module-types:
 			createFileInGivenPath(filepath.Join(source, defaultDeploymentDescriptorName))
 			mta := generateTestMta(source, 2, 2, map[string]string{}, map[string]string{"test-resource-0": "zip", "test-resource-1": "zip", "test-module-0": "zip", "test-module-1": "zip"})
 			mtaBytes, _ := yaml.Marshal(mta)
-			e := ioutil.WriteFile(filepath.Join(source, defaultDeploymentDescriptorName), mtaBytes, os.ModePerm)
-			if e != nil {
-				fmt.Println("error occurred during file write process")
-			}
+			Ω(ioutil.WriteFile(filepath.Join(source, defaultDeploymentDescriptorName), mtaBytes, os.ModePerm)).Should(Succeed())
 			err := CopyMtaContent(source, source, nil, false, os.Getwd)
 			Ω(err).Should(Succeed())
 			info, _ := os.Stat(source)
@@ -528,10 +516,7 @@ module-types:
 			createFileInGivenPath(filepath.Join(source, defaultDeploymentDescriptorName))
 			mta := generateTestMta(source, 1, 0, map[string]string{"test-module-0": "test-required"}, map[string]string{"test-module-0": "folder", "test-required": "zip"})
 			mtaBytes, _ := yaml.Marshal(mta)
-			e := ioutil.WriteFile(filepath.Join(source, defaultDeploymentDescriptorName), mtaBytes, os.ModePerm)
-			if e != nil {
-				fmt.Println("error occurred during file write process")
-			}
+			Ω(ioutil.WriteFile(filepath.Join(source, defaultDeploymentDescriptorName), mtaBytes, os.ModePerm)).Should(Succeed())
 			err := CopyMtaContent(source, source, nil, false, os.Getwd)
 			Ω(err).Should(Succeed())
 			info, _ := os.Stat(source)
@@ -543,10 +528,7 @@ module-types:
 			mta := generateTestMta(source, 1, 0, map[string]string{"test-module-0": "test-required"}, map[string]string{"test-module-0": "folder", "test-required": "zip"})
 			mta.Modules[0].Requires[0].Parameters["path"] = "zip1"
 			mtaBytes, _ := yaml.Marshal(mta)
-			e := ioutil.WriteFile(filepath.Join(source, defaultDeploymentDescriptorName), mtaBytes, os.ModePerm)
-			if e != nil {
-				fmt.Println("error occurred during file write process")
-			}
+			Ω(ioutil.WriteFile(filepath.Join(source, defaultDeploymentDescriptorName), mtaBytes, os.ModePerm)).Should(Succeed())
 			err := CopyMtaContent(source, source, nil, true, os.Getwd)
 			Ω(err).Should(HaveOccurred())
 		})
@@ -555,10 +537,7 @@ module-types:
 			createFileInGivenPath(filepath.Join(source, defaultDeploymentDescriptorName))
 			mta := generateTestMta(source, 1, 0, map[string]string{}, map[string]string{"test-module-0": "not-existing-contet"})
 			mtaBytes, _ := yaml.Marshal(mta)
-			e := ioutil.WriteFile(filepath.Join(source, defaultDeploymentDescriptorName), mtaBytes, os.ModePerm)
-			if e != nil {
-				fmt.Println("error occurred during file write process")
-			}
+			Ω(ioutil.WriteFile(filepath.Join(source, defaultDeploymentDescriptorName), mtaBytes, os.ModePerm)).Should(Succeed())
 			err := CopyMtaContent(source, source, nil, false, os.Getwd)
 			checkError(err, pathNotExistsMsg, "not-existing-content")
 			info, _ := os.Stat(source)
@@ -570,10 +549,7 @@ module-types:
 			createFileInGivenPath(filepath.Join(source, defaultDeploymentDescriptorName))
 			mta := generateTestMta(source, 2, 0, map[string]string{}, map[string]string{"test-module-0": "not-existing-contet", "test-module-1": "zip"})
 			mtaBytes, _ := yaml.Marshal(mta)
-			e := ioutil.WriteFile(filepath.Join(source, defaultDeploymentDescriptorName), mtaBytes, os.ModePerm)
-			if e != nil {
-				fmt.Println("error occurred during file write process")
-			}
+			Ω(ioutil.WriteFile(filepath.Join(source, defaultDeploymentDescriptorName), mtaBytes, os.ModePerm)).Should(Succeed())
 			err := CopyMtaContent(source, source, nil, false, os.Getwd)
 			checkError(err, pathNotExistsMsg, "not-existing-content")
 			info, _ := os.Stat(source)
@@ -589,10 +565,7 @@ module-types:
 			}
 			mta := generateTestMta(source, 10, 0, map[string]string{}, modulesWithSameContent)
 			mtaBytes, _ := yaml.Marshal(mta)
-			e := ioutil.WriteFile(filepath.Join(source, defaultDeploymentDescriptorName), mtaBytes, os.ModePerm)
-			if e != nil {
-				fmt.Println("error occurred during file write process")
-			}
+			Ω(ioutil.WriteFile(filepath.Join(source, defaultDeploymentDescriptorName), mtaBytes, os.ModePerm)).Should(Succeed())
 			err := CopyMtaContent(source, source, nil, false, os.Getwd)
 			Ω(err).Should(Succeed())
 			info, _ := os.Stat(source)
@@ -695,18 +668,14 @@ func generateTestModule(moduleName, contentType, source string) *mta.Module {
 
 func getContentPath(contentType, source string) string {
 	if contentType == "zip" {
-		e := dir.CopyFile(getTestPath("mta_content_copy_test", "test.zip"), filepath.Join(source, "test.zip"))
-		if e != nil {
-			fmt.Println("error occurred during file copy process")
-		}
+		Ω(dir.CopyFile(getTestPath("mta_content_copy_test", "test.zip"), filepath.Join(source, "test.zip"))).Should(Succeed())
 		return "test.zip"
 	}
 	if contentType == "folder" {
-		e := dir.CopyDir(getTestPath("mta_content_copy_test", "test-content"),
-			filepath.Join(source, "test-content"), true, dir.CopyEntries)
-		if e != nil {
-			fmt.Println("error occurred during copy dir process")
-		}
+		Ω(dir.CopyDir(
+			getTestPath("mta_content_copy_test", "test-content"), filepath.Join(source, "test-content"),
+			true, dir.CopyEntries,
+		)).Should(Succeed())
 		return "test-content"
 	}
 

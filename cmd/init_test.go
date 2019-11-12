@@ -1,7 +1,6 @@
 package commands
 
 import (
-	"fmt"
 	"os"
 
 	. "github.com/onsi/ginkgo"
@@ -11,13 +10,10 @@ import (
 var _ = Describe("Init", func() {
 
 	BeforeEach(func() {
-		err := os.Mkdir(getTestPath("result"), os.ModePerm)
-		if err != nil {
-			fmt.Println("error occurred during dir creation")
-		}
+		Ω(os.MkdirAll(getTestPath("result"), os.ModePerm)).Should(Succeed())
 	})
 	AfterEach(func() {
-		os.RemoveAll(getTestPath("result"))
+		Ω(os.RemoveAll(getTestPath("result"))).Should(Succeed())
 	})
 	It("Sanity", func() {
 		initCmdSrc = getTestPath("mta")
@@ -30,16 +26,10 @@ var _ = Describe("Init", func() {
 var _ = Describe("Build", func() {
 
 	BeforeEach(func() {
-		err := os.Mkdir(getTestPath("result"), os.ModePerm)
-		if err != nil {
-			fmt.Println("error occurred during dir creation")
-		}
+		Ω(os.MkdirAll(getTestPath("result"), os.ModePerm)).Should(Succeed())
 	})
 	AfterEach(func() {
-		err := os.RemoveAll(getTestPath("result"))
-		if err != nil {
-			fmt.Println("error occurred during dir cleanup")
-		}
+		Ω(os.RemoveAll(getTestPath("result"))).Should(Succeed())
 	})
 	It("Failure - wrong platform", func() {
 		buildCmdSrc = getTestPath("mta")
