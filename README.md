@@ -26,6 +26,12 @@ development descriptor (`mta.yaml` file) or from module build artifacts accordin
 
 ><b>For more information, see the [Cloud MTA Build Tool user guide](https://sap.github.io/cloud-mta-build-tool/)</b>
 
+## Demo
+
+<p align="center">
+  <img src="./docs/demo.gif" width="100%">
+</p>
+
 ## Contributions
 
 Contributions are greatly appreciated.
