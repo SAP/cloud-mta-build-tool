@@ -529,8 +529,7 @@ module-types:
 			mta.Modules[0].Requires[0].Parameters["path"] = "zip1"
 			mtaBytes, _ := yaml.Marshal(mta)
 			Ω(ioutil.WriteFile(filepath.Join(source, defaultDeploymentDescriptorName), mtaBytes, os.ModePerm)).Should(Succeed())
-			err := CopyMtaContent(source, source, nil, true, os.Getwd)
-			Ω(err).Should(HaveOccurred())
+			Ω(CopyMtaContent(source, source, nil, true, os.Getwd)).Should(HaveOccurred())
 		})
 
 		It("With a deployment descriptor in the source directory with only one module with non-existing content", func() {
