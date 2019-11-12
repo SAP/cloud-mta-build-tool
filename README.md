@@ -28,7 +28,7 @@ development descriptor (`mta.yaml` file) or from module build artifacts accordin
 
 ## Demo
 
-## This demo shows the basic usage of the tool. For more advanced scenarios, follow the documentation.
+This demo shows the basic usage of the tool. For more advanced scenarios, follow the documentation.
 
 <p align="center">
   <img src="./docs/demo.gif" width="100%">
