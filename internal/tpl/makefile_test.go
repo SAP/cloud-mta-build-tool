@@ -8,7 +8,6 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/kballard/go-shellquote"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
@@ -39,8 +38,8 @@ func getMakeFileContent(filePath string) string {
 	return removeSpecialSymbols(expected)
 }
 
-func escapePath(parts ...string) string {
-	return shellquote.Join(filepath.Join(parts...))
+func escapeProjPath(parts ...string) string {
+	return `"$(PROJ_DIR)/` + filepath.Join(parts...) + `"`
 }
 
 var _ = Describe("Makefile", func() {
@@ -147,20 +146,20 @@ makefile_version: 0.0.0
 			makefileContent := getMakeFileContent(makeFileFullPath)
 
 			expectedModuleGen := fmt.Sprintf(`%s: validate
-	@cd "$(PROJ_DIR)/%s" && %s`, moduleName, moduleName, expectedModuleCommandsGen)
+	@%s`, moduleName, expectedModuleCommandsGen)
 			Ω(makefileContent).Should(ContainSubstring(removeSpecialSymbols([]byte(expectedModuleGen))))
 		},
-			Entry("module with one command", "one_command.yaml", "one_command", `$(MBT) execute -c=yarn`),
+			Entry("module with one command", "one_command.yaml", "one_command", `$(MBT) execute -d="$(PROJ_DIR)/one_command" -c=yarn`),
 			Entry("module with no commands and no timeout",
-				"no_commands.yaml", "no_commands", `$(MBT) execute`),
+				"no_commands.yaml", "no_commands", `$(MBT) execute -d="$(PROJ_DIR)/no_commands"`),
 			Entry("module with no commands and with timeout",
-				"no_commands_with_timeout.yaml", "no_commands_with_timeout", `$(MBT) execute -t=3m`),
+				"no_commands_with_timeout.yaml", "no_commands_with_timeout", `$(MBT) execute -d="$(PROJ_DIR)/no_commands_with_timeout" -t=3m`),
 			Entry("module with multiple commands",
-				"multiple_commands.yaml", "multiple_commands", `$(MBT) execute -c='npm install' -c=grunt -c='npm prune --production'`),
+				"multiple_commands.yaml", "multiple_commands", `$(MBT) execute -d="$(PROJ_DIR)/multiple_commands" -c='npm install' -c=grunt -c='npm prune --production'`),
 			Entry("module with command and timeout",
-				"command_with_timeout.yaml", "command_with_timeout", `$(MBT) execute -t=2s -c='sleep 1'`),
+				"command_with_timeout.yaml", "command_with_timeout", `$(MBT) execute -d="$(PROJ_DIR)/command_with_timeout" -t=2s -c='sleep 1'`),
 			Entry("module with commands with special characters",
-				"commands_with_special_chars.yaml", "commands_with_special_chars", `$(MBT) execute -c='bash -c '\''echo "a"'\' -c='echo "a\b"'`),
+				"commands_with_special_chars.yaml", "commands_with_special_chars", `$(MBT) execute -d="$(PROJ_DIR)/commands_with_special_chars" -c='bash -c '\''echo "a"'\' -c='echo "a\b"'`),
 		)
 
 		modulegen := filepath.Join(wd, "testdata", "modulegen")
@@ -171,23 +170,23 @@ makefile_version: 0.0.0
 			makefileContent := getMakeFileContent(makeFileFullPath)
 
 			expectedModuleGen := fmt.Sprintf(`%s: validate %s%s
-	@cd "$(PROJ_DIR)/%s" &&`, moduleName, expectedModuleDepNames, expectedModuleDepCopyCommands, modulePath)
+	@$(MBT) execute -d="$(PROJ_DIR)/%s"`, moduleName, expectedModuleDepNames, expectedModuleDepCopyCommands, modulePath)
 			Ω(makefileContent).Should(ContainSubstring(removeSpecialSymbols([]byte(expectedModuleGen))))
 		},
 			Entry("dependency with artifacts", "dep_with_patterns.yaml", "module1", "public", `dep`, fmt.Sprintf(`
-	@$(MBT) cp -s=%s -t=%s -p=dist/\* -p=some_dir -p=a\*.txt`, escapePath(modulegen, "client"), escapePath(modulegen, "public"))),
+	@$(MBT) cp -s=%s -t=%s -p=dist/\* -p=some_dir -p=a\*.txt`, escapeProjPath("client"), escapeProjPath("public"))),
 			Entry("module with two dependencies", "two_deps.yaml", "my_proj_ui_deployer", "my_proj_ui_deployer", `ui5module1 ui5module2`, fmt.Sprintf(`
 	@$(MBT) cp -s=%s -t=%s -p=./\*
 	@$(MBT) cp -s=%s -t=%s -p=./\*`,
-				escapePath(modulegen, "ui5module1", "dist"), escapePath(modulegen, "my_proj_ui_deployer", "resources", "ui5module1"),
-				escapePath(modulegen, "ui5module2", "dist"), escapePath(modulegen, "my_proj_ui_deployer", "resources", "ui5module2"))),
+				escapeProjPath("ui5module1", "dist"), escapeProjPath("my_proj_ui_deployer", "resources", "ui5module1"),
+				escapeProjPath("ui5module2", "dist"), escapeProjPath("my_proj_ui_deployer", "resources", "ui5module2"))),
 			Entry("dependency with target-path", "dep_with_artifacts_and_targetpath.yaml", "module1", "public", `module1-dep`, fmt.Sprintf(`
-	@$(MBT) cp -s=%s -t=%s -p=dist/\*`, escapePath(modulegen, "client"), escapePath(modulegen, "public", "client"))),
+	@$(MBT) cp -s=%s -t=%s -p=dist/\*`, escapeProjPath("client"), escapeProjPath("public", "client"))),
 			Entry("dependent module with build-result and module with artifacts and target-path", "dep_with_build_results.yaml", "module1", "public", `dep1 dep2`, fmt.Sprintf(`
 	@$(MBT) cp -s=%s -t=%s -p=\*
 	@$(MBT) cp -s=%s -t=%s -p=\*`,
-				escapePath(modulegen, "client1", "dist"), escapePath(modulegen, "public", "dep1_result"),
-				escapePath(modulegen, "client2", "target/*.war"), escapePath(modulegen, "public"))),
+				escapeProjPath("client1", "dist"), escapeProjPath("public", "dep1_result"),
+				escapeProjPath("client2", "target/*.war"), escapeProjPath("public"))),
 		)
 	})
 

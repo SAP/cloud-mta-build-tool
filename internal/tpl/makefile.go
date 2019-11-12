@@ -90,6 +90,15 @@ func (data templateData) GetModuleDeps(moduleName string) ([]templateDepData, er
 	return templateDeps, nil
 }
 
+func (data templateData) GetPathArgument(innerPath string) string {
+	path, err := filepath.Rel(data.Loc.GetSourceModuleDir("."), innerPath)
+	if err != nil {
+		// If we can't get a relative path, use the full path
+		return fmt.Sprintf(`"%s"`, innerPath)
+	}
+	return fmt.Sprintf(`"$(PROJ_DIR)/%s"`, path)
+}
+
 // makeFile - generate makefile form templates
 func makeFile(mtaParser dir.IMtaParser, loc dir.ITargetPath, srcLoc dir.ISourceModule, extensionFilePaths []string, makeFilename string, tpl *tplCfg, useDefaultMbt bool) (e error) {
 

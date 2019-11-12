@@ -37,7 +37,7 @@ modules = ui
 # Execute all modules builds
 # build module ui
 ui: validate
-	@cd "$(PROJ_DIR)/ui" && $(MBT) execute -c='npm install' -c=grunt
+	@$(MBT) execute -d="$(PROJ_DIR)/ui" -c='npm install' -c=grunt
 # Pack module build artifacts
 	@$(MBT) module pack -m=ui -p=${p} -t=${t}
 
