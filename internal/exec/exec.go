@@ -7,6 +7,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/kballard/go-shellquote"
@@ -155,14 +156,16 @@ func executeCommand(cmd *exec.Cmd, terminateCh <-chan struct{}, runIndicator boo
 }
 
 func scanner(stdout io.Reader, stderr io.Reader) (*bufio.Scanner, *bufio.Scanner) {
-
 	// instructs the scanner to read the input by runes instead of the default by-lines
 	scanout := bufio.NewScanner(stdout)
 	scanout.Split(bufio.ScanRunes)
+	var waitGroup sync.WaitGroup
+	waitGroup.Add(2)
 	go func() {
 		for scanout.Scan() {
 			fmt.Print(scanout.Text())
 		}
+		waitGroup.Done()
 	}()
 	// instructs the scanner to read the input by runes instead of the default by-lines
 	scanerr := bufio.NewScanner(stderr)
@@ -171,7 +174,9 @@ func scanner(stdout io.Reader, stderr io.Reader) (*bufio.Scanner, *bufio.Scanner
 		for scanerr.Scan() {
 			fmt.Print(scanerr.Text())
 		}
+		waitGroup.Done()
 	}()
+	waitGroup.Wait()
 	return scanout, scanerr
 }
 
