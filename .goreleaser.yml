@@ -1,6 +1,8 @@
 project_name: cloud-mta-build-tool
 before:
 builds:
+  - env:
+      - GCO_ENABLED=0
   - goos:
       - linux
       - darwin
