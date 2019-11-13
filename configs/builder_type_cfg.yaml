@@ -67,17 +67,3 @@ builders:
       - command: npm ci
 
 
-  # ---dummy build-before commands testing purpose
-  - name: cds
-    info: "test"
-    path: "test"
-    commands:
-      - command: npm install
-      - command: npm run build
-
-  # ---dummy commands for build-after testing purpose
-  - name: cds_after
-    info: "test"
-    path: "test"
-    commands:
-      - command: echo "-----------test after all modules build----------------"
