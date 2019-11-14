@@ -18,8 +18,12 @@ import (
 
 func makeCommand(params []string) *exec.Cmd {
 	if len(params) > 1 {
+		// the command is running with user permission
+		/* #nosec */
 		return exec.Command(params[0], params[1:]...)
 	}
+	// the command is running with user permission
+	/* #nosec */
 	return exec.Command(params[0])
 }
 
