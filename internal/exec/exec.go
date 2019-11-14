@@ -7,7 +7,6 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/kballard/go-shellquote"
@@ -120,21 +119,10 @@ func executeCommand(cmd *exec.Cmd, terminateCh <-chan struct{}, runIndicator boo
 	// Wait for the process to finish in a goroutine. We wait until it finishes or termination is requested via terminateCh.
 	finishedCh := make(chan error, 1)
 	go func() {
-		// Stream command output:
-		// Creates a bufio.Scanner that will read from the pipe
-		// that supplies the output written by the process.
-		// Note: this waits until the process finishes or an error occurs.
-		scanout, scanerr := scanner(stdout, stderr)
-
-		if err1 := scanerr.Err(); err1 != nil {
-			finishedCh <- errors.Wrap(err1, execFailedOnScanerrMsg)
-			return
-		}
-
-		if err2 := scanout.Err(); err2 != nil {
-			finishedCh <- errors.Wrap(err2, execFailedOnScanoutMsg)
-			return
-		}
+		// Stream command standard and error output.
+		// Note: this does not wait until the process finishes, but will keep streaming its output until it is.
+		pipeOutput(stdout)
+		pipeOutput(stderr)
 
 		// Get execution success or failure
 		finishedCh <- cmd.Wait()
@@ -155,29 +143,16 @@ func executeCommand(cmd *exec.Cmd, terminateCh <-chan struct{}, runIndicator boo
 	return nil
 }
 
-func scanner(stdout io.Reader, stderr io.Reader) (*bufio.Scanner, *bufio.Scanner) {
+// Scan the reader and write it to the output
+func pipeOutput(reader io.Reader) {
 	// instructs the scanner to read the input by runes instead of the default by-lines
-	scanout := bufio.NewScanner(stdout)
-	scanout.Split(bufio.ScanRunes)
-	var waitGroup sync.WaitGroup
-	waitGroup.Add(2)
+	scanner := bufio.NewScanner(reader)
+	scanner.Split(bufio.ScanRunes)
 	go func() {
-		for scanout.Scan() {
-			fmt.Print(scanout.Text())
+		for scanner.Scan() {
+			fmt.Print(scanner.Text())
 		}
-		waitGroup.Done()
 	}()
-	// instructs the scanner to read the input by runes instead of the default by-lines
-	scanerr := bufio.NewScanner(stderr)
-	scanerr.Split(bufio.ScanRunes)
-	go func() {
-		for scanerr.Scan() {
-			fmt.Print(scanerr.Text())
-		}
-		waitGroup.Done()
-	}()
-	waitGroup.Wait()
-	return scanout, scanerr
 }
 
 // Show progress when the command is executed
