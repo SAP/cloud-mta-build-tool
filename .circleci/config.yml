@@ -59,10 +59,6 @@ jobs:
           command: |
             go mod vendor
       - run:
-          name: remove dummy release tag
-          command: |
-            git push https://github.com/SAP/cloud-mta-build-tool.git --delete release
-      - run:
           name: bump version
           command: |
             #Make sure HEAD points to master
@@ -98,15 +94,22 @@ jobs:
             
   publish:
     docker:
-      - image: circleci/node:12.6.0
+      - image: circleci/node:13.1.0
     working_directory: /go/src/github.com/SAP/cloud-mta-build-tool
     steps:
+      - add_ssh_keys:
+          fingerprints:
+            - "34:86:26:17:59:ed:71:fa:b8:37:fc:d6:a4:68:af:0e"
       - checkout
       - run:
           name: publish to npm
           command: |
             echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > .npmrc
             npm publish
+      - run:
+          name: remove dummy release tag
+          command: |
+            git push https://github.com/SAP/cloud-mta-build-tool.git --delete release
 
   ghpages:
     docker:
@@ -183,8 +186,8 @@ workflows:
       - publish:
           requires:
             - release
-          filters:  # job runs on tag starts with v* for no branches
+          filters:  # job runs on tag 'release' for no branches
             tags:
-              only: /^v*/
+              only: /release/
             branches:
               ignore: /.*/
