@@ -6,7 +6,7 @@ jobs:
       - image: circleci/golang:1.13.4
 
     environment:
-    working_directory: /go/src/github.com/SAP/cloud-mta-build-tool
+    working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
     steps:
       - checkout
       - run: go version
@@ -34,7 +34,7 @@ jobs:
   test:
     docker:
       - image: shimit/mbt_multi:0.3.0
-    working_directory: /go/src/github.com/SAP/cloud-mta-build-tool
+    working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
     steps:
       - checkout
       - run:
@@ -47,7 +47,7 @@ jobs:
   release:
     docker:
       - image: circleci/golang:1.13.3
-    working_directory: /go/src/github.com/SAP/cloud-mta-build-tool
+    working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
     steps:
       - add_ssh_keys:
           fingerprints:
@@ -94,7 +94,7 @@ jobs:
   publish:
     docker:
       - image: circleci/node:13.1.0
-    working_directory: /go/src/github.com/SAP/cloud-mta-build-tool
+    working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
     steps:
       - add_ssh_keys:
           fingerprints:
@@ -113,7 +113,7 @@ jobs:
   ghpages:
     docker:
       - image: squidfunk/mkdocs-material:4.3.1
-    working_directory: /go/src/github.com/SAP/cloud-mta-build-tool
+    working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
     steps:
       - checkout
       - run:
