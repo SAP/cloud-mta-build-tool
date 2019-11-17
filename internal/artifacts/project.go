@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strconv"
 
 	"github.com/pkg/errors"
@@ -18,22 +19,23 @@ import (
 
 const (
 	copyInParallel = false
+	// Maximum number of parallel makefile jobs if the parameter is not set by the user
+	MaxMakeParallel = 8
 )
 
 // ExecBuild - Execute MTA project build
-func ExecBuild(makefileTmp, buildProjectCmdSrc, buildProjectCmdTrg string, extensions []string, buildProjectCmdMode, buildProjectCmdMtar, buildProjectCmdPlatform string, buildProjectCmdStrict bool, wdGetter func() (string, error), wdExec func([][]string, bool) error, useDefaultMbt bool) error {
+func ExecBuild(makefileTmp, source, target string, extensions []string, mode, mtar, platform string, strict bool, jobs int, wdGetter func() (string, error), wdExec func([][]string, bool) error, useDefaultMbt bool) error {
 	// Generate build script
-	err := tpl.ExecuteMake(buildProjectCmdSrc, "", extensions, makefileTmp, buildProjectCmdMode, wdGetter, useDefaultMbt)
+	err := tpl.ExecuteMake(source, "", extensions, makefileTmp, mode, wdGetter, useDefaultMbt)
 	if err != nil {
 		return err
 	}
-	if buildProjectCmdTrg == "" {
-		err = wdExec([][]string{{buildProjectCmdSrc, "make", "-f", makefileTmp, "p=" + buildProjectCmdPlatform, "mtar=" + buildProjectCmdMtar, "strict=" + strconv.FormatBool(buildProjectCmdStrict), "mode=" + buildProjectCmdMode}}, false)
-	} else {
-		err = wdExec([][]string{{buildProjectCmdSrc, "make", "-f", makefileTmp, "p=" + buildProjectCmdPlatform, "mtar=" + buildProjectCmdMtar, `t="` + buildProjectCmdTrg + `"`, "strict=" + strconv.FormatBool(buildProjectCmdStrict), "mode=" + buildProjectCmdMode}}, false)
-	}
+
+	cmdParams := createMakeCommand(makefileTmp, source, target, mode, mtar, platform, strict, jobs, runtime.NumCPU)
+	err = wdExec([][]string{cmdParams}, false)
+
 	// Remove temporary Makefile
-	removeError := os.Remove(filepath.Join(buildProjectCmdSrc, filepath.FromSlash(makefileTmp)))
+	removeError := os.Remove(filepath.Join(source, filepath.FromSlash(makefileTmp)))
 	if removeError != nil {
 		removeError = errors.Wrapf(removeError, removeFailedMsg, makefileTmp)
 	}
@@ -45,6 +47,23 @@ func ExecBuild(makefileTmp, buildProjectCmdSrc, buildProjectCmdTrg string, exten
 		return errors.Wrap(err, execFailedMsg)
 	}
 	return removeError
+}
+
+func createMakeCommand(makefileName, source, target, mode, mtar, platform string, strict bool, jobs int, numCPUGetter func() int) []string {
+	cmdParams := []string{source, "make", "-f", makefileName, "p=" + platform, "mtar=" + mtar, "strict=" + strconv.FormatBool(strict), "mode=" + mode}
+	if target != "" {
+		cmdParams = append(cmdParams, `t="`+target+`"`)
+	}
+	if tpl.IsVerboseMode(mode) {
+		if jobs <= 0 {
+			jobs = numCPUGetter()
+			if jobs > MaxMakeParallel {
+				jobs = MaxMakeParallel
+			}
+		}
+		cmdParams = append(cmdParams, fmt.Sprintf("-j%d", jobs))
+	}
+	return cmdParams
 }
 
 // ExecuteProjectBuild - execute pre or post phase of project build

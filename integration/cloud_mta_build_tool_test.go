@@ -18,6 +18,7 @@ import (
 	"time"
 
 	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
 
 	dir "github.com/SAP/cloud-mta-build-tool/internal/archive"
@@ -375,27 +376,60 @@ modules:
 			Ω(filepath.Join(dir, "testdata", "mta_demo", "mta_archives", demoArchiveName)).Should(BeAnExistingFile())
 		})
 
-		It("Generate Verbose Makefile with module dependencies", func() {
+		Describe("cleanup after tests", func() {
 			dir, _ := os.Getwd()
 			path := filepath.Join(dir, "testdata", "moduledep")
 			archivePath := filepath.Join(path, "mta_archives", "f1_0.0.1.mtar")
 			tempZipPath := filepath.Join(path, "mta_archives", "data.zip")
 
-			Ω(os.RemoveAll(filepath.Join(path, "Makefile.mta"))).Should(Succeed())
-			Ω(os.RemoveAll(archivePath)).Should(Succeed())
-			Ω(os.RemoveAll(filepath.Join(path, "public", "client"))).Should(Succeed())
-			Ω(os.RemoveAll(tempZipPath)).Should(Succeed())
+			AfterEach(func() {
+				Ω(os.RemoveAll(filepath.Join(path, "Makefile.mta"))).Should(Succeed())
+				Ω(os.RemoveAll(filepath.Join(path, "mta_archives"))).Should(Succeed())
+				Ω(os.RemoveAll(filepath.Join(path, "public", "client"))).Should(Succeed())
+				Ω(os.RemoveAll(filepath.Join(path, "public", "client2"))).Should(Succeed())
+			})
 
+			It("Generate Verbose Makefile with module dependencies", func() {
+				bin := filepath.FromSlash(binPath)
+				cmdOut, errString, _ := execute(bin, "init -m=verbose", path)
+				Ω(errString).Should(Equal(""))
+				Ω(cmdOut).ShouldNot(BeNil())
+				// Check the MakeFile was generated
+				Ω(filepath.Join(path, "Makefile.mta")).Should(BeAnExistingFile())
+
+				// Generate mtar
+				bin = filepath.FromSlash("make")
+				execute(bin, "-f Makefile.mta p=cf", path)
+				// Check the archive was generated
+				Ω(archivePath).Should(BeAnExistingFile())
+				validateMtaArchiveContents([]string{"module_with_dep/", "module_with_dep/data.zip"}, archivePath)
+
+				// Extract data.zip and check its content
+				err := extractFileFromZip(archivePath, "module_with_dep/data.zip", tempZipPath)
+				Ω(err).Should(Succeed())
+				validateArchiveContents([]string{"package.json", "client/", "client/client_package.json", "client2/", "client2/client_package.json"}, tempZipPath)
+			})
+		})
+	})
+
+	Describe("cleanup after tests", func() {
+		dir, _ := os.Getwd()
+		path := filepath.Join(dir, "testdata", "moduledep")
+		archivePath := filepath.Join(path, "mta_archives", "f1_0.0.1.mtar")
+		tempZipPath := filepath.Join(path, "mta_archives", "data.zip")
+
+		AfterEach(func() {
+			Ω(os.RemoveAll(filepath.Join(path, "mta_archives"))).Should(Succeed())
+			Ω(os.RemoveAll(filepath.Join(path, "public", "client"))).Should(Succeed())
+			Ω(os.RemoveAll(filepath.Join(path, "public", "client2"))).Should(Succeed())
+		})
+
+		DescribeTable("Build MTA with module dependencies", func(additionalBuildOpts []string) {
 			bin := filepath.FromSlash(binPath)
-			cmdOut, errString, _ := execute(bin, "init -m=verbose", path)
+			cmdOut, errString, _ := executeWithArgs(bin, path, append([]string{"build"}, additionalBuildOpts...)...)
 			Ω(errString).Should(Equal(""))
 			Ω(cmdOut).ShouldNot(BeNil())
-			// Check the MakeFile was generated
-			Ω(filepath.Join(path, "Makefile.mta")).Should(BeAnExistingFile())
 
-			// Generate mtar
-			bin = filepath.FromSlash("make")
-			execute(bin, "-f Makefile.mta p=cf", path)
 			// Check the archive was generated
 			Ω(archivePath).Should(BeAnExistingFile())
 			validateMtaArchiveContents([]string{"module_with_dep/", "module_with_dep/data.zip"}, archivePath)
@@ -403,8 +437,12 @@ modules:
 			// Extract data.zip and check its content
 			err := extractFileFromZip(archivePath, "module_with_dep/data.zip", tempZipPath)
 			Ω(err).Should(Succeed())
-			validateArchiveContents([]string{"package.json", "client/", "client/client_package.json"}, tempZipPath)
-		})
+			validateArchiveContents([]string{"package.json", "client/", "client/client_package.json", "client2/", "client2/client_package.json"}, tempZipPath)
+		},
+			Entry("Non-verbose build", []string{}),
+			Entry("Parallel verbose build", []string{"--mode=verbose"}),
+			Entry("Serial verbose build", []string{"--mode=verbose", "--jobs=1"}),
+		)
 	})
 
 	var _ = Describe("MBT gen commands", func() {
@@ -731,8 +769,12 @@ func executeEverySecond(bin string, args string, path string) (string, error str
 
 // Execute commands and get outputs
 func execute(bin string, args string, path string) (output string, error string, cmd *exec.Cmd) {
+	return executeWithArgs(bin, path, strings.Split(args, " ")...)
+}
+
+func executeWithArgs(bin string, path string, args ...string) (output string, error string, cmd *exec.Cmd)  {
 	// Provide list of commands
-	cmd = exec.Command(bin, strings.Split(args, " ")...)
+	cmd = exec.Command(bin, args...)
 	// bin path
 	cmd.Dir = path
 	// std out

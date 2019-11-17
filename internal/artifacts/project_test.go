@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 
 	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
 
 	"github.com/SAP/cloud-mta-build-tool/internal/archive"
@@ -52,14 +53,14 @@ var _ = Describe("Project", func() {
 			Ω(os.RemoveAll(getTestPath("result"))).Should(Succeed())
 		})
 		It("Sanity", func() {
-			err := ExecBuild("Makefile_tmp.mta", getTestPath("mta_with_zipped_module"), getResultPath(), nil, "", "", "cf", true, os.Getwd, func(strings [][]string, b bool) error {
+			err := ExecBuild("Makefile_tmp.mta", getTestPath("mta_with_zipped_module"), getResultPath(), nil, "", "", "cf", true, 0, os.Getwd, func(strings [][]string, b bool) error {
 				return nil
 			}, true)
 			Ω(err).Should(Succeed())
 			Ω(filepath.Join(getResultPath(), "Makefile_tmp.mta")).ShouldNot(BeAnExistingFile())
 		})
 		It("Wrong - no platform", func() {
-			err := ExecBuild("Makefile_tmp.mta", getTestPath("mta_with_zipped_module"), getResultPath(), nil, "", "", "", true, os.Getwd, func(strings [][]string, b bool) error {
+			err := ExecBuild("Makefile_tmp.mta", getTestPath("mta_with_zipped_module"), getResultPath(), nil, "", "", "", true, 0, os.Getwd, func(strings [][]string, b bool) error {
 				return fmt.Errorf("failure")
 			}, true)
 			Ω(err).Should(HaveOccurred())
@@ -216,4 +217,37 @@ builders:
 		})
 	})
 
+	var _ = DescribeTable("createMakeCommand", func(target, mode string, strict bool, jobs int, cpus int, additionalExpectedArgs []string) {
+		command := createMakeCommand("Makefile_tmp", "./src", target, mode, "result.mtar", "cf", strict, jobs, func() int {
+			return cpus
+		})
+		Ω(len(command)).To(Equal(8+len(additionalExpectedArgs)), "number of command arguments")
+		// The first arguments must be in this order
+		Ω(command[0]).To(Equal("./src"))
+		Ω(command[1]).To(Equal("make"))
+		Ω(command[2]).To(Equal("-f"))
+		Ω(command[3]).To(Equal("Makefile_tmp"))
+
+		Ω(command).To(ContainElement("p=cf"))
+		Ω(command).To(ContainElement("mtar=result.mtar"))
+		Ω(command).To(ContainElement(fmt.Sprintf("strict=%v", strict)))
+		Ω(command).To(ContainElement(fmt.Sprintf("mode=%s", mode)))
+
+		for _, arg := range additionalExpectedArgs {
+			Ω(command).To(ContainElement(arg))
+		}
+	},
+		Entry("non-verbose without target", "", "", true, 0, 2, nil),
+		Entry("non-verbose with target", "./trg", "", false, 0, 2, []string{`t="./trg"`}),
+		Entry("non-verbose with specified jobs", "", "", true, 2, 4, nil),
+		Entry("verbose without target and without specified jobs, with less than the max number of CPUs", "", "verbose", false, 0, 2, []string{"-j2"}),
+		Entry("verbose with target and without specified jobs, with more than the max number of CPUs", "./trg", "verbose", true, 0, MaxMakeParallel+10, []string{`t="./trg"`, fmt.Sprintf("-j%d", MaxMakeParallel)}),
+		Entry("verbose with specified jobs less than the number of CPUs", "", "verbose", false, 3, 5, []string{"-j3"}),
+		Entry("verbose with specified jobs less than the max number of CPUs", "", "verbose", false, 3, 20, []string{"-j3"}),
+		Entry("verbose with specified jobs more than the number of CPUs", "", "v", true, 3, 1, []string{"-j3"}),
+		Entry("verbose with specified jobs more than the max number of CPUs and less than the number of CPUs", "", "verbose", false, 20, 25, []string{"-j20"}),
+		Entry("verbose with specified jobs more than the max number of CPUs and number of CPUs", "", "v", false, 20, 15, []string{"-j20"}),
+		Entry("verbose with negative specified jobs", "", "verbose", true, -1, 3, []string{"-j3"}),
+		Entry("verbose with negative specified jobs and more than the max number of CPUs", "", "verbose", true, -1, MaxMakeParallel+5, []string{fmt.Sprintf("-j%d", MaxMakeParallel)}),
+	)
 })

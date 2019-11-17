@@ -15,9 +15,6 @@ endif
 ifndef mtar
 mtar="*"
 endif
-# Determine OS cores
-NPROCS = $(shell grep -c 'processor' /proc/cpuinfo)
-MAKEFLAGS += -j
 # List of all the recipes to be executed during the build process
 .PHONY: pre_validate pre_build validate ui meta mtar cleanup
 # Default target compile all
@@ -37,9 +34,11 @@ modules = ui
 # Execute all modules builds
 # build module ui
 ui: validate
+	@echo 'INFO building the "ui" module...'
 	@$(MBT) execute -d="$(PROJ_DIR)/ui" -c='npm install' -c=grunt
 # Pack module build artifacts
 	@$(MBT) module pack -m=ui -p=${p} -t=${t}
+	@echo 'INFO finished building the "ui" module'
 
 # Create META-INF folder with MANIFEST.MF & mtad.yaml
 meta: $(modules) post_build

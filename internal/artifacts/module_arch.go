@@ -36,6 +36,7 @@ func ExecuteBuild(source, target string, extensions []string, moduleName, platfo
 	if err != nil {
 		return err
 	}
+	logs.Logger.Infof(buildFinishedMsg, moduleName)
 	return nil
 }
 

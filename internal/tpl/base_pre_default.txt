@@ -4,10 +4,6 @@ modules := $(subst ],,$(subst [,,$(modules)))
 .PHONY: all pre_validate pre_build validate $(modules) post_build meta mtar cleanup
 # Default target compile all
 all: pre_validate pre_build validate $(modules) post_build meta mtar cleanup
-cores:
-# Determine OS cores
-{{"\t"}}{{ OsCore.NPROCS  }}
-{{"\t"}}{{ OsCore.MAKEFLAGS  }}
 # Validate mta.yaml
 pre_validate:
 {{"\t"}}@$(MBT) validate -r=${strict} -x="paths" {{- ExtensionsArg "-e"}}

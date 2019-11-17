@@ -16,11 +16,11 @@ var packCmdModule string
 var packCmdPlatform string
 
 // flags of build command
-var buildCmdSrc string
-var buildCmdTrg string
-var buildCmdExtensions []string
-var buildCmdModule string
-var buildCmdPlatform string
+var buildModuleCmdSrc string
+var buildModuleCmdTrg string
+var buildModuleCmdExtensions []string
+var buildModuleCmdModule string
+var buildModuleCmdPlatform string
 
 func init() {
 
@@ -37,15 +37,15 @@ func init() {
 		`The deployment platform; supported platforms: "cf", "xsa", "neo"`)
 
 	// sets the flags of the command build module
-	buildModuleCmd.Flags().StringVarP(&buildCmdSrc, "source", "s", "",
+	buildModuleCmd.Flags().StringVarP(&buildModuleCmdSrc, "source", "s", "",
 		"The path to the MTA project; the current path is set as the default")
-	buildModuleCmd.Flags().StringVarP(&buildCmdTrg, "target", "t", "",
+	buildModuleCmd.Flags().StringVarP(&buildModuleCmdTrg, "target", "t", "",
 		"The path to the results folder; the current path is set as the default")
-	buildModuleCmd.Flags().StringSliceVarP(&buildCmdExtensions, "extensions", "e", nil,
+	buildModuleCmd.Flags().StringSliceVarP(&buildModuleCmdExtensions, "extensions", "e", nil,
 		"The MTA extension descriptors")
-	buildModuleCmd.Flags().StringVarP(&buildCmdModule, "module", "m", "",
+	buildModuleCmd.Flags().StringVarP(&buildModuleCmdModule, "module", "m", "",
 		"The name of the module")
-	buildModuleCmd.Flags().StringVarP(&buildCmdPlatform, "platform", "p", "cf",
+	buildModuleCmd.Flags().StringVarP(&buildModuleCmdPlatform, "platform", "p", "cf",
 		`The deployment platform; supported platforms: "cf", "xsa", "neo"`)
 }
 
@@ -56,7 +56,7 @@ var buildModuleCmd = &cobra.Command{
 	Long:  "Builds module and archives its artifacts",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		err := artifacts.ExecuteBuild(buildCmdSrc, buildCmdTrg, buildCmdExtensions, buildCmdModule, buildCmdPlatform, os.Getwd)
+		err := artifacts.ExecuteBuild(buildModuleCmdSrc, buildModuleCmdTrg, buildModuleCmdExtensions, buildModuleCmdModule, buildModuleCmdPlatform, os.Getwd)
 		logError(err)
 		return err
 	},

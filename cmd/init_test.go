@@ -42,9 +42,9 @@ var _ = Describe("Build", func() {
 		}
 	})
 	It("Failure - wrong platform", func() {
-		buildProjectCmdSrc = getTestPath("mta")
-		buildProjectCmdTrg = getTestPath("result")
-		buildProjectCmdPlatform = "xxx"
+		buildCmdSrc = getTestPath("mta")
+		buildCmdTrg = getTestPath("result")
+		buildCmdPlatform = "xxx"
 		err := buildCmd.RunE(nil, []string{})
 		Ω(err).Should(HaveOccurred())
 	})

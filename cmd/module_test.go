@@ -23,7 +23,7 @@ var _ = Describe("Commands", func() {
 		metaCmdTrg = getTestPath("result")
 		mtarCmdTrg = getTestPath("result")
 		packCmdTrg = getTestPath("result")
-		buildCmdTrg = getTestPath("result")
+		buildModuleCmdTrg = getTestPath("result")
 		cleanupCmdTrg = getTestPath("result")
 		logs.Logger = logs.NewLogger()
 		err := os.Mkdir(mtadCmdTrg, os.ModePerm)
@@ -98,12 +98,12 @@ builders:
 		})
 
 		It("build Command", func() {
-			buildCmdModule = "node-js"
-			buildCmdSrc = getTestPath("mta")
-			buildCmdPlatform = "cf"
-			ep := dir.Loc{SourcePath: buildCmdSrc, TargetPath: buildCmdTrg}
+			buildModuleCmdModule = "node-js"
+			buildModuleCmdSrc = getTestPath("mta")
+			buildModuleCmdPlatform = "cf"
+			ep := dir.Loc{SourcePath: buildModuleCmdSrc, TargetPath: buildModuleCmdTrg}
 			Ω(buildModuleCmd.RunE(nil, []string{})).Should(Succeed())
-			Ω(ep.GetTargetModuleZipPath(buildCmdModule)).Should(BeAnExistingFile())
+			Ω(ep.GetTargetModuleZipPath(buildModuleCmdModule)).Should(BeAnExistingFile())
 		})
 	})
 })

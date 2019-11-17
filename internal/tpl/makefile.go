@@ -14,7 +14,6 @@ import (
 	"github.com/SAP/cloud-mta-build-tool/internal/buildops"
 	"github.com/SAP/cloud-mta-build-tool/internal/commands"
 	"github.com/SAP/cloud-mta-build-tool/internal/logs"
-	"github.com/SAP/cloud-mta-build-tool/internal/proc"
 	"github.com/SAP/cloud-mta-build-tool/internal/version"
 	"github.com/SAP/cloud-mta/mta"
 )
@@ -191,7 +190,6 @@ func mapTpl(templateContent []byte, BasePreContent []byte, BasePostContent []byt
 			cmds, _, err := commands.CommandProvider(modules)
 			return cmds, err
 		},
-		"OsCore":  proc.OsCore,
 		"Version": version.GetVersion,
 		"MbtPath": func() string {
 			return getMbtPath(useDefaultMbt)
@@ -208,10 +206,15 @@ func mapTpl(templateContent []byte, BasePreContent []byte, BasePostContent []byt
 	return template.New("makeTemplate").Funcs(funcMap).Parse(fullTemplateStr)
 }
 
+// IsVerboseMode returns true if the mode of the makefile template should be verbose
+func IsVerboseMode(mode string) bool {
+	return (mode == "verbose") || (mode == "v")
+}
+
 // Get template (default/verbose) according to the CLI flags
 func getTplCfg(mode string, isDep bool) (tplCfg, error) {
 	tpl := tplCfg{}
-	if (mode == "verbose") || (mode == "v") {
+	if IsVerboseMode(mode) {
 		tpl.tplContent = makeVerbose
 		tpl.preContent = basePreVerbose
 		tpl.postContent = basePost
