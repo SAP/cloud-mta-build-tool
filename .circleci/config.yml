@@ -3,10 +3,9 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/golang:1.13.3
+      - image: circleci/golang:1.13.4
 
     environment:
-      - DEP_VERSION: 0.5.4
     working_directory: /go/src/github.com/SAP/cloud-mta-build-tool
     steps:
       - checkout
