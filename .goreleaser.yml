@@ -1,8 +1,6 @@
 project_name: cloud-mta-build-tool
 before:
 builds:
-    env:
-      - GCO_ENABLED=0
   - goos:
       - linux
       - darwin
@@ -14,6 +12,8 @@ builds:
     main: .
     ldflags: -s -w -X main.Version={{.Version}}  -X main.BuildDate={{.Date}}
     binary: mbt
+    env:
+      - GCO_ENABLED=0
 archive:
   replacements:
     darwin: Darwin
