@@ -11,7 +11,7 @@ jobs:
       - checkout
       - run: go version
       - run: go env
-      - run:f
+      - run:
           name: install dependencies
           command: |
             go mod vendor
