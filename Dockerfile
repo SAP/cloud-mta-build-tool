@@ -45,7 +45,7 @@ RUN apt-get update && \
 
      # Download MBT
      curl -L "https://github.com/SAP/cloud-mta-build-tool/releases/download/v${MBT_VERSION}/cloud-mta-build-tool_${MBT_VERSION}_Linux_amd64.tar.gz" | tar -zx -C /usr/local/bin && \
-     chown root:root /usr/local/bin/mbt && \
+     chown root:root /usr/local/bin/mbt && chmod +x /usr/local/bin/mbt && \
 
      # handle users permission
      useradd --home-dir "${MTA_USER_HOME}" \
@@ -70,7 +70,6 @@ RUN apt-get update && \
 ENV PATH=$PATH:./node_modules/.bin HOME=${MTA_USER_HOME}
 WORKDIR /project
 USER mta
-
 
 
 
