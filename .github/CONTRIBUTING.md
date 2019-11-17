@@ -33,10 +33,10 @@ request changes to it, or close it with an explanation.
 ## Before submitting a pull request, please make sure the following is done:
 
 1. Fork the repository and create your branch from master.
-2. Run [dep](https://github.com/golang/dep) ensure in the repository root.
+2. Run `go mod vendor` in the repository root.
 3. If you’ve fixed a bug or added code that should be tested, add tests!
 4. See commit prefix section
-5. Ensure the test suite passes via `go test -v ./... ` Tip: you can use command `make test`.
+5. Ensure the test suite passes via `go test -v ./... ` Tip: you can use command `make tests`.
 6. You can test the binary by using command `make` which will build the binary for each target OS.
 7. If you change some config file you should run `go generate` command, this will create equivalent byte content file. 
 8. Format your code with `go fmt` and run [linter](https://github.com/golang/lint) or better use `make tools` `make lint` on your changes.
@@ -45,9 +45,8 @@ request changes to it, or close it with an explanation.
 
 ## Contribution Prerequisites
 
-1. You have [go](https://golang.org/dl/) installed at v1.12+
-2. You have [dep](https://github.com/golang/dep) installed at v0.5.1+
-3. You are familiar with [GIT](https://git-scm.com/) 
+1. You have [go](https://golang.org/dl/) installed at v1.13+
+2. You are familiar with [GIT](https://git-scm.com/) 
 
 ## Commit Prefix
 

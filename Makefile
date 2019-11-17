@@ -32,7 +32,7 @@ lint:
 	@echo "done linting"
 
 # execute general tests
-test:
+tests:
 	 go test -v ./...
 # check code coverage
 cover:
