@@ -1,7 +1,7 @@
 project_name: cloud-mta-build-tool
 before:
 builds:
-  - env:
+    env:
       - GCO_ENABLED=0
   - goos:
       - linux
