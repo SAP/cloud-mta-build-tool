@@ -2,7 +2,7 @@ FROM openjdk:8-jdk-slim
 
 # Build time variables
 ARG MTA_USER_HOME=/home/mta
-ARG MBT_VERSION=0.3.7
+ARG MBT_VERSION=0.3.8
 ARG GO_VERSION=1.13.4
 ARG NODE_VERSION=v12.13.0
 ARG MAVEN_VERSION=3.6.2
@@ -43,9 +43,6 @@ RUN apt-get update && \
      ln -s "${M2_HOME}/bin/mvn" /usr/local/bin/mvn && \
      chmod --recursive a+w "${M2_HOME}"/conf/* && \
 
-     # install grunt
-     npm install -g grunt-cli && \
-
      # Download MBT
      curl -L "https://github.com/SAP/cloud-mta-build-tool/releases/download/v${MBT_VERSION}/cloud-mta-build-tool_${MBT_VERSION}_Linux_amd64.tar.gz" | tar -zx -C /usr/local/bin && \
      chown root:root /usr/local/bin/mbt && \
@@ -69,10 +66,14 @@ RUN apt-get update && \
       curl && \
     rm -rf /var/lib/apt/lists/*
 
+
 ENV PATH=$PATH:./node_modules/.bin HOME=${MTA_USER_HOME}
+ENV PATH="$PATH:/usr/local/bin"
 WORKDIR /project
 USER mta
-#RUN mbt -v && go version  && mvn -v && node -v
+
+
+
 
 
 
