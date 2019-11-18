@@ -1,6 +1,6 @@
 ## Open Development
 
-All work on MBT happens directly on GitHub. 
+All work on Cloud MTA build tool happens directly on GitHub. 
 Both core team members and external contributors send pull requests which go through the same review process.
 
 
@@ -8,7 +8,7 @@ Both core team members and external contributors send pull requests which go thr
 
 We will do our best to keep the master branch in a good shape, with tests passing at all times. 
 But in order to move fast, we will make API changes that your application might not be compatible with. 
-We recommend that you use the latest stable version of MBT.
+We recommend that you use the latest stable version of Cloud MTA build tool.
 
 If you send a pull request, please do it against the `master` branch. 
 We maintain stable branches for major versions separately but we don’t accept pull requests to them directly. 
@@ -33,7 +33,7 @@ request changes to it, or close it with an explanation.
 ## Before submitting a pull request, please make sure the following is done:
 
 1. Fork the repository and create your branch from master.
-2. Run `go mod vendor` in the repository root.
+2. Run `go mod vendor` in the repository root, in case you have added new dependency run `go mod tidy` .
 3. If you’ve fixed a bug or added code that should be tested, add tests!
 4. See commit prefix section
 5. Ensure the test suite passes via `go test -v ./... ` Tip: you can use command `make tests`.
