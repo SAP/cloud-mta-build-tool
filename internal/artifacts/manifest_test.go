@@ -8,6 +8,7 @@ import (
 
 	"github.com/SAP/cloud-mta/mta"
 	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"
 
@@ -336,6 +337,50 @@ bad config
 		})
 
 	})
+
+	DescribeTable("mergeDuplicateEntries", func(entries []entry, expected []entry) {
+		actual := mergeDuplicateEntries(entries)
+		Ω(actual).Should(Equal(expected))
+	},
+		Entry("returns non-module entries unchanged", []entry{
+			{EntryName: "e1", EntryPath: "a", EntryType: resourceEntry, ContentType: "t"},
+			{EntryName: "e2", EntryPath: "a", EntryType: requiredEntry, ContentType: "t"},
+			{EntryName: "e3", EntryPath: "b", EntryType: resourceEntry, ContentType: "t"},
+			{EntryName: "e4", EntryPath: "b", EntryType: resourceEntry, ContentType: "t"},
+		}, []entry{
+			{EntryName: "e1", EntryPath: "a", EntryType: resourceEntry, ContentType: "t"},
+			{EntryName: "e2", EntryPath: "a", EntryType: requiredEntry, ContentType: "t"},
+			{EntryName: "e3", EntryPath: "b", EntryType: resourceEntry, ContentType: "t"},
+			{EntryName: "e4", EntryPath: "b", EntryType: resourceEntry, ContentType: "t"},
+		},
+		),
+		Entry("merges module entries with the same path and keeps the modules order", []entry{
+			{EntryName: "e1", EntryPath: "a", EntryType: moduleEntry, ContentType: "t1"},
+			{EntryName: "e2", EntryPath: "a", EntryType: moduleEntry, ContentType: "t2"},
+			{EntryName: "e3", EntryPath: "a", EntryType: moduleEntry, ContentType: "t3"},
+			{EntryName: "e4", EntryPath: "b", EntryType: moduleEntry, ContentType: "t4"},
+			{EntryName: "e5", EntryPath: "b", EntryType: moduleEntry, ContentType: "t5"},
+			{EntryName: "e6", EntryPath: "c", EntryType: moduleEntry, ContentType: "t6"},
+		}, []entry{
+			{EntryName: "e1, e2, e3", EntryPath: "a", EntryType: moduleEntry, ContentType: "t1"},
+			{EntryName: "e4, e5", EntryPath: "b", EntryType: moduleEntry, ContentType: "t4"},
+			{EntryName: "e6", EntryPath: "c", EntryType: moduleEntry, ContentType: "t6"},
+		},
+		),
+		Entry("merges module entries and keeps non-module entries unchanged at the end", []entry{
+			{EntryName: "e1", EntryPath: "a", EntryType: resourceEntry, ContentType: "t1"},
+			{EntryName: "e2", EntryPath: "a", EntryType: moduleEntry, ContentType: "t2"},
+			{EntryName: "e3", EntryPath: "a", EntryType: moduleEntry, ContentType: "t3"},
+			{EntryName: "e4", EntryPath: "b", EntryType: moduleEntry, ContentType: "t4"},
+			{EntryName: "e5", EntryPath: "b", EntryType: requiredEntry, ContentType: "t5"},
+		}, []entry{
+			{EntryName: "e2, e3", EntryPath: "a", EntryType: moduleEntry, ContentType: "t2"},
+			{EntryName: "e4", EntryPath: "b", EntryType: moduleEntry, ContentType: "t4"},
+			{EntryName: "e1", EntryPath: "a", EntryType: resourceEntry, ContentType: "t1"},
+			{EntryName: "e5", EntryPath: "b", EntryType: requiredEntry, ContentType: "t5"},
+		},
+		),
+	)
 })
 
 type testWriter struct {

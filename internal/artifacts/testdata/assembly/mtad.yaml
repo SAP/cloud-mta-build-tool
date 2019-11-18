@@ -43,3 +43,11 @@ modules:
   - name: m10
     type: javascript.nodejs
     path: folder2
+# path is to the same folder as another module
+  - name: m11
+    type: java
+    path: folder2
+# path is to the same file as another file
+  - name: m12
+    type: javascript.nodejs
+    path: folder-with-archive/data.jar

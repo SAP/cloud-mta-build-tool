@@ -63,7 +63,43 @@ func setManifestDesc(source dir.ISourceModule, ep dir.ITargetArtifacts, targetPa
 	}
 	entries = append(entries, resourcesEntries...)
 
+	// Module entries that point to the same path should be merged in the manifest
+	entries = mergeDuplicateEntries(entries)
+
 	return genManifest(ep.GetManifestPath(), entries)
+}
+
+func mergeDuplicateEntries(entries []entry) []entry {
+	// Several MTA-Module entries can point to the same path. In that case, their names should in the same entry, comma-separated.
+	mergedEntries := make([]entry, 0)
+	modules := make(map[string]entry)
+	// To keep a consistent sort order for the map entries we must keep another data structure (slice of keys by order of addition here)
+	pathsOrder := make([]string, 0)
+
+	// Add each non-module entry to mergedEntries. Add module entries to modules.
+	for index, entry := range entries {
+		if entry.EntryType != moduleEntry {
+			mergedEntries = append(mergedEntries, entry)
+			continue
+		}
+		if existing, ok := modules[entry.EntryPath]; ok {
+			existing.EntryName += ", " + entry.EntryName
+			modules[entry.EntryPath] = existing
+		} else {
+			modules[entry.EntryPath] = entries[index]
+			pathsOrder = append(pathsOrder, entry.EntryPath)
+		}
+	}
+
+	// Sort module entries by order of insertion
+	moduleEntries := make([]entry, 0)
+	for _, path := range pathsOrder {
+		moduleEntries = append(moduleEntries, modules[path])
+	}
+
+	// Add the module entries first to the merged entries
+	mergedEntries = append(moduleEntries, mergedEntries...)
+	return mergedEntries
 }
 
 func addModuleEntry(entries []entry, module *mta.Module, contentType, modulePath string) []entry {
