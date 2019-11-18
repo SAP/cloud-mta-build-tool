@@ -2,7 +2,7 @@ FROM openjdk:8-jdk-slim
 
 # Build time variables
 ARG MTA_USER_HOME=/home/mta
-ARG MBT_VERSION=0.3.8
+ARG MBT_VERSION=1.0.0
 ARG GO_VERSION=1.13.4
 ARG NODE_VERSION=v12.13.0
 ARG MAVEN_VERSION=3.6.2
@@ -45,7 +45,7 @@ RUN apt-get update && \
 
      # Download MBT
      curl -L "https://github.com/SAP/cloud-mta-build-tool/releases/download/v${MBT_VERSION}/cloud-mta-build-tool_${MBT_VERSION}_Linux_amd64.tar.gz" | tar -zx -C /usr/local/bin && \
-     chown root:root /usr/local/bin/mbt && chmod +x /usr/local/bin/mbt && \
+     chown root:root /usr/local/bin/mbt && \
 
      # handle users permission
      useradd --home-dir "${MTA_USER_HOME}" \
@@ -70,6 +70,7 @@ RUN apt-get update && \
 ENV PATH=$PATH:./node_modules/.bin HOME=${MTA_USER_HOME}
 WORKDIR /project
 USER mta
+RUN mbt -v
 
 
 
