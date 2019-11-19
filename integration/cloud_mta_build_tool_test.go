@@ -376,7 +376,7 @@ modules:
 			Ω(filepath.Join(dir, "testdata", "mta_demo", "mta_archives", demoArchiveName)).Should(BeAnExistingFile())
 		})
 
-		Describe("cleanup after tests", func() {
+		Describe("module with dependencies", func() {
 			dir, _ := os.Getwd()
 			path := filepath.Join(dir, "testdata", "moduledep")
 			archivePath := filepath.Join(path, "mta_archives", "f1_0.0.1.mtar")
@@ -412,7 +412,7 @@ modules:
 		})
 	})
 
-	Describe("cleanup after tests", func() {
+	Describe("module with dependencies", func() {
 		dir, _ := os.Getwd()
 		path := filepath.Join(dir, "testdata", "moduledep")
 		archivePath := filepath.Join(path, "mta_archives", "f1_0.0.1.mtar")
