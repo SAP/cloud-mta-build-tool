@@ -2,7 +2,7 @@ manifest-Version: 1.0
 Created-By: SAP Application Archive Builder {{cli_version}}
 
 Name: folder-with-archive/data.jar
-MTA-Module: m1
+MTA-Module: m1, m12
 Content-Type: application/zip
 
 Name: data.zip
@@ -30,7 +30,7 @@ MTA-Module: m9
 Content-Type: text/directory
 
 Name: folder2
-MTA-Module: m10
+MTA-Module: m10, m11
 Content-Type: text/directory
 
 Name: META-INF/mtad.yaml
