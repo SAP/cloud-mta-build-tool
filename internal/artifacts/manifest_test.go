@@ -2,21 +2,21 @@ package artifacts
 
 import (
 	"fmt"
-	"github.com/SAP/cloud-mta-build-tool/internal/buildops"
 	"os"
+	"strings"
 	"text/template"
 
-	"github.com/SAP/cloud-mta/mta"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"
 
 	"github.com/SAP/cloud-mta-build-tool/internal/archive"
+	"github.com/SAP/cloud-mta-build-tool/internal/buildops"
 	"github.com/SAP/cloud-mta-build-tool/internal/commands"
 	"github.com/SAP/cloud-mta-build-tool/internal/conttype"
 	"github.com/SAP/cloud-mta-build-tool/internal/version"
-	"strings"
+	"github.com/SAP/cloud-mta/mta"
 )
 
 var _ = Describe("manifest", func() {

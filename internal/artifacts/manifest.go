@@ -76,18 +76,18 @@ func mergeDuplicateEntries(entries []entry) []entry {
 	// To keep a consistent sort order for the map entries we must keep another data structure (slice of keys by order of addition here)
 	pathsOrder := make([]string, 0)
 
-	// Add each non-module entry to mergedEntries. Add module entries to modules.
+	// Add module entries to modules. Add non-module entries to mergedEntries.
 	for index, entry := range entries {
-		if entry.EntryType != moduleEntry {
-			mergedEntries = append(mergedEntries, entry)
-			continue
-		}
-		if existing, ok := modules[entry.EntryPath]; ok {
-			existing.EntryName += ", " + entry.EntryName
-			modules[entry.EntryPath] = existing
+		if entry.EntryType == moduleEntry {
+			if existing, ok := modules[entry.EntryPath]; ok {
+				existing.EntryName += ", " + entry.EntryName
+				modules[entry.EntryPath] = existing
+			} else {
+				modules[entry.EntryPath] = entries[index]
+				pathsOrder = append(pathsOrder, entry.EntryPath)
+			}
 		} else {
-			modules[entry.EntryPath] = entries[index]
-			pathsOrder = append(pathsOrder, entry.EntryPath)
+			mergedEntries = append(mergedEntries, entry)
 		}
 	}
 
