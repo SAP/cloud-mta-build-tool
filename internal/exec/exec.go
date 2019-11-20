@@ -1,9 +1,9 @@
 package exec
 
 import (
-	"bufio"
 	"fmt"
 	"io"
+	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
@@ -120,14 +120,14 @@ func executeCommand(cmd *exec.Cmd, terminateCh <-chan struct{}, runIndicator boo
 		return err
 	}
 
+	// Stream command standard and error output.
+	// Note: this does not wait until the process finishes, but will keep streaming its output until it is.
+	pipeOutput(stdout, os.Stdout)
+	pipeOutput(stderr, os.Stderr)
+
 	// Wait for the process to finish in a goroutine. We wait until it finishes or termination is requested via terminateCh.
 	finishedCh := make(chan error, 1)
 	go func() {
-		// Stream command standard and error output.
-		// Note: this does not wait until the process finishes, but will keep streaming its output until it is.
-		pipeOutput(stdout)
-		pipeOutput(stderr)
-
 		// Get execution success or failure
 		finishedCh <- cmd.Wait()
 	}()
@@ -147,15 +147,10 @@ func executeCommand(cmd *exec.Cmd, terminateCh <-chan struct{}, runIndicator boo
 	return nil
 }
 
-// Scan the reader and write it to the output
-func pipeOutput(reader io.Reader) {
-	// instructs the scanner to read the input by runes instead of the default by-lines
-	scanner := bufio.NewScanner(reader)
-	scanner.Split(bufio.ScanRunes)
+// Copy the input from the reader to the writer in a goroutine
+func pipeOutput(reader io.Reader, writer io.Writer) {
 	go func() {
-		for scanner.Scan() {
-			fmt.Print(scanner.Text())
-		}
+		_, _ = io.Copy(writer, reader)
 	}()
 }
 

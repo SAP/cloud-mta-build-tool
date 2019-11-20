@@ -163,6 +163,21 @@ var _ = Describe("Integration - CloudMtaBuildTool", func() {
 				_, err, _ := execute(bin, "build -p=xxx", path)
 				Ω(err).ShouldNot(BeEmpty())
 			})
+
+			It("MBT build with timeout", func() {
+				dir, _ := os.Getwd()
+				path := filepath.Join(dir, "testdata", "moduletimeout")
+				bin := filepath.FromSlash(binPath)
+
+				start := time.Now()
+				out, err, _ := execute(bin, "build", path)
+				elapsed := time.Since(start)
+				Ω(out + err).Should(ContainSubstring("timed out"))
+
+				// Check elapsed time
+				Ω(elapsed).Should(BeNumerically(">=", time.Duration(5)*time.Second))
+				Ω(elapsed).Should(BeNumerically("<=", time.Duration(10)*time.Second))
+			})
 		})
 
 		It("Generate MTAR - unsupported platform, module removed from mtad", func() {
@@ -655,7 +670,7 @@ func getFileContentFromZip(path string, filename string) ([]byte, error) {
 	return nil, fmt.Errorf(`file "%s" not found`, filename)
 }
 
-func extractFileFromZip(archivePath string, filename string, dst string) (error) {
+func extractFileFromZip(archivePath string, filename string, dst string) error {
 	zipFile, err := zip.OpenReader(archivePath)
 	if err != nil {
 		return err
@@ -772,7 +787,7 @@ func execute(bin string, args string, path string) (output string, error string,
 	return executeWithArgs(bin, path, strings.Split(args, " ")...)
 }
 
-func executeWithArgs(bin string, path string, args ...string) (output string, error string, cmd *exec.Cmd)  {
+func executeWithArgs(bin string, path string, args ...string) (output string, error string, cmd *exec.Cmd) {
 	// Provide list of commands
 	cmd = exec.Command(bin, args...)
 	// bin path
