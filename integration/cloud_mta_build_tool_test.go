@@ -20,6 +20,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
+	"github.com/pkg/errors"
 
 	dir "github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta/mta"
@@ -42,6 +43,8 @@ var _ = Describe("Integration - CloudMtaBuildTool", func() {
 		} else {
 			mbtName = "mbt.exe"
 		}
+		// This runs locally for testing purpose only
+		/* #nosec */
 		cmd := exec.Command("go", "build", "-o", filepath.Join(os.Getenv("GOPATH"), "/bin/"+mbtName), ".")
 		cmd.Dir = filepath.FromSlash("../")
 		err := cmd.Run()
@@ -60,8 +63,6 @@ var _ = Describe("Integration - CloudMtaBuildTool", func() {
 		Ω(os.RemoveAll(filepath.FromSlash("./testdata/mta_java/Makefile.mta"))).Should(Succeed())
 		Ω(os.RemoveAll(filepath.FromSlash("./testdata/mta_java/mtad.yaml"))).Should(Succeed())
 		Ω(os.RemoveAll(filepath.FromSlash("./testdata/mta_java/mta_archives"))).Should(Succeed())
-		resourceCleanup("node")
-		resourceCleanup("node-js")
 		Ω(os.RemoveAll(filepath.FromSlash("./testdata/mta_demo/node/package-lock.json"))).Should(Succeed())
 	})
 
@@ -71,8 +72,8 @@ var _ = Describe("Integration - CloudMtaBuildTool", func() {
 			dir, _ := os.Getwd()
 			path := dir + filepath.FromSlash("/testdata/mta_demo")
 			bin := filepath.FromSlash(binPath)
-			cmdOut, err, _ := execute(bin, "provide modules", path)
-			Ω(err).Should(Equal(""))
+			cmdOut, cmdErr, err := execute(bin, "provide modules", path)
+			Ω(err).Should(Succeed(), cmdErr)
 			Ω(cmdOut).ShouldNot(BeNil())
 			Ω(cmdOut).Should(ContainSubstring("[node node-js]" + "\n"))
 		})
@@ -81,8 +82,8 @@ var _ = Describe("Integration - CloudMtaBuildTool", func() {
 			dir, _ := os.Getwd()
 			path := dir + filepath.FromSlash("/testdata/")
 			bin := filepath.FromSlash(binPath)
-			_, err, _ := execute(bin, "provide modules 2", path)
-			Ω(err).ShouldNot(BeNil())
+			_, _, err := execute(bin, "provide modules 2", path)
+			Ω(err).Should(HaveOccurred())
 		})
 	})
 	var _ = Describe("Generate the Makefile according to the mta.yaml file", func() {
@@ -91,8 +92,8 @@ var _ = Describe("Integration - CloudMtaBuildTool", func() {
 			dir, _ := os.Getwd()
 			path := filepath.Join(dir, "testdata", "mta_demo")
 			bin := filepath.FromSlash(binPath)
-			_, err, _ := execute(bin, "init", path)
-			Ω(err).Should(Equal(""))
+			_, errOut, err := execute(bin, "init", path)
+			Ω(err).Should(Succeed(), errOut)
 
 			// Check the MakeFile was generated
 			Ω(filepath.Join(dir, "testdata", "mta_demo", "Makefile.mta")).Should(BeAnExistingFile())
@@ -102,8 +103,8 @@ var _ = Describe("Integration - CloudMtaBuildTool", func() {
 			dir, _ := os.Getwd()
 			path := filepath.Join(dir, "testdata", "mta_java")
 			bin := filepath.FromSlash(binPath)
-			_, err, _ := execute(bin, "init", path)
-			Ω(err).Should(Equal(""))
+			_, errOut, err := execute(bin, "init", path)
+			Ω(err).Should(Succeed(), errOut)
 
 			// Check the MakeFile was generated
 			Ω(filepath.Join(dir, "testdata", "mta_java", "Makefile.mta")).Should(BeAnExistingFile())
@@ -113,8 +114,8 @@ var _ = Describe("Integration - CloudMtaBuildTool", func() {
 			dir, _ := os.Getwd()
 			path := dir + filepath.FromSlash("/testdata/mta_demo")
 			bin := filepath.FromSlash(binPath)
-			_, err, _ := execute(bin, "init 2", path)
-			Ω(err).ShouldNot(BeNil())
+			_, _, err := execute(bin, "init 2", path)
+			Ω(err).Should(HaveOccurred())
 
 		})
 	})
@@ -125,8 +126,8 @@ var _ = Describe("Integration - CloudMtaBuildTool", func() {
 			Ω(os.RemoveAll(filepath.Join(dir, "testdata", "mta_demo", demoArchiveName))).Should(Succeed())
 			path := dir + filepath.FromSlash("/testdata/mta_demo")
 			bin := filepath.FromSlash("make")
-			cmdOut, err, _ := execute(bin, "-f Makefile.mta p=cf mtar=abc t="+path, path)
-			Ω(err).Should(Equal(""))
+			cmdOut, errOut, err := execute(bin, "-f Makefile.mta p=cf mtar=abc t="+path, path)
+			Ω(err).Should(Succeed(), errOut)
 			Ω(cmdOut).ShouldNot(BeEmpty())
 			// Check the archive was generated
 			Ω(filepath.Join(dir, "testdata", "mta_demo", "abc.mtar")).Should(BeAnExistingFile())
@@ -137,9 +138,9 @@ var _ = Describe("Integration - CloudMtaBuildTool", func() {
 			dir, _ := os.Getwd()
 			path := dir + filepath.FromSlash("/testdata/mta_demo")
 			bin := filepath.FromSlash("make")
-			out, err, _ := execute(bin, "-f Makefile.mta p=xxx mtar=xyz1", path)
-			Ω(err).ShouldNot(BeEmpty())
-			Ω(out).Should(ContainSubstring(`ERROR invalid target platform "xxx"; supported platforms are: "cf", "neo", "xsa"`))
+			out, errOut, err := execute(bin, "-f Makefile.mta p=xxx mtar=xyz1", path)
+			Ω(err).Should(HaveOccurred())
+			Ω(out + errOut).Should(ContainSubstring(`ERROR invalid target platform "xxx"; supported platforms are: "cf", "neo", "xsa"`))
 			Ω(filepath.Join(dir, "testdata", "mta_demo", "mta_archives", "xyz1.mtar")).ShouldNot(BeAnExistingFile())
 		})
 
@@ -149,8 +150,8 @@ var _ = Describe("Integration - CloudMtaBuildTool", func() {
 				dir, _ := os.Getwd()
 				path := filepath.Join(dir, "testdata", "mta_demo")
 				bin := filepath.FromSlash(binPath)
-				_, err, _ := execute(bin, "build -p=cf", path)
-				Ω(err).Should(Equal(""))
+				_, errOut, err := execute(bin, "build -p=cf", path)
+				Ω(err).Should(Succeed(), errOut)
 
 				// Check the MTAR was generated
 				validateMtaArchiveContents([]string{"node/", "node/data.zip", "node-js/", "node-js/data.zip"}, filepath.Join(path, "mta_archives", "mta_demo_0.0.1.mtar"))
@@ -160,8 +161,24 @@ var _ = Describe("Integration - CloudMtaBuildTool", func() {
 				dir, _ := os.Getwd()
 				path := filepath.Join(dir, "testdata", "mta_demo")
 				bin := filepath.FromSlash(binPath)
-				_, err, _ := execute(bin, "build -p=xxx", path)
-				Ω(err).ShouldNot(BeEmpty())
+				_, _, err := execute(bin, "build -p=xxx", path)
+				Ω(err).Should(HaveOccurred())
+			})
+
+			It("MBT build with timeout", func() {
+				dir, _ := os.Getwd()
+				path := filepath.Join(dir, "testdata", "moduletimeout")
+				bin := filepath.FromSlash(binPath)
+
+				start := time.Now()
+				out, errOut, err := execute(bin, "build", path)
+				elapsed := time.Since(start)
+				Ω(err).Should(HaveOccurred())
+				Ω(out + errOut).Should(ContainSubstring("timed out"))
+
+				// Check elapsed time
+				Ω(elapsed).Should(BeNumerically(">=", time.Duration(5)*time.Second))
+				Ω(elapsed).Should(BeNumerically("<=", time.Duration(10)*time.Second))
 			})
 		})
 
@@ -170,8 +187,8 @@ var _ = Describe("Integration - CloudMtaBuildTool", func() {
 			dir, _ := os.Getwd()
 			path := dir + filepath.FromSlash("/testdata/mta_demo")
 			bin := filepath.FromSlash("make")
-			_, err, _ := execute(bin, "-f Makefile.mta p=neo mtar=xyz", path)
-			Ω(err).Should(BeEmpty())
+			_, errOut, err := execute(bin, "-f Makefile.mta p=neo mtar=xyz", path)
+			Ω(err).Should(Succeed(), errOut)
 			mtarFilename := filepath.Join(dir, "testdata", "mta_demo", "mta_archives", "xyz.mtar")
 			Ω(mtarFilename).Should(BeAnExistingFile())
 			// check that module with unsupported platform 'neo' is not presented in mtad.yaml
@@ -203,8 +220,8 @@ parameters:
 			dir, _ := os.Getwd()
 			path := dir + filepath.FromSlash("/testdata/mta_demo")
 			bin := filepath.FromSlash("make")
-			_, err, _ := execute(bin, "-f Makefile.mta p=cf", path)
-			Ω(err).Should(Equal(""))
+			_, errOut, err := execute(bin, "-f Makefile.mta p=cf", path)
+			Ω(err).Should(Succeed(), errOut)
 			// Check the archive was generated
 			mtarFilename := filepath.Join(dir, "testdata", "mta_demo", "mta_archives", demoArchiveName)
 			Ω(filepath.Join(dir, "testdata", "mta_demo", "mta_archives", demoArchiveName)).Should(BeAnExistingFile())
@@ -242,8 +259,8 @@ modules:
 		//	dir, _ := os.Getwd()
 		//	path := dir + filepath.FromSlash("/testdata/mta_java")
 		//	bin := filepath.FromSlash("make")
-		//	_, err, _ := execute(bin, "-f Makefile.mta p=cf", path)
-		//				Ω(err).Should(Equal(""))
+		//	_, errOut, err, _ := execute(bin, "-f Makefile.mta p=cf", path)
+		//				Ω(err).Should(Succeed(), errOut)
 		//				// Check the archive was generated
 		//				mtarFilename := filepath.Join(dir, "testdata", "mta_java", "mta_archives", javaArchiveName)
 		//				Ω(filepath.Join(dir, "testdata", "mta_java", "mta_archives", javaArchiveName)).Should(BeAnExistingFile())
@@ -325,32 +342,34 @@ modules:
 
 			It("MBT build for mta_demo with extension", func() {
 				bin := filepath.FromSlash(binPath)
-				_, err, _ := execute(bin, "build -e=ext.mtaext -p=cf", path)
-				Ω(err).Should(Equal(""))
+				_, errOut, err := execute(bin, "build -e=ext.mtaext -p=cf", path)
+				Ω(err).Should(Succeed(), errOut)
 				validateMtar()
 			})
 
 			It("MBT init and run make for mta_demo with extension - non-verbose", func() {
 				bin := filepath.FromSlash(binPath)
-				cmdOut, err, _ := execute(bin, "init -e=ext.mtaext", path)
-				Ω(err).Should(Equal(""))
+				cmdOut, errOut, err := execute(bin, "init -e=ext.mtaext", path)
+				Ω(err).Should(Succeed(), errOut)
 				Ω(cmdOut).ShouldNot(BeNil())
 				// Read the MakeFile was generated
 				Ω(makefileName).Should(BeAnExistingFile())
 				// generate mtar
-				execute("make", "-f Makefile.mta p=cf", path)
+				_, errOut, err = execute("make", "-f Makefile.mta p=cf", path)
+				Ω(err).Should(Succeed(), errOut)
 				validateMtar()
 			})
 
 			It("MBT init and run make for mta_demo with extension - verbose", func() {
 				bin := filepath.FromSlash(binPath)
-				cmdOut, err, _ := execute(bin, "init -m=verbose -e=ext.mtaext", path)
-				Ω(err).Should(Equal(""))
+				cmdOut, errOut, err := execute(bin, "init -m=verbose -e=ext.mtaext", path)
+				Ω(err).Should(Succeed(), errOut)
 				Ω(cmdOut).ShouldNot(BeNil())
 				// Read the MakeFile was generated
 				Ω(makefileName).Should(BeAnExistingFile())
 				// generate mtar
-				execute("make", "-f Makefile.mta p=cf", path)
+				_, errOut, err = execute("make", "-f Makefile.mta p=cf", path)
+				Ω(err).Should(Succeed(), errOut)
 				validateMtar()
 			})
 		})
@@ -360,18 +379,19 @@ modules:
 
 		It("Generate Verbose Makefile", func() {
 			dir, _ := os.Getwd()
-			os.RemoveAll(filepath.Join(dir, "testdata", "mta_demo", "Makefile.mta"))
-			os.RemoveAll(filepath.Join(dir, "testdata", "mta_demo", "mta_archives", demoArchiveName))
+			Ω(os.RemoveAll(filepath.Join(dir, "testdata", "mta_demo", "Makefile.mta"))).Should(Succeed())
+			Ω(os.RemoveAll(filepath.Join(dir, "testdata", "mta_demo", "mta_archives", demoArchiveName))).Should(Succeed())
 			path := filepath.Join(dir, "testdata", "mta_demo")
 			bin := filepath.FromSlash(binPath)
-			cmdOut, err, _ := execute(bin, "init -m=verbose", path)
-			Ω(err).Should(Equal(""))
+			cmdOut, errOut, err := execute(bin, "init -m=verbose", path)
+			Ω(err).Should(Succeed(), errOut)
 			Ω(cmdOut).ShouldNot(BeNil())
 			// Read the MakeFile was generated
 			Ω(filepath.Join(dir, "testdata", "mta_demo", "Makefile.mta")).Should(BeAnExistingFile())
 			// generate mtar
 			bin = filepath.FromSlash("make")
-			execute(bin, "-f Makefile.mta p=cf", path)
+			_, errOut, err = execute(bin, "-f Makefile.mta p=cf", path)
+			Ω(err).Should(Succeed(), errOut)
 			// Check the archive was generated
 			Ω(filepath.Join(dir, "testdata", "mta_demo", "mta_archives", demoArchiveName)).Should(BeAnExistingFile())
 		})
@@ -391,21 +411,22 @@ modules:
 
 			It("Generate Verbose Makefile with module dependencies", func() {
 				bin := filepath.FromSlash(binPath)
-				cmdOut, errString, _ := execute(bin, "init -m=verbose", path)
-				Ω(errString).Should(Equal(""))
+				cmdOut, errOut, err := execute(bin, "init -m=verbose", path)
+				Ω(err).Should(Succeed(), errOut)
 				Ω(cmdOut).ShouldNot(BeNil())
 				// Check the MakeFile was generated
 				Ω(filepath.Join(path, "Makefile.mta")).Should(BeAnExistingFile())
 
 				// Generate mtar
 				bin = filepath.FromSlash("make")
-				execute(bin, "-f Makefile.mta p=cf", path)
+				_, errOut, err = execute(bin, "-f Makefile.mta p=cf", path)
+				Ω(err).Should(Succeed(), errOut)
 				// Check the archive was generated
 				Ω(archivePath).Should(BeAnExistingFile())
 				validateMtaArchiveContents([]string{"module_with_dep/", "module_with_dep/data.zip"}, archivePath)
 
 				// Extract data.zip and check its content
-				err := extractFileFromZip(archivePath, "module_with_dep/data.zip", tempZipPath)
+				err = extractFileFromZip(archivePath, "module_with_dep/data.zip", tempZipPath)
 				Ω(err).Should(Succeed())
 				validateArchiveContents([]string{"package.json", "client/", "client/client_package.json", "client2/", "client2/client_package.json"}, tempZipPath)
 			})
@@ -426,8 +447,8 @@ modules:
 
 		DescribeTable("Build MTA with module dependencies", func(additionalBuildOpts []string) {
 			bin := filepath.FromSlash(binPath)
-			cmdOut, errString, _ := executeWithArgs(bin, path, append([]string{"build"}, additionalBuildOpts...)...)
-			Ω(errString).Should(Equal(""))
+			cmdOut, _, err := executeWithArgs(bin, path, append([]string{"build"}, additionalBuildOpts...)...)
+			Ω(err).Should(Succeed())
 			Ω(cmdOut).ShouldNot(BeNil())
 
 			// Check the archive was generated
@@ -435,7 +456,7 @@ modules:
 			validateMtaArchiveContents([]string{"module_with_dep/", "module_with_dep/data.zip"}, archivePath)
 
 			// Extract data.zip and check its content
-			err := extractFileFromZip(archivePath, "module_with_dep/data.zip", tempZipPath)
+			err = extractFileFromZip(archivePath, "module_with_dep/data.zip", tempZipPath)
 			Ω(err).Should(Succeed())
 			validateArchiveContents([]string{"package.json", "client/", "client/client_package.json", "client2/", "client2/client_package.json"}, tempZipPath)
 		},
@@ -452,8 +473,8 @@ modules:
 			Ω(os.MkdirAll(filepath.Join(path, ".mta_demo_mta_build_tmp", "node"), os.ModePerm)).Should(Succeed())
 			Ω(os.MkdirAll(filepath.Join(path, ".mta_demo_mta_build_tmp", "node-js"), os.ModePerm)).Should(Succeed())
 			bin := filepath.FromSlash(binPath)
-			_, err, _ := execute(bin, "gen mtad", path)
-			Ω(err).Should(Equal(""))
+			_, errOut, err := execute(bin, "gen mtad", path)
+			Ω(err).Should(Succeed(), errOut)
 			mtadPath := filepath.Join(path, "mtad.yaml")
 			Ω(mtadPath).Should(BeAnExistingFile())
 			content, _ := ioutil.ReadFile(mtadPath)
@@ -469,8 +490,8 @@ modules:
 			Ω(os.MkdirAll(filepath.Join(path, ".mta_demo_mta_build_tmp", "node"), os.ModePerm)).Should(Succeed())
 			Ω(os.MkdirAll(filepath.Join(path, ".mta_demo_mta_build_tmp", "node-js"), os.ModePerm)).Should(Succeed())
 			bin := filepath.FromSlash(binPath)
-			_, err, _ := execute(bin, `gen mtad -e="ext.mtaext"`, path)
-			Ω(err).Should(Equal(""))
+			_, errOut, err := execute(bin, `gen mtad -e="ext.mtaext"`, path)
+			Ω(err).Should(Succeed(), errOut)
 			mtadPath := filepath.Join(path, "mtad.yaml")
 			Ω(mtadPath).Should(BeAnExistingFile())
 			content, _ := ioutil.ReadFile(mtadPath)
@@ -482,22 +503,27 @@ modules:
 	})
 
 	var _ = Describe("Deploy basic mta archive", func() {
+		AfterEach(func() {
+			resourceCleanup("node")
+			resourceCleanup("node-js")
+		})
 		It("Deploy MTAR", func() {
 			dir, _ := os.Getwd()
 			path := dir + filepath.FromSlash("/testdata/mta_demo/mta_archives")
 			bin := filepath.FromSlash("cf")
 			// Execute deployment process with output to make the deployment success/failure more clear
-			executeWithOutput(bin, "deploy "+demoArchiveName+" -f", path)
+			err := executeWithOutput(bin, "deploy "+demoArchiveName+" -f", path)
+			Ω(err).Should(Succeed())
 			// Check if the deploy succeeded by using curl command response.
 			// Receiving the output status code 200 represents successful deployment
 			args := "-s -o /dev/null -w '%{http_code}' " + os.Getenv("NODE_APP_ROUTE")
 			path = dir + filepath.FromSlash("/testdata/mta_demo")
 			bin = filepath.FromSlash("curl")
-			cmdOut, err := executeEverySecond(bin, args, path)
-			if len(err) > 0 {
-				log.Println(err)
+			cmdOut, errOut, err := executeEverySecond(bin, args, path)
+			if len(errOut) > 0 {
+				log.Println(errOut)
 			}
-			Ω(err).Should(Equal(""))
+			Ω(err).Should(Succeed())
 			Ω(cmdOut).Should(Equal("'200'"))
 		})
 	})
@@ -511,8 +537,8 @@ modules:
 			dir, _ := os.Getwd()
 			path := filepath.Join(dir, "testdata", "mta_demo")
 			bin := filepath.FromSlash(binPath)
-			_, err, _ := execute(bin, `merge -e=ext.mtaext -n=result.yaml`, path)
-			Ω(err).Should(Equal(""))
+			_, errOut, err := execute(bin, `merge -e=ext.mtaext -n=result.yaml`, path)
+			Ω(err).Should(Succeed(), errOut)
 			mtadPath := filepath.Join(path, "result.yaml")
 			Ω(mtadPath).Should(BeAnExistingFile())
 			content, _ := ioutil.ReadFile(mtadPath)
@@ -567,8 +593,8 @@ modules:
 
 		It("Assemble MTAR", func() {
 			bin := filepath.FromSlash(binPath)
-			cmdOut, err, _ := execute(bin, "assemble", mtaAssemblePath)
-			Ω(err).Should(Equal(""))
+			cmdOut, errOut, err := execute(bin, "assemble", mtaAssemblePath)
+			Ω(err).Should(Succeed(), errOut)
 			Ω(cmdOut).ShouldNot(BeNil())
 			Ω(cmdOut).Should(ContainSubstring("assembling the MTA project..." + "\n"))
 			Ω(cmdOut).Should(ContainSubstring("copying the MTA content..." + "\n"))
@@ -587,8 +613,8 @@ modules:
 
 		It("Assemble MTAR with MTA extension", func() {
 			bin := filepath.FromSlash(binPath)
-			cmdOut, err, _ := execute(bin, fmt.Sprintf(`assemble -e="my.mtaext"`), mtaAssemblePath)
-			Ω(err).Should(Equal(""))
+			cmdOut, errOut, err := execute(bin, fmt.Sprintf(`assemble -e="my.mtaext"`), mtaAssemblePath)
+			Ω(err).Should(Succeed(), errOut)
 			Ω(cmdOut).ShouldNot(Equal(""))
 			Ω(resultMtarPath).Should(BeAnExistingFile())
 			// TODO the assemble command copies the contents of excluded modules to the archive (unrelated to the extension files) even though
@@ -641,10 +667,10 @@ func getFileContentFromZip(path string, filename string) ([]byte, error) {
 	for _, file := range zipFile.File {
 		if strings.Contains(file.Name, filename) {
 			fc, err := file.Open()
-			defer fc.Close()
 			if err != nil {
 				return nil, err
 			}
+			defer fc.Close()
 			c, err := ioutil.ReadAll(fc)
 			if err != nil {
 				return nil, err
@@ -655,7 +681,7 @@ func getFileContentFromZip(path string, filename string) ([]byte, error) {
 	return nil, fmt.Errorf(`file "%s" not found`, filename)
 }
 
-func extractFileFromZip(archivePath string, filename string, dst string) (error) {
+func extractFileFromZip(archivePath string, filename string, dst string) error {
 	zipFile, err := zip.OpenReader(archivePath)
 	if err != nil {
 		return err
@@ -717,64 +743,75 @@ func contains(element string, elements []string) bool {
 }
 
 // execute with live output
-func executeWithOutput(bin string, args string, path string) {
+func executeWithOutput(bin string, args string, path string) error {
 	cmd := exec.Command(bin, strings.Split(args, " ")...)
 	cmd.Dir = path
 	cmdReader, err := cmd.StdoutPipe()
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "Error creating StdoutPipe for Cmd", err)
-		os.Exit(1)
+		return errors.Wrapf(err, "Error creating StdoutPipe for Cmd")
 	}
+	cmdErrReader, err := cmd.StderrPipe()
+	if err != nil {
+		return errors.Wrapf(err, "Error creating StderrPipe for Cmd")
+	}
+
 	scanner := bufio.NewScanner(cmdReader)
+	scannerErr := bufio.NewScanner(cmdErrReader)
+
 	go func() {
 		for scanner.Scan() {
 			fmt.Printf("process output | %s\n", scanner.Text())
 		}
 	}()
+	go func() {
+		for scannerErr.Scan() {
+			fmt.Printf("process error output | %s\n", scannerErr.Text())
+		}
+	}()
+
 	err = cmd.Start()
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "Error starting Cmd", err)
-		os.Exit(1)
+		return errors.Wrapf(err, "Error starting Cmd")
 	}
 	err = cmd.Wait()
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "Error waiting for Cmd", err)
-		os.Exit(1)
+		return errors.Wrapf(err, "Error waiting for Cmd")
 	}
+	return nil
 }
 
 // Delete deployed app
 func resourceCleanup(appName string) {
-	dir, _ := os.Getwd()
-	path := dir + filepath.FromSlash("/testdata/mta_demo")
+	wd, _ := os.Getwd()
+	path := wd + filepath.FromSlash("/testdata/mta_demo")
 	bin := filepath.FromSlash("cf")
-	cmdOut, err, _ := execute(bin, "delete "+appName+" -r -f", path)
-	Ω(err).Should(Equal(""))
+	cmdOut, cmdErr, err := execute(bin, "delete "+appName+" -r -f", path)
+	Ω(err).Should(Succeed(), cmdErr)
 	Ω(cmdOut).ShouldNot(BeEmpty())
 }
 
 // Execute command every second for 40 times
-func executeEverySecond(bin string, args string, path string) (string, error string) {
+func executeEverySecond(bin string, args string, path string) (string, errorOut string, err error) {
 	n := 0
-	cmdOut, err, _ := execute(bin, args, path)
+	cmdOut, errOut, err := execute(bin, args, path)
 	for range time.Tick(time.Second) {
-		cmdOut, err, _ = execute(bin, args, path)
-		n++
 		if n == 40 || strings.Compare(cmdOut, "'200'") == 0 {
 			break
 		}
+		cmdOut, errOut, err = execute(bin, args, path)
+		n++
 	}
-	return cmdOut, err
+	return cmdOut, errOut, err
 }
 
 // Execute commands and get outputs
-func execute(bin string, args string, path string) (output string, error string, cmd *exec.Cmd) {
+func execute(bin string, args string, path string) (output string, errorOutput string, err error) {
 	return executeWithArgs(bin, path, strings.Split(args, " ")...)
 }
 
-func executeWithArgs(bin string, path string, args ...string) (output string, error string, cmd *exec.Cmd)  {
+func executeWithArgs(bin string, path string, args ...string) (output string, errorOutput string, err error) {
 	// Provide list of commands
-	cmd = exec.Command(bin, args...)
+	cmd := exec.Command(bin, args...)
 	// bin path
 	cmd.Dir = path
 	// std out
@@ -784,13 +821,10 @@ func executeWithArgs(bin string, path string, args ...string) (output string, er
 	stdErrBuf := &bytes.Buffer{}
 	cmd.Stderr = stdErrBuf
 	// Start command
-	if err := cmd.Start(); err != nil {
-		fmt.Println(err)
+	if err = cmd.Start(); err != nil {
+		return "", "", err
 	}
 	// wait to the command to finish
-	err := cmd.Wait()
-	if err != nil {
-		fmt.Println(err)
-	}
-	return stdoutBuf.String(), stdErrBuf.String(), cmd
+	err = cmd.Wait()
+	return stdoutBuf.String(), stdErrBuf.String(), err
 }
