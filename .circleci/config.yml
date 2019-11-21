@@ -33,7 +33,7 @@ jobs:
 
   test:
     docker:
-      - image: shimit/mbt_multi:0.4.0
+      - image: shimit/mbt_multi:0.3.0
     working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
     steps:
       - checkout
