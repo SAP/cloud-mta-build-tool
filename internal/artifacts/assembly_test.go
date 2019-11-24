@@ -69,17 +69,12 @@ func getFileContentFromZip(path string, filename string) ([]byte, error) {
 	for _, file := range zipFile.File {
 		if strings.Contains(file.Name, filename) {
 			fc, err = file.Open()
-
 			if err != nil {
 				return nil, err
 			}
-			c, err := ioutil.ReadAll(fc)
-			if err != nil {
-				return nil, err
-			}
-			return c, nil
+			defer fc.Close() // If we got here there won't be another loop iteration
+			return ioutil.ReadAll(fc)
 		}
 	}
-	fc.Close()
 	return nil, fmt.Errorf(`file "%s" not found`, filename)
 }

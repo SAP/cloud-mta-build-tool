@@ -1,7 +1,6 @@
 package artifacts
 
 import (
-	"fmt"
 	"os"
 	"strings"
 	"text/template"
@@ -105,8 +104,6 @@ var _ = Describe("manifest", func() {
 			golden := getFileContent(getTestPath("golden_manifestBuildResult.mf"))
 			v, _ := version.GetVersion()
 			golden = strings.Replace(golden, "{{cli_version}}", v.CliVersion, -1)
-			fmt.Println(actual)
-			fmt.Println(golden)
 			Ω(actual).Should(Equal(golden))
 		})
 		It("wrong content types configuration", func() {
@@ -131,8 +128,6 @@ var _ = Describe("manifest", func() {
 			golden := getFileContent(getTestPath("golden_assembly_manifest_no_paths.mf"))
 			v, _ := version.GetVersion()
 			golden = strings.Replace(golden, "{{cli_version}}", v.CliVersion, -1)
-			fmt.Println(actual)
-			fmt.Println(golden)
 			Ω(actual).Should(Equal(golden))
 		})
 		It("With resources", func() {
@@ -148,8 +143,6 @@ var _ = Describe("manifest", func() {
 			golden := getFileContent(getTestPath("golden_assembly_manifest.mf"))
 			v, _ := version.GetVersion()
 			golden = strings.Replace(golden, "{{cli_version}}", v.CliVersion, -1)
-			fmt.Println(actual)
-			fmt.Println(golden)
 			Ω(actual).Should(Equal(golden))
 		})
 		It("With missing module path", func() {

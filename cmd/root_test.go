@@ -1,7 +1,6 @@
 package commands
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 
@@ -38,12 +37,10 @@ var _ = Describe("Root", func() {
 
 	Describe("Execute", func() {
 		It("Sanity", func() {
-			out := executeAndProvideOutput(func() {
-				e := Execute()
-				if e != nil {
-					fmt.Println("error occurred during execute cmd process")
-				}
+			out, err := executeAndProvideOutput(func() error {
+				return Execute()
 			})
+			Ω(err).Should(Succeed())
 			Ω(out).Should(ContainSubstring("help"))
 			Ω(out).Should(ContainSubstring("version"))
 		})
