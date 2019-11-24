@@ -31,6 +31,7 @@ var buildCmdPlatform string
 var buildCmdStrict bool
 var buildCmdMode string
 var buildCmdJobs int
+var buildCmdOutputSync bool
 
 func init() {
 	// set flags for init command
@@ -48,10 +49,9 @@ func init() {
 	buildCmd.Flags().StringVarP(&buildCmdMtar, "mtar", "", "", "The file name of the generated archive file")
 	buildCmd.Flags().StringVarP(&buildCmdPlatform, "platform", "p", "cf", `The deployment platform; supported platforms: "cf", "xsa", "neo"`)
 	buildCmd.Flags().BoolVarP(&buildCmdStrict, "strict", "", true, `If set to true, duplicated fields and fields not defined in the "mta.yaml" schema are reported as errors; if set to false, they are reported as warnings`)
-	buildCmd.Flags().StringVarP(&buildCmdMode, "mode", "m", "", `(beta) The mode of the Makefile generation; supported values: "default" and "verbose"`)
-	_ = buildCmd.Flags().MarkHidden("mode")
-	buildCmd.Flags().IntVarP(&buildCmdJobs, "jobs", "j", 0, fmt.Sprintf(`The number of Make recipes to be executed simultaneously when building the project; if 0 or less, the number of available CPUs (limited to %d) is used. Used only in verbose mode.`, artifacts.MaxMakeParallel))
-	_ = buildCmd.Flags().MarkHidden("jobs")
+	buildCmd.Flags().StringVarP(&buildCmdMode, "mode", "m", "", `(beta) If set to "verbose", Make can run build jobs simultaneously.`)
+	buildCmd.Flags().IntVarP(&buildCmdJobs, "jobs", "j", 0, fmt.Sprintf(`(beta) The number of Make jobs to be executed simultaneously. The default value is the number of available CPUs (maximum %d). Used only in "verbose" mode.`, artifacts.MaxMakeParallel))
+	buildCmd.Flags().BoolVarP(&buildCmdOutputSync, "output-sync", "o", false, `(beta) Groups the output of each Make job and prints it when the job is complete. Used only in "verbose" mode.`)
 	buildCmd.Flags().BoolP("help", "h", false, `Displays detailed information about the "build" command`)
 }
 
@@ -78,7 +78,7 @@ var buildCmd = &cobra.Command{
 		makefileTmp := "Makefile_" + time.Now().Format("20060102150405") + ".mta"
 		// Generate build script
 		// Note: we can only use the non-default mbt (i.e. the current executable name) from inside the command itself because if this function runs from other places like tests it won't point to the MBT
-		err := artifacts.ExecBuild(makefileTmp, buildCmdSrc, buildCmdTrg, buildCmdExtensions, buildCmdMode, buildCmdMtar, buildCmdPlatform, buildCmdStrict, buildCmdJobs, os.Getwd, exec.Execute, false)
+		err := artifacts.ExecBuild(makefileTmp, buildCmdSrc, buildCmdTrg, buildCmdExtensions, buildCmdMode, buildCmdMtar, buildCmdPlatform, buildCmdStrict, buildCmdJobs, buildCmdOutputSync, os.Getwd, exec.Execute, false)
 		return err
 	},
 	SilenceUsage: true,
