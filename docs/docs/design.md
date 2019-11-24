@@ -1,4 +1,4 @@
-#Cloud MTA build tool HLD
+# Cloud MTA build tool HLD
 
  
 #### The new MTA archive builder tool will use a new approach for building a project. 
