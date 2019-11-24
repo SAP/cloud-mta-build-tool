@@ -30,7 +30,7 @@ New MTA Archive Builder Generation Flow
  
 
  
-<p align="center"><img width="350" height="281" src="mbtflow.png" alt="Flow"></p>
+<p align="center"><img width="500" height="500" src="mbtflow.png" alt="Flow"></p>
  
 
  
