@@ -1,4 +1,4 @@
-# Cloud MTA build tool HLD
+## Cloud MTA build tool HLD
 
  
 #### The new MTA archive builder tool will use a new approach for building a project. 
@@ -12,20 +12,27 @@ In this way, by merely using a command such as `mbt init`, all the build process
 file that describes the build flow step by step and users will be able to modify it according to their needs or use it out-of-the-box. 
 
  
-#### The Cloud MTA build tool providing smaller pieces of the MTA build process such as:  
+#### Our design targets
 
-building an `.mtar` file from a given project, creating a` META-INF` folder with corresponding deployment information such as `.mtad` and `manifest.mf` files. 
+- Atomic commands - building an `.mtar` file from a given project, creating a `META-INF` folder with corresponding deployment information such as `.mtad` and `manifest.mf` files,
+ is provided as atomic stateless commands, for advanced use cases user can `constract` his own MTA build with the provided command. 
 
-In this approach we are providing the following features: 
 
 -  Transparency – Users can see what is done under the hood during their project build processes. Users can interfere with the build process and adapt it to their own needs, such as adjustable pipeline requirement. For example, we are providing a default script (Makefile) to run based on the development descriptor, and users can add or remove commands as needed. 
 
-
 - Extendable – Users can extend the tool with new build capabilities that are not provided out-of-the-box by the configuration file.
 Page Break
+
+- Build mechanism - Instead of creating proprietary build process executor, we are leveraging the `GNU Make` capabilities, such as:
+    - built in structured build
+    - parallel builds
+    - run delta targets  
+    
+
+- Performance - with the capability of GNU make to run several receipts in parallel we can achieve significant performance improvements.
  
 
-New MTA Archive Builder Generation Flow 
+Cloud MTA Build tool Generation Flow 
 
  <br>
  
