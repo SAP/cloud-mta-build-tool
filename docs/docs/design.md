@@ -27,8 +27,7 @@ Page Break
 
 New MTA Archive Builder Generation Flow 
 
- 
-
+ <br>
  
 <p align="center"><img width="500" height="500" src="mbtflow.png" alt="Flow"></p>
  
