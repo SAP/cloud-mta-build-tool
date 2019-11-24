@@ -25,7 +25,7 @@ const (
 )
 
 // ExecBuild - Execute MTA project build
-func ExecBuild(makefileTmp, source, target string, extensions []string, mode, mtar, platform string, strict bool, jobs int, wdGetter func() (string, error), wdExec func([][]string, bool) error, useDefaultMbt bool) error {
+func ExecBuild(makefileTmp, source, target string, extensions []string, mode, mtar, platform string, strict bool, jobs int, outputSync bool, wdGetter func() (string, error), wdExec func([][]string, bool) error, useDefaultMbt bool) error {
 	message, err := version.GetVersionMessage()
 	if err == nil {
 		logs.Logger.Info(message)
@@ -37,7 +37,7 @@ func ExecBuild(makefileTmp, source, target string, extensions []string, mode, mt
 		return err
 	}
 
-	cmdParams := createMakeCommand(makefileTmp, source, target, mode, mtar, platform, strict, jobs, runtime.NumCPU)
+	cmdParams := createMakeCommand(makefileTmp, source, target, mode, mtar, platform, strict, jobs, outputSync, runtime.NumCPU)
 	err = wdExec([][]string{cmdParams}, false)
 
 	// Remove temporary Makefile
@@ -55,7 +55,7 @@ func ExecBuild(makefileTmp, source, target string, extensions []string, mode, mt
 	return removeError
 }
 
-func createMakeCommand(makefileName, source, target, mode, mtar, platform string, strict bool, jobs int, numCPUGetter func() int) []string {
+func createMakeCommand(makefileName, source, target, mode, mtar, platform string, strict bool, jobs int, outputSync bool, numCPUGetter func() int) []string {
 	cmdParams := []string{source, "make", "-f", makefileName, "p=" + platform, "mtar=" + mtar, "strict=" + strconv.FormatBool(strict), "mode=" + mode}
 	if target != "" {
 		cmdParams = append(cmdParams, `t="`+target+`"`)
@@ -68,6 +68,10 @@ func createMakeCommand(makefileName, source, target, mode, mtar, platform string
 			}
 		}
 		cmdParams = append(cmdParams, fmt.Sprintf("-j%d", jobs))
+
+		if outputSync {
+			cmdParams = append(cmdParams, "-Otarget")
+		}
 	}
 	return cmdParams
 }

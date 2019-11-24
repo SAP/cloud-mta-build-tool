@@ -18,6 +18,12 @@ builders:
     commands:
       - command: npm install --production
 
+  - name: npm-ci
+    info: "clean install production dependencies"
+    path: "path to config file which override the following default commands"
+    commands:
+      - command: npm clean-install --production
+
   - name: grunt
     info: "execute grunt"
     path: "path to config file which override the following default commands"
@@ -58,12 +64,3 @@ builders:
     info: "archives the source folder into a .zip file"
     path: "archives the source folder into a .zip file"
     commands:
-
-
-  - name: npmci
-    info: "npm ci"
-    path: "npm ci"
-    commands:
-      - command: npm ci
-
-

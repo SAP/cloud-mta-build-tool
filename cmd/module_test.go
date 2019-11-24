@@ -26,10 +26,7 @@ var _ = Describe("Commands", func() {
 		buildModuleCmdTrg = getTestPath("result")
 		cleanupCmdTrg = getTestPath("result")
 		logs.Logger = logs.NewLogger()
-		err := os.Mkdir(mtadCmdTrg, os.ModePerm)
-		if err != nil {
-			fmt.Println(err)
-		}
+		Ω(os.MkdirAll(mtadCmdTrg, os.ModePerm)).Should(Succeed())
 	})
 
 	AfterEach(func() {

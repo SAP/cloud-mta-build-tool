@@ -89,12 +89,15 @@ func readFile(file string) ([]byte, error) {
 	return content, nil
 }
 
-func executeAndProvideOutput(execute func()) string {
+func executeAndProvideOutput(execute func() error) (string, error) {
 	old := os.Stdout // keep backup of the real stdout
-	r, w, _ := os.Pipe()
+	r, w, err := os.Pipe()
+	if err != nil {
+		return "", err
+	}
 	os.Stdout = w
 
-	execute()
+	err = execute()
 
 	outC := make(chan string)
 	// copy the output in a separate goroutine so printing can't block indefinitely
@@ -107,19 +110,20 @@ func executeAndProvideOutput(execute func()) string {
 		outC <- buf.String()
 	}()
 
-	// back to normal state
-	w.Close()
 	os.Stdout = old // restoring the real stdout
+	// back to normal state
+	_ = w.Close()
 	out := <-outC
-	return out
+	return out, err
 }
 
 var _ = Describe("Provide", func() {
 	It("Valid path to yaml", func() {
 
-		out := executeAndProvideOutput(func() {
-			Ω(ProvideModules(filepath.Join("testdata", "mtahtml5"), "dev", nil, os.Getwd)).Should(Succeed())
+		out, err := executeAndProvideOutput(func() error {
+			return ProvideModules(filepath.Join("testdata", "mtahtml5"), "dev", nil, os.Getwd)
 		})
+		Ω(err).Should(Succeed())
 		Ω(out).Should(ContainSubstring("[ui5app ui5app2]"))
 	})
 

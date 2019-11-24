@@ -1,12 +1,10 @@
 package version
 
 import (
-	"fmt"
 	"testing"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"gopkg.in/yaml.v2"
 )
 
 func TestVersion(t *testing.T) {
@@ -15,15 +13,24 @@ func TestVersion(t *testing.T) {
 }
 
 var _ = Describe("Version", func() {
+	var config []byte
+	BeforeEach(func() {
+		config = VersionConfig
+	})
+	AfterEach(func() {
+		VersionConfig = config
+	})
 	It("Sanity", func() {
 		VersionConfig = []byte(`
 cli_version: 5.2
 makefile_version: 10.5.3
 `)
-		err := yaml.Unmarshal([]byte("cli_version:5.2"), &VersionConfig)
-		if err != nil {
-			fmt.Println("error occurred during the unmarshal process")
-		}
-		Ω(GetVersion()).Should(Equal(Version{CliVersion: "5.2", MakeFile: "10.5.3"}))
+		version, e := GetVersion()
+		Ω(e).Should(Succeed())
+		Ω(version, e).Should(Equal(Version{CliVersion: "5.2", MakeFile: "10.5.3"}))
+	})
+	It("parses the real version config successfully", func() {
+		_, e := GetVersion()
+		Ω(e).Should(Succeed())
 	})
 })
