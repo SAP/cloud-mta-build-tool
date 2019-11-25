@@ -24,24 +24,11 @@ builders:
     commands:
       - command: npm clean-install --production
 
-  - name: npm-ci-dev
-    info: "clean install all dependencies"
-    path: "path to config file which override the following default commands"
-    commands:
-      - command: npm clean-install
-
   - name: grunt
     info: "execute grunt"
     path: "path to config file which override the following default commands"
     commands:
       - command: npm install
-      - command: grunt
-
-  - name: grunt-ci
-    info: "clean install dependencies and run grunt"
-    path: "path to config file which override the following default commands"
-    commands:
-      - command: npm clean-install
       - command: grunt
 
   - name: golang
