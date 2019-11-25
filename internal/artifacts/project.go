@@ -19,7 +19,7 @@ import (
 
 const (
 	copyInParallel = false
-	// Maximum number of parallel makefile jobs if the parameter is not set by the user
+	// MaxMakeParallel - Maximum number of parallel makefile jobs if the parameter is not set by the user
 	MaxMakeParallel = 8
 )
 

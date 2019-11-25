@@ -598,6 +598,7 @@ func CopyFile(src, dst string) (rerr error) {
 	return changeTargetMode(src, dst)
 }
 
+// WriteFile - writes file content
 func WriteFile(in io.Reader, dst string) (rerr error) {
 	out, err := os.Create(dst)
 	if err != nil {
