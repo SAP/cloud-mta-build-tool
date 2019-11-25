@@ -16,7 +16,7 @@ On a Linux/Darwin machine you can run:
 
 ```
 
-docker run -it --rm -v "$(pwd)/[proj-releative-path]:/project" devxci/mbtci:0.1.0 mbt build -p=cf -t [target-folder-name]
+docker run -it --rm -v "$(pwd)/[proj-releative-path]:/project" devxci/mbtci:latest mbt build -p=cf -t [target-folder-name]
 
 ```
 
@@ -40,7 +40,7 @@ docker build -t devxci/mbtci .
 
 - Cloud MTA Build Tool - 1.0.0
 
-- Nodejs - 12.13.0
+- Nodejs - 12.13.1
 
 - SAP registry (@sap:registry https://npm.sap.com) contained in global node configuration.
 

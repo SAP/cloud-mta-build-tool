@@ -1,7 +1,0 @@
-{
-    "name": "module",
-    "dependencies": {},
-    "scripts": {
-        "install": "node ./link.js"
-    }
-}

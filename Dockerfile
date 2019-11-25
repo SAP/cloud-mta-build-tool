@@ -2,9 +2,9 @@ FROM openjdk:8-jdk-slim
 
 # Build time variables
 ARG MTA_USER_HOME=/home/mta
-ARG MBT_VERSION=1.0.0
+ARG MBT_VERSION=1.0.1
 ARG GO_VERSION=1.13.4
-ARG NODE_VERSION=v12.13.0
+ARG NODE_VERSION=v12.13.1
 ARG MAVEN_VERSION=3.6.2
 
 ENV PYTHON /usr/bin/python2.7
@@ -25,6 +25,7 @@ RUN apt-get update && \
     ln -s "${NODE_HOME}/node-${NODE_VERSION}-linux-x64/bin/node" /usr/local/bin/node && \
     ln -s "${NODE_HOME}/node-${NODE_VERSION}-linux-x64/bin/npm" /usr/local/bin/npm && \
     ln -s "${NODE_HOME}/node-${NODE_VERSION}-linux-x64/bin/npx" /usr/local/bin/ && \
+    npm install --prefix /usr/local/ -g grunt-cli && \
     # config NPM
     npm config set @sap:registry https://npm.sap.com --global && \
     echo "[INFO] installing maven." && \
@@ -70,7 +71,6 @@ RUN apt-get update && \
 ENV PATH=$PATH:./node_modules/.bin HOME=${MTA_USER_HOME}
 WORKDIR /project
 USER mta
-RUN mbt -v
 
 
 
