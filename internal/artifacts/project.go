@@ -14,6 +14,7 @@ import (
 	"github.com/SAP/cloud-mta-build-tool/internal/exec"
 	"github.com/SAP/cloud-mta-build-tool/internal/logs"
 	"github.com/SAP/cloud-mta-build-tool/internal/tpl"
+	"github.com/SAP/cloud-mta-build-tool/internal/version"
 	"github.com/SAP/cloud-mta/mta"
 )
 
@@ -25,8 +26,13 @@ const (
 
 // ExecBuild - Execute MTA project build
 func ExecBuild(makefileTmp, source, target string, extensions []string, mode, mtar, platform string, strict bool, jobs int, outputSync bool, wdGetter func() (string, error), wdExec func([][]string, bool) error, useDefaultMbt bool) error {
+	message, err := version.GetVersionMessage()
+	if err == nil {
+		logs.Logger.Info(message)
+	}
+
 	// Generate build script
-	err := tpl.ExecuteMake(source, "", extensions, makefileTmp, mode, wdGetter, useDefaultMbt)
+	err = tpl.ExecuteMake(source, "", extensions, makefileTmp, mode, wdGetter, useDefaultMbt)
 	if err != nil {
 		return err
 	}
