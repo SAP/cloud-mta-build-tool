@@ -11,7 +11,7 @@ user:
     uid: 1000
     gid: 1000
     groups:
-    - mta
+      - mta
     home: /home/mta
     shell: /bin/bash
 command:
@@ -22,29 +22,33 @@ command:
   java -version:
     exit-status: 0
     stderr:
-    - openjdk version "1.8.0
+      - openjdk version "1.8.0
   # verify installed Cloud MTA Build Tool version
   mbt --version:
     exit-status: 0
     stdout:
-    - 1.0.1
+      - 1.0.4
   # verify installed MAVEN VERSION
   mvn --version:
     exit-status: 0
     stdout:
-    - Apache Maven 3.6.2
+      - Apache Maven 3.6.2
   # verify installed NODE version
   node --version:
     exit-status: 0
     stdout:
-    - v12.13.1
+      - v12.13.1
   # verify NPM @sap-scope registry configuration
   npm config get @sap:registry:
     exit-status: 0
     stdout:
-    - https://npm.sap.com
+      - https://npm.sap.com
   # verify NPM registry configuration
   npm config get registry:
     exit-status: 0
     stdout:
-    - https://registry.npmjs.org/
+      - https://registry.npmjs.org/
+#  cd ~ && npm install @sap/cds:
+#    exit-status: 0
+#    stdout:
+#      - + @sap/cds@

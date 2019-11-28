@@ -2,7 +2,7 @@ FROM openjdk:8-jdk-slim
 
 # Build time variables
 ARG MTA_USER_HOME=/home/mta
-ARG MBT_VERSION=1.0.1
+ARG MBT_VERSION=1.0.4
 ARG GO_VERSION=1.13.4
 ARG NODE_VERSION=v12.13.1
 ARG MAVEN_VERSION=3.6.2
@@ -17,6 +17,14 @@ ENV GOOS=linux
 # Download required env tools
 RUN apt-get update && \
     apt-get install --yes --no-install-recommends curl git  && \
+
+    # Change security level as the SAP npm repo doesnt support buster new security upgrade
+    # the default configuration for OpenSSL in Buster explicitly requires using more secure ciphers and protocols,
+    # and the server running at http://npm.sap.com/ is running software configured to only provide insecure, older ciphers.
+    # This causes SSL connections using OpenSSL from a Buster based installation to fail
+    # Should be remove once SAP npm repo will patch the security level
+    # see - https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=912759
+    sed -i -E 's/(CipherString\s*=\s*DEFAULT@SECLEVEL=)2/\11/' /etc/ssl/openssl.cnf && \
 
     # install node
     NODE_HOME=/opt/nodejs; mkdir -p ${NODE_HOME} && \
