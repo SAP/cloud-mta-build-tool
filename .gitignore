@@ -40,3 +40,4 @@ internal/tpl/MakeFileTest.mta
 
 integration/testdata/mta_demo/mta_archives/
 docs/site
+bin
