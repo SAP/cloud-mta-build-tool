@@ -48,7 +48,7 @@ command:
     exit-status: 0
     stdout:
     - https://registry.npmjs.org/
-  npm install --prefix ~ @sap/cds:
+  cd ~ && npm install @sap/cds:
     exit-status: 0
     stdout:
     - + @sap/cds@
