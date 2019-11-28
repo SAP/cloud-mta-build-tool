@@ -26,21 +26,37 @@ You need to update your `mta.yaml` file to exclude `html5` modules from the resu
   
 &nbsp;
 
-* In the [Multitarget Application Archive Builder](https://help.sap.com/viewer/58746c584026430a890170ac4d87d03b/Cloud/en-US/ba7dd5a47b7a4858a652d15f9673c28d.html) it was allowed to give the same names to a module and to one of its provided property sets. The Cloud MTA Build tool strictly validates that names of artifacts that can be referenced in the `requires` section (module, resources, and provided property) are unique within the `mta.yaml` file. This is to ensure that the referenced artifact can be unambiguously resolved when its name is used in the `requires` section. When migrating to the tool, make sure the names of the mentioned artifacts are unique in the `mta.yaml` file.
+* The Cloud MTA Build tool strictly validates the rule that names of modules, resources, and provided property sets, are unique within the `mta.yaml` file. This ensures that when the name is referenced in the `requires` section, it is unambiguously resolved.  The [Multitarget Application Archive Builder](https://help.sap.com/viewer/58746c584026430a890170ac4d87d03b/Cloud/en-US/ba7dd5a47b7a4858a652d15f9673c28d.html) allowed the use of the same name for a module and for one of its property sets. For example:
+
+```yaml
+
+- name: SOME_NAME
+    type: java
+    path: srv
+    provides:
+      - name: SOME_NAME
+        properties:
+          url: ${default-url}
+```
+
+   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; When migrating to the new build tool, you need to rename either the module or the provided property set. For example:
+
+```yaml
+
+- name: SOME_NAME
+    type: java
+    path: srv
+    provides:
+      - name: SOME_NAME_API # New name
+        properties:
+          url: ${default-url}
+```
+   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; After renaming, make sure that the   places where the name is used refer to the correct artifact.
+
+   
   
 ---
 **NOTE**
-If you try to build the project without these changes, the build tool will identify the cases and will fail the build with the corresponding errors.
+If you try to build the project without these changes, the build tool will identify this and will fail the build with the corresponding errors.
 
 ---
-
-#### New features in the Cloud MTA Build Tool
-
-* In addition to configuring the build behaviour in `mta.yaml`, you can configure build process of the specific module or the whole project in the `Makefile.mta` file, which you can generate the file using [`mbt init` command](usage.md#cloud-mta-build-tool-commands). The generated file contains the default configurations for buidling the MTA project according to our best practices.
-&nbsp;&nbsp;
-* If you want to run a builder process before running builders of the specific modules, define it using [global `before-all` build parameters](configuration.md#configuring-global-build).  
-&nbsp; 
-* You can define your own build commands as described here: [configuring `custom` builder](configuration.md#configuring-the-custom-builder). 
-&nbsp; 
-
-
