@@ -8,6 +8,7 @@ Installation fails with the following error:
  
 **Solution:**
 Grant  the user "admin" permissions to run the command for the installation process using the following command:
+
 ```sudo npm install -g mbt --unsafe-perm=true --allow-root```
 
 
