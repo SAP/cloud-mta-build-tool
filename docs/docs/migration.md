@@ -17,12 +17,12 @@ You need to update your `mta.yaml` file to exclude `html5` modules from the resu
       supported-platforms: []
       build-result: dist
 ```
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; For more information about the `supported-platforms` build parameter, see [Configuring and Packaging Modules According to Target Platforms](configuration.md#configuring-and-packaging-modules-according-to-target-platforms).
+For more information about the `supported-platforms` build parameter, see [Configuring and Packaging Modules According to Target Platforms](configuration.md#configuring-and-packaging-modules-according-to-target-platforms).
 
 
 * The following `build-parameters` are not supported by the Cloud MTA Build Tool: <ul><li>`npm-opts`<li>`grunt-opt`<li>`maven-opts`</ul>
 
-  If you need to change the default build behavior defined for the corresponding builder, see [configure `custom` builder](configuration.md#configuring-the-custom-builder). For a complete list of available builders and their default behaviors, see [Builders execution commands](https://github.com/SAP/cloud-mta-build-tool/blob/master/configs/builder_type_cfg.yaml).
+If you need to change the default build behavior defined for the corresponding builder, see [configure `custom` builder](configuration.md#configuring-the-custom-builder). For a complete list of available builders and their default behaviors, see [Builders execution commands](https://github.com/SAP/cloud-mta-build-tool/blob/master/configs/builder_type_cfg.yaml).
   
 &nbsp;
 
@@ -39,7 +39,7 @@ You need to update your `mta.yaml` file to exclude `html5` modules from the resu
           url: ${default-url}
 ```
 
-   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; When migrating to the new build tool, you need to rename either the module or the provided property set. For example:
+   When migrating to the new build tool, you need to rename either the module or the provided property set. For example:
 
 ```yaml
 
@@ -51,12 +51,53 @@ You need to update your `mta.yaml` file to exclude `html5` modules from the resu
         properties:
           url: ${default-url}
 ```
-   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; After renaming, make sure that the   places where the name is used refer to the correct artifact.
-
-   
+After renaming, make sure that the places where the name is used refer to the correct artifact.
   
 ---
 **NOTE**
 If you try to build the project without these changes, the build tool will identify this and will fail the build with the corresponding errors.
 
 ---
+
+* `JSON` files with [service creation parameters](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/a36df26b36484129b482ae20c3eb8004.html) or [service binding parameters](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/a36df26b36484129b482ae20c3eb8004.html) referenced by `path` property of the correponding entity in the `mta.yaml` are packaged differently into the result MTA archive. 
+
+Therefore, if your `JSON` file contains [parameters or placeholders](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/490c8f71e2b74bc0a59302cada66117c.html) that should be resolved when you deploy the MTA archive, the correponding properties should be moved to the `mta.yaml` file. Otherwise, values assigned to these properties during deploymnet will be incorrect, since the [parameters or placeholders](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/490c8f71e2b74bc0a59302cada66117c.html) are resolved only if they are specified within an MTA descriptor, i.e. the `mta.yaml` or `mtad.yaml` files.  &nbsp;
+
+For example, if you provide parameters for creation of a UAA service in a `xs-security.json` file:
+
+```yaml
+
+resources:
+  - name: my-uaa
+    type: com.sap.xs.uaa
+    parameters:
+      path: ./xs-security.json
+
+```
+
+And your `xs-security.json` file contains a property which value should be resolved during the MTA archive deployment:
+
+```json
+
+{
+  "xsappname": "${default-xsappname}"
+}
+
+```
+
+Then, you need to modify your `mta.yaml` file as follows:
+
+
+```yaml
+
+resources:
+  - name: my-uaa
+    type: com.sap.xs.uaa
+    parameters:
+      path: ./xs-security.json
+      config:
+        xsappname: "${default-xsappname}"
+
+```
+
+ There is no need to remove the property from the `xs-security.json` file since the value specified directly in the MTA descriptor override the value specified in the `JSON` file.
