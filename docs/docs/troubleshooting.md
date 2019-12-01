@@ -1,5 +1,16 @@
 ## Troubleshooting
 
+### Installation
+
+**Indicator:**
+Installation fails with the following error:
+```Error: EACCES: permission denied```
+ 
+**Solution:**
+Grant  the user "admin" permissions to run the command for the installation process using the following command:
+```sudo npm install -g mbt --unsafe-perm=true --allow-root```
+
+
 ### Timeouts
 
  - registry - Sometimes, when executing the `mbt build [args]` command, the build process hangs and ends with a timeout error. 
