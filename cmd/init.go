@@ -36,7 +36,7 @@ var buildCmdOutputSync bool
 func init() {
 	// set flags for init command
 	initCmd.Flags().StringVarP(&initCmdSrc, "source", "s", "", "The path to the MTA project; the current path is set as the default")
-	initCmd.Flags().StringVarP(&initCmdTrg, "target", "t", "", "The path to the generated Makefile folder; the current path is set as the default")
+	initCmd.Flags().StringVarP(&initCmdTrg, "target", "t", "", "The path to the generated Makefile folder. if this parameter is not provided, the MTAR file is saved in the mta_archives subfolder of the current folder")
 	initCmd.Flags().StringSliceVarP(&initCmdExtensions, "extensions", "e", nil, "The MTA extension descriptors")
 	initCmd.Flags().StringVarP(&initCmdMode, "mode", "m", "", `The mode of the Makefile generation; supported values: "default" and "verbose"`)
 	_ = initCmd.Flags().MarkHidden("mode")
@@ -44,7 +44,7 @@ func init() {
 
 	// set flags of build command
 	buildCmd.Flags().StringVarP(&buildCmdSrc, "source", "s", "", "The path to the MTA project; the current path is set as the default")
-	buildCmd.Flags().StringVarP(&buildCmdTrg, "target", "t", "", "The path to the results folder; If this parameter is not provided, the MTAR file is saved in the mta_archives subfolder of the current folder")
+	buildCmd.Flags().StringVarP(&buildCmdTrg, "target", "t", "", "The path to the results folder. if this parameter is not provided, the MTAR file is saved in the mta_archives subfolder of the current folder")
 	buildCmd.Flags().StringSliceVarP(&buildCmdExtensions, "extensions", "e", nil, "The MTA extension descriptors")
 	buildCmd.Flags().StringVarP(&buildCmdMtar, "mtar", "", "", "The file name of the generated archive file")
 	buildCmd.Flags().StringVarP(&buildCmdPlatform, "platform", "p", "cf", `The deployment platform; supported platforms: "cf", "xsa", "neo"`)

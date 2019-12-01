@@ -44,7 +44,7 @@ func init() {
 	cleanupCmd.Flags().StringVarP(&cleanupCmdSrc, "source", "s", "",
 		"The path to the MTA project; the current path is set as the default")
 	cleanupCmd.Flags().StringVarP(&cleanupCmdTrg, "target", "t", "",
-		"The path to the results folder; the current path is set as the default")
+		"The path to the results folder. if this parameter is not provided, the MTAR file is saved in the mta_archives subfolder of the current folder")
 	cleanupCmd.Flags().StringVarP(&cleanupCmdDesc, "desc", "d", "",
 		`The MTA descriptor; supported values: "dev" (development descriptor, default value) and "dep" (deployment descriptor)`)
 	cleanupCmd.Flags().BoolP("help", "h", false, `Displays detailed information about the "cleanup" command`)

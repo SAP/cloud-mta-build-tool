@@ -18,7 +18,7 @@ func init() {
 	projectBuildCmd.Flags().StringVarP(&projectBuildCmdSrc,
 		"source", "s", "", "The path to the MTA project; the current path is set as the default")
 	projectBuildCmd.Flags().StringVarP(&projectBuildCmdTrg,
-		"target", "t", "", "The path to the results folder; the current path is set as the default")
+		"target", "t", "", "The path to the results folder. if this parameter is not provided, the MTAR file is saved in the mta_archives subfolder of the current folder")
 	projectBuildCmd.Flags().StringVarP(&projectBuildCmdDesc,
 		"desc", "d", "", `The MTA descriptor; supported values: "dev" (development descriptor, default value) and "dep" (deployment descriptor)`)
 	projectBuildCmd.Flags().StringSliceVarP(&projectBuildCmdExtensions, "extensions", "e", nil,

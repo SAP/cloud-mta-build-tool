@@ -36,7 +36,7 @@ func init() {
 	mtadCmd.Flags().StringVarP(&mtadCmdSrc, "source", "s", "",
 		"The path to the MTA project; the current path is set as the default")
 	mtadCmd.Flags().StringVarP(&mtadCmdTrg, "target", "t",
-		"", "The path to the results folder; the current path is set as the default")
+		"", "The path to the results folder. if this parameter is not provided, the MTAR file is saved in the mta_archives subfolder of the current folder")
 	mtadCmd.Flags().StringSliceVarP(&mtadCmdExtensions, "extensions", "e", nil,
 		"The MTA extension descriptors")
 	mtadCmd.Flags().StringVarP(&mtadCmdPlatform, "platform", "p", "cf",
