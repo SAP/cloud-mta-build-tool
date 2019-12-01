@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -146,5 +147,5 @@ func logError(err error) {
 
 func cliVersion() string {
 	v, _ := version.GetVersionMessage()
-	return v
+	return fmt.Sprintln(v)
 }
