@@ -78,11 +78,11 @@ If you used this builder for other module types, you can repace it with the `npm
 
 <li> 
 
-`JSON` files with [service creation parameters](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/a36df26b36484129b482ae20c3eb8004.html) or [service binding parameters](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/c7b09b79d3bb4d348a720ba27fe9a2d5.html) referenced by the `path` property of the correponding entity in the `mta.yaml`, are packaged differently into the result MTA archive.  &nbsp;  &nbsp; &nbsp;
+`JSON` files with [service creation parameters](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/a36df26b36484129b482ae20c3eb8004.html) or [service binding parameters](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/c7b09b79d3bb4d348a720ba27fe9a2d5.html) referenced by the `path` property of the correponding entity in the `mta.yaml`, are packaged differently by the tools into the result MTA archive.  &nbsp;  &nbsp; &nbsp;
 
 Therefore, if your `JSON` file contains [parameters or placeholders](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/490c8f71e2b74bc0a59302cada66117c.html) that should be resolved when you deploy the MTA archive, the correponding properties should be moved to the `mta.yaml` file. Otherwise, values assigned to these properties during deployment will be incorrect, because the [parameters or placeholders](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/490c8f71e2b74bc0a59302cada66117c.html) are resolved only if they are specified within an MTA descriptor, i.e. the `mta.yaml` or `mtad.yaml` files.  &nbsp;
 
-For example, if you provide parameters for creation of a UAA service in an `xs-security.json` file:
+For example, if you provide parameters for creating a UAA service in an `xs-security.json` file:
 
 ```yaml
 
@@ -93,7 +93,7 @@ resources:
       path: ./xs-security.json
 ```
 
-and your `xs-security.json` file contains a property which value should be resolved during the MTA archive deployment:
+and your `xs-security.json` file contains a property whose value should be resolved during the MTA archive deployment:
 
 ```json
 
@@ -116,7 +116,7 @@ resources:
         xsappname: "${default-xsappname}"
 ```
 
- In the `xs-security.json` file, we  recommend to assign the property a temporary value that does not use the parameter. During deploymnet, the value specified directly in the MTA descriptor overrides the value specified in the `JSON` file.
+ In the `xs-security.json` file, you can assign the property a temporary value that does not use the parameter. During deployment, the value specified directly in the MTA descriptor overrides the value specified in the `JSON` file. 
 
 ```json
 
@@ -124,6 +124,8 @@ resources:
   "xsappname": "tmp_appname"
 }
 ```
+
+Alternatively, you can remove the property from your `xs-security.json` file.
 
 ---
 **NOTE:**
