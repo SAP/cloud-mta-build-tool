@@ -448,6 +448,13 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#installation" title="Installation" class="md-nav__link">
+    Installation
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#timeouts" title="Timeouts" class="md-nav__link">
     Timeouts
   </a>
@@ -545,6 +552,13 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#installation" title="Installation" class="md-nav__link">
+    Installation
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#timeouts" title="Timeouts" class="md-nav__link">
     Timeouts
   </a>
@@ -578,6 +592,13 @@
                   <h1>Troubleshooting</h1>
                 
                 <h2 id="troubleshooting">Troubleshooting</h2>
+<h3 id="installation">Installation</h3>
+<p><strong>Indicator:</strong>
+Installation fails with the following error:
+<code>Error: EACCES: permission denied</code></p>
+<p><strong>Solution:</strong>
+Grant  the user "admin" permissions to run the command for the installation process using the following command:</p>
+<p><code>sudo npm install -g mbt --unsafe-perm=true --allow-root</code></p>
 <h3 id="timeouts">Timeouts</h3>
 <ul>
 <li>registry - Sometimes, when executing the <code>mbt build [args]</code> command, the build process hangs and ends with a timeout error. 
