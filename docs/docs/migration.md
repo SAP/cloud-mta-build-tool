@@ -78,7 +78,7 @@ If you used this builder for other module types, you can repace it with the `npm
 
 <li> 
 
-Service creation or service binding parameters provided in external files and referenced by the `path` property of the correponding entity in the `mta.yaml`are packaged differently by the tools into the result MTA archive.
+Service creation or service binding parameters provided in external files and referenced by the `path` property of the correponding entity in the `mta.yaml` are packaged differently by the tools into the result MTA archive.
 
 
 Therefore, if you have a `JSON` file with [service creation parameters](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/a36df26b36484129b482ae20c3eb8004.html) or [service binding parameters](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/c7b09b79d3bb4d348a720ba27fe9a2d5.html)  and your `JSON` file contains [parameters or placeholders](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/490c8f71e2b74bc0a59302cada66117c.html) that should be resolved when you deploy the MTA archive, the correponding properties should be moved to the `mta.yaml` file. Otherwise, values assigned to these properties during deployment will be incorrect, because the [parameters or placeholders](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/490c8f71e2b74bc0a59302cada66117c.html) are resolved only if they are specified within an MTA descriptor, i.e. the `mta.yaml` or `mtad.yaml` files.  &nbsp;
