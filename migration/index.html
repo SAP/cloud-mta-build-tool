@@ -584,29 +584,28 @@
 <li></p>
 <p>The Cloud MTA build Tool uses <code>GNU Make</code> technology for building an MTA project. Therefore, you should have <code>GNU Make</code> installed in your build environmnet. </p>
 <p>For more information, see sections <a href="../makefile/"><code>GNU Make</code> installation</a> and <a href="../usage/#how-to-build-an-mta-archive-from-the-project-sources">commands for building a project</a>. 
-&nbsp;</p>
-<li>
-
-Packaging of HTML5 modules in `deploy_mode=html5-repo`
-You need to update your `mta.yaml` file to exclude `html5` modules from the resulting MTA archive and configure the build result folder. In order to do that, add the following to the `build-parameters` section for each  module of this type:
-
-
+&nbsp;
+</li>
+<li></p>
+<p>Packaging of HTML5 modules in <code>deploy_mode=html5-repo</code>
+You need to update your <code>mta.yaml</code> file to exclude <code>html5</code> modules from the resulting MTA archive and configure the build result folder. In order to do that, add the following to the <code>build-parameters</code> section for each  module of this type:</p>
 <pre><code class="yaml">
    build-parameters:
       supported-platforms: []
       build-result: dist
 </code></pre>
 
-For more information about the `supported-platforms` build parameter, see [Configuring and Packaging Modules According to Target Platforms](configuration.md#configuring-and-packaging-modules-according-to-target-platforms).
-<br>
-
+<p>For more information about the <code>supported-platforms</code> build parameter, see <a href="../configuration/#configuring-and-packaging-modules-according-to-target-platforms">Configuring and Packaging Modules According to Target Platforms</a>. 
+&nbsp;
+</li></p>
 <li>
 
 The following `build-parameters` are not supported by the Cloud MTA Build Tool: <ul><li>`npm-opts`<li>`grunt-opt`<li>`maven-opts`</ul>
 
-If you need to change the default build behavior defined for the corresponding builder, see [configure `custom` builder](configuration.md#configuring-the-custom-builder). For a complete list of available builders and their default behaviors, see [Builders execution commands](https://github.com/SAP/cloud-mta-build-tool/blob/master/configs/builder_type_cfg.yaml).
+If you need to change the default build behavior defined for the corresponding builder, see [configure `custom` builder](configuration.md#configuring-the-custom-builder). For a complete list of available builders and their default behaviors, see [Builders execution commands](https://github.com/SAP/cloud-mta-build-tool/blob/master/configs/builder_type_cfg.yaml). 
+&nbsp;
+</li>
 
-<br>
 
 <li>
 
@@ -639,13 +638,17 @@ When migrating to the new build tool, you need to rename either the module or th
           url: ${default-url}
 </code></pre>
 
-After renaming, make sure that the places where the name is used refer to the correct artifact.
+After renaming, make sure that the places where the name is used refer to the correct artifact. 
+&nbsp;
 </li>
 
-<p><br>
-<li></p>
-<p>The <code>hdb</code> builder is not supported by the Cloud MTA Build tool.  You no longer require builder settings for the <code>hdb</code> module because the required <code>npm install --production</code> command is run by default for this module type.</p>
-<p>If you used this builder for other module types, you can repace it with the <code>npm</code> builder or use the <code>custom</code> builder that runs the <code>"npm install --production"</code>command.</p>
+<li>
+
+The `hdb` builder is not supported by the Cloud MTA Build tool.  You no longer require builder settings for the `hdb` module because the required `npm install --production` command is run by default for this module type.
+
+If you used this builder for other module types, you can repace it with the `npm` builder or use the `custom` builder that runs the `"npm install --production"`command. 
+&nbsp;
+
 </li>
 
 <hr />
