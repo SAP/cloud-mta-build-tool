@@ -25,7 +25,6 @@ You need to update your `mta.yaml` file to exclude `html5` modules from the resu
 For more information about the `supported-platforms` build parameter, see [Configuring and Packaging Modules According to Target Platforms](configuration.md#configuring-and-packaging-modules-according-to-target-platforms). 
 &nbsp;
 </li>
-
 <li>
 
 The following `build-parameters` are not supported by the Cloud MTA Build Tool: <ul><li>`npm-opts`<li>`grunt-opt`<li>`maven-opts`</ul>
@@ -33,8 +32,6 @@ The following `build-parameters` are not supported by the Cloud MTA Build Tool: 
 If you need to change the default build behavior defined for the corresponding builder, see [configure `custom` builder](configuration.md#configuring-the-custom-builder). For a complete list of available builders and their default behaviors, see [Builders execution commands](https://github.com/SAP/cloud-mta-build-tool/blob/master/configs/builder_type_cfg.yaml). 
 &nbsp;
 </li>
-
-
 <li>
 
 The Cloud MTA Build tool strictly validates the rule that names of modules, resources, and provided property sets, are unique within the `mta.yaml` file. This ensures that when the name is referenced in the `requires` section, it is unambiguously resolved.  
@@ -67,15 +64,14 @@ When migrating to the new build tool, you need to rename either the module or th
 After renaming, make sure that the places where the name is used refer to the correct artifact. 
 &nbsp;
 </li>
-
 <li>
 
 The `hdb` builder is not supported by the Cloud MTA Build tool.  You no longer require builder settings for the `hdb` module because the required `npm install --production` command is run by default for this module type.
 
 If you used this builder for other module types, you can repace it with the `npm` builder or use the `custom` builder that runs the `"npm install --production"`command. 
 &nbsp;
-
 </li>
+&nbsp;
 
 ---
 **NOTE:**
