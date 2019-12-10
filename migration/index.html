@@ -597,23 +597,15 @@ You need to update your <code>mta.yaml</code> file to exclude <code>html5</code>
 
 <p>For more information about the <code>supported-platforms</code> build parameter, see <a href="../configuration/#configuring-and-packaging-modules-according-to-target-platforms">Configuring and Packaging Modules According to Target Platforms</a>. 
 &nbsp;
-</li></p>
-<li>
-
-The following `build-parameters` are not supported by the Cloud MTA Build Tool: <ul><li>`npm-opts`<li>`grunt-opt`<li>`maven-opts`</ul>
-
-If you need to change the default build behavior defined for the corresponding builder, see [configure `custom` builder](configuration.md#configuring-the-custom-builder). For a complete list of available builders and their default behaviors, see [Builders execution commands](https://github.com/SAP/cloud-mta-build-tool/blob/master/configs/builder_type_cfg.yaml). 
+</li>
+<li></p>
+<p>The following <code>build-parameters</code> are not supported by the Cloud MTA Build Tool: <ul><li><code>npm-opts</code><li><code>grunt-opt</code><li><code>maven-opts</code></ul></p>
+<p>If you need to change the default build behavior defined for the corresponding builder, see <a href="../configuration/#configuring-the-custom-builder">configure <code>custom</code> builder</a>. For a complete list of available builders and their default behaviors, see <a href="https://github.com/SAP/cloud-mta-build-tool/blob/master/configs/builder_type_cfg.yaml">Builders execution commands</a>. 
 &nbsp;
 </li>
-
-
-<li>
-
-The Cloud MTA Build tool strictly validates the rule that names of modules, resources, and provided property sets, are unique within the `mta.yaml` file. This ensures that when the name is referenced in the `requires` section, it is unambiguously resolved.  
-
-The [Multitarget Application Archive Builder](https://help.sap.com/viewer/58746c584026430a890170ac4d87d03b/Cloud/en-US/ba7dd5a47b7a4858a652d15f9673c28d.html) allowed the use of the same name for a module and for one of its property sets. For example:
-
-
+<li></p>
+<p>The Cloud MTA Build tool strictly validates the rule that names of modules, resources, and provided property sets, are unique within the <code>mta.yaml</code> file. This ensures that when the name is referenced in the <code>requires</code> section, it is unambiguously resolved.  </p>
+<p>The <a href="https://help.sap.com/viewer/58746c584026430a890170ac4d87d03b/Cloud/en-US/ba7dd5a47b7a4858a652d15f9673c28d.html">Multitarget Application Archive Builder</a> allowed the use of the same name for a module and for one of its property sets. For example:</p>
 <pre><code class="yaml">
 - name: SOME_NAME
     type: java
@@ -624,10 +616,7 @@ The [Multitarget Application Archive Builder](https://help.sap.com/viewer/58746c
           url: ${default-url}
 </code></pre>
 
-
-When migrating to the new build tool, you need to rename either the module or the provided property set. For example:
-
-
+<p>When migrating to the new build tool, you need to rename either the module or the provided property set. For example:</p>
 <pre><code class="yaml">
 - name: SOME_NAME
     type: java
@@ -638,19 +627,15 @@ When migrating to the new build tool, you need to rename either the module or th
           url: ${default-url}
 </code></pre>
 
-After renaming, make sure that the places where the name is used refer to the correct artifact. 
+<p>After renaming, make sure that the places where the name is used refer to the correct artifact. 
 &nbsp;
 </li>
-
-<li>
-
-The `hdb` builder is not supported by the Cloud MTA Build tool.  You no longer require builder settings for the `hdb` module because the required `npm install --production` command is run by default for this module type.
-
-If you used this builder for other module types, you can repace it with the `npm` builder or use the `custom` builder that runs the `"npm install --production"`command. 
+<li></p>
+<p>The <code>hdb</code> builder is not supported by the Cloud MTA Build tool.  You no longer require builder settings for the <code>hdb</code> module because the required <code>npm install --production</code> command is run by default for this module type.</p>
+<p>If you used this builder for other module types, you can repace it with the <code>npm</code> builder or use the <code>custom</code> builder that runs the <code>"npm install --production"</code>command. 
 &nbsp;
-
 </li>
-
+&nbsp;</p>
 <hr />
 <p><strong>NOTE:</strong>
 <b>If you try to build the project without the changes above, the build tool will identify this and will fail the build with the corresponding errors.</b></p>
