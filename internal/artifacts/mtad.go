@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -106,7 +107,10 @@ func removeUndeployedModules(mtaStr *mta.MTA, platform string) {
 			}
 		}
 	}
+}
 
+// setPlatformSpecificParameters handles platform-specific logic like setting additional parameters in the MTA and its modules
+func setPlatformSpecificParameters(mtaStr *mta.MTA, platform string) {
 	//TODO move to configuration
 	if platform == "neo" {
 		if mtaStr.Parameters == nil {
@@ -115,7 +119,41 @@ func removeUndeployedModules(mtaStr *mta.MTA, platform string) {
 		if mtaStr.Parameters["hcp-deployer-version"] == nil {
 			mtaStr.Parameters["hcp-deployer-version"] = "1.1.0"
 		}
+
+		for _, m := range mtaStr.Modules {
+			if m.Parameters == nil {
+				m.Parameters = make(map[string]interface{})
+			}
+			if m.Parameters["name"] == nil {
+				m.Parameters["name"] = adjustNeoAppName(m.Name)
+			}
+		}
 	}
+}
+
+func adjustNeoAppName(name string) string {
+	// Application names in neo must adhere to the following:
+	// 1. Starts with a letter
+	// 2. Contains only lowercase letters and numbers
+	// 3. Contains up to 30 characters
+
+	// Make all letters lowercase
+	name = strings.ToLower(name)
+
+	// Remove non-alphanumeric characters
+	reg := regexp.MustCompile("[^a-z0-9]+")
+	name = reg.ReplaceAllLiteralString(name, "")
+
+	// Remove numbers from the beginning of the name
+	reg = regexp.MustCompile("^[0-9]+")
+	name = reg.ReplaceAllLiteralString(name, "")
+
+	// Shorten to 30 characters
+	if len(name) > 30 {
+		name = name[:30]
+	}
+
+	return name
 }
 
 // if module has to be deployed we clean build parameters from module,

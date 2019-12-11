@@ -208,6 +208,8 @@ modules:
   - name: node-js_api
     properties:
       url: ${default-url}
+  parameters:
+    name: nodejs
 parameters:
   hcp-deployer-version: 1.1.0
 `))
