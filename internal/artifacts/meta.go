@@ -51,6 +51,9 @@ func generateMeta(loc *dir.Loc, targetArtifacts dir.ITargetArtifacts, deployment
 	}
 
 	removeUndeployedModules(m, platform)
+
+	setPlatformSpecificParameters(m, platform)
+
 	// Generate meta info dir with required content
 	err = genMetaInfo(loc, targetArtifacts, loc, deploymentDescriptor, platform, m, createMetaInf)
 	return err
