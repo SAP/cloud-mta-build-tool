@@ -27,7 +27,7 @@ command:
   mbt --version:
     exit-status: 0
     stdout:
-    - Cloud MTA Build Tool version 1.0.4
+    - Cloud MTA Build Tool version 1.0.5
   # verify installed MAVEN VERSION
   mvn --version:
     exit-status: 0
