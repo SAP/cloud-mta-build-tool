@@ -38,13 +38,13 @@ docker build -t devxci/mbtci .
 ## The image provides:
 
 
-- Cloud MTA Build Tool - 1.0.4
+- Cloud MTA Build Tool - 1.0.5
 
 - Nodejs - 12.13.1
 
 - SAP registry (@sap:registry https://npm.sap.com) contained in global node configuration.
 
-- Maven - 3.6.2
+- Maven - 3.6.3
 
 - Golang - 1.13.4
 

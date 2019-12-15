@@ -5,7 +5,7 @@ ARG MTA_USER_HOME=/home/mta
 ARG MBT_VERSION=1.0.5
 ARG GO_VERSION=1.13.4
 ARG NODE_VERSION=v12.13.1
-ARG MAVEN_VERSION=3.6.2
+ARG MAVEN_VERSION=3.6.3
 
 ENV PYTHON /usr/bin/python2.7
 ENV M2_HOME=/opt/maven/apache-maven-${MAVEN_VERSION}
@@ -38,7 +38,7 @@ RUN apt-get update && \
     npm config set @sap:registry https://npm.sap.com --global && \
     echo "[INFO] installing maven." && \
 
-    # installing Golang
+#     installing Golang
     curl -O https://storage.googleapis.com/golang/go${GO_VERSION}.linux-amd64.tar.gz && tar -xvf go${GO_VERSION}.linux-amd64.tar.gz && \
     mv go /usr/local && \
     mkdir -p "$GOPATH/src" "$GOPATH/bin" && chmod -R 777 "$GOPATH" && \

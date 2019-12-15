@@ -32,7 +32,7 @@ command:
   mvn --version:
     exit-status: 0
     stdout:
-      - Apache Maven 3.6.2
+      - Apache Maven 3.6.3
   # verify installed NODE version
   node --version:
     exit-status: 0
