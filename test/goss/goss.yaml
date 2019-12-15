@@ -32,7 +32,7 @@ command:
   mvn --version:
     exit-status: 0
     stdout:
-      - Apache Maven 3.6.3
+      - Apache Maven 3.6
   # verify installed NODE version
   node --version:
     exit-status: 0
@@ -48,7 +48,8 @@ command:
     exit-status: 0
     stdout:
       - https://registry.npmjs.org/
-#  cd ~ && npm install @sap/cds:
-#    exit-status: 0
-#    stdout:
-#      - + @sap/cds@
+  cd ~ && npm install @sap/cds:
+    exit-status: 0
+    timeout: 30000
+    stdout:
+      - + @sap/cds@
