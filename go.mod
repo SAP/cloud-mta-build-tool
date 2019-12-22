@@ -3,7 +3,7 @@ module github.com/SAP/cloud-mta-build-tool
 go 1.13
 
 require (
-	github.com/SAP/cloud-mta v0.0.6
+	github.com/SAP/cloud-mta v0.0.7-0.20191222153800-2e029f596476
 	github.com/deckarep/golang-set v1.7.1
 	github.com/hpcloud/tail v1.0.1-0.20180514194441-a1dbeea552b7 // indirect
 	github.com/json-iterator/go v1.1.8 // indirect
