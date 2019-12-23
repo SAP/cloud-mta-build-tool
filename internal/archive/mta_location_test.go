@@ -232,6 +232,11 @@ var _ = Describe("ParseFile", func() {
 		Ω(err).Should(Succeed())
 		Ω(module2.Parameters).ShouldNot(BeNil())
 		Ω(module2.Parameters["memory"]).Should(Equal("1024M"))
+
+		resource := mta.GetResourceByName("uaa_mtahtml5")
+		Ω(resource).ShouldNot(BeNil())
+		Ω(resource.Active).ShouldNot(BeNil())
+		Ω(*resource.Active).Should(BeFalse())
 	})
 
 	It("fails when an extension version mismatches the MTA version", func() {
