@@ -135,6 +135,9 @@ var _ = Describe("manifest", func() {
 			createDirInTmpFolder("assembly-sample", "web")
 			createFileInTmpFolder("assembly-sample", "config-site-host.json")
 			createFileInTmpFolder("assembly-sample", "xs-security.json")
+			createDirInTmpFolder("assembly-sample", "inner")
+			createFileInTmpFolder("assembly-sample", "inner", "uaa.json")
+			createFileInTmpFolder("assembly-sample", "inner", "xs-security.json")
 			loc := dir.Loc{SourcePath: getTestPath("assembly-sample"), TargetPath: getResultPath(), Descriptor: "dep"}
 			mtaObj, err := loc.ParseFile()
 			Ω(err).Should(Succeed())
@@ -157,6 +160,9 @@ var _ = Describe("manifest", func() {
 			createDirInTmpFolder("assembly-sample", "META-INF")
 			createDirInTmpFolder("assembly-sample", "web")
 			createFileInTmpFolder("assembly-sample", "config-site-host.json")
+			createDirInTmpFolder("assembly-sample", "inner")
+			createFileInTmpFolder("assembly-sample", "inner", "uaa.json")
+			createFileInTmpFolder("assembly-sample", "inner", "xs-security.json")
 			loc := dir.Loc{SourcePath: getTestPath("assembly-sample"), TargetPath: getTestPath("result"), Descriptor: "dep"}
 			mtaObj, err := loc.ParseFile()
 			Ω(err).Should(Succeed())

@@ -25,6 +25,8 @@ modules:
       JBP_CONFIG_RESOURCE_CONFIGURATION: "['tomee/webapps/ROOT/WEB-INF/resources.xml': {'service_name_for_DefaultDB' : 'java-hdi-container'}]"
     requires:
       - name: java-uaa
+        parameters:
+          path: ./inner/uaa.json
       - name: java-hdi-container
       - name: java-hello-world-db
       - name: java-site-host
@@ -39,6 +41,11 @@ resources:
     type: com.sap.xs.uaa-space
     parameters:
       path: xs-security.json
+
+  - name: java-uaa2
+    type: com.sap.xs.uaa-space
+    parameters:
+      path: ./inner/xs-security.json
 
   - name: java-site-host
     type: com.sap.portal.site-host

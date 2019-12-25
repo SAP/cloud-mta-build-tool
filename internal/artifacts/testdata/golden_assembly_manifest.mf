@@ -5,15 +5,21 @@ Name: web/
 MTA-Module: java-hello-world
 Content-Type: text/directory
 
+Name: inner/uaa.json
+MTA-Requires: java-hello-world-backend/java-uaa
+Content-Type: application/json
+
 Name: config-site-host.json
 MTA-Requires: java-hello-world-backend/java-site-host
 Content-Type: application/json
-
 
 Name: xs-security.json
 MTA-Resource: java-uaa
 Content-Type: application/json
 
+Name: inner/xs-security.json
+MTA-Resource: java-uaa2
+Content-Type: application/json
 
 Name: META-INF/mtad.yaml
 Content-Type: text/plain
