@@ -11,7 +11,7 @@ Grant  the user "admin" permissions to run the command for the installation proc
 
 ```sudo npm install -g mbt --unsafe-perm=true --allow-root```
 
-### Building a Multi-Target Application
+### Building a Multitarget Application
 
 #### Timeouts
 ##### Missing npm registry configuration
@@ -28,7 +28,7 @@ Add an `.npmrc` file to the module (that hangs) as a sibling to the 'package.jso
   @sap:registry=https://npm.sap.com/
 ```
 
-For more details, refer to the npm [documentation](https://docs.npmjs.com/files/npmrc).
+For more details, see the npm [documentation](https://docs.npmjs.com/files/npmrc).
   
 #### Make cannot run on Mac OS
 **Indicator:**
