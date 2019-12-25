@@ -169,7 +169,7 @@ func getResourcesEntries(target dir.ITargetPath, resources []*mta.Resource, cont
 		}
 		resourceEntry := entry{
 			EntryName:   resource.Name,
-			EntryPath:   resourceRelativePath,
+			EntryPath:   filepath.ToSlash(resourceRelativePath),
 			ContentType: contentType,
 			EntryType:   resourceEntry,
 		}
@@ -181,13 +181,14 @@ func getResourcesEntries(target dir.ITargetPath, resources []*mta.Resource, cont
 func buildEntries(target dir.ITargetPath, module *mta.Module, requiredDependencies []mta.Requires, contentTypes *conttype.ContentTypes) ([]entry, error) {
 	result := make([]entry, 0)
 	for _, requiredDependency := range requiredDependencies {
-		contentType, err := getContentType(filepath.Join(target.GetTargetTmpDir(), requiredDependency.Parameters["path"].(string)), contentTypes)
+		depPath := requiredDependency.Parameters["path"].(string)
+		contentType, err := getContentType(filepath.Join(target.GetTargetTmpDir(), depPath), contentTypes)
 		if err != nil {
 			return nil, err
 		}
 		requiredDependencyEntry := entry{
 			EntryName:   module.Name + "/" + requiredDependency.Name,
-			EntryPath:   requiredDependency.Parameters["path"].(string),
+			EntryPath:   filepath.ToSlash(filepath.Clean(depPath)),
 			ContentType: contentType,
 			EntryType:   requiredEntry,
 		}
