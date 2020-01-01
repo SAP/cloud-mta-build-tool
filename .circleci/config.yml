@@ -82,6 +82,15 @@ jobs:
             #Tag
             git tag -a v${MBT_VERSION} -m "New release ${MBT_VERSION}"
             git push https://github.com/SAP/cloud-mta-build-tool.git v${MBT_VERSION}
+            #Update Docker file in docker branch
+            git checkout docker
+            sed  -i "/ARG MBT_VERSION=/ s/${CURR_MBT_VERSION}/${MBT_VERSION}/" ./Dockerfile
+            git add ./Dockerfile
+            git config user.email "${MBT_REPO_USER_EMAIL}"
+            git config user.name "${MBT_REPO_USER}"
+            git commit -m "[skip ci] Bump version ${MBT_VERSION}"
+            #Push commit directly to docker
+            git push -q https://github.com/SAP/cloud-mta-build-tool.git docker
       - run:
           name: export github token for releaser
           command: |
