@@ -13,7 +13,7 @@ builds:
     ldflags: -s -w -X main.Version={{.Version}}  -X main.BuildDate={{.Date}}
     binary: mbt
     env:
-      - GCO_ENABLED=0
+      - CGO_ENABLED=0
 archive:
   replacements:
     darwin: Darwin
