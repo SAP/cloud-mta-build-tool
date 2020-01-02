@@ -89,8 +89,10 @@ jobs:
             git config user.email "${MBT_REPO_USER_EMAIL}"
             git config user.name "${MBT_REPO_USER}"
             git commit -m "[skip ci] Bump version ${MBT_VERSION}"
-            #Push commit directly to docker
+            #Push commit directly to docker branch
             git push -q https://github.com/SAP/cloud-mta-build-tool.git docker
+            #Make sure HEAD points to master
+            git checkout master
       - run:
           name: export github token for releaser
           command: |
