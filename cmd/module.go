@@ -26,9 +26,9 @@ func init() {
 
 	// sets the flags of of the command pack module
 	packModuleCmd.Flags().StringVarP(&packCmdSrc, "source", "s", "",
-		"The path to the MTA project; the current path is is set as the default")
+		"The path to the MTA project; the current path is is set as default")
 	packModuleCmd.Flags().StringVarP(&packCmdTrg, "target", "t", "",
-		"The path to the results folder; the current path is set as the default")
+		"The path to the folder in which the temporary artifacts of the module pack are created; the current path is is set as default")
 	packModuleCmd.Flags().StringSliceVarP(&packCmdExtensions, "extensions", "e", nil,
 		"The MTA extension descriptors")
 	packModuleCmd.Flags().StringVarP(&packCmdModule, "module", "m", "",
@@ -38,9 +38,9 @@ func init() {
 
 	// sets the flags of the command build module
 	buildModuleCmd.Flags().StringVarP(&buildModuleCmdSrc, "source", "s", "",
-		"The path to the MTA project; the current path is set as the default")
+		"The path to the MTA project; the current path is set as default")
 	buildModuleCmd.Flags().StringVarP(&buildModuleCmdTrg, "target", "t", "",
-		"The path to the results folder; the current path is set as the default")
+		"The path to the folder in which the temporary artifacts of the module build are created; the current path is set as default")
 	buildModuleCmd.Flags().StringSliceVarP(&buildModuleCmdExtensions, "extensions", "e", nil,
 		"The MTA extension descriptors")
 	buildModuleCmd.Flags().StringVarP(&buildModuleCmdModule, "module", "m", "",

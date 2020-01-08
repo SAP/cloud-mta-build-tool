@@ -34,9 +34,9 @@ func init() {
 
 	// set flags of mtad command
 	mtadCmd.Flags().StringVarP(&mtadCmdSrc, "source", "s", "",
-		"The path to the MTA project; the current path is set as the default")
+		"The path to the MTA project; the current path is set as default")
 	mtadCmd.Flags().StringVarP(&mtadCmdTrg, "target", "t",
-		"", "The path to the results folder; the current path is set as the default")
+		"", "The path to the folder in which the 'mtad.yaml' file is generated; the current path is set as default")
 	mtadCmd.Flags().StringSliceVarP(&mtadCmdExtensions, "extensions", "e", nil,
 		"The MTA extension descriptors")
 	mtadCmd.Flags().StringVarP(&mtadCmdPlatform, "platform", "p", "cf",
@@ -45,9 +45,9 @@ func init() {
 
 	// set flags of meta command
 	metaCmd.Flags().StringVarP(&metaCmdSrc, "source", "s", "",
-		"The path to the MTA project; the current path is set as the default")
+		"The path to the MTA project; the current path is set as default")
 	metaCmd.Flags().StringVarP(&metaCmdTrg, "target", "t", "",
-		"The path to the results folder; the current path is set as the default")
+		"The path to the folder in which a temporary folder with generated metadata is created; the current path is set as default")
 	metaCmd.Flags().StringVarP(&metaCmdDesc, "desc", "d", "",
 		`The MTA descriptor; supported values: "dev" (development descriptor, default value) and "dep" (deployment descriptor)`)
 	metaCmd.Flags().StringSliceVarP(&metaCmdExtensions, "extensions", "e", nil,
@@ -58,9 +58,9 @@ func init() {
 
 	// set flags of mtar command
 	mtarCmd.Flags().StringVarP(&mtarCmdSrc, "source", "s", "",
-		"The path to the MTA project; the current path is set as the default")
+		"The path to the MTA project; the current path is set as default")
 	mtarCmd.Flags().StringVarP(&mtarCmdTrg, "target", "t", "",
-		"The path to the results folder; the current path is set as the default")
+		`The path to the generated MTAR file; the path to the "mta_archives" subfolder of the current folder is set as default`)
 	mtarCmd.Flags().StringVarP(&mtarCmdDesc, "desc", "d", "",
 		`The MTA descriptor; supported values: "dev" (development descriptor, default value) and "dep" (deployment descriptor)`)
 	mtarCmd.Flags().StringSliceVarP(&mtarCmdExtensions, "extensions", "e", nil,
