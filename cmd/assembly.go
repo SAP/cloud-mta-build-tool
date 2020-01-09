@@ -37,7 +37,7 @@ func init() {
 	assembleCommand.Flags().StringVarP(&assembleCmdSrc,
 		"source", "s", "", "The path to the MTA project; the current path is set as default")
 	assembleCommand.Flags().StringVarP(&assembleCmdTrg,
-		"target", "t", "", `The path to the folder in which MTAR file is created; the path to the "mta_archives" subfolder of the current folder is set as default`)
+		"target", "t", "", `The path to the folder in which the MTAR file is created; the path to the "mta_archives" subfolder of the current folder is set as default`)
 	assembleCommand.Flags().StringSliceVarP(&assembleCmdExtensions, "extensions", "e", nil,
 		"The MTA extension descriptors")
 	assembleCommand.Flags().StringVarP(&assembleCmdMtarName,
