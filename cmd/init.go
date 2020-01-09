@@ -44,7 +44,7 @@ func init() {
 
 	// set flags of build command
 	buildCmd.Flags().StringVarP(&buildCmdSrc, "source", "s", "", "The path to the MTA project; the current path is set as default")
-	buildCmd.Flags().StringVarP(&buildCmdTrg, "target", "t", "", `The path to the generated MTAR file; the path to the "mta_archives" subfolder of the current folder is set as default`)
+	buildCmd.Flags().StringVarP(&buildCmdTrg, "target", "t", "", `The path to the folder in which MTAR file is created; the path to the "mta_archives" subfolder of the current folder is set as default`)
 	buildCmd.Flags().StringSliceVarP(&buildCmdExtensions, "extensions", "e", nil, "The MTA extension descriptors")
 	buildCmd.Flags().StringVarP(&buildCmdMtar, "mtar", "", "", "The file name of the generated archive file")
 	buildCmd.Flags().StringVarP(&buildCmdPlatform, "platform", "p", "cf", `The deployment platform; supported platforms: "cf", "xsa", "neo"`)
