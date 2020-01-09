@@ -36,7 +36,7 @@ var buildCmdOutputSync bool
 func init() {
 	// set flags for init command
 	initCmd.Flags().StringVarP(&initCmdSrc, "source", "s", "", "The path to the MTA project; the current path is set as default")
-	initCmd.Flags().StringVarP(&initCmdTrg, "target", "t", "", "The path to the generated Makefile folder; the current path is set as default")
+	initCmd.Flags().StringVarP(&initCmdTrg, "target", "t", "", "The path to the folder in which Makefile is generated; the current path is set as default")
 	initCmd.Flags().StringSliceVarP(&initCmdExtensions, "extensions", "e", nil, "The MTA extension descriptors")
 	initCmd.Flags().StringVarP(&initCmdMode, "mode", "m", "", `The mode of the Makefile generation; supported values: "default" and "verbose"`)
 	_ = initCmd.Flags().MarkHidden("mode")

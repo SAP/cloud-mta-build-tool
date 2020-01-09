@@ -16,9 +16,9 @@ var projectBuildCmdPhase string
 
 func init() {
 	projectBuildCmd.Flags().StringVarP(&projectBuildCmdSrc,
-		"source", "s", "", "The path to the MTA project; the current path is set as the default")
+		"source", "s", "", "The path to the MTA project; the current path is set as default")
 	projectBuildCmd.Flags().StringVarP(&projectBuildCmdTrg,
-		"target", "t", "", "The path to the results folder; the current path is set as the default")
+		"target", "t", "", "The path to the folder in which the temporary artifacts of the project build are created; the current path is set as default")
 	projectBuildCmd.Flags().StringVarP(&projectBuildCmdDesc,
 		"desc", "d", "", `The MTA descriptor; supported values: "dev" (development descriptor, default value) and "dep" (deployment descriptor)`)
 	projectBuildCmd.Flags().StringSliceVarP(&projectBuildCmdExtensions, "extensions", "e", nil,
