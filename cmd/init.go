@@ -35,16 +35,16 @@ var buildCmdOutputSync bool
 
 func init() {
 	// set flags for init command
-	initCmd.Flags().StringVarP(&initCmdSrc, "source", "s", "", "The path to the MTA project; the current path is set as the default")
-	initCmd.Flags().StringVarP(&initCmdTrg, "target", "t", "", "The path to the generated Makefile folder; the current path is set as the default")
+	initCmd.Flags().StringVarP(&initCmdSrc, "source", "s", "", "The path to the MTA project; the current path is set as default")
+	initCmd.Flags().StringVarP(&initCmdTrg, "target", "t", "", "The path to the folder in which the Makefile is generated; the current path is set as default")
 	initCmd.Flags().StringSliceVarP(&initCmdExtensions, "extensions", "e", nil, "The MTA extension descriptors")
 	initCmd.Flags().StringVarP(&initCmdMode, "mode", "m", "", `The mode of the Makefile generation; supported values: "default" and "verbose"`)
 	_ = initCmd.Flags().MarkHidden("mode")
 	initCmd.Flags().BoolP("help", "h", false, `Displays detailed information about the "init" command`)
 
 	// set flags of build command
-	buildCmd.Flags().StringVarP(&buildCmdSrc, "source", "s", "", "The path to the MTA project; the current path is set as the default")
-	buildCmd.Flags().StringVarP(&buildCmdTrg, "target", "t", "", "The path to the results folder; the current path is set as the default")
+	buildCmd.Flags().StringVarP(&buildCmdSrc, "source", "s", "", "The path to the MTA project; the current path is set as default")
+	buildCmd.Flags().StringVarP(&buildCmdTrg, "target", "t", "", `The path to the folder in which the MTAR file is created; the path to the "mta_archives" subfolder of the current folder is set as default`)
 	buildCmd.Flags().StringSliceVarP(&buildCmdExtensions, "extensions", "e", nil, "The MTA extension descriptors")
 	buildCmd.Flags().StringVarP(&buildCmdMtar, "mtar", "", "", "The file name of the generated archive file")
 	buildCmd.Flags().StringVarP(&buildCmdPlatform, "platform", "p", "cf", `The deployment platform; supported platforms: "cf", "xsa", "neo"`)

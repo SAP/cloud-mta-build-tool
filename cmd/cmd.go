@@ -43,16 +43,16 @@ func init() {
 
 	// set flags of cleanup command
 	cleanupCmd.Flags().StringVarP(&cleanupCmdSrc, "source", "s", "",
-		"The path to the MTA project; the current path is set as the default")
+		"The path to the MTA project; the current path is set as default")
 	cleanupCmd.Flags().StringVarP(&cleanupCmdTrg, "target", "t", "",
-		"The path to the results folder; the current path is set as the default")
+		"The path to the folder in which the temporary artifacts were created; the current path is set as default")
 	cleanupCmd.Flags().StringVarP(&cleanupCmdDesc, "desc", "d", "",
 		`The MTA descriptor; supported values: "dev" (development descriptor, default value) and "dep" (deployment descriptor)`)
 	cleanupCmd.Flags().BoolP("help", "h", false, `Displays detailed information about the "cleanup" command`)
 
 	// set flags of validation command
 	validateCmd.Flags().StringVarP(&validateCmdSrc, "source", "s", "",
-		"The path to the MTA project; the current path is set as the default")
+		"The path to the MTA project; the current path is set as default")
 	validateCmd.Flags().StringVarP(&validateCmdMode, "mode", "m", "",
 		`The validation mode; supported values: "schema", "semantic" (default)`)
 	validateCmd.Flags().StringVarP(&validateCmdDesc, "desc", "d", "",
