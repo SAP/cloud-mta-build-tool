@@ -53,7 +53,7 @@ validate: pre_build
 
 # Pack as MTAR artifact
 mtar: $(modules) meta
-	@$(MBT) gen mtar -t=${t} --mtar=${mtar} --target_provided=${target_provided}
+	@$(MBT) gen mtar --mtar=${mtar} --target_provided=${target_provided} -t=${t}
 
 cleanup: mtar
 # Remove tmp folder
