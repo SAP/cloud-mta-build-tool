@@ -185,7 +185,7 @@ You can configure the following build parameters to define artifacts to package 
 
 | Name | Default value        | Description                                                    
 | ------  | --------       |  ----------                                                
-| `build-result`    | For the `maven` builder: <module's folder>/target/\*.war <br><br>  For the `fetcher` builder: <module's folder>/target/\*.\* <br><br> For other builders: <module's folder>     | A path to the build results that should be packaged.
+| `build-result`    | For the `maven` builder: `<module's folder>/target/\*.war` <br><br>  For the `fetcher` builder: `<module's folder>/target/\*.\*` <br><br> For other builders: `<module's folder>`     | A path to the build results that should be packaged.
 | `ignore`    | None     | Files and/or subfolders to exclude from the package. 
 
 
@@ -286,4 +286,3 @@ modules:
 &nbsp;
 
 > **_NOTE:_** The file extension is not configurable; it is predefined by the module type (.zip or .war).
-
