@@ -31,6 +31,20 @@ The following `build-parameters` are not supported by the Cloud MTA Build Tool: 
 
 If you need to change the default build behavior defined for the corresponding builder, see [configure `custom` builder](configuration.md#configuring-the-custom-builder). For a complete list of available builders and their default behaviors, see [Builders execution commands](https://github.com/SAP/cloud-mta-build-tool/blob/master/configs/builder_type_cfg.yaml). 
 &nbsp;
+If you replace the `maven` builder with the `custom` builder, you also need to set the `build-result` parameter (if it was not configured explicitly) as follows:
+&nbsp;
+```yaml
+
+- name: module1
+  type: java
+  build-parameters:     
+     builder: custom
+     ...
+     build-result: target/*.war
+     ...     
+```
+&nbsp;
+ 
 </li>
 <li>
 
