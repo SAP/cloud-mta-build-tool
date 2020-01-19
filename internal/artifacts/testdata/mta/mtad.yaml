@@ -1,0 +1,9 @@
+ID: mta
+_schema-version: '2.1'
+version: 0.0.1
+
+modules:
+  - name: node-js
+    type: nodejs
+    path: node-js/server.js
+

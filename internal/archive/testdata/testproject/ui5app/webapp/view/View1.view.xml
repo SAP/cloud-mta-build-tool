@@ -1,0 +1,10 @@
+<mvc:View controllerName="aa.ui5app.controller.View1" xmlns:html="http://www.w3.org/1999/xhtml" xmlns:mvc="company.ui.core.mvc"
+	displayBlock="true" xmlns="company.m">
+	<App id="idAppControl">
+		<pages>
+			<Page title="{i18n>title}">
+				<content></content>
+			</Page>
+		</pages>
+	</App>
+</mvc:View>

@@ -1,0 +1,10 @@
+ID: testmta
+_schema-version: '3.2'
+version: 1.0.0
+
+modules:
+  - name: no_commands_with_timeout
+    path: no_commands_with_timeout
+    build-parameters:
+      builder: custom
+      timeout: 3m

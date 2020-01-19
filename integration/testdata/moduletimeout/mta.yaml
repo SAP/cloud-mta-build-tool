@@ -1,0 +1,13 @@
+_schema-version: "2.0.0"
+ID: f1
+version: 0.0.1
+
+modules:
+  - name: m1
+    type: html5
+    path: public
+    build-parameters:
+      builder: custom
+      commands:
+        - bash -c "sleep 30"
+      timeout: 5s

@@ -1,0 +1,29 @@
+_schema-version: "2.0.0"
+ID: f1
+version: 0.0.1
+
+modules:
+  - name: module_with_dep
+    type: html5
+    path: public
+    build-parameters:
+      builder: zip
+      requires:
+        - name: m2
+          artifacts: ["*"]
+          target-path: "client"
+        - name: m3
+          artifacts: ["*"]
+          target-path: "client2"
+  - name: m2
+    type: html5
+    path: client
+    build-parameters:
+      builder: zip
+      supported-platforms: []
+  - name: m3
+    type: html5
+    path: client2
+    build-parameters:
+      builder: zip
+      supported-platforms: []

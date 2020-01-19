@@ -1,0 +1,39 @@
+{
+    "welcomeFile": "/webapp/index.html",
+    "routes": [{
+            "path": "/resources",
+            "target": {
+                "type": "service",
+                "name": "sapui5",
+                "entryPath": "/resources"
+            },
+            "description": "SAPUI5 Resources"
+        },
+        {
+            "path": "/destinations/TECHED_400",
+            "target": {
+                "type": "destination",
+                "name": "TECHED_400"
+            },
+            "description": "TECHED_400"
+        },
+        {
+            "path": "/destinations/TECHED_800",
+            "target": {
+                "type": "destination",
+                "name": "TECHED_800"
+            },
+            "description": "TECHED_800"
+        },
+        {
+            "path": "/test-resources",
+            "target": {
+                "type": "service",
+                "name": "sapui5",
+                "entryPath": "/test-resources"
+            },
+            "description": "SAPUI5 Test Resources"
+        }
+    ],
+    "sendWelcomeFileRedirect": true
+}

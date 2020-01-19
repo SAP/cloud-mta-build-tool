@@ -1,0 +1,99 @@
+{
+	"_version": "1.8.0",
+	"company.app": {
+		"id": "aa.ui5app",
+		"type": "application",
+		"i18n": "i18n/i18n.properties",
+		"applicationVersion": {
+			"version": "1.0.0"
+		},
+		"title": "{{appTitle}}",
+		"description": "{{appDescription}}",
+		"sourceTemplate": {
+			"id": "html5moduletemplates.basicCOMPANYUI5ApplicationProjectModule",
+			"version": "1.40.12"
+		}
+	},
+
+	"company.ui": {
+		"technology": "UI5",
+		"icons": {
+			"icon": "",
+			"favIcon": "",
+			"phone": "",
+			"phone@2": "",
+			"tablet": "",
+			"tablet@2": ""
+		},
+		"deviceTypes": {
+			"desktop": true,
+			"tablet": true,
+			"phone": true
+		},
+		"supportedThemes": [
+			"company_hcb",
+			"company_belize"
+
+		]
+	},
+
+	"company.ui5": {
+		"rootView": {
+			"viewName": "aa.ui5app.view.View1",
+			"type": "XML"
+		},
+		"dependencies": {
+			"minUI5Version": "1.30.0",
+			"libs": {
+				"company.ui.core": {},
+				"company.m": {},
+				"company.ui.layout": {},
+				"company.ushell": {},
+				"company.collaboration": {},
+				"company.ui.comp": {},
+				"company.uxap": {}
+			}
+		},
+		"contentDensities": {
+			"compact": true,
+			"cozy": true
+		},
+		"models": {
+			"i18n": {
+				"type": "company.ui.model.resource.ResourceModel",
+				"settings": {
+					"bundleName": "aa.ui5app.i18n.i18n"
+				}
+			}
+		},
+		"resources": {
+			"css": [{
+				"uri": "css/style.css"
+			}]
+		},
+		"routing": {
+			"config": {
+				"routerClass": "company.m.routing.Router",
+				"viewType": "XML",
+				"async": true,
+				"viewPath": "aa.ui5app.view",
+				"controlAggregation": "pages",
+				"controlId": "idAppControl",
+				"clearControlAggregation": false
+			},
+			"routes": [{
+				"name": "RouteView1",
+				"pattern": "RouteView1",
+				"target": ["TargetView1"]
+			}],
+			"targets": {
+				"TargetView1": {
+					"viewType": "XML",
+					"transition": "slide",
+					"clearControlAggregation": false,
+					"viewName": "View1"
+				}
+			}
+		}
+	}
+}
