@@ -1,0 +1,56 @@
+history > grep  mkdocs
+history > grep  mkdocs.yml
+history > mkdocs.yml
+mkdocs gh-deploy --config-file ../docs/mkdocs.yml --remote-branch gh-pages
+cd docs
+git push origin docs_target
+git checkout -b docs_target
+git push origin target_docs
+git pull origin target_docs
+git checkout -b target_docs
+rm -rf dist node_modules/ /docs
+git add docs/
+git commit -m "[enc] - update docs"
+mkdocs serve
+mkdocs build
+git add mkdocs.yml
+git add docs/roadmap.md
+git add docs/makefile.md
+mkdocs -h
+git push origin m_docs
+git checkout -b m_docs
+git pull origin updateddocs
+git push origin docs
+git commit -m "update docs"
+mkdocs gh-deploy --config-file ../docs/mkdocs.yml --remote-branch master
+git commit -m "initial draft mbt docs"
+sudo pip install mkdocs-cayman
+sudo pip install mkdocs-Cayman
+sudo pip install mkdocs-material
+pip install mkdocs-material
+brew install mkdocs
+mkdocs new cloud-mta-build-tool
+mkdocs new
+mkdir docs
+mkdocs --version
+sudo pip install mkdocs
+pip install mkdocs
+docsify serve ./docs/
+docsify init ./docs
+npm i docsify-cli -g
+touch mkdocs.yml
+git checkout -b docs
+git commit -m "[doc] - update docs"
+git commit -m "[doc] - update  mta docs "
+git checkout -b mta_docs
+git push origin mta_docs
+git commit -m "[doc] - add docs"
+git commit  -m "[docs] - update readme file"
+git commit  -m "[docs] - Formmating contribuation.md file"
+git commit  -m "[docs] - Add issue template for bugs & fetature requests "
+git commit  -m "[docs] - fix typo"
+git commit  -m "[docs] - update readme"
+git commit  -m "[docs] - extend with resources section & add status badges for circleci and license"
+git commit  -m "[docs] - minor fix"
+git commit --amend -m "[docs] - update readme"
+git commit -m "[docs] - update README.md"
