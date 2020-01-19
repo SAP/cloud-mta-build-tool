@@ -1,6 +1,0 @@
-manifest-Version: 1.0
-Created-By: SAP Application Archive Builder {{cli_version}}
-
-Name: META-INF/mtad.yaml
-Content-Type: text/plain
-
