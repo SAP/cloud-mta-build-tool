@@ -1,0 +1,14 @@
+_schema-version: "2.0.0"
+ID: "dummy"
+version: 1.0.0
+parameters:
+  hcp-deployer-version: "1.0.0"
+modules:
+  - name: "dummy"
+    type: java
+    path: .
+    parameters:
+      version: 1.0.0
+    build-parameters:
+      builder: maven
+      build-result: "target/*.jar"

@@ -1,0 +1,27 @@
+ID: mta
+_schema-version: '2.1'
+version: 0.0.1
+
+build-parameters:
+  before-all:
+    - builder: mybuilder
+      timeout: 6m30s
+      commands:
+        - command1
+        - command2
+  after-all:
+    - builder: otherbuilder
+      timeout: 6m30s
+      commands:
+        - command1
+        - command2
+modules:
+  - name: node-js
+    type: nodejs
+    path: node-js
+    build-parameters:
+      build-result: my.war
+    provides:
+      - name: node-js_api
+        properties:
+          url: ${default-url}

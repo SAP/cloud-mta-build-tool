@@ -1,0 +1,41 @@
+{
+    "testEnvironment": "node",
+    "reporters": [
+        "default",
+        [
+            "jest-junit",
+            {
+                "suiteNameTemplate": "{filepath}",
+                "output": "reports/report.xml",
+                "classNameTemplate": "{filepath}",
+                "titleTemplate": "{classname}-{title}"
+            }
+        ]
+    ],
+    "automock": false,
+    "bail": false,
+    "clearMocks": true,
+    "moduleDirectories": ["node_modules"],
+    "modulePathIgnorePatterns": [],
+    "resetMocks": false,
+    "resetModules": false,
+    "testMatch": ["**/*-spec.js"],
+    "testPathIgnorePatterns": ["/node_modules/"],
+    "collectCoverageFrom": [
+        "**/*.js",
+        "!**/tests/**",
+        "!**/appcontroller.[0-9]*/**",
+        "!runTest.js"
+    ],
+    "coverageDirectory": "reports/",
+    "coverageReporters": ["json", "text"],
+    "coverageThreshold": {
+        "global": {
+            "branches": 0,
+            "functions": 0,
+            "lines": 0,
+            "statements": 0
+        }
+    },
+    "verbose": true
+}

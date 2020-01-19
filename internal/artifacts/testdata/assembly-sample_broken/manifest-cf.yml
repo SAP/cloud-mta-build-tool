@@ -1,0 +1,34 @@
+---
+applications:
+- name: java-hello-world-db
+  path: db
+  memory: 256M
+  no-route: true
+  health-check-type: none
+  services:
+    - java-hdi-container
+
+- name: java-hello-world
+  host: [c/d/i-user]-java-hello-world
+  path: web
+  memory: 128M
+  env:
+    TENANT_HOST_PATTERN : ^(.*)-java-hello-world.cfapps.sap.hana.ondemand.com
+    destinations: >
+      [
+        {"name":"java", "url":"https://[c/d/i-user]-java-hello-world-backend.cfapps.sap.hana.ondemand.com", "forwardAuthToken": true}
+      ]
+  services:
+    - java-uaa
+
+- name: java-hello-world-backend
+  host: [c/d/i-user]-java-hello-world-backend
+  memory: 512M
+  instances: 1
+  path: java/target/java-hello-world.war
+  buildpack: sap_java_buildpack
+  services:
+    - java-hdi-container
+    - java-uaa
+  env:
+    TARGET_RUNTIME: tomee
