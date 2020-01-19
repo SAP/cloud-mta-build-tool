@@ -1,0 +1,33 @@
+_schema-version: "3.1"
+ID: mtahtml5
+version: 0.0.1
+modules:
+- name: ui5app
+  type: javascript.nodejs
+  path: ui5app
+  requires:
+  - name: uaa_mtahtml5
+  - name: dest_mtahtml5
+  parameters:
+    disk-quota: 256M
+    memory: 256M
+- name: ui5app2
+  type: javascript.nodejs
+  path: ui5app2
+  requires:
+  - name: uaa_mtahtml5
+  - name: dest_mtahtml5
+  parameters:
+    disk-quota: 256M
+    memory: 256M
+resources:
+- name: uaa_mtahtml5
+  type: some.uaa
+  parameters:
+    path: ./xs-security.json
+    service-plan: application
+- name: dest_mtahtml5
+  type: org.cloudfoundry.managed-service
+  parameters:
+    service: destination
+    service-plan: lite

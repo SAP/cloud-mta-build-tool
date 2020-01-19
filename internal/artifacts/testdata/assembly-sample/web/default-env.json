@@ -1,0 +1,3 @@
+{
+  "destinations": [ { "name": "java", "url": "http://localhost:8080", "forwardAuthToken": true } ]
+}

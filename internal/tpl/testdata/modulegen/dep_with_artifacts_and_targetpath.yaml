@@ -1,0 +1,29 @@
+ID: testmta
+_schema-version: '3.2'
+version: 1.0.0
+
+modules:
+  - name: module1
+    type: html5
+    path: public
+    provides:
+      - name: module1_feature
+        public: true
+    build-parameters:
+      builder: npm
+      ignore: [".che/", ".npmrc"]
+      timeout: 15m
+      requires:
+        - name: module1-dep
+          artifacts: ["dist/*"]
+          target-path: "client"
+  - name: module1-dep
+    type: html5
+    path: client
+    build-parameters:
+      builder: custom
+      commands:
+        - npm install
+        - npm prune --production
+      timeout: 15m
+      supported-platforms: []

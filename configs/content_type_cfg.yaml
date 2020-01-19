@@ -1,0 +1,28 @@
+#              Content types mapping
+# This file contains maps between file extension and content type
+# it is bundled with the tool delivery as default to provide ease of use and quick start
+# However, To create a clear separation between the build tool and content types
+# the build tool will support a path for platform config file via CLI flags
+# path to file which provide the a file with the following config format wins over the local config (i.e. from the repo)
+
+# Note: in the future this file will be removed from the tool
+
+# usage: to add new extensions to the file, execute command `go:generate`
+# The command should be executed on the root project level to regenerate the file that contain the binary (see generator.go file)
+
+# Types for cloudfoundry platform
+content-types:
+- extension: .json
+  content-type: "application/json"
+
+- extension: .war
+  content-type: "application/war"
+
+- extension: .jar
+  content-type: "application/zip"
+
+- extension: .zip
+  content-type: "application/zip"
+
+- extension: .yaml
+  content-type: "text/plain"
