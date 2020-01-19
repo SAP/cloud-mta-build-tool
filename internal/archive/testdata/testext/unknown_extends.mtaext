@@ -1,1 +1,0 @@
-ID: mtahtml5ext5extends: mtahtml5unknown_schema-version: '2.1'version: 0.0.1modules: - name: ui5app   properties:      other_prop: abc - name: ui5app2   parameters:      memory: 1024M

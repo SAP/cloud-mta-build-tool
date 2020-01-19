@@ -1,9 +1,0 @@
-_schema-version: "3"
-ID: mta.assembly.example.ext
-extends: mta.assembly.example
-version: 1.3.3
-
-modules:
-  - name: example1
-    build-parameters:
-      supported-platforms: []

@@ -1,1 +1,0 @@
-// to ensure existence of htmpapp2 folder for the testing purpose (adaptation of mtad - paths check)
