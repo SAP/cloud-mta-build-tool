@@ -1,0 +1,57 @@
+#Types for cloudfoundry platform
+platform:
+   cf:
+    modoules:
+    - native-type: html5
+      platform-type: "javascript.nodejs"
+
+    - native-type: nodejs
+      platform-type: "javascript.nodejs"
+
+    - native-type: sitecontent
+      platform-type: "javascript.nodejs"
+
+    - native-type: hdb
+      platform-type: "com.company.xs.hdi"
+
+    - native-type: java
+      platform-type: "java.tomcat"
+
+    - native-type: dwf
+      platform-type: "com.company.xs.dwf"
+
+    - native-type: cds
+      platform-type: "cds"
+
+
+  # Types for Neo platform
+  neo:
+    modoules:
+    - native-type: html5
+      platform-type: "com.company.hcp.html5"
+    - native-type: java
+      platform-type: "java.tomcat"
+
+  # Type for XSA platform
+  xsa:
+    modoules:
+    - native-type: html5
+      platform-type: "javascript.nodejs"
+
+    - native-type: nodejs
+      platform-type: "javascript.nodejs"
+
+    - native-type: sitecontent
+      platform-type: "javascript.nodejs"
+
+    - native-type: hdb
+      platform-type: "com.company.xs.hdi"
+
+    - native-type: java
+      platform-type: "java.tomcat"
+
+    - native-type: dwf
+      platform-type: "com.company.xs.dwf"
+
+    - native-type: cds
+      platform-type: "cds"

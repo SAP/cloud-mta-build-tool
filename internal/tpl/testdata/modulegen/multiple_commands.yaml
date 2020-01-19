@@ -1,0 +1,13 @@
+ID: testmta
+_schema-version: '3.2'
+version: 1.0.0
+
+modules:
+  - name: multiple_commands
+    path: multiple_commands
+    build-parameters:
+      builder: custom
+      commands:
+        - npm install
+        - grunt
+        - npm prune --production
