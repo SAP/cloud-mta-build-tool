@@ -1,9 +1,0 @@
-ID: mta_demo_ext
-extends: mta_demo
-_schema-version: '2.1'
-version: 0.0.1
-
-modules:
-  - name: node-js
-    build-parameters:
-      supported-platforms: [neo]
