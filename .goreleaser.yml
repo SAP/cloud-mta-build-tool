@@ -14,21 +14,21 @@ builds:
     binary: mbt
     env:
       - CGO_ENABLED=0
-archive:
-  replacements:
-    darwin: Darwin
-    linux: Linux
-    windows: Windows
-  format: tar.gz
-  files:
-    - licence*
-    - LICENCE*
-    - license*
-    - LICENSE*
-    - readme*
-    - README*
-    - changelog*
-    - CHANGELOG*
+archives:
+  - replacements:
+      darwin: Darwin
+      linux: Linux
+      windows: Windows
+    format: tar.gz
+    files:
+      - licence*
+      - LICENCE*
+      - license*
+      - LICENSE*
+      - readme*
+      - README*
+      - changelog*
+      - CHANGELOG*
 dist: dist
 checksum:
   name_template: 'checksums.txt'
