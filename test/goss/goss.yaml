@@ -50,6 +50,6 @@ command:
       - https://registry.npmjs.org/
   cd ~ && npm install @sap/cds:
     exit-status: 0
-    timeout: 30000
+    timeout: 40000
     stdout:
       - + @sap/cds@
