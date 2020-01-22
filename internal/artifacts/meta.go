@@ -22,10 +22,10 @@ func ExecuteGenMeta(source, target, desc string, extensions []string, platform s
 	if err != nil {
 		return errors.Wrap(err, "failed to generate metadata when initializing the location")
 	}
-	return executeGenMetaByLocation(loc, loc, platform, true)
+	return executeGenMetaByLocation(loc, loc, platform, true, false)
 }
 
-func executeGenMetaByLocation(loc *dir.Loc, targetArtifacts dir.ITargetArtifacts, platform string, createMetaInf bool) error {
+func executeGenMetaByLocation(loc *dir.Loc, targetArtifacts dir.ITargetArtifacts, platform string, createMetaInf bool, skipValidation bool) error {
 	// validate platform
 	platform, err := validatePlatform(platform)
 	if err != nil {
@@ -37,12 +37,12 @@ func executeGenMetaByLocation(loc *dir.Loc, targetArtifacts dir.ITargetArtifacts
 		return err
 	}
 
-	err = generateMeta(loc, targetArtifacts, loc.IsDeploymentDescriptor(), platform, createMetaInf)
+	err = generateMeta(loc, targetArtifacts, loc.IsDeploymentDescriptor(), platform, createMetaInf, skipValidation)
 	return err
 }
 
 // generateMeta - generate metadata artifacts
-func generateMeta(loc *dir.Loc, targetArtifacts dir.ITargetArtifacts, deploymentDescriptor bool, platform string, createMetaInf bool) error {
+func generateMeta(loc *dir.Loc, targetArtifacts dir.ITargetArtifacts, deploymentDescriptor bool, platform string, createMetaInf bool, skipValidation bool) error {
 
 	// parse MTA file
 	m, err := loc.ParseFile()
@@ -55,13 +55,13 @@ func generateMeta(loc *dir.Loc, targetArtifacts dir.ITargetArtifacts, deployment
 	setPlatformSpecificParameters(m, platform)
 
 	// Generate meta info dir with required content
-	err = genMetaInfo(loc, targetArtifacts, loc, deploymentDescriptor, platform, m, createMetaInf)
+	err = genMetaInfo(loc, targetArtifacts, loc, deploymentDescriptor, platform, m, createMetaInf, skipValidation)
 	return err
 }
 
 // genMetaInfo generates a MANIFEST.MF file and updates the build artifacts paths for deployment purposes.
 func genMetaInfo(source dir.ISourceModule, ep dir.ITargetArtifacts, targetPathGetter dir.ITargetPath, deploymentDesc bool,
-	platform string, mtaStr *mta.MTA, createMetaInf bool) (rerr error) {
+	platform string, mtaStr *mta.MTA, createMetaInf bool, skipValidation bool) (rerr error) {
 
 	if createMetaInf {
 		// Set the MANIFEST.MF file
@@ -72,7 +72,7 @@ func genMetaInfo(source dir.ISourceModule, ep dir.ITargetArtifacts, targetPathGe
 	}
 
 	if !deploymentDesc {
-		err := removeBuildParamsFromMta(targetPathGetter, mtaStr)
+		err := removeBuildParamsFromMta(targetPathGetter, mtaStr, skipValidation)
 		if err != nil {
 			return err
 		}

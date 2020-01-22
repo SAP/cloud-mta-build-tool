@@ -25,39 +25,23 @@ var _ = Describe("Mtad", func() {
 		Ω(os.RemoveAll(getTestPath("result"))).Should(Succeed())
 	})
 
-	var _ = Describe("ExecuteGenMtad", func() {
+	var _ = Describe("ExecuteMtadGen", func() {
 		It("Sanity", func() {
-			createDirInTmpFolder("mta", "node-js")
-			Ω(ExecuteGenMtad(getTestPath("mta"), getTestPath("result"), nil, "cf", os.Getwd)).Should(Succeed())
+			Ω(ExecuteMtadGen(getTestPath("mta"), getTestPath("result"), nil, "cf", os.Getwd)).Should(Succeed())
 			Ω(getTestPath("result", "mtad.yaml")).Should(BeAnExistingFile())
 		})
-		It("Fails on creating META-INF folder", func() {
-			createDirInTmpFolder("mta")
-			file, err := os.Create(getFullPathInTmpFolder("mta", "META-INF"))
-			Ω(err).Should(Succeed())
-			Ω(file.Close()).Should(Succeed())
-			Ω(ExecuteGenMtad(getTestPath("mta"), getTestPath("result"), nil, "cf", os.Getwd)).Should(HaveOccurred())
-		})
-		It("Fails on location initialization", func() {
-			Ω(ExecuteGenMtad("", getTestPath("result"), nil, "cf", func() (string, error) {
-				return "", errors.New("err")
-			})).Should(HaveOccurred())
-		})
 		It("Fails on platform validation", func() {
-			Ω(ExecuteGenMtad(getTestPath("mta"), getTestPath("result"), nil, "ab", func() (string, error) {
+			Ω(ExecuteMtadGen(getTestPath("mta"), getTestPath("result"), nil, "ab", func() (string, error) {
 				return "", errors.New("err")
 			})).Should(HaveOccurred())
 		})
 		It("Fails on wrong source path - parse fails", func() {
-			Ω(ExecuteGenMtad(getTestPath("mtax"), getTestPath("result"), nil, "cf", os.Getwd)).Should(HaveOccurred())
-		})
-		It("Fails on broken extension file - parse ext fails", func() {
-			Ω(ExecuteGenMtad(getTestPath("mtaWithBrokenExt"), getTestPath("result"), nil, "cf", os.Getwd)).Should(HaveOccurred())
+			Ω(ExecuteMtadGen(getTestPath("mtax"), getTestPath("result"), nil, "cf", os.Getwd)).Should(HaveOccurred())
 		})
 		It("Fails on broken platforms configuration", func() {
 			cfg := platform.PlatformConfig
 			platform.PlatformConfig = []byte("abc abc")
-			Ω(ExecuteGenMtad(getTestPath("mta"), getTestPath("result"), nil, "cf", os.Getwd)).Should(HaveOccurred())
+			Ω(ExecuteMtadGen(getTestPath("mta"), getTestPath("result"), nil, "cf", os.Getwd)).Should(HaveOccurred())
 			platform.PlatformConfig = cfg
 		})
 	})
@@ -103,7 +87,7 @@ var _ = Describe("Mtad", func() {
 var _ = Describe("adaptModulePath", func() {
 	It("path by module name", func() {
 		mod := mta.Module{Name: "htmlapp2", Path: "xyz"}
-		Ω(adaptModulePath(&testMtadLoc{}, &mod)).Should(Succeed())
+		Ω(adaptModulePath(&testMtadLoc{}, &mod, false)).Should(Succeed())
 		Ω(mod.Path).Should(Equal("htmlapp2"))
 	})
 })

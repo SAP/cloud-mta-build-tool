@@ -38,15 +38,15 @@ func (loc *mtadLoc) GetMtarDir(targetProvided bool) string {
 	return ""
 }
 
-// ExecuteGenMtad - generates MTAD from MTA
-func ExecuteGenMtad(source, target string, extensions []string, platform string, wdGetter func() (string, error)) error {
+// ExecuteMtadGen - generates MTAD from MTA
+func ExecuteMtadGen(source, target string, extensions []string, platform string, wdGetter func() (string, error)) error {
 	logs.Logger.Info("generating the MTAD file...")
 	loc, err := dir.Location(source, target, dir.Dev, extensions, wdGetter)
 	if err != nil {
 		return errors.Wrap(err, "generation of the MTAD file failed when initializing the location")
 	}
 
-	return executeGenMetaByLocation(loc, &mtadLoc{target}, platform, false)
+	return executeGenMetaByLocation(loc, &mtadLoc{target}, platform, false, true)
 }
 
 func validatePlatform(platform string) (string, error) {
@@ -158,11 +158,11 @@ func adjustNeoAppName(name string) string {
 
 // if module has to be deployed we clean build parameters from module,
 // as this section is not used in MTAD yaml
-func removeBuildParamsFromMta(loc dir.ITargetPath, mtaStr *mta.MTA) error {
+func removeBuildParamsFromMta(loc dir.ITargetPath, mtaStr *mta.MTA, skipValidation bool) error {
 	for _, m := range mtaStr.Modules {
 		// remove build parameters from modules with defined platforms
 		m.BuildParams = map[string]interface{}{}
-		err := adaptModulePath(loc, m)
+		err := adaptModulePath(loc, m, skipValidation)
 		if err != nil {
 			return errors.Wrapf(err, adaptationMsg, m.Name)
 		}
@@ -170,10 +170,10 @@ func removeBuildParamsFromMta(loc dir.ITargetPath, mtaStr *mta.MTA) error {
 	return nil
 }
 
-func adaptModulePath(loc dir.ITargetPath, module *mta.Module) error {
+func adaptModulePath(loc dir.ITargetPath, module *mta.Module, skipValidation bool) error {
 	modulePath := filepath.Join(loc.GetTargetTmpDir(), module.Name)
 	_, e := os.Stat(modulePath)
-	if e != nil {
+	if !skipValidation && e != nil {
 		return e
 	}
 	module.Path = module.Name

@@ -19,18 +19,18 @@ import (
 var _ = Describe("Commands", func() {
 
 	BeforeEach(func() {
-		mtadCmdTrg = getTestPath("result")
+		mtadGenCmdTrg = getTestPath("result")
 		metaCmdTrg = getTestPath("result")
 		mtarCmdTrg = getTestPath("result")
 		packCmdTrg = getTestPath("result")
 		buildModuleCmdTrg = getTestPath("result")
 		cleanupCmdTrg = getTestPath("result")
 		logs.Logger = logs.NewLogger()
-		Ω(os.MkdirAll(mtadCmdTrg, os.ModePerm)).Should(Succeed())
+		Ω(os.MkdirAll(mtadGenCmdTrg, os.ModePerm)).Should(Succeed())
 	})
 
 	AfterEach(func() {
-		err := os.RemoveAll(mtadCmdTrg)
+		err := os.RemoveAll(mtadGenCmdTrg)
 		Ω(err).Should(Succeed())
 	})
 

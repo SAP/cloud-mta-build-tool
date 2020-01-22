@@ -8,12 +8,6 @@ import (
 	"github.com/SAP/cloud-mta-build-tool/internal/artifacts"
 )
 
-// mtad command flags
-var mtadCmdSrc string
-var mtadCmdTrg string
-var mtadCmdExtensions []string
-var mtadCmdPlatform string
-
 // meta command flags
 var metaCmdSrc string
 var metaCmdTrg string
@@ -31,17 +25,6 @@ var mtarCmdMtarName string
 
 // init - inits flags of init command
 func init() {
-
-	// set flags of mtad command
-	mtadCmd.Flags().StringVarP(&mtadCmdSrc, "source", "s", "",
-		"The path to the MTA project; the current path is set as default")
-	mtadCmd.Flags().StringVarP(&mtadCmdTrg, "target", "t",
-		"", "The path to the folder in which the 'mtad.yaml' file is generated; the current path is set as default")
-	mtadCmd.Flags().StringSliceVarP(&mtadCmdExtensions, "extensions", "e", nil,
-		"The MTA extension descriptors")
-	mtadCmd.Flags().StringVarP(&mtadCmdPlatform, "platform", "p", "cf",
-		`The deployment platform; supported platforms: "cf", "xsa", "neo"`)
-	mtadCmd.Flags().BoolP("help", "h", false, `Displays detailed information about the "mtad" command`)
 
 	// set flags of meta command
 	metaCmd.Flags().StringVarP(&metaCmdSrc, "source", "s", "",
@@ -74,22 +57,6 @@ func init() {
 
 }
 
-// Provide mtad.yaml from mta.yaml
-var mtadCmd = &cobra.Command{
-	Use:   "mtad",
-	Short: "Generates MTAD",
-	Long:  "Generates deployment descriptor (mtad.yaml) from development descriptor (mta.yaml)",
-	Args:  cobra.NoArgs,
-	RunE: func(cmd *cobra.Command, args []string) error {
-		err := artifacts.ExecuteGenMtad(mtadCmdSrc, mtadCmdTrg, mtadCmdExtensions, mtadCmdPlatform, os.Getwd)
-		logError(err)
-		return err
-	},
-	Hidden:        true,
-	SilenceUsage:  true,
-	SilenceErrors: true,
-}
-
 // Generate metadata info from deployment
 var metaCmd = &cobra.Command{
 	Use:   "meta",
@@ -113,7 +80,7 @@ var mtarCmd = &cobra.Command{
 	Long:  "Generates MTA archive from the folder with all artifacts",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		err := artifacts.ExecuteGenMtar(mtarCmdSrc, mtarCmdTrg, mtarCmdTrgProvided, mtarCmdDesc, mtadCmdExtensions, mtarCmdMtarName, os.Getwd)
+		err := artifacts.ExecuteGenMtar(mtarCmdSrc, mtarCmdTrg, mtarCmdTrgProvided, mtarCmdDesc, mtadGenCmdExtensions, mtarCmdMtarName, os.Getwd)
 		logError(err)
 		return err
 	},
