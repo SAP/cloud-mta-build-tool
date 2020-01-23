@@ -160,17 +160,20 @@ func adjustNeoAppName(name string) string {
 // as this section is not used in MTAD yaml
 func removeBuildParamsFromMta(loc dir.ITargetPath, mtaStr *mta.MTA) error {
 	for _, m := range mtaStr.Modules {
-		// remove build parameters from modules with defined platforms
-		m.BuildParams = map[string]interface{}{}
 		err := adaptModulePath(loc, m)
 		if err != nil {
 			return errors.Wrapf(err, adaptationMsg, m.Name)
 		}
+		// remove build parameters from modules with defined platforms
+		m.BuildParams = map[string]interface{}{}
 	}
 	return nil
 }
 
 func adaptModulePath(loc dir.ITargetPath, module *mta.Module) error {
+	if buildops.IfNoSource(module){
+		return nil
+	}
 	modulePath := filepath.Join(loc.GetTargetTmpDir(), module.Name)
 	_, e := os.Stat(modulePath)
 	if e != nil {

@@ -72,6 +72,15 @@ func (data templateData) ConvertToShellArgument(s string) string {
 	return shellquote.Join(s)
 }
 
+// IsNoSource checks if module has "no-source" build parameter
+func (data templateData) IsNoSource(moduleName string) (bool, error) {
+	module, e := data.File.GetModuleByName(moduleName)
+	if e != nil {
+		return false, e
+	}
+	return buildops.IfNoSource(module), nil
+}
+
 func (data templateData) GetModuleDeps(moduleName string) ([]templateDepData, error) {
 	module, e := data.File.GetModuleByName(moduleName)
 	if e != nil {

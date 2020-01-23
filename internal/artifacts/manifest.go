@@ -122,6 +122,10 @@ func getModulesEntries(source dir.ISourceModule, targetPathGetter dir.ITargetPat
 
 	var entries []entry
 	for _, mod := range moduleList {
+		if buildops.IfNoSource(mod){
+			continue
+		}
+
 		_, defaultBuildResult, err := commands.CommandProvider(*mod)
 		if err != nil {
 			return nil, err

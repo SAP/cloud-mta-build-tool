@@ -53,6 +53,7 @@ var _ = Describe("manifest", func() {
 			checkError(err, conttype.ContentTypeUndefinedMsg, ".js")
 		})
 		It("Sanity - with configuration provided", func() {
+			// no_source module (with no-source build parameter) is not referenced in the manifest
 			createDirInTmpFolder("mta", "node-js")
 			createFileInTmpFolder("mta", "node-js", "data.zip")
 			createFileInTmpFolder("mta", "config-site-host.json")

@@ -249,4 +249,19 @@ makefile_version: 0.0.0
 		_, err := data.GetModuleDeps("m1")
 		Ω(err).Should(HaveOccurred())
 	})
+
+	It("IsNoSource fails on not existing module", func() {
+		data := templateData{File: mta.MTA{Modules: []*mta.Module{
+			{
+				Name: "m1",
+				BuildParams: map[string]interface{}{
+					"requires": []interface{}{
+						map[string]interface{}{"name": "unknown"},
+					},
+				},
+			},
+		}}}
+		_, err := data.IsNoSource("m2")
+		Ω(err).Should(HaveOccurred())
+	})
 })
