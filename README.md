@@ -48,6 +48,6 @@ Please follow our [issue template](https://github.com/SAP/cloud-mta-build-tool/i
 
  ## License
 
-Copyright (c) 2019 SAP SE or an SAP affiliate company. All rights reserved.
+Copyright (c) 2020 SAP SE or an SAP affiliate company. All rights reserved.
 
 This file is licensed under the Apache 2.0 License [except as noted otherwise in the LICENSE file](/LICENSE).
