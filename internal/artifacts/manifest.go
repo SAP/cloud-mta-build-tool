@@ -122,7 +122,7 @@ func getModulesEntries(source dir.ISourceModule, targetPathGetter dir.ITargetPat
 
 	var entries []entry
 	for _, mod := range moduleList {
-		if buildops.IfNoSource(mod){
+		if buildops.IfNoSource(mod) {
 			continue
 		}
 

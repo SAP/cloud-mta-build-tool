@@ -171,7 +171,7 @@ func removeBuildParamsFromMta(loc dir.ITargetPath, mtaStr *mta.MTA) error {
 }
 
 func adaptModulePath(loc dir.ITargetPath, module *mta.Module) error {
-	if buildops.IfNoSource(module){
+	if buildops.IfNoSource(module) {
 		return nil
 	}
 	modulePath := filepath.Join(loc.GetTargetTmpDir(), module.Name)
