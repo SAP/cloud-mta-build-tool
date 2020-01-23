@@ -1,6 +1,7 @@
 package artifacts
 
 import (
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -63,6 +64,15 @@ var _ = Describe("Project", func() {
 			err := ExecBuild("Makefile_tmp.mta", getTestPath("mta_with_zipped_module"), getResultPath(), nil, "", "", "", true, 0, false, os.Getwd, func(strings [][]string, b bool) error {
 				return fmt.Errorf("failure")
 			}, true)
+			Ω(err).Should(HaveOccurred())
+		})
+		It("Wrong - ExecuteMake fails on wrong location", func() {
+			err := ExecBuild("Makefile_tmp.mta", "", getResultPath(), nil, "", "", "", true, 0, false,
+				func() (string, error) {
+					return "", errors.New("wrong location")
+				}, func(strings [][]string, b bool) error {
+					return nil
+				}, true)
 			Ω(err).Should(HaveOccurred())
 		})
 	})
