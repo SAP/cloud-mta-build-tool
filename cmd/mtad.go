@@ -17,8 +17,8 @@ var mtadGenCmdPlatform string
 // Provide mtad.yaml from mta.yaml
 var mtadCmd = &cobra.Command{
 	Use:           "mtad",
-	Short:         "Generates MTAD",
-	Long:          "Generates deployment descriptor (mtad.yaml) from development descriptor (mta.yaml)",
+	Short:         "Generates an 'mtad.yaml' file",
+	Long:          "Generates a deployment descriptor ('mtad.yaml') file from the 'mta.yaml' file",
 	Args:          cobra.NoArgs,
 	RunE:          nil,
 	SilenceUsage:  true,
@@ -27,7 +27,7 @@ var mtadCmd = &cobra.Command{
 
 var mtadGenCmd = &cobra.Command{
 	Use:   "gen",
-	Short: "Generates MTAD",
+	Short: "Generates mtad.yaml",
 	Long:  "Generates deployment descriptor (mtad.yaml) from development descriptor (mta.yaml)",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
@@ -52,5 +52,5 @@ func init() {
 		"The MTA extension descriptors")
 	mtadGenCmd.Flags().StringVarP(&mtadGenCmdPlatform, "platform", "p", "cf",
 		`The deployment platform; supported platforms: "cf", "xsa", "neo"`)
-	mtadGenCmd.Flags().BoolP("help", "h", false, `Displays detailed information about the "mtad" command`)
+	mtadGenCmd.Flags().BoolP("help", "h", false, `Displays detailed information about the 'mtad gen' command`)
 }
