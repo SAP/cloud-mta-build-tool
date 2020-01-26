@@ -105,6 +105,9 @@ var _ = Describe("adaptModulePath", func() {
 		Ω(adaptModulePath(&testMtadLoc{}, &mod, true)).Should(Succeed())
 		Ω(mod.Path).Should(Equal("htmlapp2"))
 	})
+	It("Fails on location initialization - validatePaths is set to true", func() {
+		Ω(adaptModulePath(&testMtadLoc{}, &mta.Module{Name: "htmlapp", Path: "xxx"}, true)).Should(HaveOccurred())
+	})
 })
 
 var _ = Describe("removeUndeployedModules", func() {
