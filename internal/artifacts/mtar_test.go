@@ -48,7 +48,7 @@ var _ = Describe("Mtar", func() {
 		It("Generate Mtar - Sanity", func() {
 			ep := dir.Loc{SourcePath: getTestPath("mtahtml5"), TargetPath: getResultPath()}
 			createMtahtml5TmpFolder()
-			Ω(generateMeta(&ep, &ep, false, "cf", true, false)).Should(Succeed())
+			Ω(generateMeta(&ep, &ep, false, "cf", true, true)).Should(Succeed())
 			mtarPath, err := generateMtar(&ep, &ep, &ep, true, "")
 			Ω(err).Should(Succeed())
 			Ω(mtarPath).Should(BeAnExistingFile())

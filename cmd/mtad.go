@@ -27,8 +27,8 @@ var mtadCmd = &cobra.Command{
 
 var mtadGenCmd = &cobra.Command{
 	Use:   "gen",
-	Short: "Generates mtad.yaml",
-	Long:  "Generates deployment descriptor (mtad.yaml) from development descriptor (mta.yaml)",
+	Short: "Generates an 'mtad.yaml' file",
+	Long:  "Generates a deployment descriptor ('mtad.yaml') file from the 'mta.yaml' file",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		err := artifacts.ExecuteMtadGen(mtadGenCmdSrc, mtadGenCmdTrg, mtadGenCmdExtensions, mtadGenCmdPlatform, os.Getwd)

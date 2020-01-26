@@ -80,7 +80,7 @@ var mtarCmd = &cobra.Command{
 	Long:  "Generates MTA archive from the folder with all artifacts",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		err := artifacts.ExecuteGenMtar(mtarCmdSrc, mtarCmdTrg, mtarCmdTrgProvided, mtarCmdDesc, mtadGenCmdExtensions, mtarCmdMtarName, os.Getwd)
+		err := artifacts.ExecuteGenMtar(mtarCmdSrc, mtarCmdTrg, mtarCmdTrgProvided, mtarCmdDesc, mtarCmdExtensions, mtarCmdMtarName, os.Getwd)
 		logError(err)
 		return err
 	},
