@@ -447,6 +447,12 @@ var _ = Describe("IfNoSource", func() {
 		module := mta.Module{BuildParams: buildParams}
 		Ω(IfNoSource(&module)).Should(BeTrue())
 	})
+	It("no source module", func() {
+		buildParams := make(map[string]interface{})
+		buildParams[noSourceParam] = false
+		module := mta.Module{BuildParams: buildParams}
+		Ω(IfNoSource(&module)).Should(BeFalse())
+	})
 	It("not no source module", func() {
 		buildParams := make(map[string]interface{})
 		module := mta.Module{BuildParams: buildParams}

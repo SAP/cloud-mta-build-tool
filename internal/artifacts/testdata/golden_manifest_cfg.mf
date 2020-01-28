@@ -10,6 +10,9 @@ Name: config-site-host.json
 MTA-Requires: node-js/java-site-host
 Content-Type: application/json
 
+Name: config-site-host1.json
+MTA-Requires: node-js1/java-site-host1
+Content-Type: application/json
 
 Name: META-INF/mtad.yaml
 Content-Type: text/plain

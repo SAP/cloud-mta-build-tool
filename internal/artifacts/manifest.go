@@ -122,32 +122,30 @@ func getModulesEntries(source dir.ISourceModule, targetPathGetter dir.ITargetPat
 
 	var entries []entry
 	for _, mod := range moduleList {
-		if buildops.IfNoSource(mod) {
-			continue
-		}
-
-		_, defaultBuildResult, err := commands.CommandProvider(*mod)
-		if err != nil {
-			return nil, err
-		}
-		modulePath, _, err := buildops.GetModuleTargetArtifactPath(source, targetPathGetter, depDesc, mod, defaultBuildResult)
-		if modulePath != "" && err == nil {
-			_, err = os.Stat(modulePath)
-		}
-
-		if err != nil {
-			return nil, errors.Wrapf(err, wrongArtifactPathMsg, mod.Name)
-		}
-
-		if modulePath != "" {
-			contentType, err1 := getContentType(modulePath, contentTypes)
-			if err1 != nil {
-				return nil, errors.Wrapf(err1, unknownModuleContentTypeMsg, mod.Name)
+		if !buildops.IfNoSource(mod) {
+			_, defaultBuildResult, err := commands.CommandProvider(*mod)
+			if err != nil {
+				return nil, err
+			}
+			modulePath, _, err := buildops.GetModuleTargetArtifactPath(source, targetPathGetter, depDesc, mod, defaultBuildResult)
+			if modulePath != "" && err == nil {
+				_, err = os.Stat(modulePath)
 			}
 
-			// get relative path of the module entry (excluding leading slash)
-			moduleEntryPath := strings.Replace(modulePath, targetPathGetter.GetTargetTmpDir(), "", 1)[1:]
-			entries = addModuleEntry(entries, mod, contentType, moduleEntryPath)
+			if err != nil {
+				return nil, errors.Wrapf(err, wrongArtifactPathMsg, mod.Name)
+			}
+
+			if modulePath != "" {
+				contentType, err1 := getContentType(modulePath, contentTypes)
+				if err1 != nil {
+					return nil, errors.Wrapf(err1, unknownModuleContentTypeMsg, mod.Name)
+				}
+
+				// get relative path of the module entry (excluding leading slash)
+				moduleEntryPath := strings.Replace(modulePath, targetPathGetter.GetTargetTmpDir(), "", 1)[1:]
+				entries = addModuleEntry(entries, mod, contentType, moduleEntryPath)
+			}
 		}
 
 		requiredDependenciesWithPath := getRequiredDependencies(mod)

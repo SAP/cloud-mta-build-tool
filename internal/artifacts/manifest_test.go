@@ -57,6 +57,7 @@ var _ = Describe("manifest", func() {
 			createDirInTmpFolder("mta", "node-js")
 			createFileInTmpFolder("mta", "node-js", "data.zip")
 			createFileInTmpFolder("mta", "config-site-host.json")
+			createFileInTmpFolder("mta", "config-site-host1.json")
 			createFileInTmpFolder("mta", "xs-security.json")
 			loc := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath(), MtaFilename: "mta_cfg.yaml"}
 			mtaObj, err := loc.ParseFile()
