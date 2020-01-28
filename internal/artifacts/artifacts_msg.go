@@ -39,7 +39,7 @@ const (
 	buildFailedOnCommandsMsg = `could not get commands for the "%s" module`
 	buildFailedOnDepsMsg     = `could not process dependencies for the "%s" module`
 	buildResultMsg           = `the build results of the "%s" module will be packed and saved in the "%s" folder`
-	buildSkippedMsg          = `the "%s" module building skipped due to "no-source" configuration`
+	buildSkippedMsg          = `the "%s" module building was skipped due to "no-source" configuration`
 
 	packMsg                       = `packing the "%s" module...`
 	packFailedOnLocMsg            = `could not pack the "%s" module when initializing the location`
