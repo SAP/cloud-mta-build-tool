@@ -59,6 +59,11 @@ func ExecutePack(source, target string, extensions []string, moduleName, platfor
 		return errors.Wrapf(err, packFailedOnCommandsMsg, moduleName)
 	}
 
+	if buildops.IfNoSource(module) {
+		logs.Logger.Infof(packSkippedMsg, module.Name)
+		return nil
+	}
+
 	err = packModule(loc, loc, module, moduleName, platform, defaultBuildResult)
 	if err != nil {
 		return err
@@ -74,6 +79,11 @@ func buildModule(mtaParser dir.IMtaParser, moduleLoc dir.IModule, targetLoc dir.
 	module, mCmd, defaultBuildResults, err := commands.GetModuleAndCommands(mtaParser, moduleName)
 	if err != nil {
 		return errors.Wrapf(err, buildFailedOnCommandsMsg, moduleName)
+	}
+
+	if buildops.IfNoSource(module) {
+		logs.Logger.Infof(buildSkippedMsg, module.Name)
+		return nil
 	}
 
 	// Development descriptor - build includes:

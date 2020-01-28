@@ -15,6 +15,11 @@ modules:
   - name: uaa_mtatest
   - name: dest_mtatest
 
+- name: u2
+  type: html5
+  build-parameters:
+    no-source: true
+
 resources:
 - name: uaa_mtatest
   parameters:
