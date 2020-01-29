@@ -24,6 +24,12 @@ modules:
         properties:
           url: ${default-url}
 
+  - name: no_source
+    type: nodejs
+    path: node-js
+    build-parameters:
+      no-source: true
+
 resources:
 - name: mta-assembly-uaa
   parameters:

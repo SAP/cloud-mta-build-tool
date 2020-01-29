@@ -8,6 +8,10 @@ github.com/SAP/cloud-mta v0.0.7-0.20191222153800-2e029f596476 h1:LIvhuoD0nYIW80U
 github.com/SAP/cloud-mta v0.0.7-0.20191222153800-2e029f596476/go.mod h1:5zf+QQCT4D1tyzzPLV5zl7Uv5AP7SXoD5mHX7ANYlr0=
 github.com/SAP/cloud-mta v0.0.7-0.20191223120657-e554068c171c h1:UaA3EeB3t+Ibr011bvEYLBcohraH/Fm0RODp690y4yU=
 github.com/SAP/cloud-mta v0.0.7-0.20191223120657-e554068c171c/go.mod h1:5zf+QQCT4D1tyzzPLV5zl7Uv5AP7SXoD5mHX7ANYlr0=
+github.com/SAP/cloud-mta v0.0.7 h1:KDsF0zmyNMAYwoneGu97Oi0058I2xI5Ns4g0m4cXZmM=
+github.com/SAP/cloud-mta v0.0.7/go.mod h1:5zf+QQCT4D1tyzzPLV5zl7Uv5AP7SXoD5mHX7ANYlr0=
+github.com/SAP/cloud-mta v0.0.8-0.20200123092447-14a7e5d70ac6 h1:Yx0wp6WFPDZLw1+A01jfNkotzz8gUNPNyKy+IW/Mc8A=
+github.com/SAP/cloud-mta v0.0.8-0.20200123092447-14a7e5d70ac6/go.mod h1:5zf+QQCT4D1tyzzPLV5zl7Uv5AP7SXoD5mHX7ANYlr0=
 github.com/alecthomas/template v0.0.0-20160405071501-a0175ee3bccc/go.mod h1:LOuyumcjzFXgccqObfd/Ljyb9UuFJ6TxHnclSeseNhc=
 github.com/alecthomas/units v0.0.0-20151022065526-2efee857e7cf/go.mod h1:ybxpYRFXyAe+OPACYpWeL0wqObRcbAqCMya13uyzqw0=
 github.com/armon/consul-api v0.0.0-20180202201655-eb2c6b5be1b6/go.mod h1:grANhF5doyWs3UAsr3K4I6qtAmlQcZDesFNEHPZAzj8=

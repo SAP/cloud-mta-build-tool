@@ -1,8 +1,8 @@
 # List of modules
-modules = {{- range .File.Modules}} {{.Name}}{{end}}
+modules = {{- range .File.Modules}}{{- if not ($.IsNoSource .Name)}} {{.Name}}{{end}}{{end}}
 
 # Execute all modules builds
-{{- range .File.Modules}}
+{{- range .File.Modules}}{{- if not ($.IsNoSource .Name)}}
 # build module {{.Name}}
 {{.Name}}: validate {{- range $.GetModuleDeps .Name}} {{.Name}}{{end}}
 {{"\t"}}@echo 'INFO building the "{{.Name}}" module...'
@@ -11,4 +11,4 @@ modules = {{- range .File.Modules}} {{.Name}}{{end}}
 # Pack module build artifacts
 {{"\t"}}@$(MBT) module pack -m={{.Name}} -p=${p} -t=${t} {{- ExtensionsArg "-e"}}
 {{"\t"}}@echo 'INFO finished building the "{{.Name}}" module'
-{{end}}
+{{end}}{{end}}

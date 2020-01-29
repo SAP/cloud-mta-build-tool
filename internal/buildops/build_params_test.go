@@ -440,6 +440,26 @@ var _ = Describe("GetBuilder", func() {
 	})
 })
 
+var _ = Describe("IfNoSource", func() {
+	It("no source module", func() {
+		buildParams := make(map[string]interface{})
+		buildParams[noSourceParam] = true
+		module := mta.Module{BuildParams: buildParams}
+		Ω(IfNoSource(&module)).Should(BeTrue())
+	})
+	It("no source module", func() {
+		buildParams := make(map[string]interface{})
+		buildParams[noSourceParam] = false
+		module := mta.Module{BuildParams: buildParams}
+		Ω(IfNoSource(&module)).Should(BeFalse())
+	})
+	It("not no source module", func() {
+		buildParams := make(map[string]interface{})
+		module := mta.Module{BuildParams: buildParams}
+		Ω(IfNoSource(&module)).Should(BeFalse())
+	})
+})
+
 func getTestPath(relPath ...string) string {
 	wd, _ := os.Getwd()
 	return filepath.Join(wd, "testdata", filepath.Join(relPath...))

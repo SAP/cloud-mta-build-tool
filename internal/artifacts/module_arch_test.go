@@ -88,6 +88,13 @@ builders:
 			Ω(loc.GetTargetModuleZipPath("node-js")).Should(BeAnExistingFile())
 		})
 
+		It("no-source module", func() {
+			Ω(ExecutePack(getTestPath("mta"), getResultPath(), nil, "no_source",
+				"cf", os.Getwd)).Should(Succeed())
+			loc := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath()}
+			Ω(loc.GetTargetModuleZipPath("node-js")).ShouldNot(BeAnExistingFile())
+		})
+
 		It("Fails on platform validation", func() {
 			Ω(ExecutePack(getTestPath("mta"), getResultPath(), nil, "node-js",
 				"xx", os.Getwd)).Should(HaveOccurred())
@@ -377,6 +384,12 @@ builders:
 				Ω(ep.GetTargetModuleZipPath("node-js")).Should(BeAnExistingFile())
 			})
 
+			It("no source module", func() {
+				ep := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath()}
+				Ω(buildModule(&ep, &ep, &ep, "no_source", "cf")).Should(Succeed())
+				Ω(ep.GetTargetModuleZipPath("node-js")).ShouldNot(BeAnExistingFile())
+			})
+
 			It("Commands fail", func() {
 				commands.ModuleTypeConfig = []byte(`
 module-types:
@@ -605,6 +618,11 @@ module-types:
 		It("target folder is file", func() {
 			err := copyModuleArchiveToResultDir(getTestPath("assembly", "data.jar"), getTestPath("assembly", "file", "file"), "m1")
 			checkError(err, dir.FolderCreationFailedMsg, getTestPath("assembly", "file"))
+		})
+
+		It("target is existing folder", func() {
+			err := copyModuleArchiveToResultDir(getTestPath("assembly", "file"), getTestPath("assembly", "folder3"), "m1")
+			checkError(err, packFailedOnCopyMsg, "m1", getTestPath("assembly", "file"), getTestPath("assembly", "folder3"))
 		})
 	})
 

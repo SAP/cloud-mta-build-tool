@@ -166,17 +166,22 @@ func removeBuildParamsFromMta(loc dir.ITargetPath, mtaStr *mta.MTA, validatePath
 		if err != nil {
 			return errors.Wrapf(err, adaptationMsg, m.Name)
 		}
+		// remove build parameters from modules with defined platforms
+		m.BuildParams = map[string]interface{}{}
 	}
 	return nil
 }
 
 func adaptModulePath(loc dir.ITargetPath, module *mta.Module, validatePaths bool) error {
-	modulePath := filepath.Join(loc.GetTargetTmpDir(), module.Name)
+  modulePath := filepath.Join(loc.GetTargetTmpDir(), module.Name)
 	if validatePaths {
 		_, e := os.Stat(modulePath)
 		if e != nil {
 			return e
 		}
+	}
+	if buildops.IfNoSource(module) {
+		return nil
 	}
 	module.Path = module.Name
 	return nil

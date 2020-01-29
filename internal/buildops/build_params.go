@@ -27,6 +27,7 @@ const (
 	artifactsParam            = "artifacts"
 	buildArtifactNameParam    = "build-artifact-name"
 	targetPathParam           = "target-path"
+	noSourceParam             = "no-source"
 )
 
 // BuildRequires - build requires section.
@@ -259,6 +260,15 @@ func PlatformDefined(module *mta.Module, platform string) bool {
 		if strings.ToLower(p.(string)) == platform {
 			return true
 		}
+	}
+	return false
+}
+
+// IfNoSource - checks if "no-source" build parameter defined and set to "true"
+func IfNoSource(module *mta.Module) bool {
+	if module.BuildParams != nil && module.BuildParams[noSourceParam] != nil {
+		noSource, ok := module.BuildParams[noSourceParam].(bool)
+		return ok && noSource
 	}
 	return false
 }
