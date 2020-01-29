@@ -46,7 +46,7 @@ func ExecuteMtadGen(source, target string, extensions []string, platform string,
 		return errors.Wrap(err, "generation of the MTAD file failed when initializing the location")
 	}
 
-	return executeGenMetaByLocation(loc, &mtadLoc{target}, platform, false, false)
+	return executeGenMetaByLocation(loc, &mtadLoc{target}, platform, false, true)
 }
 
 func validatePlatform(platform string) (string, error) {
@@ -158,30 +158,23 @@ func adjustNeoAppName(name string) string {
 
 // if module has to be deployed we clean build parameters from module,
 // as this section is not used in MTAD yaml
-func removeBuildParamsFromMta(loc dir.ITargetPath, mtaStr *mta.MTA, validatePaths bool) error {
+func removeBuildParamsFromMta(loc dir.ITargetPath, mtaStr *mta.MTA, skipValidation bool) error {
 	for _, m := range mtaStr.Modules {
 		// remove build parameters from modules with defined platforms
 		m.BuildParams = map[string]interface{}{}
-		err := adaptModulePath(loc, m, validatePaths)
+		err := adaptModulePath(loc, m, skipValidation)
 		if err != nil {
 			return errors.Wrapf(err, adaptationMsg, m.Name)
 		}
-		// remove build parameters from modules with defined platforms
-		m.BuildParams = map[string]interface{}{}
 	}
 	return nil
 }
 
-func adaptModulePath(loc dir.ITargetPath, module *mta.Module, validatePaths bool) error {
-  modulePath := filepath.Join(loc.GetTargetTmpDir(), module.Name)
-	if validatePaths {
-		_, e := os.Stat(modulePath)
-		if e != nil {
-			return e
-		}
-	}
-	if buildops.IfNoSource(module) {
-		return nil
+func adaptModulePath(loc dir.ITargetPath, module *mta.Module, skipValidation bool) error {
+	modulePath := filepath.Join(loc.GetTargetTmpDir(), module.Name)
+	_, e := os.Stat(modulePath)
+	if !skipValidation && e != nil {
+		return e
 	}
 	module.Path = module.Name
 	return nil
