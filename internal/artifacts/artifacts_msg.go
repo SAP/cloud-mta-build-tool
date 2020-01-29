@@ -39,7 +39,7 @@ const (
 	buildFailedOnCommandsMsg = `could not get commands for the "%s" module`
 	buildFailedOnDepsMsg     = `could not process dependencies for the "%s" module`
 	buildResultMsg           = `the build results of the "%s" module will be packed and saved in the "%s" folder`
-	buildSkippedMsg          = `the "%s" module building was skipped due to "no-source" configuration`
+	buildSkippedMsg          = `the "%s" module was not built because the "no-source" build parameter is set to "true"`
 
 	packMsg                       = `packing the "%s" module...`
 	packFailedOnLocMsg            = `could not pack the "%s" module when initializing the location`
@@ -48,7 +48,7 @@ const (
 	packFailedOnTargetArtifactMsg = `could not pack the "%s" module while getting the build artifact target path`
 	packFailedOnFolderCreationMsg = `could not pack the "%s" module when creating the "%s" folder`
 	packFailedOnCopyMsg           = `could not pack the "%s" module when copying the "%s" path to the "%s" path`
-	packSkippedMsg                = `the "%s" module pack was skipped due to "no-source" configuration`
+	packSkippedMsg                = `the "%s" module was not packaged because the "no-source" build parameter is set to "true"`
 	// PackFailedOnArchMsg - message raised when pack fails during archiving the module
 	PackFailedOnArchMsg = `could not pack the "%s" module when archiving`
 
