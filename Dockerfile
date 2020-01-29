@@ -4,8 +4,8 @@ FROM openjdk:8-jdk-slim
 ARG MTA_USER_HOME=/home/mta
 ARG MBT_VERSION=1.0.8
 ARG GO_VERSION=1.13.6
-ARG NODE_VERSION=v12.13.0
-ARG MAVEN_VERSION=3.6.2
+ARG NODE_VERSION=v12.13.1
+ARG MAVEN_VERSION=3.6.3
 
 ENV PYTHON /usr/bin/python2.7
 ENV M2_HOME=/opt/maven/apache-maven-${MAVEN_VERSION}
@@ -17,7 +17,6 @@ ENV GOOS=linux
 # Download required env tools
 RUN apt-get update && \
     apt-get install --yes --no-install-recommends curl git  && \
-
 
     # Change security level as the SAP npm repo doesnt support buster new security upgrade
     # the default configuration for OpenSSL in Buster explicitly requires using more secure ciphers and protocols,
@@ -34,11 +33,12 @@ RUN apt-get update && \
     ln -s "${NODE_HOME}/node-${NODE_VERSION}-linux-x64/bin/node" /usr/local/bin/node && \
     ln -s "${NODE_HOME}/node-${NODE_VERSION}-linux-x64/bin/npm" /usr/local/bin/npm && \
     ln -s "${NODE_HOME}/node-${NODE_VERSION}-linux-x64/bin/npx" /usr/local/bin/ && \
+    npm install --prefix /usr/local/ -g grunt-cli && \
     # config NPM
     npm config set @sap:registry https://npm.sap.com --global && \
     echo "[INFO] installing maven." && \
 
-    # installing Golang
+#     installing Golang
     curl -O https://storage.googleapis.com/golang/go${GO_VERSION}.linux-amd64.tar.gz && tar -xvf go${GO_VERSION}.linux-amd64.tar.gz && \
     mv go /usr/local && \
     mkdir -p "$GOPATH/src" "$GOPATH/bin" && chmod -R 777 "$GOPATH" && \
@@ -79,7 +79,6 @@ RUN apt-get update && \
 ENV PATH=$PATH:./node_modules/.bin HOME=${MTA_USER_HOME}
 WORKDIR /project
 USER mta
-
 
 
 
