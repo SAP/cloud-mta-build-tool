@@ -15,21 +15,11 @@ var mtadGenCmdExtensions []string
 var mtadGenCmdPlatform string
 
 // Provide mtad.yaml from mta.yaml
-var mtadCmd = &cobra.Command{
-	Use:           "mtad",
+var mtadGenCmd = &cobra.Command{
+	Use:           "mtad-gen",
 	Short:         "Generates an 'mtad.yaml' file",
 	Long:          "Generates a deployment descriptor ('mtad.yaml') file from the 'mta.yaml' file",
 	Args:          cobra.NoArgs,
-	RunE:          nil,
-	SilenceUsage:  true,
-	SilenceErrors: true,
-}
-
-var mtadGenCmd = &cobra.Command{
-	Use:   "gen",
-	Short: "Generates an 'mtad.yaml' file",
-	Long:  "Generates a deployment descriptor ('mtad.yaml') file from the 'mta.yaml' file",
-	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		err := artifacts.ExecuteMtadGen(mtadGenCmdSrc, mtadGenCmdTrg, mtadGenCmdExtensions, mtadGenCmdPlatform, os.Getwd)
 		logError(err)
@@ -40,9 +30,6 @@ var mtadGenCmd = &cobra.Command{
 }
 
 func init() {
-
-	mtadCmd.AddCommand(mtadGenCmd)
-
 	// set flags of mtad gen command
 	mtadGenCmd.Flags().StringVarP(&mtadGenCmdSrc, "source", "s", "",
 		"The path to the MTA project; the current path is set as default")
