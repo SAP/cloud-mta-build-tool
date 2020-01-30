@@ -185,7 +185,6 @@ func adaptModulePath(loc dir.ITargetPath, module *mta.Module, validatePaths bool
 	return nil
 }
 
-
 func adjustSchemaVersion(mtaStr *mta.MTA) error {
 	schemaVersionSlice := strings.Split(*mtaStr.SchemaVersion, ".")
 	schemaVersion, err := strconv.Atoi(schemaVersionSlice[0])
