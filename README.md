@@ -38,7 +38,7 @@ docker build -t devxci/mbtci .
 ## The image provides:
 
 
-- Cloud MTA Build Tool - 1.0.8
+- Cloud MTA Build Tool - 1.0.9
 
 - Nodejs - 12.13.1
 
