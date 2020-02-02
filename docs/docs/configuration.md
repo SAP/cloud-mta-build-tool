@@ -286,3 +286,24 @@ modules:
 &nbsp;
 
 > **_NOTE:_** The file extension is not configurable; it is predefined by the module type (.zip or .war).
+
+&nbsp;
+
+#### Configuring a module that does not have source code to build and package
+
+There are use cases when a module does not have any source code that should be built and therefore there are no build results to be packaged into the MTA archive. The module definition in the MTA descriptor is the only input that is required to deploy the module into the target environment. You can instruct the tool to treat the module as such by setting a build parameter `no-source` to `true` as follows: 
+
+&nbsp;
+
+```yaml
+
+modules:
+  - name: module1
+    type: any
+    build-parameters:
+      no-source: true
+     
+```
+When the `no-source` parameter is `true`, the tool does not validate the `path` property, so it can be omitted as shown in the example above. No action is performed during the module's build step, so all parameters configuring the module build behaviour, e.g. `builder`, `timeout`, `ignore`, etc. are ignored. There is no content associated with this module in the result MTA archive. The rest of the module processing is the same as when the parameter is not provided, e.g. the entry in the generated the deployment descriptor is created based on `supported-platforms` settings. 
+
+&nbsp;
