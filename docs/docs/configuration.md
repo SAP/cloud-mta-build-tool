@@ -299,7 +299,7 @@ There are use cases when a module does not have any source code that should be b
 
 modules:
   - name: module1
-    type: any
+    ...
     build-parameters:
       no-source: true
      
