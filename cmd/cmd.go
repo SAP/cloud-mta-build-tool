@@ -26,11 +26,11 @@ var validateCmdExclude string
 func init() {
 
 	// Add command to the root
-	rootCmd.AddCommand(initCmd, buildCmd, validateCmd, cleanupCmd, provideCmd, generateCmd, moduleCmd, assembleCommand, projectCmd, mergeCmd, executeCommand, copyCmd)
+	rootCmd.AddCommand(initCmd, buildCmd, validateCmd, cleanupCmd, provideCmd, generateCmd, moduleCmd, assembleCommand, projectCmd, mergeCmd, executeCommand, copyCmd, mtadGenCmd)
 	// Build module
 	provideCmd.AddCommand(provideModuleCmd)
 	// generate immutable commands
-	generateCmd.AddCommand(metaCmd, mtadCmd, mtarCmd)
+	generateCmd.AddCommand(metaCmd, mtarCmd)
 	// module commands
 	moduleCmd.AddCommand(buildModuleCmd, packModuleCmd)
 	// project commands
