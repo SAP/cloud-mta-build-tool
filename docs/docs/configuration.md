@@ -291,7 +291,7 @@ modules:
 
 #### Configuring a module that does not have source code to build and package
 
-There are use cases when a module does not have any source code that should be built and therefore there are no build results to be packaged into the MTA archive. The module definition in the MTA descriptor is the only input that is required to deploy the module into the target environment. You can instruct the tool to treat the module as such by setting a build parameter `no-source` to `true` as follows: 
+There are use cases when a module does not have any source code that should be built and therefore there are no build results to be packaged into the MTA archive. The module definition in the MTA descriptor is the only input that is required to deploy the module into the target environment. You can instruct the tool to treat the module as such by setting the build parameter `no-source` to `true` as follows: 
 
 &nbsp;
 
