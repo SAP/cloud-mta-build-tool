@@ -114,6 +114,10 @@ jobs:
       - run:
           name: publish to npm
           command: |
+            #Make sure HEAD points to master
+            git checkout master
+            git fetch
+            git rebase
             echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > .npmrc
             npm publish
       - run:
