@@ -6,7 +6,7 @@ The Cloud MTA Build Tool is a command-line tool that packages a multitarget appl
 
 This image can be used to build SAP Multitarget Applications (MTA) containing Java, Node.js, and Golang modules. The image is hosted at hub.docker.com.
 
-
+**<b>Note:</b> From MBT release `1.1` we will upgrade java base image from `jdk:8` to `jdk:11`.**
 
 ## How to use the image
 
