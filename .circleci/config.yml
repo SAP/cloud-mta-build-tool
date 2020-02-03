@@ -85,7 +85,8 @@ jobs:
             #Update Docker file in docker branch
             git checkout docker
             sed  -i "/ARG MBT_VERSION=/ s/${CURR_MBT_VERSION}/${MBT_VERSION}/" ./Dockerfile
-            git add ./Dockerfile
+            sed  -i "/- Cloud MTA Build Tool -/s/${CURR_MBT_VERSION}/${MBT_VERSION}/" ./README.md
+            git add ./Dockerfile ./README.md
             git config user.email "${MBT_REPO_USER_EMAIL}"
             git config user.name "${MBT_REPO_USER}"
             git commit -m "[skip ci] Bump version ${MBT_VERSION}"
@@ -114,6 +115,10 @@ jobs:
       - run:
           name: publish to npm
           command: |
+            #Make sure HEAD points to master
+            git checkout master
+            git fetch
+            git rebase
             echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > .npmrc
             npm publish
       - run:
