@@ -64,7 +64,7 @@ func ExecutePack(source, target string, extensions []string, moduleName, platfor
 		return nil
 	}
 
-	if module.Path == ""{
+	if module.Path == "" {
 		return errors.Wrapf(err, packFailedOnEmptyPathMsg, moduleName)
 	}
 
@@ -90,7 +90,7 @@ func buildModule(mtaParser dir.IMtaParser, moduleLoc dir.IModule, targetLoc dir.
 		return nil
 	}
 
-	if module.Path == ""{
+	if module.Path == "" {
 		return errors.Wrapf(err, buildFailedOnEmptyPathMsg, moduleName)
 	}
 
