@@ -82,25 +82,23 @@ jobs:
             #Tag
             git tag -a v${MBT_VERSION} -m "New release ${MBT_VERSION}"
             git push https://github.com/SAP/cloud-mta-build-tool.git v${MBT_VERSION}
-            #Update Docker file in docker branch
+            #Update new version in docker branch
             git checkout docker
             sed  -i "/ARG MBT_VERSION=/ s/${CURR_MBT_VERSION}/${MBT_VERSION}/" ./Dockerfile
             sed  -i "/- Cloud MTA Build Tool -/s/${CURR_MBT_VERSION}/${MBT_VERSION}/" ./README.md
-            git add ./Dockerfile ./README.md
+            sed  -i "s/- ${CURR_MBT_VERSION}/- ${MBT_VERSION}/" ./test/goss/goss.yaml
+            git add ./Dockerfile ./README.md ./test/goss/goss.yaml
             git config user.email "${MBT_REPO_USER_EMAIL}"
             git config user.name "${MBT_REPO_USER}"
             git commit -m "[skip ci] Bump version ${MBT_VERSION}"
             #Push commit directly to docker branch
             git push -q https://github.com/SAP/cloud-mta-build-tool.git docker
-            #Make sure HEAD points to master
-            git checkout master
-      - run:
-          name: export github token for releaser
-          command: |
-            export GITHUB_TOKEN=${GITHUB_TOKEN}
       - run:
           name: release new version
           command: |
+            #Make sure HEAD points to master
+            git checkout master
+            export GITHUB_TOKEN=${GITHUB_TOKEN}
             curl -sL https://git.io/goreleaser | bash
             
   publish:
