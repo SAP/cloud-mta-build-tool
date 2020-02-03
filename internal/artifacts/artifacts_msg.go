@@ -33,13 +33,14 @@ const (
 	genMTARParsingMsg = `could not generate the MTA archive`
 	genMTARArchMsg    = `could not generate the MTA archive when archiving`
 
-	buildMsg                 = `building the "%s" module...`
-	buildFinishedMsg         = `finished building the "%s" module`
-	buildFailedMsg           = `could not build the "%s" module`
-	buildFailedOnCommandsMsg = `could not get commands for the "%s" module`
-	buildFailedOnDepsMsg     = `could not process dependencies for the "%s" module`
-	buildResultMsg           = `the build results of the "%s" module will be packed and saved in the "%s" folder`
-	buildSkippedMsg          = `the "%s" module was not built because the "no-source" build parameter is set to "true"`
+	buildMsg                  = `building the "%s" module...`
+	buildFinishedMsg          = `finished building the "%s" module`
+	buildFailedMsg            = `could not build the "%s" module`
+	buildFailedOnCommandsMsg  = `could not get commands for the "%s" module`
+	buildFailedOnDepsMsg      = `could not process dependencies for the "%s" module`
+	buildResultMsg            = `the build results of the "%s" module will be packed and saved in the "%s" folder`
+	buildSkippedMsg           = `the "%s" module was not built because the "no-source" build parameter is set to "true"`
+	buildFailedOnEmptyPathMsg = `the "%s" module was not built because mandatory "path" property is missing or empty"`
 
 	packMsg                       = `packing the "%s" module...`
 	packFailedOnLocMsg            = `could not pack the "%s" module when initializing the location`
@@ -49,6 +50,7 @@ const (
 	packFailedOnFolderCreationMsg = `could not pack the "%s" module when creating the "%s" folder`
 	packFailedOnCopyMsg           = `could not pack the "%s" module when copying the "%s" path to the "%s" path`
 	packSkippedMsg                = `the "%s" module was not packaged because the "no-source" build parameter is set to "true"`
+	packFailedOnEmptyPathMsg      = `the "%s" module was not packaged because mandatory "path" property is missing or empty"`
 	// PackFailedOnArchMsg - message raised when pack fails during archiving the module
 	PackFailedOnArchMsg = `could not pack the "%s" module when archiving`
 

@@ -126,6 +126,10 @@ cli_version:["x"]
 
 	var _ = Describe("Generate Commands", func() {
 
+		AfterEach(func() {
+			Ω(os.RemoveAll(getResultPath())).Should(Succeed())
+		})
+
 		readFileContent := func(ep dir.IMtaParser) *mta.MTA {
 			mtaObj, _ := ep.ParseFile()
 			return mtaObj
@@ -137,6 +141,20 @@ cli_version:["x"]
 			Ω(generateMeta(&ep, &ep, false, "cf", true, true)).Should(Succeed())
 			Ω(readFileContent(&dir.Loc{SourcePath: getFullPathInTmpFolder("mtahtml5", "META-INF"), Descriptor: "dep"})).
 				Should(Equal(readFileContent(&dir.Loc{SourcePath: getTestPath("golden"), Descriptor: "dep"})))
+		})
+
+		It("Generate Meta - fails on missing module path in temporary folder", func() {
+			createMtahtml5WithMissingModuleTmpFolder()
+			ep := dir.Loc{SourcePath: getTestPath("mtahtml5"), TargetPath: getResultPath()}
+			Ω(generateMeta(&ep, &ep, false, "cf", false, true)).Should(HaveOccurred())
+		})
+
+		It("Generate Meta - doesn't fail on missing module path in temporary folder because module configured as no-source", func() {
+			createMtahtml5WithMissingModuleTmpFolder()
+			ep := dir.Loc{SourcePath: getTestPath("mtahtml5"), TargetPath: getResultPath(), MtaFilename: "mtaWithNoSource.yaml"}
+			Ω(generateMeta(&ep, &ep, false, "cf", true, true)).Should(Succeed())
+			Ω(readFileContent(&dir.Loc{SourcePath: getFullPathInTmpFolder("mtahtml5", "META-INF"), Descriptor: "dep"})).
+				Should(Equal(readFileContent(&dir.Loc{SourcePath: getTestPath("goldenNoSource"), Descriptor: "dep"})))
 		})
 
 		It("Generate Meta - mta not exists", func() {
@@ -255,6 +273,13 @@ func createMtahtml5TmpFolder() {
 	createDirInTmpFolder("mtahtml5", "ui5app")
 	createDirInTmpFolder("mtahtml5", "META-INF")
 	createFileInTmpFolder("mtahtml5", "ui5app", "data.zip")
+	createFileInTmpFolder("mtahtml5", "ui5app2", "data.zip")
+	createFileInTmpFolder("mtahtml5", "xs-security.json")
+}
+
+func createMtahtml5WithMissingModuleTmpFolder() {
+	createDirInTmpFolder("mtahtml5", "ui5app2")
+	createDirInTmpFolder("mtahtml5", "META-INF")
 	createFileInTmpFolder("mtahtml5", "ui5app2", "data.zip")
 	createFileInTmpFolder("mtahtml5", "xs-security.json")
 }

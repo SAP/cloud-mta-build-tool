@@ -64,6 +64,10 @@ func ExecutePack(source, target string, extensions []string, moduleName, platfor
 		return nil
 	}
 
+	if module.Path == ""{
+		return errors.Wrapf(err, packFailedOnEmptyPathMsg, moduleName)
+	}
+
 	err = packModule(loc, loc, module, moduleName, platform, defaultBuildResult)
 	if err != nil {
 		return err
@@ -84,6 +88,10 @@ func buildModule(mtaParser dir.IMtaParser, moduleLoc dir.IModule, targetLoc dir.
 	if buildops.IfNoSource(module) {
 		logs.Logger.Infof(buildSkippedMsg, module.Name)
 		return nil
+	}
+
+	if module.Path == ""{
+		return errors.Wrapf(err, buildFailedOnEmptyPathMsg, moduleName)
 	}
 
 	// Development descriptor - build includes:
