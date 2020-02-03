@@ -46,7 +46,7 @@ var _ = Describe("Validate", func() {
 		})
 		When("sending extension files", func() {
 			It("succeeds when the files are valid", func() {
-				Ω(ExecuteValidation(getTestPath("mta_with_ext"), "dev", []string{"cf-mtaext.mtaext", "other.mtaext"}, "semantic", "true", "emptyPath", os.Getwd)).Should(Succeed())
+				Ω(ExecuteValidation(getTestPath("mta_with_ext"), "dev", []string{"cf-mtaext.mtaext", "other.mtaext"}, "semantic", "true", "", os.Getwd)).Should(Succeed())
 			})
 			It("succeeds when there are warnings on the mtaext files", func() {
 				Ω(ExecuteValidation(getTestPath("mta_wrong"), "dev", []string{"wrong.mtaext"}, "schema", "false", "", os.Getwd)).Should(Succeed())

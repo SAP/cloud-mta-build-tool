@@ -264,4 +264,14 @@ makefile_version: 0.0.0
 		_, err := data.IsNoSource("m2")
 		Ω(err).Should(HaveOccurred())
 	})
+
+	It("IsNoSource fails on empty path", func() {
+		data := templateData{File: mta.MTA{Modules: []*mta.Module{
+			{
+				Name: "m1",
+			},
+		}}}
+		_, err := data.IsNoSource("m1")
+		Ω(err).Should(HaveOccurred())
+	})
 })

@@ -78,7 +78,11 @@ func (data templateData) IsNoSource(moduleName string) (bool, error) {
 	if e != nil {
 		return false, e
 	}
-	return buildops.IfNoSource(module), nil
+	noSource := buildops.IfNoSource(module)
+	if !noSource && module.Path == "" {
+		return false, errors.Errorf(`mandatory "path" property of the "%s" module is missing or empty`, moduleName)
+	}
+	return noSource, nil
 }
 
 func (data templateData) GetModuleDeps(moduleName string) ([]templateDepData, error) {
