@@ -38,21 +38,21 @@ const (
 	buildFailedMsg            = `could not build the "%s" module`
 	buildFailedOnCommandsMsg  = `could not get commands for the "%s" module`
 	buildFailedOnDepsMsg      = `could not process dependencies for the "%s" module`
-	buildResultMsg            = `the build results of the "%s" module will be packed and saved in the "%s" folder`
+	buildResultMsg            = `the build results of the "%s" module will be packaged and saved in the "%s" folder`
 	buildSkippedMsg           = `the "%s" module was not built because the "no-source" build parameter is set to "true"`
-	buildFailedOnEmptyPathMsg = `the "%s" module was not built because the mandatory "path" property is missing or empty"`
+	buildFailedOnEmptyPathMsg = `could not build the "%s" module because the mandatory "path" property is missing or empty"`
 
-	packMsg                       = `packing the "%s" module...`
-	packFailedOnLocMsg            = `could not pack the "%s" module when initializing the location`
-	packFailedOnCommandsMsg       = `could not pack the "%s" module when getting commands`
-	packFailedOnBuildArtifactMsg  = `could not pack the "%s" module while getting the build artifact`
-	packFailedOnTargetArtifactMsg = `could not pack the "%s" module while getting the build artifact target path`
-	packFailedOnFolderCreationMsg = `could not pack the "%s" module when creating the "%s" folder`
-	packFailedOnCopyMsg           = `could not pack the "%s" module when copying the "%s" path to the "%s" path`
+	packMsg                       = `packaging the "%s" module...`
+	packFailedOnLocMsg            = `could not package the "%s" module when initializing the location`
+	packFailedOnCommandsMsg       = `could not package the "%s" module when getting commands`
+	packFailedOnBuildArtifactMsg  = `could not package the "%s" module while getting the build artifact`
+	packFailedOnTargetArtifactMsg = `could not package the "%s" module while getting the build artifact target path`
+	packFailedOnFolderCreationMsg = `could not package the "%s" module when creating the "%s" folder`
+	packFailedOnCopyMsg           = `could not package the "%s" module when copying the "%s" path to the "%s" path`
 	packSkippedMsg                = `the "%s" module was not packaged because the "no-source" build parameter is set to "true"`
-	packFailedOnEmptyPathMsg      = `the "%s" module was not packaged because the mandatory "path" property is missing or empty"`
-	// PackFailedOnArchMsg - message raised when pack fails during archiving the module
-	PackFailedOnArchMsg = `could not pack the "%s" module when archiving`
+	packFailedOnEmptyPathMsg      = `could not package the "%s" module because the mandatory "path" property is missing or empty"`
+	// PackFailedOnArchMsg - message raised when packaging fails during archiving the module
+	PackFailedOnArchMsg = `could not package the "%s" module when archiving`
 
 	copyContentFailedOnLocMsg = `could not copy the MTA content when initializing the deployment descriptor location`
 	copyContentFailedMsg      = `could not copy the MTA content`
