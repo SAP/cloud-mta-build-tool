@@ -80,7 +80,7 @@ func (data templateData) IsNoSource(moduleName string) (bool, error) {
 	}
 	noSource := buildops.IfNoSource(module)
 	if !noSource && module.Path == "" {
-		return false, errors.Errorf(`mandatory "path" property of the "%s" module is missing or empty`, moduleName)
+		return false, errors.Errorf(noPathMsg, moduleName)
 	}
 	return noSource, nil
 }
