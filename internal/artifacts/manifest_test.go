@@ -382,6 +382,13 @@ bad config
 		},
 		),
 	)
+
+	var _ = Describe("getContentType", func() {
+		It("fails on empty path", func() {
+			_, err := getContentType("", &conttype.ContentTypes{})
+			Ω(err).Should(HaveOccurred())
+		})
+	})
 })
 
 type testWriter struct {
