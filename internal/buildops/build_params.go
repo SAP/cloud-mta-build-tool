@@ -174,14 +174,14 @@ func IsArchive(path string) (isArchive, isFolder bool, e error) {
 }
 
 // GetModuleTargetArtifactPath - get the path to where the module's artifact should be created in the temp folder, from which it's archived in the mtar
-func GetModuleTargetArtifactPath(source dir.ISourceModule, loc dir.ITargetPath, depDesc bool, module *mta.Module, defaultBuildResult string) (path string, toArchive bool, e error) {
+func GetModuleTargetArtifactPath(moduleLoc dir.IModule, depDesc bool, module *mta.Module, defaultBuildResult string) (path string, toArchive bool, e error) {
 	if module.Path == "" {
 		return "", false, nil
 	}
 	if depDesc {
-		path = filepath.Join(loc.GetTargetTmpDir(), module.Path)
+		path = filepath.Join(moduleLoc.GetTargetModuleDir(module.Path))
 	} else {
-		moduleSourceArtifactPath, err := GetModuleSourceArtifactPath(source, depDesc, module, defaultBuildResult, true)
+		moduleSourceArtifactPath, err := GetModuleSourceArtifactPath(moduleLoc, depDesc, module, defaultBuildResult, true)
 		if err != nil {
 			return "", false, err
 		}
@@ -195,16 +195,8 @@ func GetModuleTargetArtifactPath(source dir.ISourceModule, loc dir.ITargetPath, 
 		}
 		toArchive = !isArchive
 
-		modulePath := source.GetSourceModuleDir(module.Path)
-		var artifactRelPath string
-		if isFolder {
-			artifactRelPath = strings.Replace(moduleSourceArtifactPath, modulePath, "", 1)
-		} else if moduleSourceArtifactPath == modulePath {
-			artifactRelPath = ""
-		} else {
-			artifactRelPath = strings.Replace(filepath.Dir(moduleSourceArtifactPath), modulePath, "", 1)
-		}
-		path = filepath.Join(loc.GetTargetTmpDir(), module.Name, artifactRelPath, artifactName+artifactExt)
+		artifactRelPath := moduleLoc.GetSourceModuleArtifactRelPath(module.Path, moduleSourceArtifactPath, isFolder)
+		path = filepath.Join(moduleLoc.GetTargetModuleDir(module.Name), artifactRelPath, artifactName+artifactExt)
 	}
 	return path, toArchive, nil
 }

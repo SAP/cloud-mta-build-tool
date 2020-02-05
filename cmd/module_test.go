@@ -98,9 +98,17 @@ builders:
 			buildModuleCmdModule = "node-js"
 			buildModuleCmdSrc = getTestPath("mta")
 			buildModuleCmdPlatform = "cf"
-			ep := dir.Loc{SourcePath: buildModuleCmdSrc, TargetPath: buildModuleCmdTrg}
 			Ω(buildModuleCmd.RunE(nil, []string{})).Should(Succeed())
-			Ω(ep.GetTargetModuleZipPath(buildModuleCmdModule)).Should(BeAnExistingFile())
+			Ω(getTestPath("result", ".mta_mta_build_tmp", "node-js", "data.zip")).Should(BeAnExistingFile())
+		})
+
+		It("stand along build Command", func() {
+			soloBuildModuleCmdModule = "node-js"
+			soloBuildModuleCmdSrc = getTestPath("mta")
+			soloBuildModuleCmdPlatform = "cf"
+			soloBuildModuleCmdTrg = getTestPath("result")
+			Ω(soloBuildModuleCmd.RunE(nil, []string{})).Should(Succeed())
+			Ω(getTestPath("result", "data.zip")).Should(BeAnExistingFile())
 		})
 	})
 })
