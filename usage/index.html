@@ -378,6 +378,13 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#auxiliary-commands" class="md-nav__link">
+    Auxiliary commands
+  </a>
+  
+</li>
+      
       
       
       
@@ -625,6 +632,13 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#auxiliary-commands" class="md-nav__link">
+    Auxiliary commands
+  </a>
+  
+</li>
+      
       
       
       
@@ -725,7 +739,7 @@ Generates a temporary <code>Makefile</code> according to the MTA descriptor and 
 <tr>
 <td><code>-p (--platform)</code></td>
 <td>Optional</td>
-<td>The name of the target deployment platform. <br>The supported deployment platforms are: <ul><li><code>cf</code> for SAP Cloud Platform Cloud Foundry environment  <li><code>neo</code> for the SAP Cloud Platform Neo environment <li><code>xsa</code> for the SAP HANA XS advanced model</ul> If this parameter is not provided, the project is built for the SAP Cloud Platform Cloud Foundry environment</td>
+<td>The name of the target deployment platform. <br>The supported deployment platforms are: <ul><li><code>cf</code> for SAP Cloud Platform, Cloud Foundry environment  <li><code>neo</code> for the SAP Cloud Platform, Neo environment <li><code>xsa</code> for the SAP HANA XS advanced model</ul> If this parameter is not provided, the project is built for the SAP Cloud Platform, Cloud Foundry environment</td>
 <td><code>mbt build -p=cf</code></td>
 </tr>
 <tr>
@@ -845,7 +859,7 @@ make -f Makefile.mta p=cf
 <td><code>p</code></td>
 <td>string</td>
 <td>Mandatory</td>
-<td>The name of the target deployment platform. <br>The supported deployment platforms are: <ul><li><code>cf</code> for the SAP Cloud Platform Cloud Foundry environment  <li><code>neo</code> for the SAP Cloud Platform Neo environment <li><code>xsa</code> for the SAP HANA XS advanced model</td>
+<td>The name of the target deployment platform. <br>The supported deployment platforms are: <ul><li><code>cf</code> for the SAP Cloud Platform, Cloud Foundry environment  <li><code>neo</code> for the SAP Cloud Platform, Neo environment <li><code>xsa</code> for the SAP HANA XS advanced model</td>
 <td><code>make -f Makefile.mta p=cf</code></td>
 </tr>
 <tr>
@@ -911,8 +925,52 @@ Creates an MTA archive <code>MTAR</code> file from the module build artifacts ac
 <tr>
 <td><code>-e (--extensions)</code></td>
 <td>Optional</td>
-<td>The path or paths to multitarget application extension files (.mtaext). Several extension files separated by commas can be passed with a single flag, or each extension file can be specified with its own flag.</td>
-<td><code>mbt build -e=test1.mtaext,test2.mtaext</code><br>or<br><code>mbt build -e=test1.mtaext -e=test2.mtaext</code></td>
+<td>The path or paths to multitarget application extension files (<code>.mtaext</code>). Several extension files separated by commas can be passed with a single flag, or each extension file can be specified with its own flag.</td>
+<td><code>mbt assemble -e=test1.mtaext,test2.mtaext</code><br>or<br><code>mbt assemble -e=test1.mtaext -e=test2.mtaext</code></td>
+</tr>
+</tbody>
+</table>
+<p>&nbsp;</p>
+<h3 id="auxiliary-commands">Auxiliary commands</h3>
+<p>This section is dedicated for commands that execute specific steps of the MTA build process such as project validation, build for a single module, and generation of the deployment descriptor. These commands are useful if, for example, you want to build and deploy only specific modules for testing purposes, or if you decide to tailor your own build process for packaging MTA archives.  At the moment, only the command described below is supported. </p>
+<p><b><code>mbt mtad-gen</code></b>
+&nbsp;
+Generates the MTA deployment descriptor (<code>mtad.yaml</code> file) according to the provided MTA descriptor (<code>mta.yaml</code> file) and MTA extensions. </p>
+<p><b>Usage:</b> <code>mbt mtad-gen &lt;flags&gt;</code></p>
+<p><b>Flags:</b></p>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Mandatory&nbsp;/<br>Optional</th>
+<th>Description&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+<th>Examples&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-p (--platform)</code></td>
+<td>Optional</td>
+<td>The name of the target deployment platform. <br>The supported deployment platforms are: <ul><li><code>cf</code> for SAP Cloud Platform, Cloud Foundry environment  <li><code>neo</code> for the SAP Cloud Platform, Neo environment <li><code>xsa</code> for the SAP HANA XS advanced model</ul> If this parameter is not provided, the project is built for the SAP Cloud Platform, Cloud Foundry environment</td>
+<td><code>mbt mtad-gen -p=cf</code></td>
+</tr>
+<tr>
+<td><code>-s (--source)</code></td>
+<td>Optional</td>
+<td>The path to the folder where the project’s <code>mta.yaml</code> file is located; the current path is set as default.</td>
+<td><code>mbt mtad-gen  -s=C:/TestProject</code></td>
+</tr>
+<tr>
+<td><code>-t (--target)</code></td>
+<td>Optional</td>
+<td>The folder where the <code>mtad.yaml</code> will be generated. If this parameter is not provided, the <code>mtad.yaml</code> file is saved in the current folder. If the parameter is provided, the generated file is saved in the root of the folder provided by the argument.</td>
+<td><code>mbt mtad-gen  -t=C:/TestFolder</code></td>
+</tr>
+<tr>
+<td><code>-e (--extensions)</code></td>
+<td>Optional</td>
+<td>The path or paths to multitarget application extension files (<code>.mtaext</code>). Several extension files separated by commas can be passed with a single flag, or each extension file can be specified with its own flag.</td>
+<td><code>mbt mtad-gen -e=test1.mtaext,test2.mtaext</code><br>or<br><code>mbt mtad-gen -e=test1.mtaext -e=test2.mtaext</code></td>
 </tr>
 </tbody>
 </table>
