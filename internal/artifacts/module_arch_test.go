@@ -82,28 +82,23 @@ builders:
 	var _ = Describe("ExecuteSoloBuild", func() {
 
 		It("Sanity, with target path", func() {
-			Ω(ExecuteSoloBuild(getTestPath("mta"), getResultPath(), nil, "node-js", "cf", os.Getwd)).Should(Succeed())
+			Ω(ExecuteSoloBuild(getTestPath("mta"), getResultPath(), nil, "node-js", os.Getwd)).Should(Succeed())
 			Ω(getTestPath("result", "data.zip")).Should(BeAnExistingFile())
 		})
 
 		It("Sanity, no target path", func() {
-			Ω(ExecuteSoloBuild(getTestPath("mta"), "", nil, "node-js", "cf", os.Getwd)).Should(Succeed())
+			Ω(ExecuteSoloBuild(getTestPath("mta"), "", nil, "node-js", os.Getwd)).Should(Succeed())
 			Ω(getTestPath("mta", ".mta_mta_build_tmp", "node-js", "data.zip")).Should(BeAnExistingFile())
 		})
 
-		It("Fails on platform validation", func() {
-			Ω(ExecuteSoloBuild(getTestPath("mta"), getResultPath(), nil, "node-js", "xx", os.Getwd)).Should(HaveOccurred())
-
-		})
-
 		It("Fails on location initialization", func() {
-			Ω(ExecuteSoloBuild("", "", nil, "ui5app", "cf", func() (string, error) {
+			Ω(ExecuteSoloBuild("", "", nil, "ui5app", func() (string, error) {
 				return "", errors.New("err")
 			})).Should(HaveOccurred())
 		})
 
 		It("Fails on wrong module", func() {
-			Ω(ExecuteSoloBuild(getTestPath("mta"), getResultPath(), nil, "ui5app", "cf", os.Getwd)).Should(HaveOccurred())
+			Ω(ExecuteSoloBuild(getTestPath("mta"), getResultPath(), nil, "ui5app", os.Getwd)).Should(HaveOccurred())
 		})
 	})
 
@@ -119,6 +114,11 @@ builders:
 			Ω(ExecutePack(getTestPath("mta"), getResultPath(), nil, "no_source",
 				"cf", os.Getwd)).Should(Succeed())
 			Ω(getTestPath("result", ".mta_mta_build_tmp", "node-js", "data.zip")).ShouldNot(BeAnExistingFile())
+		})
+
+		It("Fails on empty path", func() {
+			Ω(ExecutePack(getTestPath("mta_no_path"), getResultPath(), nil, "no_path",
+				"cf", os.Getwd)).Should(HaveOccurred())
 		})
 
 		It("Fails on platform validation", func() {
@@ -408,6 +408,11 @@ builders:
 				ep := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath()}
 				Ω(buildModule(&ep, &ep, "node-js", "cf")).Should(Succeed())
 				Ω(getTestPath("result", ".mta_mta_build_tmp", "node-js", "data.zip")).Should(BeAnExistingFile())
+			})
+
+			It("empty path", func() {
+				ep := dir.Loc{SourcePath: getTestPath("mta_no_path"), TargetPath: getResultPath()}
+				Ω(buildModule(&ep, &ep, "no_path", "cf")).Should(HaveOccurred())
 			})
 
 			It("no source module", func() {

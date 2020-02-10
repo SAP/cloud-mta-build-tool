@@ -36,14 +36,14 @@ func ExecuteBuild(source, target string, extensions []string, moduleName, platfo
 }
 
 // ExecuteSoloBuild - executes build of module from stand along command
-func ExecuteSoloBuild(source, target string, extensions []string, moduleName, platform string, wdGetter func() (string, error)) error {
+func ExecuteSoloBuild(source, target string, extensions []string, moduleName string, wdGetter func() (string, error)) error {
 	logs.Logger.Infof(buildMsg, moduleName)
 	loc, err := dir.Location(source, target, dir.Dev, extensions, wdGetter)
 	if err != nil {
 		return errors.Wrapf(err, buildFailedMsg, moduleName)
 	}
 	targetLoc := dir.ModuleLocation(loc, target)
-	err = buildModule(loc, targetLoc, moduleName, platform)
+	err = buildModule(loc, targetLoc, moduleName, "cf")
 	if err != nil {
 		return err
 	}
@@ -76,7 +76,7 @@ func ExecutePack(source, target string, extensions []string, moduleName, platfor
 	}
 
 	if module.Path == "" {
-		return errors.Wrapf(err, packFailedOnEmptyPathMsg, moduleName)
+		return fmt.Errorf(packFailedOnEmptyPathMsg, moduleName)
 	}
 
 	err = packModule(loc, module, moduleName, platform, defaultBuildResult)
@@ -107,7 +107,7 @@ func buildModule(mtaParser dir.IMtaParser, moduleLoc dir.IModule, moduleName, pl
 	}
 
 	if module.Path == "" {
-		return errors.Wrapf(err, buildFailedOnEmptyPathMsg, moduleName)
+		return fmt.Errorf(buildFailedOnEmptyPathMsg, moduleName)
 	}
 
 	// Development descriptor - build includes:

@@ -105,7 +105,6 @@ builders:
 		It("stand along build Command", func() {
 			soloBuildModuleCmdModule = "node-js"
 			soloBuildModuleCmdSrc = getTestPath("mta")
-			soloBuildModuleCmdPlatform = "cf"
 			soloBuildModuleCmdTrg = getTestPath("result")
 			Ω(soloBuildModuleCmd.RunE(nil, []string{})).Should(Succeed())
 			Ω(getTestPath("result", "data.zip")).Should(BeAnExistingFile())

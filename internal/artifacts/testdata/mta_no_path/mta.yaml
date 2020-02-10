@@ -1,0 +1,37 @@
+ID: mta
+_schema-version: '2.1'
+version: 0.0.1
+
+build-parameters:
+  before-all:
+    - builder: custom
+      timeout: 6m30s
+      commands:
+        - command1
+        - command2
+  after-all:
+    - builder: custom
+      timeout: 6m30s
+      commands:
+        - command1
+        - command2
+modules:
+  - name: node-js
+    type: nodejs
+    path: node-js
+    provides:
+      - name: node-js_api
+        properties:
+          url: ${default-url}
+
+  - name: no_path
+    type: nodejs
+    build-parameters:
+      no-source: false
+
+resources:
+- name: mta-assembly-uaa
+  parameters:
+    service: xsuaa
+    service-plan: space
+    path: xs-security.json

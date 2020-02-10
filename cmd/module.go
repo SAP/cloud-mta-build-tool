@@ -27,7 +27,6 @@ var soloBuildModuleCmdSrc string
 var soloBuildModuleCmdTrg string
 var soloBuildModuleCmdExtensions []string
 var soloBuildModuleCmdModule string
-var soloBuildModuleCmdPlatform string
 
 func init() {
 
@@ -64,8 +63,6 @@ func init() {
 		"The MTA extension descriptors")
 	soloBuildModuleCmd.Flags().StringVarP(&soloBuildModuleCmdModule, "module", "m", "",
 		"The name of the module")
-	soloBuildModuleCmd.Flags().StringVarP(&soloBuildModuleCmdPlatform, "platform", "p", "cf",
-		`The deployment platform; supported platforms: "cf", "xsa", "neo"`)
 }
 
 // soloBuildModuleCmd - Build module command used stand along
@@ -75,7 +72,7 @@ var soloBuildModuleCmd = &cobra.Command{
 	Long:  "Builds module and archives its artifacts",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		err := artifacts.ExecuteSoloBuild(buildModuleCmdSrc, soloBuildModuleCmdTrg, soloBuildModuleCmdExtensions, soloBuildModuleCmdModule, soloBuildModuleCmdPlatform, os.Getwd)
+		err := artifacts.ExecuteSoloBuild(buildModuleCmdSrc, soloBuildModuleCmdTrg, soloBuildModuleCmdExtensions, soloBuildModuleCmdModule, os.Getwd)
 		logError(err)
 		return err
 	},
