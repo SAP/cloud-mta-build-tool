@@ -102,7 +102,7 @@ builders:
 			Ω(getTestPath("result", ".mta_mta_build_tmp", "node-js", "data.zip")).Should(BeAnExistingFile())
 		})
 
-		It("stand along build Command", func() {
+		It("stand alone build Command", func() {
 			soloBuildModuleCmdModule = "node-js"
 			soloBuildModuleCmdSrc = getTestPath("mta")
 			soloBuildModuleCmdTrg = getTestPath("result")

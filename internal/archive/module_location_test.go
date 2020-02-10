@@ -8,14 +8,14 @@ import (
 
 var _ = Describe("ModuleLocation", func() {
 	It("GetTarget", func() {
-		loc := &ModuleLoc{targetPath: getPath("test")}
+		loc := ModuleLocation(nil, getPath("test"))
 		Ω(loc.GetTarget()).Should(Equal(getPath("test")))
 	})
 
 	It("GetTargetTmpDir - default target", func() {
 		projectLoc, err := Location(getPath("testdata"), "", Dev, []string{}, os.Getwd)
 		Ω(err).Should(Succeed())
-		moduleLoc := &ModuleLoc{loc: projectLoc}
+		moduleLoc := ModuleLocation(projectLoc, "")
 		Ω(moduleLoc.GetTargetTmpDir()).Should(Equal(getPath("testdata", ".testdata_mta_build_tmp")))
 	})
 
@@ -23,7 +23,7 @@ var _ = Describe("ModuleLocation", func() {
 		target := getPath("testdata", "result")
 		projectLoc, err := Location(getPath("testdata"), target, Dev, []string{}, os.Getwd)
 		Ω(err).Should(Succeed())
-		moduleLoc := &ModuleLoc{loc: projectLoc, targetPath: target}
+		moduleLoc := ModuleLocation(projectLoc, target)
 		Ω(moduleLoc.GetTargetTmpDir()).Should(Equal(target))
 	})
 
@@ -31,7 +31,7 @@ var _ = Describe("ModuleLocation", func() {
 		target := ""
 		projectLoc, err := Location(getPath("testdata"), target, Dev, []string{}, os.Getwd)
 		Ω(err).Should(Succeed())
-		moduleLoc := &ModuleLoc{loc: projectLoc, targetPath: target}
+		moduleLoc := ModuleLocation(projectLoc, target)
 		Ω(moduleLoc.GetSourceModuleDir("path1")).Should(Equal((getPath("testdata", "path1"))))
 	})
 
@@ -39,15 +39,17 @@ var _ = Describe("ModuleLocation", func() {
 		target := ""
 		projectLoc, err := Location(getPath("testdata"), target, Dev, []string{}, os.Getwd)
 		Ω(err).Should(Succeed())
-		moduleLoc := &ModuleLoc{loc: projectLoc, targetPath: target}
-		Ω(moduleLoc.GetSourceModuleArtifactRelPath("path1", getPath("testdata", "path1", "data.zip"), false)).Should(Equal(""))
+		moduleLoc := ModuleLocation(projectLoc, target)
+		relPath, err := moduleLoc.GetSourceModuleArtifactRelPath("path1", getPath("testdata", "path1", "data.zip"))
+		Ω(err).Should(Succeed())
+		Ω(relPath).Should(Equal(""))
 	})
 
 	It("GetTargetModuleDir - default target", func() {
 		target := ""
 		projectLoc, err := Location(getPath("testdata"), target, Dev, []string{}, os.Getwd)
 		Ω(err).Should(Succeed())
-		moduleLoc := &ModuleLoc{loc: projectLoc, targetPath: target}
+		moduleLoc := ModuleLocation(projectLoc, target)
 		Ω(moduleLoc.GetTargetModuleDir("module1")).Should(Equal(getPath("testdata", ".testdata_mta_build_tmp", "module1")))
 	})
 
@@ -55,7 +57,7 @@ var _ = Describe("ModuleLocation", func() {
 		target := getPath("testdata", "result")
 		projectLoc, err := Location(getPath("testdata"), target, Dev, []string{}, os.Getwd)
 		Ω(err).Should(Succeed())
-		moduleLoc := &ModuleLoc{loc: projectLoc, targetPath: target}
+		moduleLoc := ModuleLocation(projectLoc, target)
 		Ω(moduleLoc.GetTargetModuleDir("module1")).Should(Equal(target))
 	})
 

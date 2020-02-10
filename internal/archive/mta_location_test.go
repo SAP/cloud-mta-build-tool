@@ -59,22 +59,33 @@ var _ = Describe("Path", func() {
 		Ω(location.GetMtaYamlPath()).Should(Equal(getPath("mta.yaml")))
 	})
 	It("GetSourceModuleArtifactRelPath - artifact is file", func() {
-		location := Loc{SourcePath: getPath()}
-		Ω(location.GetSourceModuleArtifactRelPath("m1", filepath.Join(getPath(), "m1", "folder", "abc.jar"), false)).
-			Should(Equal(string(filepath.Separator) + "folder"))
+		location := Loc{SourcePath: getPath("testdata", "mtahtml5")}
+		relPath, err := location.GetSourceModuleArtifactRelPath("ui5app", getPath("testdata", "mtahtml5", "ui5app", "webapp", "Component.js"))
+		Ω(err).Should(Succeed())
+		Ω(relPath).Should(Equal(string(filepath.Separator) + "webapp"))
+	})
+	It("GetSourceModuleArtifactRelPath - artifact does not exist", func() {
+		location := Loc{SourcePath: getPath("testdata", "mtahtml5")}
+		_, err := location.GetSourceModuleArtifactRelPath("ui5app", getPath("testdata", "mtahtml5", "ui5app", "webapp", "ComponentA.js"))
+		Ω(err).Should(HaveOccurred())
 	})
 	It("GetSourceModuleArtifactRelPath - artifact is folder", func() {
-		location := Loc{SourcePath: getPath()}
-		Ω(location.GetSourceModuleArtifactRelPath("m1", filepath.Join(getPath(), "m1", "folder1", "folder2"), true)).
-			Should(Equal(string(filepath.Separator) + filepath.Join("folder1", "folder2")))
+		location := Loc{SourcePath: getPath("testdata", "mtahtml5")}
+		relPath, err := location.GetSourceModuleArtifactRelPath("ui5app", getPath("testdata", "mtahtml5", "ui5app", "webapp", "view"))
+		Ω(err).Should(Succeed())
+		Ω(relPath).Should(Equal(string(filepath.Separator) + filepath.Join("webapp", "view")))
 	})
 	It("GetSourceModuleArtifactRelPath - artifact is module itself", func() {
-		location := Loc{SourcePath: getPath()}
-		Ω(location.GetSourceModuleArtifactRelPath("m1", filepath.Join(getPath(), "m1"), true)).Should(BeEmpty())
+		location := Loc{SourcePath: getPath("testdata", "mtahtml5")}
+		relPath, err := location.GetSourceModuleArtifactRelPath("ui5app", getPath("testdata", "mtahtml5", "ui5app"))
+		Ω(err).Should(Succeed())
+		Ω(relPath).Should(BeEmpty())
 	})
 	It("GetSourceModuleArtifactRelPath - artifact is module which is file", func() {
-		location := Loc{SourcePath: getPath()}
-		Ω(location.GetSourceModuleArtifactRelPath("m1", filepath.Join(getPath(), "m1"), false)).Should(BeEmpty())
+		location := Loc{SourcePath: getPath("testdata", "mtahtml5")}
+		relPath, err := location.GetSourceModuleArtifactRelPath(filepath.Join("ui5app", "Gruntfile.js"), getPath("testdata", "mtahtml5", "ui5app", "Gruntfile.js"))
+		Ω(err).Should(Succeed())
+		Ω(relPath).Should(BeEmpty())
 	})
 	It("GetMetaPath", func() {
 		location := Loc{SourcePath: getPath("xyz"), TargetPath: getPath("abc")}

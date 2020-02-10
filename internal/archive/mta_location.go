@@ -2,6 +2,7 @@ package dir
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -38,7 +39,7 @@ type IDescriptor interface {
 // ISourceModule - source module interface
 type ISourceModule interface {
 	GetSourceModuleDir(modulePath string) string
-	GetSourceModuleArtifactRelPath(modulePath, artifactPath string, artifactFolder bool) string
+	GetSourceModuleArtifactRelPath(modulePath, artifactPath string) (string, error)
 }
 
 // IMtaYaml - MTA Yaml interface
@@ -150,14 +151,19 @@ func (ep *Loc) GetSourceModuleDir(modulePath string) string {
 }
 
 // GetSourceModuleArtifactRelPath gets the relative path to the module's artifact
-func (ep *Loc) GetSourceModuleArtifactRelPath(moduleRelPath, artifactAbsPath string, artifactFolder bool) string {
-	modulePath := ep.GetSourceModuleDir(moduleRelPath)
-	if artifactFolder {
-		return strings.Replace(artifactAbsPath, modulePath, "", 1)
-	} else if artifactAbsPath == modulePath {
-		return ""
+func (ep *Loc) GetSourceModuleArtifactRelPath(moduleRelPath, artifactAbsPath string) (string, error) {
+	info, err := os.Stat(artifactAbsPath)
+	if err != nil {
+		return "", err
 	}
-	return strings.Replace(filepath.Dir(artifactAbsPath), modulePath, "", 1)
+	isFolder := info.IsDir()
+	modulePath := ep.GetSourceModuleDir(moduleRelPath)
+	if isFolder {
+		return strings.Replace(artifactAbsPath, modulePath, "", 1), nil
+	} else if artifactAbsPath == modulePath {
+		return "", nil
+	}
+	return strings.Replace(filepath.Dir(artifactAbsPath), modulePath, "", 1), nil
 }
 
 // GetMtaYamlFilename - Gets the MTA .yaml file name.

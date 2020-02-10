@@ -158,19 +158,19 @@ func GetModuleSourceArtifactPath(loc dir.ISourceModule, depDesc bool, module *mt
 }
 
 // IsArchive - check if file is a folder or an archive
-func IsArchive(path string) (isArchive, isFolder bool, e error) {
+func IsArchive(path string) (isArchive bool, e error) {
 	info, err := os.Stat(path)
 
 	if err != nil {
-		return false, false, err
+		return false, err
 	}
-	isFolder = info.IsDir()
+	isFolder := info.IsDir()
 	isArchive = false
 	if !isFolder {
 		ext := filepath.Ext(path)
 		isArchive = ext == ".zip" || ext == ".jar" || ext == ".war"
 	}
-	return isArchive, isFolder, nil
+	return isArchive, nil
 }
 
 // GetModuleTargetArtifactPath - get the path to where the module's artifact should be created in the temp folder, from which it's archived in the mtar
@@ -185,7 +185,7 @@ func GetModuleTargetArtifactPath(moduleLoc dir.IModule, depDesc bool, module *mt
 		if err != nil {
 			return "", false, err
 		}
-		isArchive, isFolder, err := IsArchive(moduleSourceArtifactPath)
+		isArchive, err := IsArchive(moduleSourceArtifactPath)
 		if err != nil {
 			return "", false, errors.Wrapf(err, wrongPathMsg, moduleSourceArtifactPath)
 		}
@@ -195,7 +195,10 @@ func GetModuleTargetArtifactPath(moduleLoc dir.IModule, depDesc bool, module *mt
 		}
 		toArchive = !isArchive
 
-		artifactRelPath := moduleLoc.GetSourceModuleArtifactRelPath(module.Path, moduleSourceArtifactPath, isFolder)
+		artifactRelPath, err := moduleLoc.GetSourceModuleArtifactRelPath(module.Path, moduleSourceArtifactPath)
+		if err != nil {
+			return "", false, err
+		}
 		path = filepath.Join(moduleLoc.GetTargetModuleDir(module.Name), artifactRelPath, artifactName+artifactExt)
 	}
 	return path, toArchive, nil

@@ -22,7 +22,7 @@ var buildModuleCmdExtensions []string
 var buildModuleCmdModule string
 var buildModuleCmdPlatform string
 
-// flags of stand along build command
+// flags of stand alone build command
 var soloBuildModuleCmdSrc string
 var soloBuildModuleCmdTrg string
 var soloBuildModuleCmdExtensions []string
@@ -65,14 +65,14 @@ func init() {
 		"The name of the module")
 }
 
-// soloBuildModuleCmd - Build module command used stand along
+// soloBuildModuleCmd - Build module command used stand alone
 var soloBuildModuleCmd = &cobra.Command{
 	Use:   "module-build",
 	Short: "Builds module",
 	Long:  "Builds module and archives its artifacts",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		err := artifacts.ExecuteSoloBuild(buildModuleCmdSrc, soloBuildModuleCmdTrg, soloBuildModuleCmdExtensions, soloBuildModuleCmdModule, os.Getwd)
+		err := artifacts.ExecuteSoloBuild(soloBuildModuleCmdSrc, soloBuildModuleCmdTrg, soloBuildModuleCmdExtensions, soloBuildModuleCmdModule, os.Getwd)
 		logError(err)
 		return err
 	},

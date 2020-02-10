@@ -35,7 +35,7 @@ func ExecuteBuild(source, target string, extensions []string, moduleName, platfo
 	return nil
 }
 
-// ExecuteSoloBuild - executes build of module from stand along command
+// ExecuteSoloBuild - executes build of module from stand alone command
 func ExecuteSoloBuild(source, target string, extensions []string, moduleName string, wdGetter func() (string, error)) error {
 	logs.Logger.Infof(buildMsg, moduleName)
 	loc, err := dir.Location(source, target, dir.Dev, extensions, wdGetter)

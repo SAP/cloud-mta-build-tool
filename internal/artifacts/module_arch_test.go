@@ -47,7 +47,7 @@ builders:
 		commands.ModuleTypeConfig = make([]byte, len(config))
 		copy(commands.ModuleTypeConfig, config)
 		os.RemoveAll(getResultPath())
-		os.RemoveAll(getTestPath("mta", ".mta_mta_build_tmp"))
+		os.RemoveAll(getFullPathInTmpFolder("mta"))
 	})
 
 	m := mta.Module{
@@ -59,7 +59,7 @@ builders:
 
 		It("Sanity", func() {
 			Ω(ExecuteBuild(getTestPath("mta"), getResultPath(), nil, "node-js", "cf", os.Getwd)).Should(Succeed())
-			Ω(getTestPath("result", ".mta_mta_build_tmp", "node-js", "data.zip")).Should(BeAnExistingFile())
+			Ω(getFullPathInTmpFolder("mta", "node-js", "data.zip")).Should(BeAnExistingFile())
 
 		})
 
@@ -88,7 +88,7 @@ builders:
 
 		It("Sanity, no target path", func() {
 			Ω(ExecuteSoloBuild(getTestPath("mta"), "", nil, "node-js", os.Getwd)).Should(Succeed())
-			Ω(getTestPath("mta", ".mta_mta_build_tmp", "node-js", "data.zip")).Should(BeAnExistingFile())
+			Ω(getFullPathInTmpFolder("mta", "node-js", "data.zip")).Should(BeAnExistingFile())
 		})
 
 		It("Fails on location initialization", func() {
@@ -107,13 +107,13 @@ builders:
 		It("Sanity", func() {
 			Ω(ExecutePack(getTestPath("mta"), getResultPath(), nil, "node-js",
 				"cf", os.Getwd)).Should(Succeed())
-			Ω(getTestPath("result", ".mta_mta_build_tmp", "node-js", "data.zip")).Should(BeAnExistingFile())
+			Ω(getFullPathInTmpFolder("mta", "node-js", "data.zip")).Should(BeAnExistingFile())
 		})
 
 		It("no-source module", func() {
 			Ω(ExecutePack(getTestPath("mta"), getResultPath(), nil, "no_source",
 				"cf", os.Getwd)).Should(Succeed())
-			Ω(getTestPath("result", ".mta_mta_build_tmp", "node-js", "data.zip")).ShouldNot(BeAnExistingFile())
+			Ω(getFullPathInTmpFolder("mta", "node-js", "data.zip")).ShouldNot(BeAnExistingFile())
 		})
 
 		It("Fails on empty path", func() {
@@ -213,7 +213,7 @@ builders:
 					TargetPath: getResultPath(),
 					Descriptor: dir.Dev,
 				}
-				Ω(dir.CreateDirIfNotExist(filepath.Join(ep.GetTarget(), ".mta_with_zipped_module_mta_build_tmp"))).Should(Succeed())
+				Ω(dir.CreateDirIfNotExist(getFullPathInTmpFolder("mta_with_zipped_module"))).Should(Succeed())
 				createFileInTmpFolder("mta_with_zipped_module", "node-js")
 				Ω(packModule(&ep, &m, "node-js", "cf", "")).Should(HaveOccurred())
 			})
@@ -313,7 +313,7 @@ builders:
 						},
 					}
 					Ω(packModule(&ep, &m, "node-js", "cf", "")).Should(Succeed())
-					resultLocation := getTestPath("result", ".mta_with_subfolder_mta_build_tmp", "node-js", "file2.zip")
+					resultLocation := getFullPathInTmpFolder("mta_with_subfolder", "node-js", "file2.zip")
 					Ω(resultLocation).Should(BeAnExistingFile())
 					validateArchiveContents([]string{"res/file1", "file2", "abc.war", "data.zip"}, resultLocation, true)
 				})
@@ -326,7 +326,7 @@ builders:
 						},
 					}
 					Ω(packModule(&ep, &m, "node-js", "cf", "")).Should(Succeed())
-					resultLocation := getTestPath("result", ".mta_with_subfolder_mta_build_tmp", "node-js", "abc.zip")
+					resultLocation := getFullPathInTmpFolder("mta_with_subfolder", "node-js", "abc.zip")
 					Ω(resultLocation).Should(BeAnExistingFile())
 					validateArchiveContents([]string{"res/file1", "file2", "abc.war", "data.zip"}, resultLocation, true)
 				})
@@ -340,7 +340,7 @@ builders:
 						},
 					}
 					Ω(packModule(&ep, &m, "node-js", "cf", "")).Should(Succeed())
-					resultLocation := getTestPath("result", ".mta_with_subfolder_mta_build_tmp", "node-js", "abc.war")
+					resultLocation := getFullPathInTmpFolder("mta_with_subfolder", "node-js", "abc.war")
 					Ω(resultLocation).Should(BeAnExistingFile())
 					validateArchiveContents([]string{"gulpfile.js", "server.js", "package.json"}, resultLocation, true)
 				})
@@ -354,7 +354,7 @@ builders:
 						},
 					}
 					Ω(packModule(&ep, &m, "node-js", "cf", "")).Should(Succeed())
-					resultLocation := getTestPath("result", ".mta_with_subfolder_mta_build_tmp", "node-js", "data.war")
+					resultLocation := getFullPathInTmpFolder("mta_with_subfolder", "node-js", "data.war")
 					Ω(resultLocation).Should(BeAnExistingFile())
 					validateArchiveContents([]string{"gulpfile.js", "server.js", "package.json"}, resultLocation, true)
 				})
@@ -375,7 +375,7 @@ builders:
 				},
 			}
 			Ω(packModule(&ep, &mNoPlatforms, "node-js", "cf", "")).Should(Succeed())
-			Ω(getTestPath("result", "mta_with_zipped_module_mta_build_tmp", "node-js", "data.zip")).
+			Ω(getFullPathInTmpFolder("mta_with_zipped_module", "node-js", "data.zip")).
 				ShouldNot(BeAnExistingFile())
 		})
 
@@ -407,7 +407,7 @@ builders:
 			It("Sanity", func() {
 				ep := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath()}
 				Ω(buildModule(&ep, &ep, "node-js", "cf")).Should(Succeed())
-				Ω(getTestPath("result", ".mta_mta_build_tmp", "node-js", "data.zip")).Should(BeAnExistingFile())
+				Ω(getFullPathInTmpFolder("mta", "node-js", "data.zip")).Should(BeAnExistingFile())
 			})
 
 			It("empty path", func() {
@@ -477,7 +477,7 @@ module-types:
 				It("succeeds when timeout is not exceeded", func() {
 					ep := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath(), MtaFilename: "mta_with_timeout.yaml"}
 					Ω(buildModule(&ep, &ep, "m2", "cf")).Should(Succeed())
-					Ω(getTestPath("result", ".mta_mta_build_tmp", "m2", "data.zip")).Should(BeAnExistingFile())
+					Ω(getFullPathInTmpFolder("mta", "m2", "data.zip")).Should(BeAnExistingFile())
 				})
 				It("fails when timeout is exceeded", func() {
 					ep := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath(), MtaFilename: "mta_with_timeout.yaml"}

@@ -272,8 +272,8 @@ func (loc *testLoc) GetTargetModuleDir(moduleName string) string {
 	return loc.loc.GetTargetModuleDir(moduleName)
 }
 
-func (loc *testLoc) GetSourceModuleArtifactRelPath(modulePath, artifactPath string, artifactFolder bool) string {
-	return loc.loc.GetSourceModuleArtifactRelPath(modulePath, artifactPath, artifactFolder)
+func (loc *testLoc) GetSourceModuleArtifactRelPath(modulePath, artifactPath string) (string, error) {
+	return loc.loc.GetSourceModuleArtifactRelPath(modulePath, artifactPath)
 }
 
 func createMtahtml5TmpFolder() {
