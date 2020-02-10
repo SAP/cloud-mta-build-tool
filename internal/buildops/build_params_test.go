@@ -247,7 +247,7 @@ var _ = Describe("GetModuleTargetArtifactPath", func() {
 		}
 		path, toArchive, err := GetModuleTargetArtifactPath(&loc, false, module, "")
 		Ω(err).Should(Succeed())
-		Ω(path).Should(Equal(getTestPath("result", ".mtahtml5_mta_build_tmp", "web", "webapp", "controller", "ctrl.zip")))
+ 		Ω(path).Should(Equal(getTestPath("result", ".mtahtml5_mta_build_tmp", "web", "webapp", "controller", "ctrl.zip")))
 		Ω(toArchive).Should(BeTrue())
 	})
 	It("artifact is an archive", func() {

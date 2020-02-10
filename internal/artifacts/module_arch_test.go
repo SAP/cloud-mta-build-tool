@@ -88,7 +88,7 @@ builders:
 
 		It("Sanity, no target path", func() {
 			Ω(ExecuteSoloBuild(getTestPath("mta"), "", nil, "node-js", os.Getwd)).Should(Succeed())
-			Ω(getFullPathInTmpFolder("mta", "node-js", "data.zip")).Should(BeAnExistingFile())
+			Ω(getTestPath("mta", ".mta_mta_build_tmp", "node-js", "data.zip")).Should(BeAnExistingFile())
 		})
 
 		It("Fails on location initialization", func() {

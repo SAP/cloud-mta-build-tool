@@ -159,11 +159,11 @@ func (ep *Loc) GetSourceModuleArtifactRelPath(moduleRelPath, artifactAbsPath str
 	isFolder := info.IsDir()
 	modulePath := ep.GetSourceModuleDir(moduleRelPath)
 	if isFolder {
-		return strings.Replace(artifactAbsPath, modulePath, "", 1), nil
+		return filepath.Rel(modulePath, artifactAbsPath)
 	} else if artifactAbsPath == modulePath {
 		return "", nil
 	}
-	return strings.Replace(filepath.Dir(artifactAbsPath), modulePath, "", 1), nil
+	return filepath.Rel(modulePath, filepath.Dir(artifactAbsPath))
 }
 
 // GetMtaYamlFilename - Gets the MTA .yaml file name.
