@@ -97,10 +97,6 @@ builders:
 			})).Should(HaveOccurred())
 		})
 
-		It("Fails on empty module", func() {
-			Ω(ExecuteSoloBuild(getTestPath("mta"), getResultPath(), nil, "", os.Getwd)).Should(HaveOccurred())
-		})
-
 		It("Fails on wrong module", func() {
 			Ω(ExecuteSoloBuild(getTestPath("mta"), getResultPath(), nil, "ui5app", os.Getwd)).Should(HaveOccurred())
 		})
