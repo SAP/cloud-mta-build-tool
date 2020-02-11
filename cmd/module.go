@@ -76,7 +76,7 @@ var soloBuildModuleCmd = &cobra.Command{
 		logError(err)
 		return err
 	},
-	Hidden:        true,
+	Hidden:        false,
 	SilenceUsage:  true,
 	SilenceErrors: true,
 }
