@@ -71,14 +71,12 @@ var soloBuildModuleCmd = &cobra.Command{
 	Short: "Builds module",
 	Long:  "Builds module and archives its artifacts",
 	Args:  cobra.NoArgs,
-	RunE: func(cmd *cobra.Command, args []string) error {
+	Run: func(cmd *cobra.Command, args []string) {
 		err := artifacts.ExecuteSoloBuild(soloBuildModuleCmdSrc, soloBuildModuleCmdTrg, soloBuildModuleCmdExtensions, soloBuildModuleCmdModule, os.Getwd)
 		logError(err)
-		return err
 	},
 	Hidden:        false,
 	SilenceUsage:  false,
-	SilenceErrors: true,
 }
 
 // buildModuleCmd - Build module command that is used in Makefile
