@@ -106,7 +106,7 @@ builders:
 			soloBuildModuleCmdModule = "node-js"
 			soloBuildModuleCmdSrc = getTestPath("mta")
 			soloBuildModuleCmdTrg = getTestPath("result")
-			Ω(soloBuildModuleCmd.RunE(nil, []string{})).Should(Succeed())
+			soloBuildModuleCmd.Run(nil, []string{})
 			Ω(getTestPath("result", "data.zip")).Should(BeAnExistingFile())
 		})
 	})

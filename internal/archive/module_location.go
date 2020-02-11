@@ -2,14 +2,13 @@ package dir
 
 // ModuleLoc - module location type that provides services for stand alone module build command
 type ModuleLoc struct {
-	loc        *Loc
-	targetPath string
+	loc *Loc
 }
 
 // GetTarget - gets the target path;
 // if it is not provided, use the path of the processed project.
 func (ep *ModuleLoc) GetTarget() string {
-	return ep.targetPath
+	return ep.loc.GetTarget()
 }
 
 // GetTargetTmpDir - gets the temporary target directory path.
@@ -18,10 +17,7 @@ func (ep *ModuleLoc) GetTarget() string {
 // in case of stand alone module build when target folder provided build results will be saved in this target folder
 // and not in the temporary folder
 func (ep *ModuleLoc) GetTargetTmpDir() string {
-	if ep.GetTarget() == "" {
-		return ep.loc.GetTargetTmpDir()
-	}
-	return ep.GetTarget()
+	return ep.loc.GetTarget()
 }
 
 // GetSourceModuleDir - gets the absolute path to the module
@@ -38,13 +34,10 @@ func (ep *ModuleLoc) GetSourceModuleArtifactRelPath(modulePath, artifactPath str
 
 // GetTargetModuleDir - gets the to module build results
 func (ep *ModuleLoc) GetTargetModuleDir(moduleName string) string {
-	if ep.targetPath == "" {
-		return ep.loc.GetTargetModuleDir(moduleName)
-	}
-	return ep.GetTargetTmpDir()
+	return ep.loc.GetTarget()
 }
 
 // ModuleLocation - provides target location of stand alone MTA module build result
-func ModuleLocation(loc *Loc, targetPath string) *ModuleLoc {
-	return &ModuleLoc{loc: loc, targetPath: targetPath}
+func ModuleLocation(loc *Loc) *ModuleLoc {
+	return &ModuleLoc{loc: loc}
 }

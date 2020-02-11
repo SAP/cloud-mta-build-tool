@@ -100,6 +100,30 @@ builders:
 		It("Fails on wrong module", func() {
 			Ω(ExecuteSoloBuild(getTestPath("mta"), getResultPath(), nil, "ui5app", os.Getwd)).Should(HaveOccurred())
 		})
+
+		It("Fails on getting default source", func() {
+			Ω(ExecuteSoloBuild(getTestPath("mta"), "", nil, "ui5app", func() (string, error) {
+				return "", errors.New("err")
+			})).Should(HaveOccurred())
+		})
+
+		It("Fails on creation of Location object", func() {
+			counter := 1
+			Ω(ExecuteSoloBuild("", "", nil, "ui5app", func() (string, error) {
+				if counter <= 2 {
+					counter++
+					return "", nil
+				}
+				return "", errors.New("err")
+			})).Should(HaveOccurred())
+		})
+
+		It("getSoloModuleBuildAbsTarget fails on current folder getter", func() {
+			_, err := getSoloModuleBuildAbsTarget(getTestPath(), "", "m1", func() (string, error) {
+				return "", errors.New("err")
+			})
+			Ω(err).Should(HaveOccurred())
+		})
 	})
 
 	var _ = Describe("ExecutePack", func() {

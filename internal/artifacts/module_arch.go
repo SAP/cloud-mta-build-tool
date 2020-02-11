@@ -38,17 +38,51 @@ func ExecuteBuild(source, target string, extensions []string, moduleName, platfo
 // ExecuteSoloBuild - executes build of module from stand alone command
 func ExecuteSoloBuild(source, target string, extensions []string, moduleName string, wdGetter func() (string, error)) error {
 	logs.Logger.Infof(buildMsg, moduleName)
-	loc, err := dir.Location(source, target, dir.Dev, extensions, wdGetter)
+
+	sourceDir, err := getSoloModuleBuildAbsSource(source, wdGetter)
 	if err != nil {
 		return errors.Wrapf(err, buildFailedMsg, moduleName)
 	}
-	targetLoc := dir.ModuleLocation(loc, target)
+
+	targetDir, err := getSoloModuleBuildAbsTarget(sourceDir, target, moduleName, wdGetter)
+	if err != nil {
+		return errors.Wrapf(err, buildFailedMsg, moduleName)
+	}
+
+	loc, err := dir.Location(sourceDir, targetDir, dir.Dev, extensions, wdGetter)
+	if err != nil {
+		return errors.Wrapf(err, buildFailedMsg, moduleName)
+	}
+	targetLoc := dir.ModuleLocation(loc)
 	err = buildModule(loc, targetLoc, moduleName, "cf")
 	if err != nil {
 		return err
 	}
 	logs.Logger.Infof(buildFinishedMsg, moduleName)
 	return nil
+}
+
+func getSoloModuleBuildAbsSource(source string, wdGetter func() (string, error)) (string, error) {
+	if source == "" {
+		return wdGetter()
+	}
+	return filepath.Abs(source)
+}
+
+func getSoloModuleBuildAbsTarget(absSource, target, moduleName string, wdGetter func() (string, error)) (string, error) {
+	if target != "" {
+		return filepath.Abs(target)
+	}
+
+	target, err := wdGetter()
+	if err != nil {
+		return "", err
+	}
+	_, projectFoilderName := filepath.Split(absSource)
+	tmpFolderName := "." + projectFoilderName + dir.TempFolderSuffix
+
+	// default target is <current folder>/.<project folder>_mta_tmp/<module_name>
+	return filepath.Join(target, tmpFolderName, moduleName), nil
 }
 
 // ExecutePack - executes packing of module
