@@ -41,7 +41,6 @@ const (
 	buildResultMsg              = `the build results of the "%s" module will be packaged and saved in the "%s" folder`
 	buildSkippedMsg             = `the "%s" module was not built because the "no-source" build parameter is set to "true"`
 	buildFailedOnEmptyPathMsg   = `could not build the "%s" module because the mandatory "path" property is missing or empty`
-	buildFailedOnEmptyModuleMsg = `the mandatory "module" flag is missing or empty`
 
 	packMsg                       = `packaging the "%s" module...`
 	packFailedOnLocMsg            = `could not package the "%s" module when initializing the location`

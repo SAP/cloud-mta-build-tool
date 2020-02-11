@@ -63,7 +63,10 @@ func init() {
 		"The MTA extension descriptors")
 	soloBuildModuleCmd.Flags().StringVarP(&soloBuildModuleCmdModule, "module", "m", "",
 		"The name of the module")
-	soloBuildModuleCmd.MarkFlagRequired("module")
+	err := soloBuildModuleCmd.MarkFlagRequired("module")
+	if err != nil {
+		logError(err)
+	}
 }
 
 // soloBuildModuleCmd - Build module command used stand alone
@@ -76,8 +79,8 @@ var soloBuildModuleCmd = &cobra.Command{
 		err := artifacts.ExecuteSoloBuild(soloBuildModuleCmdSrc, soloBuildModuleCmdTrg, soloBuildModuleCmdExtensions, soloBuildModuleCmdModule, os.Getwd)
 		logError(err)
 	},
-	Hidden:        false,
-	SilenceUsage:  false,
+	Hidden:       false,
+	SilenceUsage: false,
 }
 
 // buildModuleCmd - Build module command that is used in Makefile
