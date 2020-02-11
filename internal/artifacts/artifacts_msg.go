@@ -33,14 +33,14 @@ const (
 	genMTARParsingMsg = `could not generate the MTA archive`
 	genMTARArchMsg    = `could not generate the MTA archive when archiving`
 
-	buildMsg                    = `building the "%s" module...`
-	buildFinishedMsg            = `finished building the "%s" module`
-	buildFailedMsg              = `could not build the "%s" module`
-	buildFailedOnCommandsMsg    = `could not get commands for the "%s" module`
-	buildFailedOnDepsMsg        = `could not process dependencies for the "%s" module`
-	buildResultMsg              = `the build results of the "%s" module will be packaged and saved in the "%s" folder`
-	buildSkippedMsg             = `the "%s" module was not built because the "no-source" build parameter is set to "true"`
-	buildFailedOnEmptyPathMsg   = `could not build the "%s" module because the mandatory "path" property is missing or empty`
+	buildMsg                  = `building the "%s" module...`
+	buildFinishedMsg          = `finished building the "%s" module`
+	buildFailedMsg            = `could not build the "%s" module`
+	buildFailedOnCommandsMsg  = `could not get commands for the "%s" module`
+	buildFailedOnDepsMsg      = `could not process dependencies for the "%s" module`
+	buildResultMsg            = `the build results of the "%s" module will be packaged and saved in the "%s" folder`
+	buildSkippedMsg           = `the "%s" module was not built because the "no-source" build parameter is set to "true"`
+	buildFailedOnEmptyPathMsg = `could not build the "%s" module because the mandatory "path" property is missing or empty`
 
 	packMsg                       = `packaging the "%s" module...`
 	packFailedOnLocMsg            = `could not package the "%s" module when initializing the location`
