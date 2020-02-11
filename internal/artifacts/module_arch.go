@@ -37,6 +37,11 @@ func ExecuteBuild(source, target string, extensions []string, moduleName, platfo
 
 // ExecuteSoloBuild - executes build of module from stand alone command
 func ExecuteSoloBuild(source, target string, extensions []string, moduleName string, wdGetter func() (string, error)) error {
+
+	if moduleName==""{
+		return errors.New(buildFailedOnEmptyModuleMsg)
+	}
+
 	logs.Logger.Infof(buildMsg, moduleName)
 	loc, err := dir.Location(source, target, dir.Dev, extensions, wdGetter)
 	if err != nil {

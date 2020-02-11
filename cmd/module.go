@@ -63,7 +63,6 @@ func init() {
 		"The MTA extension descriptors")
 	soloBuildModuleCmd.Flags().StringVarP(&soloBuildModuleCmdModule, "module", "m", "",
 		"The name of the module")
-	soloBuildModuleCmd.MarkFlagRequired("module")
 }
 
 // soloBuildModuleCmd - Build module command used stand alone
