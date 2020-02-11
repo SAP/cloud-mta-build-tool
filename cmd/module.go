@@ -77,15 +77,15 @@ var soloBuildModuleCmd = &cobra.Command{
 		return err
 	},
 	Hidden:        false,
-	SilenceUsage:  true,
-	SilenceErrors: true,
+	SilenceUsage:  false,
+	SilenceErrors: false,
 }
 
 // buildModuleCmd - Build module command that is used in Makefile
 var buildModuleCmd = &cobra.Command{
 	Use:   "build",
-	Short: "Builds module",
-	Long:  "Builds module and archives its artifacts",
+	Short: "n",
+	Long:  "Builds module according to configurations in the MTA development descriptor (mta.yaml) and archives its artifacts",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		err := artifacts.ExecuteBuild(buildModuleCmdSrc, buildModuleCmdTrg, buildModuleCmdExtensions, buildModuleCmdModule, buildModuleCmdPlatform, os.Getwd)
