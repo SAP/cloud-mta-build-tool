@@ -72,8 +72,8 @@ func init() {
 // soloBuildModuleCmd - Build module command used stand alone
 var soloBuildModuleCmd = &cobra.Command{
 	Use:   "module-build",
-	Short: "Builds module",
-	Long:  "Builds module and archives its artifacts",
+	Short: "Builds module according to configurations in the MTA development descriptor (mta.yaml)",
+	Long:  "Builds module according to configurations in the MTA development descriptor (mta.yaml)",
 	Args:  cobra.NoArgs,
 	Run: func(cmd *cobra.Command, args []string) {
 		err := artifacts.ExecuteSoloBuild(soloBuildModuleCmdSrc, soloBuildModuleCmdTrg, soloBuildModuleCmdExtensions, soloBuildModuleCmdModule, os.Getwd)
