@@ -23,6 +23,8 @@ modules:
       - name: node-js_api
         properties:
           url: ${default-url}
+    build-parameters:
+      supported-platforms: [cf]
 
   - name: no_source
     type: nodejs

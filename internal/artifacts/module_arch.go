@@ -31,7 +31,7 @@ func ExecuteBuild(source, target string, extensions []string, moduleName, platfo
 	if err != nil {
 		return errors.Wrapf(err, buildFailedMsg, moduleName)
 	}
-	err = buildModule(loc, loc, moduleName, platform)
+	err = buildModule(loc, loc, moduleName, platform, true)
 	if err != nil {
 		return err
 	}
@@ -58,7 +58,7 @@ func ExecuteSoloBuild(source, target string, extensions []string, moduleName str
 		return errors.Wrapf(err, buildFailedMsg, moduleName)
 	}
 	targetLoc := dir.ModuleLocation(loc)
-	err = buildModule(loc, targetLoc, moduleName, "cf")
+	err = buildModule(loc, targetLoc, moduleName, "cf", false)
 	if err != nil {
 		return err
 	}
@@ -117,7 +117,7 @@ func ExecutePack(source, target string, extensions []string, moduleName, platfor
 		return fmt.Errorf(packFailedOnEmptyPathMsg, moduleName)
 	}
 
-	err = packModule(loc, module, moduleName, platform, defaultBuildResult)
+	err = packModule(loc, module, moduleName, platform, defaultBuildResult, true)
 	if err != nil {
 		return err
 	}
@@ -126,13 +126,17 @@ func ExecutePack(source, target string, extensions []string, moduleName, platfor
 }
 
 // buildModule - builds module
-func buildModule(mtaParser dir.IMtaParser, moduleLoc dir.IModule, moduleName, platform string) error {
+func buildModule(mtaParser dir.IMtaParser, moduleLoc dir.IModule, moduleName, platform string, checkPlatform bool) error {
 
-	// validate platform
-	platform, err := validatePlatform(platform)
-	if err != nil {
-		return err
+	var err error
+	if checkPlatform {
+		// validate platform
+		platform, err = validatePlatform(platform)
+		if err != nil {
+			return err
+		}
 	}
+
 	// Get module respective command's to execute
 	module, mCmd, defaultBuildResults, err := commands.GetModuleAndCommands(mtaParser, moduleName)
 	if err != nil {
@@ -180,13 +184,13 @@ func buildModule(mtaParser dir.IMtaParser, moduleLoc dir.IModule, moduleName, pl
 
 	// 3. Packing the modules build artifacts (include node modules)
 	// into the artifactsPath dir as data zip
-	return packModule(moduleLoc, module, moduleName, platform, defaultBuildResults)
+	return packModule(moduleLoc, module, moduleName, platform, defaultBuildResults, checkPlatform)
 }
 
 // packModule - pack build module artifacts
-func packModule(moduleLoc dir.IModule, module *mta.Module, moduleName, platform, defaultBuildResult string) error {
+func packModule(moduleLoc dir.IModule, module *mta.Module, moduleName, platform, defaultBuildResult string, checkPlatform bool) error {
 
-	if !buildops.PlatformDefined(module, platform) {
+	if checkPlatform && !buildops.PlatformDefined(module, platform) {
 		return nil
 	}
 
