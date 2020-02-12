@@ -63,6 +63,11 @@ builders:
 
 		})
 
+		It("Fails on empty module", func() {
+			Ω(ExecuteBuild(getTestPath("mta"), getResultPath(), nil, "", "cf", os.Getwd)).Should(HaveOccurred())
+
+		})
+
 		It("Fails on platform validation", func() {
 			Ω(ExecuteBuild(getTestPath("mta"), getResultPath(), nil, "node-js", "xx", os.Getwd)).Should(HaveOccurred())
 
