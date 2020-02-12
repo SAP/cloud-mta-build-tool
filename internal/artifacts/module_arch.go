@@ -23,7 +23,7 @@ const (
 // ExecuteBuild - executes build of module from Makefile
 func ExecuteBuild(source, target string, extensions []string, moduleName, platform string, wdGetter func() (string, error)) error {
 	if moduleName == "" {
-		errors.New(buildFailedOnEmptyModuleMsg)
+		return errors.New(buildFailedOnEmptyModuleMsg)
 	}
 
 	logs.Logger.Infof(buildMsg, moduleName)
