@@ -123,6 +123,7 @@ Packages the MTA project into the MTA archive according to the `Makefile`.
 
 
 <b>`mbt assemble`</b>
+
 Creates an MTA archive `MTAR` file from the module build artifacts according to the MTA deployment descriptor (`mtad.yaml` file). 
 > <b>Note</b>: Make sure the path property of each module's `mtad.yaml` file points to the module's build artifacts that you want to package into the target MTA archive.
 
@@ -141,10 +142,10 @@ Creates an MTA archive `MTAR` file from the module build artifacts according to 
 &nbsp;
 ### Auxiliary commands  
 
-This section is dedicated for commands that execute specific steps of the MTA build process such as project validation, build for a single module, and generation of the deployment descriptor. These commands are useful if, for example, you want to build and deploy only specific modules for testing purposes, or if you decide to tailor your own build process for packaging MTA archives.  At the moment, only the command described below is supported. 
+This section is dedicated for commands that execute specific steps of the MTA build process such as project validation, build for a single module, and generation of the deployment descriptor. These commands are useful if, for example, you want to build and deploy only specific modules for testing purposes, or if you decide to tailor your own build process for packaging MTA archives.  At the moment, only the commands described below are supported. 
 
 <b>`mbt mtad-gen`</b>
-&nbsp;
+
 Generates the MTA deployment descriptor (`mtad.yaml` file) according to the provided MTA descriptor (`mta.yaml` file) and MTA extensions. 
 
 
@@ -158,3 +159,21 @@ Generates the MTA deployment descriptor (`mtad.yaml` file) according to the prov
 | `-s (--source)`   | Optional  | The path to the folder where the project’s `mta.yaml` file is located; the current path is set as default.                              | `mbt mtad-gen  -s=C:/TestProject`
 | `-t (--target)`   | Optional  | The folder where the `mtad.yaml` will be generated. If this parameter is not provided, the `mtad.yaml` file is saved in the current folder. If the parameter is provided, the generated file is saved in the root of the folder provided by the argument.  | `mbt mtad-gen  -t=C:/TestFolder`
 | `-e (--extensions)`   | Optional  | The path or paths to multitarget application extension files (`.mtaext`). Several extension files separated by commas can be passed with a single flag, or each extension file can be specified with its own flag.| `mbt mtad-gen -e=test1.mtaext,test2.mtaext`<br>or<br>`mbt mtad-gen -e=test1.mtaext -e=test2.mtaext`
+
+<br>
+<br>
+
+<b>`mbt module-build`</b>
+
+Triggers the build process of the specified module according to the implicit or explicit build configurations in the MTA descriptor (`mta.yaml` file) and MTA extensions.
+
+<b>Usage:</b> `mbt module-build <flags>`
+
+<b>Flags:</b>
+
+| Flag        | Mandatory&nbsp;/<br>Optional        | Description&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                 | Examples&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                                    
+| -----------  | -------       |  ----------                          |  -----------------------------
+| `m (--module)`   | Mandatory  | The name of the module to build.                            |`mbt module-build -m=my_module`
+| `-s (--source)`   | Optional  | The path to the folder where the project’s `mta.yaml` file is located; the current path is set as default.                              |`mbt module-build -m=my_module  -s=C:/TestProject`
+| `-t (--target)`   | Optional  | The folder where the module build results will be saved. If this parameter is not provided, the module build results are saved in the `<current folder>/.<projectname>_mta_build_tmp/<module name>` folder. If  the parameter is provided, the build results are saved in the root of the folder provided by the argument.  | `mbt module-build -m=my_module  -t=C:/TestProject/build_results_tmp`<br> <br>The module’s build results will be saved directly in the `C:/TestProject/build_results_tmp/` folder
+| `-e (--extensions)`   | Optional  | The path or paths to multitarget application extension files (`.mtaext`). Several extension files separated by commas can be passed with a single flag, or each extension file can be specified with its own flag.| `mbt module-build -m=my_module -e=test1.mtaext,test2.mtaext`<br>or<br>`mbt module-build -m=my_module -e=test1.mtaext -e=test2.mtaext`
