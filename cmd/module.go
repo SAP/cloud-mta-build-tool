@@ -46,7 +46,7 @@ func init() {
 	buildModuleCmd.Flags().StringVarP(&buildModuleCmdSrc, "source", "s", "",
 		"The path to the MTA project; the current path is set as default")
 	buildModuleCmd.Flags().StringVarP(&buildModuleCmdTrg, "target", "t", "",
-		"The path to the folder in which the temporary artifacts of the module build are created; the current path is set as default")
+		"The path to the folder in which the module build results are created; the <source folder>/.<project name>_mta_build_tmp/<module name> path is set as default")
 	buildModuleCmd.Flags().StringSliceVarP(&buildModuleCmdExtensions, "extensions", "e", nil,
 		"The MTA extension descriptors")
 	buildModuleCmd.Flags().StringVarP(&buildModuleCmdModule, "module", "m", "",
@@ -67,16 +67,18 @@ func init() {
 
 // soloBuildModuleCmd - Build module command used stand alone
 var soloBuildModuleCmd = &cobra.Command{
-	Use:   "module-build",
-	Short: "Builds module according to configurations in the MTA development descriptor (mta.yaml)",
-	Long:  "Builds module according to configurations in the MTA development descriptor (mta.yaml)",
-	Args:  cobra.NoArgs,
-	Run: func(cmd *cobra.Command, args []string) {
+	Use:                "module-build",
+	Short:              "Builds module according to configurations in the MTA development descriptor (mta.yaml)",
+	Long:               "Builds module according to configurations in the MTA development descriptor (mta.yaml)",
+	Args:               cobra.MaximumNArgs(4),
+	DisableFlagParsing: true,
+	RunE: func(cmd *cobra.Command, args []string) error {
 		err := artifacts.ExecuteSoloBuild(soloBuildModuleCmdSrc, soloBuildModuleCmdTrg, soloBuildModuleCmdExtensions, soloBuildModuleCmdModule, os.Getwd)
 		logError(err)
+		return err
 	},
-	Hidden:       false,
-	SilenceUsage: false,
+	SilenceUsage:  true,
+	SilenceErrors: true,
 }
 
 // buildModuleCmd - Build module command that is used in Makefile

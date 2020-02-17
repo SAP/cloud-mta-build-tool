@@ -21,7 +21,7 @@ func (ep *ModuleLoc) GetSourceModuleDir(modulePath string) string {
 }
 
 // GetSourceModuleArtifactRelPath - gets the relative path to the module artifact
-// The ModuleLoc type is used in context of stand alone module build command and in opposite to the module build command in the context
+// The ModuleLoc type is used in context of stand alone module build command and as opposed to the module build command in the context
 // of Makefile saves its build result directly under the target (temporary or specific) without considering the original artifact path in the source folder
 func (ep *ModuleLoc) GetSourceModuleArtifactRelPath(modulePath, artifactPath string) (string, error) {
 	return "", nil

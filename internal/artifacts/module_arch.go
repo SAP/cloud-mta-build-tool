@@ -58,7 +58,7 @@ func ExecuteSoloBuild(source, target string, extensions []string, moduleName str
 		return errors.Wrapf(err, buildFailedMsg, moduleName)
 	}
 	targetLoc := dir.ModuleLocation(loc)
-	err = buildModule(loc, targetLoc, moduleName, "cf", false)
+	err = buildModule(loc, targetLoc, moduleName, "", false)
 	if err != nil {
 		return err
 	}
