@@ -6,16 +6,11 @@ type ModuleLoc struct {
 }
 
 // GetTarget - gets the target path;
-// if it is not provided, use the path of the processed project.
 func (ep *ModuleLoc) GetTarget() string {
 	return ep.loc.GetTarget()
 }
 
-// GetTargetTmpDir - gets the temporary target directory path.
-// The subdirectory in the target folder is named as the source project folder suffixed with "_mta_build_tmp".
-// Subdirectory name is prefixed with "." as a hidden folder
-// in case of stand alone module build when target folder provided build results will be saved in this target folder
-// and not in the temporary folder
+// GetTargetTmpDir - gets the target path;
 func (ep *ModuleLoc) GetTargetTmpDir() string {
 	return ep.loc.GetTarget()
 }
