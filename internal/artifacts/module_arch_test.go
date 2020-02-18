@@ -92,8 +92,10 @@ builders:
 		})
 
 		It("Sanity, no target path", func() {
-			Ω(ExecuteSoloBuild(getTestPath("mta"), "", nil, "node-js", os.Getwd)).Should(Succeed())
-			Ω(getTestPath("mta", ".mta_mta_build_tmp", "node-js", "data.zip")).Should(BeAnExistingFile())
+			Ω(ExecuteSoloBuild(getTestPath("mta"), "", nil, "node-js", func() (string, error) {
+				return getTestPath("result", "test_dir"), nil
+			})).Should(Succeed())
+			Ω(getTestPath("result", "test_dir", ".mta_mta_build_tmp", "node-js", "data.zip")).Should(BeAnExistingFile())
 		})
 
 		It("Fails on location initialization", func() {
@@ -112,6 +114,9 @@ builders:
 			})).Should(HaveOccurred())
 		})
 
+		// the only purpose of the test to support coverage
+		// it covers the path of the code that will never happen -
+		// failure on dir.Location after 2 successful calls to getSoloModuleBuildAbsSource & getSoloModuleBuildAbsTarget
 		It("Fails on creation of Location object", func() {
 			counter := 1
 			Ω(ExecuteSoloBuild("", "", nil, "ui5app", func() (string, error) {

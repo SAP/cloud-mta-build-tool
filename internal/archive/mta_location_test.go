@@ -64,6 +64,12 @@ var _ = Describe("Path", func() {
 		Ω(err).Should(Succeed())
 		Ω(relPath).Should(Equal("webapp"))
 	})
+	It("GetSourceModuleArtifactRelPath - artifact is an archive", func() {
+		location := Loc{SourcePath: getPath("testdata", "mtahtml5")}
+		relPath, err := location.GetSourceModuleArtifactRelPath("ui5app", getPath("testdata", "mtahtml5", "ui5app", "webapp", "abc.jar"))
+		Ω(err).Should(Succeed())
+		Ω(relPath).Should(Equal("webapp"))
+	})
 	It("GetSourceModuleArtifactRelPath - artifact does not exist", func() {
 		location := Loc{SourcePath: getPath("testdata", "mtahtml5")}
 		_, err := location.GetSourceModuleArtifactRelPath("ui5app", getPath("testdata", "mtahtml5", "ui5app", "webapp", "ComponentA.js"))

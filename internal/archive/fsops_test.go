@@ -90,7 +90,7 @@ var _ = Describe("FSOPS", func() {
 				getFullPath("testdata", "mtahtml5"), targetFilePath, nil, false, []string{
 					"mta.sh", "mta.yaml",
 					"ui5app/", "ui5app/Gruntfile.js",
-					"ui5app/webapp/", "ui5app/webapp/Component.js", "ui5app/webapp/index.html",
+					"ui5app/webapp/", "ui5app/webapp/Component.js", "ui5app/webapp/abc.jar", "ui5app/webapp/index.html",
 					"ui5app/webapp/controller/", "ui5app/webapp/controller/View1.controller.js",
 					"ui5app/webapp/css/", "ui5app/webapp/css/style.css",
 					"ui5app/webapp/i18n/", "ui5app/webapp/i18n/i18n.properties",
