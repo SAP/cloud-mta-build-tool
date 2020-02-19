@@ -38,11 +38,6 @@ var _ = Describe("Path", func() {
 		Ω(location.GetTargetModuleDir("mmm")).Should(
 			Equal(getPath("abc", ".xyz_mta_build_tmp", "mmm")))
 	})
-	It("GetTargetModuleZipPath", func() {
-		location := Loc{SourcePath: getPath("xyz"), TargetPath: getPath("abc")}
-		Ω(location.GetTargetModuleZipPath("mmm")).Should(
-			Equal(getPath("abc", ".xyz_mta_build_tmp", "mmm", "data.zip")))
-	})
 	It("GetSourceModuleDir", func() {
 		location := Loc{SourcePath: getPath("xyz"), TargetPath: getPath("abc")}
 		Ω(location.GetSourceModuleDir("mpath")).Should(Equal(getPath("xyz", "mpath")))
@@ -62,6 +57,41 @@ var _ = Describe("Path", func() {
 	It("GetMtaYamlPath", func() {
 		location := Loc{SourcePath: getPath()}
 		Ω(location.GetMtaYamlPath()).Should(Equal(getPath("mta.yaml")))
+	})
+	It("GetSourceModuleArtifactRelPath - artifact is file", func() {
+		location := Loc{SourcePath: getPath("testdata", "mtahtml5")}
+		relPath, err := location.GetSourceModuleArtifactRelPath("ui5app", getPath("testdata", "mtahtml5", "ui5app", "webapp", "Component.js"))
+		Ω(err).Should(Succeed())
+		Ω(relPath).Should(Equal("webapp"))
+	})
+	It("GetSourceModuleArtifactRelPath - artifact is an archive", func() {
+		location := Loc{SourcePath: getPath("testdata", "mtahtml5")}
+		relPath, err := location.GetSourceModuleArtifactRelPath("ui5app", getPath("testdata", "mtahtml5", "ui5app", "webapp", "abc.jar"))
+		Ω(err).Should(Succeed())
+		Ω(relPath).Should(Equal("webapp"))
+	})
+	It("GetSourceModuleArtifactRelPath - artifact does not exist", func() {
+		location := Loc{SourcePath: getPath("testdata", "mtahtml5")}
+		_, err := location.GetSourceModuleArtifactRelPath("ui5app", getPath("testdata", "mtahtml5", "ui5app", "webapp", "ComponentA.js"))
+		Ω(err).Should(HaveOccurred())
+	})
+	It("GetSourceModuleArtifactRelPath - artifact is folder", func() {
+		location := Loc{SourcePath: getPath("testdata", "mtahtml5")}
+		relPath, err := location.GetSourceModuleArtifactRelPath("ui5app", getPath("testdata", "mtahtml5", "ui5app", "webapp", "view"))
+		Ω(err).Should(Succeed())
+		Ω(relPath).Should(Equal(filepath.Join("webapp", "view")))
+	})
+	It("GetSourceModuleArtifactRelPath - artifact is module itself", func() {
+		location := Loc{SourcePath: getPath("testdata", "mtahtml5")}
+		relPath, err := location.GetSourceModuleArtifactRelPath("ui5app", getPath("testdata", "mtahtml5", "ui5app"))
+		Ω(err).Should(Succeed())
+		Ω(relPath).Should(Equal("."))
+	})
+	It("GetSourceModuleArtifactRelPath - artifact is module which is file", func() {
+		location := Loc{SourcePath: getPath("testdata", "mtahtml5")}
+		relPath, err := location.GetSourceModuleArtifactRelPath(filepath.Join("ui5app", "Gruntfile.js"), getPath("testdata", "mtahtml5", "ui5app", "Gruntfile.js"))
+		Ω(err).Should(Succeed())
+		Ω(relPath).Should(BeEmpty())
 	})
 	It("GetMetaPath", func() {
 		location := Loc{SourcePath: getPath("xyz"), TargetPath: getPath("abc")}
@@ -152,6 +182,11 @@ var _ = Describe("ParseMtaFile", func() {
 		_, err := ep.ParseMtaFile()
 		Ω(err).Should(HaveOccurred())
 	})
+	It("Invalid mta yaml file, unmarshal fails", func() {
+		ep := &Loc{SourcePath: filepath.Join(wd, "testdata"), MtaFilename: "mtaInvalid.yaml"}
+		_, err := ep.ParseMtaFile()
+		Ω(err).Should(HaveOccurred())
+	})
 })
 
 var _ = Describe("ParseExtFile", func() {
@@ -237,6 +272,16 @@ var _ = Describe("ParseFile", func() {
 		Ω(resource).ShouldNot(BeNil())
 		Ω(resource.Active).ShouldNot(BeNil())
 		Ω(*resource.Active).Should(BeFalse())
+	})
+
+	It("fails on not existing file", func() {
+		ep := Loc{
+			SourcePath:  filepath.Join(wd, "testdata", "testext"),
+			MtaFilename: "some.yaml",
+		}
+		_, err := ep.ParseFile()
+		Ω(err).Should(HaveOccurred())
+		Ω(err.Error()).Should(ContainSubstring(fmt.Sprintf(ReadFailedMsg, filepath.Join(ep.SourcePath, ep.MtaFilename))))
 	})
 
 	It("fails when an extension version mismatches the MTA version", func() {

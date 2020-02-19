@@ -15,12 +15,18 @@ var packCmdExtensions []string
 var packCmdModule string
 var packCmdPlatform string
 
-// flags of build command
+// flags of Makefile build command
 var buildModuleCmdSrc string
 var buildModuleCmdTrg string
 var buildModuleCmdExtensions []string
 var buildModuleCmdModule string
 var buildModuleCmdPlatform string
+
+// flags of stand alone build command
+var soloBuildModuleCmdSrc string
+var soloBuildModuleCmdTrg string
+var soloBuildModuleCmdExtensions []string
+var soloBuildModuleCmdModule string
 
 func init() {
 
@@ -36,24 +42,50 @@ func init() {
 	packModuleCmd.Flags().StringVarP(&packCmdPlatform, "platform", "p", "cf",
 		`The deployment platform; supported platforms: "cf", "xsa", "neo"`)
 
-	// sets the flags of the command build module
+	// sets the flags of the Makefile command build module
 	buildModuleCmd.Flags().StringVarP(&buildModuleCmdSrc, "source", "s", "",
 		"The path to the MTA project; the current path is set as default")
 	buildModuleCmd.Flags().StringVarP(&buildModuleCmdTrg, "target", "t", "",
-		"The path to the folder in which the temporary artifacts of the module build are created; the current path is set as default")
+		"The path to the folder in which the module build results are created; the <source folder>/.<project name>_mta_build_tmp/<module name> path is set as default")
 	buildModuleCmd.Flags().StringSliceVarP(&buildModuleCmdExtensions, "extensions", "e", nil,
 		"The MTA extension descriptors")
 	buildModuleCmd.Flags().StringVarP(&buildModuleCmdModule, "module", "m", "",
 		"The name of the module")
 	buildModuleCmd.Flags().StringVarP(&buildModuleCmdPlatform, "platform", "p", "cf",
 		`The deployment platform; supported platforms: "cf", "xsa", "neo"`)
+
+	// sets the flags of the solo Makefile command build module
+	soloBuildModuleCmd.Flags().StringVarP(&soloBuildModuleCmdSrc, "source", "s", "",
+		"The path to the MTA project; the current path is set as default")
+	soloBuildModuleCmd.Flags().StringVarP(&soloBuildModuleCmdTrg, "target", "t", "",
+		"The path to the folder in which the module build results are created; the <current folder>/.<project name>_mta_build_tmp/<module name> path is set as default")
+	soloBuildModuleCmd.Flags().StringSliceVarP(&soloBuildModuleCmdExtensions, "extensions", "e", nil,
+		"The MTA extension descriptors")
+	soloBuildModuleCmd.Flags().StringVarP(&soloBuildModuleCmdModule, "module", "m", "",
+		"The name of the module")
 }
 
-// buildModuleCmd - Build module
+// soloBuildModuleCmd - Build module command used stand alone
+var soloBuildModuleCmd = &cobra.Command{
+	Use:                "module-build",
+	Short:              "Builds module according to configurations in the MTA development descriptor (mta.yaml)",
+	Long:               "Builds module according to configurations in the MTA development descriptor (mta.yaml)",
+	Args:               cobra.MaximumNArgs(4),
+	DisableFlagParsing: true,
+	RunE: func(cmd *cobra.Command, args []string) error {
+		err := artifacts.ExecuteSoloBuild(soloBuildModuleCmdSrc, soloBuildModuleCmdTrg, soloBuildModuleCmdExtensions, soloBuildModuleCmdModule, os.Getwd)
+		logError(err)
+		return err
+	},
+	SilenceUsage:  true,
+	SilenceErrors: true,
+}
+
+// buildModuleCmd - Build module command that is used in Makefile
 var buildModuleCmd = &cobra.Command{
 	Use:   "build",
 	Short: "Builds module",
-	Long:  "Builds module and archives its artifacts",
+	Long:  "Builds module according to configurations in the MTA development descriptor (mta.yaml) and archives its artifacts",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		err := artifacts.ExecuteBuild(buildModuleCmdSrc, buildModuleCmdTrg, buildModuleCmdExtensions, buildModuleCmdModule, buildModuleCmdPlatform, os.Getwd)

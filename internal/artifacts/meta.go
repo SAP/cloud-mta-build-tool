@@ -60,7 +60,7 @@ func generateMeta(loc *dir.Loc, targetArtifacts dir.ITargetArtifacts, deployment
 }
 
 // genMetaInfo generates a MANIFEST.MF file and updates the build artifacts paths for deployment purposes.
-func genMetaInfo(source dir.ISourceModule, ep dir.ITargetArtifacts, targetPathGetter dir.ITargetPath, deploymentDesc bool,
+func genMetaInfo(source dir.IModule, ep dir.ITargetArtifacts, targetPathGetter dir.ITargetPath, deploymentDesc bool,
 	platform string, mtaStr *mta.MTA, createMetaInf bool, validatePaths bool) (rerr error) {
 
 	if createMetaInf {

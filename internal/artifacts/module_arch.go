@@ -20,24 +20,73 @@ const (
 	ignore = "ignore"
 )
 
-// ExecuteBuild - executes build of module
+// ExecuteBuild - executes build of module from Makefile
 func ExecuteBuild(source, target string, extensions []string, moduleName, platform string, wdGetter func() (string, error)) error {
+	if moduleName == "" {
+		return errors.New(buildFailedOnEmptyModuleMsg)
+	}
+
 	logs.Logger.Infof(buildMsg, moduleName)
 	loc, err := dir.Location(source, target, dir.Dev, extensions, wdGetter)
 	if err != nil {
 		return errors.Wrapf(err, buildFailedMsg, moduleName)
 	}
-	// validate platform
-	platform, err = validatePlatform(platform)
-	if err != nil {
-		return err
-	}
-	err = buildModule(loc, loc, loc, moduleName, platform)
+	err = buildModule(loc, loc, moduleName, platform, true)
 	if err != nil {
 		return err
 	}
 	logs.Logger.Infof(buildFinishedMsg, moduleName)
 	return nil
+}
+
+// ExecuteSoloBuild - executes build of module from stand alone command
+func ExecuteSoloBuild(source, target string, extensions []string, moduleName string, wdGetter func() (string, error)) error {
+	logs.Logger.Infof(buildMsg, moduleName)
+
+	sourceDir, err := getSoloModuleBuildAbsSource(source, wdGetter)
+	if err != nil {
+		return errors.Wrapf(err, buildFailedMsg, moduleName)
+	}
+
+	targetDir, err := getSoloModuleBuildAbsTarget(sourceDir, target, moduleName, wdGetter)
+	if err != nil {
+		return errors.Wrapf(err, buildFailedMsg, moduleName)
+	}
+
+	loc, err := dir.Location(sourceDir, targetDir, dir.Dev, extensions, wdGetter)
+	if err != nil {
+		return errors.Wrapf(err, buildFailedMsg, moduleName)
+	}
+	targetLoc := dir.ModuleLocation(loc)
+	err = buildModule(loc, targetLoc, moduleName, "", false)
+	if err != nil {
+		return err
+	}
+	logs.Logger.Infof(buildFinishedMsg, moduleName)
+	return nil
+}
+
+func getSoloModuleBuildAbsSource(source string, wdGetter func() (string, error)) (string, error) {
+	if source == "" {
+		return wdGetter()
+	}
+	return filepath.Abs(source)
+}
+
+func getSoloModuleBuildAbsTarget(absSource, target, moduleName string, wdGetter func() (string, error)) (string, error) {
+	if target != "" {
+		return filepath.Abs(target)
+	}
+
+	target, err := wdGetter()
+	if err != nil {
+		return "", err
+	}
+	_, projectFoilderName := filepath.Split(absSource)
+	tmpFolderName := "." + projectFoilderName + dir.TempFolderSuffix
+
+	// default target is <current folder>/.<project folder>_mta_tmp/<module_name>
+	return filepath.Join(target, tmpFolderName, moduleName), nil
 }
 
 // ExecutePack - executes packing of module
@@ -65,10 +114,10 @@ func ExecutePack(source, target string, extensions []string, moduleName, platfor
 	}
 
 	if module.Path == "" {
-		return errors.Wrapf(err, packFailedOnEmptyPathMsg, moduleName)
+		return fmt.Errorf(packFailedOnEmptyPathMsg, moduleName)
 	}
 
-	err = packModule(loc, loc, module, moduleName, platform, defaultBuildResult)
+	err = packModule(loc, module, moduleName, platform, defaultBuildResult, true)
 	if err != nil {
 		return err
 	}
@@ -77,7 +126,16 @@ func ExecutePack(source, target string, extensions []string, moduleName, platfor
 }
 
 // buildModule - builds module
-func buildModule(mtaParser dir.IMtaParser, moduleLoc dir.IModule, targetLoc dir.ITargetPath, moduleName, platform string) error {
+func buildModule(mtaParser dir.IMtaParser, moduleLoc dir.IModule, moduleName, platform string, checkPlatform bool) error {
+
+	var err error
+	if checkPlatform {
+		// validate platform
+		platform, err = validatePlatform(platform)
+		if err != nil {
+			return err
+		}
+	}
 
 	// Get module respective command's to execute
 	module, mCmd, defaultBuildResults, err := commands.GetModuleAndCommands(mtaParser, moduleName)
@@ -91,7 +149,7 @@ func buildModule(mtaParser dir.IMtaParser, moduleLoc dir.IModule, targetLoc dir.
 	}
 
 	if module.Path == "" {
-		return errors.Wrapf(err, buildFailedOnEmptyPathMsg, moduleName)
+		return fmt.Errorf(buildFailedOnEmptyPathMsg, moduleName)
 	}
 
 	// Development descriptor - build includes:
@@ -126,23 +184,23 @@ func buildModule(mtaParser dir.IMtaParser, moduleLoc dir.IModule, targetLoc dir.
 
 	// 3. Packing the modules build artifacts (include node modules)
 	// into the artifactsPath dir as data zip
-	return packModule(moduleLoc, targetLoc, module, moduleName, platform, defaultBuildResults)
+	return packModule(moduleLoc, module, moduleName, platform, defaultBuildResults, checkPlatform)
 }
 
 // packModule - pack build module artifacts
-func packModule(source dir.IModule, target dir.ITargetPath, module *mta.Module, moduleName, platform, defaultBuildResult string) error {
+func packModule(moduleLoc dir.IModule, module *mta.Module, moduleName, platform, defaultBuildResult string, checkPlatform bool) error {
 
-	if !buildops.PlatformDefined(module, platform) {
+	if checkPlatform && !buildops.PlatformDefined(module, platform) {
 		return nil
 	}
 
-	logs.Logger.Info(fmt.Sprintf(buildResultMsg, moduleName, source.GetTargetModuleDir(moduleName)))
+	logs.Logger.Info(fmt.Sprintf(buildResultMsg, moduleName, moduleLoc.GetTargetModuleDir(moduleName)))
 
-	sourceArtifact, err := buildops.GetModuleSourceArtifactPath(source, false, module, defaultBuildResult, true)
+	sourceArtifact, err := buildops.GetModuleSourceArtifactPath(moduleLoc, false, module, defaultBuildResult, true)
 	if err != nil {
 		return errors.Wrapf(err, packFailedOnBuildArtifactMsg, moduleName)
 	}
-	targetArtifact, toArchive, err := buildops.GetModuleTargetArtifactPath(source, target, false, module, defaultBuildResult)
+	targetArtifact, toArchive, err := buildops.GetModuleTargetArtifactPath(moduleLoc, false, module, defaultBuildResult)
 	if err != nil {
 		return errors.Wrapf(err, packFailedOnTargetArtifactMsg, moduleName)
 	}

@@ -44,7 +44,7 @@ type entry struct {
 }
 
 // setManifestDesc - Set the MANIFEST.MF file
-func setManifestDesc(source dir.ISourceModule, ep dir.ITargetArtifacts, targetPathGetter dir.ITargetPath, depDesc bool, mtaStr []*mta.Module,
+func setManifestDesc(source dir.IModule, ep dir.ITargetArtifacts, targetPathGetter dir.ITargetPath, depDesc bool, mtaStr []*mta.Module,
 	mtaResources []*mta.Resource) error {
 
 	contentTypes, err := conttype.GetContentTypes()
@@ -117,7 +117,7 @@ func addModuleEntry(entries []entry, module *mta.Module, contentType, modulePath
 	return result
 }
 
-func getModulesEntries(source dir.ISourceModule, targetPathGetter dir.ITargetPath, depDesc bool, moduleList []*mta.Module,
+func getModulesEntries(source dir.IModule, targetPathGetter dir.ITargetPath, depDesc bool, moduleList []*mta.Module,
 	contentTypes *conttype.ContentTypes) ([]entry, error) {
 
 	var entries []entry
@@ -127,7 +127,7 @@ func getModulesEntries(source dir.ISourceModule, targetPathGetter dir.ITargetPat
 			if err != nil {
 				return nil, err
 			}
-			modulePath, _, err := buildops.GetModuleTargetArtifactPath(source, targetPathGetter, depDesc, mod, defaultBuildResult)
+			modulePath, _, err := buildops.GetModuleTargetArtifactPath(source, depDesc, mod, defaultBuildResult)
 			if modulePath != "" && err == nil {
 				_, err = os.Stat(modulePath)
 			}

@@ -2,6 +2,7 @@ package dir
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -38,6 +39,7 @@ type IDescriptor interface {
 // ISourceModule - source module interface
 type ISourceModule interface {
 	GetSourceModuleDir(modulePath string) string
+	GetSourceModuleArtifactRelPath(modulePath, artifactPath string) (string, error)
 }
 
 // IMtaYaml - MTA Yaml interface
@@ -60,7 +62,6 @@ type ITargetPath interface {
 // ITargetModule - Target Module interface
 type ITargetModule interface {
 	GetTargetModuleDir(moduleName string) string
-	GetTargetModuleZipPath(moduleName string) string
 }
 
 // IModule - module interface
@@ -143,16 +144,26 @@ func (ep *Loc) GetTargetModuleDir(moduleName string) string {
 	return filepath.Join(dir, moduleName)
 }
 
-// GetTargetModuleZipPath gets the path to the packed module data.zip file.
-// The subdirectory in temporary target directory is named by the module name.
-func (ep *Loc) GetTargetModuleZipPath(moduleName string) string {
-	return filepath.Join(ep.GetTargetModuleDir(moduleName), "data.zip")
-}
-
 // GetSourceModuleDir gets the path to the module to be packed.
 // The subdirectory is in the source.
 func (ep *Loc) GetSourceModuleDir(modulePath string) string {
 	return filepath.Join(ep.GetSource(), filepath.Clean(modulePath))
+}
+
+// GetSourceModuleArtifactRelPath gets the relative path to the module's artifact
+func (ep *Loc) GetSourceModuleArtifactRelPath(moduleRelPath, artifactAbsPath string) (string, error) {
+	info, err := os.Stat(artifactAbsPath)
+	if err != nil {
+		return "", err
+	}
+	isFolder := info.IsDir()
+	modulePath := ep.GetSourceModuleDir(moduleRelPath)
+	if isFolder {
+		return filepath.Rel(modulePath, artifactAbsPath)
+	} else if artifactAbsPath == modulePath {
+		return "", nil
+	}
+	return filepath.Rel(modulePath, filepath.Dir(artifactAbsPath))
 }
 
 // GetMtaYamlFilename - Gets the MTA .yaml file name.
