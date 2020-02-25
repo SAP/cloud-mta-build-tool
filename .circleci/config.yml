@@ -118,6 +118,7 @@ jobs:
             git fetch
             git rebase
             echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > .npmrc
+            npm install
             npm publish
       - run:
           name: remove dummy release tag
