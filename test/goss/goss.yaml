@@ -22,17 +22,17 @@ command:
   java -version:
     exit-status: 0
     stderr:
-    - openjdk version "1.8.0
+    - openjdk version "11
   # verify installed Cloud MTA Build Tool version
   mbt --version:
     exit-status: 0
     stdout:
-    - Cloud MTA Build Tool version 1.0.5
+    - Cloud MTA Build Tool version 1.0.10
   # verify installed MAVEN VERSION
   mvn --version:
     exit-status: 0
     stdout:
-    - Apache Maven 3.6.2
+    - Apache Maven 3.6
   # verify installed NODE version
   node --version:
     exit-status: 0
