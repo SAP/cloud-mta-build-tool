@@ -898,7 +898,7 @@ modules:
 <tr>
 <td><code>ignore</code></td>
 <td>None</td>
-<td>Files and/or subfolders to exclude from the package.</td>
+<td>Files and/or subfolders to exclude from the package. <br>The provided paths should be relative to the build result folder, which can be the module's root folder (default) or the folder specified in the <code>build-result</code> parameter.</td>
 </tr>
 </tbody>
 </table>
@@ -911,6 +911,8 @@ modules:
      build-result: myfolder
      ignore: [&quot;*.txt&quot;, &quot;mtaignore/&quot;]
 
+# In this example, the following will not be packaged in to MTA archive:
+# all files with the&quot;txt&quot; extension and the &quot;mtaignore&quot; folder within the &quot;myfolder&quot; directory. 
 
 </code></pre>
 
