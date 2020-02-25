@@ -46,9 +46,9 @@ docker build -t devxci/mbtci .
 
 - Maven - 3.6.3
 
-- Golang - 1.13.6
+- Golang - 1.13.8
 
-- Java - 8
+- Java - 11
 
 
 

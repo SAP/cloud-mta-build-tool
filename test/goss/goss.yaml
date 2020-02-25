@@ -22,7 +22,7 @@ command:
   java -version:
     exit-status: 0
     stderr:
-      - openjdk version "1.8.0
+      - openjdk version "11
   # verify installed Cloud MTA Build Tool version
   mbt --version:
     exit-status: 0
