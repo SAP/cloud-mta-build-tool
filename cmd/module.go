@@ -71,7 +71,6 @@ var soloBuildModuleCmd = &cobra.Command{
 	Short:              "Builds module according to configurations in the MTA development descriptor (mta.yaml)",
 	Long:               "Builds module according to configurations in the MTA development descriptor (mta.yaml)",
 	Args:               cobra.MaximumNArgs(4),
-	DisableFlagParsing: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		err := artifacts.ExecuteSoloBuild(soloBuildModuleCmdSrc, soloBuildModuleCmdTrg, soloBuildModuleCmdExtensions, soloBuildModuleCmdModule, os.Getwd)
 		logError(err)
