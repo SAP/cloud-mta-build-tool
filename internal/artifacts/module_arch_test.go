@@ -4,6 +4,7 @@ import (
 	"archive/zip"
 	"errors"
 	"fmt"
+	"github.com/onsi/gomega/types"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -87,29 +88,58 @@ builders:
 	var _ = Describe("ExecuteSoloBuild", func() {
 
 		It("Sanity, with target path", func() {
-			Ω(ExecuteSoloBuild(getTestPath("mta"), getResultPath(), nil, "node-js", os.Getwd)).Should(Succeed())
+			Ω(ExecuteSoloBuild(getTestPath("mta"), getResultPath(), nil, []string{"node-js"}, os.Getwd)).Should(Succeed())
 			Ω(getTestPath("result", "data.zip")).Should(BeAnExistingFile())
 		})
 
 		It("Sanity, no target path", func() {
-			Ω(ExecuteSoloBuild(getTestPath("mta"), "", nil, "node-js", func() (string, error) {
+			Ω(ExecuteSoloBuild(getTestPath("mta"), "", nil, []string{"node-js"}, func() (string, error) {
 				return getTestPath("result", "test_dir"), nil
 			})).Should(Succeed())
 			Ω(getTestPath("result", "test_dir", ".mta_mta_build_tmp", "node-js", "data.zip")).Should(BeAnExistingFile())
 		})
 
+		It("fails on empty list of modules", func() {
+			Ω(ExecuteSoloBuild(getTestPath("mta"), getResultPath(), nil, []string{}, os.Getwd)).Should(HaveOccurred())
+		})
+
+		It("fails on location getter", func() {
+			Ω(ExecuteSoloBuild(getTestPath("mta"), getResultPath(), nil, []string{}, func() (string, error) {
+				return "", errors.New("erro")
+			})).Should(HaveOccurred())
+		})
+
+		It("Fails on source getter", func() {
+			Ω(ExecuteSoloBuild("", "", nil, []string{"ui5app"}, func() (string, error) {
+				return "", errors.New("err")
+			})).Should(HaveOccurred())
+		})
+
+		It("Fails on wrong build dependencies - on sortSelectedModules", func() {
+			Ω(ExecuteSoloBuild(getTestPath("mtahtml5"), "", []string{"mtaExtWithWrongDependencies.yaml"}, []string{"ui5app"}, os.Getwd)).Should(HaveOccurred())
+		})
+
+		It("Fails on non-existing required artifact", func() {
+			Ω(ExecuteSoloBuild(getTestPath("mtahtml5"), "", []string{"mtaExtWithUnkownBuilder.yaml"}, []string{"ui5app"}, os.Getwd)).Should(HaveOccurred())
+		})
+
 		It("Fails on location initialization", func() {
-			Ω(ExecuteSoloBuild("", "", nil, "ui5app", func() (string, error) {
+			counter := 0
+			Ω(ExecuteSoloBuild("", "", nil, []string{"ui5app"}, func() (string, error) {
+				if counter == 0 {
+					counter++
+					return "", nil
+				}
 				return "", errors.New("err")
 			})).Should(HaveOccurred())
 		})
 
 		It("Fails on wrong module", func() {
-			Ω(ExecuteSoloBuild(getTestPath("mta"), getResultPath(), nil, "ui5app", os.Getwd)).Should(HaveOccurred())
+			Ω(ExecuteSoloBuild(getTestPath("mta"), getResultPath(), nil, []string{"ui5app"}, os.Getwd)).Should(HaveOccurred())
 		})
 
 		It("Fails on getting default source", func() {
-			Ω(ExecuteSoloBuild(getTestPath("mta"), "", nil, "ui5app", func() (string, error) {
+			Ω(ExecuteSoloBuild(getTestPath("mta"), "", nil, []string{"ui5app"}, func() (string, error) {
 				return "", errors.New("err")
 			})).Should(HaveOccurred())
 		})
@@ -119,7 +149,7 @@ builders:
 		// failure on dir.Location after 2 successful calls to getSoloModuleBuildAbsSource & getSoloModuleBuildAbsTarget
 		It("Fails on creation of Location object", func() {
 			counter := 1
-			Ω(ExecuteSoloBuild("", "", nil, "ui5app", func() (string, error) {
+			Ω(ExecuteSoloBuild("", "", nil, []string{"ui5app"}, func() (string, error) {
 				if counter <= 2 {
 					counter++
 					return "", nil
@@ -133,6 +163,21 @@ builders:
 				return "", errors.New("err")
 			})
 			Ω(err).Should(HaveOccurred())
+		})
+	})
+
+	var _ = Describe("buildSelectedModules", func() {
+
+		It("fails on wrong selected module", func() {
+			mtaObj := getMtaObj("mtahtml5", "mta.yaml")
+			Ω(buildSelectedModules(getTestPath("mtahtml5"), "", nil, mtaObj, []string{"unknown"}, os.Getwd)).Should(HaveOccurred())
+		})
+
+		It("fails on module location getter", func() {
+			mtaObj := getMtaObj("mtahtml5", "mta.yaml")
+			Ω(buildSelectedModules("", "", nil, mtaObj, []string{"ui5app"}, func() (string, error) {
+				return "", errors.New("error")
+			})).Should(HaveOccurred())
 		})
 	})
 
@@ -440,30 +485,30 @@ builders:
 
 			It("Sanity", func() {
 				ep := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath()}
-				Ω(buildModule(&ep, &ep, "node-js", "cf", true)).Should(Succeed())
+				Ω(buildModule(&ep, &ep, "node-js", "cf", true, true)).Should(Succeed())
 				Ω(getFullPathInTmpFolder("mta", "node-js", "data.zip")).Should(BeAnExistingFile())
 			})
 
 			It("Sanity, not packed - platform not supported", func() {
 				ep := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath()}
-				Ω(buildModule(&ep, &ep, "node-js", "neo", true)).Should(Succeed())
+				Ω(buildModule(&ep, &ep, "node-js", "neo", true, true)).Should(Succeed())
 				Ω(getFullPathInTmpFolder("mta", "node-js", "data.zip")).ShouldNot(BeAnExistingFile())
 			})
 
 			It("Sanity, packed - platform not checked", func() {
 				ep := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath()}
-				Ω(buildModule(&ep, &ep, "node-js", "neo", false)).Should(Succeed())
+				Ω(buildModule(&ep, &ep, "node-js", "neo", false, true)).Should(Succeed())
 				Ω(getFullPathInTmpFolder("mta", "node-js", "data.zip")).Should(BeAnExistingFile())
 			})
 
 			It("empty path", func() {
 				ep := dir.Loc{SourcePath: getTestPath("mta_no_path"), TargetPath: getResultPath()}
-				Ω(buildModule(&ep, &ep, "no_path", "cf", true)).Should(HaveOccurred())
+				Ω(buildModule(&ep, &ep, "no_path", "cf", true, true)).Should(HaveOccurred())
 			})
 
 			It("no source module", func() {
 				ep := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath()}
-				Ω(buildModule(&ep, &ep, "no_source", "cf", true)).Should(Succeed())
+				Ω(buildModule(&ep, &ep, "no_source", "cf", true, true)).Should(Succeed())
 				Ω(getTestPath("mta", "node-js", "data.zip")).ShouldNot(BeAnExistingFile())
 			})
 
@@ -483,7 +528,7 @@ module-types:
 `)
 
 				ep := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath()}
-				Ω(buildModule(&ep, &ep, "node-js", "cf", true)).Should(HaveOccurred())
+				Ω(buildModule(&ep, &ep, "node-js", "cf", true, true)).Should(HaveOccurred())
 			})
 
 			It("fails when the command is invalid", func() {
@@ -497,7 +542,7 @@ module-types:
 `)
 
 				ep := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath()}
-				err := buildModule(&ep, &ep, "node-js", "cf", true)
+				err := buildModule(&ep, &ep, "node-js", "cf", true, true)
 				checkError(err, commands.BadCommandMsg, `bash -c "sleep 1`)
 			})
 
@@ -505,13 +550,13 @@ module-types:
 				createDirInTmpFolder("mta")
 				ep := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath()}
 				createFileInTmpFolder("mta", "node-js")
-				Ω(buildModule(&ep, &ep, "node-js", "cf", true)).Should(HaveOccurred())
+				Ω(buildModule(&ep, &ep, "node-js", "cf", true, true)).Should(HaveOccurred())
 			})
 
 			var _ = DescribeTable("Invalid inputs", func(projectName, mtaFilename, moduleName string) {
 				ep := dir.Loc{SourcePath: getTestPath(projectName), TargetPath: getResultPath(), MtaFilename: mtaFilename}
 				Ω(ep.GetTargetTmpDir()).ShouldNot(BeADirectory())
-				Ω(buildModule(&ep, &ep, moduleName, "cf", true)).Should(HaveOccurred())
+				Ω(buildModule(&ep, &ep, moduleName, "cf", true, true)).Should(HaveOccurred())
 				Ω(ep.GetTargetTmpDir()).ShouldNot(BeADirectory())
 			},
 				Entry("Invalid path to application", "mta1", "mta.yaml", "node-js"),
@@ -522,17 +567,17 @@ module-types:
 			When("build parameters has timeout", func() {
 				It("succeeds when timeout is not exceeded", func() {
 					ep := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath(), MtaFilename: "mta_with_timeout.yaml"}
-					Ω(buildModule(&ep, &ep, "m2", "cf", true)).Should(Succeed())
+					Ω(buildModule(&ep, &ep, "m2", "cf", true, true)).Should(Succeed())
 					Ω(getFullPathInTmpFolder("mta", "m2", "data.zip")).Should(BeAnExistingFile())
 				})
 				It("fails when timeout is exceeded", func() {
 					ep := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath(), MtaFilename: "mta_with_timeout.yaml"}
-					err := buildModule(&ep, &ep, "m1", "cf", true)
+					err := buildModule(&ep, &ep, "m1", "cf", true, true)
 					checkError(err, exec.ExecTimeoutMsg, "2s")
 				})
 				It("fails when timeout is not a string", func() {
 					ep := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath(), MtaFilename: "mta_with_timeout.yaml"}
-					err := buildModule(&ep, &ep, "m3", "cf", true)
+					err := buildModule(&ep, &ep, "m3", "cf", true, true)
 					checkError(err, exec.ExecInvalidTimeoutMsg, "1")
 				})
 			})
@@ -703,7 +748,77 @@ module-types:
 		})
 	})
 
+	Describe("checkBuildResultsConflicts", func() {
+		DescribeTable("conflicting and none conflicting cases", func(target string, modules []string, result func() types.GomegaMatcher) {
+			mtaObj := getMtaObj("mtahtml5", "mta.yaml")
+			Ω(checkBuildResultsConflicts(mtaObj, getTestPath("mtahtml5"), target, nil, modules, os.Getwd)).Should(result())
+		},
+			Entry("one module, no conflicts", getTestPath("result"), []string{"ui5app"}, Succeed),
+			Entry("2 none conflicting modules, because target not provided and modules results are in different sub folders", "", []string{"ui5app", "ui5app2"}, Succeed),
+			Entry("2 conflicting modules, because they share the same provided target", getTestPath("result"), []string{"ui5app", "ui5app2"}, HaveOccurred),
+		)
+
+		It("fails on location initialization", func() {
+			mtaObj := getMtaObj("mtahtml5", "mta.yaml")
+			Ω(checkBuildResultsConflicts(mtaObj, getTestPath("mtahtml5"), "", nil, []string{"ui5app"}, func() (string, error) { return "", errors.New("error") })).Should(HaveOccurred())
+		})
+
+		DescribeTable("failures on the mta yaml problems", func(filename string) {
+			mtaObj := getMtaObj("mtahtml5", filename)
+			Ω(checkBuildResultsConflicts(mtaObj, getTestPath("mtahtml5"), getTestPath("result"), nil, []string{"ui5app"}, os.Getwd)).Should(HaveOccurred())
+		},
+			Entry("unknown builder", "mtaWithNoCustomCommands.yaml"),
+			Entry("wrong definition of the build result property", "mtaWithWrongBuildResult.yaml"))
+	})
+
+	Describe("getRequiredModules", func() {
+
+		var mtaObj *mta.MTA
+
+		BeforeEach(func() {
+			mtaObj = getMtaObj("mtahtml5", "mtaWithWrongBuildRequirements.yaml")
+		})
+
+		Describe("scenarios based on mtaWithWrongBuildRequirements.yaml", func() {
+			It("sanity", func() {
+				modules, err := getRequiredModules(mtaObj, "m1")
+				Ω(err).Should(Succeed())
+				Ω(modules).Should(Equal([]string{"m4", "m3", "m2"}))
+			})
+			DescribeTable("failures", func(targetModule string) {
+				_, err := getRequiredModules(mtaObj, targetModule)
+				Ω(err).Should(HaveOccurred())
+			},
+				Entry("fails on none existing target module", "m5"),
+				Entry("fails on none existing module required by the target module", "n1"),
+				Entry("fails on none existing module required by the module that is required by the target module", "n2"))
+		})
+	})
+
+	Describe("sortSelectedModules", func() {
+		It("sanity", func() {
+			mtaObj := getMtaObj("mtahtml5", "mtaWithBuildRequirements.yaml")
+			modules, err := sortSelectedModules(mtaObj, []string{"n1", "m1"})
+			Ω(err).Should(Succeed())
+			Ω(modules).Should(Equal([]string{"m1", "n1"}))
+		})
+
+		It("fails on the mta yaml problems", func() {
+			mtaObj := getMtaObj("mtahtml5", "mtaWithWrongBuildRequirements.yaml")
+			_, err := sortSelectedModules(mtaObj, []string{"m1", "n1"})
+			Ω(err).Should(HaveOccurred())
+		})
+	})
 })
+
+func getMtaObj(projectName string, mtaFilename string) *mta.MTA {
+	loc, err := dir.Location(getTestPath(projectName), getTestPath("result"), dir.Dev, nil, os.Getwd)
+	Ω(err).Should(Succeed())
+	loc.MtaFilename = mtaFilename
+	mtaObj, err := loc.ParseFile()
+	Ω(err).Should(Succeed())
+	return mtaObj
+}
 
 func dirContainsAllElements(source string, elements map[string]bool, validateEntitiesCount bool) bool {
 	sourceElements, _ := ioutil.ReadDir(source)

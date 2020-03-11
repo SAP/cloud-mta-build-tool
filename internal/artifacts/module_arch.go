@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/pkg/errors"
 
@@ -31,7 +32,7 @@ func ExecuteBuild(source, target string, extensions []string, moduleName, platfo
 	if err != nil {
 		return errors.Wrapf(err, buildFailedMsg, moduleName)
 	}
-	err = buildModule(loc, loc, moduleName, platform, true)
+	err = buildModule(loc, loc, moduleName, platform, true, true)
 	if err != nil {
 		return err
 	}
@@ -40,29 +41,196 @@ func ExecuteBuild(source, target string, extensions []string, moduleName, platfo
 }
 
 // ExecuteSoloBuild - executes build of module from stand alone command
-func ExecuteSoloBuild(source, target string, extensions []string, moduleName string, wdGetter func() (string, error)) error {
-	logs.Logger.Infof(buildMsg, moduleName)
+func ExecuteSoloBuild(source, target string, extensions []string, modulesNames []string, wdGetter func() (string, error)) error {
+
+	if len(modulesNames) == 0 {
+		return errors.New(buildFailedOnEmptyModulesMsg)
+	}
 
 	sourceDir, err := getSoloModuleBuildAbsSource(source, wdGetter)
 	if err != nil {
-		return errors.Wrapf(err, buildFailedMsg, moduleName)
+		return errors.Wrapf(err, getBuildMsg(buildFailedMsg, multiBuildFailedMsg, modulesNames))
 	}
 
-	targetDir, err := getSoloModuleBuildAbsTarget(sourceDir, target, moduleName, wdGetter)
+	loc, err := dir.Location(sourceDir, "", dir.Dev, extensions, wdGetter)
 	if err != nil {
-		return errors.Wrapf(err, buildFailedMsg, moduleName)
+		return errors.Wrapf(err, getBuildMsg(buildFailedMsg, multiBuildFailedMsg, modulesNames))
 	}
 
-	loc, err := dir.Location(sourceDir, targetDir, dir.Dev, extensions, wdGetter)
-	if err != nil {
-		return errors.Wrapf(err, buildFailedMsg, moduleName)
-	}
-	targetLoc := dir.ModuleLocation(loc)
-	err = buildModule(loc, targetLoc, moduleName, "", false)
+	mtaObj, err := loc.ParseFile()
 	if err != nil {
 		return err
 	}
-	logs.Logger.Infof(buildFinishedMsg, moduleName)
+
+	logs.Logger.Infof(getBuildMsg(buildMsg, multiBuildMsg, modulesNames))
+
+	err = checkBuildResultsConflicts(mtaObj, sourceDir, target, extensions, modulesNames, wdGetter)
+	if err != nil {
+		return errors.Wrapf(err, getBuildMsg(buildFailedMsg, multiBuildFailedMsg, modulesNames))
+	}
+
+	sortedModules, err := sortSelectedModules(mtaObj, modulesNames)
+	if err != nil {
+		return errors.Wrapf(err, getBuildMsg(buildFailedMsg, multiBuildFailedMsg, modulesNames))
+	}
+
+	err = buildSelectedModules(sourceDir, target, extensions, mtaObj, sortedModules, wdGetter)
+	if err != nil {
+		return errors.Wrapf(err, getBuildMsg(buildFailedMsg, multiBuildFailedMsg, modulesNames))
+	}
+
+	logs.Logger.Infof(getBuildMsg(buildFinishedMsg, multiBuildFinishedMsg, modulesNames))
+
+	return nil
+}
+
+func getBuildMsg(oneModuleMsg, manyModulesMsg string, modules []string) string {
+
+	if len(modules) == 1 {
+		return fmt.Sprintf(oneModuleMsg, modules[0])
+	}
+	return fmt.Sprintf(manyModulesMsg, `"`+strings.Join(modules, `",""`)+`"`)
+}
+
+func buildSelectedModules(source, target string, extensions []string, mtaObj *mta.MTA, selectedModules []string, wdGetter func() (string, error)) error {
+
+	for _, module := range selectedModules {
+		requiredModules, err := getRequiredModules(mtaObj, module)
+		if err != nil {
+			return err
+		}
+		for _, requiredModule := range requiredModules {
+			moduleLoc, err := getModuleLocation(source, target, requiredModule, extensions, wdGetter)
+			if err != nil {
+				return err
+			}
+			err = buildModule(moduleLoc, moduleLoc, requiredModule, "", false, false)
+			if err != nil {
+				return err
+			}
+		}
+		moduleLoc, err := getModuleLocation(source, target, module, extensions, wdGetter)
+		if err != nil {
+			return err
+		}
+
+		err = buildModule(moduleLoc, moduleLoc, module, "", false, true)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func getRequiredModules(mtaObj *mta.MTA, moduleName string) ([]string, error) {
+
+	var requiredModulesNames []string
+	module, err := mtaObj.GetModuleByName(moduleName)
+	if err != nil {
+		return nil, err
+	}
+	for _, requires := range buildops.GetBuildRequires(module) {
+		requiredModule, err := mtaObj.GetModuleByName(requires.Name)
+		if err != nil {
+			return nil, err
+		}
+		requiredForRequiredModule, err := getRequiredModules(mtaObj, requiredModule.Name)
+		if err != nil {
+			return nil, err
+		}
+		for _, reqForRequiredModule := range requiredForRequiredModule {
+			requiredModulesNames = appendIfNotListed(requiredModulesNames, reqForRequiredModule)
+		}
+		requiredModulesNames = appendIfNotListed(requiredModulesNames, requires.Name)
+
+	}
+	return requiredModulesNames, nil
+}
+
+func appendIfNotListed(list []string, element string) []string {
+	exists := false
+	for _, listElement := range list {
+		if listElement == element {
+			exists = true
+			break
+		}
+	}
+	if !exists {
+		list = append(list, element)
+	}
+	return list
+}
+
+func sortSelectedModules(mtaObj *mta.MTA, selectedModules []string) ([]string, error) {
+	selectedModulesMap := make(map[string]bool)
+	for _, selectedModule := range selectedModules {
+		selectedModulesMap[selectedModule] = false
+	}
+	sortedAllModules, err := buildops.GetModulesNames(mtaObj)
+	var allModules []string
+	if err != nil {
+		return nil, err
+	}
+	for _, module := range sortedAllModules {
+		_, selected := selectedModulesMap[module]
+		if selected {
+			allModules = append(allModules, module)
+		}
+	}
+	return allModules, nil
+}
+
+func getModuleLocation(source, target, moduleName string, extensions []string, wdGetter func() (string, error)) (*dir.ModuleLoc, error) {
+	targetDir, err := getSoloModuleBuildAbsTarget(source, target, moduleName, wdGetter)
+	if err != nil {
+		return nil, err
+	}
+
+	loc, err := dir.Location(source, targetDir, dir.Dev, extensions, wdGetter)
+	if err != nil {
+		return nil, err
+	}
+
+	return dir.ModuleLocation(loc), nil
+}
+
+func checkBuildResultsConflicts(mtaObj *mta.MTA, source, target string, extensions []string, modulesNames []string, wdGetter func() (string, error)) error {
+
+	moduleNameResultPathMap := make(map[string]string)
+	resultPathModuleNameMap := make(map[string]string)
+	for _, moduleName := range modulesNames {
+		_, err := mtaObj.GetModuleByName(moduleName)
+		if err != nil {
+			return err
+		}
+		moduleNameResultPathMap[moduleName] = ""
+	}
+
+	for _, module := range mtaObj.Modules {
+
+		moduleLoc, err := getModuleLocation(source, target, module.Name, extensions, wdGetter)
+		if err != nil {
+			return err
+		}
+
+		_, moduleInScope := moduleNameResultPathMap[module.Name]
+		if moduleInScope {
+			_, defaultBuildResult, err := commands.CommandProvider(*module)
+			if err != nil {
+				return err
+			}
+			targetArtifact, _, err := buildops.GetModuleTargetArtifactPath(moduleLoc, false, module, defaultBuildResult)
+			if err != nil {
+				return err
+			}
+			moduleName, pathInUse := resultPathModuleNameMap[targetArtifact]
+			if pathInUse {
+				return errors.Errorf(multiBuildWithPathsConflictMsg, module.Name, moduleName, targetArtifact)
+			}
+			resultPathModuleNameMap[targetArtifact] = module.Name
+		}
+	}
+
 	return nil
 }
 
@@ -126,7 +294,7 @@ func ExecutePack(source, target string, extensions []string, moduleName, platfor
 }
 
 // buildModule - builds module
-func buildModule(mtaParser dir.IMtaParser, moduleLoc dir.IModule, moduleName, platform string, checkPlatform bool) error {
+func buildModule(mtaParser dir.IMtaParser, moduleLoc dir.IModule, moduleName, platform string, checkPlatform bool, toPack bool) error {
 
 	var err error
 	if checkPlatform {
@@ -182,9 +350,13 @@ func buildModule(mtaParser dir.IMtaParser, moduleLoc dir.IModule, moduleName, pl
 		return errors.Wrapf(e, buildFailedMsg, moduleName)
 	}
 
-	// 3. Packing the modules build artifacts (include node modules)
-	// into the artifactsPath dir as data zip
-	return packModule(moduleLoc, module, moduleName, platform, defaultBuildResults, checkPlatform)
+	if toPack {
+		// 3. Packing the modules build artifacts (include node modules)
+		// into the artifactsPath dir as data zip
+		return packModule(moduleLoc, module, moduleName, platform, defaultBuildResults, checkPlatform)
+	}
+
+	return nil
 }
 
 // packModule - pack build module artifacts
