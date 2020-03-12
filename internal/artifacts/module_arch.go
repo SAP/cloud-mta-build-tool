@@ -62,7 +62,9 @@ func ExecuteSoloBuild(source, target string, extensions []string, modulesNames [
 		return err
 	}
 
-	logs.Logger.Infof(getBuildMsg(buildMsg, multiBuildMsg, modulesNames))
+	if len(modulesNames) > 1 {
+		logs.Logger.Infof(multiBuildMsg, convertArrayToString(modulesNames))
+	}
 
 	err = checkBuildResultsConflicts(mtaObj, sourceDir, target, extensions, modulesNames, wdGetter)
 	if err != nil {
@@ -79,7 +81,9 @@ func ExecuteSoloBuild(source, target string, extensions []string, modulesNames [
 		return errors.Wrapf(err, getBuildMsg(buildFailedMsg, multiBuildFailedMsg, modulesNames))
 	}
 
-	logs.Logger.Infof(getBuildMsg(buildFinishedMsg, multiBuildFinishedMsg, modulesNames))
+	if len(modulesNames) > 1 {
+		logs.Logger.Infof(multiBuildFinishedMsg, convertArrayToString(modulesNames))
+	}
 
 	return nil
 }
@@ -89,26 +93,43 @@ func getBuildMsg(oneModuleMsg, manyModulesMsg string, modules []string) string {
 	if len(modules) == 1 {
 		return fmt.Sprintf(oneModuleMsg, modules[0])
 	}
-	return fmt.Sprintf(manyModulesMsg, `"`+strings.Join(modules, `",""`)+`"`)
+	return fmt.Sprintf(manyModulesMsg, convertArrayToString(modules))
+}
+
+func convertArrayToString(arr []string) string {
+	return `"` + strings.Join(arr, `",""`) + `"`
 }
 
 func buildSelectedModules(source, target string, extensions []string, mtaObj *mta.MTA, selectedModules []string, wdGetter func() (string, error)) error {
 
 	for _, module := range selectedModules {
+
+		logs.Logger.Infof(buildMsg, module)
+
 		requiredModules, err := getRequiredModules(mtaObj, module)
 		if err != nil {
 			return err
 		}
+		if len(requiredModules) > 0 {
+			logs.Logger.Info(dependenciesProcessingMag, module)
+		}
+
 		for _, requiredModule := range requiredModules {
 			moduleLoc, err := getModuleLocation(source, target, requiredModule, extensions, wdGetter)
 			if err != nil {
 				return err
 			}
+			logs.Logger.Info(buildMsg, requiredModule)
 			err = buildModule(moduleLoc, moduleLoc, requiredModule, "", false, false)
 			if err != nil {
 				return err
 			}
 		}
+
+		if len(requiredModules) > 0 {
+			logs.Logger.Info(dependenciesProcessingFinishedMag, module)
+		}
+
 		moduleLoc, err := getModuleLocation(source, target, module, extensions, wdGetter)
 		if err != nil {
 			return err
@@ -118,6 +139,8 @@ func buildSelectedModules(source, target string, extensions []string, mtaObj *mt
 		if err != nil {
 			return err
 		}
+
+		logs.Logger.Info(buildFinishedMsg, module)
 	}
 	return nil
 }
