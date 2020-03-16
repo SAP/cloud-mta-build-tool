@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -380,6 +381,9 @@ func CopyDir(src string, dst string, withParents bool, copyDirEntries func(entri
 func FindPath(path string) (string, error) {
 	sourceEntries, err := filepath.Glob(path)
 	if err == nil && len(sourceEntries) > 0 {
+		// Return the first result sorted alphabetically.
+		// Sorting is required to make sure the result is consistent upon several calls.
+		sort.Strings(sourceEntries)
 		return sourceEntries[0], nil
 	}
 	if err != nil {
