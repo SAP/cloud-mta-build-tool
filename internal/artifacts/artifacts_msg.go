@@ -36,7 +36,7 @@ const (
 	buildMsg                          = `building the "%s" module...`
 	multiBuildMsg                     = `building the %s modules...`
 	buildFinishedMsg                  = `finished building the "%s" module`
-		multiBuildFinishedMsg             = `finished building the %s modules`
+	multiBuildFinishedMsg             = `finished building the %s modules`
 	buildFailedMsg                    = `could not build the "%s" module`
 	multiBuildWithPathsConflictMsg    = `it is impossible to save build results of the modules "%s" and "%s" in the "%s" target folder as their names are configured to be the same`
 	multiBuildFailedMsg               = `could not build the %s modules`
