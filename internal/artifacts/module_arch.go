@@ -41,7 +41,7 @@ func ExecuteBuild(source, target string, extensions []string, moduleName, platfo
 }
 
 // ExecuteSoloBuild - executes build of module from stand alone command
-func ExecuteSoloBuild(source, target string, extensions []string, modulesNames []string, wdGetter func() (string, error)) error {
+func ExecuteSoloBuild(source, target string, extensions []string, modulesNames []string, allDependencies bool, wdGetter func() (string, error)) error {
 
 	if len(modulesNames) == 0 {
 		return errors.New(buildFailedOnEmptyModulesMsg)
@@ -76,7 +76,7 @@ func ExecuteSoloBuild(source, target string, extensions []string, modulesNames [
 		return errors.Wrapf(err, getBuildMsg(buildFailedMsg, multiBuildFailedMsg, modulesNames))
 	}
 
-	err = buildSelectedModules(sourceDir, target, extensions, mtaObj, sortedModules, wdGetter)
+	err = buildSelectedModules(sourceDir, target, extensions, mtaObj, sortedModules, allDependencies, wdGetter)
 	if err != nil {
 		return errors.Wrapf(err, getBuildMsg(buildFailedMsg, multiBuildFailedMsg, modulesNames))
 	}
@@ -97,50 +97,73 @@ func getBuildMsg(oneModuleMsg, manyModulesMsg string, modules []string) string {
 }
 
 func convertArrayToString(arr []string) string {
-	return `"` + strings.Join(arr, `",""`) + `"`
+	return `"` + strings.Join(arr, `","`) + `"`
 }
 
-func buildSelectedModules(source, target string, extensions []string, mtaObj *mta.MTA, selectedModules []string, wdGetter func() (string, error)) error {
+func buildSelectedModules(source, target string, extensions []string, mtaObj *mta.MTA, selectedModules []string,
+	allDependencies bool, wdGetter func() (string, error)) error {
 
 	for _, module := range selectedModules {
+		err := buildSelectedModule(source, target, extensions, mtaObj, module, allDependencies, wdGetter)
 
-		logs.Logger.Infof(buildMsg, module)
-
-		requiredModules, err := getRequiredModules(mtaObj, module)
 		if err != nil {
 			return err
 		}
-		if len(requiredModules) > 0 {
-			logs.Logger.Info(dependenciesProcessingMag, module)
-		}
+	}
+	return nil
+}
 
-		for _, requiredModule := range requiredModules {
-			moduleLoc, err := getModuleLocation(source, target, requiredModule, extensions, wdGetter)
-			if err != nil {
-				return err
-			}
-			logs.Logger.Info(buildMsg, requiredModule)
-			err = buildModule(moduleLoc, moduleLoc, requiredModule, "", false, false)
-			if err != nil {
-				return err
-			}
-		}
+func buildSelectedModule(source, target string, extensions []string, mtaObj *mta.MTA, module string,
+	allDependencies bool, wdGetter func() (string, error)) error {
 
-		if len(requiredModules) > 0 {
-			logs.Logger.Info(dependenciesProcessingFinishedMag, module)
-		}
+	logs.Logger.Infof(buildMsg, module)
 
-		moduleLoc, err := getModuleLocation(source, target, module, extensions, wdGetter)
+	if allDependencies {
+		err := processModuleDependencies(source, target, extensions, mtaObj, module, wdGetter)
 		if err != nil {
 			return err
 		}
+	}
 
-		err = buildModule(moduleLoc, moduleLoc, module, "", false, true)
+	moduleLoc, err := getModuleLocation(source, target, module, extensions, wdGetter)
+	if err != nil {
+		return err
+	}
+
+	err = buildModule(moduleLoc, moduleLoc, module, "", false, true)
+	if err != nil {
+		return err
+	}
+
+	logs.Logger.Infof(buildFinishedMsg, module)
+	return nil
+}
+
+func processModuleDependencies(source, target string, extensions []string, mtaObj *mta.MTA, module string,
+	wdGetter func() (string, error)) error {
+
+	requiredModules, err := getRequiredModules(mtaObj, module)
+	if err != nil {
+		return err
+	}
+	if len(requiredModules) > 0 {
+		logs.Logger.Infof(dependenciesProcessingMag, module)
+	}
+
+	for _, requiredModule := range requiredModules {
+		moduleLoc, err := getModuleLocation(source, target, requiredModule, extensions, wdGetter)
 		if err != nil {
 			return err
 		}
+		logs.Logger.Infof(buildMsg, requiredModule)
+		err = buildModule(moduleLoc, moduleLoc, requiredModule, "", false, false)
+		if err != nil {
+			return err
+		}
+	}
 
-		logs.Logger.Info(buildFinishedMsg, module)
+	if len(requiredModules) > 0 {
+		logs.Logger.Infof(dependenciesProcessingFinishedMag, module)
 	}
 	return nil
 }
@@ -273,8 +296,8 @@ func getSoloModuleBuildAbsTarget(absSource, target, moduleName string, wdGetter 
 	if err != nil {
 		return "", err
 	}
-	_, projectFoilderName := filepath.Split(absSource)
-	tmpFolderName := "." + projectFoilderName + dir.TempFolderSuffix
+	_, projectFolderName := filepath.Split(absSource)
+	tmpFolderName := "." + projectFolderName + dir.TempFolderSuffix
 
 	// default target is <current folder>/.<project folder>_mta_tmp/<module_name>
 	return filepath.Join(target, tmpFolderName, moduleName), nil

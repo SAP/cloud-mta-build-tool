@@ -44,6 +44,32 @@ var _ = Describe("ModuleLocation", func() {
 		Ω(moduleLoc.GetTargetModuleDir("module1")).Should(Equal(getPath("testdata")))
 	})
 
+	It("ParseExtFile", func() {
+		projectLoc, err := Location(getPath("testdata", "testext"), "", Dev, []string{}, os.Getwd)
+		Ω(err).Should(Succeed())
+		moduleLoc := ModuleLocation(projectLoc)
+		mta, err := moduleLoc.ParseExtFile("cf-mtaext.yaml")
+		Ω(err).Should(Succeed())
+		Ω(mta).ShouldNot(BeNil())
+	})
+
+	It("ParseFile", func() {
+		ep := Loc{SourcePath: getPath("testdata", "testext")}
+		moduleLoc := ModuleLocation(&ep)
+		mta, err := moduleLoc.ParseFile()
+		Ω(mta).ShouldNot(BeNil())
+		Ω(err).Should(Succeed())
+
+		module1, err := mta.GetModuleByName("ui5app")
+		Ω(err).Should(Succeed())
+		Ω(module1.Properties).Should(BeNil())
+
+		module2, err := mta.GetModuleByName("ui5app2")
+		Ω(err).Should(Succeed())
+		Ω(module2.Parameters).ShouldNot(BeNil())
+		Ω(module2.Parameters["memory"]).Should(Equal("256M"))
+	})
+
 	It("ModuleLocation", func() {
 		target := getPath("testdata", "result")
 		projectLoc, err := Location(getPath("testdata"), target, Dev, []string{}, os.Getwd)

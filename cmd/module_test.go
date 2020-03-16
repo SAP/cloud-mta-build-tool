@@ -103,9 +103,10 @@ builders:
 		})
 
 		It("stand alone build Command", func() {
-			soloBuildModuleCmdModule = "node-js"
+			soloBuildModuleCmdModules = []string{"node-js"}
 			soloBuildModuleCmdSrc = getTestPath("mta")
 			soloBuildModuleCmdTrg = getTestPath("result")
+			soloBuildModuleCmdAllDependencies = true
 			Ω(soloBuildModuleCmd.RunE(nil, []string{})).Should(Succeed())
 			Ω(getTestPath("result", "data.zip")).Should(BeAnExistingFile())
 		})
