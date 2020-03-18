@@ -164,9 +164,7 @@ func processModuleDependencies(source, target string, extensions []string, mtaOb
 	}
 
 	for _, requiredModule := range requiredModules {
-
-		_, moduleProcessed := processedModules[requiredModule]
-		if !moduleProcessed {
+		if !processedModules[requiredModule] {
 			moduleLoc, err := getModuleLocation(source, target, requiredModule, extensions, wdGetter)
 			if err != nil {
 				return err
@@ -176,7 +174,7 @@ func processModuleDependencies(source, target string, extensions []string, mtaOb
 			if err != nil {
 				return err
 			}
-			processedModules[requiredModule] = false
+			processedModules[requiredModule] = true
 		}
 	}
 
