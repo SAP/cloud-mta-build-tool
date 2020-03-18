@@ -4,7 +4,7 @@ import (
 	"archive/zip"
 	"errors"
 	"fmt"
-	"github.com/onsi/gomega/types"
+	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -13,8 +13,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
-
-	"gopkg.in/yaml.v2"
+	"github.com/onsi/gomega/types"
 
 	"github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta-build-tool/internal/buildops"
@@ -75,9 +74,7 @@ builders:
 		})
 
 		It("Fails on location initialization", func() {
-			Ω(ExecuteBuild("", "", nil, "ui5app", "cf", func() (string, error) {
-				return "", errors.New("err")
-			})).Should(HaveOccurred())
+			Ω(ExecuteBuild("", "", nil, "ui5app", "cf", failingGetWd)).Should(HaveOccurred())
 		})
 
 		It("Fails on wrong module", func() {
@@ -97,7 +94,7 @@ builders:
 				Ω(ExecuteSoloBuild(getTestPath("mtaModelsBuild"), getResultPath(), nil, []string{"m1", "m3"}, true, os.Getwd)).Should(Succeed())
 				Ω(getTestPath("result", "data.zip")).Should(BeAnExistingFile())
 				Ω(getTestPath("result", "m3.zip")).Should(BeAnExistingFile())
-				validateArchiveContents([]string{"test.txt", "test2.txt", "test2_copy.txt"}, getTestPath("result", "data.zip"), true)
+				validateArchiveContents([]string{"test.txt", "test2.txt", "test2_copy.txt"}, getTestPath("result", "data.zip"))
 			})
 		})
 
@@ -109,7 +106,7 @@ builders:
 				Ω(ExecuteSoloBuild(getTestPath("mtaModelsBuild"), getResultPath(), nil, []string{"m1", "m3"}, false, os.Getwd)).Should(Succeed())
 				Ω(getTestPath("result", "data.zip")).Should(BeAnExistingFile())
 				Ω(getTestPath("result", "m3.zip")).Should(BeAnExistingFile())
-				validateArchiveContents([]string{"test.txt", "test2.txt"}, getTestPath("result", "data.zip"), true)
+				validateArchiveContents([]string{"test.txt", "test2.txt"}, getTestPath("result", "data.zip"))
 			})
 		})
 
@@ -125,10 +122,6 @@ builders:
 			Ω(ExecuteSoloBuild(getTestPath("mta"), getResultPath(), nil, []string{}, true, os.Getwd)).Should(HaveOccurred())
 		})
 
-		It("fails on location getter", func() {
-			Ω(ExecuteSoloBuild(getTestPath("mta"), getResultPath(), nil, []string{}, true, failingGetWd)).Should(HaveOccurred())
-		})
-
 		It("Fails on source getter", func() {
 			err := ExecuteSoloBuild("", "", nil, []string{"ui5app"}, true, failingGetWd)
 			Ω(err).Should(HaveOccurred())
@@ -138,7 +131,7 @@ builders:
 		It("Fails on source getter with multiple modules", func() {
 			err := ExecuteSoloBuild("", "", nil, []string{"ui5app", "ui5app2"}, true, failingGetWd)
 			Ω(err).Should(HaveOccurred())
-			Ω(err.Error()).Should(ContainSubstring(fmt.Sprintf(multiBuildFailedMsg, convertArrayToString([]string{"ui5app", "ui5app2"}))))
+			Ω(err.Error()).Should(ContainSubstring(multiBuildFailedMsg))
 		})
 
 		It("Fails on wrong build dependencies - on sortSelectedModules", func() {
@@ -146,7 +139,7 @@ builders:
 				[]string{"ui5app"}, true, os.Getwd)).Should(HaveOccurred())
 		})
 
-		It("Fails on non-existing required artifact", func() {
+		It("Fails on unknown builder", func() {
 			Ω(ExecuteSoloBuild(getTestPath("mtahtml5"), "", []string{"mtaExtWithUnkownBuilder.yaml"},
 				[]string{"ui5app"}, true, os.Getwd)).Should(HaveOccurred())
 		})
@@ -167,9 +160,8 @@ builders:
 		})
 
 		It("Fails on getting default source", func() {
-			Ω(ExecuteSoloBuild(getTestPath("mta"), "", nil, []string{"ui5app"}, true, func() (string, error) {
-				return "", errors.New("err")
-			})).Should(HaveOccurred())
+			Ω(ExecuteSoloBuild(getTestPath("mta"), "", nil, []string{"ui5app"}, true,
+				failingGetWd)).Should(HaveOccurred())
 		})
 
 		// the only purpose of the test to support coverage
@@ -187,9 +179,7 @@ builders:
 		})
 
 		It("getSoloModuleBuildAbsTarget fails on current folder getter", func() {
-			_, err := getSoloModuleBuildAbsTarget(getTestPath(), "", "m1", func() (string, error) {
-				return "", errors.New("err")
-			})
+			_, err := getSoloModuleBuildAbsTarget(getTestPath(), "", "m1", failingGetWd)
 			Ω(err).Should(HaveOccurred())
 		})
 	})
@@ -200,7 +190,7 @@ builders:
 			Ω(os.RemoveAll(getTestPath("result"))).Should(Succeed())
 		})
 
-		It("sanity - build module with dependencies", func() {
+		It("sanity", func() {
 			mtaObj := getMtaObj("mtahtml5", "mtaWithBuildParams.yaml")
 			Ω(buildSelectedModules(getTestPath("mtahtml5"), getTestPath("result"), nil, mtaObj, []string{"ui5app"}, true, os.Getwd)).Should(Succeed())
 			Ω(getTestPath("result", "data.zip")).Should(BeAnExistingFile())
@@ -252,9 +242,7 @@ builders:
 		})
 
 		It("Fails on location initialization", func() {
-			Ω(ExecutePack("", "", nil, "ui5app", "cf", func() (string, error) {
-				return "", errors.New("err")
-			})).Should(HaveOccurred())
+			Ω(ExecutePack("", "", nil, "ui5app", "cf", failingGetWd)).Should(HaveOccurred())
 		})
 
 		It("Fails on wrong module", func() {
@@ -311,7 +299,7 @@ builders:
 				}
 				Ω(packModule(&ep, &module, "htmlapp2", "cf", "", true)).Should(Succeed())
 				Ω(getFullPathInTmpFolder("mta", "htmlapp2", "data.zip")).Should(BeAnExistingFile())
-				validateArchiveContents([]string{"ignore"}, getFullPathInTmpFolder("mta", "htmlapp2", "data.zip"), false)
+				validateArchiveContentsExcludes([]string{"ignore"}, getFullPathInTmpFolder("mta", "htmlapp2", "data.zip"))
 			})
 
 			It("Default build-result - zip file, copy only fails - no file matching wildcard", func() {
@@ -364,7 +352,7 @@ builders:
 					Ω(packModule(&ep, &m, "node-js", "cf", "", true)).Should(Succeed())
 					resultLocation := getFullPathInTmpFolder("mta_with_subfolder", "node-js", "res", "myresult.zip")
 					Ω(resultLocation).Should(BeAnExistingFile())
-					validateArchiveContents([]string{"file1"}, resultLocation, true)
+					validateArchiveContents([]string{"file1"}, resultLocation)
 				})
 				It("zips the module folder to build-artifact-name.zip when there is no build-result", func() {
 					m := mta.Module{
@@ -377,7 +365,7 @@ builders:
 					Ω(packModule(&ep, &m, "node-js", "cf", "", true)).Should(Succeed())
 					resultLocation := getFullPathInTmpFolder("mta_with_subfolder", "node-js", "myresult.zip")
 					Ω(resultLocation).Should(BeAnExistingFile())
-					validateArchiveContents([]string{"res/file1", "file2", "abc.war", "data.zip"}, resultLocation, true)
+					validateArchiveContents([]string{"res/", "res/file1", "file2", "abc.war", "data.zip"}, resultLocation)
 				})
 				It("copies the build-result file to build-artifact-name when build-result is an archive file", func() {
 					m := mta.Module{
@@ -391,7 +379,7 @@ builders:
 					Ω(packModule(&ep, &m, "node-js", "cf", "", true)).Should(Succeed())
 					resultLocation := getFullPathInTmpFolder("mta_with_subfolder", "node-js", "myresult.war")
 					Ω(resultLocation).Should(BeAnExistingFile())
-					validateArchiveContents([]string{"gulpfile.js", "server.js", "package.json"}, resultLocation, true)
+					validateArchiveContents([]string{"gulpfile.js", "server.js", "package.json"}, resultLocation)
 				})
 				It("fails when build-result doesn't exist", func() {
 					m := mta.Module{
@@ -427,7 +415,7 @@ builders:
 					Ω(packModule(&ep, &m, "node-js", "cf", "", true)).Should(Succeed())
 					resultLocation := getFullPathInTmpFolder("mta_with_subfolder", "node-js", "data.zip")
 					Ω(resultLocation).Should(BeAnExistingFile())
-					validateArchiveContents([]string{"res/file1", "file2", "abc.war", "data.zip"}, resultLocation, true)
+					validateArchiveContents([]string{"res/", "res/file1", "file2", "abc.war", "data.zip"}, resultLocation)
 				})
 				It("creates build-artifact-name.zip when build-artifact-name is same as a file that exists in the project", func() {
 					m := mta.Module{
@@ -440,7 +428,7 @@ builders:
 					Ω(packModule(&ep, &m, "node-js", "cf", "", true)).Should(Succeed())
 					resultLocation := getFullPathInTmpFolder("mta_with_subfolder", "node-js", "file2.zip")
 					Ω(resultLocation).Should(BeAnExistingFile())
-					validateArchiveContents([]string{"res/file1", "file2", "abc.war", "data.zip"}, resultLocation, true)
+					validateArchiveContents([]string{"res/", "res/file1", "file2", "abc.war", "data.zip"}, resultLocation)
 				})
 				It("creates build-artifact-name.zip when build-artifact-name is same as an archive file that exists in the project", func() {
 					m := mta.Module{
@@ -453,7 +441,7 @@ builders:
 					Ω(packModule(&ep, &m, "node-js", "cf", "", true)).Should(Succeed())
 					resultLocation := getFullPathInTmpFolder("mta_with_subfolder", "node-js", "abc.zip")
 					Ω(resultLocation).Should(BeAnExistingFile())
-					validateArchiveContents([]string{"res/file1", "file2", "abc.war", "data.zip"}, resultLocation, true)
+					validateArchiveContents([]string{"res/", "res/file1", "file2", "abc.war", "data.zip"}, resultLocation)
 				})
 				It("creates build-artifact-name with the build-result extension when build-artifact-name is same as build-result, which is an archive file", func() {
 					m := mta.Module{
@@ -467,7 +455,7 @@ builders:
 					Ω(packModule(&ep, &m, "node-js", "cf", "", true)).Should(Succeed())
 					resultLocation := getFullPathInTmpFolder("mta_with_subfolder", "node-js", "abc.war")
 					Ω(resultLocation).Should(BeAnExistingFile())
-					validateArchiveContents([]string{"gulpfile.js", "server.js", "package.json"}, resultLocation, true)
+					validateArchiveContents([]string{"gulpfile.js", "server.js", "package.json"}, resultLocation)
 				})
 				It("creates build-artifact-name with the build-result extension when build-artifact-name is same as an archive file and different from build-result", func() {
 					m := mta.Module{
@@ -481,7 +469,7 @@ builders:
 					Ω(packModule(&ep, &m, "node-js", "cf", "", true)).Should(Succeed())
 					resultLocation := getFullPathInTmpFolder("mta_with_subfolder", "node-js", "data.war")
 					Ω(resultLocation).Should(BeAnExistingFile())
-					validateArchiveContents([]string{"gulpfile.js", "server.js", "package.json"}, resultLocation, true)
+					validateArchiveContents([]string{"gulpfile.js", "server.js", "package.json"}, resultLocation)
 				})
 			})
 		})
@@ -811,7 +799,7 @@ module-types:
 			mtaObj := getMtaObj("mtahtml5", filename)
 			Ω(checkBuildResultsConflicts(mtaObj, getTestPath("mtahtml5"), getTestPath("result"), nil, []string{"ui5app"}, os.Getwd)).Should(HaveOccurred())
 		},
-			Entry("unknown builder", "mtaWithNoCustomCommands.yaml"),
+			Entry("unknown builder", "mtaWithUnknownBuilder.yaml"),
 			Entry("wrong definition of the build result property", "mtaWithWrongBuildResult.yaml"))
 	})
 
@@ -859,34 +847,29 @@ module-types:
 			mtaObj = getMtaObj("mtahtml5", "mtaWithWrongBuildRequirements.yaml")
 		})
 
-		Describe("scenarios based on mtaWithWrongBuildRequirements.yaml", func() {
-			It("sanity", func() {
-				modules, err := getRequiredModules(mtaObj, "m1")
-				Ω(err).Should(Succeed())
-				Ω(modules).Should(Equal([]string{"m4", "m3", "m2"}))
-			})
-			DescribeTable("failures", func(targetModule string) {
-				_, err := getRequiredModules(mtaObj, targetModule)
-				Ω(err).Should(HaveOccurred())
-			},
-				Entry("fails on none existing target module", "m5"),
-				Entry("fails on none existing module required by the target module", "n1"),
-				Entry("fails on none existing module required by the module that is required by the target module", "n2"))
+		It("sanity", func() {
+			modules, err := getRequiredModules(mtaObj, "m1")
+			Ω(err).Should(Succeed())
+			Ω(modules).Should(Equal([]string{"m4", "m3", "m2"}))
 		})
+		DescribeTable("failures", func(targetModule string) {
+			_, err := getRequiredModules(mtaObj, targetModule)
+			Ω(err).Should(HaveOccurred())
+		},
+			Entry("fails on none existing target module", "m5"),
+			Entry("fails on none existing module required by the target module", "n1"),
+			Entry("fails on none existing module required by the module that is required by the target module", "n2"))
 	})
 
 	Describe("sortSelectedModules", func() {
 		It("sanity", func() {
 			mtaObj := getMtaObj("mtahtml5", "mtaWithBuildRequirements.yaml")
-			modules, err := sortSelectedModules(mtaObj, []string{"n1", "m1"})
+			allModulesSorted, err := buildops.GetModulesNames(mtaObj)
 			Ω(err).Should(Succeed())
-			Ω(modules).Should(Equal([]string{"m1", "n1"}))
-		})
-
-		It("fails on the mta yaml problems", func() {
-			mtaObj := getMtaObj("mtahtml5", "mtaWithWrongBuildRequirements.yaml")
-			_, err := sortSelectedModules(mtaObj, []string{"m1", "n1"})
-			Ω(err).Should(HaveOccurred())
+			selectedModules := []string{"n1", "m1"}
+			selectedModulesMap := convertListToMap(selectedModules)
+			selectedModulesSorted := sortSelectedModules(allModulesSorted, selectedModulesMap)
+			Ω(selectedModulesSorted).Should(Equal([]string{"m1", "n1"}))
 		})
 	})
 })
@@ -973,24 +956,33 @@ func getContentPath(contentType, source string) string {
 	return "not-existing-content"
 }
 
-func validateArchiveContents(expectedFilesInArchive []string, archiveLocation string, isExists bool) {
+func validateArchiveContents(expectedFilesInArchive []string, archiveLocation string) {
 	archiveReader, err := zip.OpenReader(archiveLocation)
 	Ω(err).Should(BeNil())
 	defer archiveReader.Close()
 	var filesInArchive []string
 	for _, file := range archiveReader.File {
-		if file.Mode().IsRegular() {
-			filesInArchive = append(filesInArchive, file.Name)
-		}
+		filesInArchive = append(filesInArchive, file.Name)
 	}
 	for _, expectedFile := range expectedFilesInArchive {
-		Ω(contains(expectedFile, filesInArchive)).Should(Equal(isExists), "Did not find "+expectedFile+" in archive")
+		Ω(contains(expectedFile, filesInArchive)).Should(BeTrue(), "Did not find "+expectedFile+" in archive")
 	}
 
-	if isExists {
-		for _, fileInArchive := range filesInArchive {
-			Ω(contains(fileInArchive, expectedFilesInArchive)).Should(Equal(isExists), "Did not find "+fileInArchive+" in expected")
-		}
+	for _, fileInArchive := range filesInArchive {
+		Ω(contains(fileInArchive, expectedFilesInArchive)).Should(BeTrue(), "Did not find "+fileInArchive+" in expected")
+	}
+}
+
+func validateArchiveContentsExcludes(unexpectedFilesInArchive []string, archiveLocation string) {
+	archiveReader, err := zip.OpenReader(archiveLocation)
+	Ω(err).Should(BeNil())
+	defer archiveReader.Close()
+	var filesInArchive []string
+	for _, file := range archiveReader.File {
+		filesInArchive = append(filesInArchive, file.Name)
+	}
+	for _, expectedFile := range unexpectedFilesInArchive {
+		Ω(contains(expectedFile, filesInArchive)).Should(BeFalse(), "Did not find "+expectedFile+" in archive")
 	}
 }
 

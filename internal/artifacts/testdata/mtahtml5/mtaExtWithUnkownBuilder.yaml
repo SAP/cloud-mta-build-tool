@@ -8,7 +8,6 @@ modules:
    build-parameters:
       requires:
       - name: ui5app2
-        artifacts: ["unknown.txt"]
 
  - name: ui5app2
    build-parameters:

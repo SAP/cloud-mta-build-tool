@@ -49,12 +49,12 @@ func ExecuteSoloBuild(source, target string, extensions []string, modulesNames [
 
 	sourceDir, err := getSoloModuleBuildAbsSource(source, wdGetter)
 	if err != nil {
-		return errors.Wrapf(err, getBuildMsg(buildFailedMsg, multiBuildFailedMsg, modulesNames))
+		return errors.Wrapf(err, getBuildErrMsg(buildFailedMsg, multiBuildFailedMsg, modulesNames))
 	}
 
 	loc, err := dir.Location(sourceDir, "", dir.Dev, extensions, wdGetter)
 	if err != nil {
-		return errors.Wrapf(err, getBuildMsg(buildFailedMsg, multiBuildFailedMsg, modulesNames))
+		return errors.Wrapf(err, getBuildErrMsg(buildFailedMsg, multiBuildFailedMsg, modulesNames))
 	}
 
 	mtaObj, err := loc.ParseFile()
@@ -63,48 +63,58 @@ func ExecuteSoloBuild(source, target string, extensions []string, modulesNames [
 	}
 
 	if len(modulesNames) > 1 {
-		logs.Logger.Infof(multiBuildMsg, convertArrayToString(modulesNames))
+		logs.Logger.Infof(multiBuildMsg, "'"+strings.Join(modulesNames, `',' `)+"'")
 	}
 
 	err = checkBuildResultsConflicts(mtaObj, sourceDir, target, extensions, modulesNames, wdGetter)
 	if err != nil {
-		return errors.Wrapf(err, getBuildMsg(buildFailedMsg, multiBuildFailedMsg, modulesNames))
+		return errors.Wrapf(err, getBuildErrMsg(buildFailedMsg, multiBuildFailedMsg, modulesNames))
 	}
 
-	sortedModules, err := sortSelectedModules(mtaObj, modulesNames)
+	allModulesSorted, err := buildops.GetModulesNames(mtaObj)
 	if err != nil {
-		return errors.Wrapf(err, getBuildMsg(buildFailedMsg, multiBuildFailedMsg, modulesNames))
+		return errors.Wrapf(err, getBuildErrMsg(buildFailedMsg, multiBuildFailedMsg, modulesNames))
 	}
+
+	selectedModulesMap := convertListToMap(modulesNames)
+
+	sortedModules := sortSelectedModules(allModulesSorted, selectedModulesMap)
 
 	err = buildSelectedModules(sourceDir, target, extensions, mtaObj, sortedModules, allDependencies, wdGetter)
 	if err != nil {
-		return errors.Wrapf(err, getBuildMsg(buildFailedMsg, multiBuildFailedMsg, modulesNames))
+		return errors.Wrapf(err, getBuildErrMsg(buildFailedMsg, multiBuildFailedMsg, modulesNames))
 	}
 
 	if len(modulesNames) > 1 {
-		logs.Logger.Infof(multiBuildFinishedMsg, convertArrayToString(modulesNames))
+		logs.Logger.Infof(multiBuildFinishedMsg)
 	}
 
 	return nil
 }
 
-func getBuildMsg(oneModuleMsg, manyModulesMsg string, modules []string) string {
+func convertListToMap(list []string) map[string]bool {
+	result := make(map[string]bool)
+	for _, str := range list {
+		result[str] = true
+	}
+	return result
+}
+
+func getBuildErrMsg(oneModuleMsg, manyModulesMsg string, modules []string) string {
 
 	if len(modules) == 1 {
 		return fmt.Sprintf(oneModuleMsg, modules[0])
 	}
-	return fmt.Sprintf(manyModulesMsg, convertArrayToString(modules))
-}
-
-func convertArrayToString(arr []string) string {
-	return `"` + strings.Join(arr, `","`) + `"`
+	return manyModulesMsg
 }
 
 func buildSelectedModules(source, target string, extensions []string, mtaObj *mta.MTA, selectedModules []string,
 	allDependencies bool, wdGetter func() (string, error)) error {
 
+	processedModules := make(map[string]bool)
+
 	for _, module := range selectedModules {
-		err := buildSelectedModule(source, target, extensions, mtaObj, module, allDependencies, wdGetter)
+		err := buildSelectedModule(source, target, extensions, mtaObj, module, allDependencies, processedModules, wdGetter)
 
 		if err != nil {
 			return err
@@ -114,12 +124,12 @@ func buildSelectedModules(source, target string, extensions []string, mtaObj *mt
 }
 
 func buildSelectedModule(source, target string, extensions []string, mtaObj *mta.MTA, module string,
-	allDependencies bool, wdGetter func() (string, error)) error {
+	allDependencies bool, processedModules map[string]bool, wdGetter func() (string, error)) error {
 
 	logs.Logger.Infof(buildMsg, module)
 
 	if allDependencies {
-		err := processModuleDependencies(source, target, extensions, mtaObj, module, wdGetter)
+		err := processModuleDependencies(source, target, extensions, mtaObj, module, processedModules, wdGetter)
 		if err != nil {
 			return err
 		}
@@ -135,11 +145,14 @@ func buildSelectedModule(source, target string, extensions []string, mtaObj *mta
 		return err
 	}
 
+	processedModules[module] = false
+
 	logs.Logger.Infof(buildFinishedMsg, module)
 	return nil
 }
 
 func processModuleDependencies(source, target string, extensions []string, mtaObj *mta.MTA, module string,
+	processedModules map[string]bool,
 	wdGetter func() (string, error)) error {
 
 	requiredModules, err := getRequiredModules(mtaObj, module)
@@ -151,14 +164,19 @@ func processModuleDependencies(source, target string, extensions []string, mtaOb
 	}
 
 	for _, requiredModule := range requiredModules {
-		moduleLoc, err := getModuleLocation(source, target, requiredModule, extensions, wdGetter)
-		if err != nil {
-			return err
-		}
-		logs.Logger.Infof(buildMsg, requiredModule)
-		err = buildModule(moduleLoc, moduleLoc, requiredModule, "", false, false)
-		if err != nil {
-			return err
+
+		_, moduleProcessed := processedModules[requiredModule]
+		if !moduleProcessed {
+			moduleLoc, err := getModuleLocation(source, target, requiredModule, extensions, wdGetter)
+			if err != nil {
+				return err
+			}
+			logs.Logger.Infof(buildMsg, requiredModule)
+			err = buildModule(moduleLoc, moduleLoc, requiredModule, "", false, false)
+			if err != nil {
+				return err
+			}
+			processedModules[requiredModule] = false
 		}
 	}
 
@@ -171,6 +189,7 @@ func processModuleDependencies(source, target string, extensions []string, mtaOb
 func getRequiredModules(mtaObj *mta.MTA, moduleName string) ([]string, error) {
 
 	var requiredModulesNames []string
+
 	module, err := mtaObj.GetModuleByName(moduleName)
 	if err != nil {
 		return nil, err
@@ -188,42 +207,28 @@ func getRequiredModules(mtaObj *mta.MTA, moduleName string) ([]string, error) {
 			requiredModulesNames = appendIfNotListed(requiredModulesNames, reqForRequiredModule)
 		}
 		requiredModulesNames = appendIfNotListed(requiredModulesNames, requires.Name)
-
 	}
+
 	return requiredModulesNames, nil
 }
 
 func appendIfNotListed(list []string, element string) []string {
-	exists := false
-	for _, listElement := range list {
-		if listElement == element {
-			exists = true
-			break
-		}
-	}
-	if !exists {
+	elementsMap := convertListToMap(list)
+	if !elementsMap[element] {
 		list = append(list, element)
 	}
 	return list
 }
 
-func sortSelectedModules(mtaObj *mta.MTA, selectedModules []string) ([]string, error) {
-	selectedModulesMap := make(map[string]bool)
-	for _, selectedModule := range selectedModules {
-		selectedModulesMap[selectedModule] = false
-	}
-	sortedAllModules, err := buildops.GetModulesNames(mtaObj)
-	var allModules []string
-	if err != nil {
-		return nil, err
-	}
-	for _, module := range sortedAllModules {
+func sortSelectedModules(allModulesSorted []string, selectedModulesMap map[string]bool) []string {
+	var result []string
+	for _, module := range allModulesSorted {
 		_, selected := selectedModulesMap[module]
 		if selected {
-			allModules = append(allModules, module)
+			result = append(result, module)
 		}
 	}
-	return allModules, nil
+	return result
 }
 
 func getModuleLocation(source, target, moduleName string, extensions []string, wdGetter func() (string, error)) (*dir.ModuleLoc, error) {
@@ -242,14 +247,14 @@ func getModuleLocation(source, target, moduleName string, extensions []string, w
 
 func checkBuildResultsConflicts(mtaObj *mta.MTA, source, target string, extensions []string, modulesNames []string, wdGetter func() (string, error)) error {
 
-	moduleNameResultPathMap := make(map[string]string)
+	moduleNameResultPathMap := make(map[string]bool)
 	resultPathModuleNameMap := make(map[string]string)
 	for _, moduleName := range modulesNames {
 		_, err := mtaObj.GetModuleByName(moduleName)
 		if err != nil {
 			return err
 		}
-		moduleNameResultPathMap[moduleName] = ""
+		moduleNameResultPathMap[moduleName] = false
 	}
 
 	for _, module := range mtaObj.Modules {

@@ -25,6 +25,6 @@ modules:
 
  - name: ui5app3
    type: html5
-   path: ui5app2
+   path: ui5app3
    build-parameters:
       builder: unknown

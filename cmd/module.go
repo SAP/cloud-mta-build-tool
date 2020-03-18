@@ -65,7 +65,7 @@ func init() {
 	soloBuildModuleCmd.Flags().StringSliceVarP(&soloBuildModuleCmdModules, "modules", "m", nil,
 		"The names of the modules")
 	soloBuildModuleCmd.Flags().BoolVarP(&soloBuildModuleCmdAllDependencies, "with-all-dependencies", "a", false,
-		"Build selected modules with all dependencies")
+		"Build modules including all dependencies")
 }
 
 // soloBuildModuleCmd - Build module command used stand alone

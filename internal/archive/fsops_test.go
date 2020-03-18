@@ -629,17 +629,18 @@ func (f *testCloser) Close() error {
 
 func validateArchiveContents(expectedFilesInArchive []string, archiveLocation string) {
 	archiveReader, err := zip.OpenReader(archiveLocation)
-	Ω(err).Should(Succeed())
+	Ω(err).Should(BeNil())
 	defer archiveReader.Close()
 	var filesInArchive []string
 	for _, file := range archiveReader.File {
 		filesInArchive = append(filesInArchive, file.Name)
 	}
 	for _, expectedFile := range expectedFilesInArchive {
-		Ω(contains(expectedFile, filesInArchive)).Should(BeTrue(), fmt.Sprintf("expected %s to be in the archive; archive contains %v", expectedFile, filesInArchive))
+		Ω(contains(expectedFile, filesInArchive)).Should(BeTrue(), "Did not find "+expectedFile+" in archive")
 	}
-	for _, existingFile := range filesInArchive {
-		Ω(contains(existingFile, expectedFilesInArchive)).Should(BeTrue(), fmt.Sprintf("did not expect %s to be in the archive; archive contains %v", existingFile, filesInArchive))
+
+	for _, fileInArchive := range filesInArchive {
+		Ω(contains(fileInArchive, expectedFilesInArchive)).Should(BeTrue(), "Did not find "+fileInArchive+" in expected")
 	}
 }
 
