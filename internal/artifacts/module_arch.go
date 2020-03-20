@@ -2,13 +2,11 @@ package artifacts
 
 import (
 	"fmt"
+	"github.com/SAP/cloud-mta/mta"
+	"github.com/pkg/errors"
 	"os"
 	"path/filepath"
 	"strings"
-
-	"github.com/pkg/errors"
-
-	"github.com/SAP/cloud-mta/mta"
 
 	"github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta-build-tool/internal/buildops"
@@ -62,10 +60,6 @@ func ExecuteSoloBuild(source, target string, extensions []string, modulesNames [
 		return err
 	}
 
-	if len(modulesNames) > 1 {
-		logs.Logger.Infof(multiBuildMsg, "'"+strings.Join(modulesNames, `',' `)+"'")
-	}
-
 	err = checkBuildResultsConflicts(mtaObj, sourceDir, target, extensions, modulesNames, wdGetter)
 	if err != nil {
 		return errors.Wrapf(err, getBuildErrMsg(buildFailedMsg, multiBuildFailedMsg, modulesNames))
@@ -76,11 +70,31 @@ func ExecuteSoloBuild(source, target string, extensions []string, modulesNames [
 		return errors.Wrapf(err, getBuildErrMsg(buildFailedMsg, multiBuildFailedMsg, modulesNames))
 	}
 
-	selectedModulesMap := convertListToMap(modulesNames)
+	selectedModulesMap := make(map[string]bool)
+	var selectedModulesWithDependenciesMap map[string]bool
 
-	sortedModules := sortSelectedModules(allModulesSorted, selectedModulesMap)
+	for _, moduleName := range modulesNames {
+		selectedModulesMap[moduleName] = true
+	}
 
-	err = buildSelectedModules(sourceDir, target, extensions, mtaObj, sortedModules, allDependencies, wdGetter)
+	if allDependencies {
+		selectedModulesWithDependenciesMap = make(map[string]bool)
+		for module := range selectedModulesMap {
+			err = collectSelectedModulesAndDependencies(mtaObj, selectedModulesWithDependenciesMap, module)
+		}
+	} else {
+		selectedModulesWithDependenciesMap = selectedModulesMap
+	}
+
+	sortedModules := sortModules(allModulesSorted, selectedModulesWithDependenciesMap)
+
+	if len(selectedModulesWithDependenciesMap) > len(selectedModulesMap) {
+		logs.Logger.Infof(buildWithDependenciesMsg, "'"+strings.Join(sortedModules, `',' `)+"'")
+	} else if len(modulesNames) > 1 {
+		logs.Logger.Infof(multiBuildMsg, "'"+strings.Join(sortedModules, `',' `)+"'")
+	}
+
+	err = buildModules(sourceDir, target, extensions, sortedModules, selectedModulesMap, wdGetter)
 	if err != nil {
 		return errors.Wrapf(err, getBuildErrMsg(buildFailedMsg, multiBuildFailedMsg, modulesNames))
 	}
@@ -92,14 +106,6 @@ func ExecuteSoloBuild(source, target string, extensions []string, modulesNames [
 	return nil
 }
 
-func convertListToMap(list []string) map[string]bool {
-	result := make(map[string]bool)
-	for _, str := range list {
-		result[str] = true
-	}
-	return result
-}
-
 func getBuildErrMsg(oneModuleMsg, manyModulesMsg string, modules []string) string {
 
 	if len(modules) == 1 {
@@ -108,13 +114,32 @@ func getBuildErrMsg(oneModuleMsg, manyModulesMsg string, modules []string) strin
 	return manyModulesMsg
 }
 
-func buildSelectedModules(source, target string, extensions []string, mtaObj *mta.MTA, selectedModules []string,
-	allDependencies bool, wdGetter func() (string, error)) error {
+func collectSelectedModulesAndDependencies(mtaObj *mta.MTA, modulesWithDependencies map[string]bool, moduleName string) error {
 
-	processedModules := make(map[string]bool)
+	modulesWithDependencies[moduleName] = true
+	module, err := mtaObj.GetModuleByName(moduleName)
+	if err != nil {
+		return err
+	}
+	for _, requires := range buildops.GetBuildRequires(module) {
+		requiredModule, err := mtaObj.GetModuleByName(requires.Name)
+		if err != nil {
+			return err
+		}
+
+		err = collectSelectedModulesAndDependencies(mtaObj, modulesWithDependencies, requiredModule.Name)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func buildModules(source, target string, extensions []string, selectedModules []string,
+	selectedModulesMap map[string]bool, wdGetter func() (string, error)) error {
 
 	for _, module := range selectedModules {
-		err := buildSelectedModule(source, target, extensions, mtaObj, module, allDependencies, processedModules, wdGetter)
+		err := buildSelectedModule(source, target, extensions, module, selectedModulesMap, wdGetter)
 
 		if err != nil {
 			return err
@@ -123,102 +148,26 @@ func buildSelectedModules(source, target string, extensions []string, mtaObj *mt
 	return nil
 }
 
-func buildSelectedModule(source, target string, extensions []string, mtaObj *mta.MTA, module string,
-	allDependencies bool, processedModules map[string]bool, wdGetter func() (string, error)) error {
+func buildSelectedModule(source, target string, extensions []string, module string,
+	selectedModulesMap map[string]bool, wdGetter func() (string, error)) error {
 
 	logs.Logger.Infof(buildMsg, module)
-
-	if allDependencies {
-		err := processModuleDependencies(source, target, extensions, mtaObj, module, processedModules, wdGetter)
-		if err != nil {
-			return err
-		}
-	}
 
 	moduleLoc, err := getModuleLocation(source, target, module, extensions, wdGetter)
 	if err != nil {
 		return err
 	}
 
-	err = buildModule(moduleLoc, moduleLoc, module, "", false, true)
+	err = buildModule(moduleLoc, moduleLoc, module, "", false, selectedModulesMap[module])
 	if err != nil {
 		return err
 	}
-
-	processedModules[module] = false
 
 	logs.Logger.Infof(buildFinishedMsg, module)
 	return nil
 }
 
-func processModuleDependencies(source, target string, extensions []string, mtaObj *mta.MTA, module string,
-	processedModules map[string]bool,
-	wdGetter func() (string, error)) error {
-
-	requiredModules, err := getRequiredModules(mtaObj, module)
-	if err != nil {
-		return err
-	}
-	if len(requiredModules) > 0 {
-		logs.Logger.Infof(dependenciesProcessingMag, module)
-	}
-
-	for _, requiredModule := range requiredModules {
-		if !processedModules[requiredModule] {
-			moduleLoc, err := getModuleLocation(source, target, requiredModule, extensions, wdGetter)
-			if err != nil {
-				return err
-			}
-			logs.Logger.Infof(buildMsg, requiredModule)
-			err = buildModule(moduleLoc, moduleLoc, requiredModule, "", false, false)
-			if err != nil {
-				return err
-			}
-			processedModules[requiredModule] = true
-		}
-	}
-
-	if len(requiredModules) > 0 {
-		logs.Logger.Infof(dependenciesProcessingFinishedMag, module)
-	}
-	return nil
-}
-
-func getRequiredModules(mtaObj *mta.MTA, moduleName string) ([]string, error) {
-
-	var requiredModulesNames []string
-
-	module, err := mtaObj.GetModuleByName(moduleName)
-	if err != nil {
-		return nil, err
-	}
-	for _, requires := range buildops.GetBuildRequires(module) {
-		requiredModule, err := mtaObj.GetModuleByName(requires.Name)
-		if err != nil {
-			return nil, err
-		}
-		requiredForRequiredModule, err := getRequiredModules(mtaObj, requiredModule.Name)
-		if err != nil {
-			return nil, err
-		}
-		for _, reqForRequiredModule := range requiredForRequiredModule {
-			requiredModulesNames = appendIfNotListed(requiredModulesNames, reqForRequiredModule)
-		}
-		requiredModulesNames = appendIfNotListed(requiredModulesNames, requires.Name)
-	}
-
-	return requiredModulesNames, nil
-}
-
-func appendIfNotListed(list []string, element string) []string {
-	elementsMap := convertListToMap(list)
-	if !elementsMap[element] {
-		list = append(list, element)
-	}
-	return list
-}
-
-func sortSelectedModules(allModulesSorted []string, selectedModulesMap map[string]bool) []string {
+func sortModules(allModulesSorted []string, selectedModulesMap map[string]bool) []string {
 	var result []string
 	for _, module := range allModulesSorted {
 		_, selected := selectedModulesMap[module]

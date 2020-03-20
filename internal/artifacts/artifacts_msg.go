@@ -33,22 +33,21 @@ const (
 	genMTARParsingMsg = `could not generate the MTA archive`
 	genMTARArchMsg    = `could not generate the MTA archive when archiving`
 
-	buildMsg                          = `building the "%s" module...`
-	multiBuildMsg                     = `building the selected modules: %s`
-	buildFinishedMsg                  = `finished building the "%s" module`
-	multiBuildFinishedMsg             = `the build of the selected modules is complete`
-	buildFailedMsg                    = `could not build the "%s" module`
-	multiBuildWithPathsConflictMsg    = `could not save the build results of modules "%s" and "%s" in the "%s" target folder because of conflicting naming; use the "build-artifact-name" build parameter to create a unique name for each module  `
-	multiBuildFailedMsg               = `could not build the modules selected`
-	buildFailedOnCommandsMsg          = `could not get commands for the "%s" module`
-	buildFailedOnDepsMsg              = `could not process dependencies for the "%s" module`
-	buildResultMsg                    = `the build results of the "%s" module will be packaged and saved in the "%s" folder`
-	buildSkippedMsg                   = `the "%s" module was not built because the "no-source" build parameter is set to "true"`
-	buildFailedOnEmptyPathMsg         = `could not build the "%s" module because the mandatory "path" property is missing or empty`
-	buildFailedOnEmptyModuleMsg       = `the mandatory "module" flag is missing or empty`
-	buildFailedOnEmptyModulesMsg      = `the mandatory "modules" flag is missing or empty`
-	dependenciesProcessingMag         = `processing the dependencies of the "%s" module...`
-	dependenciesProcessingFinishedMag = `finished processing the dependencies of the "%s" module`
+	buildMsg                       = `building the "%s" module...`
+	multiBuildMsg                  = `building the selected modules: %s`
+	buildWithDependenciesMsg       = `the following modules will be built: %s`
+	buildFinishedMsg               = `finished building the "%s" module`
+	multiBuildFinishedMsg          = `the build of the selected modules is complete`
+	buildFailedMsg                 = `could not build the "%s" module`
+	multiBuildWithPathsConflictMsg = `could not save the build results of modules "%s" and "%s" in the "%s" target folder because of conflicting naming; use the "build-artifact-name" build parameter to create a unique name for each module  `
+	multiBuildFailedMsg            = `could not build the modules selected`
+	buildFailedOnCommandsMsg       = `could not get commands for the "%s" module`
+	buildFailedOnDepsMsg           = `could not process dependencies for the "%s" module`
+	buildResultMsg                 = `the build results of the "%s" module will be packaged and saved in the "%s" folder`
+	buildSkippedMsg                = `the "%s" module was not built because the "no-source" build parameter is set to "true"`
+	buildFailedOnEmptyPathMsg      = `could not build the "%s" module because the mandatory "path" property is missing or empty`
+	buildFailedOnEmptyModuleMsg    = `the mandatory "module" flag is missing or empty`
+	buildFailedOnEmptyModulesMsg   = `the mandatory "modules" flag is missing or empty`
 
 	packMsg                       = `packaging the "%s" module...`
 	packFailedOnLocMsg            = `could not package the "%s" module when initializing the location`

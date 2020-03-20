@@ -134,7 +134,7 @@ builders:
 			Ω(err.Error()).Should(ContainSubstring(multiBuildFailedMsg))
 		})
 
-		It("Fails on wrong build dependencies - on sortSelectedModules", func() {
+		It("Fails on wrong build dependencies - on sortModules", func() {
 			Ω(ExecuteSoloBuild(getTestPath("mtahtml5"), "", []string{"mtaExtWithWrongDependencies.yaml"},
 				[]string{"ui5app"}, true, os.Getwd)).Should(HaveOccurred())
 		})
@@ -184,36 +184,31 @@ builders:
 		})
 	})
 
-	Describe("buildSelectedModules", func() {
+	Describe("buildModules", func() {
 
 		AfterEach(func() {
 			Ω(os.RemoveAll(getTestPath("result"))).Should(Succeed())
 		})
 
 		It("sanity", func() {
-			mtaObj := getMtaObj("mtahtml5", "mtaWithBuildParams.yaml")
-			Ω(buildSelectedModules(getTestPath("mtahtml5"), getTestPath("result"), nil, mtaObj, []string{"ui5app"}, true, os.Getwd)).Should(Succeed())
+			Ω(buildModules(getTestPath("mtahtml5"), getTestPath("result"), nil, []string{"ui5app"}, map[string]bool{"ui5app": true}, os.Getwd)).Should(Succeed())
 			Ω(getTestPath("result", "data.zip")).Should(BeAnExistingFile())
 		})
 
 		It("fails on module location getter", func() {
-			mtaObj := getMtaObj("mtahtml5", "mta.yaml")
-			Ω(buildSelectedModules(getTestPath("mtahtml5"), "", nil, mtaObj, []string{"ui5app2"}, true, failingGetWd)).Should(HaveOccurred())
+			Ω(buildModules(getTestPath("mtahtml5"), "", nil, []string{"ui5app2"}, map[string]bool{}, failingGetWd)).Should(HaveOccurred())
 		})
 
 		It("fails on wrong selected module", func() {
-			mtaObj := getMtaObj("mtahtml5", "mta.yaml")
-			Ω(buildSelectedModules(getTestPath("mtahtml5"), "", nil, mtaObj, []string{"unknown"}, true, os.Getwd)).Should(HaveOccurred())
+			Ω(buildModules(getTestPath("mtahtml5"), "", nil, []string{"unknown"}, map[string]bool{"unknown": true}, os.Getwd)).Should(HaveOccurred())
 		})
 
 		It("fails on module location getter of dependency", func() {
-			mtaObj := getMtaObj("mtahtml5", "mtaWithBuildParams.yaml")
-			Ω(buildSelectedModules("", "", nil, mtaObj, []string{"ui5app"}, true, failingGetWd)).Should(HaveOccurred())
+			Ω(buildModules("", "", nil, []string{"ui5app"}, map[string]bool{"ui5app": true}, failingGetWd)).Should(HaveOccurred())
 		})
 
 		It("fails on buildModule because of the unknown builder", func() {
-			mtaObj := getMtaObj("mtahtml5", "mtaWithBuildParams.yaml")
-			Ω(buildSelectedModules(getTestPath("mtahtml5"), getTestPath("result"), nil, mtaObj, []string{"ui5app3"}, true, os.Getwd)).Should(HaveOccurred())
+			Ω(buildModules(getTestPath("mtahtml5"), getTestPath("result"), nil, []string{"ui5app3"}, map[string]bool{"ui5app3": true}, os.Getwd)).Should(HaveOccurred())
 		})
 	})
 
@@ -839,7 +834,7 @@ module-types:
 		})
 	})
 
-	Describe("getRequiredModules", func() {
+	Describe("collectSelectedModulesAndDependencies", func() {
 
 		var mtaObj *mta.MTA
 
@@ -848,12 +843,14 @@ module-types:
 		})
 
 		It("sanity", func() {
-			modules, err := getRequiredModules(mtaObj, "m1")
+			collection := make(map[string]bool)
+			err := collectSelectedModulesAndDependencies(mtaObj, collection, "m1")
 			Ω(err).Should(Succeed())
-			Ω(modules).Should(Equal([]string{"m4", "m3", "m2"}))
+			validateMapKeys(collection, []string{"m1", "m4", "m3", "m2"})
 		})
 		DescribeTable("failures", func(targetModule string) {
-			_, err := getRequiredModules(mtaObj, targetModule)
+			collection := make(map[string]bool)
+			err := collectSelectedModulesAndDependencies(mtaObj, collection, targetModule)
 			Ω(err).Should(HaveOccurred())
 		},
 			Entry("fails on none existing target module", "m5"),
@@ -861,18 +858,25 @@ module-types:
 			Entry("fails on none existing module required by the module that is required by the target module", "n2"))
 	})
 
-	Describe("sortSelectedModules", func() {
+	Describe("sortModules", func() {
 		It("sanity", func() {
 			mtaObj := getMtaObj("mtahtml5", "mtaWithBuildRequirements.yaml")
 			allModulesSorted, err := buildops.GetModulesNames(mtaObj)
 			Ω(err).Should(Succeed())
-			selectedModules := []string{"n1", "m1"}
-			selectedModulesMap := convertListToMap(selectedModules)
-			selectedModulesSorted := sortSelectedModules(allModulesSorted, selectedModulesMap)
+			selectedModulesMap := map[string]bool{"n1": true, "m1": true}
+			selectedModulesSorted := sortModules(allModulesSorted, selectedModulesMap)
 			Ω(selectedModulesSorted).Should(Equal([]string{"m1", "n1"}))
 		})
 	})
 })
+
+func validateMapKeys(actualMap map[string]bool, expectedKeys []string) {
+	Ω(len(actualMap)).Should(Equal(len(expectedKeys)))
+	for _, expectedKey := range expectedKeys {
+		_, exists := actualMap[expectedKey]
+		Ω(exists).Should(BeTrue())
+	}
+}
 
 func getMtaObj(projectName string, mtaFilename string) *mta.MTA {
 	loc, err := dir.Location(getTestPath(projectName), getTestPath("result"), dir.Dev, nil, os.Getwd)
