@@ -81,20 +81,21 @@ func ExecuteSoloBuild(source, target string, extensions []string, modulesNames [
 		selectedModulesWithDependenciesMap = make(map[string]bool)
 		for module := range selectedModulesMap {
 			err = collectSelectedModulesAndDependencies(mtaObj, selectedModulesWithDependenciesMap, module)
+			if err != nil {
+				return errors.Wrapf(err, getBuildErrMsg(buildFailedMsg, multiBuildFailedMsg, modulesNames))
+			}
 		}
 	} else {
 		selectedModulesWithDependenciesMap = selectedModulesMap
 	}
 
-	sortedModules := sortModules(allModulesSorted, selectedModulesWithDependenciesMap)
-
 	if len(selectedModulesWithDependenciesMap) > len(selectedModulesMap) {
-		logs.Logger.Infof(buildWithDependenciesMsg, "'"+strings.Join(sortedModules, `',' `)+"'")
+		logs.Logger.Infof(buildWithDependenciesMsg, "'"+strings.Join(sortModules(allModulesSorted, selectedModulesWithDependenciesMap), `',' `)+"'")
 	} else if len(modulesNames) > 1 {
-		logs.Logger.Infof(multiBuildMsg, "'"+strings.Join(sortedModules, `',' `)+"'")
+		logs.Logger.Infof(multiBuildMsg, "'"+strings.Join(sortModules(allModulesSorted, selectedModulesWithDependenciesMap), `',' `)+"'")
 	}
 
-	err = buildModules(sourceDir, target, extensions, sortedModules, selectedModulesMap, wdGetter)
+	err = buildModules(sourceDir, target, extensions, sortModules(allModulesSorted, selectedModulesWithDependenciesMap), selectedModulesMap, wdGetter)
 	if err != nil {
 		return errors.Wrapf(err, getBuildErrMsg(buildFailedMsg, multiBuildFailedMsg, modulesNames))
 	}
