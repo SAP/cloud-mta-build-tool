@@ -39,7 +39,7 @@ const (
 	buildFinishedMsg               = `finished building the "%s" module`
 	multiBuildFinishedMsg          = `the build of the selected modules is complete`
 	buildFailedMsg                 = `could not build the "%s" module`
-	multiBuildWithPathsConflictMsg = `could not save the build results of modules "%s" and "%s" in the "%s" target folder because of conflicting naming; use the "build-artifact-name" build parameter to create a unique name for each module  `
+	multiBuildWithPathsConflictMsg = `could not save the build results of modules "%s" and "%s" in the "%s" target folder because of conflicting naming; use the "build-artifact-name" build parameter to create a unique name for each module`
 	multiBuildFailedMsg            = `could not build the modules selected`
 	buildFailedOnCommandsMsg       = `could not get commands for the "%s" module`
 	buildFailedOnDepsMsg           = `could not process dependencies for the "%s" module`

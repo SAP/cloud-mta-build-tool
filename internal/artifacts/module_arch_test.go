@@ -135,7 +135,7 @@ builders:
 		})
 
 		It("Fails on wrong build dependencies - on sortModules", func() {
-			Ω(ExecuteSoloBuild(getTestPath("mtahtml5"), "", []string{"mtaExtWithWrongDependencies.yaml"},
+			Ω(ExecuteSoloBuild(getTestPath("mtahtml5"), "", []string{"mtaExtWithCyclicDependencies.yaml"},
 				[]string{"ui5app"}, true, os.Getwd)).Should(HaveOccurred())
 		})
 
@@ -962,31 +962,30 @@ func getContentPath(contentType, source string) string {
 
 func validateArchiveContents(expectedFilesInArchive []string, archiveLocation string) {
 	archiveReader, err := zip.OpenReader(archiveLocation)
-	Ω(err).Should(BeNil())
+	Ω(err).Should(Succeed())
 	defer archiveReader.Close()
 	var filesInArchive []string
 	for _, file := range archiveReader.File {
 		filesInArchive = append(filesInArchive, file.Name)
 	}
 	for _, expectedFile := range expectedFilesInArchive {
-		Ω(contains(expectedFile, filesInArchive)).Should(BeTrue(), "Did not find "+expectedFile+" in archive")
+		Ω(contains(expectedFile, filesInArchive)).Should(BeTrue(), fmt.Sprintf("expected %s to be in the archive; archive contains %v", expectedFile, filesInArchive))
 	}
-
-	for _, fileInArchive := range filesInArchive {
-		Ω(contains(fileInArchive, expectedFilesInArchive)).Should(BeTrue(), "Did not find "+fileInArchive+" in expected")
+	for _, existingFile := range filesInArchive {
+		Ω(contains(existingFile, expectedFilesInArchive)).Should(BeTrue(), fmt.Sprintf("did not expect %s to be in the archive; archive contains %v", existingFile, filesInArchive))
 	}
 }
 
 func validateArchiveContentsExcludes(unexpectedFilesInArchive []string, archiveLocation string) {
 	archiveReader, err := zip.OpenReader(archiveLocation)
-	Ω(err).Should(BeNil())
+	Ω(err).Should(Succeed())
 	defer archiveReader.Close()
 	var filesInArchive []string
 	for _, file := range archiveReader.File {
 		filesInArchive = append(filesInArchive, file.Name)
 	}
-	for _, expectedFile := range unexpectedFilesInArchive {
-		Ω(contains(expectedFile, filesInArchive)).Should(BeFalse(), "Did not find "+expectedFile+" in archive")
+	for _, unexpectedFile := range unexpectedFilesInArchive {
+		Ω(contains(unexpectedFile, filesInArchive)).Should(BeFalse(), fmt.Sprintf("did not expect %s to be in the archive; archive contains %v", unexpectedFile, filesInArchive))
 	}
 }
 
