@@ -2,10 +2,11 @@ package artifacts
 
 import (
 	"fmt"
-	"github.com/pkg/errors"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/pkg/errors"
 
 	"github.com/SAP/cloud-mta/mta"
 
@@ -92,7 +93,7 @@ func ExecuteSoloBuild(source, target string, extensions []string, modulesNames [
 
 	sortedModules := sortModules(allModulesSorted, selectedModulesWithDependenciesMap)
 
-	if allDependencies {
+	if allDependencies && len(modulesNames) > 1 {
 		logs.Logger.Infof(buildWithDependenciesMsg, "'"+strings.Join(sortedModules, `',' `)+"'")
 	} else if len(modulesNames) > 1 {
 		logs.Logger.Infof(multiBuildMsg, "'"+strings.Join(sortedModules, `',' `)+"'")
@@ -201,14 +202,14 @@ func getModuleLocation(source, target, moduleName string, extensions []string, w
 
 func checkBuildResultsConflicts(mtaObj *mta.MTA, source, target string, extensions []string, modulesNames []string, wdGetter func() (string, error)) error {
 
-	moduleNameResultPathMap := make(map[string]bool)
+	modulesToPack := make(map[string]bool)
 	resultPathModuleNameMap := make(map[string]string)
 	for _, moduleName := range modulesNames {
 		_, err := mtaObj.GetModuleByName(moduleName)
 		if err != nil {
 			return err
 		}
-		moduleNameResultPathMap[moduleName] = true
+		modulesToPack[moduleName] = true
 	}
 
 	for _, module := range mtaObj.Modules {
@@ -218,7 +219,7 @@ func checkBuildResultsConflicts(mtaObj *mta.MTA, source, target string, extensio
 			return err
 		}
 
-		if moduleNameResultPathMap[module.Name] {
+		if modulesToPack[module.Name] {
 			_, defaultBuildResult, err := commands.CommandProvider(*module)
 			if err != nil {
 				return err
