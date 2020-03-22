@@ -871,11 +871,11 @@ module-types:
 })
 
 func validateMapKeys(actualMap map[string]bool, expectedKeys []string) {
-	Ω(len(actualMap)).Should(Equal(len(expectedKeys)))
-	for _, expectedKey := range expectedKeys {
-		_, exists := actualMap[expectedKey]
-		Ω(exists).Should(BeTrue())
+	var actualKeys []string
+	for actualKey := range actualMap {
+		actualKeys = append(actualKeys, actualKey)
 	}
+	Ω(expectedKeys).Should(ConsistOf(actualKeys))
 }
 
 func getMtaObj(projectName string, mtaFilename string) *mta.MTA {

@@ -92,7 +92,7 @@ func ExecuteSoloBuild(source, target string, extensions []string, modulesNames [
 
 	sortedModules := sortModules(allModulesSorted, selectedModulesWithDependenciesMap)
 
-	if len(selectedModulesWithDependenciesMap) > len(selectedModulesMap) {
+	if allDependencies {
 		logs.Logger.Infof(buildWithDependenciesMsg, "'"+strings.Join(sortedModules, `',' `)+"'")
 	} else if len(modulesNames) > 1 {
 		logs.Logger.Infof(multiBuildMsg, "'"+strings.Join(sortedModules, `',' `)+"'")
@@ -112,9 +112,9 @@ func ExecuteSoloBuild(source, target string, extensions []string, modulesNames [
 
 func wrapBuildError(err error, modules []string) error {
 	if len(modules) == 1 {
-		return errors.Wrapf(err, buildFailedMsg, modules)
+		return errors.Wrapf(err, buildFailedMsg, modules[0])
 	}
-	return errors.Wrapf(err, multiBuildFailedMsg, modules)
+	return errors.Wrapf(err, multiBuildFailedMsg)
 }
 
 func collectSelectedModulesAndDependencies(mtaObj *mta.MTA, modulesWithDependencies map[string]bool, moduleName string) error {
