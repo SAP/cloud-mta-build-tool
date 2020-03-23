@@ -149,13 +149,13 @@ var _ = Describe("FSOPS", func() {
 			Ω(err).Should(Succeed())
 			Ω(found).Should(Equal(path))
 		})
-		It("returns first found file for pattern", func() {
+		It("returns first found file (sorted by name) for pattern", func() {
 			path := getFullPath("testdata", "findpath", "folder1", "*.txt")
 			found, err := FindPath(path)
 			Ω(err).Should(Succeed())
 			Ω(found).Should(Equal(getFullPath("testdata", "findpath", "folder1", "file1.txt")))
 		})
-		It("returns first found folder for pattern", func() {
+		It("returns first found folder (sorted by name) for pattern", func() {
 			path := getFullPath("testdata", "findpath", "folder*")
 			found, err := FindPath(path)
 			Ω(err).Should(Succeed())
