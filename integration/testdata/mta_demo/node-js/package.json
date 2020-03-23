@@ -18,7 +18,7 @@
     "test-coverage": "node ./node_modules/gulp/bin/gulp test-coverage"
   },
   "engines": {
-    "node": "8.x"
+    "node": "12.x"
   },
   "version": "1.0.0"
 }
