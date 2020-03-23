@@ -1,0 +1,45 @@
+ID: mtahtml5
+_schema-version: '2.1'
+version: 0.0.1
+
+modules:
+ - name: m1
+   type: html5
+   path: testapp
+   build-parameters:
+    requires:
+    - name: m2
+    - name: m4
+
+ - name: m2
+   type: html5
+   path: testapp
+   build-parameters:
+      requires:
+      - name: m3
+      - name: m4
+
+ - name: m3
+   type: html5
+   path: testapp
+   build-parameters:
+      requires:
+      - name: m4
+
+ - name: m4
+   type: html5
+   path: testapp
+
+ - name: n1
+   type: html5
+   path: testapp
+   build-parameters:
+      requires:
+      - name: n5
+
+ - name: n2
+   type: html5
+   path: testapp
+   build-parameters:
+      requires:
+      - name: n1

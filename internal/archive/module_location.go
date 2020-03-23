@@ -1,5 +1,7 @@
 package dir
 
+import "github.com/SAP/cloud-mta/mta"
+
 // ModuleLoc - module location type that provides services for stand alone module build command
 type ModuleLoc struct {
 	loc *Loc
@@ -30,6 +32,16 @@ func (ep *ModuleLoc) GetSourceModuleArtifactRelPath(modulePath, artifactPath str
 // GetTargetModuleDir - gets the to module build results
 func (ep *ModuleLoc) GetTargetModuleDir(moduleName string) string {
 	return ep.loc.GetTarget()
+}
+
+// ParseExtFile returns a reference to the MTA extension descriptor object of the extension file.
+func (ep *ModuleLoc) ParseExtFile(extFileName string) (*mta.EXT, error) {
+	return ep.loc.ParseExtFile(extFileName)
+}
+
+// ParseFile returns a reference to the MTA object resulting from the given mta.yaml file merged with the extension descriptors.
+func (ep *ModuleLoc) ParseFile() (*mta.MTA, error) {
+	return ep.loc.ParseFile()
 }
 
 // ModuleLocation - provides target location of stand alone MTA module build result

@@ -26,7 +26,8 @@ var buildModuleCmdPlatform string
 var soloBuildModuleCmdSrc string
 var soloBuildModuleCmdTrg string
 var soloBuildModuleCmdExtensions []string
-var soloBuildModuleCmdModule string
+var soloBuildModuleCmdModules []string
+var soloBuildModuleCmdAllDependencies bool
 
 func init() {
 
@@ -61,8 +62,10 @@ func init() {
 		"The path to the folder in which the module build results are created; the <current folder>/.<project name>_mta_build_tmp/<module name> path is set as default")
 	soloBuildModuleCmd.Flags().StringSliceVarP(&soloBuildModuleCmdExtensions, "extensions", "e", nil,
 		"The MTA extension descriptors")
-	soloBuildModuleCmd.Flags().StringVarP(&soloBuildModuleCmdModule, "module", "m", "",
-		"The name of the module")
+	soloBuildModuleCmd.Flags().StringSliceVarP(&soloBuildModuleCmdModules, "modules", "m", nil,
+		"The names of the modules")
+	soloBuildModuleCmd.Flags().BoolVarP(&soloBuildModuleCmdAllDependencies, "with-all-dependencies", "a", false,
+		"Build modules including all dependencies")
 }
 
 // soloBuildModuleCmd - Build module command used stand alone
@@ -72,7 +75,7 @@ var soloBuildModuleCmd = &cobra.Command{
 	Long:  "Builds module according to configurations in the MTA development descriptor (mta.yaml)",
 	Args:  cobra.MaximumNArgs(4),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		err := artifacts.ExecuteSoloBuild(soloBuildModuleCmdSrc, soloBuildModuleCmdTrg, soloBuildModuleCmdExtensions, soloBuildModuleCmdModule, os.Getwd)
+		err := artifacts.ExecuteSoloBuild(soloBuildModuleCmdSrc, soloBuildModuleCmdTrg, soloBuildModuleCmdExtensions, soloBuildModuleCmdModules, soloBuildModuleCmdAllDependencies, os.Getwd)
 		logError(err)
 		return err
 	},

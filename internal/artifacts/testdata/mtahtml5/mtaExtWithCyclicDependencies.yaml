@@ -1,0 +1,18 @@
+ID: mtahtml5ext
+extends: mtahtml5
+_schema-version: '2.1'
+version: 0.0.1
+
+modules:
+ - name: ui5app
+   build-parameters:
+      requires:
+      - name: ui5app2
+
+ - name: ui5app2
+   build-parameters:
+      requires:
+      - name: ui5app1
+
+
+

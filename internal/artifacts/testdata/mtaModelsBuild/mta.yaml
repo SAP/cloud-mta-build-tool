@@ -1,0 +1,28 @@
+ID: mtahtml5
+_schema-version: '2.1'
+version: 0.0.1
+
+modules:
+ - name: m1
+   type: html5
+   path: ui5app
+   build-parameters:
+    builder: zip
+    requires:
+    - name: m2
+      artifacts: [test2*.txt]
+
+ - name: m2
+   type: html5
+   path: ui5app2
+   build-parameters:
+      builder: custom
+      commands:
+        - bash -c 'cp test2.txt test2_copy.txt'
+
+ - name: m3
+   type: html5
+   path: ui5app2
+   build-parameters:
+      builder: zip
+      build-artifact-name: m3

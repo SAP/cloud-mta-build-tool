@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/pkg/errors"
 
@@ -31,7 +32,7 @@ func ExecuteBuild(source, target string, extensions []string, moduleName, platfo
 	if err != nil {
 		return errors.Wrapf(err, buildFailedMsg, moduleName)
 	}
-	err = buildModule(loc, loc, moduleName, platform, true)
+	err = buildModule(loc, loc, moduleName, platform, true, true)
 	if err != nil {
 		return err
 	}
@@ -40,29 +41,201 @@ func ExecuteBuild(source, target string, extensions []string, moduleName, platfo
 }
 
 // ExecuteSoloBuild - executes build of module from stand alone command
-func ExecuteSoloBuild(source, target string, extensions []string, moduleName string, wdGetter func() (string, error)) error {
-	logs.Logger.Infof(buildMsg, moduleName)
+func ExecuteSoloBuild(source, target string, extensions []string, modulesNames []string, allDependencies bool, wdGetter func() (string, error)) error {
+
+	if len(modulesNames) == 0 {
+		return errors.New(buildFailedOnEmptyModulesMsg)
+	}
 
 	sourceDir, err := getSoloModuleBuildAbsSource(source, wdGetter)
 	if err != nil {
-		return errors.Wrapf(err, buildFailedMsg, moduleName)
+		return wrapBuildError(err, modulesNames)
 	}
 
-	targetDir, err := getSoloModuleBuildAbsTarget(sourceDir, target, moduleName, wdGetter)
+	loc, err := dir.Location(sourceDir, "", dir.Dev, extensions, wdGetter)
 	if err != nil {
-		return errors.Wrapf(err, buildFailedMsg, moduleName)
+		return wrapBuildError(err, modulesNames)
 	}
 
-	loc, err := dir.Location(sourceDir, targetDir, dir.Dev, extensions, wdGetter)
-	if err != nil {
-		return errors.Wrapf(err, buildFailedMsg, moduleName)
-	}
-	targetLoc := dir.ModuleLocation(loc)
-	err = buildModule(loc, targetLoc, moduleName, "", false)
+	mtaObj, err := loc.ParseFile()
 	if err != nil {
 		return err
 	}
-	logs.Logger.Infof(buildFinishedMsg, moduleName)
+
+	err = checkBuildResultsConflicts(mtaObj, sourceDir, target, extensions, modulesNames, wdGetter)
+	if err != nil {
+		return wrapBuildError(err, modulesNames)
+	}
+
+	allModulesSorted, err := buildops.GetModulesNames(mtaObj)
+	if err != nil {
+		return wrapBuildError(err, modulesNames)
+	}
+
+	selectedModulesMap := make(map[string]bool)
+	var selectedModulesWithDependenciesMap map[string]bool
+
+	for _, moduleName := range modulesNames {
+		selectedModulesMap[moduleName] = true
+	}
+
+	if allDependencies {
+		selectedModulesWithDependenciesMap = make(map[string]bool)
+		for module := range selectedModulesMap {
+			err = collectSelectedModulesAndDependencies(mtaObj, selectedModulesWithDependenciesMap, module)
+			if err != nil {
+				return wrapBuildError(err, modulesNames)
+			}
+		}
+	} else {
+		selectedModulesWithDependenciesMap = selectedModulesMap
+	}
+
+	sortedModules := sortModules(allModulesSorted, selectedModulesWithDependenciesMap)
+
+	if allDependencies && len(modulesNames) > 1 {
+		logs.Logger.Infof(buildWithDependenciesMsg, "'"+strings.Join(sortedModules, `',' `)+"'")
+	} else if len(modulesNames) > 1 {
+		logs.Logger.Infof(multiBuildMsg, "'"+strings.Join(sortedModules, `',' `)+"'")
+	}
+
+	err = buildModules(sourceDir, target, extensions, sortedModules, selectedModulesMap, wdGetter)
+	if err != nil {
+		return wrapBuildError(err, modulesNames)
+	}
+
+	if len(modulesNames) > 1 {
+		logs.Logger.Infof(multiBuildFinishedMsg)
+	}
+
+	return nil
+}
+
+func wrapBuildError(err error, modules []string) error {
+	if len(modules) == 1 {
+		return errors.Wrapf(err, buildFailedMsg, modules[0])
+	}
+	return errors.Wrapf(err, multiBuildFailedMsg)
+}
+
+func collectSelectedModulesAndDependencies(mtaObj *mta.MTA, modulesWithDependencies map[string]bool, moduleName string) error {
+
+	if modulesWithDependencies[moduleName] {
+		return nil
+	}
+
+	modulesWithDependencies[moduleName] = true
+	module, err := mtaObj.GetModuleByName(moduleName)
+	if err != nil {
+		return err
+	}
+	for _, requires := range buildops.GetBuildRequires(module) {
+		requiredModule, err := mtaObj.GetModuleByName(requires.Name)
+		if err != nil {
+			return err
+		}
+
+		err = collectSelectedModulesAndDependencies(mtaObj, modulesWithDependencies, requiredModule.Name)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func buildModules(source, target string, extensions []string, modulesToBuild []string,
+	modulesToPack map[string]bool, wdGetter func() (string, error)) error {
+
+	for _, module := range modulesToBuild {
+		err := buildSelectedModule(source, target, extensions, module, modulesToPack[module], wdGetter)
+
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func buildSelectedModule(source, target string, extensions []string, module string,
+	toPack bool, wdGetter func() (string, error)) error {
+
+	logs.Logger.Infof(buildMsg, module)
+
+	moduleLoc, err := getModuleLocation(source, target, module, extensions, wdGetter)
+	if err != nil {
+		return err
+	}
+
+	err = buildModule(moduleLoc, moduleLoc, module, "", false, toPack)
+	if err != nil {
+		return err
+	}
+
+	logs.Logger.Infof(buildFinishedMsg, module)
+	return nil
+}
+
+func sortModules(allModulesSorted []string, selectedModulesMap map[string]bool) []string {
+	var result []string
+	for _, module := range allModulesSorted {
+		_, selected := selectedModulesMap[module]
+		if selected {
+			result = append(result, module)
+		}
+	}
+	return result
+}
+
+func getModuleLocation(source, target, moduleName string, extensions []string, wdGetter func() (string, error)) (*dir.ModuleLoc, error) {
+	targetDir, err := getSoloModuleBuildAbsTarget(source, target, moduleName, wdGetter)
+	if err != nil {
+		return nil, err
+	}
+
+	loc, err := dir.Location(source, targetDir, dir.Dev, extensions, wdGetter)
+	if err != nil {
+		return nil, err
+	}
+
+	return dir.ModuleLocation(loc), nil
+}
+
+func checkBuildResultsConflicts(mtaObj *mta.MTA, source, target string, extensions []string, modulesNames []string, wdGetter func() (string, error)) error {
+
+	modulesToPack := make(map[string]bool)
+	resultPathModuleNameMap := make(map[string]string)
+	for _, moduleName := range modulesNames {
+		_, err := mtaObj.GetModuleByName(moduleName)
+		if err != nil {
+			return err
+		}
+		modulesToPack[moduleName] = true
+	}
+
+	for _, module := range mtaObj.Modules {
+
+		moduleLoc, err := getModuleLocation(source, target, module.Name, extensions, wdGetter)
+		if err != nil {
+			return err
+		}
+
+		if modulesToPack[module.Name] {
+			_, defaultBuildResult, err := commands.CommandProvider(*module)
+			if err != nil {
+				return err
+			}
+			targetArtifact, _, err := buildops.GetModuleTargetArtifactPath(moduleLoc, false, module, defaultBuildResult)
+			if err != nil {
+				return err
+			}
+			moduleName, pathInUse := resultPathModuleNameMap[targetArtifact]
+			if pathInUse {
+				return errors.Errorf(multiBuildWithPathsConflictMsg, module.Name, moduleName, targetArtifact)
+			}
+			resultPathModuleNameMap[targetArtifact] = module.Name
+		}
+	}
+
 	return nil
 }
 
@@ -82,8 +255,8 @@ func getSoloModuleBuildAbsTarget(absSource, target, moduleName string, wdGetter 
 	if err != nil {
 		return "", err
 	}
-	_, projectFoilderName := filepath.Split(absSource)
-	tmpFolderName := "." + projectFoilderName + dir.TempFolderSuffix
+	_, projectFolderName := filepath.Split(absSource)
+	tmpFolderName := "." + projectFolderName + dir.TempFolderSuffix
 
 	// default target is <current folder>/.<project folder>_mta_tmp/<module_name>
 	return filepath.Join(target, tmpFolderName, moduleName), nil
@@ -126,7 +299,7 @@ func ExecutePack(source, target string, extensions []string, moduleName, platfor
 }
 
 // buildModule - builds module
-func buildModule(mtaParser dir.IMtaParser, moduleLoc dir.IModule, moduleName, platform string, checkPlatform bool) error {
+func buildModule(mtaParser dir.IMtaParser, moduleLoc dir.IModule, moduleName, platform string, checkPlatform bool, toPack bool) error {
 
 	var err error
 	if checkPlatform {
@@ -182,9 +355,13 @@ func buildModule(mtaParser dir.IMtaParser, moduleLoc dir.IModule, moduleName, pl
 		return errors.Wrapf(e, buildFailedMsg, moduleName)
 	}
 
-	// 3. Packing the modules build artifacts (include node modules)
-	// into the artifactsPath dir as data zip
-	return packModule(moduleLoc, module, moduleName, platform, defaultBuildResults, checkPlatform)
+	if toPack {
+		// 3. Packing the modules build artifacts (include node modules)
+		// into the artifactsPath dir as data zip
+		return packModule(moduleLoc, module, moduleName, platform, defaultBuildResults, checkPlatform)
+	}
+
+	return nil
 }
 
 // packModule - pack build module artifacts
