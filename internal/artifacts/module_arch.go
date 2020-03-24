@@ -230,7 +230,7 @@ func checkBuildResultsConflicts(mtaObj *mta.MTA, source, target string, extensio
 			}
 			moduleName, pathInUse := resultPathModuleNameMap[targetArtifact]
 			if pathInUse {
-				return errors.Errorf(multiBuildWithPathsConflictMsg, module.Name, moduleName, moduleLoc.GetTarget())
+				return errors.Errorf(multiBuildWithPathsConflictMsg, module.Name, moduleName, moduleLoc.GetTarget(), filepath.Base(targetArtifact))
 			}
 			resultPathModuleNameMap[targetArtifact] = module.Name
 		}
