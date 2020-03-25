@@ -93,10 +93,10 @@ func ExecuteSoloBuild(source, target string, extensions []string, modulesNames [
 
 	sortedModules := sortModules(allModulesSorted, selectedModulesWithDependenciesMap)
 
-	if allDependencies && len(modulesNames) > 1 {
-		logs.Logger.Infof(buildWithDependenciesMsg, "'"+strings.Join(sortedModules, `',' `)+"'")
-	} else if len(modulesNames) > 1 {
-		logs.Logger.Infof(multiBuildMsg, "'"+strings.Join(sortedModules, `',' `)+"'")
+	if allDependencies && len(sortedModules) > 1 {
+		logs.Logger.Infof(buildWithDependenciesMsg, `"`+strings.Join(sortedModules, `","`)+`"`)
+	} else if len(sortedModules) > 1 {
+		logs.Logger.Infof(multiBuildMsg, `"`+strings.Join(sortedModules, `", "`)+`"`)
 	}
 
 	err = buildModules(sourceDir, target, extensions, sortedModules, selectedModulesMap, wdGetter)
@@ -230,7 +230,7 @@ func checkBuildResultsConflicts(mtaObj *mta.MTA, source, target string, extensio
 			}
 			moduleName, pathInUse := resultPathModuleNameMap[targetArtifact]
 			if pathInUse {
-				return errors.Errorf(multiBuildWithPathsConflictMsg, module.Name, moduleName, targetArtifact)
+				return errors.Errorf(multiBuildWithPathsConflictMsg, module.Name, moduleName, moduleLoc.GetTarget(), filepath.Base(targetArtifact))
 			}
 			resultPathModuleNameMap[targetArtifact] = module.Name
 		}
