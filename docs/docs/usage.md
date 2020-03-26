@@ -162,6 +162,7 @@ Generates the MTA deployment descriptor (`mtad.yaml` file) according to the prov
 
 <br>
 <br>
+
 <b>`mbt module-build`</b>
 
 Triggers the build process of the specified module according to the implicit or explicit build configurations in the MTA descriptor (`mta.yaml` file) and MTA extensions.
