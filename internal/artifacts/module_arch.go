@@ -342,7 +342,7 @@ func packModule(moduleLoc dir.IModule, module *mta.Module, moduleName, platform,
 
 	conflictingModule, ok := buildResults[targetArtifact]
 	if ok {
-		return fmt.Errorf(multiBuildWithPathsConflictMsg, conflictingModule, module.Name, moduleLoc.GetTargetModuleDir(module.Name), filepath.Base(targetArtifact))
+		return fmt.Errorf(multiBuildWithPathsConflictMsg, conflictingModule, module.Name, filepath.Dir(targetArtifact), filepath.Base(targetArtifact))
 	}
 	buildResults[targetArtifact] = moduleName
 
