@@ -992,8 +992,14 @@ make -f Makefile.mta p=cf
 <tr>
 <td><code>m (--module)</code></td>
 <td>Mandatory</td>
-<td>The name of the module to build.</td>
-<td><code>mbt module-build -m=my_module</code></td>
+<td>The name of the modules to build. Several modules separated by commas can be passed with a single flag, or each module can be specified with its own flag.<br><br> <b>Notes</b>:<ul><li>If you specify several modules with a single flag, make sure there are no spaces between the names. <li>The tool builds the specified modules in the order defined by the build parameters in the <code>mta.yaml</code> file. If the specified modules depend on other modules that should be built before, run the command with the <code>--with-all-dependencies</code> flag or specify the required modules explicitly.<li>If the <code>--target</code> parameter is used, make sure that the names of the specified modules' build artifacts are unique. You can configure the build artifact name using the <code>build-artifact-name</code> build parameter as described <a href="../configuration/#configuring-the-build-artifact-name">here</a>.  </ul></td>
+<td><code>mbt module-build -m=my_module,another_module</code> <br>or<br><code>mbt module-build -m=my_module -m=another_module</code></td>
+</tr>
+<tr>
+<td><code>-a (--with-all-dependencies)</code></td>
+<td>Optional</td>
+<td>If this option is used, the tool builds all modules that the specified modules depend on in the order defined by the build parameters in the <code>mta.yaml</code> file before building the selected modules.<br>Without this option, only the selected modules are built.</td>
+<td><code>mbt module-build -m=my_module,another_module  -a</code></td>
 </tr>
 <tr>
 <td><code>-s (--source)</code></td>
@@ -1004,7 +1010,7 @@ make -f Makefile.mta p=cf
 <tr>
 <td><code>-t (--target)</code></td>
 <td>Optional</td>
-<td>The folder where the module build results will be saved. If this parameter is not provided, the module build results are saved in the <code>&lt;current folder&gt;/.&lt;projectname&gt;_mta_build_tmp/&lt;module name&gt;</code> folder. If  the parameter is provided, the build results are saved in the root of the folder provided by the argument.</td>
+<td>The folder where the module build results will be saved. If this parameter is not provided, the module build results are saved in the <code>&lt;current folder&gt;/.&lt;projectname&gt;_mta_build_tmp/&lt;module name&gt;</code> folder. If  the parameter is provided, the build results are saved in the root of the folder provided by the argument. <br><br><b>Note:</b><br>If the <code>--target</code> parameter is used when building several modules, make sure that the names of the specified modules' build artifacts are unique. You can configure the build artifact name using the <code>build-artifact-name</code> build parameter as described <a href="../configuration/#configuring-the-build-artifact-name">here</a>.</td>
 <td><code>mbt module-build -m=my_module  -t=C:/TestProject/build_results_tmp</code><br> <br>The module’s build results will be saved directly in the <code>C:/TestProject/build_results_tmp/</code> folder</td>
 </tr>
 <tr>
