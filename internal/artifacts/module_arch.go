@@ -8,13 +8,12 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/SAP/cloud-mta/mta"
-
 	"github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta-build-tool/internal/buildops"
 	"github.com/SAP/cloud-mta-build-tool/internal/commands"
 	"github.com/SAP/cloud-mta-build-tool/internal/exec"
 	"github.com/SAP/cloud-mta-build-tool/internal/logs"
+	"github.com/SAP/cloud-mta/mta"
 )
 
 const (
@@ -324,7 +323,7 @@ func buildModule(mtaParser dir.IMtaParser, moduleLoc dir.IModule, moduleName, pl
 
 // packModule - pack build module artifacts
 func packModule(moduleLoc dir.IModule, module *mta.Module, moduleName, platform,
-defaultBuildResult string, checkPlatform bool, buildResults map[string]string) error {
+	defaultBuildResult string, checkPlatform bool, buildResults map[string]string) error {
 
 	if checkPlatform && !buildops.PlatformDefined(module, platform) {
 		return nil
