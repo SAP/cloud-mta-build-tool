@@ -40,7 +40,10 @@ func ExecuteBuild(source, target string, extensions []string, moduleName, platfo
 }
 
 // ExecuteSoloBuild - executes build of module from stand alone command
-func ExecuteSoloBuild(source, target string, extensions []string, modulesNames []string, allDependencies bool, wdGetter func() (string, error)) error {
+func ExecuteSoloBuild(source, target string, extensions []string, modulesNames []string, allDependencies bool,
+	generateMtad bool, platform string,
+	wdGetter func() (string, error),
+	marshal func(interface{}) (out []byte, err error)) error {
 
 	if len(modulesNames) == 0 {
 		return errors.New(buildFailedOnEmptyModulesMsg)
@@ -93,9 +96,32 @@ func ExecuteSoloBuild(source, target string, extensions []string, modulesNames [
 		logs.Logger.Infof(multiBuildMsg, `"`+strings.Join(sortedModules, `", "`)+`"`)
 	}
 
-	err = buildModules(sourceDir, target, extensions, sortedModules, selectedModulesMap, wdGetter)
+	packedModules, err := buildModules(sourceDir, target, extensions, sortedModules, selectedModulesMap, wdGetter)
 	if err != nil {
 		return wrapBuildError(err, modulesNames)
+	}
+
+	if generateMtad {
+		err := removeBuildParamsFromMta(loc, mtaObj, false)
+		if err != nil {
+			return err
+		}
+
+		// adjust paths in case of partial modules build
+		if packedModules != nil {
+			for _, module := range mtaObj.Modules {
+				modulePath, ok := packedModules[module.Name]
+				if ok {
+					module.Path = modulePath
+				}
+			}
+		}
+		mtadTargetPath, err := getMtadPath(target, wdGetter)
+		if err != nil {
+			return wrapBuildError(err, modulesNames)
+		}
+		mtadLocation := mtadLoc{path: mtadTargetPath}
+		genMtad(mtaObj, &mtadLocation, false, platform, marshal)
 	}
 
 	if len(modulesNames) > 1 {
@@ -103,6 +129,13 @@ func ExecuteSoloBuild(source, target string, extensions []string, modulesNames [
 	}
 
 	return nil
+}
+
+func getMtadPath(target string, wdGetter func() (string, error)) (string, error) {
+	if target != "" {
+		return target, nil
+	}
+	return wdGetter()
 }
 
 func wrapBuildError(err error, modules []string) error {
@@ -138,17 +171,22 @@ func collectSelectedModulesAndDependencies(mtaObj *mta.MTA, modulesWithDependenc
 }
 
 func buildModules(source, target string, extensions []string, modulesToBuild []string,
-	modulesToPack map[string]bool, wdGetter func() (string, error)) error {
+	modulesToPack map[string]bool, wdGetter func() (string, error)) (map[string]string, error) {
 
 	buildResults := make(map[string]string)
 	for _, module := range modulesToBuild {
 		err := buildSelectedModule(source, target, extensions, module, modulesToPack[module], buildResults, wdGetter)
 
 		if err != nil {
-			return err
+			return nil, err
 		}
 	}
-	return nil
+
+	packedModules := make(map[string]string)
+	for buildResult, moduleName := range buildResults {
+		packedModules[moduleName] = buildResult
+	}
+	return packedModules, nil
 }
 
 func buildSelectedModule(source, target string, extensions []string, module string,
@@ -323,7 +361,7 @@ func buildModule(mtaParser dir.IMtaParser, moduleLoc dir.IModule, moduleName, pl
 
 // packModule - pack build module artifacts
 func packModule(moduleLoc dir.IModule, module *mta.Module, moduleName, platform,
-	defaultBuildResult string, checkPlatform bool, buildResults map[string]string) error {
+defaultBuildResult string, checkPlatform bool, buildResults map[string]string) error {
 
 	if checkPlatform && !buildops.PlatformDefined(module, platform) {
 		return nil

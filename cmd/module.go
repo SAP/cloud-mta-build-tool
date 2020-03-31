@@ -2,6 +2,7 @@ package commands
 
 import (
 	"os"
+	"sigs.k8s.io/yaml"
 
 	"github.com/spf13/cobra"
 
@@ -28,6 +29,8 @@ var soloBuildModuleCmdTrg string
 var soloBuildModuleCmdExtensions []string
 var soloBuildModuleCmdModules []string
 var soloBuildModuleCmdAllDependencies bool
+var soloBuildModuleCmdMtadGen bool
+var soloBuildModuleCmdPlatform string
 
 func init() {
 
@@ -66,6 +69,10 @@ func init() {
 		"The names of the modules")
 	soloBuildModuleCmd.Flags().BoolVarP(&soloBuildModuleCmdAllDependencies, "with-all-dependencies", "a", false,
 		"Build modules including all dependencies")
+	soloBuildModuleCmd.Flags().BoolVarP(&soloBuildModuleCmdMtadGen, "mtad-gen", "g", false,
+		`Generate "mtad.yaml" file`)
+	soloBuildModuleCmd.Flags().StringVarP(&soloBuildModuleCmdPlatform, "platform", "p", "cf",
+		`The deployment platform; supported platforms: "cf", "xsa", "neo"`)
 }
 
 // soloBuildModuleCmd - Build module command used stand alone
@@ -75,7 +82,9 @@ var soloBuildModuleCmd = &cobra.Command{
 	Long:  "Builds specified modules according to configurations in the MTA development descriptor (mta.yaml)",
 	Args:  cobra.MaximumNArgs(4),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		err := artifacts.ExecuteSoloBuild(soloBuildModuleCmdSrc, soloBuildModuleCmdTrg, soloBuildModuleCmdExtensions, soloBuildModuleCmdModules, soloBuildModuleCmdAllDependencies, os.Getwd)
+		err := artifacts.ExecuteSoloBuild(soloBuildModuleCmdSrc, soloBuildModuleCmdTrg, soloBuildModuleCmdExtensions,
+			soloBuildModuleCmdModules, soloBuildModuleCmdAllDependencies, soloBuildModuleCmdMtadGen, soloBuildModuleCmdPlatform,
+			os.Getwd, yaml.Marshal)
 		logError(err)
 		return err
 	},
