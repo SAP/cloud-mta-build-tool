@@ -4,6 +4,7 @@ import (
 	"archive/zip"
 	"errors"
 	"fmt"
+	"github.com/SAP/cloud-mta-build-tool/internal/platform"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"os"
@@ -108,6 +109,24 @@ builders:
 				}
 			})
 
+			Describe("mtad.yaml generation fails on corrupted platform configuration", func() {
+
+				var platformConfig []byte
+
+				BeforeEach(func() {
+					platformConfig = platform.PlatformConfig
+					platform.PlatformConfig = []byte("corrupted")
+				})
+
+				AfterEach(func() {
+					platform.PlatformConfig = platformConfig
+				})
+
+				It("failure", func() {
+					Ω(ExecuteSoloBuild(getTestPath("mtaModelsBuild"), getResultPath(), nil, []string{"m1", "m3"}, true, true, "cf", os.Getwd, yaml.Marshal)).Should(HaveOccurred())
+				})
+			})
+
 			It("required module m2 has ready artifact 'test2.txt' and creates a new one 'test2_copy.txt', mtad.yaml not generated", func() {
 				Ω(ExecuteSoloBuild(getTestPath("mtaModelsBuild"), getResultPath(), nil, []string{"m1"}, true, false, "cf", os.Getwd, yaml.Marshal)).Should(Succeed())
 				Ω(getTestPath("result", "data.zip")).Should(BeAnExistingFile())
@@ -120,6 +139,10 @@ builders:
 				err := ExecuteSoloBuild(getTestPath("mtaModelsBuild"), getResultPath(), nil, []string{"m1", "m2"}, true, false, "", os.Getwd, yaml.Marshal)
 				Ω(err).Should(HaveOccurred())
 				Ω(err.Error()).Should(ContainSubstring(fmt.Sprintf(multiBuildWithPathsConflictMsg, "m2", "m1", getResultPath(), "data.zip")))
+			})
+
+			It("fails on invalid platform", func() {
+				Ω(ExecuteSoloBuild(getTestPath("mtaModelsBuild"), getResultPath(), nil, []string{"m1"}, true, true, "xx", os.Getwd, yaml.Marshal)).Should(HaveOccurred())
 			})
 		})
 

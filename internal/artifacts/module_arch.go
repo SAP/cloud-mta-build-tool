@@ -102,9 +102,15 @@ func ExecuteSoloBuild(source, target string, extensions []string, modulesNames [
 	}
 
 	if generateMtad {
-		err := removeBuildParamsFromMta(loc, mtaObj, false)
+		// validate platform
+		platform, err := validatePlatform(platform)
 		if err != nil {
-			return err
+			return wrapBuildError(err, modulesNames)
+		}
+
+		err = removeBuildParamsFromMta(loc, mtaObj, false)
+		if err != nil {
+			return wrapBuildError(err, modulesNames)
 		}
 
 		// adjust paths in case of partial modules build
@@ -121,7 +127,10 @@ func ExecuteSoloBuild(source, target string, extensions []string, modulesNames [
 			return wrapBuildError(err, modulesNames)
 		}
 		mtadLocation := mtadLoc{path: mtadTargetPath}
-		genMtad(mtaObj, &mtadLocation, false, platform, marshal)
+		err = genMtad(mtaObj, &mtadLocation, false, platform, marshal)
+		if err != nil {
+			return wrapBuildError(err, modulesNames)
+		}
 	}
 
 	if len(modulesNames) > 1 {
