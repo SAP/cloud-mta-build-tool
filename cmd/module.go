@@ -2,7 +2,6 @@ package commands
 
 import (
 	"os"
-	"sigs.k8s.io/yaml"
 
 	"github.com/spf13/cobra"
 
@@ -84,7 +83,7 @@ var soloBuildModuleCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		err := artifacts.ExecuteSoloBuild(soloBuildModuleCmdSrc, soloBuildModuleCmdTrg, soloBuildModuleCmdExtensions,
 			soloBuildModuleCmdModules, soloBuildModuleCmdAllDependencies, soloBuildModuleCmdMtadGen, soloBuildModuleCmdPlatform,
-			os.Getwd, yaml.Marshal)
+			os.Getwd)
 		logError(err)
 		return err
 	},

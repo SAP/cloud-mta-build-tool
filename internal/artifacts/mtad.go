@@ -58,15 +58,30 @@ func validatePlatform(platform string) (string, error) {
 }
 
 // genMtad generates an mtad.yaml file from a mta.yaml file and a platform configuration file.
-func genMtad(mtaStr *mta.MTA, ep dir.ITargetArtifacts, deploymentDesc bool, platform string,
+func genMtad(mtaStr *mta.MTA, ep dir.ITargetArtifacts, targetPathGetter dir.ITargetPath, deploymentDesc bool,
+	platform string, validatePaths bool, packedModulePaths map[string]string,
 	marshal func(interface{}) (out []byte, err error)) error {
 
 	if !deploymentDesc {
+		err := removeBuildParamsFromMta(targetPathGetter, mtaStr, validatePaths)
+		if err != nil {
+			return err
+		}
+		// adjust paths in case of partial modules build
+		if packedModulePaths != nil {
+			for _, module := range mtaStr.Modules {
+				modulePath, ok := packedModulePaths[module.Name]
+				if ok {
+					module.Path = modulePath
+				}
+			}
+		}
 		// convert modules types according to platform
-		err := ConvertTypes(*mtaStr, platform)
+		err = ConvertTypes(*mtaStr, platform)
 		if err != nil {
 			return errors.Wrapf(err, genMTADTypeTypeCnvMsg, platform)
 		}
+
 	}
 
 	err := adjustSchemaVersion(mtaStr)

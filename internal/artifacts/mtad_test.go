@@ -74,7 +74,7 @@ var _ = Describe("Mtad", func() {
 			Ω(err).Should(Succeed())
 			mtaStr, err := mta.Unmarshal(mtaBytes)
 			Ω(err).Should(Succeed())
-			Ω(genMtad(mtaStr, &ep, ep.IsDeploymentDescriptor(), "cf", yaml.Marshal)).Should(HaveOccurred())
+			Ω(genMtad(mtaStr, &ep, &ep, ep.IsDeploymentDescriptor(), "cf", true, nil, yaml.Marshal)).Should(HaveOccurred())
 			Ω(file.Close()).Should(Succeed())
 		})
 		It("Fails on mtad marshalling", func() {
@@ -83,7 +83,7 @@ var _ = Describe("Mtad", func() {
 			Ω(err).Should(Succeed())
 			mtaStr, err := mta.Unmarshal(mtaBytes)
 			Ω(err).Should(Succeed())
-			Ω(genMtad(mtaStr, &ep, ep.IsDeploymentDescriptor(), "cf", func(i interface{}) (out []byte, err error) {
+			Ω(genMtad(mtaStr, &ep, &ep, ep.IsDeploymentDescriptor(), "cf", true, nil, func(i interface{}) (out []byte, err error) {
 				return nil, errors.New("err")
 			})).Should(HaveOccurred())
 		})
@@ -93,7 +93,7 @@ var _ = Describe("Mtad", func() {
 			Ω(err).Should(Succeed())
 			mtaStr, err := mta.Unmarshal(mtaBytes)
 			Ω(err).Should(Succeed())
-			Ω(genMtad(mtaStr, &ep, ep.IsDeploymentDescriptor(), "cf", yaml.Marshal)).Should(HaveOccurred())
+			Ω(genMtad(mtaStr, &ep, &ep, ep.IsDeploymentDescriptor(), "cf", true, nil, yaml.Marshal)).Should(HaveOccurred())
 		})
 	})
 

@@ -2,6 +2,7 @@ package artifacts
 
 import (
 	"fmt"
+	"gopkg.in/yaml.v2"
 	"os"
 	"path/filepath"
 	"strings"
@@ -41,9 +42,8 @@ func ExecuteBuild(source, target string, extensions []string, moduleName, platfo
 
 // ExecuteSoloBuild - executes build of module from stand alone command
 func ExecuteSoloBuild(source, target string, extensions []string, modulesNames []string, allDependencies bool,
-	generateMtad bool, platform string,
-	wdGetter func() (string, error),
-	marshal func(interface{}) (out []byte, err error)) error {
+	generateMtadFlag bool, platform string,
+	wdGetter func() (string, error)) error {
 
 	if len(modulesNames) == 0 {
 		return errors.New(buildFailedOnEmptyModulesMsg)
@@ -96,38 +96,13 @@ func ExecuteSoloBuild(source, target string, extensions []string, modulesNames [
 		logs.Logger.Infof(multiBuildMsg, `"`+strings.Join(sortedModules, `", "`)+`"`)
 	}
 
-	packedModules, err := buildModules(sourceDir, target, extensions, sortedModules, selectedModulesMap, wdGetter)
+	packedModulePaths, err := buildModules(sourceDir, target, extensions, sortedModules, selectedModulesMap, wdGetter)
 	if err != nil {
 		return wrapBuildError(err, modulesNames)
 	}
 
-	if generateMtad {
-		// validate platform
-		platform, err := validatePlatform(platform)
-		if err != nil {
-			return wrapBuildError(err, modulesNames)
-		}
-
-		err = removeBuildParamsFromMta(loc, mtaObj, false)
-		if err != nil {
-			return wrapBuildError(err, modulesNames)
-		}
-
-		// adjust paths in case of partial modules build
-		if packedModules != nil {
-			for _, module := range mtaObj.Modules {
-				modulePath, ok := packedModules[module.Name]
-				if ok {
-					module.Path = modulePath
-				}
-			}
-		}
-		mtadTargetPath, err := getMtadPath(target, wdGetter)
-		if err != nil {
-			return wrapBuildError(err, modulesNames)
-		}
-		mtadLocation := mtadLoc{path: mtadTargetPath}
-		err = genMtad(mtaObj, &mtadLocation, false, platform, marshal)
+	if generateMtadFlag {
+		err = generateMtad(mtaObj, loc, target, platform, packedModulePaths, wdGetter)
 		if err != nil {
 			return wrapBuildError(err, modulesNames)
 		}
@@ -138,6 +113,23 @@ func ExecuteSoloBuild(source, target string, extensions []string, modulesNames [
 	}
 
 	return nil
+}
+
+func generateMtad(mtaObj *mta.MTA, loc dir.ITargetPath, target string,
+	platform string, packedModulePaths map[string]string, wdGetter func() (string, error)) error {
+
+	platform, err := validatePlatform(platform)
+	if err != nil {
+		return err
+	}
+
+	mtadTargetPath, err := getMtadPath(target, wdGetter)
+	if err != nil {
+		return err
+	}
+	mtadLocation := mtadLoc{path: mtadTargetPath}
+
+	return genMtad(mtaObj, &mtadLocation, loc, false, platform, false, packedModulePaths, yaml.Marshal)
 }
 
 func getMtadPath(target string, wdGetter func() (string, error)) (string, error) {
@@ -180,7 +172,7 @@ func collectSelectedModulesAndDependencies(mtaObj *mta.MTA, modulesWithDependenc
 }
 
 func buildModules(source, target string, extensions []string, modulesToBuild []string,
-	modulesToPack map[string]bool, wdGetter func() (string, error)) (map[string]string, error) {
+	modulesToPack map[string]bool, wdGetter func() (string, error)) (packedModulePaths map[string]string, err error) {
 
 	buildResults := make(map[string]string)
 	for _, module := range modulesToBuild {
@@ -191,11 +183,11 @@ func buildModules(source, target string, extensions []string, modulesToBuild []s
 		}
 	}
 
-	packedModules := make(map[string]string)
+	packedModulePaths = make(map[string]string)
 	for buildResult, moduleName := range buildResults {
-		packedModules[moduleName] = buildResult
+		packedModulePaths[moduleName] = buildResult
 	}
-	return packedModules, nil
+	return packedModulePaths, nil
 }
 
 func buildSelectedModule(source, target string, extensions []string, module string,
@@ -370,7 +362,7 @@ func buildModule(mtaParser dir.IMtaParser, moduleLoc dir.IModule, moduleName, pl
 
 // packModule - pack build module artifacts
 func packModule(moduleLoc dir.IModule, module *mta.Module, moduleName, platform,
-	defaultBuildResult string, checkPlatform bool, buildResults map[string]string) error {
+defaultBuildResult string, checkPlatform bool, buildResults map[string]string) error {
 
 	if checkPlatform && !buildops.PlatformDefined(module, platform) {
 		return nil

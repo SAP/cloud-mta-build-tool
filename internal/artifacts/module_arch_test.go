@@ -4,7 +4,6 @@ import (
 	"archive/zip"
 	"errors"
 	"fmt"
-	"github.com/SAP/cloud-mta-build-tool/internal/platform"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"os"
@@ -19,6 +18,7 @@ import (
 	"github.com/SAP/cloud-mta-build-tool/internal/buildops"
 	"github.com/SAP/cloud-mta-build-tool/internal/commands"
 	"github.com/SAP/cloud-mta-build-tool/internal/exec"
+	"github.com/SAP/cloud-mta-build-tool/internal/platform"
 	"github.com/SAP/cloud-mta/mta"
 )
 
@@ -92,7 +92,7 @@ builders:
 			})
 
 			It("required module m2 has ready artifact 'test2.txt' and creates a new one 'test2_copy.txt', mtad.yaml generated", func() {
-				Ω(ExecuteSoloBuild(getTestPath("mtaModelsBuild"), getResultPath(), nil, []string{"m1", "m3"}, true, true, "cf", os.Getwd, yaml.Marshal)).Should(Succeed())
+				Ω(ExecuteSoloBuild(getTestPath("mtaModelsBuild"), getResultPath(), nil, []string{"m1", "m3"}, true, true, "cf", os.Getwd)).Should(Succeed())
 				Ω(getTestPath("result", "data.zip")).Should(BeAnExistingFile())
 				Ω(getTestPath("result", "m3.zip")).Should(BeAnExistingFile())
 				validateArchiveContents([]string{"test.txt", "test2.txt", "test2_copy.txt"}, getTestPath("result", "data.zip"))
@@ -100,16 +100,15 @@ builders:
 				Ω(err).Should(Succeed())
 				mtadObj, err := mta.Unmarshal(mtadContent)
 				Ω(err).Should(Succeed())
-				for _, module := range mtadObj.Modules {
-					if module.Name == "m1" {
-						Ω(module.Path).Should(Equal(getTestPath("result", "data.zip")))
-					} else if module.Name == "m3" {
-						Ω(module.Path).Should(Equal(getTestPath("result", "m3.zip")))
-					}
-				}
+				moduleM1, err := mtadObj.GetModuleByName("m1")
+				Ω(err).Should(Succeed())
+				Ω(moduleM1.Path).Should(Equal(getTestPath("result", "data.zip")))
+				moduleM3, err := mtadObj.GetModuleByName("m3")
+				Ω(err).Should(Succeed())
+				Ω(moduleM3.Path).Should(Equal(getTestPath("result", "m3.zip")))
 			})
 
-			Describe("mtad.yaml generation fails on corrupted platform configuration", func() {
+			Describe("corrupted platform configuration", func() {
 
 				var platformConfig []byte
 
@@ -122,13 +121,13 @@ builders:
 					platform.PlatformConfig = platformConfig
 				})
 
-				It("failure", func() {
-					Ω(ExecuteSoloBuild(getTestPath("mtaModelsBuild"), getResultPath(), nil, []string{"m1", "m3"}, true, true, "cf", os.Getwd, yaml.Marshal)).Should(HaveOccurred())
+				It("mtad.yaml generation fails", func() {
+					Ω(ExecuteSoloBuild(getTestPath("mtaModelsBuild"), getResultPath(), nil, []string{"m1", "m3"}, true, true, "cf", os.Getwd)).Should(HaveOccurred())
 				})
 			})
 
 			It("required module m2 has ready artifact 'test2.txt' and creates a new one 'test2_copy.txt', mtad.yaml not generated", func() {
-				Ω(ExecuteSoloBuild(getTestPath("mtaModelsBuild"), getResultPath(), nil, []string{"m1"}, true, false, "cf", os.Getwd, yaml.Marshal)).Should(Succeed())
+				Ω(ExecuteSoloBuild(getTestPath("mtaModelsBuild"), getResultPath(), nil, []string{"m1"}, true, false, "cf", os.Getwd)).Should(Succeed())
 				Ω(getTestPath("result", "data.zip")).Should(BeAnExistingFile())
 				Ω(getTestPath("result", "m3.zip")).ShouldNot(BeAnExistingFile())
 				Ω(getTestPath("result", "mtad.yaml")).ShouldNot(BeAnExistingFile())
@@ -136,13 +135,13 @@ builders:
 			})
 
 			It("modules m1 and m2 have conflicting build results", func() {
-				err := ExecuteSoloBuild(getTestPath("mtaModelsBuild"), getResultPath(), nil, []string{"m1", "m2"}, true, false, "", os.Getwd, yaml.Marshal)
+				err := ExecuteSoloBuild(getTestPath("mtaModelsBuild"), getResultPath(), nil, []string{"m1", "m2"}, true, false, "", os.Getwd)
 				Ω(err).Should(HaveOccurred())
 				Ω(err.Error()).Should(ContainSubstring(fmt.Sprintf(multiBuildWithPathsConflictMsg, "m2", "m1", getResultPath(), "data.zip")))
 			})
 
 			It("fails on invalid platform", func() {
-				Ω(ExecuteSoloBuild(getTestPath("mtaModelsBuild"), getResultPath(), nil, []string{"m1"}, true, true, "xx", os.Getwd, yaml.Marshal)).Should(HaveOccurred())
+				Ω(ExecuteSoloBuild(getTestPath("mtaModelsBuild"), getResultPath(), nil, []string{"m1"}, true, true, "xx", os.Getwd)).Should(HaveOccurred())
 			})
 		})
 
@@ -151,7 +150,7 @@ builders:
 				Ω(os.Remove(getTestPath("mtaModelsBuild", "ui5app", "test2.txt"))).Should(Succeed())
 			})
 			It("required module m2 has ready artifact 'test2.txt', only this one will be copied to m1", func() {
-				Ω(ExecuteSoloBuild(getTestPath("mtaModelsBuild"), getResultPath(), nil, []string{"m1", "m3"}, false, false, "", os.Getwd, yaml.Marshal)).Should(Succeed())
+				Ω(ExecuteSoloBuild(getTestPath("mtaModelsBuild"), getResultPath(), nil, []string{"m1", "m3"}, false, false, "", os.Getwd)).Should(Succeed())
 				Ω(getTestPath("result", "data.zip")).Should(BeAnExistingFile())
 				Ω(getTestPath("result", "m3.zip")).Should(BeAnExistingFile())
 				validateArchiveContents([]string{"test.txt", "test2.txt"}, getTestPath("result", "data.zip"))
@@ -162,34 +161,34 @@ builders:
 			Ω(ExecuteSoloBuild(getTestPath("mta"), "", nil, []string{"node-js"}, true, false, "",
 				func() (string, error) {
 					return getTestPath("result", "test_dir"), nil
-				}, yaml.Marshal)).Should(Succeed())
+				})).Should(Succeed())
 			Ω(getTestPath("result", "test_dir", ".mta_mta_build_tmp", "node-js", "data.zip")).Should(BeAnExistingFile())
 		})
 
 		It("fails on empty list of modules", func() {
-			Ω(ExecuteSoloBuild(getTestPath("mta"), getResultPath(), nil, []string{}, true, false, "", os.Getwd, yaml.Marshal)).Should(HaveOccurred())
+			Ω(ExecuteSoloBuild(getTestPath("mta"), getResultPath(), nil, []string{}, true, false, "", os.Getwd)).Should(HaveOccurred())
 		})
 
 		It("Fails on source getter", func() {
-			err := ExecuteSoloBuild("", "", nil, []string{"ui5app"}, true, false, "", failingGetWd, yaml.Marshal)
+			err := ExecuteSoloBuild("", "", nil, []string{"ui5app"}, true, false, "", failingGetWd)
 			Ω(err).Should(HaveOccurred())
 			Ω(err.Error()).Should(ContainSubstring(fmt.Sprintf(buildFailedMsg, "ui5app")))
 		})
 
 		It("Fails on source getter with multiple modules", func() {
-			err := ExecuteSoloBuild("", "", nil, []string{"ui5app", "ui5app2"}, true, false, "", failingGetWd, yaml.Marshal)
+			err := ExecuteSoloBuild("", "", nil, []string{"ui5app", "ui5app2"}, true, false, "", failingGetWd)
 			Ω(err).Should(HaveOccurred())
 			Ω(err.Error()).Should(ContainSubstring(multiBuildFailedMsg))
 		})
 
 		It("Fails on wrong build dependencies - on sortModules", func() {
 			Ω(ExecuteSoloBuild(getTestPath("mtahtml5"), "", []string{"mtaExtWithCyclicDependencies.yaml"},
-				[]string{"ui5app"}, true, false, "", os.Getwd, yaml.Marshal)).Should(HaveOccurred())
+				[]string{"ui5app"}, true, false, "", os.Getwd)).Should(HaveOccurred())
 		})
 
 		It("Fails on unknown builder", func() {
 			Ω(ExecuteSoloBuild(getTestPath("mtahtml5"), "", []string{"mtaExtWithUnkownBuilder.yaml"},
-				[]string{"ui5app"}, true, false, "", os.Getwd, yaml.Marshal)).Should(HaveOccurred())
+				[]string{"ui5app"}, true, false, "", os.Getwd)).Should(HaveOccurred())
 		})
 
 		It("Fails on location initialization", func() {
@@ -200,17 +199,17 @@ builders:
 					return "", nil
 				}
 				return "", errors.New("err")
-			}, yaml.Marshal)).Should(HaveOccurred())
+			})).Should(HaveOccurred())
 		})
 
 		It("Fails on wrong module", func() {
-			Ω(ExecuteSoloBuild(getTestPath("mta"), getResultPath(), nil, []string{"ui5app"}, true, false, "", os.Getwd, yaml.Marshal)).Should(HaveOccurred())
+			Ω(ExecuteSoloBuild(getTestPath("mta"), getResultPath(), nil, []string{"ui5app"}, true, false, "", os.Getwd)).Should(HaveOccurred())
 		})
 
 		It("Fails on getting default source", func() {
 			Ω(ExecuteSoloBuild(getTestPath("mta"), "", nil, []string{"ui5app"}, true,
 				false, "",
-				failingGetWd, yaml.Marshal)).Should(HaveOccurred())
+				failingGetWd)).Should(HaveOccurred())
 		})
 
 		// the only purpose of the test to support coverage
@@ -225,12 +224,18 @@ builders:
 						return "", nil
 					}
 					return "", errors.New("err")
-				}, yaml.Marshal)).Should(HaveOccurred())
+				})).Should(HaveOccurred())
 		})
 
 		It("getSoloModuleBuildAbsTarget fails on current folder getter", func() {
 			_, err := getSoloModuleBuildAbsTarget(getTestPath(), "", "m1", failingGetWd)
 			Ω(err).Should(HaveOccurred())
+		})
+	})
+
+	Describe("generateMtad", func() {
+		It("fails on mtad location getter", func() {
+			Ω(generateMtad(nil, nil, "", "cf", nil, failingGetWd)).Should(HaveOccurred())
 		})
 	})
 
@@ -302,7 +307,7 @@ builders:
 				"cf", os.Getwd)).Should(HaveOccurred())
 		})
 
-		It("Fails on platform validation", func() {
+		It("Fails on platform validation when mtad.yaml should be generated", func() {
 			Ω(ExecutePack(getTestPath("mta"), getResultPath(), nil, "node-js",
 				"xx", os.Getwd)).Should(HaveOccurred())
 		})
