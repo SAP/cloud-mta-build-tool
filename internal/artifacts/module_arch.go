@@ -362,7 +362,7 @@ func buildModule(mtaParser dir.IMtaParser, moduleLoc dir.IModule, moduleName, pl
 
 // packModule - pack build module artifacts
 func packModule(moduleLoc dir.IModule, module *mta.Module, moduleName, platform,
-defaultBuildResult string, checkPlatform bool, buildResults map[string]string) error {
+	defaultBuildResult string, checkPlatform bool, buildResults map[string]string) error {
 
 	if checkPlatform && !buildops.PlatformDefined(module, platform) {
 		return nil
