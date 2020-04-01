@@ -71,14 +71,7 @@ func genMetaInfo(source dir.IModule, ep dir.ITargetArtifacts, targetPathGetter d
 		}
 	}
 
-	if !deploymentDesc {
-		err := removeBuildParamsFromMta(targetPathGetter, mtaStr, validatePaths)
-		if err != nil {
-			return err
-		}
-	}
-
-	err := genMtad(mtaStr, ep, deploymentDesc, platform, yaml.Marshal)
+	err := genMtad(mtaStr, ep, targetPathGetter, deploymentDesc, platform, validatePaths, nil, yaml.Marshal)
 	if err != nil {
 		return errors.Wrap(err, genMetaMTADMsg)
 	}

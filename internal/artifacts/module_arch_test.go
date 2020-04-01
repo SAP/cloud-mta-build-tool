@@ -18,6 +18,7 @@ import (
 	"github.com/SAP/cloud-mta-build-tool/internal/buildops"
 	"github.com/SAP/cloud-mta-build-tool/internal/commands"
 	"github.com/SAP/cloud-mta-build-tool/internal/exec"
+	"github.com/SAP/cloud-mta-build-tool/internal/platform"
 	"github.com/SAP/cloud-mta/mta"
 )
 
@@ -89,16 +90,58 @@ builders:
 				Ω(os.Remove(getTestPath("mtaModelsBuild", "ui5app", "test2_copy.txt"))).Should(Succeed())
 				Ω(os.Remove(getTestPath("mtaModelsBuild", "ui5app2", "test2_copy.txt"))).Should(Succeed())
 			})
-			It("required module m2 has ready artifact 'test2.txt' and creates a new one 'test2_copy.txt'", func() {
-				Ω(ExecuteSoloBuild(getTestPath("mtaModelsBuild"), getResultPath(), nil, []string{"m1", "m3"}, true, os.Getwd)).Should(Succeed())
+
+			It("required module m2 has ready artifact 'test2.txt' and creates a new one 'test2_copy.txt', mtad.yaml generated", func() {
+				Ω(ExecuteSoloBuild(getTestPath("mtaModelsBuild"), getResultPath(), nil, []string{"m1", "m3"}, true, true, "cf", os.Getwd)).Should(Succeed())
 				Ω(getTestPath("result", "data.zip")).Should(BeAnExistingFile())
 				Ω(getTestPath("result", "m3.zip")).Should(BeAnExistingFile())
 				validateArchiveContents([]string{"test.txt", "test2.txt", "test2_copy.txt"}, getTestPath("result", "data.zip"))
+				mtadContent, err := ioutil.ReadFile(getTestPath("result", "mtad.yaml"))
+				Ω(err).Should(Succeed())
+				mtadObj, err := mta.Unmarshal(mtadContent)
+				Ω(err).Should(Succeed())
+				moduleM1, err := mtadObj.GetModuleByName("m1")
+				Ω(err).Should(Succeed())
+				Ω(moduleM1.Path).Should(Equal(getTestPath("result", "data.zip")))
+				moduleM3, err := mtadObj.GetModuleByName("m3")
+				Ω(err).Should(Succeed())
+				Ω(moduleM3.Path).Should(Equal(getTestPath("result", "m3.zip")))
 			})
+
+			Describe("corrupted platform configuration", func() {
+
+				var platformConfig []byte
+
+				BeforeEach(func() {
+					platformConfig = platform.PlatformConfig
+					platform.PlatformConfig = []byte("corrupted")
+				})
+
+				AfterEach(func() {
+					platform.PlatformConfig = platformConfig
+				})
+
+				It("mtad.yaml generation fails", func() {
+					Ω(ExecuteSoloBuild(getTestPath("mtaModelsBuild"), getResultPath(), nil, []string{"m1", "m3"}, true, true, "cf", os.Getwd)).Should(HaveOccurred())
+				})
+			})
+
+			It("required module m2 has ready artifact 'test2.txt' and creates a new one 'test2_copy.txt', mtad.yaml not generated", func() {
+				Ω(ExecuteSoloBuild(getTestPath("mtaModelsBuild"), getResultPath(), nil, []string{"m1"}, true, false, "cf", os.Getwd)).Should(Succeed())
+				Ω(getTestPath("result", "data.zip")).Should(BeAnExistingFile())
+				Ω(getTestPath("result", "m3.zip")).ShouldNot(BeAnExistingFile())
+				Ω(getTestPath("result", "mtad.yaml")).ShouldNot(BeAnExistingFile())
+				validateArchiveContents([]string{"test.txt", "test2.txt", "test2_copy.txt"}, getTestPath("result", "data.zip"))
+			})
+
 			It("modules m1 and m2 have conflicting build results", func() {
-				err := ExecuteSoloBuild(getTestPath("mtaModelsBuild"), getResultPath(), nil, []string{"m1", "m2"}, true, os.Getwd)
+				err := ExecuteSoloBuild(getTestPath("mtaModelsBuild"), getResultPath(), nil, []string{"m1", "m2"}, true, false, "", os.Getwd)
 				Ω(err).Should(HaveOccurred())
 				Ω(err.Error()).Should(ContainSubstring(fmt.Sprintf(multiBuildWithPathsConflictMsg, "m2", "m1", getResultPath(), "data.zip")))
+			})
+
+			It("fails on platform validation when mtad.yaml should be generated", func() {
+				Ω(ExecuteSoloBuild(getTestPath("mtaModelsBuild"), getResultPath(), nil, []string{"m1"}, true, true, "xx", os.Getwd)).Should(HaveOccurred())
 			})
 		})
 
@@ -107,7 +150,7 @@ builders:
 				Ω(os.Remove(getTestPath("mtaModelsBuild", "ui5app", "test2.txt"))).Should(Succeed())
 			})
 			It("required module m2 has ready artifact 'test2.txt', only this one will be copied to m1", func() {
-				Ω(ExecuteSoloBuild(getTestPath("mtaModelsBuild"), getResultPath(), nil, []string{"m1", "m3"}, false, os.Getwd)).Should(Succeed())
+				Ω(ExecuteSoloBuild(getTestPath("mtaModelsBuild"), getResultPath(), nil, []string{"m1", "m3"}, false, false, "", os.Getwd)).Should(Succeed())
 				Ω(getTestPath("result", "data.zip")).Should(BeAnExistingFile())
 				Ω(getTestPath("result", "m3.zip")).Should(BeAnExistingFile())
 				validateArchiveContents([]string{"test.txt", "test2.txt"}, getTestPath("result", "data.zip"))
@@ -115,7 +158,7 @@ builders:
 		})
 
 		It("Sanity, no target path", func() {
-			Ω(ExecuteSoloBuild(getTestPath("mta"), "", nil, []string{"node-js"}, true,
+			Ω(ExecuteSoloBuild(getTestPath("mta"), "", nil, []string{"node-js"}, true, false, "",
 				func() (string, error) {
 					return getTestPath("result", "test_dir"), nil
 				})).Should(Succeed())
@@ -123,34 +166,34 @@ builders:
 		})
 
 		It("fails on empty list of modules", func() {
-			Ω(ExecuteSoloBuild(getTestPath("mta"), getResultPath(), nil, []string{}, true, os.Getwd)).Should(HaveOccurred())
+			Ω(ExecuteSoloBuild(getTestPath("mta"), getResultPath(), nil, []string{}, true, false, "", os.Getwd)).Should(HaveOccurred())
 		})
 
 		It("Fails on source getter", func() {
-			err := ExecuteSoloBuild("", "", nil, []string{"ui5app"}, true, failingGetWd)
+			err := ExecuteSoloBuild("", "", nil, []string{"ui5app"}, true, false, "", failingGetWd)
 			Ω(err).Should(HaveOccurred())
 			Ω(err.Error()).Should(ContainSubstring(fmt.Sprintf(buildFailedMsg, "ui5app")))
 		})
 
 		It("Fails on source getter with multiple modules", func() {
-			err := ExecuteSoloBuild("", "", nil, []string{"ui5app", "ui5app2"}, true, failingGetWd)
+			err := ExecuteSoloBuild("", "", nil, []string{"ui5app", "ui5app2"}, true, false, "", failingGetWd)
 			Ω(err).Should(HaveOccurred())
 			Ω(err.Error()).Should(ContainSubstring(multiBuildFailedMsg))
 		})
 
 		It("Fails on wrong build dependencies - on sortModules", func() {
 			Ω(ExecuteSoloBuild(getTestPath("mtahtml5"), "", []string{"mtaExtWithCyclicDependencies.yaml"},
-				[]string{"ui5app"}, true, os.Getwd)).Should(HaveOccurred())
+				[]string{"ui5app"}, true, false, "", os.Getwd)).Should(HaveOccurred())
 		})
 
 		It("Fails on unknown builder", func() {
 			Ω(ExecuteSoloBuild(getTestPath("mtahtml5"), "", []string{"mtaExtWithUnkownBuilder.yaml"},
-				[]string{"ui5app"}, true, os.Getwd)).Should(HaveOccurred())
+				[]string{"ui5app"}, true, false, "", os.Getwd)).Should(HaveOccurred())
 		})
 
 		It("Fails on location initialization", func() {
 			counter := 0
-			Ω(ExecuteSoloBuild("", "", nil, []string{"ui5app"}, true, func() (string, error) {
+			Ω(ExecuteSoloBuild("", "", nil, []string{"ui5app"}, true, false, "", func() (string, error) {
 				if counter == 0 {
 					counter++
 					return "", nil
@@ -160,11 +203,12 @@ builders:
 		})
 
 		It("Fails on wrong module", func() {
-			Ω(ExecuteSoloBuild(getTestPath("mta"), getResultPath(), nil, []string{"ui5app"}, true, os.Getwd)).Should(HaveOccurred())
+			Ω(ExecuteSoloBuild(getTestPath("mta"), getResultPath(), nil, []string{"ui5app"}, true, false, "", os.Getwd)).Should(HaveOccurred())
 		})
 
 		It("Fails on getting default source", func() {
 			Ω(ExecuteSoloBuild(getTestPath("mta"), "", nil, []string{"ui5app"}, true,
+				false, "",
 				failingGetWd)).Should(HaveOccurred())
 		})
 
@@ -173,18 +217,25 @@ builders:
 		// failure on dir.Location after 2 successful calls to getSoloModuleBuildAbsSource & getSoloModuleBuildAbsTarget
 		It("Fails on creation of Location object", func() {
 			counter := 1
-			Ω(ExecuteSoloBuild("", "", nil, []string{"ui5app"}, true, func() (string, error) {
-				if counter <= 2 {
-					counter++
-					return "", nil
-				}
-				return "", errors.New("err")
-			})).Should(HaveOccurred())
+			Ω(ExecuteSoloBuild("", "", nil, []string{"ui5app"}, true, false, "",
+				func() (string, error) {
+					if counter <= 2 {
+						counter++
+						return "", nil
+					}
+					return "", errors.New("err")
+				})).Should(HaveOccurred())
 		})
 
 		It("getSoloModuleBuildAbsTarget fails on current folder getter", func() {
 			_, err := getSoloModuleBuildAbsTarget(getTestPath(), "", "m1", failingGetWd)
 			Ω(err).Should(HaveOccurred())
+		})
+	})
+
+	Describe("generateMtad", func() {
+		It("fails on mtad location getter", func() {
+			Ω(generateMtad(nil, nil, "", "cf", nil, failingGetWd)).Should(HaveOccurred())
 		})
 	})
 
@@ -195,24 +246,45 @@ builders:
 		})
 
 		It("sanity", func() {
-			Ω(buildModules(getTestPath("mtahtml5"), getTestPath("result"), nil, []string{"ui5app"}, map[string]bool{"ui5app": true}, os.Getwd)).Should(Succeed())
+			_, err := buildModules(getTestPath("mtahtml5"), getTestPath("result"), nil, []string{"ui5app"}, map[string]bool{"ui5app": true}, os.Getwd)
+			Ω(err).Should(Succeed())
 			Ω(getTestPath("result", "data.zip")).Should(BeAnExistingFile())
 		})
 
 		It("fails on module location getter", func() {
-			Ω(buildModules(getTestPath("mtahtml5"), "", nil, []string{"ui5app2"}, map[string]bool{}, failingGetWd)).Should(HaveOccurred())
+			_, err := buildModules(getTestPath("mtahtml5"), "", nil, []string{"ui5app2"}, map[string]bool{}, failingGetWd)
+			Ω(err).Should(HaveOccurred())
 		})
 
 		It("fails on wrong selected module", func() {
-			Ω(buildModules(getTestPath("mtahtml5"), "", nil, []string{"unknown"}, map[string]bool{"unknown": true}, os.Getwd)).Should(HaveOccurred())
+			_, err := buildModules(getTestPath("mtahtml5"), "", nil, []string{"unknown"}, map[string]bool{"unknown": true}, os.Getwd)
+			Ω(err).Should(HaveOccurred())
 		})
 
 		It("fails on module location getter of dependency", func() {
-			Ω(buildModules("", "", nil, []string{"ui5app"}, map[string]bool{"ui5app": true}, failingGetWd)).Should(HaveOccurred())
+			_, err := buildModules("", "", nil, []string{"ui5app"}, map[string]bool{"ui5app": true}, failingGetWd)
+			Ω(err).Should(HaveOccurred())
 		})
 
 		It("fails on buildModule because of the unknown builder", func() {
-			Ω(buildModules(getTestPath("mtahtml5"), getTestPath("result"), nil, []string{"ui5app3"}, map[string]bool{"ui5app3": true}, os.Getwd)).Should(HaveOccurred())
+			_, err := buildModules(getTestPath("mtahtml5"), getTestPath("result"), nil, []string{"ui5app3"}, map[string]bool{"ui5app3": true}, os.Getwd)
+			Ω(err).Should(HaveOccurred())
+		})
+	})
+
+	Describe("getMtadPath", func() {
+		It("target provided", func() {
+			mtadPath, err := getMtadPath(getResultPath(), os.Getwd)
+			Ω(err).Should(Succeed())
+			Ω(mtadPath).Should(Equal(getResultPath()))
+		})
+
+		It("target not provided", func() {
+			mtadPath, err := getMtadPath("", os.Getwd)
+			Ω(err).Should(Succeed())
+			wd, err := os.Getwd()
+			Ω(err).Should(Succeed())
+			Ω(mtadPath).Should(Equal(wd))
 		})
 	})
 

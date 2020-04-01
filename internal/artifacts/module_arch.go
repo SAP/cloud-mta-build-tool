@@ -2,6 +2,7 @@ package artifacts
 
 import (
 	"fmt"
+	"gopkg.in/yaml.v2"
 	"os"
 	"path/filepath"
 	"strings"
@@ -40,7 +41,9 @@ func ExecuteBuild(source, target string, extensions []string, moduleName, platfo
 }
 
 // ExecuteSoloBuild - executes build of module from stand alone command
-func ExecuteSoloBuild(source, target string, extensions []string, modulesNames []string, allDependencies bool, wdGetter func() (string, error)) error {
+func ExecuteSoloBuild(source, target string, extensions []string, modulesNames []string, allDependencies bool,
+	generateMtadFlag bool, platform string,
+	wdGetter func() (string, error)) error {
 
 	if len(modulesNames) == 0 {
 		return errors.New(buildFailedOnEmptyModulesMsg)
@@ -93,9 +96,16 @@ func ExecuteSoloBuild(source, target string, extensions []string, modulesNames [
 		logs.Logger.Infof(multiBuildMsg, `"`+strings.Join(sortedModules, `", "`)+`"`)
 	}
 
-	err = buildModules(sourceDir, target, extensions, sortedModules, selectedModulesMap, wdGetter)
+	packedModulePaths, err := buildModules(sourceDir, target, extensions, sortedModules, selectedModulesMap, wdGetter)
 	if err != nil {
 		return wrapBuildError(err, modulesNames)
+	}
+
+	if generateMtadFlag {
+		err = generateMtad(mtaObj, loc, target, platform, packedModulePaths, wdGetter)
+		if err != nil {
+			return wrapBuildError(err, modulesNames)
+		}
 	}
 
 	if len(modulesNames) > 1 {
@@ -103,6 +113,30 @@ func ExecuteSoloBuild(source, target string, extensions []string, modulesNames [
 	}
 
 	return nil
+}
+
+func generateMtad(mtaObj *mta.MTA, loc dir.ITargetPath, target string,
+	platform string, packedModulePaths map[string]string, wdGetter func() (string, error)) error {
+
+	platform, err := validatePlatform(platform)
+	if err != nil {
+		return err
+	}
+
+	mtadTargetPath, err := getMtadPath(target, wdGetter)
+	if err != nil {
+		return err
+	}
+	mtadLocation := mtadLoc{path: mtadTargetPath}
+
+	return genMtad(mtaObj, &mtadLocation, loc, false, platform, false, packedModulePaths, yaml.Marshal)
+}
+
+func getMtadPath(target string, wdGetter func() (string, error)) (string, error) {
+	if target != "" {
+		return target, nil
+	}
+	return wdGetter()
 }
 
 func wrapBuildError(err error, modules []string) error {
@@ -138,17 +172,22 @@ func collectSelectedModulesAndDependencies(mtaObj *mta.MTA, modulesWithDependenc
 }
 
 func buildModules(source, target string, extensions []string, modulesToBuild []string,
-	modulesToPack map[string]bool, wdGetter func() (string, error)) error {
+	modulesToPack map[string]bool, wdGetter func() (string, error)) (packedModulePaths map[string]string, err error) {
 
 	buildResults := make(map[string]string)
 	for _, module := range modulesToBuild {
 		err := buildSelectedModule(source, target, extensions, module, modulesToPack[module], buildResults, wdGetter)
 
 		if err != nil {
-			return err
+			return nil, err
 		}
 	}
-	return nil
+
+	packedModulePaths = make(map[string]string)
+	for buildResult, moduleName := range buildResults {
+		packedModulePaths[moduleName] = buildResult
+	}
+	return packedModulePaths, nil
 }
 
 func buildSelectedModule(source, target string, extensions []string, module string,
