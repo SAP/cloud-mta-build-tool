@@ -140,7 +140,7 @@ builders:
 				Ω(err.Error()).Should(ContainSubstring(fmt.Sprintf(multiBuildWithPathsConflictMsg, "m2", "m1", getResultPath(), "data.zip")))
 			})
 
-			It("fails on invalid platform", func() {
+			It("fails on platform validation when mtad.yaml should be generated", func() {
 				Ω(ExecuteSoloBuild(getTestPath("mtaModelsBuild"), getResultPath(), nil, []string{"m1"}, true, true, "xx", os.Getwd)).Should(HaveOccurred())
 			})
 		})
@@ -307,7 +307,7 @@ builders:
 				"cf", os.Getwd)).Should(HaveOccurred())
 		})
 
-		It("Fails on platform validation when mtad.yaml should be generated", func() {
+		It("Fails on platform validation", func() {
 			Ω(ExecutePack(getTestPath("mta"), getResultPath(), nil, "node-js",
 				"xx", os.Getwd)).Should(HaveOccurred())
 		})
