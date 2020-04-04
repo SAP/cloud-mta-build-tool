@@ -91,8 +91,8 @@ builders:
 				Ω(os.Remove(getTestPath("mtaModelsBuild", "ui5app2", "test2_copy.txt"))).Should(Succeed())
 			})
 
-			It("required module m2 has ready artifact 'test2.txt' and creates a new one 'test2_copy.txt', mtad.yaml generated", func() {
-				Ω(ExecuteSoloBuild(getTestPath("mtaModelsBuild"), getResultPath(), nil, []string{"m1", "m3"}, true, true, "cf", os.Getwd)).Should(Succeed())
+			It("module m3 with no supported platform is mot presented in the generated mtad.yaml", func() {
+				Ω(ExecuteSoloBuild(getTestPath("mtaModelsBuild"), getResultPath(), []string{"mtaext.yaml"}, []string{"m1", "m3"}, true, true, "cf", os.Getwd)).Should(Succeed())
 				Ω(getTestPath("result", "data.zip")).Should(BeAnExistingFile())
 				Ω(getTestPath("result", "m3.zip")).Should(BeAnExistingFile())
 				validateArchiveContents([]string{"test.txt", "test2.txt", "test2_copy.txt"}, getTestPath("result", "data.zip"))
@@ -103,9 +103,8 @@ builders:
 				moduleM1, err := mtadObj.GetModuleByName("m1")
 				Ω(err).Should(Succeed())
 				Ω(moduleM1.Path).Should(Equal(getTestPath("result", "data.zip")))
-				moduleM3, err := mtadObj.GetModuleByName("m3")
-				Ω(err).Should(Succeed())
-				Ω(moduleM3.Path).Should(Equal(getTestPath("result", "m3.zip")))
+				_, err = mtadObj.GetModuleByName("m3")
+				Ω(err).Should(HaveOccurred())
 			})
 
 			Describe("corrupted platform configuration", func() {

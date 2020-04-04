@@ -129,6 +129,10 @@ func generateMtad(mtaObj *mta.MTA, loc dir.ITargetPath, target string,
 	}
 	mtadLocation := mtadLoc{path: mtadTargetPath}
 
+	removeUndeployedModules(mtaObj, platform)
+
+	setPlatformSpecificParameters(mtaObj, platform)
+
 	return genMtad(mtaObj, &mtadLocation, loc, false, platform, false, packedModulePaths, yaml.Marshal)
 }
 

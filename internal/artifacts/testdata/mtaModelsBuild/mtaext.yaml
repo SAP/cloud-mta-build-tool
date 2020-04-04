@@ -1,0 +1,11 @@
+ID: mtahtml5Ext
+_schema-version: '2.1'
+version: 0.0.1
+extends: mtahtml5
+
+modules:
+- name: m3
+  build-parameters:
+    supported-platforms: []
+
+

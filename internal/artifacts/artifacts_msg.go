@@ -26,6 +26,7 @@ const (
 	genMetaPopulatingMsg = `could not generate metadata when populating the manifest file`
 	genMetaMTADMsg       = `could not generate metadata when generating the MTAD file`
 
+	genMTADMsg            = `generating the "%s" file...`
 	genMTADTypeTypeCnvMsg = `could not generate the MTAD file when converting types according to the "%s" platform`
 	genMTADMarshMsg       = `could not generate the MTAD file when marshalling the MTAD object`
 	genMTADWriteMsg       = `could not generate the MTAD file when writing`
