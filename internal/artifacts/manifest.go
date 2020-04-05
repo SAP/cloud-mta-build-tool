@@ -122,7 +122,7 @@ func getModulesEntries(source dir.IModule, targetPathGetter dir.ITargetPath, dep
 
 	var entries []entry
 	for _, mod := range moduleList {
-		if !buildops.IfNoSource(mod) && buildops.PlatformDefined(mod, platform){
+		if !buildops.IfNoSource(mod) && buildops.PlatformDefined(mod, platform) {
 			_, defaultBuildResult, err := commands.CommandProvider(*mod)
 			if err != nil {
 				return nil, err
