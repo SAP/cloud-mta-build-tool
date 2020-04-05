@@ -64,6 +64,11 @@ func ExecuteSoloBuild(source, target string, extensions []string, modulesNames [
 		return err
 	}
 
+	err = checkBuildResultsConflicts(mtaObj, sourceDir, target, extensions, modulesNames, wdGetter)
+	if err != nil {
+		return wrapBuildError(err, modulesNames)
+	}
+
 	allModulesSorted, err := buildops.GetModulesNames(mtaObj)
 	if err != nil {
 		return wrapBuildError(err, modulesNames)
@@ -115,6 +120,49 @@ func ExecuteSoloBuild(source, target string, extensions []string, modulesNames [
 	return nil
 }
 
+func checkBuildResultsConflicts(mtaObj *mta.MTA, source, target string, extensions []string, modulesNames []string, wdGetter func() (string, error)) error {
+
+	modulesToPack := make(map[string]bool)
+	resultPathModuleNameMap := make(map[string]string)
+	for _, moduleName := range modulesNames {
+		_, err := mtaObj.GetModuleByName(moduleName)
+		if err != nil {
+			return err
+		}
+		modulesToPack[moduleName] = true
+	}
+
+	for _, module := range mtaObj.Modules {
+
+		moduleLoc, err := getModuleLocation(source, target, module.Name, extensions, wdGetter)
+		if err != nil {
+			return err
+		}
+
+		if modulesToPack[module.Name] {
+			_, defaultBuildResult, err := commands.CommandProvider(*module)
+			if err != nil {
+				return err
+			}
+			targetArtifact, _, err := buildops.GetModuleTargetArtifactPath(moduleLoc, false, module, defaultBuildResult, false)
+			if err != nil {
+				return err
+			}
+			if strings.ContainsAny(targetArtifact, "*?[]"){
+				continue
+			}
+			moduleName, pathInUse := resultPathModuleNameMap[targetArtifact]
+			if pathInUse {
+				return errors.Errorf(multiBuildWithPathsConflictMsg, module.Name, moduleName, moduleLoc.GetTarget(), filepath.Base(targetArtifact))
+			}
+			resultPathModuleNameMap[targetArtifact] = module.Name
+		}
+	}
+
+	return nil
+}
+
+
 func generateMtad(mtaObj *mta.MTA, loc dir.ITargetPath, target string,
 	platform string, packedModulePaths map[string]string, wdGetter func() (string, error)) error {
 
@@ -128,10 +176,6 @@ func generateMtad(mtaObj *mta.MTA, loc dir.ITargetPath, target string,
 		return err
 	}
 	mtadLocation := mtadLoc{path: mtadTargetPath}
-
-	removeUndeployedModules(mtaObj, platform)
-
-	setPlatformSpecificParameters(mtaObj, platform)
 
 	return genMtad(mtaObj, &mtadLocation, loc, false, platform, false, packedModulePaths, yaml.Marshal)
 }
@@ -378,7 +422,7 @@ func packModule(moduleLoc dir.IModule, module *mta.Module, moduleName, platform,
 	if err != nil {
 		return errors.Wrapf(err, packFailedOnBuildArtifactMsg, moduleName)
 	}
-	targetArtifact, toArchive, err := buildops.GetModuleTargetArtifactPath(moduleLoc, false, module, defaultBuildResult)
+	targetArtifact, toArchive, err := buildops.GetModuleTargetArtifactPath(moduleLoc, false, module, defaultBuildResult, true)
 	if err != nil {
 		return errors.Wrapf(err, packFailedOnTargetArtifactMsg, moduleName)
 	}

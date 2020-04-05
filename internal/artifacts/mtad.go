@@ -65,6 +65,11 @@ func genMtad(mtaStr *mta.MTA, ep dir.ITargetArtifacts, targetPathGetter dir.ITar
 	logs.Logger.Info(fmt.Sprintf(genMTADMsg, ep.GetMtadPath()))
 
 	if !deploymentDesc {
+
+		removeUndeployedModules(mtaStr, platform)
+
+		setPlatformSpecificParameters(mtaStr, platform)
+
 		err := removeBuildParamsFromMta(targetPathGetter, mtaStr, validatePaths)
 		if err != nil {
 			return err

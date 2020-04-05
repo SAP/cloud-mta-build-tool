@@ -45,14 +45,14 @@ type entry struct {
 
 // setManifestDesc - Set the MANIFEST.MF file
 func setManifestDesc(source dir.IModule, ep dir.ITargetArtifacts, targetPathGetter dir.ITargetPath, depDesc bool, mtaStr []*mta.Module,
-	mtaResources []*mta.Resource) error {
+	mtaResources []*mta.Resource, platform string) error {
 
 	contentTypes, err := conttype.GetContentTypes()
 	if err != nil {
 		return errors.Wrap(err, contentTypeCfgMsg)
 	}
 
-	entries, err := getModulesEntries(source, targetPathGetter, depDesc, mtaStr, contentTypes)
+	entries, err := getModulesEntries(source, targetPathGetter, depDesc, mtaStr, contentTypes, platform)
 	if err != nil {
 		return err
 	}
@@ -118,16 +118,16 @@ func addModuleEntry(entries []entry, module *mta.Module, contentType, modulePath
 }
 
 func getModulesEntries(source dir.IModule, targetPathGetter dir.ITargetPath, depDesc bool, moduleList []*mta.Module,
-	contentTypes *conttype.ContentTypes) ([]entry, error) {
+	contentTypes *conttype.ContentTypes, platform string) ([]entry, error) {
 
 	var entries []entry
 	for _, mod := range moduleList {
-		if !buildops.IfNoSource(mod) {
+		if !buildops.IfNoSource(mod) && buildops.PlatformDefined(mod, platform){
 			_, defaultBuildResult, err := commands.CommandProvider(*mod)
 			if err != nil {
 				return nil, err
 			}
-			modulePath, _, err := buildops.GetModuleTargetArtifactPath(source, depDesc, mod, defaultBuildResult)
+			modulePath, _, err := buildops.GetModuleTargetArtifactPath(source, depDesc, mod, defaultBuildResult, true)
 			if modulePath != "" && err == nil {
 				_, err = os.Stat(modulePath)
 			}

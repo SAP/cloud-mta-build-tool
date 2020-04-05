@@ -166,18 +166,18 @@ var _ = Describe("BuildParams", func() {
 var _ = Describe("GetModuleTargetArtifactPath", func() {
 	It("path is empty", func() {
 		loc := dir.Loc{}
-		path, _, err := GetModuleTargetArtifactPath(&loc, false, &mta.Module{}, "")
+		path, _, err := GetModuleTargetArtifactPath(&loc, false, &mta.Module{}, "", true)
 		Ω(err).Should(Succeed())
 		Ω(path).Should(BeEmpty())
 	})
 	It("fails when path doesn't exist", func() {
 		loc := dir.Loc{SourcePath: getTestPath("mtahtml5"), TargetPath: getTestPath("result")}
-		_, _, err := GetModuleTargetArtifactPath(&loc, false, &mta.Module{Path: "abc"}, "")
+		_, _, err := GetModuleTargetArtifactPath(&loc, false, &mta.Module{Path: "abc"}, "", true)
 		Ω(err).Should(HaveOccurred())
 	})
 	It("deployment descriptor", func() {
 		loc := dir.Loc{SourcePath: getTestPath("mtahtml5"), TargetPath: getTestPath("result")}
-		path, _, err := GetModuleTargetArtifactPath(&loc, true, &mta.Module{Path: "abc"}, "")
+		path, _, err := GetModuleTargetArtifactPath(&loc, true, &mta.Module{Path: "abc"}, "", true)
 		Ω(err).Should(Succeed())
 		Ω(path).Should(Equal(getTestPath("result", ".mtahtml5_mta_build_tmp", "abc")))
 	})
@@ -190,7 +190,7 @@ var _ = Describe("GetModuleTargetArtifactPath", func() {
 				buildResultParam: 1,
 			},
 		}
-		_, _, err := GetModuleTargetArtifactPath(&loc, false, module, "")
+		_, _, err := GetModuleTargetArtifactPath(&loc, false, module, "", true)
 		Ω(err).Should(HaveOccurred())
 		Ω(err.Error()).Should(ContainSubstring(fmt.Sprintf(WrongBuildResultMsg, 1, "web")))
 	})
@@ -203,7 +203,7 @@ var _ = Describe("GetModuleTargetArtifactPath", func() {
 				buildArtifactNameParam: 1,
 			},
 		}
-		_, _, err := GetModuleTargetArtifactPath(&loc, false, module, "")
+		_, _, err := GetModuleTargetArtifactPath(&loc, false, module, "", true)
 		Ω(err).Should(HaveOccurred())
 		Ω(err.Error()).Should(ContainSubstring(fmt.Sprintf(WrongBuildArtifactNameMsg, 1, "web")))
 	})
@@ -216,7 +216,7 @@ var _ = Describe("GetModuleTargetArtifactPath", func() {
 				buildArtifactNameParam: "test",
 			},
 		}
-		path, toArchive, err := GetModuleTargetArtifactPath(&loc, false, module, "")
+		path, toArchive, err := GetModuleTargetArtifactPath(&loc, false, module, "", true)
 		Ω(err).Should(Succeed())
 		Ω(path).Should(Equal(getTestPath("result", ".mtahtml5_mta_build_tmp", "web", "test.zip")))
 		Ω(toArchive).Should(BeTrue())
@@ -230,7 +230,7 @@ var _ = Describe("GetModuleTargetArtifactPath", func() {
 				buildArtifactNameParam: "test",
 			},
 		}
-		path, toArchive, err := GetModuleTargetArtifactPath(&loc, false, module, "")
+		path, toArchive, err := GetModuleTargetArtifactPath(&loc, false, module, "", true)
 		Ω(err).Should(Succeed())
 		Ω(path).Should(Equal(getTestPath("result", ".mtahtml5_mta_build_tmp", "web", "test.zip")))
 		Ω(toArchive).Should(BeTrue())
@@ -245,7 +245,7 @@ var _ = Describe("GetModuleTargetArtifactPath", func() {
 				buildArtifactNameParam: "ctrl",
 			},
 		}
-		path, toArchive, err := GetModuleTargetArtifactPath(&loc, false, module, "")
+		path, toArchive, err := GetModuleTargetArtifactPath(&loc, false, module, "", true)
 		Ω(err).Should(Succeed())
 		Ω(path).Should(Equal(getTestPath("result", ".mtahtml5_mta_build_tmp", "web", "webapp", "controller", "ctrl.zip")))
 		Ω(toArchive).Should(BeTrue())
@@ -259,9 +259,21 @@ var _ = Describe("GetModuleTargetArtifactPath", func() {
 				buildArtifactNameParam: "test",
 			},
 		}
-		path, toArchive, err := GetModuleTargetArtifactPath(&loc, false, module, "")
+		path, toArchive, err := GetModuleTargetArtifactPath(&loc, false, module, "", true)
 		Ω(err).Should(Succeed())
 		Ω(path).Should(Equal(getTestPath("result", ".mtahtml5_mta_build_tmp", "web", "test.jar")))
+		Ω(toArchive).Should(BeFalse())
+	})
+	It("no build result resolving, path provided as pattern", func() {
+		loc := dir.Loc{SourcePath: getTestPath("mtahtml5"), TargetPath: getTestPath("result")}
+		moduleLoc := dir.ModuleLocation(&loc)
+		module := &mta.Module{
+			Name: "web",
+			Path: filepath.Join("testapp", "webapp", "*.jar"),
+		}
+		path, toArchive, err := GetModuleTargetArtifactPath(moduleLoc, false, module, "", false)
+		Ω(err).Should(Succeed())
+		Ω(path).Should(Equal(getTestPath("result", "*.jar")))
 		Ω(toArchive).Should(BeFalse())
 	})
 })
