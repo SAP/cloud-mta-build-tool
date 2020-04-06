@@ -62,7 +62,7 @@ func genMtad(mtaStr *mta.MTA, ep dir.ITargetArtifacts, targetPathGetter dir.ITar
 	platform string, validatePaths bool, packedModulePaths map[string]string,
 	marshal func(interface{}) (out []byte, err error)) error {
 
-	logs.Logger.Info(fmt.Sprintf(genMTADMsg, ep.GetMtadPath()))
+	logs.Logger.Info(fmt.Sprintf(genMTADMsg, filepath.Abs(ep.GetMtadPath())))
 
 	removeUndeployedModules(mtaStr, platform)
 
