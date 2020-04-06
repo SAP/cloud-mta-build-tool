@@ -64,6 +64,9 @@ func ExecuteSoloBuild(source, target string, extensions []string, modulesNames [
 		return err
 	}
 
+	// Fail-fast check on modules whose build results are resolved (not glob patterns),
+	// so we can give the error before building the modules.
+	// After the build we perform another check on the actual build result paths (including glob patterns)
 	err = checkResolvedBuildResultsConflicts(mtaObj, sourceDir, target, extensions, modulesNames, wdGetter)
 	if err != nil {
 		return wrapBuildError(err, modulesNames)
@@ -120,48 +123,39 @@ func ExecuteSoloBuild(source, target string, extensions []string, modulesNames [
 	return nil
 }
 
-// Fail-fast check on modules whose build results are resolved (not glob patterns),
-// so we can give the error before building the modules.
-// After the build we perform another check on the actual build result paths (including glob patterns)
 func checkResolvedBuildResultsConflicts(mtaObj *mta.MTA, source, target string, extensions []string, modulesNames []string, wdGetter func() (string, error)) error {
 
-	modulesToPack := make(map[string]bool)
 	resultPathModuleNameMap := make(map[string]string)
+
 	for _, moduleName := range modulesNames {
-		_, err := mtaObj.GetModuleByName(moduleName)
+
+		module, err := mtaObj.GetModuleByName(moduleName)
 		if err != nil {
 			return err
 		}
-		modulesToPack[moduleName] = true
-	}
-
-	for _, module := range mtaObj.Modules {
-
 		moduleLoc, err := getModuleLocation(source, target, module.Name, extensions, wdGetter)
 		if err != nil {
 			return err
 		}
 
-		if modulesToPack[module.Name] {
-			_, defaultBuildResult, err := commands.CommandProvider(*module)
-			if err != nil {
-				return err
-			}
-			targetArtifact, _, err := buildops.GetModuleTargetArtifactPath(moduleLoc, false, module, defaultBuildResult, false)
-			if err != nil {
-				return err
-			}
-
-			// we ignore glob patterns and only check actual paths here because the build results don't exist yet
-			if strings.ContainsAny(targetArtifact, "*?[]") {
-				continue
-			}
-			moduleName, pathInUse := resultPathModuleNameMap[targetArtifact]
-			if pathInUse {
-				return errors.Errorf(multiBuildWithPathsConflictMsg, module.Name, moduleName, moduleLoc.GetTarget(), filepath.Base(targetArtifact))
-			}
-			resultPathModuleNameMap[targetArtifact] = module.Name
+		_, defaultBuildResult, err := commands.CommandProvider(*module)
+		if err != nil {
+			return err
 		}
+		targetArtifact, _, err := buildops.GetModuleTargetArtifactPath(moduleLoc, false, module, defaultBuildResult, false)
+		if err != nil {
+			return err
+		}
+
+		// we ignore glob patterns and only check actual paths here because the build results don't exist yet
+		if strings.ContainsAny(targetArtifact, "*?[]") {
+			continue
+		}
+		moduleName, pathInUse := resultPathModuleNameMap[targetArtifact]
+		if pathInUse {
+			return errors.Errorf(multiBuildWithPathsConflictMsg, module.Name, moduleName, filepath.Dir(targetArtifact), filepath.Base(targetArtifact))
+		}
+		resultPathModuleNameMap[targetArtifact] = module.Name
 	}
 
 	return nil

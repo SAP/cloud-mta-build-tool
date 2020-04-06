@@ -62,7 +62,12 @@ func genMtad(mtaStr *mta.MTA, ep dir.ITargetArtifacts, targetPathGetter dir.ITar
 	platform string, validatePaths bool, packedModulePaths map[string]string,
 	marshal func(interface{}) (out []byte, err error)) error {
 
-	logs.Logger.Info(fmt.Sprintf(genMTADMsg, filepath.Abs(ep.GetMtadPath())))
+	mtadAbsPath, err := filepath.Abs(ep.GetMtadPath())
+	if err != nil {
+		return err
+	}
+
+	logs.Logger.Info(fmt.Sprintf(genMTADMsg, mtadAbsPath))
 
 	removeUndeployedModules(mtaStr, platform)
 
@@ -91,7 +96,7 @@ func genMtad(mtaStr *mta.MTA, ep dir.ITargetArtifacts, targetPathGetter dir.ITar
 
 	}
 
-	err := adjustSchemaVersion(mtaStr)
+	err = adjustSchemaVersion(mtaStr)
 	if err != nil {
 		return errors.Wrap(err, genMetaMTADMsg)
 	}
