@@ -17,3 +17,9 @@ modules:
      supported-platforms: [cf]
      build-result: "*.zip"
 
+ - name: ui5app3
+   type: html5
+   path: ui5app3
+   build-parameters:
+     supported-platforms: [cf]
+     build-result: "*.zip"

@@ -4,7 +4,6 @@ import (
 	"archive/zip"
 	"errors"
 	"fmt"
-	"github.com/onsi/gomega/types"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"os"
@@ -14,6 +13,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
+	"github.com/onsi/gomega/types"
 
 	"github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta-build-tool/internal/buildops"
@@ -140,16 +140,25 @@ builders:
 
 		})
 
-		It("modules m1 and m2 have conflicting build results detected on checkBuildResultsConflicts", func() {
-			err := ExecuteSoloBuild(getTestPath("mtaModelsBuild"), getResultPath(), nil, []string{"m1", "m2"}, true, false, "cf", os.Getwd)
+		It("modules m1 and m2 have conflicting build results detected on checkResolvedBuildResultsConflicts", func() {
+			err := ExecuteSoloBuild(getTestPath("mtaModelsBuild"), getResultPath(), nil, []string{"m1", "m2"}, true, false, "", os.Getwd)
 			Ω(err).Should(HaveOccurred())
 			Ω(err.Error()).Should(ContainSubstring(fmt.Sprintf(multiBuildWithPathsConflictMsg, "m2", "m1", getResultPath(), "data.zip")))
+			Ω(getTestPath("result", "test.zip")).ShouldNot(BeAnExistingFile())
 		})
 
-		It("modules ui5app1 and ui5app2 have conflicting build results not detected on checkBuildResultsConflicts (patterns build results)", func() {
+		It("modules ui5app1 and ui5app2 have conflicting build results not detected on checkResolvedBuildResultsConflicts (patterns build results)", func() {
 			err := ExecuteSoloBuild(getTestPath("mtaWithPatternBuildResults"), getResultPath(), nil, []string{"ui5app1", "ui5app2"}, true, false, "cf", os.Getwd)
 			Ω(err).Should(HaveOccurred())
 			Ω(err.Error()).Should(ContainSubstring(fmt.Sprintf(multiBuildWithPathsConflictMsg, "ui5app1", "ui5app2", getResultPath(), "test.zip")))
+			Ω(getTestPath("result", "test.zip")).Should(BeAnExistingFile())
+		})
+
+		It("modules ui5app1 and ui5app3 have no conflicting build results because different file names detected by globs", func() {
+			err := ExecuteSoloBuild(getTestPath("mtaWithPatternBuildResults"), getResultPath(), nil, []string{"ui5app1", "ui5app3"}, true, false, "cf", os.Getwd)
+			Ω(err).Should(Succeed())
+			Ω(getTestPath("result", "test.zip")).Should(BeAnExistingFile())
+			Ω(getTestPath("result", "test1.zip")).Should(BeAnExistingFile())
 		})
 
 		Describe("Sanity, with target path, without dependencies", func() {
@@ -858,10 +867,10 @@ module-types:
 		})
 	})
 
-	Describe("checkBuildResultsConflicts", func() {
+	Describe("checkResolvedBuildResultsConflicts", func() {
 		DescribeTable("conflicting and none conflicting cases", func(target string, modules []string, result func() types.GomegaMatcher) {
 			mtaObj := getMtaObj("mtahtml5", "mta.yaml")
-			Ω(checkBuildResultsConflicts(mtaObj, getTestPath("mtahtml5"), target, nil, modules, os.Getwd)).Should(result())
+			Ω(checkResolvedBuildResultsConflicts(mtaObj, getTestPath("mtahtml5"), target, nil, modules, os.Getwd)).Should(result())
 		},
 			Entry("one module, no conflicts", getTestPath("result"), []string{"ui5app"}, Succeed),
 			Entry("2 none conflicting modules, because target not provided and modules results are in different sub folders", "", []string{"ui5app", "ui5app2"}, Succeed),
@@ -870,17 +879,17 @@ module-types:
 
 		It("fails on location initialization", func() {
 			mtaObj := getMtaObj("mtahtml5", "mta.yaml")
-			Ω(checkBuildResultsConflicts(mtaObj, getTestPath("mtahtml5"), "", nil, []string{"ui5app"}, failingGetWd)).Should(HaveOccurred())
+			Ω(checkResolvedBuildResultsConflicts(mtaObj, getTestPath("mtahtml5"), "", nil, []string{"ui5app"}, failingGetWd)).Should(HaveOccurred())
 		})
 
 		It("skips check of module with pattern build result", func() {
 			mtaObj := getMtaObj("mtaWithPatternBuildResults", "mta.yaml")
-			Ω(checkBuildResultsConflicts(mtaObj, getTestPath("mtahtml5"), getResultPath(), nil, []string{"ui5app1", "ui5app2"}, os.Getwd)).Should(Succeed())
+			Ω(checkResolvedBuildResultsConflicts(mtaObj, getTestPath("mtahtml5"), getResultPath(), nil, []string{"ui5app1", "ui5app2"}, os.Getwd)).Should(Succeed())
 		})
 
 		DescribeTable("fails on the mta yaml problems", func(filename string) {
 			mtaObj := getMtaObj("mtahtml5", filename)
-			Ω(checkBuildResultsConflicts(mtaObj, getTestPath("mtahtml5"), getTestPath("result"), nil, []string{"ui5app"}, os.Getwd)).Should(HaveOccurred())
+			Ω(checkResolvedBuildResultsConflicts(mtaObj, getTestPath("mtahtml5"), getTestPath("result"), nil, []string{"ui5app"}, os.Getwd)).Should(HaveOccurred())
 		},
 			Entry("unknown builder", "mtaWithUnknownBuilder.yaml"),
 			Entry("wrong definition of the build result property", "mtaWithWrongBuildResult.yaml"))

@@ -64,7 +64,7 @@ func ExecuteSoloBuild(source, target string, extensions []string, modulesNames [
 		return err
 	}
 
-	err = checkBuildResultsConflicts(mtaObj, sourceDir, target, extensions, modulesNames, wdGetter)
+	err = checkResolvedBuildResultsConflicts(mtaObj, sourceDir, target, extensions, modulesNames, wdGetter)
 	if err != nil {
 		return wrapBuildError(err, modulesNames)
 	}
@@ -120,7 +120,10 @@ func ExecuteSoloBuild(source, target string, extensions []string, modulesNames [
 	return nil
 }
 
-func checkBuildResultsConflicts(mtaObj *mta.MTA, source, target string, extensions []string, modulesNames []string, wdGetter func() (string, error)) error {
+// Fail-fast check on modules whose build results are resolved (not glob patterns),
+// so we can give the error before building the modules.
+// After the build we perform another check on the actual build result paths (including glob patterns)
+func checkResolvedBuildResultsConflicts(mtaObj *mta.MTA, source, target string, extensions []string, modulesNames []string, wdGetter func() (string, error)) error {
 
 	modulesToPack := make(map[string]bool)
 	resultPathModuleNameMap := make(map[string]string)
@@ -148,6 +151,8 @@ func checkBuildResultsConflicts(mtaObj *mta.MTA, source, target string, extensio
 			if err != nil {
 				return err
 			}
+
+			// we ignore glob patterns and only check actual paths here because the build results don't exist yet
 			if strings.ContainsAny(targetArtifact, "*?[]") {
 				continue
 			}
