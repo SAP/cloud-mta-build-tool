@@ -1,0 +1,25 @@
+ID: mtahtml5
+_schema-version: '2.1'
+version: 0.0.1
+
+modules:
+ - name: ui5app1
+   type: html5
+   path: ui5app1
+   build-parameters:
+      supported-platforms: [cf]
+      build-result: "*.zip"
+
+ - name: ui5app2
+   type: html5
+   path: ui5app2
+   build-parameters:
+     supported-platforms: [cf]
+     build-result: "*.zip"
+
+ - name: ui5app3
+   type: html5
+   path: ui5app3
+   build-parameters:
+     supported-platforms: [cf]
+     build-result: "*.zip"

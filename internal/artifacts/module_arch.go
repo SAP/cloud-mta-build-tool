@@ -64,6 +64,14 @@ func ExecuteSoloBuild(source, target string, extensions []string, modulesNames [
 		return err
 	}
 
+	// Fail-fast check on modules whose build results are resolved (not glob patterns),
+	// so we can give the error before building the modules.
+	// After the build we perform another check on the actual build result paths (including glob patterns)
+	err = checkResolvedBuildResultsConflicts(mtaObj, sourceDir, target, extensions, modulesNames, wdGetter)
+	if err != nil {
+		return wrapBuildError(err, modulesNames)
+	}
+
 	allModulesSorted, err := buildops.GetModulesNames(mtaObj)
 	if err != nil {
 		return wrapBuildError(err, modulesNames)
@@ -110,6 +118,44 @@ func ExecuteSoloBuild(source, target string, extensions []string, modulesNames [
 
 	if len(modulesNames) > 1 {
 		logs.Logger.Infof(multiBuildFinishedMsg)
+	}
+
+	return nil
+}
+
+func checkResolvedBuildResultsConflicts(mtaObj *mta.MTA, source, target string, extensions []string, modulesNames []string, wdGetter func() (string, error)) error {
+
+	resultPathModuleNameMap := make(map[string]string)
+
+	for _, moduleName := range modulesNames {
+
+		module, err := mtaObj.GetModuleByName(moduleName)
+		if err != nil {
+			return err
+		}
+		moduleLoc, err := getModuleLocation(source, target, module.Name, extensions, wdGetter)
+		if err != nil {
+			return err
+		}
+
+		_, defaultBuildResult, err := commands.CommandProvider(*module)
+		if err != nil {
+			return err
+		}
+		targetArtifact, _, err := buildops.GetModuleTargetArtifactPath(moduleLoc, false, module, defaultBuildResult, false)
+		if err != nil {
+			return err
+		}
+
+		// we ignore glob patterns and only check actual paths here because the build results don't exist yet
+		if strings.ContainsAny(targetArtifact, "*?[]") {
+			continue
+		}
+		moduleName, pathInUse := resultPathModuleNameMap[targetArtifact]
+		if pathInUse {
+			return errors.Errorf(multiBuildWithPathsConflictMsg, module.Name, moduleName, filepath.Dir(targetArtifact), filepath.Base(targetArtifact))
+		}
+		resultPathModuleNameMap[targetArtifact] = module.Name
 	}
 
 	return nil
@@ -361,8 +407,8 @@ func buildModule(mtaParser dir.IMtaParser, moduleLoc dir.IModule, moduleName, pl
 }
 
 // packModule - pack build module artifacts
-func packModule(moduleLoc dir.IModule, module *mta.Module, moduleName, platform,
-	defaultBuildResult string, checkPlatform bool, buildResults map[string]string) error {
+func packModule(moduleLoc dir.IModule, module *mta.Module, moduleName, platform, defaultBuildResult string,
+	checkPlatform bool, buildResults map[string]string) error {
 
 	if checkPlatform && !buildops.PlatformDefined(module, platform) {
 		return nil
@@ -374,7 +420,7 @@ func packModule(moduleLoc dir.IModule, module *mta.Module, moduleName, platform,
 	if err != nil {
 		return errors.Wrapf(err, packFailedOnBuildArtifactMsg, moduleName)
 	}
-	targetArtifact, toArchive, err := buildops.GetModuleTargetArtifactPath(moduleLoc, false, module, defaultBuildResult)
+	targetArtifact, toArchive, err := buildops.GetModuleTargetArtifactPath(moduleLoc, false, module, defaultBuildResult, true)
 	if err != nil {
 		return errors.Wrapf(err, packFailedOnTargetArtifactMsg, moduleName)
 	}

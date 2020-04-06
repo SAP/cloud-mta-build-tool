@@ -50,10 +50,6 @@ func generateMeta(loc *dir.Loc, targetArtifacts dir.ITargetArtifacts, deployment
 		return errors.Wrapf(err, genMetaMsg)
 	}
 
-	removeUndeployedModules(m, platform)
-
-	setPlatformSpecificParameters(m, platform)
-
 	// Generate meta info dir with required content
 	err = genMetaInfo(loc, targetArtifacts, loc, deploymentDescriptor, platform, m, createMetaInf, validatePaths)
 	return err
@@ -65,7 +61,7 @@ func genMetaInfo(source dir.IModule, ep dir.ITargetArtifacts, targetPathGetter d
 
 	if createMetaInf {
 		// Set the MANIFEST.MF file
-		err := setManifestDesc(source, ep, targetPathGetter, deploymentDesc, mtaStr.Modules, mtaStr.Resources)
+		err := setManifestDesc(source, ep, targetPathGetter, deploymentDesc, mtaStr.Modules, mtaStr.Resources, platform)
 		if err != nil {
 			return errors.Wrap(err, genMetaPopulatingMsg)
 		}
