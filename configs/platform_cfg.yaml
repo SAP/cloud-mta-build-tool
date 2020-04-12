@@ -20,12 +20,6 @@ platform:
   - native-type: nodejs
     platform-type: "javascript.nodejs"
 
-  - native-type: sitecontent
-    platform-type: "javascript.nodejs"
-
-  - native-type: hdb
-    platform-type: "com.sap.xs.hdi"
-
   - native-type: java
     platform-type: "java.tomee"
     properties:
@@ -33,9 +27,6 @@ platform:
 
   - native-type: java
     platform-type: "java.tomcat"
-
-  - native-type: dwf
-    platform-type: "com.sap.xs.dwf"
 
   - native-type: cds
     platform-type: "cds"
@@ -89,12 +80,6 @@ platform:
   - native-type: nodejs
     platform-type: "javascript.nodejs"
 
-  - native-type: sitecontent
-    platform-type: "javascript.nodejs"
-
-  - native-type: hdb
-    platform-type: "com.sap.xs.hdi"
-
   - native-type: java
     platform-type: "java.tomee"
     properties:
@@ -102,9 +87,6 @@ platform:
 
   - native-type: java
     platform-type: "java.tomcat"
-
-  - native-type: dwf
-    platform-type: "com.sap.xs.dwf"
 
   - native-type: cds
     platform-type: "cds"
