@@ -81,10 +81,15 @@ func genMtad(mtaStr *mta.MTA, ep dir.ITargetArtifacts, targetPathGetter dir.ITar
 		}
 		// adjust paths in case of partial modules build
 		if packedModulePaths != nil {
+
 			for _, module := range mtaStr.Modules {
 				modulePath, ok := packedModulePaths[module.Name]
 				if ok {
-					module.Path = modulePath
+					module.Path, err = filepath.Rel(filepath.Dir(ep.GetMtadPath()), modulePath)
+					if err != nil {
+						return err
+					}
+					module.Path = filepath.Clean(module.Path)
 				}
 			}
 		}

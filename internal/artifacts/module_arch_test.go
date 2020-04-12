@@ -103,7 +103,7 @@ builders:
 				Ω(err).Should(Succeed())
 				moduleM1, err := mtadObj.GetModuleByName("m1")
 				Ω(err).Should(Succeed())
-				Ω(moduleM1.Path).Should(Equal(getTestPath("result", "data.zip")))
+				Ω(moduleM1.Path).Should(Equal("data.zip"))
 				_, err = mtadObj.GetModuleByName("m3")
 				Ω(err).Should(HaveOccurred())
 			})
