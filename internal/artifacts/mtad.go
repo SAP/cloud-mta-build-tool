@@ -85,7 +85,12 @@ func genMtad(mtaStr *mta.MTA, ep dir.ITargetArtifacts, targetPathGetter dir.ITar
 			for _, module := range mtaStr.Modules {
 				modulePath, ok := packedModulePaths[module.Name]
 				if ok {
-					module.Path, err = filepath.Rel(filepath.Dir(ep.GetMtadPath()), modulePath)
+					mtadPath, err := filepath.Abs(ep.GetMtadPath())
+					if err != nil {
+						return err
+					}
+					resultRootPath := filepath.Dir(mtadPath)
+					module.Path, err = filepath.Rel(resultRootPath, modulePath)
 					if err != nil {
 						return err
 					}
