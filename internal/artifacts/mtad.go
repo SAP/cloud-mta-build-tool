@@ -89,7 +89,7 @@ func genMtad(mtaStr *mta.MTA, ep dir.ITargetArtifacts, targetPathGetter dir.ITar
 					if err != nil {
 						return err
 					}
-					module.Path = filepath.Clean(module.Path)
+					module.Path = filepath.ToSlash(module.Path)
 				}
 			}
 		}
