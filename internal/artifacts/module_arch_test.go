@@ -108,6 +108,21 @@ builders:
 				Ω(err).Should(HaveOccurred())
 			})
 
+			It("path in mtad.yaml refers to the temporary folder in the current folder when no target provided (current folder is provided by the mock function)", func() {
+				Ω(ExecuteSoloBuild(getTestPath("mtaModelsBuild"), "", []string{"mtaext.yaml"}, []string{"m1"}, true, true, "cf", func() (string, error) {
+					return getResultPath(), nil
+				})).Should(Succeed())
+				Ω(getTestPath("result", ".mtaModelsBuild_mta_build_tmp", "m1", "data.zip")).Should(BeAnExistingFile())
+				validateArchiveContents([]string{"test.txt", "test2.txt", "test2_copy.txt"}, getTestPath("result", ".mtaModelsBuild_mta_build_tmp", "m1", "data.zip"))
+				mtadContent, err := ioutil.ReadFile(getTestPath("result", "mtad.yaml"))
+				Ω(err).Should(Succeed())
+				mtadObj, err := mta.Unmarshal(mtadContent)
+				Ω(err).Should(Succeed())
+				moduleM1, err := mtadObj.GetModuleByName("m1")
+				Ω(err).Should(Succeed())
+				Ω(moduleM1.Path).Should(Equal(".mtaModelsBuild_mta_build_tmp/m1/data.zip"))
+			})
+
 			Describe("corrupted platform configuration", func() {
 
 				var platformConfig []byte
