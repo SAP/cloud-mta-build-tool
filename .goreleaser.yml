@@ -40,14 +40,5 @@ changelog:
     exclude:
       - '^docs:'
       - '^test:'
-sign:
-  cmd: gpg
-  args:
-    - --output
-    - $signature
-    - --detach-sig
-    - $artifact
-  signature: ${artifact}.sig
-  artifacts: none
 
 
