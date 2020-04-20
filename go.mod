@@ -6,7 +6,6 @@ require (
 	github.com/SAP/cloud-mta v0.0.8-0.20200203154158-01e44479d52a
 	github.com/deckarep/golang-set v1.7.1
 	github.com/hpcloud/tail v1.0.1-0.20180514194441-a1dbeea552b7 // indirect
-	github.com/joho/godotenv v1.3.0 // indirect
 	github.com/json-iterator/go v1.1.8 // indirect
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51
 	github.com/konsorten/go-windows-terminal-sequences v1.0.2 // indirect
@@ -33,5 +32,4 @@ require (
 	gopkg.in/fsnotify/fsnotify.v1 v1.4.7 // indirect
 	gopkg.in/yaml.v2 v2.2.8
 	gopkg.in/yaml.v3 v3.0.0-20191120175047-4206685974f2 // indirect
-	sigs.k8s.io/yaml v1.2.0
 )
