@@ -160,3 +160,79 @@ Alternatively, you can remove the property from your `xs-security.json` file.
 </li>
 
 </ul>
+
+#### Migration of SAP Web IDE Full-Stack Extensions
+
+If you have [custom extensions](https://help.sap.com/viewer/825270ffffe74d9f988a0f0066ad59f0/CF/en-US/cfa254005a63404d98b0820e302729cc.html) for SAP Web IDE Full-Stack and you need to re-build them using the Cloud MTA Build Tool, for example, as part of a new version release process, you should adjust the `mta.yaml` file of the extension MTA project following the steps specified in the comments below:
+
+
+```yaml
+
+_schema-version: "2.0.0"
+ID: sample
+version: 0.0.1
+
+modules:
+  - name: sample
+    type: html5
+    path: public
+    provides:
+      - name: sample   # 1. Change the name of the provided property set so that it is different from the module name.
+        public: true
+    build-parameters:
+      builder: npm
+      ignore: [".che/", ".npmrc"]
+      timeout: 15m
+      requires:
+        - name: sample-client
+          artifacts: ["dist/*"]
+          target-path: "client"
+  - name: sample-client
+    type: html5
+    path: client
+    build-parameters:
+      builder: npm  # 2. Change the builder type to 'custom'.
+      # 3. Add the following 2 lines:
+      # commands:
+      #   - npm install
+      timeout: 15m
+      supported-platforms: []
+      npm-opts:  # 4. Remove this line and the one below it.
+        execute: "install"
+
+```
+
+The final `mta.yaml` file should look like in the example below:
+
+```yaml
+
+_schema-version: "2.0.0"
+ID: sample
+version: 0.0.1
+
+modules:
+  - name: sample
+    type: html5
+    path: public
+    provides:
+      - name: sample-provides   
+        public: true
+    build-parameters:
+      builder: npm
+      ignore: [".che/", ".npmrc"]
+      timeout: 15m
+      requires:
+        - name: sample-client
+          artifacts: ["dist/*"]
+          target-path: "client"
+  - name: sample-client
+    type: html5
+    path: client
+    build-parameters:
+      builder: custom  
+      commands:
+         - npm install
+      timeout: 15m
+      supported-platforms: []
+
+```

@@ -93,7 +93,7 @@ Generates the `Makefile.mta` file according to the MTA descriptor (mta.yaml file
 | -----------  | -------       |  ----------                          |  -----------------------------
 | `-s (--source)`   | Optional  | The path to the MTA project; the current path is set as the default.                              | `mbt init -s=C:/TestProject`
 | `-t (--target)`   | Optional  | The path to the generated `Makefile` folder; the current path is set as the default.   | `mbt init -t=C:/TestFolder`
-| `-e (--extensions)`   | Optional  | The path or paths to multitarget application extension files (.mtaext). Several extension files separated by commas can be passed with a single flag, or each extension file can be specified with its own flag.    | `mbt build -e=test1.mtaext,test2.mtaext`<br>or<br>`mbt build -e=test1.mtaext -e=test2.mtaext`
+| `-e (--extensions)`   | Optional  | The path or paths to multitarget application extension files (.mtaext). Several extension files separated by commas can be passed with a single flag, or each extension file can be specified with its own flag.    | `mbt init -e=test1.mtaext,test2.mtaext`<br>or<br>`mbt init -e=test1.mtaext -e=test2.mtaext`
 
 
 
