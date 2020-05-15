@@ -343,6 +343,13 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#migration-of-sap-web-ide-full-stack-extensions" class="md-nav__link">
+    Migration of SAP Web IDE Full-Stack Extensions
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -536,6 +543,13 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#migration-of-sap-web-ide-full-stack-extensions" class="md-nav__link">
+    Migration of SAP Web IDE Full-Stack Extensions
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -686,6 +700,76 @@ resources:
 </li>
 
 </ul>
+
+<h4 id="migration-of-sap-web-ide-full-stack-extensions">Migration of SAP Web IDE Full-Stack Extensions</h4>
+<p>If you have <a href="https://help.sap.com/viewer/825270ffffe74d9f988a0f0066ad59f0/CF/en-US/cfa254005a63404d98b0820e302729cc.html">custom extensions</a> for SAP Web IDE Full-Stack and you need to re-build them using the Cloud MTA Build Tool, for example, as part of a new version release process, you should adjust the <code>mta.yaml</code> file of the extension MTA project following the steps specified in the comments below:</p>
+<pre><code class="yaml">
+_schema-version: &quot;2.0.0&quot;
+ID: sample
+version: 0.0.1
+
+modules:
+  - name: sample
+    type: html5
+    path: public
+    provides:
+      - name: sample   # 1. Change the name of the provided property set so that it is different from the module name.
+        public: true
+    build-parameters:
+      builder: npm
+      ignore: [&quot;.che/&quot;, &quot;.npmrc&quot;]
+      timeout: 15m
+      requires:
+        - name: sample-client
+          artifacts: [&quot;dist/*&quot;]
+          target-path: &quot;client&quot;
+  - name: sample-client
+    type: html5
+    path: client
+    build-parameters:
+      builder: npm  # 2. Change the builder type to 'custom'.
+      # 3. Add the following 2 lines:
+      # commands:
+      #   - npm install
+      timeout: 15m
+      supported-platforms: []
+      npm-opts:  # 4. Remove this line and the one below it.
+        execute: &quot;install&quot;
+
+</code></pre>
+
+<p>The final <code>mta.yaml</code> file should look like in the example below:</p>
+<pre><code class="yaml">
+_schema-version: &quot;2.0.0&quot;
+ID: sample
+version: 0.0.1
+
+modules:
+  - name: sample
+    type: html5
+    path: public
+    provides:
+      - name: sample-provides   
+        public: true
+    build-parameters:
+      builder: npm
+      ignore: [&quot;.che/&quot;, &quot;.npmrc&quot;]
+      timeout: 15m
+      requires:
+        - name: sample-client
+          artifacts: [&quot;dist/*&quot;]
+          target-path: &quot;client&quot;
+  - name: sample-client
+    type: html5
+    path: client
+    build-parameters:
+      builder: custom  
+      commands:
+         - npm install
+      timeout: 15m
+      supported-platforms: []
+
+</code></pre>
                 
                   
                 
