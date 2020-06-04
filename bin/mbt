@@ -1,0 +1,45 @@
+#!/usr/bin/env node
+var path = require("path");
+var spawn = require("child_process").spawn;
+var fs = require("fs");
+
+var os = process.env.BINWRAP_PLATFORM || process.platform;
+var arch = process.env.BINWRAP_ARCH || process.arch;
+
+var requested = os + "-" + arch;
+var current = process.platform + "-" + process.arch;
+if (requested !== current ) {
+  console.error("WARNING: Using binaries for the requested platform (" + requested + ") instead of for the actual platform (" + current + ").")
+}
+
+var binExt = "";
+if (os == "win32") {
+  binExt = ".exe";
+}
+
+var unpackedBinPath = path.join(__dirname, "..", "unpacked_bin");
+var binPath = path.join(unpackedBinPath, "mbt" + binExt);
+
+function execBin() {
+  spawn(
+    binPath,
+    process.argv.slice(2),
+    {stdio: 'inherit'}
+  ).on('exit', process.exit);
+}
+
+if (fs.existsSync(binPath)) {
+  execBin();
+} else {
+  console.error("INFO: Running " + path.basename(__filename) + " for the first time; downloading the actual binary");
+
+  var packageInfo = require(path.join(__dirname, "..", "package.json"));
+  var package = require(path.join(__dirname, "..", packageInfo.main));
+
+  package.install(unpackedBinPath, os, arch).then(function(result) {
+    execBin();
+  }, function(err) {
+    console.log("ERR", err);
+    process.exit(1);
+  });
+}

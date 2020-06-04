@@ -3,14 +3,12 @@
 
 The Cloud MTA Build Tool is a command-line tool that packages a multitarget application into a deployable archive (MTAR). For full documentation see [Cloud MTA build Tool](https://hub.docker.com/r/devxci/mbtci).
 
-
-This image can be used to build SAP Multitarget Applications (MTA) containing Java, Node.js, and Golang modules. The image is hosted at hub.docker.com.
+This image can be used to build SAP Multitarget Applications (MTA) containing Java, Node.js, and Golang modules and provided for CI env. 
+The image hosted at hub.docker.com.
 
 **<b>Note:</b> From MBT release `1.1` we will upgrade java base image from `jdk:8` to `jdk:11`.**
 
 ## How to use the image
-
-
 
 On a Linux/Darwin machine you can run:
 
@@ -20,6 +18,9 @@ docker run -it --rm -v "$(pwd)/[proj-releative-path]:/project" devxci/mbtci:late
 
 ```
 
+Note: For most cases, it's highly recommended to use the [alpine](https://hub.docker.com/r/devxci/mbtci-alpine) version, e.g. `docker pull devxci/mbtci-alpine` ,
+this version is more light-weight and should be used in `production` env.
+Using the `alpine` version gives the flexibility to add "per-scenario" the required set of tools. 
 
 This will build an mtar file for SAP Cloud Platform (Cloud Foundry). The folder containing the project needs to be mounted into the image at /project.
 
@@ -40,20 +41,19 @@ docker build -t devxci/mbtci .
 
 - Cloud MTA Build Tool - 1.0.14
 
-- Nodejs - 12.16.1
+- Nodejs - 12.18.0
 
 - SAP registry (@sap:registry https://npm.sap.com) contained in global node configuration.
 
 - Maven - 3.6.3
 
-- Golang - 1.14.1
+- Golang - 1.14.3
 
 - Java - 11
 
 
 
 The MTA Archive Builder delegates module builds to other native build tools. This image provides Node.js, Maven, Java, and Golang so the archive builder can delegate to these build technologies. In case other build tools are needed, <b>inherit</b> from this image and add more build tools.
-
 
 
 ### License
