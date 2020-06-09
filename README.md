@@ -18,7 +18,7 @@ docker run -it --rm -v "$(pwd)/[proj-releative-path]:/project" devxci/mbtci:late
 
 ```
 
-Note: For most cases, it's highly recommended to use the [alpine](https://hub.docker.com/r/devxci/mbtci-alpine) version, e.g. `docker pull devxci/mbtci-alpine` ,
+**Note:** For most cases, it's highly recommended to use the [alpine](https://hub.docker.com/r/devxci/mbtci-alpine) version, e.g. `docker pull devxci/mbtci-alpine` ,
 this version is more light-weight and should be used in `production` env.
 Using the `alpine` version gives the flexibility to add "per-scenario" the required set of tools. 
 
