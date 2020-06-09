@@ -3,7 +3,7 @@ FROM openjdk:11-jdk-slim
 # Build time variables
 ARG MTA_USER_HOME=/home/mta
 ARG MBT_VERSION=1.0.14
-ARG GO_VERSION=1.14.3
+ARG GO_VERSION=1.14.4
 ARG NODE_VERSION=v12.18.0
 ARG MAVEN_VERSION=3.6.3
 
@@ -37,7 +37,8 @@ RUN apt-get update && \
     # config NPM
     npm config set @sap:registry https://npm.sap.com --global && \
     echo "[INFO] installing maven." && \
-
+    # install ui5-cli temporay solution
+     npm install --prefix /usr/local/ -g @ui5/cli && \
 #     installing Golang
     curl -O https://storage.googleapis.com/golang/go${GO_VERSION}.linux-amd64.tar.gz && tar -xvf go${GO_VERSION}.linux-amd64.tar.gz && \
     mv go /usr/local && \
@@ -79,8 +80,6 @@ RUN apt-get update && \
 ENV PATH=$PATH:./node_modules/.bin HOME=${MTA_USER_HOME}
 WORKDIR /project
 USER mta
-
-
 
 
 
