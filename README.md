@@ -3,10 +3,12 @@
 
 The Cloud MTA Build Tool is a command-line tool that packages a multitarget application into a deployable archive (MTAR). For full documentation see [Cloud MTA build Tool](https://hub.docker.com/r/devxci/mbtci).
 
-This image can be used to build SAP Multitarget Applications (MTA) containing Java, Node.js, and Golang modules and provided for CI env. 
+This image can be used to build SAP Multitarget Applications (MTA) containing Java, Node.js, and Golang modules and **provided for CI env**. 
 The image hosted at hub.docker.com.
 
-**<b>Note:</b> From MBT release `1.1` we will upgrade java base image from `jdk:8` to `jdk:11`.**
+**Note:** For most cases, it's highly recommended to use the [alpine](https://hub.docker.com/r/devxci/mbtci-alpine) version, e.g. `docker pull devxci/mbtci-alpine` ,
+this version is more light-weight and should be used in `production` env.
+Using the `alpine` version gives the flexibility to add "per-scenario" the required set of tools. 
 
 ## How to use the image
 
@@ -17,11 +19,6 @@ On a Linux/Darwin machine you can run:
 docker run -it --rm -v "$(pwd)/[proj-releative-path]:/project" devxci/mbtci:latest mbt build -p=cf -t [target-folder-name]
 
 ```
-
-**Note:** For most cases, it's highly recommended to use the [alpine](https://hub.docker.com/r/devxci/mbtci-alpine) version, e.g. `docker pull devxci/mbtci-alpine` ,
-this version is more light-weight and should be used in `production` env.
-Using the `alpine` version gives the flexibility to add "per-scenario" the required set of tools. 
-
 This will build an mtar file for SAP Cloud Platform (Cloud Foundry). The folder containing the project needs to be mounted into the image at /project.
 
 
@@ -59,5 +56,5 @@ The MTA Archive Builder delegates module builds to other native build tools. Thi
 ### License
 
 
-Copyright (c) 2019 SAP SE or an SAP affiliate company. All rights reserved. This file is licensed under the Apache Software License, v. 2 except as noted otherwise in the LICENSE file.
+Copyright (c) 2020 SAP SE or an SAP affiliate company. All rights reserved. This file is licensed under the Apache Software License, v. 2 except as noted otherwise in the LICENSE file.
 Please note that Docker images can contain other software which may be licensed under different licenses. This License file is also included in the Docker image. For any usage of built Docker images please make sure to check the licenses of the artifacts contained in the images.
