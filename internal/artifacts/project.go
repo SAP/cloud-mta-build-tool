@@ -25,7 +25,7 @@ const (
 )
 
 // ExecBuild - Execute MTA project build
-func ExecBuild(makefileTmp, source, target string, extensions []string, mode, mtar, platform string, strict bool, jobs int, outputSync bool, wdGetter func() (string, error), wdExec func([][]string, bool) error, useDefaultMbt bool) error {
+func ExecBuild(makefileTmp, source, target string, extensions []string, mode, mtar, platform string, strict bool, jobs int, outputSync bool, wdGetter func() (string, error), wdExec func([][]string, bool) error, useDefaultMbt bool, keepMakefile bool) error {
 	message, err := version.GetVersionMessage()
 	if err == nil {
 		logs.Logger.Info(message)
@@ -41,9 +41,12 @@ func ExecBuild(makefileTmp, source, target string, extensions []string, mode, mt
 	err = wdExec([][]string{cmdParams}, false)
 
 	// Remove temporary Makefile
-	removeError := os.Remove(filepath.Join(source, filepath.FromSlash(makefileTmp)))
-	if removeError != nil {
-		removeError = errors.Wrapf(removeError, removeFailedMsg, makefileTmp)
+	var removeError error = nil
+	if !keepMakefile {
+		removeError = os.Remove(filepath.Join(source, filepath.FromSlash(makefileTmp)))
+		if removeError != nil {
+			removeError = errors.Wrapf(removeError, removeFailedMsg, makefileTmp)
+		}
 	}
 
 	if err != nil {

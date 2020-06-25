@@ -32,6 +32,7 @@ var buildCmdStrict bool
 var buildCmdMode string
 var buildCmdJobs int
 var buildCmdOutputSync bool
+var buildCmdKeepMakefile bool
 
 func init() {
 	// set flags for init command
@@ -52,6 +53,8 @@ func init() {
 	buildCmd.Flags().StringVarP(&buildCmdMode, "mode", "m", "", `(beta) If set to "verbose", Make can run build jobs simultaneously.`)
 	buildCmd.Flags().IntVarP(&buildCmdJobs, "jobs", "j", 0, fmt.Sprintf(`(beta) The number of Make jobs to be executed simultaneously. The default value is the number of available CPUs (maximum %d). Used only in "verbose" mode.`, artifacts.MaxMakeParallel))
 	buildCmd.Flags().BoolVarP(&buildCmdOutputSync, "output-sync", "o", false, `(beta) Groups the output of each Make job and prints it when the job is complete. Used only in "verbose" mode.`)
+	buildCmd.Flags().BoolVarP(&buildCmdKeepMakefile, "keep-makefile", "k", false, `Don't remove the generated Makefile after the build ends.`)
+	_ = buildCmd.Flags().MarkHidden("keep-makefile")
 	buildCmd.Flags().BoolP("help", "h", false, `Displays detailed information about the "build" command`)
 }
 
@@ -77,8 +80,12 @@ var buildCmd = &cobra.Command{
 		// Generate temp Makefile with unique id
 		makefileTmp := "Makefile_" + time.Now().Format("20060102150405") + ".mta"
 		// Generate build script
+		// We want to use the current mbt and not the default (globally installed) mbt from the path when running mbt build, to allow users to run mbt build without the need to set the path.
+		// This also supports using multiple versions of the mbt.
+		// However, in some environments we might want to always use the default mbt from the path. This can be set by using environment variable MBT_USE_DEFAULT.
+		useDefaultMbt := os.Getenv("MBT_USE_DEFAULT") == "true"
 		// Note: we can only use the non-default mbt (i.e. the current executable name) from inside the command itself because if this function runs from other places like tests it won't point to the MBT
-		err := artifacts.ExecBuild(makefileTmp, buildCmdSrc, buildCmdTrg, buildCmdExtensions, buildCmdMode, buildCmdMtar, buildCmdPlatform, buildCmdStrict, buildCmdJobs, buildCmdOutputSync, os.Getwd, exec.Execute, false)
+		err := artifacts.ExecBuild(makefileTmp, buildCmdSrc, buildCmdTrg, buildCmdExtensions, buildCmdMode, buildCmdMtar, buildCmdPlatform, buildCmdStrict, buildCmdJobs, buildCmdOutputSync, os.Getwd, exec.Execute, useDefaultMbt, buildCmdKeepMakefile)
 		return err
 	},
 	SilenceUsage: true,
