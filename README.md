@@ -38,7 +38,7 @@ docker build -t devxci/mbtci .
 
 - Cloud MTA Build Tool - 1.0.15
 
-- Nodejs - 12.18.0
+- Nodejs - 12.18.1
 
 - SAP registry (@sap:registry https://npm.sap.com) contained in global node configuration.
 

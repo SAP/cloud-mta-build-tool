@@ -34,6 +34,8 @@ cover.out
 coverage.txt
 page.html
 
+bin
+unpacked_bin
 internal/tpl/MakeFileTest
 internal/tpl/MakeFileTest.mta
 #Dockerfile
