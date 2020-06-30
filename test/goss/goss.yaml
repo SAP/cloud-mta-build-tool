@@ -48,8 +48,8 @@ command:
     exit-status: 0
     stdout:
       - https://registry.npmjs.org/
-#  cd ~ && npm install @sap/cds:
-#    exit-status: 0
-#    timeout: 50000
-#    stdout:
-#      - + @sap/cds@
+  cd ~ && npm install @sap/cds:
+    exit-status: 0
+    timeout: 50000
+    stdout:
+      - + @sap/cds@
