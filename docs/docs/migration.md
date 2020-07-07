@@ -92,6 +92,34 @@ If you used this builder for other module types, you can repace it with the `npm
 <b>If you try to build the project without the changes above, the build tool will identify this and will fail the build with the corresponding errors.</b>
 
 ---
+&nbsp;
+
+<li>
+
+The `hdb` module requires the `package.json` file in the module's folder. If your `hdb` module does not contain the file, you should manually create it with the following content:
+
+
+```json
+{
+    "name": "deploy",
+    "dependencies": {
+        "@sap/hdi-deploy": "^3"
+    },
+    "scripts": {
+        "start": "node node_modules/@sap/hdi-deploy/deploy.js"
+    }
+}
+```
+
+&nbsp;
+</li>
+
+
+---
+**NOTE:**
+<b>If you try to deploy an MTA archive generated without this change, the operation will fail.</b>
+
+---
 
 &nbsp;
 <li>
