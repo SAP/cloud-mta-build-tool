@@ -21,7 +21,7 @@ require (
 	github.com/spf13/cobra v0.0.7
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
-	github.com/spf13/viper v1.7.0
+	github.com/spf13/viper v1.7.1
 	github.com/x-cray/logrus-prefixed-formatter v0.5.2
 	golang.org/x/crypto v0.0.0-20191122220453-ac88ee75c92c // indirect
 	gopkg.in/fsnotify/fsnotify.v1 v1.4.7 // indirect
