@@ -44,6 +44,18 @@ jobs:
       - run: cf login -a $CF_API -o $ORG -s $SPACE -u $TECH_USER -p $TECH_PASS
       - run: cd integration &&  go test -tags=integration
 
+  compliance:
+    docker:
+      - image: circleci/python:3.6.4
+    working_directory: ~/workdir
+    steps:
+      - checkout
+      - run:
+          name: compliance check
+          command: |
+            pip3 install --user reuse
+            ~/.local/bin/reuse lint
+            
   release:
     docker:
       - image: circleci/golang:1.13.3
@@ -145,6 +157,10 @@ workflows:
           filters:
             branches:
               ignore: master
+      - compliance:
+          filters:
+            branches:
+              ignore: master
       - test:
           requires:
             - build
@@ -155,6 +171,10 @@ workflows:
   on_merge_build_test:
     jobs:
       - build:
+          filters:
+            branches:
+              only: master
+      - compliance:
           filters:
             branches:
               only: master

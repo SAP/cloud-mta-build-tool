@@ -9,8 +9,6 @@
 [![Coverage Status](https://coveralls.io/repos/github/SAP/cloud-mta-build-tool/badge.svg?branch=cover)](https://coveralls.io/github/SAP/cloud-mta-build-tool?branch=cover)
 ![Beta](https://img.shields.io/badge/version-v1-green)
 [![GitHub stars](https://img.shields.io/badge/contributions-welcome-orange.svg)](docs/docs/process.md)
-![GitHub license](https://img.shields.io/badge/license-Apache_2.0-blue.svg)
-
 
 
 
@@ -45,9 +43,3 @@ If you want to contribute, follow [the guidelines](docs/docs/process.md).
 ## Support
 
 Please follow our [issue template](https://github.com/SAP/cloud-mta-build-tool/issues/new/choose) on how to report an issue.
-
- ## License
-
-Copyright (c) 2020 SAP SE or an SAP affiliate company. All rights reserved.
-
-This file is licensed under the Apache 2.0 License [except as noted otherwise in the LICENSE file](/LICENSE).
