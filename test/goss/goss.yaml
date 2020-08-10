@@ -27,7 +27,7 @@ command:
   mbt --version:
     exit-status: 0
     stdout:
-      - 1.0.15
+      - 1.0.16
   # verify installed MAVEN VERSION
   mvn --version:
     exit-status: 0
@@ -37,7 +37,7 @@ command:
   node --version:
     exit-status: 0
     stdout:
-      - v12.18.1
+      - v12.18.3
   # verify NPM @sap-scope registry configuration
   npm config get @sap:registry:
     exit-status: 0

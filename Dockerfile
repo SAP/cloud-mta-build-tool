@@ -2,9 +2,9 @@ FROM openjdk:11-jdk-slim
 
 # Build time variables
 ARG MTA_USER_HOME=/home/mta
-ARG MBT_VERSION=1.0.15
-ARG GO_VERSION=1.14.4
-ARG NODE_VERSION=v12.18.1
+ARG MBT_VERSION=1.0.16
+ARG GO_VERSION=1.14.7
+ARG NODE_VERSION=v12.18.3
 ARG MAVEN_VERSION=3.6.3
 
 ENV PYTHON /usr/bin/python2.7
@@ -28,7 +28,7 @@ RUN apt-get update && \
 
     # install node
     NODE_HOME=/opt/nodejs; mkdir -p ${NODE_HOME} && \
-    curl --fail --silent --output - "http://nodejs.org/dist/${NODE_VERSION}/node-${NODE_VERSION}-linux-x64.tar.gz" \
+    curl --fail --silent --output - "https://nodejs.org/dist/${NODE_VERSION}/node-${NODE_VERSION}-linux-x64.tar.gz" \
      | tar -xzv -f - -C "${NODE_HOME}" && \
     ln -s "${NODE_HOME}/node-${NODE_VERSION}-linux-x64/bin/node" /usr/local/bin/node && \
     ln -s "${NODE_HOME}/node-${NODE_VERSION}-linux-x64/bin/npm" /usr/local/bin/npm && \
