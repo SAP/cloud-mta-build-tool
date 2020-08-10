@@ -49,6 +49,9 @@ platform:
   - native-type: dwf
     platform-type: "com.sap.xs.dwf"
 
+  - native-type: com.sap.application.portal.content
+    platform-type: "com.sap.application.content"
+
 # Types for Neo platform
 - name: neo
   modules:
