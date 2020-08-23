@@ -4,5 +4,5 @@ Upstream-Contact: Shimi Tal <shimon.tal@sap.com>
 Source: https://github.com/SAP/cloud-mta-build-tool
 
 Files: *
-Copyright: 2018-2020 SAP SE or an SAP affiliate company and cloud-mta-build-tool contributors
+Copyright: 2019-2020 SAP SE or an SAP affiliate company and cloud-mta-build-tool contributors
 License: Apache-2.0
