@@ -51,7 +51,7 @@ jobs:
     steps:
       - add_ssh_keys:
           fingerprints:
-            - "34:86:26:17:59:ed:71:fa:b8:37:fc:d6:a4:68:af:0e"
+            - "c3:2b:e9:bb:d5:05:32:ab:df:ce:2b:c3:e5:f7:95:42"
       - checkout
       - run:
           name: install dependencies
@@ -88,8 +88,8 @@ jobs:
             sed  -i "/- Cloud MTA Build Tool -/s/${CURR_MBT_VERSION}/${MBT_VERSION}/" ./README.md
             sed  -i "s/- ${CURR_MBT_VERSION}/- ${MBT_VERSION}/" ./test/goss/goss.yaml
             git add ./Dockerfile ./README.md ./test/goss/goss.yaml
-            git config user.email "${MBT_REPO_USER_EMAIL}"
-            git config user.name "${MBT_REPO_USER}"
+            git config user.email "${CLOUD_MTA_BOT_EMAIL}"
+            git config user.name "${CLOUD_MTA_BOT_USER}"
             git commit -m "[skip ci] Bump version ${MBT_VERSION}"
             #Push commit directly to docker branch
             git push -q https://github.com/SAP/cloud-mta-build-tool.git docker
@@ -98,7 +98,7 @@ jobs:
           command: |
             #Make sure HEAD points to master
             git checkout master
-            export GITHUB_TOKEN=${GITHUB_TOKEN}
+            export GITHUB_TOKEN=${CLOUD_MTA_BOT_TOKEN}
             curl -sL https://git.io/goreleaser | bash
             
   publish:
