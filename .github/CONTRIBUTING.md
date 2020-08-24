@@ -40,7 +40,6 @@ request changes to it, or close it with an explanation.
 6. You can test the binary by using command `make` which will build the binary for each target OS.
 7. If you change some config file you should run `go generate` command, this will create equivalent byte content file. 
 8. Format your code with `go fmt` and run [linter](https://github.com/golang/lint) or better use `make tools` `make lint` on your changes.
-9. If you haven’t already, complete the CLA.
 
 
 ## Contribution Prerequisites
