@@ -34,8 +34,6 @@ RUN apt-get update && \
     ln -s "${NODE_HOME}/node-${NODE_VERSION}-linux-x64/bin/npm" /usr/local/bin/npm && \
     ln -s "${NODE_HOME}/node-${NODE_VERSION}-linux-x64/bin/npx" /usr/local/bin/ && \
     npm install --prefix /usr/local/ -g grunt-cli && \
-    # config NPM
-    npm config set @sap:registry https://npm.sap.com --global && \
     echo "[INFO] installing maven." && \
     # install ui5-cli temporay solution
      npm install --prefix /usr/local/ -g @ui5/cli && \
