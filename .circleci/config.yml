@@ -110,7 +110,7 @@ jobs:
           command: |
             #Make sure HEAD points to master
             git checkout master
-            export GITHUB_TOKEN=${CLOUD_MTA_BOT_TOKEN}
+            export GITHUB_TOKEN=${CLOUD_MTA_BOT_GITHUB_TOKEN}
             curl -sL https://git.io/goreleaser | bash
             
   publish:
@@ -129,7 +129,7 @@ jobs:
             git checkout master
             git fetch
             git rebase
-            echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > .npmrc
+            echo "//registry.npmjs.org/:_authToken=$CLOUD_MTA_BOT_NPM_TOKEN" > .npmrc
             npm install
             npm publish
       - run:
