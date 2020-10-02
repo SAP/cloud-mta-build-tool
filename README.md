@@ -40,8 +40,6 @@ docker build -t devxci/mbtci .
 
 - Nodejs - 12.18.3
 
-- SAP registry (@sap:registry https://npm.sap.com) contained in global node configuration.
-
 - Maven - 3.6.3
 
 - Golang - 1.14.7
