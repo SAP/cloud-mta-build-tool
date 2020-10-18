@@ -185,9 +185,9 @@ jobs:
           name: push docker image
           command: |
             if [ "${CIRCLE_BRANCH}" == "docker" ]; then
-	      echo "$CLOUD_MTA_BOT_GITHUB_TOKEN" | docker login docker.pkg.github.com -u CloudMTABot --password-stdin
-	      docker tag mbtci docker.pkg.github.com/sap/cloud-mta-build-tool/mbtci:latest
-	      docker push docker.pkg.github.com/sap/cloud-mta-build-tool/mbtci:latest
+              echo "$CLOUD_MTA_BOT_GITHUB_TOKEN" | docker login docker.pkg.github.com -u CloudMTABot --password-stdin
+              docker tag mbtci docker.pkg.github.com/sap/cloud-mta-build-tool/mbtci:latest
+              docker push docker.pkg.github.com/sap/cloud-mta-build-tool/mbtci:latest
             fi
 
   ghpages:
