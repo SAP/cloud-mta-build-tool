@@ -146,7 +146,9 @@ jobs:
       - setup_remote_docker
       - run:
           name: checkout docker branch
-          command: git checkout docker
+          command: |
+            MBT_VERSION=$(cat ./VERSION)
+            git checkout docker
       - run:
           name: install dependencies
           command: |
@@ -186,8 +188,8 @@ jobs:
           command: |
             if [ "${CIRCLE_BRANCH}" == "docker" ]; then
               echo "$CLOUD_MTA_BOT_GITHUB_TOKEN" | docker login docker.pkg.github.com -u CloudMTABot --password-stdin
-              docker tag mbtci docker.pkg.github.com/sap/cloud-mta-build-tool/mbtci:latest
-              docker push docker.pkg.github.com/sap/cloud-mta-build-tool/mbtci:latest
+              docker tag mbtci docker.pkg.github.com/sap/cloud-mta-build-tool/mbtci:$MBT_VERSION
+              docker push docker.pkg.github.com/sap/cloud-mta-build-tool/mbtci:$MBT_VERSION
             fi
 
   ghpages:
