@@ -156,29 +156,10 @@ jobs:
               py-pip=9.0.0-r1
             pip install \
               docker-compose==1.12.0
-      - restore_cache:
-          keys:
-            - v1-{{ .Branch }}
-          paths:
-            - /caches/cloud-mta-build-tool.tar
-      - run:
-          name: load docker image layer cache
-          command: |
-            set +o pipefail
-            docker load -i /caches/mbtci | true
       - run:
           name: build docker image
           command: |
-            docker build --cache-from=mbtci -t mbtci .
-      - run:
-          name: save docker image layer cache
-          command: |
-            mkdir -p /caches
-            docker save -o /caches/mbtci.tar mbtci
-      - save_cache:
-          key: v1-{{ .Branch }}-{{ epoch }}
-          paths:
-            - /caches/mbtci.tar
+            docker build -t mbtci .
       - run:
           name: run docker tests
           command: |
@@ -186,11 +167,9 @@ jobs:
       - run:
           name: push docker image
           command: |
-            if [ "${CIRCLE_BRANCH}" == "docker" ]; then
-              echo "$CLOUD_MTA_BOT_GITHUB_TOKEN" | docker login docker.pkg.github.com -u CloudMTABot --password-stdin
-              docker tag mbtci docker.pkg.github.com/sap/cloud-mta-build-tool/mbtci:$MBT_VERSION
-              docker push docker.pkg.github.com/sap/cloud-mta-build-tool/mbtci:$MBT_VERSION
-            fi
+            echo "$CLOUD_MTA_BOT_GITHUB_TOKEN" | docker login docker.pkg.github.com -u CloudMTABot --password-stdin
+            docker tag mbtci docker.pkg.github.com/sap/cloud-mta-build-tool/mbtci:$MBT_VERSION
+            docker push docker.pkg.github.com/sap/cloud-mta-build-tool/mbtci:$MBT_VERSION
 
   ghpages:
     docker:
@@ -288,3 +267,9 @@ workflows:
               only: /release/
             branches:
               ignore: /.*/
+  on_merge_docker:
+    jobs:
+      - image:
+          filters:
+            branches:
+              only: docker
