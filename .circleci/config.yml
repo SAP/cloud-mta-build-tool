@@ -147,8 +147,6 @@ jobs:
       - run:
           name: checkout docker branch
           command: |
-            MBT_VERSION=$(cat ./VERSION)
-            git checkout docker
       - run:
           name: install dependencies
           command: |
@@ -157,18 +155,15 @@ jobs:
             pip install \
               docker-compose==1.12.0
       - run:
-          name: build docker image
+          name: release image
           command: |
-            docker build -t mbtci .
-      - run:
-          name: run docker tests
-          command: |
+            MBT_VERSION=$(cat ./VERSION)
+            echo "Image release: ${MBT_VERSION}"
+            git checkout docker
+            docker build -t mbtci:${MBT_VERSION} .
             docker-compose -f ./docker-compose.test.yml up
-      - run:
-          name: push docker image
-          command: |
-            echo "$CLOUD_MTA_BOT_GITHUB_TOKEN" | docker login docker.pkg.github.com -u CloudMTABot --password-stdin
-            docker tag mbtci docker.pkg.github.com/sap/cloud-mta-build-tool/mbtci:$MBT_VERSION
+            docker login docker.pkg.github.com -u CloudMTABot -p ${CLOUD_MTA_BOT_GITHUB_TOKEN}
+            docker tag mbtci:${MBT_VERSION} docker.pkg.github.com/sap/cloud-mta-build-tool/mbtci:$MBT_VERSION
             docker push docker.pkg.github.com/sap/cloud-mta-build-tool/mbtci:$MBT_VERSION
 
   ghpages:
@@ -267,9 +262,3 @@ workflows:
               only: /release/
             branches:
               ignore: /.*/
-  on_merge_docker:
-    jobs:
-      - image:
-          filters:
-            branches:
-              only: docker
