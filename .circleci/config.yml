@@ -264,7 +264,7 @@ workflows:
               ignore: /.*/
       - publish:
           requires:
-            - release
+            - image
           filters:  # job runs on tag 'release' for no branches
             tags:
               only: /release/
