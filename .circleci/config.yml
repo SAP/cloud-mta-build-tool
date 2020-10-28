@@ -47,7 +47,7 @@ jobs:
   compliance:
     docker:
       - image: circleci/python:3.6.4
-    working_directory: ~/workdir
+    working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
     steps:
       - checkout
       - run:
@@ -97,9 +97,10 @@ jobs:
             #Update new version in docker branch
             git checkout docker
             sed  -i "/ARG MBT_VERSION=/ s/${CURR_MBT_VERSION}/${MBT_VERSION}/" ./Dockerfile
+            sed  -i "/ARG MBT_VERSION=/ s/${CURR_MBT_VERSION}/${MBT_VERSION}/" ./alpine/Dockerfile
             sed  -i "/- Cloud MTA Build Tool -/s/${CURR_MBT_VERSION}/${MBT_VERSION}/" ./README.md
             sed  -i "s/- ${CURR_MBT_VERSION}/- ${MBT_VERSION}/" ./test/goss/goss.yaml
-            git add ./Dockerfile ./README.md ./test/goss/goss.yaml
+            git add ./Dockerfile ./alpine/Dockerfile ./README.md ./test/goss/goss.yaml
             git config user.email "${CLOUD_MTA_BOT_EMAIL}"
             git config user.name "${CLOUD_MTA_BOT_USER}"
             git commit -m "[skip ci] Bump version ${MBT_VERSION}"
@@ -136,6 +137,50 @@ jobs:
           name: remove dummy release tag
           command: |
             git push https://github.com/SAP/cloud-mta-build-tool.git --delete release
+            
+  image:
+    docker:
+      - image: docker:17.05.0-ce-git
+    working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: install dependencies
+          command: |
+            apk add --no-cache \
+              py-pip=9.0.0-r1
+            pip install \
+              docker-compose==1.12.0
+      - run:
+          name: release image
+          command: |
+            MBT_VERSION=$(cat ./VERSION)
+            echo "Image release: ${MBT_VERSION}"
+            git checkout docker
+            echo "Release mbtci:latest"
+            docker build -t mbtci:latest .
+            docker-compose -f ./docker-compose.test.yml up
+            docker login docker.pkg.github.com -u CloudMTABot -p ${CLOUD_MTA_BOT_GITHUB_TOKEN}
+            docker tag mbtci:latest docker.pkg.github.com/sap/cloud-mta-build-tool/mbtci:latest
+            docker push docker.pkg.github.com/sap/cloud-mta-build-tool/mbtci:latest
+            echo "Release mbtci:${MBT_VERSION}"
+            docker build -t mbtci:${MBT_VERSION} .
+            docker-compose -f ./docker-compose.test.yml up
+            docker login docker.pkg.github.com -u CloudMTABot -p ${CLOUD_MTA_BOT_GITHUB_TOKEN}
+            docker tag mbtci:${MBT_VERSION} docker.pkg.github.com/sap/cloud-mta-build-tool/mbtci:$MBT_VERSION
+            docker push docker.pkg.github.com/sap/cloud-mta-build-tool/mbtci:$MBT_VERSION
+            docker build -t mbtci-alpine:latest .
+            docker-compose -f ./docker-compose.test.yml up
+            docker login docker.pkg.github.com -u CloudMTABot -p ${CLOUD_MTA_BOT_GITHUB_TOKEN}
+            docker tag mbtci-alpine:latest docker.pkg.github.com/sap/cloud-mta-build-tool/mbtci-alpine:latest
+            docker push docker.pkg.github.com/sap/cloud-mta-build-tool/mbtci-alpine:latest
+            echo "Release mbtci:${MBT_VERSION}"
+            docker build -t mbtci-alpine:${MBT_VERSION} .
+            docker-compose -f ./docker-compose.test.yml up
+            docker login docker.pkg.github.com -u CloudMTABot -p ${CLOUD_MTA_BOT_GITHUB_TOKEN}
+            docker tag mbtci-alpine:${MBT_VERSION} docker.pkg.github.com/sap/cloud-mta-build-tool/mbtci-alpine:$MBT_VERSION
+            docker push docker.pkg.github.com/sap/cloud-mta-build-tool/mbtci-alpine:$MBT_VERSION
 
   ghpages:
     docker:
@@ -218,6 +263,14 @@ workflows:
             branches:
               ignore: /.*/
       - publish:
+          requires:
+            - image
+          filters:  # job runs on tag 'release' for no branches
+            tags:
+              only: /release/
+            branches:
+              ignore: /.*/
+      - image:
           requires:
             - release
           filters:  # job runs on tag 'release' for no branches
