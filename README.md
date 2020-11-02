@@ -26,6 +26,12 @@ This will build an mtar file for SAP Cloud Platform (Cloud Foundry). The folder 
 
 <b>Note:</b> The parameter `-p=cf` can be omitted as the build for cloud foundry is the default build, this is an example of the MBT build parameters, for further commands see MBT docs.
 
+In a Dockerfile you can use as a base image:
+```
+
+FROM docker.pkg.github.com/sap/cloud-mta-build-tool/mbtci-alpine:latest
+
+```
 
 ## How to build the image
 
