@@ -158,26 +158,15 @@ jobs:
             MBT_VERSION=$(cat ./VERSION)
             echo "Image release: ${MBT_VERSION}"
             git checkout docker
-            echo "Release mbtci:latest"
-            docker build -t mbtci:latest .
-            docker-compose -f ./docker-compose.test.yml up
             docker login ghcr.io -u CloudMTABot -p ${CLOUD_MTA_BOT_GITHUB_TOKEN}
-            docker tag mbtci:latest ghcr.io/sap/cloud-mta-build-tool/mbtci:latest
-            docker push ghcr.io/sap/cloud-mta-build-tool/mbtci:latest
             echo "Release mbtci:${MBT_VERSION}"
             docker build -t mbtci:${MBT_VERSION} .
             docker-compose -f ./docker-compose.test.yml up
             docker tag mbtci:${MBT_VERSION} ghcr.io/sap/cloud-mta-build-tool/mbtci:$MBT_VERSION
             docker push ghcr.io/sap/cloud-mta-build-tool/mbtci:$MBT_VERSION
-            docker build -t mbtci-alpine:latest .
-            docker-compose -f ./docker-compose.test.yml up
-            docker login ghcr.io -u CloudMTABot -p ${CLOUD_MTA_BOT_GITHUB_TOKEN}
-            docker tag mbtci-alpine:latest ghcr.io/sap/cloud-mta-build-tool/mbtci-alpine:latest
-            docker push ghcr.io/sap/cloud-mta-build-tool/mbtci-alpine:latest
-            echo "Release mbtci:${MBT_VERSION}"
+            echo "Release mbtci-alpine:${MBT_VERSION}"
             docker build -t mbtci-alpine:${MBT_VERSION} .
             docker-compose -f ./docker-compose.test.yml up
-            docker login ghcr.io -u CloudMTABot -p ${CLOUD_MTA_BOT_GITHUB_TOKEN}
             docker tag mbtci-alpine:${MBT_VERSION} ghcr.io/sap/cloud-mta-build-tool/mbtci-alpine:$MBT_VERSION
             docker push ghcr.io/sap/cloud-mta-build-tool/mbtci-alpine:$MBT_VERSION
 
