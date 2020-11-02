@@ -12,6 +12,34 @@ this version is more light-weight and should be used in `production` env.
 Using the `alpine` version gives the flexibility to add "per-scenario" the required set of tools. 
 * The mbtci-alpine image is also hosted at [GitHub packages](https://github.com/SAP/cloud-mta-build-tool/packages/473756/versions).
 
+## How to pull the image
+
+From the command line:
+```
+
+$ docker pull devxci/mbtci-alpine:latest
+
+```
+or
+```
+
+$ docker pull docker.pkg.github.com/sap/cloud-mta-build-tool/mbtci-alpine:latest
+
+```
+
+From Dockerfile as a base image:
+```
+
+FROM devxci/mbtci-alpine:latest
+
+```
+or
+```
+
+FROM docker.pkg.github.com/sap/cloud-mta-build-tool/mbtci-alpine:latest
+
+```
+
 ## How to use the image
 
 On a Linux/Darwin machine you can run:
@@ -25,13 +53,6 @@ This will build an mtar file for SAP Cloud Platform (Cloud Foundry). The folder 
 
 
 <b>Note:</b> The parameter `-p=cf` can be omitted as the build for cloud foundry is the default build, this is an example of the MBT build parameters, for further commands see MBT docs.
-
-In a Dockerfile you can use as a base image:
-```
-
-FROM docker.pkg.github.com/sap/cloud-mta-build-tool/mbtci-alpine:latest
-
-```
 
 ## How to build the image
 
