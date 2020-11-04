@@ -23,7 +23,7 @@ $ docker pull devxci/mbtci-alpine:latest
 or
 ```
 
-$ docker pull docker.pkg.github.com/sap/cloud-mta-build-tool/mbtci-alpine:latest
+$ docker pull ghcr.io/sap/mbtci-alpine:latest
 
 ```
 
@@ -36,7 +36,7 @@ FROM devxci/mbtci-alpine:latest
 or
 ```
 
-FROM docker.pkg.github.com/sap/cloud-mta-build-tool/mbtci-alpine:latest
+FROM ghcr.io/sap/mbtci-alpine:latest
 
 ```
 
