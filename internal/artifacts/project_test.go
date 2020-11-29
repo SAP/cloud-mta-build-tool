@@ -36,7 +36,7 @@ var _ = Describe("Project", func() {
 		})
 		It("mta.yaml not found", func() {
 			err := ExecuteProjectBuild(getTestPath("mta1"), "", "dev", nil, "pre", os.Getwd)
-			checkError(err, dir.ReadFailedMsg, getTestPath("mta1", "mta.yaml"))
+			checkError(err, getTestPath("mta1", "mta.yaml"))
 		})
 		It("Sanity - custom builder", func() {
 			err := ExecuteProjectBuild(getTestPath("mta"), "", "dev", nil, "pre", os.Getwd)

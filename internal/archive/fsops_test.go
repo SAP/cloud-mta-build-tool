@@ -518,32 +518,6 @@ var _ = Describe("FSOPS", func() {
 			Should(HaveOccurred())
 	})
 
-	var _ = Describe("Read", func() {
-		It("Sanity", func() {
-			test := testMtaYamlStr{
-				fullpath: getFullPath("testdata", "testproject", "mta.yaml"),
-				path:     getFullPath("testdata", "testproject", "mta.yaml"),
-				err:      nil,
-			}
-			res, resErr := Read(&test)
-			Ω(res).ShouldNot(BeNil())
-			Ω(resErr).Should(BeNil())
-		})
-	})
-
-	var _ = Describe("ReadExt", func() {
-		It("Sanity", func() {
-			test := testMtaYamlStr{
-				fullpath: getFullPath("testdata", "testext", "mta.yaml"),
-				path:     getFullPath("testdata", "testext", "mta.yaml"),
-				err:      nil,
-			}
-			res, resErr := ReadExt(&test, "cf-mtaext.yaml")
-			Ω(res).ShouldNot(BeNil())
-			Ω(resErr).Should(BeNil())
-		})
-	})
-
 	var _ = DescribeTable("CloseFile", func(toFail bool, errorArg error, expectedErr error) {
 		testFile := testCloser{fail: toFail}
 		if expectedErr == nil {

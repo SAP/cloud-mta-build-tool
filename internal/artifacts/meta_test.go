@@ -52,7 +52,7 @@ var _ = Describe("Meta", func() {
 		})
 		It("generateMeta fails on wrong source path - parse mta fails", func() {
 			err := ExecuteGenMeta(getTestPath("mtahtml6"), getResultPath(), "dev", nil, "cf", os.Getwd)
-			checkError(err, dir.ReadFailedMsg, getTestPath("mtahtml6", "mta.yaml"))
+			checkError(err, getTestPath("mtahtml6", "mta.yaml"))
 		})
 	})
 
@@ -161,7 +161,7 @@ cli_version:["x"]
 			ep := dir.Loc{SourcePath: getTestPath("mtahtml5"), TargetPath: getResultPath(),
 				MtaFilename: "mtaNotExists.yaml"}
 			err := generateMeta(&ep, &ep, false, "cf", true, true)
-			checkError(err, dir.ReadFailedMsg, ep.GetMtaYamlPath())
+			checkError(err, ep.GetMtaYamlPath())
 		})
 
 		Describe("mocking platform", func() {
@@ -233,7 +233,7 @@ cli_version:["x"]
 		})
 		It("Fails when the mtaext file doesn't exist", func() {
 			err := ExecuteMerge(getTestPath("mta_with_ext"), getResultPath(), []string{"invalid.yaml"}, resultFileName, os.Getwd)
-			checkError(err, dir.ReadFailedMsg, getTestPath("mta_with_ext", "invalid.yaml"))
+			checkError(err, getTestPath("mta_with_ext", "invalid.yaml"))
 		})
 		It("Fails when wdGetter fails", func() {
 			err := ExecuteMerge("", getResultPath(), []string{"cf-mtaext.yaml"}, resultFileName, func() (string, error) {

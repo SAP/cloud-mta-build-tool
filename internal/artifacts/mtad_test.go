@@ -70,9 +70,7 @@ var _ = Describe("Mtad", func() {
 			Ω(dir.CreateDirIfNotExist(tmpDir)).Should(Succeed())
 			file, err := os.Create(metaPath)
 			Ω(err).Should(Succeed())
-			mtaBytes, err := dir.Read(&ep)
-			Ω(err).Should(Succeed())
-			mtaStr, err := mta.Unmarshal(mtaBytes)
+			mtaStr, err := ep.ParseFile()
 			Ω(err).Should(Succeed())
 			Ω(genMtad(mtaStr, &ep, &ep, ep.IsDeploymentDescriptor(), "cf", true, nil, yaml.Marshal)).Should(HaveOccurred())
 			Ω(file.Close()).Should(Succeed())
@@ -80,18 +78,14 @@ var _ = Describe("Mtad", func() {
 
 		It("Fails on mtad.yaml save because it's target folder does not exist", func() {
 			ep := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getTestPath("result")}
-			mtaBytes, err := dir.Read(&ep)
-			Ω(err).Should(Succeed())
-			mtaStr, err := mta.Unmarshal(mtaBytes)
+			mtaStr, err := ep.ParseFile()
 			Ω(err).Should(Succeed())
 			Ω(genMtad(mtaStr, &ep, &ep, ep.IsDeploymentDescriptor(), "cf", false, nil, yaml.Marshal)).Should(HaveOccurred())
 		})
 
 		It("Fails on mtad marshalling", func() {
 			ep := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getTestPath("result")}
-			mtaBytes, err := dir.Read(&ep)
-			Ω(err).Should(Succeed())
-			mtaStr, err := mta.Unmarshal(mtaBytes)
+			mtaStr, err := ep.ParseFile()
 			Ω(err).Should(Succeed())
 			Ω(genMtad(mtaStr, &ep, &ep, ep.IsDeploymentDescriptor(), "cf", false, nil, func(i interface{}) (out []byte, err error) {
 				return nil, errors.New("err")
@@ -99,9 +93,7 @@ var _ = Describe("Mtad", func() {
 		})
 		It("Fails on mtad schema version change", func() {
 			ep := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getTestPath("result"), MtaFilename: "mtaBadSchemaVersion.yaml"}
-			mtaBytes, err := dir.Read(&ep)
-			Ω(err).Should(Succeed())
-			mtaStr, err := mta.Unmarshal(mtaBytes)
+			mtaStr, err := ep.ParseFile()
 			Ω(err).Should(Succeed())
 			Ω(genMtad(mtaStr, &ep, &ep, ep.IsDeploymentDescriptor(), "cf", true, nil, yaml.Marshal)).Should(HaveOccurred())
 		})

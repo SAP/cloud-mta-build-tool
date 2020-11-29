@@ -22,21 +22,7 @@ const (
 	copyByPatternMsg    = `copying files matching the [%s,...] patterns from the "%s" folder to the "%s" folder`
 	skipSymbolicLinkMsg = `copying files from the "%s" folder to the "%s" folder: skipped the "%s" entry because it's a symbolic link`
 
-	// ReadFailedMsg - read failed message
-	ReadFailedMsg = `could not read the "%s" file`
-
 	folderCreatedMsg = `the "%s" folder has been created`
-
-	parseExtFileFailed = `the "%s" file is not a valid MTA extension descriptor`
-	// ParseMtaYamlFileFailedMsg - parse of mta yaml file failed
-	ParseMtaYamlFileFailedMsg = `the "%s" file is not a valid MTA descriptor`
-	extensionIDSameAsMtaIDMsg = `the "%s" extension descriptor file has the same ID ("%s") as the "%s" file`
-	duplicateExtensionIDMsg   = `more than 1 extension descriptor file ("%s", "%s", ...) has the same ID ("%s")`
-	duplicateExtendsMsg       = `more than 1 extension descriptor file ("%s", "%s", ...) extends the same ID ("%s")`
-	extendsMsg                = `the "%s" file extends "%s"`
-	unknownExtendsMsg         = `some MTA extension descriptors extend unknown IDs: %s`
-
-	versionMismatchMsg = `the "%s" schema version found in the MTA extension descriptor with ID "%s" does not match the "%s" schema version found in the MTA descriptor`
 
 	recursiveSymLinkMsg = `the "%s" symbolic path is recursive`
 	badSymLink          = `could not read the "%s" symbolic link`
