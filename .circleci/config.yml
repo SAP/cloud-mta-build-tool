@@ -73,6 +73,7 @@ jobs:
           name: bump version
           command: |
             #Make sure HEAD points to master
+            echo "Release processed by ${MBT_REPO_USER_EMAIL}/${MBT_REPO_USER}"
             git checkout master
             CURR_MBT_VERSION=$(cat ./VERSION)
             echo "Current release: ${CURR_MBT_VERSION}"
