@@ -29,13 +29,16 @@
 
 ###  Milestone 3 - (Q3 - Q4  - 2019) 
  
-  - [ ] Supports multi-schema.
   - [x] Supports the enhancing of schema validations.
   - [x] Supports the generation of an `mtad.yaml` file from an `mta.yaml` file.
+  - [x] Supports incremental builds; in other words, one module at a time.
+  
+  
+###  Milestone 4 - (Q4  - 2020) 
   - [ ] Supports parallel execution for the default `Makefile` file.
-  - [ ] Supports incremental builds; in other words, one module at a time.
+  
 
-###  Milestone 4 - (Q4 - 2019)
-
+###  Next steps
+ - [ ] Supports multi-schema.
  - [ ] Supports the extensibility framework.
  - [ ] Fully supports the advanced `mta.yaml` (3.1 > 3.2) schema.
