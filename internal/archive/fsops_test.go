@@ -22,24 +22,6 @@ func getFullPath(relPath ...string) string {
 	return filepath.Join(wd, filepath.Join(relPath...))
 }
 
-type testMtaYamlStr struct {
-	fullpath string
-	path     string
-	err      error
-}
-
-func (t *testMtaYamlStr) GetMtaYamlFilename() string {
-	return t.fullpath
-}
-
-func (t *testMtaYamlStr) GetMtaYamlPath() string {
-	return t.path
-}
-
-func (t *testMtaYamlStr) GetMtaExtYamlPath(platform string) string {
-	return t.fullpath
-}
-
 var _ = Describe("FSOPS", func() {
 
 	var _ = Describe("CreateDir", func() {
