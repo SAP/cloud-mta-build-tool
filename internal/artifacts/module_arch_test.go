@@ -729,7 +729,7 @@ module-types:
 		It("Without no deployment descriptor in the source directory", func() {
 			err := CopyMtaContent(source, source, nil, true, os.Getwd)
 			Ω(err).Should(HaveOccurred())
-			Ω(err.Error()).Should(ContainSubstring(fmt.Sprintf(dir.ReadFailedMsg, filepath.Join(source, "mtad.yaml"))))
+			Ω(err.Error()).Should(ContainSubstring(filepath.Join(source, "mtad.yaml")))
 		})
 		It("Location initialization fails", func() {
 			err := CopyMtaContent("", source, nil, false, failingGetWd)

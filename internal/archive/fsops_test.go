@@ -22,24 +22,6 @@ func getFullPath(relPath ...string) string {
 	return filepath.Join(wd, filepath.Join(relPath...))
 }
 
-type testMtaYamlStr struct {
-	fullpath string
-	path     string
-	err      error
-}
-
-func (t *testMtaYamlStr) GetMtaYamlFilename() string {
-	return t.fullpath
-}
-
-func (t *testMtaYamlStr) GetMtaYamlPath() string {
-	return t.path
-}
-
-func (t *testMtaYamlStr) GetMtaExtYamlPath(platform string) string {
-	return t.fullpath
-}
-
 var _ = Describe("FSOPS", func() {
 
 	var _ = Describe("CreateDir", func() {
@@ -516,32 +498,6 @@ var _ = Describe("FSOPS", func() {
 	It("changeTargetMode - fails if source does not exist", func() {
 		Ω(changeTargetMode(getPath("testdata", "not-exists"), getPath("testdata", "not-exists-2"))).
 			Should(HaveOccurred())
-	})
-
-	var _ = Describe("Read", func() {
-		It("Sanity", func() {
-			test := testMtaYamlStr{
-				fullpath: getFullPath("testdata", "testproject", "mta.yaml"),
-				path:     getFullPath("testdata", "testproject", "mta.yaml"),
-				err:      nil,
-			}
-			res, resErr := Read(&test)
-			Ω(res).ShouldNot(BeNil())
-			Ω(resErr).Should(BeNil())
-		})
-	})
-
-	var _ = Describe("ReadExt", func() {
-		It("Sanity", func() {
-			test := testMtaYamlStr{
-				fullpath: getFullPath("testdata", "testext", "mta.yaml"),
-				path:     getFullPath("testdata", "testext", "mta.yaml"),
-				err:      nil,
-			}
-			res, resErr := ReadExt(&test, "cf-mtaext.yaml")
-			Ω(res).ShouldNot(BeNil())
-			Ω(resErr).Should(BeNil())
-		})
 	})
 
 	var _ = DescribeTable("CloseFile", func(toFail bool, errorArg error, expectedErr error) {

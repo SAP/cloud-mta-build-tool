@@ -70,7 +70,7 @@ var _ = Describe("ModulesDeps", func() {
 			Ω(GetModulesNames(mtaStr)).Should(Equal([]string{"someproj-db", "someproj-java"}))
 		})
 		It("Required module not defined", func() {
-			mtaContent, _ := readFile(getTestPath("mtahtml5", "mtaRequiredModuleNotDefined.yaml"))
+			mtaContent := readFile(getTestPath("mtahtml5", "mtaRequiredModuleNotDefined.yaml"))
 			mtaStr, _ := mta.Unmarshal(mtaContent)
 			_, err := GetModulesNames(mtaStr)
 			Ω(err.Error()).Should(Equal(`the "abc" module is not defined`))
@@ -78,15 +78,13 @@ var _ = Describe("ModulesDeps", func() {
 	})
 })
 
-func readFile(file string) ([]byte, error) {
+func readFile(file string) []byte {
 	content, err := ioutil.ReadFile(file)
-	if err != nil {
-		return nil, errors.Wrapf(err, dir.ReadFailedMsg, file)
-	}
+	Ω(err).Should(Succeed())
 	s := string(content)
 	s = strings.Replace(s, "\r\n", "\r", -1)
 	content = []byte(s)
-	return content, nil
+	return content
 }
 
 func executeAndProvideOutput(execute func() error) (string, error) {

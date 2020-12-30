@@ -631,25 +631,3 @@ func getRelativePath(fullPath, basePath string) string {
 	}
 	return strings.TrimPrefix(strings.TrimPrefix(fullPath, basePath), string(filepath.Separator))
 }
-
-// Read returns mta byte slice.
-func Read(ep IMtaYaml) ([]byte, error) {
-	// Read MTA file
-	return readFile(ep.GetMtaYamlPath())
-}
-
-func readFile(file string) ([]byte, error) {
-	content, err := ioutil.ReadFile(file)
-	if err != nil {
-		return nil, errors.Wrapf(err, ReadFailedMsg, file)
-	}
-	s := string(content)
-	s = strings.Replace(s, "\r\n", "\r", -1)
-	content = []byte(s)
-	return content, nil
-}
-
-// ReadExt returns mta extension byte slice.
-func ReadExt(ep IMtaExtYaml, extFileName string) ([]byte, error) {
-	return readFile(ep.GetMtaExtYamlPath(extFileName))
-}

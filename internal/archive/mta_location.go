@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/pkg/errors"
 
@@ -27,7 +26,6 @@ const (
 // IMtaParser - MTA Parser interface
 type IMtaParser interface {
 	ParseFile() (*mta.MTA, error)
-	ParseExtFile(platform string) (*mta.EXT, error)
 }
 
 // IDescriptor - descriptor interface
@@ -221,145 +219,10 @@ func (ep *Loc) IsDeploymentDescriptor() bool {
 	return ep.Descriptor == Dep
 }
 
-// ParseMtaFile returns a reference to the MTA object from a given mta.yaml file.
-func (ep *Loc) ParseMtaFile() (*mta.MTA, error) {
-	yamlContent, err := Read(ep)
-	if err != nil {
-		return nil, err
-	}
-	// Parse MTA file
-	mtaFile, err := mta.Unmarshal(yamlContent)
-	if err != nil {
-		return mtaFile, errors.Wrapf(err, ParseMtaYamlFileFailedMsg, ep.GetMtaYamlFilename())
-	}
-	return mtaFile, nil
-}
-
 // ParseFile returns a reference to the MTA object resulting from the given mta.yaml file merged with the extension descriptors.
 func (ep *Loc) ParseFile() (*mta.MTA, error) {
-	mtaFile, err := ep.ParseMtaFile()
-	if err != nil {
-		return mtaFile, err
-	}
-	extensions, err := ep.getSortedExtensions(mtaFile.ID)
-	if err != nil {
-		return mtaFile, err
-	}
-	for _, extFile := range extensions {
-		// Check there is no version mismatch - the extension must have the same major.minor as the MTA
-		err = checkSchemaVersionMatches(mtaFile, extFile)
-		if err != nil {
-			return mtaFile, err
-		}
-
-		err = mta.Merge(mtaFile, extFile)
-		if err != nil {
-			return mtaFile, err
-		}
-	}
-	return mtaFile, nil
-}
-
-type extensionDetails struct {
-	fileName string
-	ext      *mta.EXT
-}
-
-func (ep *Loc) getSortedExtensions(mtaID string) ([]*mta.EXT, error) {
-	extensionFileNames := ep.ExtensionFileNames
-
-	// Parse all extension files and put them in a slice of extension details (the extension with the file name)
-	extensions, err := parseExtensionsWithDetails(extensionFileNames, ep)
-	if err != nil {
-		return nil, err
-	}
-
-	// Make sure each extension has its own ID
-	err = checkExtensionIDsUniqueness(extensionFileNames, extensions, mtaID, ep)
-	if err != nil {
-		return nil, err
-	}
-
-	// Make sure each extension extends a different ID and put them in a map of extends -> extension details
-	extendsMap := make(map[string]extensionDetails, len(extensionFileNames))
-	for _, details := range extensions {
-		if value, ok := extendsMap[details.ext.Extends]; ok {
-			return nil, errors.Errorf(duplicateExtendsMsg,
-				ep.GetMtaExtYamlPath(value.fileName), ep.GetMtaExtYamlPath(details.fileName), details.ext.Extends)
-		}
-		extendsMap[details.ext.Extends] = details
-	}
-
-	// Verify chain of extensions and put the extensions in a slice by extends order
-	return sortAndVerifyExtendsChain(extensionFileNames, mtaID, extendsMap, ep)
-}
-
-func parseExtensionsWithDetails(extensionFileNames []string, ep *Loc) ([]extensionDetails, error) {
-	extensions := make([]extensionDetails, len(extensionFileNames))
-	for i, extFileName := range extensionFileNames {
-		extFile, err := ep.ParseExtFile(extFileName)
-		if err != nil {
-			return nil, err
-		}
-		extensions[i] = extensionDetails{extFileName, extFile}
-	}
-	return extensions, nil
-}
-
-func checkExtensionIDsUniqueness(extensionFileNames []string, extensions []extensionDetails, mtaID string, ep *Loc) error {
-	extensionIDMap := make(map[string]extensionDetails, len(extensionFileNames))
-	for _, details := range extensions {
-		if details.ext.ID == mtaID {
-			return errors.Errorf(extensionIDSameAsMtaIDMsg,
-				ep.GetMtaExtYamlPath(details.fileName), mtaID, ep.GetMtaYamlFilename())
-		}
-		if value, ok := extensionIDMap[details.ext.ID]; ok {
-			return errors.Errorf(duplicateExtensionIDMsg,
-				ep.GetMtaExtYamlPath(value.fileName), ep.GetMtaExtYamlPath(details.fileName), details.ext.ID)
-		}
-		extensionIDMap[details.ext.ID] = details
-	}
-	return nil
-}
-
-func sortAndVerifyExtendsChain(extensionFileNames []string, mtaID string, extendsMap map[string]extensionDetails, ep IMtaExtYaml) ([]*mta.EXT, error) {
-	extFiles := make([]*mta.EXT, 0, len(extensionFileNames))
-	currExtends := mtaID
-	value, ok := extendsMap[currExtends]
-	for ok {
-		extFiles = append(extFiles, value.ext)
-		delete(extendsMap, currExtends)
-		currExtends = value.ext.ID
-		value, ok = extendsMap[currExtends]
-	}
-	// Check if there are extensions which extend unknown files
-	if len(extendsMap) > 0 {
-		// Build an error that looks like this:
-		// `some MTA extension descriptors extend unknown IDs: file "myext.mtaext" extends "ext1"; file "aaa.mtaext" extends "ext2"`
-		fileParts := make([]string, 0, len(extendsMap))
-		for extends, details := range extendsMap {
-			fileParts = append(fileParts, fmt.Sprintf(extendsMsg, ep.GetMtaExtYamlPath(details.fileName), extends))
-		}
-		return nil, errors.Errorf(unknownExtendsMsg, strings.Join(fileParts, `; `))
-	}
-	return extFiles, nil
-}
-
-func checkSchemaVersionMatches(mta *mta.MTA, ext *mta.EXT) error {
-	mtaVersion := ""
-	if mta.SchemaVersion != nil {
-		mtaVersion = *mta.SchemaVersion
-	}
-	extVersion := ""
-	if ext.SchemaVersion != nil {
-		extVersion = *ext.SchemaVersion
-	}
-
-	if strings.SplitN(mtaVersion, ".", 2)[0] != strings.SplitN(extVersion, ".", 2)[0] {
-		return errors.Errorf(versionMismatchMsg, extVersion, ext.ID, mtaVersion)
-	}
-
-	return nil
+	mtaFile, _, err := mta.GetMtaFromFile(ep.GetMtaYamlPath(), ep.GetExtensionFilePaths(), true)
+	return mtaFile, err
 }
 
 // GetExtensionFilePaths returns the MTA extension descriptor full paths
@@ -369,21 +232,6 @@ func (ep *Loc) GetExtensionFilePaths() []string {
 		paths[i] = ep.GetMtaExtYamlPath(fileName)
 	}
 	return paths
-}
-
-// ParseExtFile returns a reference to the MTA extension descriptor object of the extension file.
-func (ep *Loc) ParseExtFile(extFileName string) (*mta.EXT, error) {
-	yamlContent, err := ReadExt(ep, extFileName)
-	if err != nil {
-		return nil, err
-	}
-
-	// Parse MTA extension file
-	mtaExt, err := mta.UnmarshalExt(yamlContent)
-	if err != nil {
-		return mtaExt, errors.Wrapf(err, parseExtFileFailed, ep.GetMtaExtYamlPath(extFileName))
-	}
-	return mtaExt, nil
 }
 
 // Location - provides Location parameters of MTA
