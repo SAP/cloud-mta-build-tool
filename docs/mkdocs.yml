@@ -7,6 +7,7 @@ nav:
       - Make: makefile.md
       - Tools: tools.md
   - Usage: usage.md
+  - What's New: whatsnew.md
   - Migration: migration.md
   - Configuration: configuration.md
   - Contribution:
