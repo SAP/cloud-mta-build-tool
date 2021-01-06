@@ -22,12 +22,12 @@ var _ = Describe("DeprecatedBuilders", func() {
 		deprecatedBuilders = originalDeprecatedBuilders
 	})
 
-	var _ = Describe("awareOfDeprecatedBuilder function", func() {
+	var _ = Describe("checkDeprecatedBuilder function", func() {
 		It("Does not log warning in case of not deprecated builder", func() {
 			var str bytes.Buffer
 			// navigate log output to local string buffer. It will be used for warnings analysis
 			logs.Logger.SetOutput(&str)
-			awareOfDeprecatedBuilder("new_builder")
+			checkDeprecatedBuilder("new_builder")
 			Ω(str.String()).Should(BeEmpty())
 		})
 
@@ -35,7 +35,7 @@ var _ = Describe("DeprecatedBuilders", func() {
 			var str bytes.Buffer
 			// navigate log output to local string buffer. It will be used for warnings analysis
 			logs.Logger.SetOutput(&str)
-			awareOfDeprecatedBuilder("deprecated_builder")
+			checkDeprecatedBuilder("deprecated_builder")
 			Ω(str.String()).Should(ContainSubstring(deprecatedBuilders["deprecated_builder"]))
 		})
 
