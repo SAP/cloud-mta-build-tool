@@ -66,7 +66,7 @@ builders:
     commands:
 
   - name: maven_deprecated
-    info: "build java application; builder is deprecated and will be removed after July, 2021"
+    info: "build java application; the builder is deprecated and will be removed on July 2021"
     path: "path to config file which override the following default commands"
     commands:
     - command: mvn -B package
