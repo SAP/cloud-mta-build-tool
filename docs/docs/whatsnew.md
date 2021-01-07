@@ -1,4 +1,4 @@
-#<b>Important updates</b>
+# <b>Important updates</b>
 
 ##v1.1.0 
 
