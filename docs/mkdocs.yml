@@ -2,6 +2,7 @@ site_name: Cloud MTA Build Tool
 repo_url: https://github.com/SAP/cloud-mta-build-tool
 nav:
   - Home: index.md
+  - Important Updates: whatsnew.md
   - Download and Installation:
       - Download: download.md
       - Make: makefile.md

@@ -31,6 +31,7 @@ func GetBuilder(module *mta.Module) (string, bool, map[string]string, []string, 
 	// builder defined in build params is prioritised
 	if module.BuildParams != nil && module.BuildParams[builderParam] != nil {
 		builderName := module.BuildParams[builderParam].(string)
+		checkDeprecatedBuilder(builderName)
 		optsParamName := builderName + optionsSuffix
 		// get options for builder from mta.yaml
 		options := getOpts(module, optsParamName)
