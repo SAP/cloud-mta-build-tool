@@ -1,6 +1,6 @@
 # <b>Important updates</b>
 
-##v1.1.0 
+## v1.1.0 
 
 ###Configuration of ‘maven’ builder has changed. 
 As of version 1.1.0, the `mvn clean install` command is used where the `maven` builder is configured for building a module or in a global build step.
