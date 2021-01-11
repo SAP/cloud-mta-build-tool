@@ -1,6 +1,6 @@
 FROM alpine:3.12.0
 
-ARG MBT_VERSION=1.0.17
+ARG MBT_VERSION=1.0.18
 
 ADD http://aia.pki.co.sap.com/aia/SAP%20Global%20Root%20CA.crt \
     /etc/ssl/certs/SAP_Global_Root_CA.crt
