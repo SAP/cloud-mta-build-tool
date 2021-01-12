@@ -3,7 +3,7 @@
 ## v1.1.0 
 
 ### Configuration of `maven` builder has changed. 
-As of version 1.1.0, the `mvn clean install` command is used where the `maven` builder is configured for building a module or in a global build step.
+As of version 1.1.0, the `mvn clean package` command is used where the `maven` builder is configured for building a module or in a global build step.
 
 <b>NOTE:</b>  The `maven` builder is configured implicitly for the `java` module type.
 
@@ -13,7 +13,7 @@ If you want to keep the previous behavior, that is, to apply the `mvn -B package
 
 <b>Examples:</b>
 
-If you want to use the old `mvn -B package` command instead of the `maven` builder that now triggers the `mvn clean install` command, you need to change the build parameters of the relevant module in one of the following ways:
+If you want to use the old `mvn -B package` command instead of the `maven` builder that now triggers the `mvn clean package` command, you need to change the build parameters of the relevant module in one of the following ways:
 
 
 
