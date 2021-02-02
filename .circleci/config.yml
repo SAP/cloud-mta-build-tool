@@ -177,11 +177,15 @@ jobs:
             docker-compose -f ./docker-compose.test.yml up
             docker tag mbtci:${MBT_VERSION} ghcr.io/sap/mbtci:$MBT_VERSION
             docker push ghcr.io/sap/mbtci:$MBT_VERSION
+            docker tag ghcr.io/sap/mbtci:$MBT_VERSION ghcr.io/sap/mbtci:latest
+            docker push ghcr.io/sap/mbtci:latest
             echo "Release mbtci-alpine:${MBT_VERSION}"
             docker build -t mbtci-alpine:${MBT_VERSION} .
             docker-compose -f ./docker-compose.test.yml up
             docker tag mbtci-alpine:${MBT_VERSION} ghcr.io/sap/mbtci-alpine:$MBT_VERSION
             docker push ghcr.io/sap/mbtci-alpine:$MBT_VERSION
+            docker tag ghcr.io/sap/mbtci-alpine:$MBT_VERSION ghcr.io/sap/mbtci-alpine:latest
+            docker push ghcr.io/sap/mbtci-alpine:latest
 
   ghpages:
     docker:
