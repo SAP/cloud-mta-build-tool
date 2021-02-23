@@ -23,3 +23,11 @@ Install the Command-Line Tools:
 ```xcode-select --install```
 The tools can also be downloaded from [https://developer.apple.com/download/more/](https://developer.apple.com/download/more/).
 
+#### Make package collides with Make GNU ####
+**Indicator:**
+The `mbt build` command fails with the following error:
+```make ✖ err missing makefile / bakefile```
+
+**Solution:**
+Remove the global make package:
+```npm uninstall -g make```
