@@ -408,7 +408,7 @@ builders:
 				// we create test data in the result folder in order to reproduce the scenario
 				// when source == target
 				projectFolder := getTestPath("result", "mta_with_flat_module")
-				dir.CopyDir(getTestPath("mta_with_flat_module"), projectFolder, true, dir.CopyEntries)
+				Ω(dir.CopyDir(getTestPath("mta_with_flat_module"), projectFolder, true, dir.CopyEntries)).Should(Succeed())
 				module1 := mta.Module{
 					Name: "mod1",
 					Path: "sub1",

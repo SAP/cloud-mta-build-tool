@@ -464,7 +464,7 @@ func archiveModuleToResultDir(buildResult string, requestedResultFileName string
 }
 
 // getIgnores - get files and/or subfolders to exclude from the package.
-func getIgnores(moduleLoc dir.IModule, module *mta.Module) []string {
+func getIgnores(moduleLoc dir.ITargetModule, module *mta.Module) []string {
 	var ignoreList []string
 	// ignore defined in build params is declared
 	if module.BuildParams != nil && module.BuildParams[ignore] != nil {
