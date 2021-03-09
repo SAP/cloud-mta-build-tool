@@ -464,18 +464,20 @@ func archiveModuleToResultDir(buildResult string, requestedResultFileName string
 }
 
 // getIgnores - get files and/or subfolders to exclude from the package.
-func getIgnores(moduleLoc dir.ITargetModule, module *mta.Module) []string {
+func getIgnores(moduleLoc dir.IModule, module *mta.Module) []string {
 	var ignoreList []string
 	// ignore defined in build params is declared
 	if module.BuildParams != nil && module.BuildParams[ignore] != nil {
 		ignoreList = convert(module.BuildParams[ignore].([]interface{}))
 	}
-	// we add temporary folder to the list of ignores, because
-	// for the case when source == target and module path == project path,
-	// temporary folder can become part of the packaged module content
-	tmpFolder := filepath.Dir(moduleLoc.GetTargetModuleDir(module.Name))
-	tmpFolderName := filepath.Base(tmpFolder)
-	ignoreList = append(ignoreList, tmpFolderName)
+	// we add target folder to the list of ignores to avoid it's packaging
+	// it can be the case only when target folder is subfolder of the project path
+	targetFolder := moduleLoc.GetTargetTmpDir()
+	sourceFolder := moduleLoc.GetSource()
+	if strings.HasPrefix(targetFolder, sourceFolder) {
+		relativeTarget := strings.TrimPrefix(strings.TrimPrefix(targetFolder, sourceFolder), string(filepath.Separator))
+		ignoreList = append(ignoreList, relativeTarget)
+	}
 
 	return ignoreList
 }

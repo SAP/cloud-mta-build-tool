@@ -60,12 +60,14 @@ type ITargetPath interface {
 // ITargetModule - Target Module interface
 type ITargetModule interface {
 	GetTargetModuleDir(moduleName string) string
+	GetTargetTmpDir() string
 }
 
 // IModule - module interface
 type IModule interface {
 	ISourceModule
 	ITargetModule
+	GetSource() string
 }
 
 // ITargetArtifacts - target artifacts interface
