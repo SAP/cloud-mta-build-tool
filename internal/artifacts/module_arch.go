@@ -435,7 +435,7 @@ func packModule(moduleLoc dir.IModule, module *mta.Module, moduleName, platform,
 		return copyModuleArchiveToResultDir(sourceArtifact, targetArtifact, moduleName)
 	}
 
-	return archiveModuleToResultDir(sourceArtifact, targetArtifact, getIgnores(module), moduleName)
+	return archiveModuleToResultDir(sourceArtifact, targetArtifact, getIgnores(moduleLoc, module), moduleName)
 }
 
 func copyModuleArchiveToResultDir(source, target, moduleName string) error {
@@ -464,12 +464,18 @@ func archiveModuleToResultDir(buildResult string, requestedResultFileName string
 }
 
 // getIgnores - get files and/or subfolders to exclude from the package.
-func getIgnores(module *mta.Module) []string {
+func getIgnores(moduleLoc dir.IModule, module *mta.Module) []string {
 	var ignoreList []string
 	// ignore defined in build params is declared
 	if module.BuildParams != nil && module.BuildParams[ignore] != nil {
 		ignoreList = convert(module.BuildParams[ignore].([]interface{}))
 	}
+	// we add temporary folder to the list of ignores, because
+	// for the case when source == target and module path == project path,
+	// temporary folder can become part of the packaged module content
+	tmpFolder := filepath.Dir(moduleLoc.GetTargetModuleDir(module.Name))
+	tmpFolderName := filepath.Base(tmpFolder)
+	ignoreList = append(ignoreList, tmpFolderName)
 
 	return ignoreList
 }

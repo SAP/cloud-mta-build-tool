@@ -1,0 +1,11 @@
+ID: mta
+_schema-version: '2.1'
+version: 0.0.1
+
+modules:
+- name: mod1
+  type: unknown
+  path: sub1
+- name: mod2
+  type: unknown
+  path: .
