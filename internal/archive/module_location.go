@@ -31,6 +31,7 @@ func (ep *ModuleLoc) GetTargetTmpRoot() string {
 	if ep.targetPathDefined {
 		return ep.loc.GetTarget()
 	}
+	// default target folder for module build results defined in the temp folder
 	return filepath.Dir(ep.loc.GetTarget())
 }
 
