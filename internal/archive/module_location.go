@@ -11,11 +11,6 @@ type ModuleLoc struct {
 	targetPathDefined bool
 }
 
-// GetSource - gets the source MTA project path;
-func (ep *ModuleLoc) GetSource() string {
-	return ep.loc.GetSource()
-}
-
 // GetTarget - gets the target path;
 func (ep *ModuleLoc) GetTarget() string {
 	return ep.loc.GetTarget()
