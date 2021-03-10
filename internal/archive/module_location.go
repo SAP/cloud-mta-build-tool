@@ -7,7 +7,7 @@ import (
 
 // ModuleLoc - module location type that provides services for stand alone module build command
 type ModuleLoc struct {
-	loc *Loc
+	loc               *Loc
 	targetPathDefined bool
 }
 
