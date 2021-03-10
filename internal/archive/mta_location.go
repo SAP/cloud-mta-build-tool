@@ -61,13 +61,13 @@ type ITargetPath interface {
 type ITargetModule interface {
 	GetTargetModuleDir(moduleName string) string
 	GetTargetTmpDir() string
+	GetTargetTmpRoot() string
 }
 
 // IModule - module interface
 type IModule interface {
 	ISourceModule
 	ITargetModule
-	GetSource() string
 }
 
 // ITargetArtifacts - target artifacts interface
@@ -134,6 +134,11 @@ func (ep *Loc) GetTargetTmpDir() string {
 	target := ep.GetTarget()
 	// append to the currentPath the file name
 	return filepath.Join(target, file)
+}
+
+// GetTargetTmpRoot gets the build results directory root path.
+func (ep *Loc) GetTargetTmpRoot() string {
+	return ep.GetTargetTmpDir()
 }
 
 // GetTargetModuleDir gets the path to the packed module directory.
@@ -259,6 +264,7 @@ func Location(source, target, descriptor string, extensions []string, wdGetter f
 			return nil, errors.Wrap(err, InitLocFailedOnWorkDirMsg)
 		}
 	}
+
 	if target == "" {
 		target = source
 	}

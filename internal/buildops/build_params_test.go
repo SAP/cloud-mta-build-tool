@@ -266,7 +266,7 @@ var _ = Describe("GetModuleTargetArtifactPath", func() {
 	})
 	It("no build result resolving, path provided as pattern", func() {
 		loc := dir.Loc{SourcePath: getTestPath("mtahtml5"), TargetPath: getTestPath("result")}
-		moduleLoc := dir.ModuleLocation(&loc)
+		moduleLoc := dir.ModuleLocation(&loc, false)
 		module := &mta.Module{
 			Name: "web",
 			Path: filepath.Join("testapp", "webapp", "*.jar"),

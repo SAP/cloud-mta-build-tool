@@ -10,28 +10,28 @@ var _ = Describe("ModuleLocation", func() {
 	It("GetTarget", func() {
 		projectLoc, err := Location(getPath("testdata"), getPath("test"), Dev, []string{}, os.Getwd)
 		Ω(err).Should(Succeed())
-		loc := ModuleLocation(projectLoc)
+		loc := ModuleLocation(projectLoc, false)
 		Ω(loc.GetTarget()).Should(Equal(getPath("test")))
 	})
 
 	It("GetTargetTmpDir", func() {
 		projectLoc, err := Location(getPath("testdata"), getPath("testdata"), Dev, []string{}, os.Getwd)
 		Ω(err).Should(Succeed())
-		moduleLoc := ModuleLocation(projectLoc)
+		moduleLoc := ModuleLocation(projectLoc, false)
 		Ω(moduleLoc.GetTargetTmpDir()).Should(Equal(getPath("testdata")))
 	})
 
 	It("GetSourceModuleDir", func() {
 		projectLoc, err := Location(getPath("testdata"), getPath("testdata"), Dev, []string{}, os.Getwd)
 		Ω(err).Should(Succeed())
-		moduleLoc := ModuleLocation(projectLoc)
+		moduleLoc := ModuleLocation(projectLoc, false)
 		Ω(moduleLoc.GetSourceModuleDir("path1")).Should(Equal((getPath("testdata", "path1"))))
 	})
 
 	It("GetSourceModuleArtifactRelPath", func() {
 		projectLoc, err := Location(getPath("testdata"), getPath("testdata"), Dev, []string{}, os.Getwd)
 		Ω(err).Should(Succeed())
-		moduleLoc := ModuleLocation(projectLoc)
+		moduleLoc := ModuleLocation(projectLoc, false)
 		relPath, err := moduleLoc.GetSourceModuleArtifactRelPath("path1", getPath("testdata", "path1", "data.zip"))
 		Ω(err).Should(Succeed())
 		Ω(relPath).Should(Equal(""))
@@ -40,13 +40,13 @@ var _ = Describe("ModuleLocation", func() {
 	It("GetTargetModuleDir", func() {
 		projectLoc, err := Location(getPath("testdata"), getPath("testdata"), Dev, []string{}, os.Getwd)
 		Ω(err).Should(Succeed())
-		moduleLoc := ModuleLocation(projectLoc)
+		moduleLoc := ModuleLocation(projectLoc, false)
 		Ω(moduleLoc.GetTargetModuleDir("module1")).Should(Equal(getPath("testdata")))
 	})
 
 	It("ParseFile", func() {
 		ep := Loc{SourcePath: getPath("testdata", "testext")}
-		moduleLoc := ModuleLocation(&ep)
+		moduleLoc := ModuleLocation(&ep, false)
 		mta, err := moduleLoc.ParseFile()
 		Ω(mta).ShouldNot(BeNil())
 		Ω(err).Should(Succeed())
@@ -65,6 +65,6 @@ var _ = Describe("ModuleLocation", func() {
 		target := getPath("testdata", "result")
 		projectLoc, err := Location(getPath("testdata"), target, Dev, []string{}, os.Getwd)
 		Ω(err).Should(Succeed())
-		Ω(ModuleLocation(projectLoc)).ShouldNot(BeNil())
+		Ω(ModuleLocation(projectLoc, false)).ShouldNot(BeNil())
 	})
 })

@@ -280,8 +280,8 @@ func (loc *testLoc) GetTargetTmpDir() string {
 	return loc.loc.GetTargetTmpDir()
 }
 
-func (loc *testLoc) GetSource() string {
-	return loc.loc.GetSource()
+func (loc *testLoc) GetTargetTmpRoot() string {
+	return loc.loc.GetTargetTmpRoot()
 }
 
 func createMtahtml5TmpFolder() {
