@@ -276,6 +276,10 @@ func (loc *testLoc) GetSourceModuleArtifactRelPath(modulePath, artifactPath stri
 	return loc.loc.GetSourceModuleArtifactRelPath(modulePath, artifactPath)
 }
 
+func (loc *testLoc) GetTargetTmpRoot() string {
+	return loc.loc.GetTargetTmpRoot()
+}
+
 func createMtahtml5TmpFolder() {
 	createDirInTmpFolder("mtahtml5", "ui5app2")
 	createDirInTmpFolder("mtahtml5", "ui5app")

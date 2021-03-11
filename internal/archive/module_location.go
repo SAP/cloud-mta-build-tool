@@ -1,20 +1,28 @@
 package dir
 
-import "github.com/SAP/cloud-mta/mta"
+import (
+	"github.com/SAP/cloud-mta/mta"
+	"path/filepath"
+)
 
 // ModuleLoc - module location type that provides services for stand alone module build command
 type ModuleLoc struct {
-	loc *Loc
+	loc               *Loc
+	targetPathDefined bool
 }
 
-// GetTarget - gets the target path;
+// GetTarget - gets the target path
 func (ep *ModuleLoc) GetTarget() string {
 	return ep.loc.GetTarget()
 }
 
-// GetTargetTmpDir - gets the target path;
-func (ep *ModuleLoc) GetTargetTmpDir() string {
-	return ep.loc.GetTarget()
+// GetTargetTmpRoot - gets the target root path
+func (ep *ModuleLoc) GetTargetTmpRoot() string {
+	if ep.targetPathDefined {
+		return ep.loc.GetTarget()
+	}
+	// default target folder for module build results is defined under the temp folder
+	return filepath.Dir(ep.loc.GetTarget())
 }
 
 // GetSourceModuleDir - gets the absolute path to the module
@@ -40,6 +48,6 @@ func (ep *ModuleLoc) ParseFile() (*mta.MTA, error) {
 }
 
 // ModuleLocation - provides target location of stand alone MTA module build result
-func ModuleLocation(loc *Loc) *ModuleLoc {
-	return &ModuleLoc{loc: loc}
+func ModuleLocation(loc *Loc, targetPathDefined bool) *ModuleLoc {
+	return &ModuleLoc{loc: loc, targetPathDefined: targetPathDefined}
 }

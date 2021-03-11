@@ -138,6 +138,18 @@ var _ = Describe("Path", func() {
 		Ω(location.GetMtaExtYamlPath(pathToMtaExt)).ShouldNot(Equal(absPath))
 	})
 
+	It("GetTargetTmpRoot, target path calculated", func() {
+		projectLoc, err := Location(getPath("test"), "", Dev, []string{}, os.Getwd)
+		Ω(err).Should(Succeed())
+		Ω(projectLoc.GetTargetTmpRoot()).Should(Equal(getPath("test", ".test_mta_build_tmp")))
+	})
+
+	It("GetTargetTmpRoot, target path defined", func() {
+		projectLoc, err := Location(getPath("test"), getPath("test1"), Dev, []string{}, os.Getwd)
+		Ω(err).Should(Succeed())
+		Ω(projectLoc.GetTargetTmpRoot()).Should(Equal(getPath("test1", ".test_mta_build_tmp")))
+	})
+
 	Describe("GetExtensionFilePaths", func() {
 		It("returns empty list when ExtensionFileNames is nil", func() {
 			loc := Loc{}

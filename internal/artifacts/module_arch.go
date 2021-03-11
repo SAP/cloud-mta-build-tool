@@ -32,6 +32,7 @@ func ExecuteBuild(source, target string, extensions []string, moduleName, platfo
 	if err != nil {
 		return errors.Wrapf(err, buildFailedMsg, moduleName)
 	}
+
 	err = buildModule(loc, loc, moduleName, platform, true, true, map[string]string{})
 	if err != nil {
 		return err
@@ -277,7 +278,7 @@ func getModuleLocation(source, target, moduleName string, extensions []string, w
 		return nil, err
 	}
 
-	return dir.ModuleLocation(loc), nil
+	return dir.ModuleLocation(loc, target != ""), nil
 }
 
 func getSoloModuleBuildAbsSource(source string, wdGetter func() (string, error)) (string, error) {
@@ -435,7 +436,7 @@ func packModule(moduleLoc dir.IModule, module *mta.Module, moduleName, platform,
 		return copyModuleArchiveToResultDir(sourceArtifact, targetArtifact, moduleName)
 	}
 
-	return archiveModuleToResultDir(sourceArtifact, targetArtifact, getIgnores(module), moduleName)
+	return archiveModuleToResultDir(sourceArtifact, targetArtifact, getIgnores(moduleLoc, module, sourceArtifact), moduleName)
 }
 
 func copyModuleArchiveToResultDir(source, target, moduleName string) error {
@@ -464,11 +465,19 @@ func archiveModuleToResultDir(buildResult string, requestedResultFileName string
 }
 
 // getIgnores - get files and/or subfolders to exclude from the package.
-func getIgnores(module *mta.Module) []string {
+func getIgnores(moduleLoc dir.IModule, module *mta.Module, moduleResultPath string) []string {
 	var ignoreList []string
 	// ignore defined in build params is declared
 	if module.BuildParams != nil && module.BuildParams[ignore] != nil {
 		ignoreList = convert(module.BuildParams[ignore].([]interface{}))
+	}
+	// we add target folder to the list of ignores to avoid it's packaging
+	// it can be the case only when target folder is subfolder (on any level) of the archived folder path
+	// the ignored folder is the root where all the build results are created, even if we are building more than one module
+	targetFolder := moduleLoc.GetTargetTmpRoot()
+	relativeTarget, err := filepath.Rel(moduleResultPath, targetFolder)
+	if err == nil && !(relativeTarget == ".." || strings.HasPrefix(relativeTarget, ".."+string(os.PathSeparator))) {
+		ignoreList = append(ignoreList, relativeTarget)
 	}
 
 	return ignoreList
