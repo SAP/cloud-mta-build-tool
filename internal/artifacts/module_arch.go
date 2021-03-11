@@ -473,6 +473,7 @@ func getIgnores(moduleLoc dir.IModule, module *mta.Module, moduleResultPath stri
 	}
 	// we add target folder to the list of ignores to avoid it's packaging
 	// it can be the case only when target folder is subfolder (on any level) of the archived folder path
+	// the ignored folder is the root where all the build results are created, even if we are building more than one module
 	targetFolder := moduleLoc.GetTargetTmpRoot()
 	relativeTarget, err := filepath.Rel(moduleResultPath, targetFolder)
 	if err == nil && !(relativeTarget == ".." || strings.HasPrefix(relativeTarget, ".."+string(os.PathSeparator))) {

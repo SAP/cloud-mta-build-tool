@@ -276,10 +276,6 @@ func (loc *testLoc) GetSourceModuleArtifactRelPath(modulePath, artifactPath stri
 	return loc.loc.GetSourceModuleArtifactRelPath(modulePath, artifactPath)
 }
 
-func (loc *testLoc) GetTargetTmpDir() string {
-	return loc.loc.GetTargetTmpDir()
-}
-
 func (loc *testLoc) GetTargetTmpRoot() string {
 	return loc.loc.GetTargetTmpRoot()
 }

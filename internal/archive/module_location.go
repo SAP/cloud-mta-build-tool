@@ -11,22 +11,17 @@ type ModuleLoc struct {
 	targetPathDefined bool
 }
 
-// GetTarget - gets the target path;
+// GetTarget - gets the target path
 func (ep *ModuleLoc) GetTarget() string {
 	return ep.loc.GetTarget()
 }
 
-// GetTargetTmpDir - gets the target path;
-func (ep *ModuleLoc) GetTargetTmpDir() string {
-	return ep.loc.GetTarget()
-}
-
-// GetTargetTmpDir - gets the target root path;
+// GetTargetTmpRoot - gets the target root path
 func (ep *ModuleLoc) GetTargetTmpRoot() string {
 	if ep.targetPathDefined {
 		return ep.loc.GetTarget()
 	}
-	// default target folder for module build results defined in the temp folder
+	// default target folder for module build results is defined under the temp folder
 	return filepath.Dir(ep.loc.GetTarget())
 }
 

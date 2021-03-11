@@ -60,7 +60,6 @@ type ITargetPath interface {
 // ITargetModule - Target Module interface
 type ITargetModule interface {
 	GetTargetModuleDir(moduleName string) string
-	GetTargetTmpDir() string
 	GetTargetTmpRoot() string
 }
 

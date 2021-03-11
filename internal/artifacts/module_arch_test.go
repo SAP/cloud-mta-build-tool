@@ -370,7 +370,7 @@ builders:
 			It("ignores default target folder when target is not defined and default is subfolder of packaged module content", func() {
 				// build first module to create some content in the default target folder
 				Ω(ExecutePack(projectFolder, "", nil, "mod1", "cf", getPathToFlatModule)).Should(Succeed())
-				module1ZipPath := getTestPath("result", "mta_with_flat_module", ".mta_with_flat_module_mta_build_tmp", "mod1", "data.zip")
+				module1ZipPath := getTestPath("result", "mta_with_flat_module", ".mta_with_flat_module_mta_build_tmp", "mod1", "mod1.zip")
 				Ω(module1ZipPath).Should(BeAnExistingFile())
 				// build second module whose content is the whole project
 				Ω(ExecutePack(projectFolder, "", nil, "mod2", "cf", getPathToFlatModule)).Should(Succeed())
@@ -383,7 +383,7 @@ builders:
 				targetFolder := getTestPath("result", "mta_with_flat_module", "sub1")
 				// build first module to create some content in the specified target folder
 				Ω(ExecutePack(projectFolder, targetFolder, nil, "mod1", "cf", getPathToFlatModule)).Should(Succeed())
-				module1ZipPath := getTestPath("result", "mta_with_flat_module", "sub1", ".mta_with_flat_module_mta_build_tmp", "mod1", "data.zip")
+				module1ZipPath := getTestPath("result", "mta_with_flat_module", "sub1", ".mta_with_flat_module_mta_build_tmp", "mod1", "mod1.zip")
 				Ω(module1ZipPath).Should(BeAnExistingFile())
 				// build second module whose content is the whole project
 				Ω(ExecutePack(projectFolder, targetFolder, nil, "mod2", "cf", getPathToFlatModule)).Should(Succeed())
@@ -1027,7 +1027,7 @@ module-types:
 		It("ignores default target folder when target is not defined and default is subfolder of packaged module content", func() {
 			// build first module to create some content in the default target folder
 			Ω(buildSelectedModule(projectFolder, "", nil, "mod1", true, make(map[string]string), getPathToFlatModule)).Should(Succeed())
-			module1ZipPath := getTestPath("result", "mta_with_flat_module", ".mta_with_flat_module_mta_build_tmp", "mod1", "data.zip")
+			module1ZipPath := getTestPath("result", "mta_with_flat_module", ".mta_with_flat_module_mta_build_tmp", "mod1", "mod1.zip")
 			Ω(module1ZipPath).Should(BeAnExistingFile())
 			// build second module whose content is the whole project
 			Ω(buildSelectedModule(projectFolder, "", nil, "mod2", true, make(map[string]string), getPathToFlatModule)).Should(Succeed())
@@ -1040,7 +1040,7 @@ module-types:
 			targetFolder := getTestPath("result", "mta_with_flat_module", "target")
 			// build first module to create some content in the specified target folder
 			Ω(buildSelectedModule(projectFolder, targetFolder, nil, "mod1", true, make(map[string]string), getPathToFlatModule)).Should(Succeed())
-			module1ZipPath := getTestPath("result", "mta_with_flat_module", "target", "data.zip")
+			module1ZipPath := getTestPath("result", "mta_with_flat_module", "target", "mod1.zip")
 			Ω(module1ZipPath).Should(BeAnExistingFile())
 			// build second module whose content is the whole project
 			Ω(buildSelectedModule(projectFolder, targetFolder, nil, "mod2", true, make(map[string]string), getPathToFlatModule)).Should(Succeed())
@@ -1051,6 +1051,8 @@ module-types:
 	})
 })
 
+// this function is used to simulate building in the project working directory,
+// because the default build result folder in module build is relative to the current working directory
 func getPathToFlatModule() (string, error) {
 	return getTestPath("result", "mta_with_flat_module"), nil
 }
