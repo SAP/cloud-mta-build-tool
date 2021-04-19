@@ -171,15 +171,32 @@ jobs:
             MBT_VERSION=$(cat ./VERSION)
             echo "Image release: ${MBT_VERSION}"
             git checkout docker
+            #Push to Docker Hub
+            docker login -u CloudMTABot -p ${CLOUD_MTA_BOT_GITHUB_TOKEN}
+            echo "Release mbtci:${MBT_VERSION} to Docker Hub"
+            docker build -t mbtci:${MBT_VERSION} .
+            docker-compose -f ./docker-compose.test.yml up
+            docker tag mbtci:${MBT_VERSION} devxci/mbtci:$MBT_VERSION
+            docker push devxci/mbtci:$MBT_VERSION
+            docker tag devxci/mbtci:$MBT_VERSION devxci/mbtci:latest
+            docker push devxci/mbtci:latest
+            echo "Release mbtci-alpine:${MBT_VERSION} to Docker Hub"
+            docker build -t mbtci-alpine:${MBT_VERSION} .
+            docker-compose -f ./docker-compose.test.yml up
+            docker tag mbtci-alpine:${MBT_VERSION} devxci/mbtci-alpine:$MBT_VERSION
+            docker push devxci/mbtci-alpine:$MBT_VERSION
+            docker tag devxci/mbtci-alpine:$MBT_VERSION devxci/mbtci-alpine:latest
+            docker push devxci/mbtci-alpine:latest
+            #Push to GitHub Container Registry
             docker login ghcr.io -u CloudMTABot -p ${CLOUD_MTA_BOT_GITHUB_TOKEN}
-            echo "Release mbtci:${MBT_VERSION}"
+            echo "Release mbtci:${MBT_VERSION} to GHCR"
             docker build -t mbtci:${MBT_VERSION} .
             docker-compose -f ./docker-compose.test.yml up
             docker tag mbtci:${MBT_VERSION} ghcr.io/sap/mbtci:$MBT_VERSION
             docker push ghcr.io/sap/mbtci:$MBT_VERSION
             docker tag ghcr.io/sap/mbtci:$MBT_VERSION ghcr.io/sap/mbtci:latest
             docker push ghcr.io/sap/mbtci:latest
-            echo "Release mbtci-alpine:${MBT_VERSION}"
+            echo "Release mbtci-alpine:${MBT_VERSION} to GHCR"
             docker build -t mbtci-alpine:${MBT_VERSION} .
             docker-compose -f ./docker-compose.test.yml up
             docker tag mbtci-alpine:${MBT_VERSION} ghcr.io/sap/mbtci-alpine:$MBT_VERSION
