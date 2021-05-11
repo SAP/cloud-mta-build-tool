@@ -1,0 +1,17 @@
+version: 2
+updates:
+- package-ecosystem: gomod
+  directory: "/"
+  schedule:
+    interval: weekly
+    day: sunday
+    time: "10:00"
+    timezone: Etc/UCT
+  ignore:
+  - dependency-name: github.com/onsi/ginkgo
+    versions:
+    - 1.15.2
+  - dependency-name: github.com/sirupsen/logrus
+    versions:
+    - 1.8.0
+    - 1.8.1
