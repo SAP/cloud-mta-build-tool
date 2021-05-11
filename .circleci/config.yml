@@ -172,7 +172,7 @@ jobs:
             echo "Image release: ${MBT_VERSION}"
             git checkout docker
             #Push to Docker Hub
-            docker login -u ${DOCKER_HUB_USER} -p ${DOCKER_HUN_TOKEN}
+            docker login -u ${DOCKER_HUB_USER} -p ${DOCKER_HUB_TOKEN}
             echo "Release mbtci:${MBT_VERSION} to Docker Hub"
             docker build -t mbtci:${MBT_VERSION} .
             docker-compose -f ./docker-compose.test.yml up
