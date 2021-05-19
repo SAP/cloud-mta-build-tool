@@ -17,9 +17,9 @@ builds:
       - CGO_ENABLED=0
     ignore:
       - goos: linux
-        goarch: arm6
+        goarch: arm64
       - goos: windows
-        goarch: arm6
+        goarch: arm64
 archives:
   - replacements:
       darwin: Darwin
