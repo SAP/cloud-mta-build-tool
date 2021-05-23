@@ -3,7 +3,7 @@ version: 2.1
 jobs:
   build:
     docker:
-      - image: circleci/golang:1.13.6
+      - image: circleci/golang:1.16
 
     environment:
     working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
@@ -58,7 +58,7 @@ jobs:
             
   release:
     docker:
-      - image: circleci/golang:1.13.3
+      - image: circleci/golang:1.16
     working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
     steps:
       - add_ssh_keys:
