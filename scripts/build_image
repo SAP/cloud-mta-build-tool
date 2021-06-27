@@ -1,0 +1,52 @@
+#!/bin/sh
+
+set -o errexit
+
+# set readable variables
+export JAVA_VERSION_TEMPLATE="$1"
+export NODE_VERSION_TEMPLATE="$2"
+export MBT_VERSION="$3"
+export DOCKER_REGISTRY_USER="$4"
+export DOCKER_REGISTRY_TOKEN="$5"
+export DOCKER_REGISTRY="$6"
+
+# set jvm and node version
+if [ $JAVA_VERSION_TEMPLATE == "jvm11" ]; then
+	export JAVA_VERSION=_jvm11
+	export NODE_VERSION=_node$(echo $NODE_VERSION_TEMPLATE |awk -F. '{printf "%d", $1}')
+	cp Dockerfile_sapmachine Dockerfile
+	sed  -i "s/NODE_VERSION_TEMPLATE/v${NODE_VERSION_TEMPLATE}/" Dockerfile
+elif [ $JAVA_VERSION_TEMPLATE == "jvm8" ]; then
+	export JAVA_VERSION=_jvm8
+	export NODE_VERSION=_node$(echo $NODE_VERSION_TEMPLATE |awk -F. '{printf "%d", $1}')
+	cp Dockerfile_sapjvm Dockerfile
+	sed  -i "s/NODE_VERSION_TEMPLATE/v${NODE_VERSION_TEMPLATE}/" Dockerfile
+else
+	export JAVA_VERSION=""
+	export NODE_VERSION=""
+	cp Dockerfile_basic Dockerfile
+fi
+
+# set image prefix by docker registry
+if [ $DOCKER_REGISTRY == "ghcr.io" ]; then
+	export IMAGE_PREFIX="ghcr.io/sap"
+else
+	export IMAGE_PREFIX="devxci"
+fi
+
+cat Dockerfile
+
+# build image
+docker login $DOCKER_REGISTRY -u $DOCKER_REGISTRY_USER -p $DOCKER_REGISTRY_TOKEN
+echo "Release mbtci${JAVA_VERSION}${NODE_VERSION}:${MBT_VERSION} to $DOCKER_REGISTRY"
+docker build -t mbtci${JAVA_VERSION}${NODE_VERSION}:${MBT_VERSION} .
+docker image ls mbtci${JAVA_VERSION}${NODE_VERSION}:${MBT_VERSION}
+docker-compose -f docker-compose.test.yml up
+docker tag mbtci${JAVA_VERSION}${NODE_VERSION}:${MBT_VERSION} ${IMAGE_PREFIX}/mbtci${JAVA_VERSION}${NODE_VERSION}:${MBT_VERSION}
+docker image ls ${IMAGE_PREFIX}/mbtci${JAVA_VERSION}${NODE_VERSION}:${MBT_VERSION}
+#docker push ${IMAGE_PREFIX}/mbtci${JAVA_VERSION}${NODE_VERSION}:${MBT_VERSION}
+docker tag mbtci${JAVA_VERSION}${NODE_VERSION}:${MBT_VERSION} ${IMAGE_PREFIX}/mbtci${JAVA_VERSION}${NODE_VERSION}:latest
+docker image ls ${IMAGE_PREFIX}/mbtci${JAVA_VERSION}${NODE_VERSION}:latest
+#docker push ${IMAGE_PREFIX}/mbtci${JAVA_VERSION}${NODE_VERSION}:latest
+
+rm Dockerfile
