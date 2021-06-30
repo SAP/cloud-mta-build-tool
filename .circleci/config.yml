@@ -166,18 +166,18 @@ jobs:
             echo "Image release: ${MBT_VERSION}"
 
             #Push to Docker Hub
-            ./scripts/build_image none none ${DOCKER_HUB_USER} ${DOCKER_HUB_TOKEN} "https://registry.hub.docker.com"
-            ./scripts/build_image jvm8 12.18.3 ${DOCKER_HUB_USER} ${DOCKER_HUB_TOKEN} "https://registry.hub.docker.com"
-            ./scripts/build_image jvm8 14.19.0 ${DOCKER_HUB_USER} ${DOCKER_HUB_TOKEN} "https://registry.hub.docker.com"
-            ./scripts/build_image jvm11 12.18.3 ${DOCKER_HUB_USER} ${DOCKER_HUB_TOKEN} "https://registry.hub.docker.com"
-            ./scripts/build_image jvm11 14.19.0 ${DOCKER_HUB_USER} ${DOCKER_HUB_TOKEN} "https://registry.hub.docker.com"
+            ./scripts/build_image none  none    ${MBT_VERSION} ${DOCKER_HUB_USER} ${DOCKER_HUB_TOKEN} "https://registry.hub.docker.com"
+            ./scripts/build_image jvm8  12.18.3 ${MBT_VERSION} ${DOCKER_HUB_USER} ${DOCKER_HUB_TOKEN} "https://registry.hub.docker.com"
+            ./scripts/build_image jvm8  14.17.0 ${MBT_VERSION} ${DOCKER_HUB_USER} ${DOCKER_HUB_TOKEN} "https://registry.hub.docker.com"
+            ./scripts/build_image jvm11 12.18.3 ${MBT_VERSION} ${DOCKER_HUB_USER} ${DOCKER_HUB_TOKEN} "https://registry.hub.docker.com"
+            ./scripts/build_image jvm11 14.17.0 ${MBT_VERSION} ${DOCKER_HUB_USER} ${DOCKER_HUB_TOKEN} "https://registry.hub.docker.com"
             
             #Push to GitHub Container Registry
-            ./scripts/build_image none none CloudMTABot ${CLOUD_MTA_BOT_GITHUB_TOKEN} "ghcr.io"
-            ./scripts/build_image jvm8 12.18.3 CloudMTABot ${CLOUD_MTA_BOT_GITHUB_TOKEN} "ghcr.io"
-            ./scripts/build_image jvm8 14.19.0 CloudMTABot ${CLOUD_MTA_BOT_GITHUB_TOKEN} "ghcr.io"
-            ./scripts/build_image jvm11 12.18.3 CloudMTABot ${CLOUD_MTA_BOT_GITHUB_TOKEN} "ghcr.io"
-            ./scripts/build_image jvm11 14.19.0 CloudMTABot ${CLOUD_MTA_BOT_GITHUB_TOKEN} "ghcr.io"
+            ./scripts/build_image none  none    ${MBT_VERSION} ${DOCKER_HUB_USER} ${CLOUD_MTA_BOT_GITHUB_TOKEN} "ghcr.io"
+            ./scripts/build_image jvm8  12.18.3 ${MBT_VERSION} ${DOCKER_HUB_USER} ${CLOUD_MTA_BOT_GITHUB_TOKEN} "ghcr.io"
+            ./scripts/build_image jvm8  14.17.0 ${MBT_VERSION} ${DOCKER_HUB_USER} ${CLOUD_MTA_BOT_GITHUB_TOKEN} "ghcr.io"
+            ./scripts/build_image jvm11 12.18.3 ${MBT_VERSION} ${DOCKER_HUB_USER} ${CLOUD_MTA_BOT_GITHUB_TOKEN} "ghcr.io"
+            ./scripts/build_image jvm11 14.17.0 ${MBT_VERSION} ${DOCKER_HUB_USER} ${CLOUD_MTA_BOT_GITHUB_TOKEN} "ghcr.io"
 
   ghpages:
     docker:

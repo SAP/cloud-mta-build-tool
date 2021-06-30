@@ -1,0 +1,22 @@
+# GOSS Manual: https://github.com/aelsabbahy/goss/blob/master/docs/manual.md
+# CMD: GOSS_FILES_PATH=./test/goss dgoss run --interactive --volume $PWD:/project devxci/mbtci
+package:
+  git:
+    installed: true
+  python2.7:
+    installed: true
+user:
+  mta:
+    exists: true
+    uid: 1000
+    gid: 1000
+    groups:
+      - mta
+    home: /home/mta
+    shell: /bin/bash
+command:
+  # verify installed Cloud MTA Build Tool version
+  mbt --version:
+    exit-status: 0
+    stdout:
+      - 1.2.1

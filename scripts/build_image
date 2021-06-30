@@ -16,15 +16,20 @@ if [ $JAVA_VERSION_TEMPLATE == "jvm11" ]; then
 	export NODE_VERSION=_node$(echo $NODE_VERSION_TEMPLATE |awk -F. '{printf "%d", $1}')
 	cp Dockerfile_sapmachine Dockerfile
 	sed  -i "s/NODE_VERSION_TEMPLATE/v${NODE_VERSION_TEMPLATE}/" Dockerfile
+	cp test/goss/goss_sapmachine.yaml test/goss/goss.yaml
+	sed  -i "s/NODE_VERSION_TEMPLATE/v${NODE_VERSION_TEMPLATE}/" test/goss/goss.yaml
 elif [ $JAVA_VERSION_TEMPLATE == "jvm8" ]; then
 	export JAVA_VERSION=_jvm8
 	export NODE_VERSION=_node$(echo $NODE_VERSION_TEMPLATE |awk -F. '{printf "%d", $1}')
 	cp Dockerfile_sapjvm Dockerfile
 	sed  -i "s/NODE_VERSION_TEMPLATE/v${NODE_VERSION_TEMPLATE}/" Dockerfile
+	cp test/goss/goss_sapjvm.yaml test/goss/goss.yaml
+	sed  -i "s/NODE_VERSION_TEMPLATE/v${NODE_VERSION_TEMPLATE}/" test/goss/goss.yaml
 else
 	export JAVA_VERSION=""
 	export NODE_VERSION=""
 	cp Dockerfile_basic Dockerfile
+	cp test/goss/goss_basic.yaml test/goss/goss.yaml
 fi
 
 # set image prefix by docker registry
@@ -35,6 +40,7 @@ else
 fi
 
 cat Dockerfile
+cat test/goss/goss.yaml
 
 # build image
 docker login $DOCKER_REGISTRY -u $DOCKER_REGISTRY_USER -p $DOCKER_REGISTRY_TOKEN
@@ -44,9 +50,10 @@ docker image ls mbtci${JAVA_VERSION}${NODE_VERSION}:${MBT_VERSION}
 docker-compose -f docker-compose.test.yml up
 docker tag mbtci${JAVA_VERSION}${NODE_VERSION}:${MBT_VERSION} ${IMAGE_PREFIX}/mbtci${JAVA_VERSION}${NODE_VERSION}:${MBT_VERSION}
 docker image ls ${IMAGE_PREFIX}/mbtci${JAVA_VERSION}${NODE_VERSION}:${MBT_VERSION}
-#docker push ${IMAGE_PREFIX}/mbtci${JAVA_VERSION}${NODE_VERSION}:${MBT_VERSION}
+docker push ${IMAGE_PREFIX}/mbtci${JAVA_VERSION}${NODE_VERSION}:${MBT_VERSION}
 docker tag mbtci${JAVA_VERSION}${NODE_VERSION}:${MBT_VERSION} ${IMAGE_PREFIX}/mbtci${JAVA_VERSION}${NODE_VERSION}:latest
 docker image ls ${IMAGE_PREFIX}/mbtci${JAVA_VERSION}${NODE_VERSION}:latest
-#docker push ${IMAGE_PREFIX}/mbtci${JAVA_VERSION}${NODE_VERSION}:latest
+docker push ${IMAGE_PREFIX}/mbtci${JAVA_VERSION}${NODE_VERSION}:latest
 
 rm Dockerfile
+rm test/goss/goss.yaml
