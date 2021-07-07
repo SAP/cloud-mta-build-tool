@@ -67,13 +67,22 @@ FROM ghcr.io/sap/mbtci-alpine:latest
 ##### How to use the image
 On a Linux/Darwin machine you can run:
 ```
-docker run -it --rm -v "$(pwd)/[proj-releative-path]:/project" devxci/mbtci:latest mbt build -p=cf -t [target-folder-name]
+docker run -it --rm -v "$(pwd)/[proj-releative-path]:/project" devxci/mbtci-alpine:latest mbt build -p=cf -t [target-folder-name]
 ```
 This will build an mtar file for SAP Cloud Platform (Cloud Foundry). The folder containing the project needs to be mounted into the image at /project.
 
 <b>Note:</b> The parameter `-p=cf` can be omitted as the build for cloud foundry is the default build, this is an example of the MBT build parameters, for further commands see MBT docs.
 
 ##### How to build the image
+First you need to copy the relevant Dockerfile according desired base image (alpine, sapjvm or sapmachine):
+```
+cp Dockerfile_<base image> Dockerfile
+```
+In case of base image sapjvm or sapmachine you need to replace NODE_VERSION_TEMPLATE with node version 12.18.3 or 14.17.0 in following line in the Dockerfile:
+```
+ARG NODE_VERSION=NODE_VERSION_TEMPLATE
+```
+Then you can build the image:
 ```
 docker build -t devxci/mbtci .
 ```
@@ -81,11 +90,11 @@ docker build -t devxci/mbtci .
 ##### The images provide:
 
 - Cloud MTA Build Tool - 1.2.1
-- Nodejs - 12.18.3 or 14.19.0
+- Nodejs - 12.18.3 or 14.17.0
 - Maven - 3.6.3
 - Golang - 1.14.7
 - Java - 8 or 11
-13.8
+
 The MTA Archive Builder delegates module builds to other native build tools. This image provides Node.js, Maven, Java, and Golang so the archive builder can delegate to these build technologies. In case other build tools are needed, <b>inherit</b> from this image and add more build tools.
 
 ##### License
