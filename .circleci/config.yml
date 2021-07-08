@@ -95,10 +95,16 @@ jobs:
             sed  -i "/\"version\":/s/${CURR_MBT_VERSION}/${MBT_VERSION}/" ./package.json
             sed  -i "/cli_version:/s/${CURR_MBT_VERSION}/${MBT_VERSION}/" ./configs/version.yaml
             sed  -i "s/${CURR_MBT_VERSION}/${MBT_VERSION}/" ./VERSION
+            sed  -i "/ARG MBT_VERSION=/ s/${CURR_MBT_VERSION}/${MBT_VERSION}/" ./Dockerfile_alpine
+            sed  -i "/ARG MBT_VERSION=/ s/${CURR_MBT_VERSION}/${MBT_VERSION}/" ./Dockerfile_sapjvm
+            sed  -i "/ARG MBT_VERSION=/ s/${CURR_MBT_VERSION}/${MBT_VERSION}/" ./Dockerfile_sapmachine
+            sed  -i "s/- ${CURR_MBT_VERSION}/- ${MBT_VERSION}/" ./test/goss/goss_sapjvm.yaml
+            sed  -i "s/- ${CURR_MBT_VERSION}/- ${MBT_VERSION}/" ./test/goss/goss_sapmachine.yaml
+            sed  -i "/- Cloud MTA Build Tool -/s/${CURR_MBT_VERSION}/${MBT_VERSION}/" ./README.md
             #Generate version file
             go generate -run "go run ./internal/buildtools/embed.go ./internal/buildtools/buildtools_msg.go -source=./configs/version.yaml -target=./internal/version/version_cfg.go -name=VersionConfig -package=version"
             #Add all updated files to commit
-            git add ./package.json ./configs/version.yaml ./VERSION ./internal/version/version_cfg.go
+            git add ./package.json ./configs/version.yaml ./VERSION ./internal/version/version_cfg.go ./Dockerfile_alpine ./Dockerfile_sapjvm ./Dockerfile_sapmachine ./test/goss/goss_sapjvm.yaml ./test/goss/goss_sapmachine.yaml ./README.md 
             git config user.email "${CLOUD_MTA_BOT_EMAIL}"
             git config user.name "${CLOUD_MTA_BOT_USER}"
             git commit --allow-empty -m "[skip ci] Bump version ${MBT_VERSION}"
@@ -107,18 +113,6 @@ jobs:
             #Tag
             git tag -a v${MBT_VERSION} -m "New release ${MBT_VERSION}"
             git push https://github.com/SAP/cloud-mta-build-tool.git v${MBT_VERSION}
-            #Update new version in docker branch
-            git checkout docker
-            sed  -i "/ARG MBT_VERSION=/ s/${CURR_MBT_VERSION}/${MBT_VERSION}/" ./Dockerfile
-            sed  -i "/ARG MBT_VERSION=/ s/${CURR_MBT_VERSION}/${MBT_VERSION}/" ./alpine/Dockerfile
-            sed  -i "/- Cloud MTA Build Tool -/s/${CURR_MBT_VERSION}/${MBT_VERSION}/" ./README.md
-            sed  -i "s/- ${CURR_MBT_VERSION}/- ${MBT_VERSION}/" ./test/goss/goss.yaml
-            git add ./Dockerfile ./alpine/Dockerfile ./README.md ./test/goss/goss.yaml
-            git config user.email "${CLOUD_MTA_BOT_EMAIL}"
-            git config user.name "${CLOUD_MTA_BOT_USER}"
-            git commit --allow-empty -m "[skip ci] Bump version ${MBT_VERSION}"
-            #Push commit directly to docker branch
-            git push -q https://github.com/SAP/cloud-mta-build-tool.git docker
       - run:
           name: release new version
           command: |
@@ -168,41 +162,23 @@ jobs:
       - run:
           name: release image
           command: |
+
             MBT_VERSION=$(cat ./VERSION)
             echo "Image release: ${MBT_VERSION}"
-            git checkout docker
+
             #Push to Docker Hub
-            docker login -u ${DOCKER_HUB_USER} -p ${DOCKER_HUB_TOKEN}
-            echo "Release mbtci:${MBT_VERSION} to Docker Hub"
-            docker build -t mbtci:${MBT_VERSION} .
-            docker-compose -f ./docker-compose.test.yml up
-            docker tag mbtci:${MBT_VERSION} devxci/mbtci:$MBT_VERSION
-            docker push devxci/mbtci:$MBT_VERSION
-            docker tag devxci/mbtci:$MBT_VERSION devxci/mbtci:latest
-            docker push devxci/mbtci:latest
-            echo "Release mbtci-alpine:${MBT_VERSION} to Docker Hub"
-            docker build -t mbtci-alpine:${MBT_VERSION} .
-            docker-compose -f ./docker-compose.test.yml up
-            docker tag mbtci-alpine:${MBT_VERSION} devxci/mbtci-alpine:$MBT_VERSION
-            docker push devxci/mbtci-alpine:$MBT_VERSION
-            docker tag devxci/mbtci-alpine:$MBT_VERSION devxci/mbtci-alpine:latest
-            docker push devxci/mbtci-alpine:latest
+            ./scripts/build_image none  none    ${MBT_VERSION} ${DOCKER_HUB_USER} ${DOCKER_HUB_TOKEN} "https://registry.hub.docker.com"
+            ./scripts/build_image 8     12.18.3 ${MBT_VERSION} ${DOCKER_HUB_USER} ${DOCKER_HUB_TOKEN} "https://registry.hub.docker.com"
+            ./scripts/build_image 8     14.17.0 ${MBT_VERSION} ${DOCKER_HUB_USER} ${DOCKER_HUB_TOKEN} "https://registry.hub.docker.com"
+            ./scripts/build_image 11    12.18.3 ${MBT_VERSION} ${DOCKER_HUB_USER} ${DOCKER_HUB_TOKEN} "https://registry.hub.docker.com"
+            ./scripts/build_image 11    14.17.0 ${MBT_VERSION} ${DOCKER_HUB_USER} ${DOCKER_HUB_TOKEN} "https://registry.hub.docker.com"
+            
             #Push to GitHub Container Registry
-            docker login ghcr.io -u CloudMTABot -p ${CLOUD_MTA_BOT_GITHUB_TOKEN}
-            echo "Release mbtci:${MBT_VERSION} to GHCR"
-            docker build -t mbtci:${MBT_VERSION} .
-            docker-compose -f ./docker-compose.test.yml up
-            docker tag mbtci:${MBT_VERSION} ghcr.io/sap/mbtci:$MBT_VERSION
-            docker push ghcr.io/sap/mbtci:$MBT_VERSION
-            docker tag ghcr.io/sap/mbtci:$MBT_VERSION ghcr.io/sap/mbtci:latest
-            docker push ghcr.io/sap/mbtci:latest
-            echo "Release mbtci-alpine:${MBT_VERSION} to GHCR"
-            docker build -t mbtci-alpine:${MBT_VERSION} .
-            docker-compose -f ./docker-compose.test.yml up
-            docker tag mbtci-alpine:${MBT_VERSION} ghcr.io/sap/mbtci-alpine:$MBT_VERSION
-            docker push ghcr.io/sap/mbtci-alpine:$MBT_VERSION
-            docker tag ghcr.io/sap/mbtci-alpine:$MBT_VERSION ghcr.io/sap/mbtci-alpine:latest
-            docker push ghcr.io/sap/mbtci-alpine:latest
+            ./scripts/build_image none  none    ${MBT_VERSION} ${CLOUD_MTA_BOT_USER} ${CLOUD_MTA_BOT_GITHUB_TOKEN} "ghcr.io"
+            ./scripts/build_image 8     12.18.3 ${MBT_VERSION} ${CLOUD_MTA_BOT_USER} ${CLOUD_MTA_BOT_GITHUB_TOKEN} "ghcr.io"
+            ./scripts/build_image 8     14.17.0 ${MBT_VERSION} ${CLOUD_MTA_BOT_USER} ${CLOUD_MTA_BOT_GITHUB_TOKEN} "ghcr.io"
+            ./scripts/build_image 11    12.18.3 ${MBT_VERSION} ${CLOUD_MTA_BOT_USER} ${CLOUD_MTA_BOT_GITHUB_TOKEN} "ghcr.io"
+            ./scripts/build_image 11    14.17.0 ${MBT_VERSION} ${CLOUD_MTA_BOT_USER} ${CLOUD_MTA_BOT_GITHUB_TOKEN} "ghcr.io"
 
   ghpages:
     docker:
