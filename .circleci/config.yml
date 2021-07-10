@@ -162,17 +162,18 @@ jobs:
       - run:
           name: release image
           command: |
-
+            #Make sure HEAD points to master
+            git checkout master
+            git fetch
+            git rebase
             MBT_VERSION=$(cat ./VERSION)
             echo "Image release: ${MBT_VERSION}"
-
             #Push to Docker Hub
             sh $PWD/scripts/build_image none  none    ${MBT_VERSION} ${DOCKER_HUB_USER} ${DOCKER_HUB_TOKEN} "https://registry.hub.docker.com"
             sh $PWD/scripts/build_image 8     12.18.3 ${MBT_VERSION} ${DOCKER_HUB_USER} ${DOCKER_HUB_TOKEN} "https://registry.hub.docker.com"
             sh $PWD/scripts/build_image 8     14.17.0 ${MBT_VERSION} ${DOCKER_HUB_USER} ${DOCKER_HUB_TOKEN} "https://registry.hub.docker.com"
             sh $PWD/scripts/build_image 11    12.18.3 ${MBT_VERSION} ${DOCKER_HUB_USER} ${DOCKER_HUB_TOKEN} "https://registry.hub.docker.com"
             sh $PWD/scripts/build_image 11    14.17.0 ${MBT_VERSION} ${DOCKER_HUB_USER} ${DOCKER_HUB_TOKEN} "https://registry.hub.docker.com"
-            
             #Push to GitHub Container Registry
             sh $PWD/scripts/build_image none  none    ${MBT_VERSION} ${CLOUD_MTA_BOT_USER} ${CLOUD_MTA_BOT_GITHUB_TOKEN} "ghcr.io"
             sh $PWD/scripts/build_image 8     12.18.3 ${MBT_VERSION} ${CLOUD_MTA_BOT_USER} ${CLOUD_MTA_BOT_GITHUB_TOKEN} "ghcr.io"
