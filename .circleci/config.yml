@@ -147,18 +147,12 @@ jobs:
             
   image:
     docker:
-      - image: docker:17.05.0-ce-git
+      - image: circleci/golang:1.16
     working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
     steps:
       - checkout
-      - setup_remote_docker
-      - run:
-          name: install dependencies
-          command: |
-            apk add --no-cache \
-              py-pip=9.0.0-r1
-            pip install \
-              docker-compose==1.12.0
+      - setup_remote_docker:
+          version: 20.10.6
       - run:
           name: release image
           command: |
