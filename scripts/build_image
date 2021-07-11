@@ -32,12 +32,13 @@ fi
 # set image prefix by docker registry
 if [ "$DOCKER_REGISTRY" = "ghcr.io" ]; then
 	export IMAGE_PREFIX="ghcr.io/sap"
+	echo "$DOCKER_REGISTRY_TOKEN" | docker login $DOCKER_REGISTRY --username $DOCKER_REGISTRY_USER --password-stdin
 else
 	export IMAGE_PREFIX="devxci"
+	echo "$DOCKER_REGISTRY_TOKEN" | docker login --username $DOCKER_REGISTRY_USER --password-stdin
 fi
 
 # build image
-docker login $DOCKER_REGISTRY -u $DOCKER_REGISTRY_USER -p $DOCKER_REGISTRY_TOKEN
 echo "Release mbtci${JAVA_VERSION}${NODE_VERSION}:${MBT_VERSION} to $DOCKER_REGISTRY"
 docker build -t mbtci${JAVA_VERSION}${NODE_VERSION}:${MBT_VERSION} .
 if [ "$JAVA_VERSION_TEMPLATE" = "11" ] || [ "$JAVA_VERSION_TEMPLATE" = "8" ]; then
