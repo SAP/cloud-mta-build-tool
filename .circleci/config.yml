@@ -153,6 +153,7 @@ jobs:
       - checkout
       - setup_remote_docker:
           version: 20.10.6
+          docker_layer_caching: true
       - run:
           name: release image
           command: |
