@@ -1,5 +1,6 @@
 # Cloud MTA Build Tool (Beta)
 
+# NOTE: [devxci/mbtci](https://hub.docker.com/r/devxci/mbtci) is deprecated. Start using mbtci [new images](https://github.com/SAP/cloud-mta-build-tool#available-images).
 
 The Cloud MTA Build Tool is a command-line tool that packages a multitarget application into a deployable archive (MTAR). For full documentation see [Cloud MTA build Tool](https://sap.github.io/cloud-mta-build-tool/).
 
