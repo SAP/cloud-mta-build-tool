@@ -45,6 +45,10 @@ this version is more light-weight and should be used in `production` env.
 Using the `alpine` version gives the flexibility to add "per-scenario" the required set of tools. 
 * The mbtci-alpine image is also hosted at [GitHub packages](https://github.com/orgs/SAP/packages/container/package/mbtci-alpine).
 
+##### Available images
+* Github container registry: https://github.com/orgs/SAP/packages?tab=packages&q=mbtci-
+* Docker Hub registry: https://hub.docker.com/search?q=mbtci-&type=image
+
 ##### How to pull the image
 
 From the command line:
