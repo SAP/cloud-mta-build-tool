@@ -37,17 +37,13 @@ This demo shows the basic usage of the tool. For more advanced scenarios, follow
 
 #### The Cloud MTA Build Tool Images
 The images can be used to build SAP Multitarget Applications (MTA) containing Java, Node.js, and Golang modules and **provided for CI env**. 
-The images are hosted at [hub.docker.com](https://hub.docker.com/r/devxci/mbtci) and [GitHub packages](https://github.com/SAP/cloud-mta-build-tool/packages/445909/versions).
+The images are hosted at [Github container registry](https://github.com/orgs/SAP/packages?tab=packages&q=mbtci-) and [Docker Hub registry](https://hub.docker.com/search?q=mbtci-&type=image).
 
 **Note:** 
 * For most cases, it's highly recommended to use the [alpine](https://hub.docker.com/r/devxci/mbtci-alpine) version, e.g. `docker pull devxci/mbtci-alpine` ,
 this version is more light-weight and should be used in `production` env.
 Using the `alpine` version gives the flexibility to add "per-scenario" the required set of tools. 
-* The mbtci-alpine image is also hosted at [GitHub packages](https://github.com/orgs/SAP/packages/container/package/mbtci-alpine).
-
-##### Available images
-* Github container registry: https://github.com/orgs/SAP/packages?tab=packages&q=mbtci-
-* Docker Hub registry: https://hub.docker.com/search?q=mbtci-&type=image
+* The mbtci-alpine image is also hosted at [GitHub container](https://github.com/orgs/SAP/packages/container/package/mbtci-alpine).
 
 ##### How to pull the image
 
