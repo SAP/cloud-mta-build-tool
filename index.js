@@ -11,6 +11,7 @@ module.exports = binwrap({
     'mbt'
   ],
   urls: {
+    'darwin-arm64': root + 'Darwin_arm64.tar.gz',
     'darwin-x64': root + 'Darwin_amd64.tar.gz',
     'linux-x64': root + 'Linux_amd64.tar.gz',
     'win32-x64': root + 'Windows_amd64.tar.gz'
