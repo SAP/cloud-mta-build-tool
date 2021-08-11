@@ -89,7 +89,7 @@ docker build -t devxci/mbtci .
 
 ##### The images provide:
 
-- Cloud MTA Build Tool - 1.2.3
+- Cloud MTA Build Tool - 1.2.2
 - Nodejs - 12.18.3 or 14.17.0
 - Maven - 3.6.3
 - Golang - 1.14.7
