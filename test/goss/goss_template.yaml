@@ -3,6 +3,10 @@
 package:
   git:
     installed: true
+  python2.7:
+    installed: true
+  make:
+    installed: true
 user:
   mta:
     exists: true

@@ -36,49 +36,84 @@ This demo shows the basic usage of the tool. For more advanced scenarios, follow
 </p>
 
 #### The Cloud MTA Build Tool Images
-The images can be used to build SAP Multitarget Applications (MTA) containing Java, Node.js, and Golang modules and **provided for CI env**. 
-The images are hosted at [Github container registry](https://github.com/orgs/SAP/packages?tab=packages&q=mbtci-) and [Docker Hub registry](https://hub.docker.com/search?q=mbtci-&type=image).
+We supply serveral images **for CI env** containg the Cloud MTA Build Tool. The images are hosted at [Github container registry](https://github.com/orgs/SAP/packages?tab=packages&q=mbtci-) and also at [Docker Hub registry](https://hub.docker.com/search?q=mbtci-&type=image).
+The images are built fron template docker files which depend on most common technolegies (Java and Node) as follows:
+* [mbtci-java8-node12](https://hub.docker.com/r/devxci/mbtci-java8-node12) is built from [Dockerfile_mbtci_java8](https://github.com/SAP/cloud-mta-build-tool/blob/master/Dockerfile_mbtci_java8) using Node 12.
+* [mbtci-java8-node14](https://hub.docker.com/r/devxci/mbtci-java8-node14) is built from [Dockerfile_mbtci_java8](https://github.com/SAP/cloud-mta-build-tool/blob/master/Dockerfile_mbtci_java8) using Node 14.
+* [mbtci-java11-node12](https://hub.docker.com/r/devxci/mbtci-java11-node12) is built from [Dockerfile_mbtci_java11](https://github.com/SAP/cloud-mta-build-tool/blob/master/Dockerfile_mbtci_java11) using Node 12.
+* [mbtci-java11-node14](https://hub.docker.com/r/devxci/mbtci-java11-node14) is built from [Dockerfile_mbtci_java11](https://github.com/SAP/cloud-mta-build-tool/blob/master/Dockerfile_mbtci_java14) using Node 14.
+Additional image which which is more light-weight and gives the flexibility to add "per-scenario" the required set of tools:
+* [mbtci-alpine](https://hub.docker.com/r/devxci/mbtci-alpine) is built from Dockerfile_mbtci_alpine](https://github.com/SAP/cloud-mta-build-tool/blob/master/Dockerfile_mbtci_alpine).
 
-**Note:** 
-* For most cases, it's highly recommended to use the [alpine](https://hub.docker.com/r/devxci/mbtci-alpine) version, e.g. `docker pull devxci/mbtci-alpine` ,
-this version is more light-weight and should be used in `production` env.
-Using the `alpine` version gives the flexibility to add "per-scenario" the required set of tools. 
-* The mbtci-alpine image is also hosted at [GitHub container](https://github.com/orgs/SAP/packages/container/package/mbtci-alpine).
-
-##### How to pull the image
+##### How to pull the images
+You should choose the relevant image type from following list to replace the <type> template in the command/FROM according your MTA project technolegies:
+java8-node12
+java8-node14
+java11-node12
+java11-node14
+alpine
 
 From the command line:
 ```
-$ docker pull devxci/mbtci-alpine:latest
+$ docker pull devxci/mbtci-<type>:latest
 ```
 or
 ```
-$ docker pull ghcr.io/sap/mbtci-alpine:latest
+$ docker pull ghcr.io/sap/mbtci-<type>:latest
 ```
 From Dockerfile as a base image:
 ```
-FROM devxci/mbtci-alpine:latest
+FROM devxci/mbtci-<type>:latest
 ```
 or
 ```
-FROM ghcr.io/sap/mbtci-alpine:latest
+FROM ghcr.io/sap/mbtci-<type>:latest
 ```
 
-##### How to use the image
+E.g. if your MTA project uses Java 11 and Node 14 then you should pull the relevant image as follows: 
+From the command line:
+```
+$ docker pull devxci/mbtci-java11-node14:latest
+```
+or
+```
+$ docker pull ghcr.io/sap/mbtci-java11-node14:latest
+```
+From Dockerfile as a base image:
+```
+FROM devxci/mbtci-java11-node14:latest
+```
+or
+```
+FROM ghcr.io/sap/mbtci-java11-node14:latest
+```
+
+##### How to use the images
+You should choose the relevant image type from following list to replace the <type> template in the command according your MTA project technolegies:
+java8-node12
+java8-node14
+java11-node12
+java11-node14
+alpine
+
 On a Linux/Darwin machine you can run:
 ```
-docker run -it --rm -v "$(pwd)/[proj-releative-path]:/project" devxci/mbtci-alpine:latest mbt build -p=cf -t [target-folder-name]
+docker run -it --rm -v "$(pwd)/[proj-releative-path]:/project" devxci/mbtci-<type>:latest mbt build -p=cf -t [target-folder-name]
 ```
 This will build an mtar file for SAP Cloud Platform (Cloud Foundry). The folder containing the project needs to be mounted into the image at /project.
 
 <b>Note:</b> The parameter `-p=cf` can be omitted as the build for cloud foundry is the default build, this is an example of the MBT build parameters, for further commands see MBT docs.
 
-##### How to build the image
-First you need to copy the relevant Dockerfile according desired base image (alpine, sapjvm or sapmachine):
+##### How to build the images
+To buid the images, you should choose the relevant docker file type from following list to replace the <type> template in the Dockerfile according your MTA project Java version:
+java8
+java11
+
+Copy the docker file template:
 ```
-cp Dockerfile_<base image> Dockerfile
+cp Dockerfile_<type> Dockerfile
 ```
-In case of base image sapjvm or sapmachine you need to replace NODE_VERSION_TEMPLATE with node version 12.18.3 or 14.17.0 in following line in the Dockerfile:
+Replace NODE_VERSION_TEMPLATE with your Node version in following line in the Dockerfile:
 ```
 ARG NODE_VERSION=NODE_VERSION_TEMPLATE
 ```
@@ -87,15 +122,20 @@ Then you can build the image:
 docker build -t devxci/mbtci .
 ```
 
+To build the mbtci-alpine image you can run:
+```
+docker build -f Dockerfile_alpine -t devxci/mbtci .
+```
+
 ##### The images provide:
 
 - Cloud MTA Build Tool - 1.2.3
-- Nodejs - 12.18.3 or 14.17.0
+- Nodejs - 12.22.5 or 14.17.5
 - Maven - 3.6.3
 - Golang - 1.14.7
 - Java - 8 or 11
 
-The MTA Archive Builder delegates module builds to other native build tools. This image provides Node.js, Maven, Java, and Golang so the archive builder can delegate to these build technologies. In case other build tools are needed, <b>inherit</b> from this image and add more build tools.
+The MTA Archive Builder delegates module builds to other native build tools. These images provide Node.js, Maven, Java, and Golang so the archive builder can delegate to these build technologies. In case other build tools are needed, <b>inherit</b> from one of these images and add more build tools.
 
 ##### License
 
