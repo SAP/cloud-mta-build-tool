@@ -154,7 +154,7 @@ jobs:
       - setup_remote_docker:
           version: 20.10.6
       - run:
-          name: release image
+          name: build image
           command: |
             #Make sure HEAD points to master
             git checkout master
@@ -163,17 +163,40 @@ jobs:
             MBT_VERSION=$(cat ./VERSION)
             echo "Image release: ${MBT_VERSION}"
             #Push to Docker Hub
-            sh $PWD/scripts/build_image none  none    ${MBT_VERSION} ${DOCKER_HUB_USER} ${DOCKER_HUB_TOKEN} "https://registry.hub.docker.com"
-            sh $PWD/scripts/build_image 8     12.18.3 ${MBT_VERSION} ${DOCKER_HUB_USER} ${DOCKER_HUB_TOKEN} "https://registry.hub.docker.com"
-            sh $PWD/scripts/build_image 8     14.17.0 ${MBT_VERSION} ${DOCKER_HUB_USER} ${DOCKER_HUB_TOKEN} "https://registry.hub.docker.com"
-            sh $PWD/scripts/build_image 11    12.18.3 ${MBT_VERSION} ${DOCKER_HUB_USER} ${DOCKER_HUB_TOKEN} "https://registry.hub.docker.com"
-            sh $PWD/scripts/build_image 11    14.17.0 ${MBT_VERSION} ${DOCKER_HUB_USER} ${DOCKER_HUB_TOKEN} "https://registry.hub.docker.com"
+            sh $PWD/scripts/build_image 0   0       ${MBT_VERSION}
+            sh $PWD/scripts/build_image 8   12.22.5 ${MBT_VERSION}
+            sh $PWD/scripts/build_image 8   14.17.5 ${MBT_VERSION}
+            sh $PWD/scripts/build_image 11  12.22.5 ${MBT_VERSION}
+            sh $PWD/scripts/build_image 11  14.17.5 ${MBT_VERSION}
             #Push to GitHub Container Registry
-            sh $PWD/scripts/build_image none  none    ${MBT_VERSION} ${CLOUD_MTA_BOT_USER} ${CLOUD_MTA_BOT_GITHUB_TOKEN} "ghcr.io"
-            sh $PWD/scripts/build_image 8     12.18.3 ${MBT_VERSION} ${CLOUD_MTA_BOT_USER} ${CLOUD_MTA_BOT_GITHUB_TOKEN} "ghcr.io"
-            sh $PWD/scripts/build_image 8     14.17.0 ${MBT_VERSION} ${CLOUD_MTA_BOT_USER} ${CLOUD_MTA_BOT_GITHUB_TOKEN} "ghcr.io"
-            sh $PWD/scripts/build_image 11    12.18.3 ${MBT_VERSION} ${CLOUD_MTA_BOT_USER} ${CLOUD_MTA_BOT_GITHUB_TOKEN} "ghcr.io"
-            sh $PWD/scripts/build_image 11    14.17.0 ${MBT_VERSION} ${CLOUD_MTA_BOT_USER} ${CLOUD_MTA_BOT_GITHUB_TOKEN} "ghcr.io"
+            sh $PWD/scripts/build_image 0   0   ${MBT_VERSION}
+            sh $PWD/scripts/build_image 8   12  ${MBT_VERSION}
+            sh $PWD/scripts/build_image 8   14  ${MBT_VERSION}
+            sh $PWD/scripts/build_image 11  12  ${MBT_VERSION}
+            sh $PWD/scripts/build_image 11  14  ${MBT_VERSION}
+      - run:
+          name: publish image
+          command: |
+            #Make sure HEAD points to master
+            git checkout master
+            git fetch
+            git rebase
+            MBT_VERSION=$(cat ./VERSION)
+            echo "Image release: ${MBT_VERSION}"
+            #Push to Docker Hub
+            echo "$DOCKER_HUB_TOKEN" | docker login --username $DOCKER_HUB_USER --password-stdin
+            sh $PWD/scripts/publish_image 0   0   ${MBT_VERSION} ${DOCKER_HUB_USER} ${DOCKER_HUB_TOKEN} "devxci"
+            sh $PWD/scripts/publish_image 8   12  ${MBT_VERSION} ${DOCKER_HUB_USER} ${DOCKER_HUB_TOKEN} "devxci"
+            sh $PWD/scripts/publish_image 8   14  ${MBT_VERSION} ${DOCKER_HUB_USER} ${DOCKER_HUB_TOKEN} "devxci"
+            sh $PWD/scripts/publish_image 11  12  ${MBT_VERSION} ${DOCKER_HUB_USER} ${DOCKER_HUB_TOKEN} "devxci"
+            sh $PWD/scripts/publish_image 11  14  ${MBT_VERSION} ${DOCKER_HUB_USER} ${DOCKER_HUB_TOKEN} "devxci"
+            #Push to GitHub Container Registry
+            echo "$DOCKER_HUB_TOKEN" | docker login "ghcr.io" --username $DOCKER_HUB_USER --password-stdin
+            sh $PWD/scripts/publish_image 0   0   ${MBT_VERSION} ${CLOUD_MTA_BOT_USER} ${CLOUD_MTA_BOT_GITHUB_TOKEN} "ghcr.io/sap"
+            sh $PWD/scripts/publish_image 8   12  ${MBT_VERSION} ${CLOUD_MTA_BOT_USER} ${CLOUD_MTA_BOT_GITHUB_TOKEN} "ghcr.io/sap"
+            sh $PWD/scripts/publish_image 8   14  ${MBT_VERSION} ${CLOUD_MTA_BOT_USER} ${CLOUD_MTA_BOT_GITHUB_TOKEN} "ghcr.io/sap"
+            sh $PWD/scripts/publish_image 11  12  ${MBT_VERSION} ${CLOUD_MTA_BOT_USER} ${CLOUD_MTA_BOT_GITHUB_TOKEN} "ghcr.io/sap"
+            sh $PWD/scripts/publish_image 11  14  ${MBT_VERSION} ${CLOUD_MTA_BOT_USER} ${CLOUD_MTA_BOT_GITHUB_TOKEN} "ghcr.io/sap"
 
   ghpages:
     docker:
