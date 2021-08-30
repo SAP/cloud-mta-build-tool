@@ -169,11 +169,11 @@ jobs:
             sh $PWD/scripts/build_image 11  12.22.5 ${MBT_VERSION}
             sh $PWD/scripts/build_image 11  14.17.5 ${MBT_VERSION}
             #Push to GitHub Container Registry
-            sh $PWD/scripts/build_image 0   0       ${MBT_VERSION}
-            sh $PWD/scripts/build_image 8   12.22.5 ${MBT_VERSION}
-            sh $PWD/scripts/build_image 8   14.17.5 ${MBT_VERSION}
-            sh $PWD/scripts/build_image 11  12.22.5 ${MBT_VERSION}
-            sh $PWD/scripts/build_image 11  14.17.5 ${MBT_VERSION}
+            sh $PWD/scripts/build_image 0   0   ${MBT_VERSION}
+            sh $PWD/scripts/build_image 8   12  ${MBT_VERSION}
+            sh $PWD/scripts/build_image 8   14  ${MBT_VERSION}
+            sh $PWD/scripts/build_image 11  12  ${MBT_VERSION}
+            sh $PWD/scripts/build_image 11  14  ${MBT_VERSION}
       - run:
           name: publish image
           command: |
