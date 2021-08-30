@@ -47,7 +47,7 @@ Additional image which is more light-weight and gives the flexibility to add "pe
 * [mbtci-alpine](https://hub.docker.com/r/devxci/mbtci-alpine) is built from [Dockerfile_mbtci_alpine](https://github.com/SAP/cloud-mta-build-tool/blob/master/Dockerfile_mbtci_alpine).
 
 ##### How to pull the images
-You should choose the relevant image type from following list to replace the <TYPE> template in the command/FROM according your MTA project technolegies:
+You should choose the relevant image type from following list to replace the `<TYPE>` template in the command/FROM according your MTA project technolegies:
 * java8-node12
 * java8-node14
 * java11-node12
@@ -93,7 +93,7 @@ FROM ghcr.io/sap/mbtci-java11-node14:latest
 ```
 
 ##### How to use the images
-You should choose the relevant image type from following list to replace the <type> template in the command according your MTA project technolegies:
+You should choose the relevant image type from following list to replace the `<TYPE>` template in the command according your MTA project technolegies:
 * java8-node12
 * java8-node14
 * java11-node12
@@ -102,22 +102,26 @@ You should choose the relevant image type from following list to replace the <ty
 
 On a Linux/Darwin machine you can run:
 ```
-docker run -it --rm -v "$(pwd)/[proj-releative-path]:/project" devxci/mbtci-<type>:latest mbt build -p=cf -t [target-folder-name]
+docker run -it --rm -v "$(pwd)/[proj-releative-path]:/project" devxci/mbtci-<TYPE>:latest mbt build -p=cf -t [target-folder-name]
 ```
 This will build an mtar file for SAP Cloud Platform (Cloud Foundry). The folder containing the project needs to be mounted into the image at /project.
 
 <b>Note:</b> The parameter `-p=cf` can be omitted as the build for cloud foundry is the default build, this is an example of the MBT build parameters, for further commands see MBT docs.
 
 ##### How to build the images
-To buid the images, you should choose the relevant docker file type from following list to replace the <type> template in the Dockerfile according your MTA project Java version:
+To buid the images, you should choose the relevant docker file type from following list to replace the `<TYPE>` template in the Dockerfile according your MTA project Java version:
 * java8
 * java11
 
 Copy the docker file template:
 ```
-cp Dockerfile_<type> Dockerfile
+cp Dockerfile_<TYPE> Dockerfile
 ```
-Replace NODE_VERSION_TEMPLATE with your Node version in following line in the Dockerfile:
+E.g. copy the docker file used for Java 8:
+```
+cp Dockerfile_java8 Dockerfile
+```
+Replace `NODE_VERSION_TEMPLATE` with your Node version in the Dockerfile:
 ```
 ARG NODE_VERSION=NODE_VERSION_TEMPLATE
 ```
