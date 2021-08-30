@@ -57,7 +57,7 @@ RUN apt-get update && \
     ln -s "${NODE_HOME}/node-${NODE_VERSION}-linux-x64/bin/npx" /usr/local/bin/ && \
     npm install --prefix /usr/local/ -g grunt-cli && \
 	
-# install ui5-cli temporay solution
+# install ui5-cli temporary solution
 	npm install --prefix /usr/local/ -g @ui5/cli && \
 
 # installing Golang
