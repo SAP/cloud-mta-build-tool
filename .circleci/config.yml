@@ -161,18 +161,12 @@ jobs:
             git rebase
             MBT_VERSION=$(cat ./VERSION)
             echo "Image release: ${MBT_VERSION}"
-            #Push to Docker Hub
+            #Build images
             sh $PWD/scripts/build_image 0   0       ${MBT_VERSION}
             sh $PWD/scripts/build_image 8   12.22.5 ${MBT_VERSION}
             sh $PWD/scripts/build_image 8   14.17.5 ${MBT_VERSION}
             sh $PWD/scripts/build_image 11  12.22.5 ${MBT_VERSION}
             sh $PWD/scripts/build_image 11  14.17.5 ${MBT_VERSION}
-            #Push to GitHub Container Registry
-            sh $PWD/scripts/build_image 0   0   ${MBT_VERSION}
-            sh $PWD/scripts/build_image 8   12  ${MBT_VERSION}
-            sh $PWD/scripts/build_image 8   14  ${MBT_VERSION}
-            sh $PWD/scripts/build_image 11  12  ${MBT_VERSION}
-            sh $PWD/scripts/build_image 11  14  ${MBT_VERSION}
       - run:
           name: publish image
           command: |
@@ -184,18 +178,18 @@ jobs:
             echo "Image release: ${MBT_VERSION}"
             #Push to Docker Hub
             echo "$DOCKER_HUB_TOKEN" | docker login --username $DOCKER_HUB_USER --password-stdin
-            sh $PWD/scripts/publish_image 0   0   ${MBT_VERSION} ${DOCKER_HUB_USER} ${DOCKER_HUB_TOKEN} "devxci"
-            sh $PWD/scripts/publish_image 8   12  ${MBT_VERSION} ${DOCKER_HUB_USER} ${DOCKER_HUB_TOKEN} "devxci"
-            sh $PWD/scripts/publish_image 8   14  ${MBT_VERSION} ${DOCKER_HUB_USER} ${DOCKER_HUB_TOKEN} "devxci"
-            sh $PWD/scripts/publish_image 11  12  ${MBT_VERSION} ${DOCKER_HUB_USER} ${DOCKER_HUB_TOKEN} "devxci"
-            sh $PWD/scripts/publish_image 11  14  ${MBT_VERSION} ${DOCKER_HUB_USER} ${DOCKER_HUB_TOKEN} "devxci"
+            sh $PWD/scripts/publish_image 0   0   ${MBT_VERSION} "devxci"
+            sh $PWD/scripts/publish_image 8   12  ${MBT_VERSION} "devxci"
+            sh $PWD/scripts/publish_image 8   14  ${MBT_VERSION} "devxci"
+            sh $PWD/scripts/publish_image 11  12  ${MBT_VERSION} "devxci"
+            sh $PWD/scripts/publish_image 11  14  ${MBT_VERSION} "devxci"
             #Push to GitHub Container Registry
             echo "$DOCKER_HUB_TOKEN" | docker login "ghcr.io" --username $DOCKER_HUB_USER --password-stdin
-            sh $PWD/scripts/publish_image 0   0   ${MBT_VERSION} ${CLOUD_MTA_BOT_USER} ${CLOUD_MTA_BOT_GITHUB_TOKEN} "ghcr.io/sap"
-            sh $PWD/scripts/publish_image 8   12  ${MBT_VERSION} ${CLOUD_MTA_BOT_USER} ${CLOUD_MTA_BOT_GITHUB_TOKEN} "ghcr.io/sap"
-            sh $PWD/scripts/publish_image 8   14  ${MBT_VERSION} ${CLOUD_MTA_BOT_USER} ${CLOUD_MTA_BOT_GITHUB_TOKEN} "ghcr.io/sap"
-            sh $PWD/scripts/publish_image 11  12  ${MBT_VERSION} ${CLOUD_MTA_BOT_USER} ${CLOUD_MTA_BOT_GITHUB_TOKEN} "ghcr.io/sap"
-            sh $PWD/scripts/publish_image 11  14  ${MBT_VERSION} ${CLOUD_MTA_BOT_USER} ${CLOUD_MTA_BOT_GITHUB_TOKEN} "ghcr.io/sap"
+            sh $PWD/scripts/publish_image 0   0   ${MBT_VERSION} "ghcr.io/sap"
+            sh $PWD/scripts/publish_image 8   12  ${MBT_VERSION} "ghcr.io/sap"
+            sh $PWD/scripts/publish_image 8   14  ${MBT_VERSION} "ghcr.io/sap"
+            sh $PWD/scripts/publish_image 11  12  ${MBT_VERSION} "ghcr.io/sap"
+            sh $PWD/scripts/publish_image 11  14  ${MBT_VERSION} "ghcr.io/sap"
 
   ghpages:
     docker:
