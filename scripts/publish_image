@@ -9,7 +9,7 @@ export DOCKER_REGISTRY_TOKEN="$5"
 export DOCKER_REGISTRY="$6"
 
 # set jvm and node version
-if [ $JAVA_VERSION_TEMPLATE" = "11" ]
+if [ "$JAVA_VERSION_TEMPLATE" = "11" ]
 then
 	export JAVA_VERSION="-java11"
 	export NODE_VERSION="-node$NODE_VERSION_TEMPLATE"
