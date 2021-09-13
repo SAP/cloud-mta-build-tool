@@ -9,7 +9,7 @@ export DOCKER_REGISTRY_TOKEN="$5"
 export DOCKER_REGISTRY="$6"
 
 # set jvm and node version
-if [ "$JAVA_VERSION_TEMPLATE" = "11" ]
+if [ $JAVA_VERSION_TEMPLATE" = "11" ]
 then
 	export JAVA_VERSION="-java11"
 	export NODE_VERSION="-node$NODE_VERSION_TEMPLATE"
@@ -32,6 +32,7 @@ else
 	export IMAGE_PREFIX="devxci"
 	echo "$DOCKER_REGISTRY_TOKEN" | docker login --username $DOCKER_REGISTRY_USER --password-stdin
 fi
+
 docker tag mbtci${JAVA_VERSION}${NODE_VERSION}:${MBT_VERSION} ${IMAGE_PREFIX}/mbtci${JAVA_VERSION}${NODE_VERSION}:${MBT_VERSION}
 docker push ${IMAGE_PREFIX}/mbtci${JAVA_VERSION}${NODE_VERSION}:${MBT_VERSION}
 docker tag mbtci${JAVA_VERSION}${NODE_VERSION}:${MBT_VERSION} ${IMAGE_PREFIX}/mbtci${JAVA_VERSION}${NODE_VERSION}:latest
