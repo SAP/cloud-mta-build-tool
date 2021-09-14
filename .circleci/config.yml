@@ -184,7 +184,7 @@ jobs:
             sh $PWD/scripts/publish_image 11  12  ${MBT_VERSION} "devxci"
             sh $PWD/scripts/publish_image 11  14  ${MBT_VERSION} "devxci"
             #Push to GitHub Container Registry
-            echo "$DOCKER_HUB_TOKEN" | docker login "ghcr.io" --username $DOCKER_HUB_USER --password-stdin
+            echo "$CLOUD_MTA_BOT_GITHUB_TOKEN" | docker login "ghcr.io" --username $CLOUD_MTA_BOT_USER --password-stdin
             sh $PWD/scripts/publish_image 0   0   ${MBT_VERSION} "ghcr.io/sap"
             sh $PWD/scripts/publish_image 8   12  ${MBT_VERSION} "ghcr.io/sap"
             sh $PWD/scripts/publish_image 8   14  ${MBT_VERSION} "ghcr.io/sap"
@@ -271,17 +271,17 @@ workflows:
               only: /release/
             branches:
               ignore: /.*/
-      - publish:
+      - image:
           requires:
-            - image
+            - release
           filters:  # job runs on tag 'release' for no branches
             tags:
               only: /release/
             branches:
               ignore: /.*/
-      - image:
+      - publish:
           requires:
-            - release
+            - image
           filters:  # job runs on tag 'release' for no branches
             tags:
               only: /release/
