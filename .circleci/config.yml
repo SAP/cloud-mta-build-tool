@@ -40,7 +40,7 @@ jobs:
       - run:
           name: install dependencies
           command: |
-            go mod vendor
+            go mod tidy
       - run: cf login -a $CF_API -o $ORG -s $SPACE -u $TECH_USER -p $TECH_PASS
       - run: cd integration &&  go test -tags=integration
 
