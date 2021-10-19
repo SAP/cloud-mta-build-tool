@@ -46,7 +46,7 @@ jobs:
 
   compliance:
     docker:
-      - image: circleci/python:3.6.4
+      - image: cimg/python:3.10.0
     working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
     steps:
       - checkout
