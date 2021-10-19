@@ -23,6 +23,7 @@ jobs:
           name: cov install coverge deps
           command: |
             go get golang.org/x/tools/cmd/cover
+            go get golang.org/x/net/html/charset
             go get github.com/mattn/goveralls
             go get github.com/modocache/gover
             go install github.com/mattn/goveralls
