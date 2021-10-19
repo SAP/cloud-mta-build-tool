@@ -53,7 +53,7 @@ jobs:
       - run:
           name: compliance check
           command: |
-            pip3 install --upgrade pip --user reuse
+            pip3 install --user reuse
             ~/.local/bin/reuse lint
             
   release:
