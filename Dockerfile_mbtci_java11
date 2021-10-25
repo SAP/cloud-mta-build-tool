@@ -1,4 +1,4 @@
-FROM sapmachine:latest
+FROM sapmachine:11
 
 # Build time arguments
 ARG MTA_USER_HOME=/home/mta
