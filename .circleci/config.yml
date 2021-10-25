@@ -3,7 +3,7 @@ version: 2.1
 jobs:
   build:
     docker:
-      - image: circleci/golang:1.16
+      - image: cimg/go:1.16
 
     environment:
     working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
@@ -16,13 +16,14 @@ jobs:
           command: |
             go mod vendor
       - run: go test -v ./...
-      - run: sudo chown circleci:circleci /go/bin
+      - run: sudo chown circleci:circleci $GOPATH/bin
       - run: make tools
       - run: make lint
       - run:
           name: cov install coverge deps
           command: |
             go get golang.org/x/tools/cmd/cover
+            go get golang.org/x/net/html/charset
             go get github.com/mattn/goveralls
             go get github.com/modocache/gover
             go install github.com/mattn/goveralls
@@ -46,7 +47,7 @@ jobs:
 
   compliance:
     docker:
-      - image: circleci/python:3.10.0
+      - image: cimg/python:3.10.0
     working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
     steps:
       - checkout
@@ -58,7 +59,7 @@ jobs:
             
   release:
     docker:
-      - image: circleci/golang:1.16
+      - image: cimg/go:1.16
     working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
     steps:
       - add_ssh_keys:
@@ -122,7 +123,7 @@ jobs:
             
   publish:
     docker:
-      - image: circleci/node:13.1.0
+      - image: cimg/node:13.1.0
     working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
     steps:
       - add_ssh_keys:
@@ -146,7 +147,7 @@ jobs:
             
   image:
     docker:
-      - image: circleci/golang:1.16
+      - image: cimg/go:1.16
     working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
     steps:
       - checkout
