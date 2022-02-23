@@ -8,12 +8,10 @@
     "bin"
   ],
   "scripts": {
-    "ci": "npm-run-all prepare test",
     "install": "binwrap-install",
     "prepare": "binwrap-prepare",
-    "test": "npm-run-all test:*",
-    "test:binwrap-urls-test": "binwrap-test",
-    "test:binwrap-js-wrapper-exists": "node ./bin/mbt --version"
+    "test": "binwrap-test",
+    "prepublish": "npm test"
   },
   "bin": {
     "mbt": "bin/mbt"
@@ -30,8 +28,5 @@
   "homepage": "https://github.com/SAP/cloud-mta-build-tool#readme",
   "dependencies": {
     "binwrap": "0.2.2"
-  },
-  "devDependencies": {
-    "npm-run-all": "4.1.5"
   }
 }
