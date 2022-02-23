@@ -34,6 +34,8 @@ jobs:
 
   test:
     docker:
+      # TODO: what exactly is this docker image? who controls it?
+      #       It may be better to download/install needed binaries each time instead of relying on strange docker image
       - image: shimit/mbt_multi:0.3.0
     working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
     steps:
@@ -120,26 +122,44 @@ jobs:
             git checkout master
             export GITHUB_TOKEN=${CLOUD_MTA_BOT_GITHUB_TOKEN}
             curl -sL https://git.io/goreleaser | bash
-            
+
+  test-node:
+    docker:
+      - image: circleci/node:14
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - run: npm install
+      - run: npm run ci
+
   publish:
     docker:
-      - image: circleci/node:13.1.0
-    working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
+      - image: circleci/node:14
+    working_directory: ~/repo
     steps:
+      # TODO: are these fingerprints really needed for nodejs build
       - add_ssh_keys:
           fingerprints:
             - "c3:2b:e9:bb:d5:05:32:ab:df:ce:2b:c3:e5:f7:95:42"
       - checkout
       - run:
-          name: publish to npm
+          # TODO: is there a better way to ensure the command will only run on latest "main" branch`?
+          # TODO: is this even necessary, should not the `release` tag be pointing to a commit on "main" branch anyhow?
+          # TODO: this could introduce a race condition in another commit was made to "main" branch before fetch -> rebase
+          name: Make sure HEAD points to "main" branch
           command: |
-            #Make sure HEAD points to master
             git checkout master
             git fetch
             git rebase
+      - run: npm install
+      - run: npm run ci
+      - run:
+          name: publish to npm
+          command: |
             echo "//registry.npmjs.org/:_authToken=$CLOUD_MTA_BOT_NPM_TOKEN" > .npmrc
-            npm install
             npm publish
+      # TODO: if any problem occurred during the release, the tag would not get deleted
+      #       It seems, meaningful version tags (e.g: v1.25.0) should have been used instead.
       - run:
           name: remove dummy release tag
           command: |
