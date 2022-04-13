@@ -7,7 +7,13 @@ ARG MBT_VERSION=1.2.8
 ARG GO_VERSION=1.15.6
 ARG NODE_VERSION=NODE_VERSION_TEMPLATE
 ARG MAVEN_VERSION=3.6.3
-ARG JAVA_VERSION=8.1.080
+# This is used to build the download URL
+# e.g: https://tools.hana.ondemand.com/additional/sapjvm-8.1.086-linux-x64.zip
+# note that sometimes old versions are removed and new patch versions are added
+# so this argument's value may need to be updated in the future
+# Also see JVM section here:
+# - https://tools.hana.ondemand.com/#cloud
+ARG JAVA_VERSION=8.1.086
 
 # Environment variables
 ENV JAVA_HOME /opt/jdk
