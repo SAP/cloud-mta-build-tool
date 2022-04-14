@@ -73,4 +73,7 @@ module-types:
     path: "path to config file which override the following default commands"
     builder: npm
 
-
+  - name: siteentry
+    info: "build portal site-entry application"
+    path: "path to config file which override the following default commands"
+    builder: npm
