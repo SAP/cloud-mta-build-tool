@@ -83,6 +83,9 @@ platform:
   - native-type: nodejs
     platform-type: "javascript.nodejs"
 
+  - native-type: siteentry
+    platform-type: "javascript.nodejs"
+    
   - native-type: java
     platform-type: "java.tomee"
     properties:
