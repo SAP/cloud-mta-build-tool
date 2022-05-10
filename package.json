@@ -13,7 +13,7 @@
     "prepare": "binwrap-prepare",
     "test": "npm run test:binwrap-links && npm run test:binwrap-binary",
     "test:binwrap-links": "binwrap-test",
-    "test:binwrap-binary": "./bin/mbt",
+    "test:binwrap-binary": "node ./bin/mbt",
     "prepublish": "npm test"
   },
   "bin": {
