@@ -9,8 +9,11 @@
   ],
   "scripts": {
     "install": "binwrap-install",
+    "ci": "npm run prepare && npm run test:binwrap-binary",
     "prepare": "binwrap-prepare",
-    "test": "binwrap-test && ./bin/mbt",
+    "test": "npm run test:binwrap-links && npm run test:binwrap-binary",
+    "test:binwrap-links": "binwrap-test",
+    "test:binwrap-binary": "./bin/mbt",
     "prepublish": "npm test"
   },
   "bin": {

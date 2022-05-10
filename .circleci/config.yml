@@ -1,6 +1,18 @@
 # Golang CircleCI 2.0 configuration
 version: 2.1
 jobs:
+
+  build-node:
+    docker:
+      - image: circleci/node:16
+    working_directory: ~/repo
+    steps:
+      - checkout
+      # `--ignore-scripts` is needed to avoid running the tests before
+      # the `prepare` script created the binary wrapper in `./bin/mbt`
+      - run: npm install --ignore-scripts
+      - run: npm run ci
+
   build:
     docker:
       - image: cimg/go:1.16
@@ -124,7 +136,7 @@ jobs:
             
   publish:
     docker:
-      - image: circleci/node:13.1.0
+      - image: circleci/node:16
     working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
     steps:
       - add_ssh_keys:
@@ -230,6 +242,10 @@ workflows:
           filters:
             branches:
               ignore: master
+      - build-node:
+          filters:
+            branches:
+              ignore: master
       - compliance:
           filters:
             branches:
@@ -247,6 +263,10 @@ workflows:
           filters:
             branches:
               only: master
+      - build-node:
+          filters:
+            branches:
+              ignore: master
       - compliance:
           filters:
             branches:
