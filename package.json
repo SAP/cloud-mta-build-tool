@@ -10,7 +10,7 @@
   "scripts": {
     "install": "binwrap-install",
     "prepare": "binwrap-prepare",
-    "test": "binwrap-test",
+    "test": "binwrap-test && ./bin/mbt",
     "prepublish": "npm test"
   },
   "bin": {
