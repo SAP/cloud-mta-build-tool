@@ -139,7 +139,7 @@ docker build -f Dockerfile_alpine -t devxci/mbtci .
 
 ##### The images provide:
 
-- Cloud MTA Build Tool - 1.2.10
+- Cloud MTA Build Tool - 1.2.11
 - Nodejs - 14.19.2 or 16.15.0 or 18.1.0
 - Maven - 3.6.3
 - Golang - 1.14.7
