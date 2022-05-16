@@ -167,13 +167,6 @@ jobs:
       - setup_remote_docker:
           version: 20.10.6
       - run:
-          name: build image pre-setup
-          command: |
-            #Make sure HEAD points to master
-            git checkout master
-            git fetch
-            git rebase
-      - run:
           name: "build base image"
           command: |
                 MBT_VERSION=$(cat ./VERSION)
@@ -193,52 +186,7 @@ jobs:
           command: |
             MBT_VERSION=$(cat ./VERSION)
             sh $PWD/scripts/build_image 8   18.1.0 ${MBT_VERSION}      
-
-      - run:
-          name: "build Java 11 & Node 14 image"
-          command: |
-               MBT_VERSION=$(cat ./VERSION)
-               sh $PWD/scripts/build_image 11  14.19.2 ${MBT_VERSION}
-      - run:
-          name: "build Java 11 & Node 16 image"
-          command: |
-              MBT_VERSION=$(cat ./VERSION)
-              sh $PWD/scripts/build_image 11  16.15.0 ${MBT_VERSION}
-      - run:
-          name: "build Java 11 & Node 18 image"
-          command: |
-            MBT_VERSION=$(cat ./VERSION)
-            sh $PWD/scripts/build_image 11  18.1.0 ${MBT_VERSION}
       
-
-      - run:
-          name: publish image
-          command: |
-            #Make sure HEAD points to master
-            git checkout master
-            git fetch
-            git rebase
-            MBT_VERSION=$(cat ./VERSION)
-            echo "Image release: ${MBT_VERSION}"
-            #Push to Docker Hub
-            echo "$DOCKER_HUB_TOKEN" | docker login --username $DOCKER_HUB_USER --password-stdin
-            sh $PWD/scripts/publish_image 0   0   ${MBT_VERSION} "devxci"
-            sh $PWD/scripts/publish_image 8   14  ${MBT_VERSION} "devxci"
-            sh $PWD/scripts/publish_image 8   16  ${MBT_VERSION} "devxci"
-            sh $PWD/scripts/publish_image 8   18  ${MBT_VERSION} "devxci"
-            sh $PWD/scripts/publish_image 11  14  ${MBT_VERSION} "devxci"
-            sh $PWD/scripts/publish_image 11  16  ${MBT_VERSION} "devxci"
-            sh $PWD/scripts/publish_image 11  18  ${MBT_VERSION} "devxci"
-
-            #Push to GitHub Container Registry
-            echo "$CLOUD_MTA_BOT_GITHUB_TOKEN" | docker login "ghcr.io" --username $CLOUD_MTA_BOT_USER --password-stdin
-            sh $PWD/scripts/publish_image 0   0   ${MBT_VERSION} "ghcr.io/sap"
-            sh $PWD/scripts/publish_image 8   14  ${MBT_VERSION} "ghcr.io/sap"
-            sh $PWD/scripts/publish_image 8   16  ${MBT_VERSION} "ghcr.io/sap"
-            sh $PWD/scripts/publish_image 8   18  ${MBT_VERSION} "ghcr.io/sap"
-            sh $PWD/scripts/publish_image 11  14  ${MBT_VERSION} "ghcr.io/sap"
-            sh $PWD/scripts/publish_image 11  16  ${MBT_VERSION} "ghcr.io/sap"
-            sh $PWD/scripts/publish_image 11  18  ${MBT_VERSION} "ghcr.io/sap"
 
   ghpages:
     docker:
@@ -256,24 +204,28 @@ workflows:
   version: 2
   on_pr_build:
     jobs:
-      - build:
+      - image:
           filters:
             branches:
               ignore: master
-      - build-node:
-          filters:
-            branches:
-              ignore: master
-      - compliance:
-          filters:
-            branches:
-              ignore: master
-      - test:
-          requires:
-            - build
-          filters:
-            branches:
-              ignore: master
+#      - build:
+#          filters:
+#            branches:
+#              ignore: master
+#      - build-node:
+#          filters:
+#            branches:
+#              ignore: master
+#      - compliance:
+#          filters:
+#            branches:
+#              ignore: master
+#      - test:
+#          requires:
+#            - build
+#          filters:
+#            branches:
+#              ignore: master
 
   on_merge_build_test:
     jobs:
