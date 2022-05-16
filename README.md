@@ -96,10 +96,12 @@ FROM ghcr.io/sap/mbtci-java11-node14:latest
 
 ##### How to use the images
 You should choose the relevant image type from following list to replace the `<TYPE>` template in the command according your MTA project technologies:
-* java8-node12
 * java8-node14
-* java11-node12
+* java8-node16
+* java8-node18
 * java11-node14
+* java11-node16
+* java11-node18
 * java17-node14
 * alpine
 
@@ -112,7 +114,7 @@ This will build an mtar file for SAP Cloud Platform (Cloud Foundry). The folder 
 <b>Note:</b> The parameter `-p=cf` can be omitted as the build for cloud foundry is the default build, this is an example of the MBT build parameters, for further commands see MBT docs.
 
 ##### How to build the images
-To buid the images, you should choose the relevant docker file type from following list to replace the `<TYPE>` template in the Dockerfile according your MTA project Java version:
+To build the images, you should choose the relevant docker file type from following list to replace the `<TYPE>` template in the Dockerfile according your MTA project Java version:
 * java8
 * java11
 * java17
@@ -141,8 +143,8 @@ docker build -f Dockerfile_alpine -t devxci/mbtci .
 
 ##### The images provide:
 
-- Cloud MTA Build Tool - 1.2.8
-- Nodejs - 12.22.5 or 14.17.5
+- Cloud MTA Build Tool - 1.2.11
+- Nodejs - 14.19.2 or 16.15.0 or 18.1.0
 - Maven - 3.6.3
 - Golang - 1.14.7
 - Java - 8 or 11 or 17

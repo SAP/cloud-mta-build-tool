@@ -1,6 +1,18 @@
 # Golang CircleCI 2.0 configuration
 version: 2.1
 jobs:
+
+  build-node:
+    docker:
+      - image: circleci/node:16
+    working_directory: ~/repo
+    steps:
+      - checkout
+      # `--ignore-scripts` is needed to avoid running the tests before
+      # the `prepare` script created the binary wrapper in `./bin/mbt`
+      - run: npm install --ignore-scripts
+      - run: npm run ci
+
   build:
     docker:
       - image: cimg/go:1.16
@@ -28,6 +40,7 @@ jobs:
             go get github.com/modocache/gover
             go install github.com/mattn/goveralls
             go install github.com/modocache/gover
+            go get golang.org/x/crypto/ssh/terminal
       - run: go test -v ./... -coverprofile=mta.coverprofile
       - run: gover
       - run: goveralls -v -service=circle-ci -coverprofile=gover.coverprofile -repotoken $COVERALLS_TOKEN
@@ -124,7 +137,7 @@ jobs:
             
   publish:
     docker:
-      - image: circleci/node:13.1.0
+      - image: circleci/node:16
     working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
     steps:
       - add_ssh_keys:
@@ -155,20 +168,50 @@ jobs:
       - setup_remote_docker:
           version: 20.10.6
       - run:
-          name: build image
+          name: build image pre-setup
           command: |
             #Make sure HEAD points to master
             git checkout master
             git fetch
             git rebase
+      - run:
+          name: "build base image"
+          command: |
+                MBT_VERSION=$(cat ./VERSION)
+                sh $PWD/scripts/build_image 0   0       ${MBT_VERSION}
+      - run:
+          name: "build Java 8 & Node 14 image"
+          command: |
+                MBT_VERSION=$(cat ./VERSION)
+                sh $PWD/scripts/build_image 8   14.19.2 ${MBT_VERSION}
+      - run:
+          name: "build Java 8 & Node 16 image"
+          command: |
+                MBT_VERSION=$(cat ./VERSION)
+                sh $PWD/scripts/build_image 8   16.15.0 ${MBT_VERSION}
+      - run:
+          name: "build Java 8 & Node 18 image"
+          command: |
             MBT_VERSION=$(cat ./VERSION)
-            echo "Image release: ${MBT_VERSION}"
-            #Build images
-            sh $PWD/scripts/build_image 0   0       ${MBT_VERSION}
-            sh $PWD/scripts/build_image 8   12.22.5 ${MBT_VERSION}
-            sh $PWD/scripts/build_image 8   14.17.5 ${MBT_VERSION}
-            sh $PWD/scripts/build_image 11  12.22.5 ${MBT_VERSION}
-            sh $PWD/scripts/build_image 11  14.17.5 ${MBT_VERSION}
+            sh $PWD/scripts/build_image 8   18.1.0 ${MBT_VERSION}      
+
+      - run:
+          name: "build Java 11 & Node 14 image"
+          command: |
+               MBT_VERSION=$(cat ./VERSION)
+               sh $PWD/scripts/build_image 11  14.19.2 ${MBT_VERSION}
+      - run:
+          name: "build Java 11 & Node 16 image"
+          command: |
+              MBT_VERSION=$(cat ./VERSION)
+              sh $PWD/scripts/build_image 11  16.15.0 ${MBT_VERSION}
+      - run:
+          name: "build Java 11 & Node 18 image"
+          command: |
+            MBT_VERSION=$(cat ./VERSION)
+            sh $PWD/scripts/build_image 11  18.1.0 ${MBT_VERSION}
+      
+
       - run:
           name: publish image
           command: |
@@ -181,17 +224,22 @@ jobs:
             #Push to Docker Hub
             echo "$DOCKER_HUB_TOKEN" | docker login --username $DOCKER_HUB_USER --password-stdin
             sh $PWD/scripts/publish_image 0   0   ${MBT_VERSION} "devxci"
-            sh $PWD/scripts/publish_image 8   12  ${MBT_VERSION} "devxci"
             sh $PWD/scripts/publish_image 8   14  ${MBT_VERSION} "devxci"
-            sh $PWD/scripts/publish_image 11  12  ${MBT_VERSION} "devxci"
+            sh $PWD/scripts/publish_image 8   16  ${MBT_VERSION} "devxci"
+            sh $PWD/scripts/publish_image 8   18  ${MBT_VERSION} "devxci"
             sh $PWD/scripts/publish_image 11  14  ${MBT_VERSION} "devxci"
+            sh $PWD/scripts/publish_image 11  16  ${MBT_VERSION} "devxci"
+            sh $PWD/scripts/publish_image 11  18  ${MBT_VERSION} "devxci"
+
             #Push to GitHub Container Registry
             echo "$CLOUD_MTA_BOT_GITHUB_TOKEN" | docker login "ghcr.io" --username $CLOUD_MTA_BOT_USER --password-stdin
             sh $PWD/scripts/publish_image 0   0   ${MBT_VERSION} "ghcr.io/sap"
-            sh $PWD/scripts/publish_image 8   12  ${MBT_VERSION} "ghcr.io/sap"
             sh $PWD/scripts/publish_image 8   14  ${MBT_VERSION} "ghcr.io/sap"
-            sh $PWD/scripts/publish_image 11  12  ${MBT_VERSION} "ghcr.io/sap"
+            sh $PWD/scripts/publish_image 8   16  ${MBT_VERSION} "ghcr.io/sap"
+            sh $PWD/scripts/publish_image 8   18  ${MBT_VERSION} "ghcr.io/sap"
             sh $PWD/scripts/publish_image 11  14  ${MBT_VERSION} "ghcr.io/sap"
+            sh $PWD/scripts/publish_image 11  16  ${MBT_VERSION} "ghcr.io/sap"
+            sh $PWD/scripts/publish_image 11  18  ${MBT_VERSION} "ghcr.io/sap"
 
   ghpages:
     docker:
@@ -213,6 +261,10 @@ workflows:
           filters:
             branches:
               ignore: master
+      - build-node:
+          filters:
+            branches:
+              ignore: master
       - compliance:
           filters:
             branches:
@@ -230,6 +282,10 @@ workflows:
           filters:
             branches:
               only: master
+      - build-node:
+          filters:
+            branches:
+              ignore: master
       - compliance:
           filters:
             branches:
