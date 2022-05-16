@@ -1,4 +1,6 @@
-FROM ubuntu:latest
+# On `22.04 LTS (Jammy Jellyfish)` the `apt-get` command fails
+# https://ubuntu.com/about/release-cycle
+FROM ubuntu:focal
 
 # Build time arguments
 ARG DEBIAN_FRONTEND=noninteractive
