@@ -141,6 +141,13 @@ jobs:
       - run:
           name: publish to npm
           command: |
+            #Make sure HEAD points to master
+            # TODO: this is horrible as it makes the build non-reproducible
+            #       but the `release` job performs a bump commit as part of the release flow
+            $       so the fetch/rebase is actually needed (unless release process refactored...)
+            git checkout master
+            git fetch
+            git rebase
             echo "//registry.npmjs.org/:_authToken=$CLOUD_MTA_BOT_NPM_TOKEN" > .npmrc
             npm install
             npm run ci
