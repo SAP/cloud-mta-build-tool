@@ -36,22 +36,30 @@ This demo shows the basic usage of the tool. For more advanced scenarios, follow
 </p>
 
 #### The Cloud MTA Build Tool Images
-We supply serveral images for **CI environment** containg the Cloud MTA Build Tool. The images are hosted at [Github container registry](https://github.com/orgs/SAP/packages?tab=packages&q=mbtci-) and also at [Docker Hub registry](https://hub.docker.com/search?q=mbtci-&type=image).
+We supply several images for **CI environment** containing the Cloud MTA Build Tool.
+The images are hosted at [Github container registry](https://github.com/orgs/SAP/packages?tab=packages&q=mbtci-)
+and also at [Docker Hub registry](https://hub.docker.com/search?q=mbtci-&type=image).
 The images are built from template docker files which depend on most common technologies (Java and Node) as follows:
-* [mbtci-java8-node12](https://hub.docker.com/r/devxci/mbtci-java8-node12) is built from [Dockerfile_mbtci_java8](https://github.com/SAP/cloud-mta-build-tool/blob/master/Dockerfile_mbtci_java8) using Node 12.
 * [mbtci-java8-node14](https://hub.docker.com/r/devxci/mbtci-java8-node14) is built from [Dockerfile_mbtci_java8](https://github.com/SAP/cloud-mta-build-tool/blob/master/Dockerfile_mbtci_java8) using Node 14.
-* [mbtci-java11-node12](https://hub.docker.com/r/devxci/mbtci-java11-node12) is built from [Dockerfile_mbtci_java11](https://github.com/SAP/cloud-mta-build-tool/blob/master/Dockerfile_mbtci_java11) using Node 12.
-* [mbtci-java11-node14](https://hub.docker.com/r/devxci/mbtci-java11-node14) is built from [Dockerfile_mbtci_java11](https://github.com/SAP/cloud-mta-build-tool/blob/master/Dockerfile_mbtci_java14) using Node 14.
+* [mbtci-java8-node16](https://hub.docker.com/r/devxci/mbtci-java8-node16) is built from [Dockerfile_mbtci_java8](https://github.com/SAP/cloud-mta-build-tool/blob/master/Dockerfile_mbtci_java8) using Node 16.
+* [mbtci-java8-node18](https://hub.docker.com/r/devxci/mbtci-java8-node18) is built from [Dockerfile_mbtci_java8](https://github.com/SAP/cloud-mta-build-tool/blob/master/Dockerfile_mbtci_java8) using Node 18.
+
+* [mbtci-java11-node14](https://hub.docker.com/r/devxci/mbtci-java11-node14) is built from [Dockerfile_mbtci_java11](https://github.com/SAP/cloud-mta-build-tool/blob/master/Dockerfile_mbtci_java11) using Node 14.
+* [mbtci-java11-node16](https://hub.docker.com/r/devxci/mbtci-java11-node16) is built from [Dockerfile_mbtci_java11](https://github.com/SAP/cloud-mta-build-tool/blob/master/Dockerfile_mbtci_java14) using Node 16.
+* [mbtci-java11-node18](https://hub.docker.com/r/devxci/mbtci-java11-node18) is built from [Dockerfile_mbtci_java11](https://github.com/SAP/cloud-mta-build-tool/blob/master/Dockerfile_mbtci_java14) using Node 18.
+
 
 Additional image which is more light-weight and gives the flexibility to add "per-scenario" the required set of tools:
 * [mbtci-alpine](https://hub.docker.com/r/devxci/mbtci-alpine) is built from [Dockerfile_mbtci_alpine](https://github.com/SAP/cloud-mta-build-tool/blob/master/Dockerfile_mbtci_alpine).
 
 ##### How to pull the images
 You should choose the relevant image type from following list to replace the `<TYPE>` template in the command/FROM according your MTA project technologies:
-* java8-node12
 * java8-node14
-* java11-node12
+* java8-node16
+* java8-node18
 * java11-node14
+* java11-node16
+* java11-node18
 * alpine
 
 From the command line:
