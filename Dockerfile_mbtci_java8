@@ -1,9 +1,11 @@
-FROM ubuntu:latest
+# On `22.04 LTS (Jammy Jellyfish)` the `apt-get` command fails
+# https://ubuntu.com/about/release-cycle
+FROM ubuntu:focal
 
 # Build time arguments
 ARG DEBIAN_FRONTEND=noninteractive
 ARG MTA_USER_HOME=/home/mta
-ARG MBT_VERSION=1.2.11
+ARG MBT_VERSION=1.2.16
 ARG GO_VERSION=1.15.6
 ARG NODE_VERSION=NODE_VERSION_TEMPLATE
 ARG MAVEN_VERSION=3.6.3

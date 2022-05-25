@@ -4,13 +4,11 @@ jobs:
 
   build-node:
     docker:
-      - image: circleci/node:16
+      - image: cimg/node:lts
     working_directory: ~/repo
     steps:
       - checkout
-      # `--ignore-scripts` is needed to avoid running the tests before
-      # the `prepare` script created the binary wrapper in `./bin/mbt`
-      - run: npm install --ignore-scripts
+      - run: npm install
       - run: npm run ci
 
   build:
@@ -137,24 +135,29 @@ jobs:
             
   publish:
     docker:
-      - image: circleci/node:16
-    working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
+      - image: cimg/node:lts
+    working_directory: ~/repo
     steps:
-      - add_ssh_keys:
-          fingerprints:
-            - "c3:2b:e9:bb:d5:05:32:ab:df:ce:2b:c3:e5:f7:95:42"
       - checkout
       - run:
-          name: publish to npm
+          #Make sure HEAD points to master
+          # TODO: this is horrible as it makes the build non-reproducible
+          #       but the `release` job performs a bump commit as part of the release flow
+          #       so the fetch/rebase is actually needed (unless release process refactored...)
+          name: rebase to master
           command: |
-            #Make sure HEAD points to master
             git checkout master
             git fetch
             git rebase
+      - run:
+          name: publish to npm
+          command: |
             echo "//registry.npmjs.org/:_authToken=$CLOUD_MTA_BOT_NPM_TOKEN" > .npmrc
             npm install
+            npm run ci
             npm publish
       - run:
+          # This won't run if previous commands have failed so the tag should be removed **manually**
           name: remove dummy release tag
           command: |
             git push https://github.com/SAP/cloud-mta-build-tool.git --delete release
