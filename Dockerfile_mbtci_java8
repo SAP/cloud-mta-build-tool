@@ -7,6 +7,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 ARG MTA_USER_HOME=/home/mta
 ARG MBT_VERSION=1.2.16
 ARG GO_VERSION=1.15.6
+# node version as found in https://nodejs.org/dist/ e.g: "v16.15.0"
 ARG NODE_VERSION=NODE_VERSION_TEMPLATE
 ARG MAVEN_VERSION=3.6.3
 # This is used to build the download URL
