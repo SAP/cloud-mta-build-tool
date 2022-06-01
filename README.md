@@ -35,115 +35,30 @@ This demo shows the basic usage of the tool. For more advanced scenarios, follow
   <img src="./docs/demo.gif" width="100%">
 </p>
 
-#### The Cloud MTA Build Tool Images
-We supply serveral images for **CI environment** containg the Cloud MTA Build Tool. The images are hosted at [Github container registry](https://github.com/orgs/SAP/packages?tab=packages&q=mbtci-) and also at [Docker Hub registry](https://hub.docker.com/search?q=mbtci-&type=image).
-The images are built from template docker files which depend on most common technologies (Java and Node) as follows:
-* [mbtci-java8-node12](https://hub.docker.com/r/devxci/mbtci-java8-node12) is built from [Dockerfile_mbtci_java8](https://github.com/SAP/cloud-mta-build-tool/blob/master/Dockerfile_mbtci_java8) using Node 12.
-* [mbtci-java8-node14](https://hub.docker.com/r/devxci/mbtci-java8-node14) is built from [Dockerfile_mbtci_java8](https://github.com/SAP/cloud-mta-build-tool/blob/master/Dockerfile_mbtci_java8) using Node 14.
-* [mbtci-java11-node12](https://hub.docker.com/r/devxci/mbtci-java11-node12) is built from [Dockerfile_mbtci_java11](https://github.com/SAP/cloud-mta-build-tool/blob/master/Dockerfile_mbtci_java11) using Node 12.
-* [mbtci-java11-node14](https://hub.docker.com/r/devxci/mbtci-java11-node14) is built from [Dockerfile_mbtci_java11](https://github.com/SAP/cloud-mta-build-tool/blob/master/Dockerfile_mbtci_java14) using Node 14.
+#### Install
 
-Additional image which is more light-weight and gives the flexibility to add "per-scenario" the required set of tools:
-* [mbtci-alpine](https://hub.docker.com/r/devxci/mbtci-alpine) is built from [Dockerfile_mbtci_alpine](https://github.com/SAP/cloud-mta-build-tool/blob/master/Dockerfile_mbtci_alpine).
+For convenience the `mbt` executable is available via npmjs.com so consumers using a nodejs runtime can simply run:
+- `npm install -g mbt@version`
+- For possible versions see: https://www.npmjs.com/package/mbt?activeTab=versions
 
-##### How to pull the images
-You should choose the relevant image type from following list to replace the `<TYPE>` template in the command/FROM according your MTA project technologies:
-* java8-node12
-* java8-node14
-* java11-node12
-* java11-node14
-* alpine
+It is also possible to download and "install" the `mbt` executable via github releases.
+- See: https://github.com/SAP/cloud-mta-build-tool/releases.
 
-From the command line:
-```
-$ docker pull devxci/mbtci-<TYPE>:latest
-``` 
-or 
-```
-$ docker pull ghcr.io/sap/mbtci-<TYPE>:latest
-```
+#### The Cloud MTA Build Tool Images (**deprecated**)
 
-From Dockerfile as a base image: 
-```
-FROM devxci/mbtci-<TYPE>:latest
-```
-or
-```
-FROM ghcr.io/sap/mbtci-<TYPE>:latest
-```
+The Cloud MTA Build Tool published docker images on docker hub with a pre=configured set of runtime tools (nodejs/java/maven/...).
+These images are **no longer updated** and consumers are expected to create their own docker images (if necessary...).
 
-E.g. if your MTA project uses Java 11 and Node 14 then you should pull the relevant image as follows: 
+This is because as a general purpose build orchestration tool MBT **cannot** and **should not** manage all the possible
+build environments for its consumers as every consumer may have a different set of build "targets" and environment settings.
 
-From the command line: 
-```
-$ docker pull devxci/mbtci-java11-node14:latest
-```
-or
-```
-$ docker pull ghcr.io/sap/mbtci-java11-node14:latest
-```
+For reference, you may inspect the deprecated `dockerFiles`:
+- [Pure Alpine](https://github.com/SAP/cloud-mta-build-tool/blob/42bed9a0f36de43f7575a3a743e2ba9c2449d975/Dockerfile_mbtci_alpine) 
+- [Java8 + NodeJS wildcard](https://github.com/SAP/cloud-mta-build-tool/blob/42bed9a0f36de43f7575a3a743e2ba9c2449d975/Dockerfile_mbtci_java8)
+- [Java11 + NodeJS wildcard](https://github.com/SAP/cloud-mta-build-tool/blob/42bed9a0f36de43f7575a3a743e2ba9c2449d975/Dockerfile_mbtci_java11))
 
-From Dockerfile as a base image: 
-```
-FROM devxci/mbtci-java11-node14:latest
-```
-or
-```
-FROM ghcr.io/sap/mbtci-java11-node14:latest
-```
-
-##### How to use the images
-You should choose the relevant image type from following list to replace the `<TYPE>` template in the command according your MTA project technologies:
-* java8-node12
-* java8-node14
-* java11-node12
-* java11-node14
-* alpine
-
-On a Linux/Darwin machine you can run:
-```
-docker run -it --rm -v "$(pwd)/[proj-releative-path]:/project" devxci/mbtci-<TYPE>:latest mbt build -p=cf -t [target-folder-name]
-```
-This will build an mtar file for SAP Cloud Platform (Cloud Foundry). The folder containing the project needs to be mounted into the image at /project.
-
-<b>Note:</b> The parameter `-p=cf` can be omitted as the build for cloud foundry is the default build, this is an example of the MBT build parameters, for further commands see MBT docs.
-
-##### How to build the images
-To buid the images, you should choose the relevant docker file type from following list to replace the `<TYPE>` template in the Dockerfile according your MTA project Java version:
-* java8
-* java11
-
-Copy the docker file template:
-```
-cp Dockerfile_<TYPE> Dockerfile
-```
-E.g. copy the docker file used for Java 8:
-```
-cp Dockerfile_java8 Dockerfile
-```
-Replace `NODE_VERSION_TEMPLATE` with your Node version in the Dockerfile:
-```
-ARG NODE_VERSION=NODE_VERSION_TEMPLATE
-```
-Then you can build the image:
-```
-docker build -t devxci/mbtci .
-```
-
-To build the mbtci-alpine image you can run:
-```
-docker build -f Dockerfile_alpine -t devxci/mbtci .
-```
-
-##### The images provide:
-
-- Cloud MTA Build Tool - 1.2.10
-- Nodejs - 12.22.5 or 14.17.5
-- Maven - 3.6.3
-- Golang - 1.14.7
-- Java - 8 or 11
-
-The MTA Archive Builder delegates module builds to other native build tools. These images provide Node.js, Maven, Java, and Golang so the archive builder can delegate to these build technologies. In case other build tools are needed, <b>inherit</b> from one of these images and add more build tools.
+The Pure Alpine sample is of particular interest as it demonstrates [a simple way](https://github.com/SAP/cloud-mta-build-tool/blob/42bed9a0f36de43f7575a3a743e2ba9c2449d975/Dockerfile_mbtci_alpine#L8-L11) 
+to download, extract, "install" the `mbt` executable via `curl`, `tar` and `chown` commands. 
 
 ##### License
 
