@@ -4,8 +4,8 @@
 # Execute go build
 # Copy files to machine go/bin folder (temp target to avoid manual steps when developing locally)
 
-all:format clean dir gen build-linux build-darwin build-darwin-arm build-windows copy tests
-.PHONY: build-darwin-arm build-darwin build-linux build-windows tests
+all:format clean dir gen build-linux build-linux-arm build-darwin build-darwin-arm build-windows copy tests
+.PHONY: build-darwin-arm build-darwin build-linux build-linux-arm build-windows tests
 
 
 GOCMD=go
@@ -52,6 +52,9 @@ gen:
 # build for each platform
 build-linux:
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 $(GOBUILD) -o release/$(BINARY_NAME)_linux -v
+
+build-linux-arm:
+	CGO_ENABLED=0 GOOS=linux GOARCH=arm64 $(GOBUILD) -o release/$(BINARY_NAME)_linux_arm -v
 
 build-darwin:
 	CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 $(GOBUILD) -o release/$(BINARY_NAME) -v
