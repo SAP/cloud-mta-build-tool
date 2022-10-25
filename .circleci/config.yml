@@ -173,27 +173,10 @@ jobs:
             echo "Image release: ${MBT_VERSION}"
             #Push to Docker Hub
             echo "$DOCKER_HUB_TOKEN" | docker login --username $DOCKER_HUB_USER --password-stdin
-            # sh $PWD/scripts/publish_image 8   14  ${MBT_VERSION} ${DOCKER_HUB_USER}
-            # sh $PWD/scripts/publish_image 11  14  ${MBT_VERSION} ${DOCKER_HUB_USER}
-            # sh $PWD/scripts/publish_image 17  14  ${MBT_VERSION} ${DOCKER_HUB_USER}
-            # sh $PWD/scripts/publish_image 8   16  ${MBT_VERSION} ${DOCKER_HUB_USER}
-            # sh $PWD/scripts/publish_image 11  16  ${MBT_VERSION} ${DOCKER_HUB_USER}
             sh $PWD/scripts/publish_image 17  16  ${MBT_VERSION} ${DOCKER_HUB_USER}
-            # sh $PWD/scripts/publish_image 8   18  ${MBT_VERSION} ${DOCKER_HUB_USER}
-            # sh $PWD/scripts/publish_image 11  18  ${MBT_VERSION} ${DOCKER_HUB_USER}
-            # sh $PWD/scripts/publish_image 17  18  ${MBT_VERSION} ${DOCKER_HUB_USER}
-
             #Push to GitHub Container Registry
             echo "$CLOUD_MTA_BOT_GITHUB_TOKEN" | docker login "ghcr.io" --username $CLOUD_MTA_BOT_USER --password-stdin
-            # sh $PWD/scripts/publish_image 8   14  ${MBT_VERSION} "ghcr.io/sap"
-            # sh $PWD/scripts/publish_image 11  14  ${MBT_VERSION} "ghcr.io/sap"
-            # sh $PWD/scripts/publish_image 17  14  ${MBT_VERSION} "ghcr.io/sap"
-            # sh $PWD/scripts/publish_image 8   16  ${MBT_VERSION} "ghcr.io/sap"
-            # sh $PWD/scripts/publish_image 11  16  ${MBT_VERSION} "ghcr.io/sap"
             sh $PWD/scripts/publish_image 17  16  ${MBT_VERSION} "ghcr.io/sap"
-            # sh $PWD/scripts/publish_image 8   18  ${MBT_VERSION} "ghcr.io/sap"
-            # sh $PWD/scripts/publish_image 11  18  ${MBT_VERSION} "ghcr.io/sap"
-            # sh $PWD/scripts/publish_image 17  18  ${MBT_VERSION} "ghcr.io/sap"
 
   publish-to-npm:
     docker:
