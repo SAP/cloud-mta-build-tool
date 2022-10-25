@@ -1,0 +1,55 @@
+# GOSS Manual: https://github.com/aelsabbahy/goss/blob/master/docs/manual.md
+# CMD: GOSS_FILES_PATH=./test/goss dgoss run --interactive --volume $PWD:/project devxci/mbtci
+package:
+  git:
+    installed: true
+  python2.7:
+    installed: true
+  make:
+    installed: true
+user:
+  mta:
+    exists: true
+    uid: 1000
+    gid: 1000
+    groups:
+      - mta
+    home: /home/mta
+    shell: /bin/bash
+command:
+  # ensure that curl is not installed
+  curl --version:
+    exit-status: 127
+  # verify installed JAVA version
+  java -version:
+    exit-status: 0
+  # verify installed Cloud MTA Build Tool version
+  mbt --version:
+    exit-status: 0
+    stdout:
+      - 1.2.16
+  # verify installed MAVEN VERSION
+  mvn --version:
+    exit-status: 0
+    stdout:
+      - Apache Maven 3.6
+  # verify installed NODE version
+  node --version:
+    exit-status: 0
+    stdout:
+      - NODE_VERSION_TEMPLATE
+  # verify NPM @sap-scope registry NOT configured
+  npm config get @sap:registry:
+    exit-status: 0
+    stdout:
+      - undefined
+  # verify NPM registry configuration
+  npm config get registry:
+    exit-status: 0
+    stdout:
+      - https://registry.npmjs.org/
+  cd ~ && npm install @sap/cds:
+    exit-status: 0
+    timeout: 50000
+    stdout:
+      - + @sap/cds@

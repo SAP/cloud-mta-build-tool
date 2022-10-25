@@ -1,0 +1,45 @@
+#!/bin/sh
+
+# set readable variables
+export JAVA_VERSION_TEMPLATE="$1"
+export NODE_VERSION_TEMPLATE="$2"
+export MBT_VERSION="$3"
+
+# set jvm and node version in Dockerfile
+if [ "$JAVA_VERSION_TEMPLATE" = "11" ]
+then
+	export JAVA_VERSION="-java11"
+	export NODE_VERSION="-node$(echo $NODE_VERSION_TEMPLATE |awk -F. '{printf "%d", $1}')"
+	cp Dockerfile_mbtci_java11 Dockerfile
+	sed  -i "s/NODE_VERSION_TEMPLATE/v${NODE_VERSION_TEMPLATE}/" Dockerfile
+elif [ "$JAVA_VERSION_TEMPLATE" = "8" ]
+then
+	export JAVA_VERSION="-java8"
+	export NODE_VERSION="-node$(echo $NODE_VERSION_TEMPLATE |awk -F. '{printf "%d", $1}')"
+	cp Dockerfile_mbtci_java8 Dockerfile
+	sed  -i "s/NODE_VERSION_TEMPLATE/v${NODE_VERSION_TEMPLATE}/" Dockerfile
+elif [ "$JAVA_VERSION_TEMPLATE" = "17" ]
+then
+	export JAVA_VERSION="-java17"
+	export NODE_VERSION="-node$(echo $NODE_VERSION_TEMPLATE |awk -F. '{printf "%d", $1}')"
+	cp Dockerfile_mbtci_java17 Dockerfile
+	sed  -i "s/NODE_VERSION_TEMPLATE/v${NODE_VERSION_TEMPLATE}/" Dockerfile
+else
+	echo "Java:${JAVA_VERSION_TEMPLATE}, Node:${NODE_VERSION_TEMPLATE} is not supported!"
+	exit -1
+fi
+
+# build image
+echo "Build mbtci${JAVA_VERSION}${NODE_VERSION}:${MBT_VERSION}"
+docker build -t mbtci${JAVA_VERSION}${NODE_VERSION}:${MBT_VERSION} .
+
+# test image
+if [ "$JAVA_VERSION_TEMPLATE" = "11" ] || [ "$JAVA_VERSION_TEMPLATE" = "8" ] || [ "$JAVA_VERSION_TEMPLATE" = "17" ]; then
+	cp test/goss/goss_template.yaml test/goss/goss.yaml
+	sed  -i "s/NODE_VERSION_TEMPLATE/v${NODE_VERSION_TEMPLATE}/" test/goss/goss.yaml
+	docker-compose -f ./docker-compose.test.yml up --build
+fi
+
+# cleanup
+rm -f Dockerfile
+rm -f test/goss/goss.yaml

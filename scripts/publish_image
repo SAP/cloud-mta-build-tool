@@ -1,0 +1,34 @@
+#!/bin/sh
+
+# set readable variables
+export JAVA_VERSION_TEMPLATE="$1"
+export NODE_VERSION_TEMPLATE="$2"
+export MBT_VERSION="$3"
+export IMAGE_PREFIX="$4"
+
+# set jvm and node version
+if [ "$JAVA_VERSION_TEMPLATE" = "11" ]
+then
+	export JAVA_VERSION="-java11"
+	export NODE_VERSION="-node$NODE_VERSION_TEMPLATE"
+elif [ "$JAVA_VERSION_TEMPLATE" = "8" ]
+then
+	export JAVA_VERSION="-java8"
+	export NODE_VERSION="-node$NODE_VERSION_TEMPLATE"
+elif [ "$JAVA_VERSION_TEMPLATE" = "17" ]
+then
+	export JAVA_VERSION="-java17"
+	export NODE_VERSION="-node$NODE_VERSION_TEMPLATE"
+else
+	echo "Java:${JAVA_VERSION_TEMPLATE}, Node:${NODE_VERSION_TEMPLATE} is not supported!"
+	exit -1
+fi
+
+# publish image
+echo "Publish mbtci${JAVA_VERSION}${NODE_VERSION}:${MBT_VERSION} to $DOCKER_REGISTRY"
+
+docker tag mbtci${JAVA_VERSION}${NODE_VERSION}:${MBT_VERSION} ${IMAGE_PREFIX}/mbtci${JAVA_VERSION}${NODE_VERSION}:${MBT_VERSION}
+docker push ${IMAGE_PREFIX}/mbtci${JAVA_VERSION}${NODE_VERSION}:${MBT_VERSION}
+docker tag mbtci${JAVA_VERSION}${NODE_VERSION}:${MBT_VERSION} ${IMAGE_PREFIX}/mbtci${JAVA_VERSION}${NODE_VERSION}:latest
+docker push ${IMAGE_PREFIX}/mbtci${JAVA_VERSION}${NODE_VERSION}:latest
+
