@@ -211,6 +211,48 @@ jobs:
 
 workflows:
   version: 2
+  on_pr_build:
+    jobs:
+      - build:
+          filters:
+            branches:
+              ignore: master
+      - build-node:
+          filters:
+            branches:
+              ignore: master
+      - compliance:
+          filters:
+            branches:
+              ignore: master
+      - test:
+          requires:
+            - build
+          filters:
+            branches:
+              ignore: master
+
+  on_merge_build_test:
+    jobs:
+      - build:
+          filters:
+            branches:
+              only: master
+      - build-node:
+          filters:
+            branches:
+              ignore: master
+      - compliance:
+          filters:
+            branches:
+              only: master
+      - test:
+          requires:
+            - build
+          filters:
+            branches:
+              only: master
+
   on_tag_build_release_publish:
     jobs:
       - build:
