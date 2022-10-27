@@ -161,7 +161,7 @@ jobs:
           name: "build Java 17 & Node 16 image"
           command: |
               MBT_VERSION=$(cat ./VERSION)
-              sh $PWD/scripts/build_image 17 16.17.1 ${MBT_VERSION}
+              sh $PWD/scripts/build_image 17 16.18.0 ${MBT_VERSION}
       - run:
           name: publish image
           command: |
@@ -173,11 +173,11 @@ jobs:
             echo "Image release: ${MBT_VERSION}"
             #Push to Docker Hub
             echo "$DOCKER_HUB_TOKEN" | docker login --username $DOCKER_HUB_USER --password-stdin
-            sh $PWD/scripts/publish_image 17  16.17.1  ${MBT_VERSION} "devxci"
+            sh $PWD/scripts/publish_image 17  16.18.0  ${MBT_VERSION} "devxci"
 
             #Push to GitHub Container Registry
             echo "$CLOUD_MTA_BOT_GITHUB_TOKEN" | docker login "ghcr.io" --username $CLOUD_MTA_BOT_USER --password-stdin
-            sh $PWD/scripts/publish_image 17  16.17.1  ${MBT_VERSION} "ghcr.io/sap"
+            sh $PWD/scripts/publish_image 17  16.18.0  ${MBT_VERSION} "ghcr.io/sap"
 
   publish-to-npm:
     docker:
@@ -211,6 +211,7 @@ jobs:
 
 workflows:
   version: 2
+  # when sub-branch's code is commited, this workflow will be execed
   on_pr_build:
     jobs:
       - build:
@@ -232,6 +233,8 @@ workflows:
             branches:
               ignore: master
 
+  # when master's code is commited or merged from sub-branch, build, compliance and test will be execed
+  # when sub-branch's code is commited, build-node will be execed
   on_merge_build_test:
     jobs:
       - build:
@@ -253,6 +256,7 @@ workflows:
             branches:
               only: master
 
+  # when a branch is taged by "release", this workflow will be execed
   on_tag_build_release_publish:
     jobs:
       - build:
@@ -271,7 +275,7 @@ workflows:
               ignore: /.*/
       - ghpages:
           requires:
-            - build
+            - test
           filters:
             tags:
               only: /release/
@@ -279,7 +283,7 @@ workflows:
               ignore: /.*/
       - release-to-github:
           requires:
-            - build
+            - test
           filters:
             tags:
               only: /release/
