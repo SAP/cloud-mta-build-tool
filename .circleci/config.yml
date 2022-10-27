@@ -233,8 +233,7 @@ workflows:
             branches:
               ignore: master
 
-  # when master's code is commited or merged from sub-branch, build, compliance and test will be execed
-  # when sub-branch's code is commited, build-node will be execed
+  # when master's code is commited or merged from sub-branch, this workflow will be execed
   on_merge_build_test:
     jobs:
       - build:
@@ -244,7 +243,7 @@ workflows:
       - build-node:
           filters:
             branches:
-              ignore: master
+              only: master
       - compliance:
           filters:
             branches:
