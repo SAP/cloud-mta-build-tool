@@ -46,19 +46,7 @@ It is also possible to download and "install" the `mbt` executable via github re
 
 #### The Cloud MTA Build Tool Images (**deprecated**)
 
-The Cloud MTA Build Tool published docker images on docker hub with a pre=configured set of runtime tools (nodejs/java/maven/...).
-These images are **no longer updated** and consumers are expected to create their own docker images (if necessary...).
-
-This is because as a general purpose build orchestration tool MBT **cannot** and **should not** manage all the possible
-build environments for its consumers as every consumer may have a different set of build "targets" and environment settings.
-
-For reference, you may inspect the deprecated `dockerFiles`:
-- [Pure Alpine](https://github.com/SAP/cloud-mta-build-tool/blob/42bed9a0f36de43f7575a3a743e2ba9c2449d975/Dockerfile_mbtci_alpine) 
-- [Java8 + NodeJS wildcard](https://github.com/SAP/cloud-mta-build-tool/blob/42bed9a0f36de43f7575a3a743e2ba9c2449d975/Dockerfile_mbtci_java8)
-- [Java11 + NodeJS wildcard](https://github.com/SAP/cloud-mta-build-tool/blob/42bed9a0f36de43f7575a3a743e2ba9c2449d975/Dockerfile_mbtci_java11))
-
-The Pure Alpine sample is of particular interest as it demonstrates [a simple way](https://github.com/SAP/cloud-mta-build-tool/blob/42bed9a0f36de43f7575a3a743e2ba9c2449d975/Dockerfile_mbtci_alpine#L8-L11) 
-to download, extract, "install" the `mbt` executable via `curl`, `tar` and `chown` commands. 
+The Cloud MTA Build Tool published docker images on docker hub with a pre-configured set of runtime tools (nodejs/java/maven/...).
 
 ##### License
 

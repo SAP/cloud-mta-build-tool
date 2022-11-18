@@ -9,8 +9,8 @@ export MBT_VERSION="$3"
 echo "Java version template: ${JAVA_VERSION_TEMPLATE}, Node version template: ${NODE_VERSION_TEMPLATE}"
 
 # validate java and node major version
-export JAVA_MAJOR_VERSION="${JAVA_VERSION_TEMPLATE}"
-export NODE_MAJOR_VERSION="$(echo ${NODE_VERSION_TEMPLATE} |awk -F. '{printf "%d", $1}')"
+export JAVA_MAJOR_VERSION="$(echo ${JAVA_VERSION_TEMPLATE}|awk -F. '{printf "%d", $1}')"
+export NODE_MAJOR_VERSION="$(echo ${NODE_VERSION_TEMPLATE}|awk -F. '{printf "%d", $1}')"
 
 echo "Java major version: ${JAVA_MAJOR_VERSION}, Node major version: ${NODE_MAJOR_VERSION}"
 
@@ -27,15 +27,16 @@ export NODE_VERSION="-node${NODE_MAJOR_VERSION}"
 echo "Java version: ${JAVA_VERSION}, Node version: ${NODE_VERSION}"
 
 # build docker image
-cp Dockerfile_mbtci_java${JAVA_MAJOR_VERSION} Dockerfile
-sed  -i "s/NODE_VERSION_TEMPLATE/v${NODE_VERSION_TEMPLATE}/" Dockerfile
+cp Dockerfile_mbtci_template Dockerfile
+sed  -i "s/NODE_VERSION_TEMPLATE/${NODE_VERSION_TEMPLATE}/" Dockerfile
+sed  -i "s/JAVA_VERSION_TEMPLATE/${JAVA_VERSION_TEMPLATE}/" Dockerfile
 echo "Build mbtci${JAVA_VERSION}${NODE_VERSION}:${MBT_VERSION}"
 docker build -t mbtci${JAVA_VERSION}${NODE_VERSION}:${MBT_VERSION} .
 
 # test image
 if [ "$JAVA_MAJOR_VERSION" = "11" ] || [ "$JAVA_MAJOR_VERSION" = "8" ] || [ "$JAVA_MAJOR_VERSION" = "17" ]; then
 	cp test/goss/goss_template.yaml test/goss/goss.yaml
-	sed  -i "s/NODE_VERSION_TEMPLATE/v${NODE_VERSION_TEMPLATE}/" test/goss/goss.yaml
+	sed  -i "s/NODE_VERSION_TEMPLATE/${NODE_VERSION_TEMPLATE}/" test/goss/goss.yaml
 	docker-compose -f ./docker-compose.test.yml up --build
 fi
 
