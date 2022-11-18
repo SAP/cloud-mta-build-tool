@@ -2,7 +2,7 @@ FROM debian:bullseye-slim
 
 # Build time arguments
 ARG MTA_USER="mta"
-ARG MTA_USER_HOME=/home/mta
+ARG MTA_USER_HOME="/home/${MTA_USER}"
 ARG MBT_VERSION=1.2.19
 ARG GO_VERSION=1.19.3
 ARG NODE_VERSION=NODE_VERSION_TEMPLATE
@@ -14,8 +14,7 @@ ARG SAPMACHINE_VERSION=JAVA_VERSION_TEMPLATE
 ENV PYTHON /usr/bin/python3
 ENV MAVEN_HOME /usr/share/maven
 ENV M2_HOME ${MAVEN_HOME}
-ENV GOPATH /go
-ENV PATH $GOPATH/bin:/usr/local/go/bin:$PATH
+ENV PATH /usr/local/go/bin:$PATH
 ENV CGO_ENABLED=0
 ENV GOOS=linux
 ENV DEBIAN_FRONTEND=noninteractive
@@ -108,14 +107,21 @@ RUN ARCH= && dpkgArch="$(dpkg --print-architecture)" \
     esac \
     && set -ex \
     && apt-get update \
-    && apt-get install -y ca-certificates curl --no-install-recommends \
+    && apt-get install -y ca-certificates curl gnupg dirmngr --no-install-recommends \
     && rm -rf /var/lib/apt/lists/* \
+    && for key in \
+      EB4C1BFD4F042F6DDDCCEC917721F63BD38B4796 \
+      2F528D36D67B69EDF998D85778BD65473CB3BD13 \
+    ; do \
+      gpg --batch --keyserver hkps://pgp.surf.nl --recv-keys "$key" || \
+      gpg --batch --keyserver hkps://keyserver.ubuntu.com --recv-keys "$key" ; \
+    done \
     && curl -fsSLO --compressed https://storage.googleapis.com/golang/go${GO_VERSION}.linux-${ARCH}.tar.gz \
-    && tar -xvf go${GO_VERSION}.linux-${ARCH}.tar.gz \
-    && rm go${GO_VERSION}.linux-${ARCH}.tar.gz \
-    && mv go /usr/local \
-    && mkdir -p ${GOPATH}/src ${GOPATH}/bin \
-    && chmod 777 -R ${GOPATH} \
+    && curl -fsSLO --compressed https://storage.googleapis.com/golang/go${GO_VERSION}.linux-${ARCH}.tar.gz.asc \
+    && gpg --batch --verify go${GO_VERSION}.linux-${ARCH}.tar.gz.asc go${GO_VERSION}.linux-${ARCH}.tar.gz \
+    && tar -xvf go${GO_VERSION}.linux-${ARCH}.tar.gz -C /usr/local \
+    && rm -f go${GO_VERSION}.linux-${ARCH}.tar.gz go${GO_VERSION}.linux-${ARCH}.tar.gz.asc \
+    && apt-get remove --purge --autoremove -y ca-certificates curl gnupg dirmngr \
     # smoke test
     && echo "go ${GO_VERSION} install smoke test!" \
     && go version
@@ -163,19 +169,19 @@ RUN set -ex \
   && mkdir -p ${MAVEN_HOME} ${MAVEN_HOME}/ref \
   && tar -xzf apache-maven-${MAVEN_VERSION}-bin.tar.gz -C ${MAVEN_HOME} --strip-components=1 \
   && rm -f apache-maven-${MAVEN_VERSION}-bin.tar.gz.asc apache-maven-${MAVEN_VERSION}-bin.tar.gz \
-  && chmod --recursive a+w ${MAVEN_HOME}/conf/* \
+  && chmod -R a+w ${MAVEN_HOME}/conf/* \
   && ln -s ${MAVEN_HOME}/bin/mvn /usr/bin/mvn \
   && apt-get remove --purge --autoremove -y ca-certificates curl gnupg dirmngr \
   # smoke test
-  && echo "mvn ${MAVEN_VERSION} smoke test!" \
+  && echo "mvn ${MAVEN_VERSION} install smoke test!" \
   && mvn --version
 
 # Install MBT
 RUN set -ex \
   && npm install -g --unsafe-perm mbt@${MBT_VERSION} \
   && npm cache clean -g --force \
-  # smoke tests
-  && echo "mbt ${MBT_VERSION} install smoke tests!" \
+  # smoke test
+  && echo "mbt ${MBT_VERSION} install smoke test!" \
   && mbt --version
 
 # Install essential build tools and python

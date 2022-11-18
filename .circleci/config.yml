@@ -99,7 +99,7 @@ jobs:
             git checkout master
             CURR_MBT_VERSION=$(cat ./VERSION)
             echo "Current release: ${CURR_MBT_VERSION}"
-            MBT_VERSION=$(echo $CURR_MBT_VERSION |awk -F. -v MAJOR_VAR="$MAJOR" -v MINOR_VAR="$MINOR" -v PATCH_VAR="$PATCH" '{
+            MBT_VERSION=$(echo $CURR_MBT_VERSION|awk -F. -v MAJOR_VAR="$MAJOR" -v MINOR_VAR="$MINOR" -v PATCH_VAR="$PATCH" '{
               if (MAJOR_VAR == "true"){
                 $1++
                 $2=0
@@ -114,12 +114,12 @@ jobs:
             }')
             echo "New release: ${MBT_VERSION}"
             #Update new version in files
-            sed  -i "/\"version\":/s/${CURR_MBT_VERSION}/${MBT_VERSION}/" ./package.json
-            sed  -i "/cli_version:/s/${CURR_MBT_VERSION}/${MBT_VERSION}/" ./configs/version.yaml
-            sed  -i "s/${CURR_MBT_VERSION}/${MBT_VERSION}/" ./VERSION
-            sed  -i "/ARG MBT_VERSION=/ s/${CURR_MBT_VERSION}/${MBT_VERSION}/" ./Dockerfile_mbtci_template
-            sed  -i "s/- ${CURR_MBT_VERSION}/- ${MBT_VERSION}/" ./test/goss/goss_template.yaml
-            sed  -i "/- Cloud MTA Build Tool -/s/${CURR_MBT_VERSION}/${MBT_VERSION}/" ./README.md
+            sed -i "/\"version\":/s/${CURR_MBT_VERSION}/${MBT_VERSION}/" ./package.json
+            sed -i "/cli_version:/s/${CURR_MBT_VERSION}/${MBT_VERSION}/" ./configs/version.yaml
+            sed -i "s/${CURR_MBT_VERSION}/${MBT_VERSION}/" ./VERSION
+            sed -i "/ARG MBT_VERSION=/ s/${CURR_MBT_VERSION}/${MBT_VERSION}/" ./Dockerfile_mbtci_template
+            sed -i "s/- ${CURR_MBT_VERSION}/- ${MBT_VERSION}/" ./test/goss/goss_template.yaml
+            sed -i "/- Cloud MTA Build Tool -/s/${CURR_MBT_VERSION}/${MBT_VERSION}/" ./README.md
             #Generate version file
             go generate -run "go run ./internal/buildtools/embed.go ./internal/buildtools/buildtools_msg.go -source=./configs/version.yaml -target=./internal/version/version_cfg.go -name=VersionConfig -package=version"
             #Add all updated files to commit
