@@ -44,7 +44,7 @@ For convenience the `mbt` executable is available via npmjs.com so consumers usi
 It is also possible to download and "install" the `mbt` executable via github releases.
 - See: https://github.com/SAP/cloud-mta-build-tool/releases.
 
-#### The Cloud MTA Build Tool Images (**deprecated**)
+#### The Cloud MTA Build Tool Images
 
 The Cloud MTA Build Tool published docker images on docker hub with a pre-configured set of runtime tools (nodejs/java/maven/...).
 
