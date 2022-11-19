@@ -42,3 +42,4 @@ docs/site
 bin
 .npmrc
 unpacked_bin
+test/goos/goos.yaml
