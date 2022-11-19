@@ -104,6 +104,7 @@ RUN set -ex \
 RUN ARCH= && dpkgArch="$(dpkg --print-architecture)" \
     && case "${dpkgArch##*-}" in \
       amd64) ARCH='amd64';; \
+      arm64) ARCH='arm64';; \
       *) echo "unsupported architecture"; exit 1 ;; \
     esac \
     && set -ex \
@@ -118,11 +119,11 @@ RUN ARCH= && dpkgArch="$(dpkg --print-architecture)" \
       gpg --batch --keyserver hkps://pgp.surf.nl --recv-keys "$key" || \
       gpg --batch --keyserver hkps://keyserver.ubuntu.com --recv-keys "$key" ; \
     done \
-    && curl -fsSLO --compressed https://storage.googleapis.com/golang/go${GO_VERSION}.linux-${ARCH}.tar.gz \
-    && curl -fsSLO --compressed https://storage.googleapis.com/golang/go${GO_VERSION}.linux-${ARCH}.tar.gz.asc \
-    && gpg --batch --verify go${GO_VERSION}.linux-${ARCH}.tar.gz.asc go${GO_VERSION}.linux-${ARCH}.tar.gz \
-    && tar -xvf go${GO_VERSION}.linux-${ARCH}.tar.gz -C /usr/local \
-    && rm -rf "$GNUPGHOME" go${GO_VERSION}.linux-${ARCH}.tar.gz go${GO_VERSION}.linux-${ARCH}.tar.gz.asc \
+    && curl -fsSLO --compressed https://storage.googleapis.com/golang/go${GO_VERSION}.${GOOS}-${ARCH}.tar.gz \
+    && curl -fsSLO --compressed https://storage.googleapis.com/golang/go${GO_VERSION}.${GOOS}-${ARCH}.tar.gz.asc \
+    && gpg --batch --verify go${GO_VERSION}.${GOOS}-${ARCH}.tar.gz.asc go${GO_VERSION}.${GOOS}-${ARCH}.tar.gz \
+    && tar -xvf go${GO_VERSION}.${GOOS}-${ARCH}.tar.gz -C /usr/local \
+    && rm -rf "$GNUPGHOME" go${GO_VERSION}.${GOOS}-${ARCH}.tar.gz go${GO_VERSION}.${GOOS}-${ARCH}.tar.gz.asc \
     && apt-get remove --purge --autoremove -y ca-certificates curl gnupg dirmngr \
     # smoke test
     && echo "go ${GO_VERSION} install smoke test!" \
