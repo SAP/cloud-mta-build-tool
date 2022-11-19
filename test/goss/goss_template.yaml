@@ -27,12 +27,12 @@ command:
   mbt --version:
     exit-status: 0
     stdout:
-      - 1.2.16
+      - 1.2.19
   # verify installed MAVEN VERSION
   mvn --version:
     exit-status: 0
     stdout:
-      - Apache Maven 3.6
+      - Apache Maven 3.8
   # verify installed NODE version
   node --version:
     exit-status: 0

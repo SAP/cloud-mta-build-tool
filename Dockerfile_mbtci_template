@@ -56,6 +56,7 @@ RUN ARCH= && dpkgArch="$(dpkg --print-architecture)" \
     # libatomic1 for arm
     && apt-get install -y ca-certificates curl gnupg dirmngr xz-utils libatomic1 --no-install-recommends \
     && rm -rf /var/lib/apt/lists/* \
+    && export GNUPGHOME="$(mktemp -d)" \
     && for key in \
       4ED778F539E3634C779C87C6D7062848A1AB005C \
       141F07595B7B3FFE74309A937405533BE57C7D57 \
@@ -75,7 +76,7 @@ RUN ARCH= && dpkgArch="$(dpkg --print-architecture)" \
     && gpg --batch --decrypt --output SHASUMS256.txt SHASUMS256.txt.asc \
     && grep " node-v$NODE_VERSION-linux-$ARCH.tar.xz\$" SHASUMS256.txt | sha256sum -c - \
     && tar -xJf "node-v$NODE_VERSION-linux-$ARCH.tar.xz" -C /usr/local --strip-components=1 --no-same-owner \
-    && rm "node-v$NODE_VERSION-linux-$ARCH.tar.xz" SHASUMS256.txt.asc SHASUMS256.txt \
+    && rm -rf "$GNUPGHOME" "node-v$NODE_VERSION-linux-$ARCH.tar.xz" SHASUMS256.txt.asc SHASUMS256.txt \
     && apt-mark auto '.*' > /dev/null \
     && find /usr/local -type f -executable -exec ldd '{}' ';' \
       | awk '/=>/ { print $(NF-1) }' \
@@ -109,6 +110,7 @@ RUN ARCH= && dpkgArch="$(dpkg --print-architecture)" \
     && apt-get update \
     && apt-get install -y ca-certificates curl gnupg dirmngr --no-install-recommends \
     && rm -rf /var/lib/apt/lists/* \
+    && export GNUPGHOME="$(mktemp -d)" \
     && for key in \
       EB4C1BFD4F042F6DDDCCEC917721F63BD38B4796 \
       2F528D36D67B69EDF998D85778BD65473CB3BD13 \
@@ -120,7 +122,7 @@ RUN ARCH= && dpkgArch="$(dpkg --print-architecture)" \
     && curl -fsSLO --compressed https://storage.googleapis.com/golang/go${GO_VERSION}.linux-${ARCH}.tar.gz.asc \
     && gpg --batch --verify go${GO_VERSION}.linux-${ARCH}.tar.gz.asc go${GO_VERSION}.linux-${ARCH}.tar.gz \
     && tar -xvf go${GO_VERSION}.linux-${ARCH}.tar.gz -C /usr/local \
-    && rm -f go${GO_VERSION}.linux-${ARCH}.tar.gz go${GO_VERSION}.linux-${ARCH}.tar.gz.asc \
+    && rm -rf "$GNUPGHOME" go${GO_VERSION}.linux-${ARCH}.tar.gz go${GO_VERSION}.linux-${ARCH}.tar.gz.asc \
     && apt-get remove --purge --autoremove -y ca-certificates curl gnupg dirmngr \
     # smoke test
     && echo "go ${GO_VERSION} install smoke test!" \
@@ -136,6 +138,7 @@ RUN ARCH= && dpkgArch="$(dpkg --print-architecture)" \
   && apt-get update \
   && apt-get install -y ca-certificates gnupg dirmngr --no-install-recommends \
   && rm -rf /var/lib/apt/lists/* \
+  && export GNUPGHOME="$(mktemp -d)" \
   && for key in \
     CACB9FE09150307D1D22D82962754C3B3ABCFE23 \
   ; do \
@@ -146,7 +149,7 @@ RUN ARCH= && dpkgArch="$(dpkg --print-architecture)" \
   && echo "deb http://dist.sapmachine.io/debian/${ARCH}/ ./" | tee /etc/apt/sources.list.d/sapmachine.list \
   && apt-get update \
   && apt-get install -y sapmachine-$(echo ${SAPMACHINE_VERSION} | cut -d. -f1)-jdk=${SAPMACHINE_VERSION} --no-install-recommends \
-  && rm -rf /var/lib/apt/lists/* \
+  && rm -rf "$GNUPGHOME" /var/lib/apt/lists/* \
   && apt-get remove --purge --autoremove -y ca-certificates gnupg dirmngr \
   # smoke test
   && echo "SAPMachine ${SAPMACHINE_VERSION} install smoke test!" \
@@ -159,6 +162,7 @@ RUN set -ex \
   && rm -rf /var/lib/apt/lists/* \
   && curl -fsSLO --compressed ${MAVEN_BASE_URL}/apache-maven-${MAVEN_VERSION}-bin.tar.gz \
   && curl -fsSLO --compressed ${MAVEN_BASE_URL}/apache-maven-${MAVEN_VERSION}-bin.tar.gz.asc \
+  && export GNUPGHOME="$(mktemp -d)" \
   && for key in \
     6A814B1F869C2BBEAB7CB7271A2A1C94BDE89688 \
   ; do \
@@ -168,7 +172,7 @@ RUN set -ex \
   && gpg --batch --verify apache-maven-${MAVEN_VERSION}-bin.tar.gz.asc apache-maven-${MAVEN_VERSION}-bin.tar.gz \
   && mkdir -p ${MAVEN_HOME} ${MAVEN_HOME}/ref \
   && tar -xzf apache-maven-${MAVEN_VERSION}-bin.tar.gz -C ${MAVEN_HOME} --strip-components=1 \
-  && rm -f apache-maven-${MAVEN_VERSION}-bin.tar.gz.asc apache-maven-${MAVEN_VERSION}-bin.tar.gz \
+  && rm -rf "$GNUPGHOME" apache-maven-${MAVEN_VERSION}-bin.tar.gz.asc apache-maven-${MAVEN_VERSION}-bin.tar.gz \
   && chmod -R a+w ${MAVEN_HOME}/conf/* \
   && ln -s ${MAVEN_HOME}/bin/mvn /usr/bin/mvn \
   && apt-get remove --purge --autoremove -y ca-certificates curl gnupg dirmngr \
@@ -187,7 +191,7 @@ RUN set -ex \
 # Install essential build tools and python
 RUN set -ex \
   && apt-get update \
-  && apt-get install -y ca-certificates build-essential python2.7 python3 --no-install-recommends \
+  && apt-get install -y ca-certificates build-essential git python2.7 python3 --no-install-recommends \
   && rm -rf /var/lib/apt/lists/* \
   # smoke tests
   && echo "python install smoke tests!" \
