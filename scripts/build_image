@@ -19,7 +19,7 @@ export NODE_MAJOR_VERSION="$(echo ${NODE_VERSION_TEMPLATE}|awk -F. '{printf "%d"
 
 echo "Java major version: ${JAVA_MAJOR_VERSION}, Node major version: ${NODE_MAJOR_VERSION}"
 
-if ([ "$JAVA_MAJOR_VERSION" -ne "8" ] && [ "$JAVA_MAJOR_VERSION" -ne "11" ] && [ "$JAVA_MAJOR_VERSION" -ne "17" ]) || \
+if ([ "$JAVA_MAJOR_VERSION" -ne "11" ] && [ "$JAVA_MAJOR_VERSION" -ne "17" ] && [ "$JAVA_MAJOR_VERSION" -ne "19" ]) || \
    ([ "$NODE_MAJOR_VERSION" -ne "14" ] && [ "$NODE_MAJOR_VERSION" -ne "16" ] && [ "$NODE_MAJOR_VERSION" -ne "18" ])
 then
 	echo "Java:${JAVA_MAJOR_VERSION}, Node:${NODE_MAJOR_VERSION} combination is not supported!"
@@ -39,7 +39,7 @@ echo "Build mbtci${JAVA_VERSION}${NODE_VERSION}:${MBT_VERSION}"
 docker build -t mbtci${JAVA_VERSION}${NODE_VERSION}:${MBT_VERSION} .
 
 # test image
-if [ "$JAVA_MAJOR_VERSION" = "11" ] || [ "$JAVA_MAJOR_VERSION" = "8" ] || [ "$JAVA_MAJOR_VERSION" = "17" ]; then
+if [ "$JAVA_MAJOR_VERSION" = "11" ] || [ "$JAVA_MAJOR_VERSION" = "17" ] || [ "$JAVA_MAJOR_VERSION" = "19" ]; then
 	cp test/goss/goss_template.yaml test/goss/goss.yaml
 	sed_i "s/NODE_VERSION_TEMPLATE/${NODE_VERSION_TEMPLATE}/" test/goss/goss.yaml
 	sed_i "s/JAVA_VERSION_TEMPLATE/${JAVA_VERSION_TEMPLATE}/" test/goss/goss.yaml
