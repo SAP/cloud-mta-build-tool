@@ -1,9 +1,13 @@
 # GOSS Manual: https://github.com/aelsabbahy/goss/blob/master/docs/manual.md
 # CMD: GOSS_FILES_PATH=./test/goss dgoss run --interactive --volume $PWD:/project devxci/mbtci
 package:
+  curl:
+    installed: false
   git:
     installed: true
   python2.7:
+    installed: true
+  python3:
     installed: true
   make:
     installed: true
@@ -17,9 +21,6 @@ user:
     home: /home/mta
     shell: /bin/bash
 command:
-  # ensure that curl is not installed
-  curl --version:
-    exit-status: 127
   # verify installed JAVA version
   java -version:
     exit-status: 0
