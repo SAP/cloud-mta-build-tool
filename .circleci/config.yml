@@ -156,11 +156,17 @@ jobs:
             git fetch
             git rebase
       - run:
-          name: "build images"
+          name: build images
           command: |
               MBT_VERSION=$(cat ./VERSION)
               sh $PWD/scripts/build_image 11.0.17 14.21.1 ${MBT_VERSION}
+              sh $PWD/scripts/build_image 11.0.17 16.18.1 ${MBT_VERSION}
+              sh $PWD/scripts/build_image 11.0.17 18.12.1 ${MBT_VERSION}
+              sh $PWD/scripts/build_image 17.0.5 14.21.1 ${MBT_VERSION}
               sh $PWD/scripts/build_image 17.0.5 16.18.1 ${MBT_VERSION}
+              sh $PWD/scripts/build_image 17.0.5 18.12.1 ${MBT_VERSION}
+              sh $PWD/scripts/build_image 19.0.1 14.21.1 ${MBT_VERSION}
+              sh $PWD/scripts/build_image 19.0.1 16.18.1 ${MBT_VERSION}
               sh $PWD/scripts/build_image 19.0.1 18.12.1 ${MBT_VERSION}
       - run:
           name: publish images
@@ -174,13 +180,25 @@ jobs:
             #Push to Docker Hub
             echo "$DOCKER_HUB_TOKEN" | docker login --username $DOCKER_HUB_USER --password-stdin
             sh $PWD/scripts/publish_image 11.0.17 14.21.1 ${MBT_VERSION} "devxci"
+            sh $PWD/scripts/publish_image 11.0.17 16.18.1 ${MBT_VERSION} "devxci"
+            sh $PWD/scripts/publish_image 11.0.17 18.12.1 ${MBT_VERSION} "devxci"
+            sh $PWD/scripts/publish_image 17.0.5 14.21.1 ${MBT_VERSION} "devxci"
             sh $PWD/scripts/publish_image 17.0.5 16.18.1 ${MBT_VERSION} "devxci"
+            sh $PWD/scripts/publish_image 17.0.5 18.12.1 ${MBT_VERSION} "devxci"
+            sh $PWD/scripts/publish_image 19.0.1 14.21.1 ${MBT_VERSION} "devxci"
+            sh $PWD/scripts/publish_image 19.0.1 16.18.1 ${MBT_VERSION} "devxci"
             sh $PWD/scripts/publish_image 19.0.1 18.12.1 ${MBT_VERSION} "devxci"
 
             #Push to GitHub Container Registry
             echo "$CLOUD_MTA_BOT_GITHUB_TOKEN" | docker login "ghcr.io" --username $CLOUD_MTA_BOT_USER --password-stdin
             sh $PWD/scripts/publish_image 11.0.17 14.21.1 ${MBT_VERSION} "ghcr.io/sap"
+            sh $PWD/scripts/publish_image 11.0.17 16.18.1 ${MBT_VERSION} "ghcr.io/sap"
+            sh $PWD/scripts/publish_image 11.0.17 18.12.1 ${MBT_VERSION} "ghcr.io/sap"
+            sh $PWD/scripts/publish_image 17.0.5 14.21.1 ${MBT_VERSION} "ghcr.io/sap"
             sh $PWD/scripts/publish_image 17.0.5 16.18.1 ${MBT_VERSION} "ghcr.io/sap"
+            sh $PWD/scripts/publish_image 17.0.5 18.12.1 ${MBT_VERSION} "ghcr.io/sap"
+            sh $PWD/scripts/publish_image 19.0.1 14.21.1 ${MBT_VERSION} "ghcr.io/sap"
+            sh $PWD/scripts/publish_image 19.0.1 16.18.1 ${MBT_VERSION} "ghcr.io/sap"
             sh $PWD/scripts/publish_image 19.0.1 18.12.1 ${MBT_VERSION} "ghcr.io/sap"
       - run:
           # This won't run if previous commands have failed so the tag should be removed **manually**
