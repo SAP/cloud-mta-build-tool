@@ -29,7 +29,7 @@ command:
     exit-status: 0
     stdout:
       - 1.2.19
-  # verify installed MAVEN VERSION
+  # verify installed MAVEN version
   mvn --version:
     exit-status: 0
     stdout:
