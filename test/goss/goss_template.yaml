@@ -52,5 +52,3 @@ command:
   cd ~ && npm install @sap/cds:
     exit-status: 0
     timeout: 50000
-    stdout:
-      - + @sap/cds@
