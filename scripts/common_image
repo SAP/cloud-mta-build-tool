@@ -6,8 +6,8 @@ case $(sed --help 2>&1) in
 esac
 
 # validate java and node major version
-export JAVA_MAJOR_VERSION="$(echo {JAVA_VERSION_TEMPLATE}|awk -F. '{printf "%d", $1}')"
-export NODE_MAJOR_VERSION="$(echo ${NODE_VERSION_ARG}|awk -F. '{printf "%d", $1}')"
+export JAVA_MAJOR_VERSION="$(echo ${JAVA_VERSION_TEMPLATE}|awk -F. '{printf "%d", $1}')"
+export NODE_MAJOR_VERSION="$(echo ${NODE_VERSION_TEMPLATE}|awk -F. '{printf "%d", $1}')"
 
 echo "Java major version: ${JAVA_MAJOR_VERSION}, Node major version: ${NODE_MAJOR_VERSION}"
 
