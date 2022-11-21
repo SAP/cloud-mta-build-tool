@@ -19,7 +19,7 @@ ENV CGO_ENABLED=0
 ENV GOOS=linux
 ENV DEBIAN_FRONTEND=noninteractive
 
-# create user account and using openssl to create password
+# Create user account and using openssl to create password
 RUN set -ex \
   && apt-get update \
   && apt-get install -y openssl --no-install-recommends \
@@ -37,10 +37,11 @@ RUN set -ex \
   && chmod a+w ${MTA_USER_HOME} \
   && apt-get remove --purge --autoremove -y openssl
 
+# Download SAP_Global_Root_CA.crt to target 
 ADD http://aia.pki.co.sap.com/aia/SAP%20Global%20Root%20CA.crt \
     /etc/ssl/certs/SAP_Global_Root_CA.crt
 
-# Install node
+# Install Node.js
 RUN ARCH= && dpkgArch="$(dpkg --print-architecture)" \
     && case "${dpkgArch##*-}" in \
       amd64) ARCH='x64';; \
@@ -88,7 +89,7 @@ RUN ARCH= && dpkgArch="$(dpkg --print-architecture)" \
     && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false \
     && ln -s /usr/local/bin/node /usr/local/bin/nodejs \
     # smoke tests
-    && echo "node ${NODE_VERSION} install smoke test!" \
+    && echo "node ${NODE_VERSION} install smoke tests!" \
     && node --version \
     && npm --version
 
@@ -103,8 +104,12 @@ RUN set -ex \
 # Install Golang
 RUN ARCH= && dpkgArch="$(dpkg --print-architecture)" \
     && case "${dpkgArch##*-}" in \
+      i386) ARCH='386';; \
       amd64) ARCH='amd64';; \
+      ppc64el) ARCH='ppc64le';; \
+      s390x) ARCH='s390x';; \
       arm64) ARCH='arm64';; \
+      armhf) ARCH='armv6l';; \
       *) echo "unsupported architecture"; exit 1 ;; \
     esac \
     && set -ex \
@@ -156,7 +161,7 @@ RUN ARCH= && dpkgArch="$(dpkg --print-architecture)" \
   && echo "SAPMachine ${SAPMACHINE_VERSION} install smoke test!" \
   && java --version
 
-# Install maven
+# Install Maven
 RUN set -ex \
   && apt-get update \
   && apt-get install -y ca-certificates curl gnupg dirmngr --no-install-recommends \
@@ -189,7 +194,7 @@ RUN set -ex \
   && echo "mbt ${MBT_VERSION} install smoke test!" \
   && mbt --version
 
-# Install essential build tools and python
+# Install essential build tools and Python
 RUN set -ex \
   && apt-get update \
   && apt-get install -y ca-certificates build-essential git python2.7 python3 --no-install-recommends \

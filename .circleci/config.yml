@@ -138,7 +138,7 @@ jobs:
             #Make sure HEAD points to master
             git checkout master
             export GITHUB_TOKEN=${CLOUD_MTA_BOT_GITHUB_TOKEN}
-            curl -sL https://git.io/goreleaser | bash
+            curl -sL https://git.io/goreleaser | sh
 
   publish-to-dockerhub:
     docker:
