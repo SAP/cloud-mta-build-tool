@@ -8,7 +8,7 @@ ARG MTA_USER_HOME=/home/mta
 ARG MBT_VERSION=1.2.19
 ARG GO_VERSION=1.15.6
 # node version as found in https://nodejs.org/dist/ e.g: "v16.15.0"
-ARG NODE_VERSION=NODE_VERSION_TEMPLATE
+ARG NODE_VERSION=NODE_VERSION_ARG
 ARG MAVEN_VERSION=3.6.3
 # This is used to build the download URL
 # e.g: https://tools.hana.ondemand.com/additional/sapjvm-8.1.086-linux-x64.zip
@@ -16,7 +16,7 @@ ARG MAVEN_VERSION=3.6.3
 # so this argument's value may need to be updated in the future
 # Also see JVM section here:
 # - https://tools.hana.ondemand.com/#cloud
-ARG JAVA_VERSION=8.1.086
+ARG JAVA_VERSION=8.1.090
 
 # Environment variables
 ENV JAVA_HOME /opt/jdk

@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# validate java and node major version
+export JAVA_MAJOR_VERSION="${JAVA_VERSION_ARG}"
+export NODE_MAJOR_VERSION="$(echo ${NODE_VERSION_ARG} |awk -F. '{printf "%d", $1}')"
+
+echo "Java major version: ${JAVA_MAJOR_VERSION}, Node major version: ${NODE_MAJOR_VERSION}"
+
+if ([ "$JAVA_MAJOR_VERSION" -ne "8" ] && [ "$JAVA_MAJOR_VERSION" -ne "11" ] && [ "$JAVA_MAJOR_VERSION" -ne "17" ]) || \
+   ([ "$NODE_MAJOR_VERSION" -ne "14" ] && [ "$NODE_MAJOR_VERSION" -ne "16" ] && [ "$NODE_MAJOR_VERSION" -ne "18" ])
+then
+	echo "Java:${JAVA_MAJOR_VERSION}, Node:${NODE_MAJOR_VERSION} combination is not supported!"
+	exit -1
+fi
+
+# set jvm and node version and print
+export JAVA_VERSION="-java${JAVA_MAJOR_VERSION}"
+export NODE_VERSION="-node${NODE_MAJOR_VERSION}"
+echo "Java version: ${JAVA_VERSION}, Node version: ${NODE_VERSION}"

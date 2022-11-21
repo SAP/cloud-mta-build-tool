@@ -5,7 +5,7 @@ ARG MTA_USER="mta"
 ARG MTA_USER_HOME=/home/mta
 ARG MBT_VERSION=1.2.19
 ARG GO_VERSION=1.19.3
-ARG NODE_VERSION=NODE_VERSION_TEMPLATE
+ARG NODE_VERSION=NODE_VERSION_ARG
 ARG MAVEN_VERSION=3.8.6
 ARG MAVEN_BASE_URL=https://downloads.apache.org/maven/maven-3/${MAVEN_VERSION}/binaries
 ARG SAPMACHINE_VERSION=17.0.5
@@ -20,12 +20,12 @@ ENV CGO_ENABLED=0
 ENV GOOS=linux
 ENV DEBIAN_FRONTEND=noninteractive
 
-# create user account and using openssl to create password
+# Create user account and using openssl to create password
 RUN set -ex \
   && apt-get update \
   && apt-get install -y openssl --no-install-recommends \
   && rm -rf /var/lib/apt/lists/* \
-   # smoke test
+  # smoke test
   && openssl version \
   && useradd --home-dir ${MTA_USER_HOME} \
             --create-home \
@@ -35,12 +35,14 @@ RUN set -ex \
             --comment 'Cloud MTA Build Tool' \
             --password "$(echo weUseMta | openssl passwd -1 -stdin)" ${MTA_USER} \
   # allow anybody to write into the image user home directory
-  && chmod a+w ${MTA_USER_HOME}
+  && chmod a+w ${MTA_USER_HOME} \
+  && apt-get remove --purge --autoremove -y openssl
 
+# Download SAP_Global_Root_CA.crt to target 
 ADD http://aia.pki.co.sap.com/aia/SAP%20Global%20Root%20CA.crt \
     /etc/ssl/certs/SAP_Global_Root_CA.crt
 
-# install node
+# Install Node
 RUN ARCH= && dpkgArch="$(dpkg --print-architecture)" \
     && case "${dpkgArch##*-}" in \
       amd64) ARCH='x64';; \
@@ -53,6 +55,7 @@ RUN ARCH= && dpkgArch="$(dpkg --print-architecture)" \
     esac \
     && set -ex \
     && apt-get update \
+    # libatomic1 for arm
     && apt-get install -y ca-certificates curl gnupg dirmngr xz-utils libatomic1 --no-install-recommends \
     && rm -rf /var/lib/apt/lists/* \
     && for key in \
@@ -88,36 +91,45 @@ RUN ARCH= && dpkgArch="$(dpkg --print-architecture)" \
       | xargs -r apt-mark manual \
     && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false \
     && ln -s /usr/local/bin/node /usr/local/bin/nodejs \
-    # smoke tests
-    && echo "node ${NODE_VERSION} install smoke tests!" \
+    # smoke test
+    && echo "node ${NODE_VERSION} install smoke test!" \
     && node --version \
     && npm --version
 
-# install ui5-cli temporay solution
-RUN	set -ex \
+# Install UI5-CLI
+RUN set -ex \
     && npm install --prefix /usr/local/ -g @ui5/cli \
     && npm cache clean -g --force \
-    # smoke tests
-    && echo "ui5 install smoke tests!" \
+    # smoke test
+    && echo "ui5 install smoke test!" \
     && ui5 --version
 
-# install Golang
-RUN	set -ex \
+# Install Golang
+RUN ARCH= && dpkgArch="$(dpkg --print-architecture)" \
+    && case "${dpkgArch##*-}" in \
+      i386) ARCH='386';; \
+      amd64) ARCH='amd64';; \
+      ppc64el) ARCH='ppc64le';; \
+      s390x) ARCH='s390x';; \
+      arm64) ARCH='arm64';; \
+      armhf) ARCH='armv6l';; \
+      *) echo "unsupported architecture"; exit 1 ;; \
+    esac \
+    && set -ex \
     && apt-get update \
     && apt-get install -y ca-certificates curl --no-install-recommends \
     && rm -rf /var/lib/apt/lists/* \
-    && curl -O https://storage.googleapis.com/golang/go${GO_VERSION}.linux-amd64.tar.gz \
+    && curl -fsSLO --compressed "https://storage.googleapis.com/golang/go${GO_VERSION}.linux-${ARCH}.tar.gz" \
     && tar -xvf go${GO_VERSION}.linux-amd64.tar.gz \
-    && rm -rf /usr/local/go \
     && mv go /usr/local \
-    && mkdir -p "$GOPATH/src" "$GOPATH/bin" \
-    && chmod -R 777 "$GOPATH" \
     && mkdir -p ${GOPATH}/src ${GOPATH}/bin \
-    # smoke tests
-    && echo "go ${GO_VERSION} install smoke tests!" \
+    && chmod 777 -R "${GOPATH}" \
+    && apt-get remove --purge --autoremove -y ca-certificates curl \
+    # smoke test
+    && echo "go ${GO_VERSION} install smoke test!" \
     && go version
 
-# install sapmachine
+# Install SAPMachine
 RUN ARCH= && dpkgArch="$(dpkg --print-architecture)" \
     && case "${dpkgArch##*-}" in \
       amd64) ARCH='amd64';; \
@@ -139,16 +151,16 @@ RUN ARCH= && dpkgArch="$(dpkg --print-architecture)" \
   && rm -rf /var/lib/apt/lists/* \
   && apt-get remove --purge --autoremove -y ca-certificates gnupg wget \
   # smoke test
-  && echo "sapmachine ${SAPMACHINE_VERSION} install smoke tests!" \
+  && echo "sapmachine ${SAPMACHINE_VERSION} install smoke test!" \
   && java --version
 
-# install maven
+# Install Maven
 RUN set -ex \
   && apt-get update \
   && apt-get install -y ca-certificates curl gnupg dirmngr --no-install-recommends \
   && rm -rf /var/lib/apt/lists/* \
-  && curl -fsSLO --compressed ${MAVEN_BASE_URL}/apache-maven-${MAVEN_VERSION}-bin.tar.gz \
-  && curl -fsSLO --compressed ${MAVEN_BASE_URL}/apache-maven-${MAVEN_VERSION}-bin.tar.gz.asc \
+  && curl -fsSLO --compressed "${MAVEN_BASE_URL}/apache-maven-${MAVEN_VERSION}-bin.tar.gz" \
+  && curl -fsSLO --compressed "${MAVEN_BASE_URL}/apache-maven-${MAVEN_VERSION}-bin.tar.gz.asc" \
   && for key in \
     6A814B1F869C2BBEAB7CB7271A2A1C94BDE89688 \
   ; do \
@@ -162,25 +174,25 @@ RUN set -ex \
   && chmod --recursive a+w ${MAVEN_HOME}/conf/* \
   && ln -s ${MAVEN_HOME}/bin/mvn /usr/bin/mvn \
   && apt-get remove --purge --autoremove -y ca-certificates curl gnupg dirmngr \
-  # smoke tests
-  && echo "mvn ${MAVEN_VERSION} smoke tests!" \
+  # smoke test
+  && echo "mvn ${MAVEN_VERSION} smoke test!" \
   && mvn --version
 
 # Install MBT
 RUN set -ex \
-  && npm install -g --unsafe-perm @young-yang217/mbt@${MBT_VERSION} \
+  && npm install -g --unsafe-perm mbt@${MBT_VERSION} \
   && npm cache clean -g --force \
-  # smoke tests
-  && echo "mbt ${MBT_VERSION} install smoke tests!" \
+  # smoke test
+  && echo "mbt ${MBT_VERSION} install smoke test!" \
   && mbt --version
 
-# Install essential build tools and python
+# Install Essential build tools and Python
 RUN set -ex \
   && apt-get update \
   && apt-get install -y ca-certificates build-essential python2.7 python3 --no-install-recommends \
   && rm -rf /var/lib/apt/lists/* \
-  # smoke tests
-  && echo "python install smoke tests!" \
+  # smoke test
+  && echo "python install smoke test!" \
   && python2.7 --version \
   && python3 --version
 
