@@ -176,7 +176,7 @@ jobs:
             git fetch
             git rebase
             MBT_VERSION=$(cat ./VERSION)
-            echo "Image release: ${MBT_VERSION}"
+            echo "Images release: ${MBT_VERSION}"
             #Push to Docker Hub
             echo "$DOCKER_HUB_TOKEN" | docker login --username $DOCKER_HUB_USER --password-stdin
             sh $PWD/scripts/publish_image 11.0.17 14.21.1 ${MBT_VERSION} "devxci"
