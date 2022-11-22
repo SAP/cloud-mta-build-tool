@@ -1,14 +1,14 @@
-#!/bin/bash
+#!/usr/bin/env sh
 
 # set readable variables
-export JAVA_VERSION_ARG="$1"
-export NODE_VERSION_ARG="$2"
+export JAVA_VERSION_TEMPLATE="$1"
+export NODE_VERSION_TEMPLATE="$2"
 export MBT_VERSION="$3"
 export DOCKER_REGISTRY="$4"
 
 # print parameters
-echo "Java version arg: ${JAVA_VERSION_ARG}, Node version arg: ${NODE_VERSION_ARG}, \
-MBT Version arg: ${MBT_VERSION}, Docker Registry arg: ${DOCKER_REGISTRY}"
+echo "Java version: ${JAVA_VERSION_TEMPLATE}, Node version: ${NODE_VERSION_TEMPLATE}, \
+MBT version: ${MBT_VERSION}, Docker Registry: ${DOCKER_REGISTRY}"
 
 # common_image includes some exported vars and check methods
 source $PWD/scripts/common_image

@@ -1,15 +1,20 @@
-#!/bin/bash
+#!/usr/bin/env sh
+
+case $(sed --help 2>&1) in
+  *GNU*) sed_i () { sed -i "$@"; };;
+  *) sed_i () { sed -i '' "$@"; };;
+esac
 
 # validate java and node major version
-export JAVA_MAJOR_VERSION="${JAVA_VERSION_ARG}"
-export NODE_MAJOR_VERSION="$(echo ${NODE_VERSION_ARG} |awk -F. '{printf "%d", $1}')"
+export JAVA_MAJOR_VERSION="$(echo ${JAVA_VERSION_TEMPLATE}|awk -F. '{printf "%d", $1}')"
+export NODE_MAJOR_VERSION="$(echo ${NODE_VERSION_TEMPLATE}|awk -F. '{printf "%d", $1}')"
 
 echo "Java major version: ${JAVA_MAJOR_VERSION}, Node major version: ${NODE_MAJOR_VERSION}"
 
-if ([ "$JAVA_MAJOR_VERSION" -ne "8" ] && [ "$JAVA_MAJOR_VERSION" -ne "11" ] && [ "$JAVA_MAJOR_VERSION" -ne "17" ]) || \
+if ([ "$JAVA_MAJOR_VERSION" -ne "11" ] && [ "$JAVA_MAJOR_VERSION" -ne "17" ] && [ "$JAVA_MAJOR_VERSION" -ne "19" ]) || \
    ([ "$NODE_MAJOR_VERSION" -ne "14" ] && [ "$NODE_MAJOR_VERSION" -ne "16" ] && [ "$NODE_MAJOR_VERSION" -ne "18" ])
 then
-	echo "Java:${JAVA_MAJOR_VERSION}, Node:${NODE_MAJOR_VERSION} combination is not supported!"
+	echo "Java: ${JAVA_MAJOR_VERSION}, Node: ${NODE_MAJOR_VERSION} combination is not supported!"
 	exit -1
 fi
 

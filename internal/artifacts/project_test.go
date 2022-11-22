@@ -186,25 +186,25 @@ builders:
 			Ω(execProjectBuilder([]mta.ProjectBuilder{builder}, "pre")).Should(HaveOccurred())
 		})
 		It("Custom builder", func() {
-			builder := mta.ProjectBuilder{Builder: "custom", Commands: []string{`bash -c 'echo "aaa"'`}}
+			builder := mta.ProjectBuilder{Builder: "custom", Commands: []string{`sh -c 'echo "aaa"'`}}
 			Ω(execProjectBuilder([]mta.ProjectBuilder{builder}, "pre")).Should(Succeed())
 		})
 
 		It("Succeeds on builder with timeout, when timeout isn't reached", func() {
-			builder := mta.ProjectBuilder{Builder: "custom", Commands: []string{`bash -c 'sleep 1'`}, Timeout: "10s"}
+			builder := mta.ProjectBuilder{Builder: "custom", Commands: []string{`sh -c 'sleep 1'`}, Timeout: "10s"}
 			Ω(execProjectBuilder([]mta.ProjectBuilder{builder}, "pre")).Should(Succeed())
 		})
 
 		It("Fails on builder with timeout, when timeout is reached", func() {
-			builder := mta.ProjectBuilder{Builder: "custom", Commands: []string{`bash -c 'sleep 10'`}, Timeout: "2s"}
+			builder := mta.ProjectBuilder{Builder: "custom", Commands: []string{`sh -c 'sleep 10'`}, Timeout: "2s"}
 			err := execProjectBuilder([]mta.ProjectBuilder{builder}, "post")
 			checkError(err, exec.ExecTimeoutMsg, "2s")
 		})
 
 		It("Fails on builder with invalid custom command", func() {
-			builder := mta.ProjectBuilder{Builder: "custom", Commands: []string{`bash -c 'sleep 10`}}
+			builder := mta.ProjectBuilder{Builder: "custom", Commands: []string{`sh -c 'sleep 10`}}
 			err := execProjectBuilder([]mta.ProjectBuilder{builder}, "post")
-			checkError(err, commands.BadCommandMsg, `bash -c 'sleep 10`)
+			checkError(err, commands.BadCommandMsg, `sh -c 'sleep 10`)
 		})
 
 		It("Fails on command execution", func() {

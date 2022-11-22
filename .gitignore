@@ -1,6 +1,6 @@
 # VsCode files
 .vscode
-#Goland files
+# Goland files
 .idea
 .idea/inspectionProfiles/
 cmd/internal/
@@ -23,7 +23,6 @@ config.json
 .history
 build
 fmt
-#docker*
 .dockerignore
 .DS_Store
 dist
@@ -36,10 +35,11 @@ page.html
 
 internal/tpl/MakeFileTest
 internal/tpl/MakeFileTest.mta
-#Dockerfile
+Dockerfile
 
 integration/testdata/mta_demo/mta_archives/
 docs/site
 bin
 .npmrc
 unpacked_bin
+test/goos/goos.yaml

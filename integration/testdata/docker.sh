@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 
 export NODE_TEST_FOLDER=node
 export MAVEN_TEST_FOLDER=maven

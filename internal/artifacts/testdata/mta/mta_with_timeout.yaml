@@ -9,10 +9,10 @@ modules:
     build-parameters:
       builder: custom
       commands:
-        - bash -c 'sleep 1'
-        - bash -c 'sleep 1'
-        - bash -c 'sleep 1'
-        - bash -c 'sleep 1'
+        - sh -c 'sleep 1'
+        - sh -c 'sleep 1'
+        - sh -c 'sleep 1'
+        - sh -c 'sleep 1'
       timeout: 2s
     provides:
       - name: node-js_api
@@ -25,10 +25,10 @@ modules:
     build-parameters:
       builder: custom
       commands:
-        - bash -c 'sleep 1'
-        - bash -c 'sleep 1'
-        - bash -c 'sleep 1'
-        - bash -c 'sleep 1'
+        - sh -c 'sleep 1'
+        - sh -c 'sleep 1'
+        - sh -c 'sleep 1'
+        - sh -c 'sleep 1'
       timeout: 1m7s
     provides:
       - name: node-js_api
@@ -41,10 +41,10 @@ modules:
     build-parameters:
       builder: custom
       commands:
-        - bash -c 'sleep 1'
-        - bash -c 'sleep 1'
-        - bash -c 'sleep 1'
-        - bash -c 'sleep 1'
+        - sh -c 'sleep 1'
+        - sh -c 'sleep 1'
+        - sh -c 'sleep 1'
+        - sh -c 'sleep 1'
       timeout: 1
     provides:
       - name: node-js_api

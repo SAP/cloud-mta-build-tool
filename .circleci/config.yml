@@ -99,7 +99,7 @@ jobs:
             git checkout master
             CURR_MBT_VERSION=$(cat ./VERSION)
             echo "Current release: ${CURR_MBT_VERSION}"
-            MBT_VERSION=$(echo $CURR_MBT_VERSION |awk -F. -v MAJOR_VAR="$MAJOR" -v MINOR_VAR="$MINOR" -v PATCH_VAR="$PATCH" '{
+            MBT_VERSION=$(echo $CURR_MBT_VERSION|awk -F. -v MAJOR_VAR="$MAJOR" -v MINOR_VAR="$MINOR" -v PATCH_VAR="$PATCH" '{
               if (MAJOR_VAR == "true"){
                 $1++
                 $2=0
@@ -114,18 +114,16 @@ jobs:
             }')
             echo "New release: ${MBT_VERSION}"
             #Update new version in files
-            sed  -i "/\"version\":/s/${CURR_MBT_VERSION}/${MBT_VERSION}/" ./package.json
-            sed  -i "/cli_version:/s/${CURR_MBT_VERSION}/${MBT_VERSION}/" ./configs/version.yaml
-            sed  -i "s/${CURR_MBT_VERSION}/${MBT_VERSION}/" ./VERSION
-            sed  -i "/ARG MBT_VERSION=/ s/${CURR_MBT_VERSION}/${MBT_VERSION}/" ./Dockerfile_mbtci_java8
-            sed  -i "/ARG MBT_VERSION=/ s/${CURR_MBT_VERSION}/${MBT_VERSION}/" ./Dockerfile_mbtci_java11
-            sed  -i "/ARG MBT_VERSION=/ s/${CURR_MBT_VERSION}/${MBT_VERSION}/" ./Dockerfile_mbtci_java17
-            sed  -i "s/- ${CURR_MBT_VERSION}/- ${MBT_VERSION}/" ./test/goss/goss_template.yaml
-            sed  -i "/- Cloud MTA Build Tool -/s/${CURR_MBT_VERSION}/${MBT_VERSION}/" ./README.md
+            sed -i "/\"version\":/s/${CURR_MBT_VERSION}/${MBT_VERSION}/" ./package.json
+            sed -i "/cli_version:/s/${CURR_MBT_VERSION}/${MBT_VERSION}/" ./configs/version.yaml
+            sed -i "s/${CURR_MBT_VERSION}/${MBT_VERSION}/" ./VERSION
+            sed -i "/ARG MBT_VERSION=/ s/${CURR_MBT_VERSION}/${MBT_VERSION}/" ./Dockerfile_mbtci_template
+            sed -i "s/- ${CURR_MBT_VERSION}/- ${MBT_VERSION}/" ./test/goss/goss_template.yaml
+            sed -i "/- Cloud MTA Build Tool -/s/${CURR_MBT_VERSION}/${MBT_VERSION}/" ./README.md
             #Generate version file
             go generate -run "go run ./internal/buildtools/embed.go ./internal/buildtools/buildtools_msg.go -source=./configs/version.yaml -target=./internal/version/version_cfg.go -name=VersionConfig -package=version"
             #Add all updated files to commit
-            git add ./package.json ./configs/version.yaml ./VERSION ./internal/version/version_cfg.go ./Dockerfile_mbtci_java8 ./Dockerfile_mbtci_java11 ./Dockerfile_mbtci_java17 ./test/goss/goss_template.yaml ./README.md 
+            git add ./package.json ./configs/version.yaml ./VERSION ./internal/version/version_cfg.go ./Dockerfile_mbtci_template ./test/goss/goss_template.yaml ./README.md 
             git config user.email "${CLOUD_MTA_BOT_EMAIL}"
             git config user.name "${CLOUD_MTA_BOT_USER}"
             git commit --allow-empty -m "[skip ci] Bump version ${MBT_VERSION}"
@@ -140,7 +138,7 @@ jobs:
             #Make sure HEAD points to master
             git checkout master
             export GITHUB_TOKEN=${CLOUD_MTA_BOT_GITHUB_TOKEN}
-            curl -sL https://git.io/goreleaser | bash
+            curl -sL https://git.io/goreleaser | sh
 
   publish-to-dockerhub:
     docker:
@@ -158,26 +156,50 @@ jobs:
             git fetch
             git rebase
       - run:
-          name: "build Java 17 & Node 16 image"
+          name: build images
           command: |
               MBT_VERSION=$(cat ./VERSION)
-              bash $PWD/scripts/build_image 17 16.18.1 ${MBT_VERSION}
+              sh $PWD/scripts/build_image 11.0.17 14.21.1 ${MBT_VERSION}
+              sh $PWD/scripts/build_image 11.0.17 16.18.1 ${MBT_VERSION}
+              sh $PWD/scripts/build_image 11.0.17 18.12.1 ${MBT_VERSION}
+              sh $PWD/scripts/build_image 17.0.5 14.21.1 ${MBT_VERSION}
+              sh $PWD/scripts/build_image 17.0.5 16.18.1 ${MBT_VERSION}
+              sh $PWD/scripts/build_image 17.0.5 18.12.1 ${MBT_VERSION}
+              sh $PWD/scripts/build_image 19.0.1 14.21.1 ${MBT_VERSION}
+              sh $PWD/scripts/build_image 19.0.1 16.18.1 ${MBT_VERSION}
+              sh $PWD/scripts/build_image 19.0.1 18.12.1 ${MBT_VERSION}
       - run:
-          name: publish image
+          name: publish images
           command: |
             #Make sure HEAD points to master
             git checkout master
             git fetch
             git rebase
             MBT_VERSION=$(cat ./VERSION)
-            echo "Image release: ${MBT_VERSION}"
+            echo "Images release: ${MBT_VERSION}"
             #Push to Docker Hub
             echo "$DOCKER_HUB_TOKEN" | docker login --username $DOCKER_HUB_USER --password-stdin
-            bash $PWD/scripts/publish_image 17  16.18.1  ${MBT_VERSION} "devxci"
+            sh $PWD/scripts/publish_image 11.0.17 14.21.1 ${MBT_VERSION} "devxci"
+            sh $PWD/scripts/publish_image 11.0.17 16.18.1 ${MBT_VERSION} "devxci"
+            sh $PWD/scripts/publish_image 11.0.17 18.12.1 ${MBT_VERSION} "devxci"
+            sh $PWD/scripts/publish_image 17.0.5 14.21.1 ${MBT_VERSION} "devxci"
+            sh $PWD/scripts/publish_image 17.0.5 16.18.1 ${MBT_VERSION} "devxci"
+            sh $PWD/scripts/publish_image 17.0.5 18.12.1 ${MBT_VERSION} "devxci"
+            sh $PWD/scripts/publish_image 19.0.1 14.21.1 ${MBT_VERSION} "devxci"
+            sh $PWD/scripts/publish_image 19.0.1 16.18.1 ${MBT_VERSION} "devxci"
+            sh $PWD/scripts/publish_image 19.0.1 18.12.1 ${MBT_VERSION} "devxci"
 
             #Push to GitHub Container Registry
             echo "$CLOUD_MTA_BOT_GITHUB_TOKEN" | docker login "ghcr.io" --username $CLOUD_MTA_BOT_USER --password-stdin
-            sh $PWD/scripts/publish_image 17  16.18.1  ${MBT_VERSION} "ghcr.io/sap"
+            sh $PWD/scripts/publish_image 11.0.17 14.21.1 ${MBT_VERSION} "ghcr.io/sap"
+            sh $PWD/scripts/publish_image 11.0.17 16.18.1 ${MBT_VERSION} "ghcr.io/sap"
+            sh $PWD/scripts/publish_image 11.0.17 18.12.1 ${MBT_VERSION} "ghcr.io/sap"
+            sh $PWD/scripts/publish_image 17.0.5 14.21.1 ${MBT_VERSION} "ghcr.io/sap"
+            sh $PWD/scripts/publish_image 17.0.5 16.18.1 ${MBT_VERSION} "ghcr.io/sap"
+            sh $PWD/scripts/publish_image 17.0.5 18.12.1 ${MBT_VERSION} "ghcr.io/sap"
+            sh $PWD/scripts/publish_image 19.0.1 14.21.1 ${MBT_VERSION} "ghcr.io/sap"
+            sh $PWD/scripts/publish_image 19.0.1 16.18.1 ${MBT_VERSION} "ghcr.io/sap"
+            sh $PWD/scripts/publish_image 19.0.1 18.12.1 ${MBT_VERSION} "ghcr.io/sap"
       - run:
           # This won't run if previous commands have failed so the tag should be removed **manually**
           name: remove dummy release tag
@@ -211,7 +233,7 @@ jobs:
 
 workflows:
   version: 2
-  # when sub-branch's code is commited, this workflow will be execed
+  # when sub-branch's code is committed, this workflow will be exceeded
   on_pr_build:
     jobs:
       - build:
@@ -233,7 +255,7 @@ workflows:
             branches:
               ignore: master
 
-  # when master's code is commited or merged from sub-branch, this workflow will be execed
+  # when master's code is committed or merged from sub-branch, this workflow will be exceeded
   on_merge_build_test:
     jobs:
       - build:
@@ -255,7 +277,7 @@ workflows:
             branches:
               only: master
 
-  # when a branch is taged by "release", this workflow will be execed
+  # when a branch is tagged by "release", this workflow will be exceeded
   on_tag_build_release_publish:
     jobs:
       - build:
