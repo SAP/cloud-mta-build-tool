@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env sh
 
 # set readable variables
 export JAVA_VERSION_TEMPLATE="$1"
@@ -11,7 +11,7 @@ echo "Java version: ${JAVA_VERSION_TEMPLATE}, Node version: ${NODE_VERSION_TEMPL
 MBT version: ${MBT_VERSION}, Docker Registry: ${DOCKER_REGISTRY}"
 
 # common_image includes some exported vars and check methods
-source $PWD/scripts/common_image
+. $PWD/scripts/common_image
 
 # publish image
 echo "Publish mbtci${JAVA_VERSION}${NODE_VERSION}:${MBT_VERSION} to $DOCKER_REGISTRY"

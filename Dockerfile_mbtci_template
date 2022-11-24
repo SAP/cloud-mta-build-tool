@@ -93,7 +93,7 @@ RUN ARCH= && dpkgArch="$(dpkg --print-architecture)" \
     && node --version \
     && npm --version
 
-# Install UI5-CLI
+# Install UI5 CLI
 RUN set -ex \
     && npm install --prefix /usr/local/ -g @ui5/cli \
     && npm cache clean -g --force \
