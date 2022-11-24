@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/bin/bash
 
 # set readable variables
 export JAVA_VERSION_TEMPLATE="$1"
@@ -6,15 +6,14 @@ export NODE_VERSION_TEMPLATE="$2"
 export MBT_VERSION="$3"
 
 # print parameters
-echo "Java version: ${JAVA_VERSION_TEMPLATE}, Node version: ${NODE_VERSION_TEMPLATE}, \
-MBT version: ${MBT_VERSION}"
+echo "Java version: ${JAVA_VERSION_TEMPLATE}, Node version: ${NODE_VERSION_TEMPLATE}, MBT version: ${MBT_VERSION}"
 
 # common_image includes some exported vars and check methods
 source $PWD/scripts/common_image
 
 # build docker image
 cp Dockerfile_mbtci_template Dockerfile
-sed_i "s/NODE_VERSION_TEMPLATE/${NODE_VERSION_TEMPLATE}/" Dockerfile
+sed_i "s/NODE_VERSION_TEMPLATE/v${NODE_VERSION_TEMPLATE}/" Dockerfile
 sed_i "s/JAVA_VERSION_TEMPLATE/${JAVA_VERSION_TEMPLATE}/" Dockerfile
 echo "Build mbtci${JAVA_VERSION}${NODE_VERSION}:${MBT_VERSION}"
 docker build -t mbtci${JAVA_VERSION}${NODE_VERSION}:${MBT_VERSION} .
@@ -24,6 +23,7 @@ if [ "$JAVA_MAJOR_VERSION" = "11" ] || [ "$JAVA_MAJOR_VERSION" = "17" ] || [ "$J
 	cp test/goss/goss_template.yaml test/goss/goss.yaml
 	sed_i "s/NODE_VERSION_TEMPLATE/${NODE_VERSION_TEMPLATE}/" test/goss/goss.yaml
 	sed_i "s/JAVA_VERSION_TEMPLATE/${JAVA_VERSION_TEMPLATE}/" test/goss/goss.yaml
+	sed_i "s/MBT_VERSION/${MBT_VERSION}/" test/goss/goss.yaml
 	docker-compose -f ./docker-compose.test.yml up --build
 fi
 

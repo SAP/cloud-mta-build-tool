@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/bin/bash
 
 case $(sed --help 2>&1) in
   *GNU*) sed_i () { sed -i "$@"; };;
