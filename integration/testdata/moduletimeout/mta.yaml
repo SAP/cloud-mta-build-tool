@@ -9,5 +9,5 @@ modules:
     build-parameters:
       builder: custom
       commands:
-        - bash -c "sleep 30"
+        - sh -c "sleep 30"
       timeout: 5s

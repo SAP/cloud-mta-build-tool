@@ -709,12 +709,12 @@ module-types:
   info: "build nodejs application"
   path: "path to config file which override the following default commands"
   commands:
-    - command: bash -c "sleep 1
+    - command: sh -c "sleep 1
 `)
 
 				ep := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getResultPath()}
 				err := buildModule(&ep, &ep, "node-js", "cf", true, true, map[string]string{})
-				checkError(err, commands.BadCommandMsg, `bash -c "sleep 1`)
+				checkError(err, commands.BadCommandMsg, `sh -c "sleep 1`)
 			})
 
 			It("Target folder exists as a file - dev", func() {

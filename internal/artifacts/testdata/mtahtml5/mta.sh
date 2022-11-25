@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 
   # MTA build process steps
 
@@ -16,7 +16,7 @@
 
   # ----Executing build for module ui5app -------
   # installing module dependencies & execute grunt & remove dev dependencies
-    (npm install && grunt && npm prune production ) &
+    (npm install && grunt && npm prune production) &
   # wait to the process to finish
     wait
   # Pack module after build for deployment

@@ -227,7 +227,7 @@ builders:
 		Ω(e).Should(Succeed())
 		Ω(result, e).Should(Equal([][]string{append([]string{"path"}, expected...)}))
 	},
-		Entry("string in double quotes should not be split", `bash -c "a && b"`, []string{"bash", "-c", "a && b"}),
+		Entry("string in double quotes should not be split", `sh -c "a && b"`, []string{"sh", "-c", "a && b"}),
 		Entry("string in single quotes should not be split", `do 'some thing' new`, []string{"do", "some thing", "new"}),
 		Entry("escaped space should not be split", `do some\ thing new`, []string{"do", "some thing", "new"}),
 	)
@@ -237,9 +237,9 @@ builders:
 		Ω(e).Should(HaveOccurred())
 		Ω(e.Error()).Should(ContainSubstring(fmt.Sprintf(BadCommandMsg, commandLine)))
 	},
-		Entry("double quotes should match", `bash -c "a && b`),
+		Entry("double quotes should match", `sh -c "a && b`),
 		Entry("single quotes should match", `do 'some thing new`),
-		Entry("mixed quotes should match", `bash -c "a && b'`),
+		Entry("mixed quotes should match", `sh -c "a && b'`),
 	)
 
 	var _ = Describe("moduleCmd", func() {
