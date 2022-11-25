@@ -1,0 +1,209 @@
+FROM debian:bullseye-slim
+
+# Build time arguments
+ARG MTA_USER="mta"
+ARG MTA_USER_HOME="/home/${MTA_USER}"
+ARG MBT_VERSION=1.2.19
+ARG GO_VERSION=1.19.3
+ARG NODE_VERSION=NODE_VERSION_TEMPLATE
+ARG MAVEN_VERSION=3.8.6
+ARG MAVEN_BASE_URL=https://downloads.apache.org/maven/maven-3/${MAVEN_VERSION}/binaries
+ARG SAPMACHINE_VERSION=JAVA_VERSION_TEMPLATE
+
+# Environment variables
+ENV PYTHON /usr/bin/python3
+ENV MAVEN_HOME /usr/share/maven
+ENV M2_HOME ${MAVEN_HOME}
+ENV PATH /usr/local/go/bin:$PATH
+ENV CGO_ENABLED=0
+ENV GOOS=linux
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Create user account and using openssl to create password
+RUN set -ex \
+  && apt-get update \
+  && apt-get install -y openssl --no-install-recommends \
+  && rm -rf /var/lib/apt/lists/* \
+  # smoke test
+  && openssl version \
+  && useradd --home-dir ${MTA_USER_HOME} \
+            --create-home \
+            --shell /bin/bash \
+            --user-group \
+            --uid 1000 \
+            --comment 'Cloud MTA Build Tool' \
+            --password "$(echo weUseMta | openssl passwd -1 -stdin)" ${MTA_USER} \
+  # allow anybody to write into the image user home directory
+  && chmod a+w ${MTA_USER_HOME} \
+  && apt-get remove --purge --autoremove -y openssl
+
+# Download SAP_Global_Root_CA.crt to target 
+ADD http://aia.pki.co.sap.com/aia/SAP%20Global%20Root%20CA.crt \
+    /etc/ssl/certs/SAP_Global_Root_CA.crt
+
+# Install Node.js
+RUN ARCH= && dpkgArch="$(dpkg --print-architecture)" \
+    && case "${dpkgArch##*-}" in \
+      amd64) ARCH='x64';; \
+      ppc64el) ARCH='ppc64le';; \
+      s390x) ARCH='s390x';; \
+      arm64) ARCH='arm64';; \
+      armhf) ARCH='armv7l';; \
+      i386) ARCH='x86';; \
+      *) echo "unsupported architecture"; exit 1 ;; \
+    esac \
+    && set -ex \
+    && apt-get update \
+    # libatomic1 for arm
+    && apt-get install -y ca-certificates curl gnupg dirmngr xz-utils libatomic1 --no-install-recommends \
+    && rm -rf /var/lib/apt/lists/* \
+    && export GNUPGHOME="$(mktemp -d)" \
+    && for key in \
+      4ED778F539E3634C779C87C6D7062848A1AB005C \
+      141F07595B7B3FFE74309A937405533BE57C7D57 \
+      74F12602B6F1C4E913FAA37AD3A89613643B6201 \
+      61FC681DFB92A079F1685E77973F295594EC4689 \
+      8FCCA13FEF1D0C2E91008E09770F7A9A5AE15600 \
+      C4F0DFFF4E8C1A8236409D08E73BC641CC11F4C8 \
+      890C08DB8579162FEE0DF9DB8BEAB4DFCF555EF4 \
+      C82FA3AE1CBEDC6BE46B9360C43CEC45C17AB93C \
+      108F52B48DB57BB0CC439B2997B01419BD92F80A \
+    ; do \
+      gpg --batch --keyserver hkps://keys.openpgp.org --recv-keys "$key" || \
+      gpg --batch --keyserver hkps://keyserver.ubuntu.com --recv-keys "$key" ; \
+    done \
+    && curl -fsSLO --compressed "https://nodejs.org/dist/v$NODE_VERSION/node-v$NODE_VERSION-linux-$ARCH.tar.xz" \
+    && curl -fsSLO --compressed "https://nodejs.org/dist/v$NODE_VERSION/SHASUMS256.txt.asc" \
+    && gpg --batch --decrypt --output SHASUMS256.txt SHASUMS256.txt.asc \
+    && grep " node-v$NODE_VERSION-linux-$ARCH.tar.xz\$" SHASUMS256.txt | sha256sum -c - \
+    && tar -xJf "node-v$NODE_VERSION-linux-$ARCH.tar.xz" -C /usr/local --strip-components=1 --no-same-owner \
+    && rm -rf "$GNUPGHOME" "node-v$NODE_VERSION-linux-$ARCH.tar.xz" SHASUMS256.txt.asc SHASUMS256.txt \
+    && apt-mark auto '.*' > /dev/null \
+    && find /usr/local -type f -executable -exec ldd '{}' ';' \
+      | awk '/=>/ { print $(NF-1) }' \
+      | sort -u \
+      | xargs -r dpkg-query --search \
+      | cut -d: -f1 \
+      | sort -u \
+      | xargs -r apt-mark manual \
+    && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false \
+    && ln -s /usr/local/bin/node /usr/local/bin/nodejs \
+    # smoke tests
+    && echo "node ${NODE_VERSION} install smoke tests!" \
+    && node --version \
+    && npm --version
+
+# Install UI5 CLI
+RUN set -ex \
+    && npm install --prefix /usr/local/ -g @ui5/cli \
+    && npm cache clean -g --force \
+    # smoke test
+    && echo "ui5 install smoke test!" \
+    && ui5 --version
+
+# Install Golang
+RUN ARCH= && dpkgArch="$(dpkg --print-architecture)" \
+    && case "${dpkgArch##*-}" in \
+      i386) ARCH='386';; \
+      amd64) ARCH='amd64';; \
+      ppc64el) ARCH='ppc64le';; \
+      s390x) ARCH='s390x';; \
+      arm64) ARCH='arm64';; \
+      armhf) ARCH='armv6l';; \
+      *) echo "unsupported architecture"; exit 1 ;; \
+    esac \
+    && set -ex \
+    && apt-get update \
+    && apt-get install -y ca-certificates curl gnupg dirmngr --no-install-recommends \
+    && rm -rf /var/lib/apt/lists/* \
+    && export GNUPGHOME="$(mktemp -d)" \
+    && for key in \
+      EB4C1BFD4F042F6DDDCCEC917721F63BD38B4796 \
+      2F528D36D67B69EDF998D85778BD65473CB3BD13 \
+    ; do \
+      gpg --batch --keyserver hkps://pgp.surf.nl --recv-keys "$key" || \
+      gpg --batch --keyserver hkps://keyserver.ubuntu.com --recv-keys "$key" ; \
+    done \
+    && curl -fsSLO --compressed https://storage.googleapis.com/golang/go${GO_VERSION}.${GOOS}-${ARCH}.tar.gz \
+    && curl -fsSLO --compressed https://storage.googleapis.com/golang/go${GO_VERSION}.${GOOS}-${ARCH}.tar.gz.asc \
+    && gpg --batch --verify go${GO_VERSION}.${GOOS}-${ARCH}.tar.gz.asc go${GO_VERSION}.${GOOS}-${ARCH}.tar.gz \
+    && tar -xvf go${GO_VERSION}.${GOOS}-${ARCH}.tar.gz -C /usr/local \
+    && rm -rf "$GNUPGHOME" go${GO_VERSION}.${GOOS}-${ARCH}.tar.gz go${GO_VERSION}.${GOOS}-${ARCH}.tar.gz.asc \
+    && apt-get remove --purge --autoremove -y ca-certificates curl gnupg dirmngr \
+    # smoke test
+    && echo "go ${GO_VERSION} install smoke test!" \
+    && go version
+
+# Install SAPMachine
+RUN ARCH= && dpkgArch="$(dpkg --print-architecture)" \
+    && case "${dpkgArch##*-}" in \
+      amd64) ARCH='amd64';; \
+      *) echo "unsupported architecture"; exit 1 ;; \
+    esac \
+  && set -ex \
+  && apt-get update \
+  && apt-get install -y ca-certificates gnupg dirmngr --no-install-recommends \
+  && rm -rf /var/lib/apt/lists/* \
+  && export GNUPGHOME="$(mktemp -d)" \
+  && for key in \
+    CACB9FE09150307D1D22D82962754C3B3ABCFE23 \
+  ; do \
+    gpg --no-default-keyring --keyring gnupg-ring:/etc/apt/trusted.gpg.d/sapmachine.gpg --batch --keyserver hkps://keys.openpgp.org --recv-keys "$key" || \
+    gpg --no-default-keyring --keyring gnupg-ring:/etc/apt/trusted.gpg.d/sapmachine.gpg --batch --keyserver hkps://keyserver.ubuntu.com --recv-keys "$key" ; \
+  done \
+  && chmod 644 /etc/apt/trusted.gpg.d/sapmachine.gpg \
+  && echo "deb http://dist.sapmachine.io/debian/${ARCH}/ ./" | tee /etc/apt/sources.list.d/sapmachine.list \
+  && apt-get update \
+  && apt-get install -y sapmachine-$(echo ${SAPMACHINE_VERSION} | cut -d. -f1)-jdk=${SAPMACHINE_VERSION} --no-install-recommends \
+  && rm -rf "$GNUPGHOME" /var/lib/apt/lists/* \
+  && apt-get remove --purge --autoremove -y ca-certificates gnupg dirmngr \
+  # smoke test
+  && echo "SAPMachine ${SAPMACHINE_VERSION} install smoke test!" \
+  && java --version
+
+# Install Maven
+RUN set -ex \
+  && apt-get update \
+  && apt-get install -y ca-certificates curl gnupg dirmngr --no-install-recommends \
+  && rm -rf /var/lib/apt/lists/* \
+  && curl -fsSLO --compressed ${MAVEN_BASE_URL}/apache-maven-${MAVEN_VERSION}-bin.tar.gz \
+  && curl -fsSLO --compressed ${MAVEN_BASE_URL}/apache-maven-${MAVEN_VERSION}-bin.tar.gz.asc \
+  && export GNUPGHOME="$(mktemp -d)" \
+  && for key in \
+    6A814B1F869C2BBEAB7CB7271A2A1C94BDE89688 \
+  ; do \
+    gpg --batch --keyserver hkps://pgp.surf.nl --recv-keys "$key" || \
+    gpg --batch --keyserver hkps://keyserver.ubuntu.com --recv-keys "$key" ; \
+  done \
+  && gpg --batch --verify apache-maven-${MAVEN_VERSION}-bin.tar.gz.asc apache-maven-${MAVEN_VERSION}-bin.tar.gz \
+  && mkdir -p ${MAVEN_HOME} ${MAVEN_HOME}/ref \
+  && tar -xzf apache-maven-${MAVEN_VERSION}-bin.tar.gz -C ${MAVEN_HOME} --strip-components=1 \
+  && rm -rf "$GNUPGHOME" apache-maven-${MAVEN_VERSION}-bin.tar.gz.asc apache-maven-${MAVEN_VERSION}-bin.tar.gz \
+  && chmod -R a+w ${MAVEN_HOME}/conf/* \
+  && ln -s ${MAVEN_HOME}/bin/mvn /usr/bin/mvn \
+  && apt-get remove --purge --autoremove -y ca-certificates curl gnupg dirmngr \
+  # smoke test
+  && echo "mvn ${MAVEN_VERSION} install smoke test!" \
+  && mvn --version
+
+# Install MBT
+RUN set -ex \
+  && npm install -g --unsafe-perm mbt@${MBT_VERSION} \
+  && npm cache clean -g --force \
+  # smoke test
+  && echo "mbt ${MBT_VERSION} install smoke test!" \
+  && mbt --version
+
+# Install essential build tools and Python
+RUN set -ex \
+  && apt-get update \
+  && apt-get install -y ca-certificates build-essential git python2.7 python3 --no-install-recommends \
+  && rm -rf /var/lib/apt/lists/* \
+  # smoke tests
+  && echo "python install smoke tests!" \
+  && python2.7 --version \
+  && python3 --version
+
+ENV PATH=$PATH:./node_modules/.bin HOME=${MTA_USER_HOME}
+WORKDIR /project
+USER ${MTA_USER}

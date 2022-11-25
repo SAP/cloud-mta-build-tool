@@ -1,41 +1,29 @@
-#!/bin/sh
+#!/usr/bin/env sh
 
 # set readable variables
 export JAVA_VERSION_TEMPLATE="$1"
 export NODE_VERSION_TEMPLATE="$2"
 export MBT_VERSION="$3"
 
-# print java and node version parameter
-echo "Java version template: ${JAVA_VERSION_TEMPLATE}, Node version template: ${NODE_VERSION_TEMPLATE}"
+# print parameters
+echo "Java version: ${JAVA_VERSION_TEMPLATE}, Node version: ${NODE_VERSION_TEMPLATE}, MBT version: ${MBT_VERSION}"
 
-# validate java and node major version
-export JAVA_MAJOR_VERSION="${JAVA_VERSION_TEMPLATE}"
-export NODE_MAJOR_VERSION="$(echo ${NODE_VERSION_TEMPLATE} |awk -F. '{printf "%d", $1}')"
-
-echo "Java major version: ${JAVA_MAJOR_VERSION}, Node major version: ${NODE_MAJOR_VERSION}"
-
-if ([ "$JAVA_MAJOR_VERSION" -ne "8" ] && [ "$JAVA_MAJOR_VERSION" -ne "11" ] && [ "$JAVA_MAJOR_VERSION" -ne "17" ]) || \
-   ([ "$NODE_MAJOR_VERSION" -ne "14" ] && [ "$NODE_MAJOR_VERSION" -ne "16" ] && [ "$NODE_MAJOR_VERSION" -ne "18" ])
-then
-	echo "Java:${JAVA_MAJOR_VERSION}, Node:${NODE_MAJOR_VERSION} combination is not supported!"
-	exit -1
-fi
-
-# set jvm and node version and print
-export JAVA_VERSION="-java${JAVA_MAJOR_VERSION}"
-export NODE_VERSION="-node${NODE_MAJOR_VERSION}"
-echo "Java version: ${JAVA_VERSION}, Node version: ${NODE_VERSION}"
+# common_image includes some exported vars and check methods
+. $PWD/scripts/common_image
 
 # build docker image
-cp Dockerfile_mbtci_java${JAVA_MAJOR_VERSION} Dockerfile
-sed  -i "s/NODE_VERSION_TEMPLATE/v${NODE_VERSION_TEMPLATE}/" Dockerfile
+cp Dockerfile_mbtci_template Dockerfile
+sed_i "s/NODE_VERSION_TEMPLATE/${NODE_VERSION_TEMPLATE}/" Dockerfile
+sed_i "s/JAVA_VERSION_TEMPLATE/${JAVA_VERSION_TEMPLATE}/" Dockerfile
 echo "Build mbtci${JAVA_VERSION}${NODE_VERSION}:${MBT_VERSION}"
 docker build -t mbtci${JAVA_VERSION}${NODE_VERSION}:${MBT_VERSION} .
 
 # test image
-if [ "$JAVA_MAJOR_VERSION" = "11" ] || [ "$JAVA_MAJOR_VERSION" = "8" ] || [ "$JAVA_MAJOR_VERSION" = "17" ]; then
+if [ "$JAVA_MAJOR_VERSION" = "11" ] || [ "$JAVA_MAJOR_VERSION" = "17" ] || [ "$JAVA_MAJOR_VERSION" = "19" ]; then
 	cp test/goss/goss_template.yaml test/goss/goss.yaml
-	sed  -i "s/NODE_VERSION_TEMPLATE/v${NODE_VERSION_TEMPLATE}/" test/goss/goss.yaml
+	sed_i "s/NODE_VERSION_TEMPLATE/${NODE_VERSION_TEMPLATE}/" test/goss/goss.yaml
+	sed_i "s/JAVA_VERSION_TEMPLATE/${JAVA_VERSION_TEMPLATE}/" test/goss/goss.yaml
+	sed_i "s/MBT_VERSION/${MBT_VERSION}/" test/goss/goss.yaml
 	docker-compose -f ./docker-compose.test.yml up --build
 fi
 
