@@ -12,6 +12,7 @@ ARG SAPMACHINE_VERSION=JAVA_VERSION_TEMPLATE
 
 # Environment variables
 ENV PYTHON /usr/bin/python3
+ENV JAVA_HOME /opt/jdk
 ENV MAVEN_HOME /usr/share/maven
 ENV M2_HOME ${MAVEN_HOME}
 ENV PATH /usr/local/go/bin:$PATH
@@ -158,6 +159,7 @@ RUN sapmachine_install() { \
     apt-get install -y sapmachine-$(echo ${SAPMACHINE_VERSION} | cut -d. -f1)-jdk=${SAPMACHINE_VERSION} --no-install-recommends; \
     rm -rf "$GNUPGHOME" /var/lib/apt/lists/*; \
     apt-get remove --purge --autoremove -y ca-certificates gnupg dirmngr; \
+    ln -s /usr/lib/jvm/sapmachine-$(echo ${SAPMACHINE_VERSION} | cut -d. -f1) ${JAVA_HOME}; \
   }; \
   sapjvm_install() { \
     ARCH=; \
@@ -175,6 +177,7 @@ RUN sapmachine_install() { \
     bsdtar -xvf sapjvm-${SAPMACHINE_VERSION}-linux-${ARCH}.zip -C /usr/local --strip-components=1; \
     rm -f sapjvm-${SAPMACHINE_VERSION}-linux-${ARCH}.zip; \
     apt-get remove --purge --auto-remove -y ca-certificates curl libarchive-tools; \
+    ln -s /usr/local ${JAVA_HOME}; \
   } \
   && set -ex \
   && if [ $(echo ${SAPMACHINE_VERSION} | cut -d. -f1) -le 8 ]; then \
