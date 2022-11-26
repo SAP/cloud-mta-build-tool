@@ -137,6 +137,7 @@ RUN ARCH= && dpkgArch="$(dpkg --print-architecture)" \
 
 # Install SAPMachine
 RUN sapmachine_install() { \
+    SAPMACHINE_MAJOR_VERSION=$(echo ${SAPMACHINE_VERSION} | cut -d. -f1); \
     ARCH=; \
     dpkgArch="$(dpkg --print-architecture)"; \
     case "${dpkgArch##*-}" in \
@@ -156,10 +157,10 @@ RUN sapmachine_install() { \
     chmod 644 /etc/apt/trusted.gpg.d/sapmachine.gpg; \
     echo "deb http://dist.sapmachine.io/debian/${ARCH}/ ./" | tee /etc/apt/sources.list.d/sapmachine.list; \
     apt-get update; \
-    apt-get install -y sapmachine-$(echo ${SAPMACHINE_VERSION} | cut -d. -f1)-jdk=${SAPMACHINE_VERSION} --no-install-recommends; \
+    apt-get install -y sapmachine-${SAPMACHINE_MAJOR_VERSION}-jdk=${SAPMACHINE_VERSION} --no-install-recommends; \
     rm -rf "$GNUPGHOME" /var/lib/apt/lists/*; \
     apt-get remove --purge --autoremove -y ca-certificates gnupg dirmngr; \
-    ln -s /usr/lib/jvm/sapmachine-$(echo ${SAPMACHINE_VERSION} | cut -d. -f1) ${JAVA_HOME}; \
+    ln -s /usr/lib/jvm/sapmachine-${SAPMACHINE_MAJOR_VERSION} ${JAVA_HOME}; \
   }; \
   sapjvm_install() { \
     ARCH=; \
