@@ -135,31 +135,56 @@ RUN ARCH= && dpkgArch="$(dpkg --print-architecture)" \
     && go version
 
 # Install SAPMachine
-RUN ARCH= && dpkgArch="$(dpkg --print-architecture)" \
-    && case "${dpkgArch##*-}" in \
+RUN sapmachine_install() { \
+    ARCH=; \
+    dpkgArch="$(dpkg --print-architecture)"; \
+    case "${dpkgArch##*-}" in \
       amd64) ARCH='amd64';; \
       *) echo "unsupported architecture"; exit 1 ;; \
-    esac \
+    esac; \
+    apt-get update; \
+    apt-get install -y ca-certificates gnupg dirmngr --no-install-recommends; \
+    rm -rf /var/lib/apt/lists/*; \
+    export GNUPGHOME="$(mktemp -d)"; \
+    for key in \
+      CACB9FE09150307D1D22D82962754C3B3ABCFE23 \
+    ; do \
+      gpg --no-default-keyring --keyring gnupg-ring:/etc/apt/trusted.gpg.d/sapmachine.gpg --batch --keyserver hkps://keys.openpgp.org --recv-keys "$key" || \
+      gpg --no-default-keyring --keyring gnupg-ring:/etc/apt/trusted.gpg.d/sapmachine.gpg --batch --keyserver hkps://keyserver.ubuntu.com --recv-keys "$key" ; \
+    done; \
+    chmod 644 /etc/apt/trusted.gpg.d/sapmachine.gpg; \
+    echo "deb http://dist.sapmachine.io/debian/${ARCH}/ ./" | tee /etc/apt/sources.list.d/sapmachine.list; \
+    apt-get update; \
+    apt-get install -y sapmachine-$(echo ${SAPMACHINE_VERSION} | cut -d. -f1)-jdk=${SAPMACHINE_VERSION} --no-install-recommends; \
+    rm -rf "$GNUPGHOME" /var/lib/apt/lists/*; \
+    apt-get remove --purge --autoremove -y ca-certificates gnupg dirmngr; \
+  }; \
+  sapjvm_install() { \
+    ARCH=; \
+    dpkgArch="$(dpkg --print-architecture)"; \
+    case "${dpkgArch##*-}" in \
+      amd64) ARCH='x64';; \
+      ppc64el) ARCH='ppc64le';; \
+      *) echo "unsupported architecture"; exit 1 ;; \
+    esac; \
+    apt-get update; \
+    apt-get install -y ca-certificates curl libarchive-tools --no-install-recommends; \
+    rm -rf /var/lib/apt/lists/*; \
+    curl -fsSLO --compressed -b 'eula_3_1_agreed=tools.hana.ondemand.com/developer-license-3_1.txt' https://tools.hana.ondemand.com/additional/sapjvm-${SAPMACHINE_VERSION}-linux-${ARCH}.zip; \
+    echo "583dedfeee0c119839a610ddc8c6768d0c044429  sapjvm-${SAPMACHINE_VERSION}-linux-${ARCH}.zip" | sha1sum -c -; \
+    bsdtar -xvf sapjvm-${SAPMACHINE_VERSION}-linux-${ARCH}.zip -C /usr/local --strip-components=1; \
+    rm -f sapjvm-${SAPMACHINE_VERSION}-linux-${ARCH}.zip; \
+    apt-get remove --purge --auto-remove -y ca-certificates curl libarchive-tools; \
+  } \
   && set -ex \
-  && apt-get update \
-  && apt-get install -y ca-certificates gnupg dirmngr --no-install-recommends \
-  && rm -rf /var/lib/apt/lists/* \
-  && export GNUPGHOME="$(mktemp -d)" \
-  && for key in \
-    CACB9FE09150307D1D22D82962754C3B3ABCFE23 \
-  ; do \
-    gpg --no-default-keyring --keyring gnupg-ring:/etc/apt/trusted.gpg.d/sapmachine.gpg --batch --keyserver hkps://keys.openpgp.org --recv-keys "$key" || \
-    gpg --no-default-keyring --keyring gnupg-ring:/etc/apt/trusted.gpg.d/sapmachine.gpg --batch --keyserver hkps://keyserver.ubuntu.com --recv-keys "$key" ; \
-  done \
-  && chmod 644 /etc/apt/trusted.gpg.d/sapmachine.gpg \
-  && echo "deb http://dist.sapmachine.io/debian/${ARCH}/ ./" | tee /etc/apt/sources.list.d/sapmachine.list \
-  && apt-get update \
-  && apt-get install -y sapmachine-$(echo ${SAPMACHINE_VERSION} | cut -d. -f1)-jdk=${SAPMACHINE_VERSION} --no-install-recommends \
-  && rm -rf "$GNUPGHOME" /var/lib/apt/lists/* \
-  && apt-get remove --purge --autoremove -y ca-certificates gnupg dirmngr \
+  && if [ $(echo ${SAPMACHINE_VERSION} | cut -d. -f1) -le 8 ]; then \
+      sapjvm_install; \
+    else \
+      sapmachine_install; \
+    fi \
   # smoke test
   && echo "SAPMachine ${SAPMACHINE_VERSION} install smoke test!" \
-  && java --version
+  && java -version
 
 # Install Maven
 RUN set -ex \
