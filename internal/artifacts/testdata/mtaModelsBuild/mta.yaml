@@ -18,7 +18,7 @@ modules:
    build-parameters:
       builder: custom
       commands:
-        - bash -c 'cp test2.txt test2_copy.txt'
+        - sh -c 'cp test2.txt test2_copy.txt'
 
  - name: m3
    type: html5

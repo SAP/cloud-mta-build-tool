@@ -8,5 +8,5 @@ modules:
     build-parameters:
       builder: custom
       commands:
-        - bash -c 'echo "a"'
+        - sh -c 'echo "a"'
         - echo "a\b"

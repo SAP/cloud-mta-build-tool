@@ -147,7 +147,7 @@ makefile_version: 0.0.0
 			Entry("module with command and timeout",
 				"command_with_timeout.yaml", "command_with_timeout", `$(MBT) execute -d="$(PROJ_DIR)/command_with_timeout" -t=2s -c='sleep 1'`),
 			Entry("module with commands with special characters",
-				"commands_with_special_chars.yaml", "commands_with_special_chars", `$(MBT) execute -d="$(PROJ_DIR)/commands_with_special_chars" -c='bash -c '\''echo "a"'\' -c='echo "a\b"'`),
+				"commands_with_special_chars.yaml", "commands_with_special_chars", `$(MBT) execute -d="$(PROJ_DIR)/commands_with_special_chars" -c='sh -c '\''echo "a"'\' -c='echo "a\b"'`),
 		)
 
 		modulegen := filepath.Join(wd, "testdata", "modulegen")

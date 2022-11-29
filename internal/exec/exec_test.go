@@ -35,7 +35,7 @@ var _ = Describe("Execute", func() {
 		var _ = DescribeTable("Valid input", func(args [][]string) {
 			Ω(Execute(args, false)).Should(Succeed())
 		},
-			Entry("EchoTesting", [][]string{{"", "bash", "-c", `echo -n {"Name": "Bob", "Age": 32}`}}),
+			Entry("EchoTesting", [][]string{{"", "sh", "-c", `echo -n {"Name": "Bob", "Age": 32}`}}),
 			Entry("Dummy Go Testing", [][]string{{"", "go", "test", "exec_dummy_test.go"}}))
 
 		var _ = DescribeTable("Invalid input", func(args [][]string) {
@@ -122,14 +122,14 @@ var _ = Describe("Execute", func() {
 				return ExecuteWithTimeout(args, timeout, true)
 			}, minSeconds, maxSeconds, isError, expectedTimeout)
 		},
-		Entry("succeeds when timeout wasn't reached", [][]string{{"", "bash", "-c", "sleep 2"}}, "10s", 2, 5, false, ""),
-		Entry("fails when timeout was reached", [][]string{{"", "bash", "-c", "sleep 5"}}, "2s", 2, 3, true, "2s"),
+		Entry("succeeds when timeout wasn't reached", [][]string{{"", "sh", "-c", "sleep 2"}}, "10s", 2, 5, false, ""),
+		Entry("fails when timeout was reached", [][]string{{"", "sh", "-c", "sleep 5"}}, "2s", 2, 3, true, "2s"),
 		Entry("fails when timeout was reached in the second command",
-			[][]string{{"", "bash", "-c", "sleep 2"}, {"", "bash", "-c", "sleep 3"}}, "4s", 4, 5, true, "4s"),
+			[][]string{{"", "sh", "-c", "sleep 2"}, {"", "sh", "-c", "sleep 3"}}, "4s", 4, 5, true, "4s"),
 	)
 
 	It("ExecuteWithTimeout fails when timeout value is invalid", func() {
-		err := ExecuteWithTimeout([][]string{{"bash", "-c", "sleep 1"}}, "1234", true)
+		err := ExecuteWithTimeout([][]string{{"sh", "-c", "sleep 1"}}, "1234", true)
 		Ω(err).Should(HaveOccurred())
 		Ω(err.Error()).Should(ContainSubstring(fmt.Sprintf(ExecInvalidTimeoutMsg, "1234")))
 	})
@@ -140,10 +140,10 @@ var _ = Describe("Execute", func() {
 				return ExecuteCommandsWithTimeout(args, timeout, "", true)
 			}, minSeconds, maxSeconds, isError, expectedTimeout)
 		},
-		Entry("succeeds when timeout wasn't reached", []string{`bash -c "sleep 2"`}, "10s", 2, 5, false, ""),
-		Entry("fails when timeout was reached", []string{`bash -c 'sleep 5'`}, "2s", 2, 3, true, "2s"),
+		Entry("succeeds when timeout wasn't reached", []string{`sh -c "sleep 2"`}, "10s", 2, 5, false, ""),
+		Entry("fails when timeout was reached", []string{`sh -c 'sleep 5'`}, "2s", 2, 3, true, "2s"),
 		Entry("fails when timeout was reached in the second command",
-			[]string{`bash -c "sleep 2"`, `bash -c 'sleep 3'`}, "4s", 4, 5, true, "4s"),
+			[]string{`sh -c "sleep 2"`, `sh -c 'sleep 3'`}, "4s", 4, 5, true, "4s"),
 	)
 
 	Describe("ExecuteCommandsWithTimeout tests with cleanup", func() {
@@ -153,13 +153,13 @@ var _ = Describe("Execute", func() {
 			Ω(os.RemoveAll(filepath.Join(path, "b.txt"))).Should(Succeed())
 		})
 		It("ExecuteCommandsWithTimeout is executed in the requested directory", func() {
-			Ω(ExecuteCommandsWithTimeout([]string{`bash -c 'cp a.txt b.txt'`}, "10m", path, true)).Should(Succeed())
+			Ω(ExecuteCommandsWithTimeout([]string{`sh -c 'cp a.txt b.txt'`}, "10m", path, true)).Should(Succeed())
 			Ω(filepath.Join(path, "b.txt")).Should(BeAnExistingFile())
 		})
 	})
 
 	It("ExecuteCommandsWithTimeout fails when timeout value is invalid", func() {
-		err := ExecuteCommandsWithTimeout([]string{`bash -c "sleep 1"`}, "1234", ".", true)
+		err := ExecuteCommandsWithTimeout([]string{`sh -c "sleep 1"`}, "1234", ".", true)
 		Ω(err).Should(HaveOccurred())
 		Ω(err.Error()).Should(ContainSubstring(fmt.Sprintf(ExecInvalidTimeoutMsg, "1234")))
 	})
