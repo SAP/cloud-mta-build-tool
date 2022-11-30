@@ -135,11 +135,11 @@ This will build an mtar file for SAP Cloud Platform (Cloud Foundry). The folder 
 To build the images, you should run the following shell script: 
 
 ```shell
-$ sh $PWD/scripts/build_image <JAVA_VERSION> <NODE_VERSION> <MBT_VERSION>
+$ sh ./scripts/build_image <JAVA_VERSION> <NODE_VERSION> <MBT_VERSION>
 ```
 E.g. to build the image for Java 11 and Node 14 you should run the following command: 
 ```shell
-$ sh $PWD/scripts/build_image 11.0.17 14.20.1 1.2.20
+$ sh ./scripts/build_image 11.0.17 14.20.1 1.2.20
 ```
 
 ##### The images provide:
