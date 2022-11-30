@@ -13,7 +13,7 @@
 [![REUSE status](https://api.reuse.software/badge/github.com/SAP/cloud-mta-build-tool)](https://api.reuse.software/info/github.com/SAP/cloud-mta-build-tool)
 
 
-## Description
+### Description
 
 ### Multi-Target Application
 
