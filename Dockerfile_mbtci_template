@@ -93,6 +93,14 @@ RUN ARCH= && dpkgArch="$(dpkg --print-architecture)" \
     && node --version \
     && npm --version
 
+# Install Grunt CLI
+RUN set -ex \
+    && npm install --prefix /usr/local/ -g grunt-cli \
+    && npm cache clean -g --force \
+    # smoke test
+    && echo "grunt-cli install smoke test!" \
+    && grunt --version
+
 # Install UI5 CLI
 RUN set -ex \
     && npm install --prefix /usr/local/ -g @ui5/cli \
