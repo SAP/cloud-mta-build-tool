@@ -11,8 +11,6 @@ package:
     installed: true
   make:
     installed: true
-  grunt:
-    installed: true
 user:
   mta:
     exists: true
