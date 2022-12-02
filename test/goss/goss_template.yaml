@@ -5,11 +5,11 @@ package:
     installed: false
   git:
     installed: true
+  build-essential:
+    installed: true
   python2.7:
     installed: true
   python3:
-    installed: true
-  make:
     installed: true
 user:
   mta:
@@ -41,6 +41,10 @@ command:
     exit-status: 0
     stdout:
       - vNODE_VERSION_TEMPLATE
+  ui5 --version:
+    exit-status: 0
+  grunt --version:
+    exit-status: 0
   # verify NPM @sap-scope registry NOT configured
   npm config get @sap:registry:
     exit-status: 0

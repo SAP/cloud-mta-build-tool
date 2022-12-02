@@ -95,7 +95,7 @@ RUN ARCH= && dpkgArch="$(dpkg --print-architecture)" \
 
 # Install Grunt CLI
 RUN set -ex \
-    && npm install --prefix /usr/local/ -g grunt-cli \
+    && npm install -g grunt-cli \
     && npm cache clean -g --force \
     # smoke test
     && echo "grunt-cli install smoke test!" \
@@ -103,10 +103,10 @@ RUN set -ex \
 
 # Install UI5 CLI
 RUN set -ex \
-    && npm install --prefix /usr/local/ -g @ui5/cli \
+    && npm install -g @ui5/cli \
     && npm cache clean -g --force \
     # smoke test
-    && echo "ui5 install smoke test!" \
+    && echo "@ui5/cli install smoke test!" \
     && ui5 --version
 
 # Install Golang
