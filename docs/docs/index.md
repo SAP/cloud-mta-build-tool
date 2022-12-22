@@ -32,4 +32,8 @@ All resource definitions are passed to the `mtad.yaml` file as is without mappin
 
 ### <b>Creating an MTA Archive According to the MTA Deploymnet Descriptor (`mtad.yaml` file)</b>
 
-Under construction
+The feature is implemented by MBT assembly command. The generate process will copy all modules, module required dependencies and resouces content to MTAR according to MTA Deploymnet Descriptor(mtad.yaml file). 
+
+For module, if path attribute is empty, it will be skipped; if path is not exist, the generate process will be failed. For required dependencies and resources, if parameters.path attribute is empty, it will be skipped; if parameters.path is not exist, the generate process will be failed.
+
+For more details about how to use MBT assembly command, see [How to build an MTA archive from the modules' build artifacts](https://github.com/SAP/cloud-mta-build-tool/blob/master/docs/docs/usage.md#how-to-build-an-mta-archive-from-the-modules-build-artifacts)
