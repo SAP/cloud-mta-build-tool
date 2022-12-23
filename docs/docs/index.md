@@ -30,10 +30,10 @@ If the MTA Build Tool encounters a module type in the `mta.yaml` file that is no
 
 All resource definitions are passed to the `mtad.yaml` file as is without mapping and validations (for example, if the resource is supported in the target platform or if the specified parameters match the type).
 
-### <b>Creating an MTA Archive According to the MTA Deploymnet Descriptor (`mtad.yaml` file)</b>
+### <b>Creating an MTA Archive According to the MTA Deployment Descriptor (`mtad.yaml` file)</b>
 
-The feature is implemented by MBT assembly command. The generate process will copy all modules, module required dependencies and resouces content to MTAR according to MTA Deploymnet Descriptor(mtad.yaml file). 
+The function is provided to assemble multiple modules into one MTAR for deployment, usually these modules are developed and prebuilt as seperate projects. The function is implemented by MBT assemble command, the assemble process copy all modules, module required dependencies and resouces build result into a MTAR according to MTA Deploymnet Descriptor(mtad.yaml file).
 
-For module, if path attribute is empty, it will be skipped; if path is not exist, the generate process will be failed. For required dependencies and resources, if parameters.path attribute is empty, it will be skipped; if parameters.path is not exist, the generate process will be failed.
+For module, if it dose not have path attribute, assemble process will skip it; if path is not exist, assemble process will fail. For required dependencies and resources, if they do not have parameters.path attribute, assemble process will skip them; if parameters.path is not exist, assemble process will fail.
 
-For more details about how to use MBT assembly command, see [How to build an MTA archive from the modules' build artifacts](https://github.com/SAP/cloud-mta-build-tool/blob/master/docs/docs/usage.md#how-to-build-an-mta-archive-from-the-modules-build-artifacts)
+For more details about how to use MBT assemble command, see [How to build an MTA archive from the modules' build artifacts](https://github.com/SAP/cloud-mta-build-tool/blob/master/docs/docs/usage.md#how-to-build-an-mta-archive-from-the-modules-build-artifacts)
