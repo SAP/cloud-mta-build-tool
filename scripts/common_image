@@ -11,7 +11,8 @@ export NODE_MAJOR_VERSION="$(echo ${NODE_VERSION_TEMPLATE}|awk -F. '{printf "%d"
 
 echo "Java major version: ${JAVA_MAJOR_VERSION}, Node major version: ${NODE_MAJOR_VERSION}"
 
-if ([ "$JAVA_MAJOR_VERSION" -ne "8" ] && [ "$JAVA_MAJOR_VERSION" -ne "11" ] && [ "$JAVA_MAJOR_VERSION" -ne "17" ] && [ "$JAVA_MAJOR_VERSION" -ne "19" ]) || \
+if ([ "$JAVA_MAJOR_VERSION" -ne "8" ] && [ "$JAVA_MAJOR_VERSION" -ne "11" ] && \
+    [ "$JAVA_MAJOR_VERSION" -ne "17" ] && [ "$JAVA_MAJOR_VERSION" -ne "19" ]) || \
    ([ "$NODE_MAJOR_VERSION" -ne "14" ] && [ "$NODE_MAJOR_VERSION" -ne "16" ] && [ "$NODE_MAJOR_VERSION" -ne "18" ])
 then
 	echo "Java: ${JAVA_MAJOR_VERSION}, Node: ${NODE_MAJOR_VERSION} combination is not supported!"
