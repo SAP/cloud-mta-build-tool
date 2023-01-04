@@ -34,10 +34,9 @@ All resource definitions are passed to the `mtad.yaml` file as is without mappin
 
 The function is provided to assemble multiple modules, which are developed and prebuilt as separate projects, into one MTAR for deployment. The function is implemented by the `mbt assemble` command, which copies all modules, module required dependencies, module build artifacts, and resource definitions into an MTAR, according to the MTA Deployment Descriptor (mtad.yaml file).
 
-If a module doesn’t have the `path` attribute, the assemble process skips it. If it’s `path` attribute doesn’t exist, the assemble process fails. 
+If a module doesn’t have the `path` attribute, the assemble process skips it. If a module has the `path` attribute, but its value is invalid, the assemble process fails. 
 
-If a required dependency, or resource doesn’t have the `parameters.path` attribute, the assemble process skips it. If it’s `parameters.path` attribute doesn’t exist, the assemble process fails.
- 
+If a required dependency or resource doesn’t have the `parameters.path` attribute, the assemble process skips it. If a required dependency or resource has the `parameters.path` attribute, but its value is invalid, the assemble process fails.
 
 For more details about how to use MBT assemble command, see [How to build an MTA archive from the modules' build artifacts](https://github.com/SAP/cloud-mta-build-tool/blob/master/docs/docs/usage.md#how-to-build-an-mta-archive-from-the-modules-build-artifacts)
 
