@@ -38,5 +38,5 @@ If a module doesn’t have the `path` attribute, the assemble process skips it. 
 
 If a required dependency or resource doesn’t have the `parameters.path` attribute, the assemble process skips it. If a required dependency or resource has the `parameters.path` attribute, but its value is invalid, the assemble process fails with the following error: `ERROR could not copy MTA artifacts to assemble: the "<parameters.path value>" path does not exist in the MTA project location`.
 
-For more details about how to use the MBT assemble command, see [How to build an MTA archive from the modules' build artifacts](https://github.com/SAP/cloud-mta-build-tool/blob/master/docs/docs/usage.md#how-to-build-an-mta-archive-from-the-modules-build-artifacts)
+For more details about how to use the MBT assemble command, see [How to build an MTA archive from the modules' build artifacts](https://github.com/SAP/cloud-mta-build-tool/blob/master/docs/docs/usage.md#how-to-build-an-mta-archive-from-the-modules-build-artifacts).
 
