@@ -87,6 +87,8 @@ RUN ARCH= && dpkgArch="$(dpkg --print-architecture)" \
       | sort -u \
       | xargs -r apt-mark manual \
     && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false \
+    # for npm link
+    && chown -R ${USER}:${USER} /usr/local/lib/node_modules \
     && ln -s /usr/local/bin/node /usr/local/bin/nodejs \
     # smoke tests
     && echo "node ${NODE_VERSION} install smoke tests!" \
