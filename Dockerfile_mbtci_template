@@ -87,8 +87,6 @@ RUN ARCH= && dpkgArch="$(dpkg --print-architecture)" \
       | sort -u \
       | xargs -r apt-mark manual \
     && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false \
-    # for npm link
-    && chown -R ${USER}:${USER} /usr/local/lib/node_modules \
     && ln -s /usr/local/bin/node /usr/local/bin/nodejs \
     # smoke tests
     && echo "node ${NODE_VERSION} install smoke tests!" \
@@ -213,6 +211,12 @@ RUN set -ex \
   && echo "python install smoke tests!" \
   && python2.7 --version \
   && python3 --version
+
+# Allow global npm packages install without sudo
+RUN set -ex \
+  && mkdir ${USER_HOME_DIR}/.npm-global \
+  && chown ${USER}:${USER} ${USER_HOME_DIR}/.npm-global
+ENV NPM_CONFIG_PREFIX ${USER_HOME_DIR}/.npm-global
 
 ENV PATH=$PATH:./node_modules/.bin HOME=${MTA_USER_HOME}
 WORKDIR /project
