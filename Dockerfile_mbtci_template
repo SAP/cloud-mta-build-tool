@@ -218,6 +218,6 @@ RUN set -ex \
   && chown -R ${MTA_USER}:${MTA_USER} ${MTA_USER_HOME}
 ENV NPM_CONFIG_PREFIX ${MTA_USER_HOME}/.npm-global
 
-ENV PATH=$PATH:./node_modules/.bin HOME=${MTA_USER_HOME}
+ENV PATH=$PATH:./node_modules/.bin
 WORKDIR /project
 USER ${MTA_USER}
