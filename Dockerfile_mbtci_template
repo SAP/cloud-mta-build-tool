@@ -3,15 +3,16 @@ FROM debian:bullseye-slim
 # Build time arguments
 ARG MTA_USER="mta"
 ARG MTA_USER_HOME="/home/${MTA_USER}"
-ARG MBT_VERSION=1.2.21
+ARG MBT_VERSION=1.2.23
 ARG GO_VERSION=1.19.3
 ARG NODE_VERSION=NODE_VERSION_TEMPLATE
-ARG MAVEN_VERSION=3.8.6
+ARG MAVEN_VERSION=3.8.7
 ARG MAVEN_BASE_URL=https://downloads.apache.org/maven/maven-3/${MAVEN_VERSION}/binaries
 ARG SAPMACHINE_VERSION=JAVA_VERSION_TEMPLATE
 
 # Environment variables
 ENV PYTHON /usr/bin/python3
+ENV JAVA_HOME /opt/jdk
 ENV MAVEN_HOME /usr/share/maven
 ENV M2_HOME ${MAVEN_HOME}
 ENV PATH /usr/local/go/bin:$PATH
@@ -72,12 +73,12 @@ RUN ARCH= && dpkgArch="$(dpkg --print-architecture)" \
       gpg --batch --keyserver hkps://keys.openpgp.org --recv-keys "$key" || \
       gpg --batch --keyserver hkps://keyserver.ubuntu.com --recv-keys "$key" ; \
     done \
-    && curl -fsSLO --compressed "https://nodejs.org/dist/v$NODE_VERSION/node-v$NODE_VERSION-linux-$ARCH.tar.xz" \
-    && curl -fsSLO --compressed "https://nodejs.org/dist/v$NODE_VERSION/SHASUMS256.txt.asc" \
+    && curl -fsSLO --compressed "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-${ARCH}.tar.xz" \
+    && curl -fsSLO --compressed "https://nodejs.org/dist/v${NODE_VERSION}/SHASUMS256.txt.asc" \
     && gpg --batch --decrypt --output SHASUMS256.txt SHASUMS256.txt.asc \
-    && grep " node-v$NODE_VERSION-linux-$ARCH.tar.xz\$" SHASUMS256.txt | sha256sum -c - \
-    && tar -xJf "node-v$NODE_VERSION-linux-$ARCH.tar.xz" -C /usr/local --strip-components=1 --no-same-owner \
-    && rm -rf "$GNUPGHOME" "node-v$NODE_VERSION-linux-$ARCH.tar.xz" SHASUMS256.txt.asc SHASUMS256.txt \
+    && grep " node-v${NODE_VERSION}-linux-${ARCH}.tar.xz\$" SHASUMS256.txt | sha256sum -c - \
+    && tar -xJf "node-v${NODE_VERSION}-linux-${ARCH}.tar.xz" -C /usr/local --strip-components=1 --no-same-owner \
+    && rm -rf "$GNUPGHOME" "node-v${NODE_VERSION}-linux-${ARCH}.tar.xz" SHASUMS256.txt.asc SHASUMS256.txt \
     && apt-mark auto '.*' > /dev/null \
     && find /usr/local -type f -executable -exec ldd '{}' ';' \
       | awk '/=>/ { print $(NF-1) }' \
@@ -143,31 +144,59 @@ RUN ARCH= && dpkgArch="$(dpkg --print-architecture)" \
     && go version
 
 # Install SAPMachine
-RUN ARCH= && dpkgArch="$(dpkg --print-architecture)" \
-    && case "${dpkgArch##*-}" in \
+RUN sapmachine_install() { \
+    SAPMACHINE_MAJOR_VERSION=$(echo ${SAPMACHINE_VERSION} | cut -d. -f1); \
+    ARCH=; \
+    dpkgArch="$(dpkg --print-architecture)"; \
+    case "${dpkgArch##*-}" in \
       amd64) ARCH='amd64';; \
       *) echo "unsupported architecture"; exit 1 ;; \
-    esac \
+    esac; \
+    apt-get update; \
+    apt-get install -y ca-certificates gnupg dirmngr --no-install-recommends; \
+    rm -rf /var/lib/apt/lists/*; \
+    export GNUPGHOME="$(mktemp -d)"; \
+    for key in \
+      CACB9FE09150307D1D22D82962754C3B3ABCFE23 \
+    ; do \
+      gpg --no-default-keyring --keyring gnupg-ring:/etc/apt/trusted.gpg.d/sapmachine.gpg --batch --keyserver hkps://keys.openpgp.org --recv-keys "$key" || \
+      gpg --no-default-keyring --keyring gnupg-ring:/etc/apt/trusted.gpg.d/sapmachine.gpg --batch --keyserver hkps://keyserver.ubuntu.com --recv-keys "$key" ; \
+    done; \
+    chmod 644 /etc/apt/trusted.gpg.d/sapmachine.gpg; \
+    echo "deb http://dist.sapmachine.io/debian/${ARCH}/ ./" | tee /etc/apt/sources.list.d/sapmachine.list; \
+    apt-get update; \
+    apt-get install -y sapmachine-${SAPMACHINE_MAJOR_VERSION}-jdk=${SAPMACHINE_VERSION} --no-install-recommends; \
+    rm -rf "$GNUPGHOME" /var/lib/apt/lists/*; \
+    apt-get remove --purge --autoremove -y ca-certificates gnupg dirmngr; \
+    ln -s /usr/lib/jvm/sapmachine-${SAPMACHINE_MAJOR_VERSION} ${JAVA_HOME}; \
+  }; \
+  sapjvm_install() { \
+    ARCH=; \
+    dpkgArch="$(dpkg --print-architecture)"; \
+    case "${dpkgArch##*-}" in \
+      amd64) ARCH='x64';; \
+      ppc64el) ARCH='ppc64le';; \
+      *) echo "unsupported architecture"; exit 1 ;; \
+    esac; \
+    apt-get update; \
+    apt-get install -y ca-certificates curl libarchive-tools --no-install-recommends; \
+    rm -rf /var/lib/apt/lists/*; \
+    curl -fsSLO --compressed -b 'eula_3_1_agreed=tools.hana.ondemand.com/developer-license-3_1.txt' https://tools.hana.ondemand.com/additional/sapjvm-${SAPMACHINE_VERSION}-linux-${ARCH}.zip; \
+    echo "583dedfeee0c119839a610ddc8c6768d0c044429  sapjvm-${SAPMACHINE_VERSION}-linux-${ARCH}.zip" | sha1sum -c -; \
+    bsdtar -xvf sapjvm-${SAPMACHINE_VERSION}-linux-${ARCH}.zip -C /usr/local --strip-components=1 --no-same-owner; \
+    rm -f sapjvm-${SAPMACHINE_VERSION}-linux-${ARCH}.zip; \
+    apt-get remove --purge --auto-remove -y ca-certificates curl libarchive-tools; \
+    ln -s /usr/local ${JAVA_HOME}; \
+  } \
   && set -ex \
-  && apt-get update \
-  && apt-get install -y ca-certificates gnupg dirmngr --no-install-recommends \
-  && rm -rf /var/lib/apt/lists/* \
-  && export GNUPGHOME="$(mktemp -d)" \
-  && for key in \
-    CACB9FE09150307D1D22D82962754C3B3ABCFE23 \
-  ; do \
-    gpg --no-default-keyring --keyring gnupg-ring:/etc/apt/trusted.gpg.d/sapmachine.gpg --batch --keyserver hkps://keys.openpgp.org --recv-keys "$key" || \
-    gpg --no-default-keyring --keyring gnupg-ring:/etc/apt/trusted.gpg.d/sapmachine.gpg --batch --keyserver hkps://keyserver.ubuntu.com --recv-keys "$key" ; \
-  done \
-  && chmod 644 /etc/apt/trusted.gpg.d/sapmachine.gpg \
-  && echo "deb http://dist.sapmachine.io/debian/${ARCH}/ ./" | tee /etc/apt/sources.list.d/sapmachine.list \
-  && apt-get update \
-  && apt-get install -y sapmachine-$(echo ${SAPMACHINE_VERSION} | cut -d. -f1)-jdk=${SAPMACHINE_VERSION} --no-install-recommends \
-  && rm -rf "$GNUPGHOME" /var/lib/apt/lists/* \
-  && apt-get remove --purge --autoremove -y ca-certificates gnupg dirmngr \
+  && if [ $(echo ${SAPMACHINE_VERSION} | cut -d. -f1) -le 8 ]; then \
+      sapjvm_install; \
+    else \
+      sapmachine_install; \
+    fi \
   # smoke test
   && echo "SAPMachine ${SAPMACHINE_VERSION} install smoke test!" \
-  && java --version
+  && java -version
 
 # Install Maven
 RUN set -ex \
@@ -212,6 +241,13 @@ RUN set -ex \
   && python2.7 --version \
   && python3 --version
 
-ENV PATH=$PATH:./node_modules/.bin HOME=${MTA_USER_HOME}
+# Allow global npm packages install without sudo
+RUN set -ex \
+  && mkdir ${MTA_USER_HOME}/.npm-global \
+  && mkdir ${MTA_USER_HOME}/.npm-global/lib \
+  && chown -R ${MTA_USER}:${MTA_USER} ${MTA_USER_HOME}
+ENV NPM_CONFIG_PREFIX ${MTA_USER_HOME}/.npm-global
+
+ENV PATH=$PATH:./node_modules/.bin:${MTA_USER_HOME}/.npm-global/bin
 WORKDIR /project
 USER ${MTA_USER}
