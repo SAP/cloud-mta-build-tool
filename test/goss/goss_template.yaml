@@ -41,10 +41,15 @@ command:
     exit-status: 0
     stdout:
       - vNODE_VERSION_TEMPLATE
+  # verify installed UI5 version
   ui5 --version:
     exit-status: 0
+  # verify installed grunt version
   grunt --version:
     exit-status: 0
+  # verify installed go version
+  go version:
+    exit-status:0 
   # verify NPM @sap-scope registry NOT configured
   npm config get @sap:registry:
     exit-status: 0
@@ -56,5 +61,11 @@ command:
     stdout:
       - https://registry.npmjs.org/
   cd ~ && npm install @sap/cds:
+    exit-status: 0
+    timeout: 50000
+  cd ~ && npm install -g @sap/cds:
+    exit-status: 0
+    timeout: 50000
+  cd ~ && npm link @sap/cds --local:
     exit-status: 0
     timeout: 50000
