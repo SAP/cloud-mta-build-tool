@@ -15,7 +15,6 @@ ENV PYTHON /usr/bin/python3
 ENV JAVA_HOME /opt/jdk
 ENV MAVEN_HOME /usr/share/maven
 ENV M2_HOME ${MAVEN_HOME}
-ENV PATH /usr/local/go/bin:$PATH
 ENV CGO_ENABLED=0
 ENV GOOS=linux
 ENV DEBIAN_FRONTEND=noninteractive
@@ -248,6 +247,6 @@ RUN set -ex \
   && chown -R ${MTA_USER}:${MTA_USER} ${MTA_USER_HOME}
 ENV NPM_CONFIG_PREFIX ${MTA_USER_HOME}/.npm-global
 
-ENV PATH=$PATH:./node_modules/.bin
+ENV PATH=$PATH:./node_modules/.bin:${MTA_USER_HOME}/.npm-global/bin
 WORKDIR /project
 USER ${MTA_USER}
