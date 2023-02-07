@@ -3,10 +3,10 @@ FROM debian:bullseye-slim
 # Build time arguments
 ARG MTA_USER="mta"
 ARG MTA_USER_HOME="/home/${MTA_USER}"
-ARG MBT_VERSION=1.2.21
+ARG MBT_VERSION=1.2.23
 ARG GO_VERSION=1.19.3
 ARG NODE_VERSION=NODE_VERSION_TEMPLATE
-ARG MAVEN_VERSION=3.8.6
+ARG MAVEN_VERSION=3.8.7
 ARG MAVEN_BASE_URL=https://downloads.apache.org/maven/maven-3/${MAVEN_VERSION}/binaries
 ARG SAPMACHINE_VERSION=JAVA_VERSION_TEMPLATE
 
@@ -241,6 +241,13 @@ RUN set -ex \
   && python2.7 --version \
   && python3 --version
 
-ENV PATH=$PATH:./node_modules/.bin HOME=${MTA_USER_HOME}
+# Allow global npm packages install without sudo
+RUN set -ex \
+  && mkdir ${MTA_USER_HOME}/.npm-global \
+  && mkdir ${MTA_USER_HOME}/.npm-global/lib \
+  && chown -R ${MTA_USER}:${MTA_USER} ${MTA_USER_HOME}
+ENV NPM_CONFIG_PREFIX ${MTA_USER_HOME}/.npm-global
+
+ENV PATH=$PATH:./node_modules/.bin:${MTA_USER_HOME}/.npm-global/bin
 WORKDIR /project
 USER ${MTA_USER}
