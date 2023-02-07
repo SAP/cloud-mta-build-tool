@@ -52,7 +52,7 @@ jobs:
           command: |
             go mod vendor
       - run: cf login -a $CF_API -o $ORG -s $SPACE -u $TECH_USER -p $TECH_PASS
-      - run: cd integration &&  go test -tags=integration
+      - run: cd integration && go test -tags=integration
 
   compliance:
     docker:
@@ -139,6 +139,102 @@ jobs:
             export GITHUB_TOKEN=${CLOUD_MTA_BOT_GITHUB_TOKEN}
             curl -sfL https://goreleaser.com/static/run | bash
 
+  publish-to-dockerhub-java8-node14:
+    docker:
+      - image: cimg/go:1.17
+    working_directory: ~/go/src/github.com/young-yang03/cloud-mta-build-tool
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 20.10.6
+      - run:
+          name: build image pre-setup
+          command: |
+            #Make sure HEAD points to master
+            git checkout master
+            git fetch
+            git rebase
+      - run:
+          name: build Java 8.1.091 & Node 14.21.1 image
+          command: |
+            MBT_VERSION=$(cat ./VERSION)
+            sh $PWD/scripts/build_image 8.1.091 14.21.1 ${MBT_VERSION}
+      - run:
+          name: publish Java 8.1.091 & Node 14.21.1 image
+          command: |
+            MBT_VERSION=$(cat ./VERSION)
+            echo "Image release: ${MBT_VERSION}"
+            #Push to Docker Hub
+            echo "$DOCKER_HUB_TOKEN" | docker login --username $DOCKER_HUB_USER --password-stdin
+            sh $PWD/scripts/publish_image 8.1.091 14.21.1 ${MBT_VERSION} "cobra217"
+            #Push to GitHub Container Registry
+            echo "$CLOUD_MTA_BOT_GITHUB_TOKEN" | docker login "ghcr.io" --username $CLOUD_MTA_BOT_USER --password-stdin
+            sh $PWD/scripts/publish_image 8.1.091 14.21.1 ${MBT_VERSION} "ghcr.io/young-yang03"
+
+  publish-to-dockerhub-java8-node16:
+    docker:
+      - image: cimg/go:1.17
+    working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 20.10.6
+      - run:
+          name: build image pre-setup
+          command: |
+            #Make sure HEAD points to master
+            git checkout master
+            git fetch
+            git rebase
+      - run:
+          name: build Java 8.1.091 & Node 16.18.1 image
+          command: |
+            MBT_VERSION=$(cat ./VERSION)
+            sh $PWD/scripts/build_image 8.1.091 16.18.1 ${MBT_VERSION}
+      - run:
+          name: publish Java 8.1.091 & Node 16.18.1 image
+          command: |
+            MBT_VERSION=$(cat ./VERSION)
+            echo "Image release: ${MBT_VERSION}"
+            #Push to Docker Hub
+            echo "$DOCKER_HUB_TOKEN" | docker login --username $DOCKER_HUB_USER --password-stdin
+            sh $PWD/scripts/publish_image 8.1.091 16.18.1 ${MBT_VERSION} "cobra217"
+            #Push to GitHub Container Registry
+            echo "$CLOUD_MTA_BOT_GITHUB_TOKEN" | docker login "ghcr.io" --username $CLOUD_MTA_BOT_USER --password-stdin
+            sh $PWD/scripts/publish_image 8.1.091 16.18.1 ${MBT_VERSION} "ghcr.io/young-yang03"
+
+  publish-to-dockerhub-java8-node18:
+    docker:
+      - image: cimg/go:1.17
+    working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 20.10.6
+      - run:
+          name: build image pre-setup
+          command: |
+            #Make sure HEAD points to master
+            git checkout master
+            git fetch
+            git rebase
+      - run:
+          name: build Java 8.1.091 & Node 18.12.1 image
+          command: |
+            MBT_VERSION=$(cat ./VERSION)
+            sh $PWD/scripts/build_image 8.1.091 18.12.1 ${MBT_VERSION}
+      - run:
+          name: publish Java 8.1.091 & Node 18.12.1 image
+          command: |
+            MBT_VERSION=$(cat ./VERSION)
+            echo "Image release: ${MBT_VERSION}"
+            #Push to Docker Hub
+            echo "$DOCKER_HUB_TOKEN" | docker login --username $DOCKER_HUB_USER --password-stdin
+            sh $PWD/scripts/publish_image 8.1.091 18.12.1 ${MBT_VERSION} "cobra217"
+            #Push to GitHub Container Registry
+            echo "$CLOUD_MTA_BOT_GITHUB_TOKEN" | docker login "ghcr.io" --username $CLOUD_MTA_BOT_USER --password-stdin
+            sh $PWD/scripts/publish_image 8.1.091 18.12.1 ${MBT_VERSION} "ghcr.io/young-yang03"
+
   publish-to-dockerhub-java11-node14:
     docker:
       - image: cimg/go:1.17
@@ -157,8 +253,8 @@ jobs:
       - run:
           name: build Java 11.0.17 & Node 14.21.1 image
           command: |
-              MBT_VERSION=$(cat ./VERSION)
-              sh $PWD/scripts/build_image 11.0.17 14.21.1 ${MBT_VERSION}
+            MBT_VERSION=$(cat ./VERSION)
+            sh $PWD/scripts/build_image 11.0.17 14.21.1 ${MBT_VERSION}
       - run:
           name: publish Java 11.0.17 & Node 14.21.1 image
           command: |
@@ -553,6 +649,30 @@ workflows:
               only: /release/
             branches:
               ignore: /.*/
+      - publish-to-dockerhub-java8-node14:
+          requires:
+            - publish-to-npm
+          filters:
+            tags:
+              only: /release/
+            branches:
+              ignore: /.*/
+      - publish-to-dockerhub-java8-node16:
+          requires:
+            - publish-to-npm
+          filters:
+            tags:
+              only: /release/
+            branches:
+              ignore: /.*/
+      - publish-to-dockerhub-java8-node18:
+          requires:
+            - publish-to-npm
+          filters:
+            tags:
+              only: /release/
+            branches:
+              ignore: /.*/
       - publish-to-dockerhub-java11-node14:
           requires:
             - publish-to-npm
@@ -627,6 +747,9 @@ workflows:
               ignore: /.*/
       - remove-github-release-tag:
           requires:
+            - publish-to-dockerhub-java8-node14
+            - publish-to-dockerhub-java8-node16
+            - publish-to-dockerhub-java8-node18
             - publish-to-dockerhub-java11-node14
             - publish-to-dockerhub-java11-node16
             - publish-to-dockerhub-java11-node18
