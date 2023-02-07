@@ -142,7 +142,7 @@ jobs:
   publish-to-dockerhub-java8-node14:
     docker:
       - image: cimg/go:1.17
-    working_directory: ~/go/src/github.com/young-yang03/cloud-mta-build-tool
+    working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
     steps:
       - checkout
       - setup_remote_docker:
@@ -166,10 +166,10 @@ jobs:
             echo "Image release: ${MBT_VERSION}"
             #Push to Docker Hub
             echo "$DOCKER_HUB_TOKEN" | docker login --username $DOCKER_HUB_USER --password-stdin
-            sh $PWD/scripts/publish_image 8.1.091 14.21.1 ${MBT_VERSION} "cobra217"
+            sh $PWD/scripts/publish_image 8.1.091 14.21.1 ${MBT_VERSION} "devxci"
             #Push to GitHub Container Registry
             echo "$CLOUD_MTA_BOT_GITHUB_TOKEN" | docker login "ghcr.io" --username $CLOUD_MTA_BOT_USER --password-stdin
-            sh $PWD/scripts/publish_image 8.1.091 14.21.1 ${MBT_VERSION} "ghcr.io/young-yang03"
+            sh $PWD/scripts/publish_image 8.1.091 14.21.1 ${MBT_VERSION} "ghcr.io/sap"
 
   publish-to-dockerhub-java8-node16:
     docker:
@@ -198,10 +198,10 @@ jobs:
             echo "Image release: ${MBT_VERSION}"
             #Push to Docker Hub
             echo "$DOCKER_HUB_TOKEN" | docker login --username $DOCKER_HUB_USER --password-stdin
-            sh $PWD/scripts/publish_image 8.1.091 16.18.1 ${MBT_VERSION} "cobra217"
+            sh $PWD/scripts/publish_image 8.1.091 16.18.1 ${MBT_VERSION} "devxci"
             #Push to GitHub Container Registry
             echo "$CLOUD_MTA_BOT_GITHUB_TOKEN" | docker login "ghcr.io" --username $CLOUD_MTA_BOT_USER --password-stdin
-            sh $PWD/scripts/publish_image 8.1.091 16.18.1 ${MBT_VERSION} "ghcr.io/young-yang03"
+            sh $PWD/scripts/publish_image 8.1.091 16.18.1 ${MBT_VERSION} "ghcr.io/sap"
 
   publish-to-dockerhub-java8-node18:
     docker:
@@ -230,10 +230,10 @@ jobs:
             echo "Image release: ${MBT_VERSION}"
             #Push to Docker Hub
             echo "$DOCKER_HUB_TOKEN" | docker login --username $DOCKER_HUB_USER --password-stdin
-            sh $PWD/scripts/publish_image 8.1.091 18.12.1 ${MBT_VERSION} "cobra217"
+            sh $PWD/scripts/publish_image 8.1.091 18.12.1 ${MBT_VERSION} "devxci"
             #Push to GitHub Container Registry
             echo "$CLOUD_MTA_BOT_GITHUB_TOKEN" | docker login "ghcr.io" --username $CLOUD_MTA_BOT_USER --password-stdin
-            sh $PWD/scripts/publish_image 8.1.091 18.12.1 ${MBT_VERSION} "ghcr.io/young-yang03"
+            sh $PWD/scripts/publish_image 8.1.091 18.12.1 ${MBT_VERSION} "ghcr.io/sap"
 
   publish-to-dockerhub-java11-node14:
     docker:
