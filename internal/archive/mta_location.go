@@ -21,6 +21,8 @@ const (
 	Mtad = "mtad.yaml"
 	// MtarFolder - default archives folder
 	MtarFolder = "mta_archives"
+	// SBomTempFolderSuffix - sbom temporary folder suffix
+	SBomTempFolderSuffix = "_mta_sbom_tmp"
 )
 
 // IMtaParser - MTA Parser interface
@@ -212,6 +214,18 @@ func (ep *Loc) GetManifestPath() string {
 	return filepath.Join(ep.GetMetaPath(), "MANIFEST.MF")
 }
 
+// GetSBomFilePath - sbomFilePath is relative path to project root
+func (ep *Loc) GetSBomFilePath(sbomFilePath string) string {
+	return filepath.Join(ep.SourcePath, sbomFilePath)
+}
+
+// GetSBomFileTmpDir - sbomFileTmpDir is a temp folder under project root
+func (ep *Loc) GetSBomFileTmpDir(mtaObj *mta.MTA) string {
+	source := ep.GetSource()
+	sbomtmpdir := "." + mtaObj.ID + SBomTempFolderSuffix
+	return filepath.Join(source, sbomtmpdir)
+}
+
 // ValidateDeploymentDescriptor validates the deployment descriptor.
 func ValidateDeploymentDescriptor(descriptor string) error {
 	if descriptor != "" && descriptor != Dev && descriptor != Dep {
@@ -242,7 +256,6 @@ func (ep *Loc) GetExtensionFilePaths() []string {
 
 // Location - provides Location parameters of MTA
 func Location(source, target, descriptor string, extensions []string, wdGetter func() (string, error)) (*Loc, error) {
-
 	err := ValidateDeploymentDescriptor(descriptor)
 	if err != nil {
 		return nil, err

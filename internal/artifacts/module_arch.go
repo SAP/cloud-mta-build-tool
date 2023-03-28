@@ -2,14 +2,14 @@ package artifacts
 
 import (
 	"fmt"
-	"gopkg.in/yaml.v2"
 	"os"
 	"path/filepath"
 	"strings"
 
 	"github.com/pkg/errors"
+	"gopkg.in/yaml.v2"
 
-	"github.com/SAP/cloud-mta-build-tool/internal/archive"
+	dir "github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta-build-tool/internal/buildops"
 	"github.com/SAP/cloud-mta-build-tool/internal/commands"
 	"github.com/SAP/cloud-mta-build-tool/internal/exec"
@@ -383,6 +383,13 @@ func buildModule(mtaParser dir.IMtaParser, moduleLoc dir.IModule, moduleName, pl
 	if e != nil {
 		return errors.Wrapf(e, buildFailedOnCommandsMsg, moduleName)
 	}
+
+	// Added by young.yang03@sap.com for sbom generation
+	// logs.Logger.Info("0000000000000000000000000000000000000000000000000000000")
+	// logs.Logger.Info("module name: " + module.Name + "; defaultBuildResults: " + defaultBuildResults)
+	// for index := 0; index < len(mCmd); index++ {
+	// 	logs.Logger.Info("command " + strconv.Itoa(index) + " : " + mCmd[index])
+	// }
 
 	// Execute child-process with module respective commands
 	var timeout string

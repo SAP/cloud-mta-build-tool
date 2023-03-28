@@ -83,10 +83,10 @@ func ExecuteSBomGenerate(source string, sbomFilePath string, wdGetter func() (st
 	}
 
 	// (7) clean sbom tmp dir
-	// err = dir.RemoveIfExist(sbomTmpDir)
-	// if err != nil {
-	// 	return errors.Wrapf(err, genSBomFileFailedMsg)
-	// }
+	err = dir.RemoveIfExist(sbomTmpDir)
+	if err != nil {
+		return errors.Wrapf(err, genSBomFileFailedMsg)
+	}
 
 	return nil
 }

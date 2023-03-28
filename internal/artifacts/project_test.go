@@ -11,7 +11,7 @@ import (
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
 
-	"github.com/SAP/cloud-mta-build-tool/internal/archive"
+	dir "github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta-build-tool/internal/commands"
 	"github.com/SAP/cloud-mta-build-tool/internal/exec"
 	"github.com/SAP/cloud-mta/mta"
@@ -57,21 +57,21 @@ var _ = Describe("Project", func() {
 		It("Sanity", func() {
 			err := ExecBuild("Makefile_tmp.mta", getTestPath("mta_with_zipped_module"), getResultPath(), nil, "", "", "cf", true, 0, false, os.Getwd, func(strings [][]string, b bool) error {
 				return nil
-			}, true, false)
+			}, true, false, "")
 			Ω(err).Should(Succeed())
 			Ω(filepath.Join(getTestPath("mta_with_zipped_module"), "Makefile_tmp.mta")).ShouldNot(BeAnExistingFile())
 		})
 		It("Sanity - keep makefile", func() {
 			err := ExecBuild("Makefile_tmp.mta", getTestPath("mta_with_zipped_module"), getResultPath(), nil, "", "", "cf", true, 0, false, os.Getwd, func(strings [][]string, b bool) error {
 				return nil
-			}, true, true)
+			}, true, true, "")
 			Ω(err).Should(Succeed())
 			Ω(filepath.Join(getTestPath("mta_with_zipped_module"), "Makefile_tmp.mta")).Should(BeAnExistingFile())
 		})
 		It("Wrong - no platform", func() {
 			err := ExecBuild("Makefile_tmp.mta", getTestPath("mta_with_zipped_module"), getResultPath(), nil, "", "", "", true, 0, false, os.Getwd, func(strings [][]string, b bool) error {
 				return fmt.Errorf("failure")
-			}, true, false)
+			}, true, false, "")
 			Ω(err).Should(HaveOccurred())
 		})
 		It("Wrong - ExecuteMake fails on wrong location", func() {
@@ -80,7 +80,7 @@ var _ = Describe("Project", func() {
 					return "", errors.New("wrong location")
 				}, func(strings [][]string, b bool) error {
 					return nil
-				}, true, false)
+				}, true, false, "")
 			Ω(err).Should(HaveOccurred())
 		})
 	})
@@ -238,7 +238,7 @@ builders:
 	var _ = DescribeTable("createMakeCommand", func(target, mode string, strict bool, jobs int, cpus int, outputSync bool, additionalExpectedArgs []string) {
 		command := createMakeCommand("Makefile_tmp", "./src", target, mode, "result.mtar", "cf", strict, jobs, outputSync, func() int {
 			return cpus
-		})
+		}, "")
 		Ω(len(command)).To(Equal(8+len(additionalExpectedArgs)), "number of command arguments")
 		// The first arguments must be in this order
 		Ω(command[0]).To(Equal("./src"))

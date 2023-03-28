@@ -2,6 +2,7 @@ package dir
 
 import (
 	"archive/zip"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"os"
@@ -50,6 +51,16 @@ func CreateDirIfNotExist(dir string) error {
 	} else if err == nil && !info.IsDir() {
 		err = errors.Errorf(FolderCreationFailedMsg, dir)
 	}
+	return err
+}
+
+// RemoveDirIfExist - remove dir
+func RemoveIfExist(dir string) error {
+	_, err := os.Stat(dir)
+	if os.IsNotExist(err) {
+		return nil
+	}
+	err = os.RemoveAll(dir)
 	return err
 }
 
@@ -392,6 +403,27 @@ func FindPath(path string) (string, error) {
 	return "", errors.Errorf(wrongPathMsg, path)
 }
 
+func FindFile(root string, filename string) (string, error) {
+	var foundPath string
+	err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if !info.IsDir() && info.Name() == filename {
+			foundPath = path
+			return filepath.SkipDir
+		}
+		return nil
+	})
+	if err != nil {
+		return "", err
+	}
+	if foundPath == "" {
+		return "", fmt.Errorf("%s not found in %s", filename, root)
+	}
+	return foundPath, nil
+}
+
 // CopyByPatterns - copy files/directories according to patterns
 // from source folder to target folder
 // patterns are relative to source folder
@@ -621,6 +653,7 @@ func changeTargetMode(source, target string) error {
 	if err != nil {
 		return err
 	}
+
 	return os.Chmod(target, si.Mode())
 }
 

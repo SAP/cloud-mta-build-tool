@@ -88,4 +88,9 @@ const (
 	mergeInfoMsg                 = `merging the "mta.yaml" file with the MTA extension descriptors...`
 	mergeNameRequiredMsg         = `could not find the mandatory parameter "target-file-name"`
 	mergeFailedOnFileCreationMsg = `the "%s" file already exists`
+
+	genSBomFileFailedMsg         = `generate sbom file failed`
+	invalidateSBomFilePath       = `invalidate sbom file path, it should be a relative path`
+	createSBomTargetDirFailedMsg = `create sbom file target path "%s" failed`
+	mvSBomToTargetDirFailedMsg   = `mv sbom file from "%s" to "%s" failed`
 )

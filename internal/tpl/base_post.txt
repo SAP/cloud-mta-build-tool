@@ -13,6 +13,12 @@ validate: pre_build
 mtar: $(modules) meta
 {{"\t"}}@$(MBT) gen mtar --mtar=${mtar} --target_provided=${target_provided} {{- ExtensionsArg "-e"}} -t=${t}
 
-cleanup: mtar
+# Generate SBOM file
+sbom-gen: mtar
+ifdef sbom-file-path
+	@$(MBT) sbom-gen --source=${source} --sbom-file-path=${sbom-file-path}
+endif
+
+cleanup: sbom-gen
 # Remove tmp folder
 {{"\t"}}@$(MBT) clean -t=${t}
