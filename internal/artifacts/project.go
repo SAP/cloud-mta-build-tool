@@ -83,11 +83,11 @@ func createMakeCommand(makefileName, source, target, mode, mtar, platform string
 	}
 
 	if strings.TrimSpace(source) != "" {
-		cmdParams = append(cmdParams, `source="`+source+`"`)
+		cmdParams = append(cmdParams, "source="+source)
 	}
 
 	if strings.TrimSpace(sBomFilePath) != "" {
-		cmdParams = append(cmdParams, `sbom-file-path="`+sBomFilePath+`"`)
+		cmdParams = append(cmdParams, "sbom-file-path="+sBomFilePath)
 	}
 
 	return cmdParams

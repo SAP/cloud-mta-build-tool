@@ -5,6 +5,7 @@ import (
 	"os/exec"
 	"path/filepath"
 
+	dir "github.com/SAP/cloud-mta-build-tool/internal/archive"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )

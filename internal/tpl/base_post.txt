@@ -16,7 +16,7 @@ mtar: $(modules) meta
 # Generate SBOM file
 sbom-gen: mtar
 ifdef sbom-file-path
-	@$(MBT) sbom-gen --source=${source} --sbom-file-path=${sbom-file-path}
+	@$(MBT) gen sbom --source=${source} --sbom-file-path=${sbom-file-path}
 endif
 
 cleanup: sbom-gen

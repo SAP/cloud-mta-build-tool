@@ -214,11 +214,6 @@ func (ep *Loc) GetManifestPath() string {
 	return filepath.Join(ep.GetMetaPath(), "MANIFEST.MF")
 }
 
-// GetSBomFilePath - sbomFilePath is relative path to project root
-func (ep *Loc) GetSBomFilePath(sbomFilePath string) string {
-	return filepath.Join(ep.SourcePath, sbomFilePath)
-}
-
 // GetSBomFileTmpDir - sbomFileTmpDir is a temp folder under project root
 func (ep *Loc) GetSBomFileTmpDir(mtaObj *mta.MTA) string {
 	source := ep.GetSource()

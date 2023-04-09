@@ -384,13 +384,6 @@ func buildModule(mtaParser dir.IMtaParser, moduleLoc dir.IModule, moduleName, pl
 		return errors.Wrapf(e, buildFailedOnCommandsMsg, moduleName)
 	}
 
-	// Added by young.yang03@sap.com for sbom generation
-	// logs.Logger.Info("0000000000000000000000000000000000000000000000000000000")
-	// logs.Logger.Info("module name: " + module.Name + "; defaultBuildResults: " + defaultBuildResults)
-	// for index := 0; index < len(mCmd); index++ {
-	// 	logs.Logger.Info("command " + strconv.Itoa(index) + " : " + mCmd[index])
-	// }
-
 	// Execute child-process with module respective commands
 	var timeout string
 	if module.BuildParams != nil && module.BuildParams["timeout"] != nil {

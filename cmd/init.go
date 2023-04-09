@@ -23,6 +23,7 @@ var initCmdExtensions []string
 var initCmdMode string
 
 // flags of build command
+var mbtCmdCLI string
 var buildCmdSrc string
 var buildCmdTrg string
 var buildCmdExtensions []string

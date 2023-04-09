@@ -31,7 +31,7 @@ func init() {
 	// Build module
 	provideCmd.AddCommand(provideModuleCmd)
 	// generate immutable commands
-	generateCmd.AddCommand(metaCmd, mtarCmd)
+	generateCmd.AddCommand(metaCmd, mtarCmd, projectBuildSBomGenCommand)
 	// module commands
 	moduleCmd.AddCommand(buildModuleCmd, packModuleCmd)
 	// project commands

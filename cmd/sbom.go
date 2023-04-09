@@ -7,22 +7,41 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var projSBomGenCmdSrc string
-var projSBomGenCmdSBOMPath string
+var projectSBomGenCmdSrc string
+var projectSBomGenCmdSBOMPath string
+
+var projectBuildSBomGenCmdSrc string
+var projectBuildSBomGenCmdSBOMPath string
 
 var moduleSBomGenCmdSrc string
 var moduleSBomGenCmdModules []string
 var moduleSBomGenCmdAllDependencies bool
 var moduleSBomGenCmdSBOMPath string
 
-// Generate SBOM file for modules
+// Generate SBOM file for project
 var projectSBomGenCommand = &cobra.Command{
 	Use:   "sbom-gen",
-	Short: "Generates SBOM for project modules according to configurations in the MTA development descriptor (mta.yaml)",
-	Long:  "Generates SBOM for project modules according to configurations in the MTA development descriptor (mta.yaml)",
+	Short: "Generates SBOM for project according to configurations in the MTA development descriptor (mta.yaml)",
+	Long:  "Generates SBOM for project according to configurations in the MTA development descriptor (mta.yaml)",
 	Args:  cobra.MaximumNArgs(4),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		err := artifacts.ExecuteSBomGenerate(projSBomGenCmdSrc, projSBomGenCmdSBOMPath, os.Getwd)
+		err := artifacts.ExecuteProjectSBomGenerate(projectSBomGenCmdSrc, projectSBomGenCmdSBOMPath, os.Getwd)
+		logError(err)
+		return err
+	},
+	// Hidden:        true,
+	SilenceUsage:  true,
+	SilenceErrors: true,
+}
+
+// Generate SBOM file with project build
+var projectBuildSBomGenCommand = &cobra.Command{
+	Use:   "sbom",
+	Short: "Generates SBOM for project",
+	Long:  "Generates SBOM for project with build process",
+	Args:  cobra.MaximumNArgs(4),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		err := artifacts.ExecuteProjectBuildeSBomGenerate(projectBuildSBomGenCmdSrc, projectBuildSBomGenCmdSBOMPath, os.Getwd)
 		logError(err)
 		return err
 	},
@@ -50,10 +69,16 @@ var moduleSBomGenCommand = &cobra.Command{
 func init() {
 
 	// set flags of sbom-gen command
-	projectSBomGenCommand.Flags().StringVarP(&projSBomGenCmdSrc, "source", "s", "",
-		"The path to the MTA project; the current path is set as default")
-	projectSBomGenCommand.Flags().StringVarP(&projSBomGenCmdSBOMPath, "sbom-file-path", "b", "",
-		`The path of SBOM file, a relative path to MTA project root, like a/b/c.bom.xml; default value is <MTA project path>/<MTA project id>.bom.xml.`)
+	projectSBomGenCommand.Flags().StringVarP(&projectSBomGenCmdSrc, "source", "s", "",
+		"The path of MTA project; project root path is set as default")
+	projectSBomGenCommand.Flags().StringVarP(&projectSBomGenCmdSBOMPath, "sbom-file-path", "b", "",
+		`The path of SBOM file, relative or absoluted; if relative path, it is relative to MTA project root; default value is <MTA project path>/<MTA project id>.bom.xml.`)
+
+	// set flags of sbom-gen command
+	projectBuildSBomGenCommand.Flags().StringVarP(&projectBuildSBomGenCmdSrc, "source", "s", "",
+		"The path of MTA project; project root path is set as default")
+	projectBuildSBomGenCommand.Flags().StringVarP(&projectBuildSBomGenCmdSBOMPath, "sbom-file-path", "b", "",
+		`The path of SBOM file, relative or absoluted; if relative path, it is relative to MTA project root; default value is <MTA project path>/<MTA project id>.bom.xml.`)
 
 	// set flags of module-sbom-gen command
 	moduleSBomGenCommand.Flags().StringVarP(&moduleSBomGenCmdSrc, "source", "s", "",

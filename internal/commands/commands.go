@@ -355,7 +355,7 @@ func GetModuleSBomGenCommands(loc *dir.Loc, module *mta.Module, sbomFileName str
 	return commandList, err
 }
 
-func GetSBomsMergeCommand(loc *dir.Loc, cyclonedx_cli string, sbomTmpDir string, sbomPath string,
+func GetSBomsMergeCommand(loc *dir.Loc, cyclonedx_cli string, sbomTmpDir string,
 	sbomName string, sbomSuffix string) ([][]string, error) {
 
 	var cmd string

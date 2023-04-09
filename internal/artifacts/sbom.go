@@ -1,7 +1,6 @@
 package artifacts
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -28,21 +27,9 @@ const (
 	cyclonedx_cli    = "cyclonedx-cli"
 )
 
-// ExecuteSBomGenerate - Execute MTA project SBOM generation
-func ExecuteSBomGenerate(source string, sbomFilePath string, wdGetter func() (string, error)) error {
-	// if sbomFilePath is empty, do not need to generate sbom, return directly
-	if strings.TrimSpace(sbomFilePath) == "" {
-		return nil
-	}
-
-	// (1) validate and parse sbomFilePath
-	err := validateSBomFilePath(sbomFilePath)
-	if err != nil {
-		return errors.Wrapf(err, genSBomFileFailedMsg)
-	}
-	sbomPath, sbomName, sbomType, sbomSuffix := parseSBomFilePath(sbomFilePath)
-
-	// (2) parse mta.yaml and get mta object
+// ExecuteProjectSBomGenerate - Execute MTA project SBOM generation
+func ExecuteProjectSBomGenerate(source string, sbomFilePath string, wdGetter func() (string, error)) error {
+	// (1) get loc object and mta object
 	loc, err := dir.Location(source, "", dir.Dev, []string{}, wdGetter)
 	if err != nil {
 		return errors.Wrapf(err, genSBomFileFailedMsg)
@@ -53,37 +40,16 @@ func ExecuteSBomGenerate(source string, sbomFilePath string, wdGetter func() (st
 		return errors.Wrapf(err, genSBomFileFailedMsg)
 	}
 
-	// (3) clean and create module sbom generate tmp dir
-	sbomTmpDir := loc.GetSBomFileTmpDir(mtaObj)
-	err = dir.RemoveIfExist(sbomTmpDir)
-	if err != nil {
-		return errors.Wrapf(err, genSBomFileFailedMsg)
-	}
-	err = dir.CreateDirIfNotExist(sbomTmpDir)
-	if err != nil {
-		return errors.Wrapf(err, genSBomFileFailedMsg)
+	logs.Logger.Info("loc.GetSource():" + loc.GetSource())
+
+	// (2) if sbom file path is empty, default value is <MTA project path>/<MTA project id>.bom.xml
+	if strings.TrimSpace(sbomFilePath) == "" {
+		sbomFilePath = mtaObj.ID + sbom_xml_suffix
+		logs.Logger.Info("sbomFilePath:" + sbomFilePath)
 	}
 
-	// (4) generation sbom for modules
-	err = generateSBomFiles(loc, mtaObj, sbomTmpDir, sbomType, sbomSuffix)
-	if err != nil {
-		return errors.Wrapf(err, genSBomFileFailedMsg)
-	}
-
-	// (5) merge sbom files
-	err = mergeSBomFilesCommand(loc, sbomTmpDir, sbomPath, sbomName, sbomSuffix)
-	if err != nil {
-		return errors.Wrapf(err, genSBomFileFailedMsg)
-	}
-
-	// (6) generate sbom target dir, mv merged sbom file to target dir
-	err = moveSBomToTarget(loc, sbomPath, sbomName, sbomTmpDir)
-	if err != nil {
-		return errors.Wrapf(err, genSBomFileFailedMsg)
-	}
-
-	// (7) clean sbom tmp dir
-	err = dir.RemoveIfExist(sbomTmpDir)
+	// (3) generate sbom
+	err = executeSBomGenerate(loc, mtaObj, source, sbomFilePath, wdGetter)
 	if err != nil {
 		return errors.Wrapf(err, genSBomFileFailedMsg)
 	}
@@ -91,15 +57,92 @@ func ExecuteSBomGenerate(source string, sbomFilePath string, wdGetter func() (st
 	return nil
 }
 
-func moveSBomToTarget(loc *dir.Loc, sbomPath string, sbomName string, sbomTmpDir string) error {
-	sbomTargetPath := filepath.Join(loc.GetSource(), sbomPath)
-	err := dir.CreateDirIfNotExist(sbomTargetPath)
-	if err != nil {
-		return errors.Wrapf(err, createSBomTargetDirFailedMsg, sbomTargetPath)
+// ExecuteProjectBuildeSBomGenerate - Execute MTA project SBOM generation with Build process
+func ExecuteProjectBuildeSBomGenerate(source string, sbomFilePath string, wdGetter func() (string, error)) error {
+	// (1) if sbomFilePath is empty, do not need to generate sbom, return directly
+	if strings.TrimSpace(sbomFilePath) == "" {
+		return nil
 	}
 
-	sourcesbomfilepath := filepath.Join(sbomTmpDir, sbomName)
-	targetsbomfilepath := filepath.Join(sbomTargetPath, sbomName)
+	// (2) get loc object and mta object
+	loc, err := dir.Location(source, "", dir.Dev, []string{}, wdGetter)
+	if err != nil {
+		return errors.Wrapf(err, genSBomFileFailedMsg)
+	}
+
+	mtaObj, err := loc.ParseFile()
+	if err != nil {
+		return errors.Wrapf(err, genSBomFileFailedMsg)
+	}
+
+	logs.Logger.Info("loc.GetSource():" + loc.GetSource())
+
+	// (3) generate sbom
+	err = executeSBomGenerate(loc, mtaObj, source, sbomFilePath, wdGetter)
+	if err != nil {
+		return errors.Wrapf(err, genSBomFileFailedMsg)
+	}
+
+	return nil
+}
+
+func executeSBomGenerate(loc *dir.Loc, mtaObj *mta.MTA, source string, sbomFilePath string, wdGetter func() (string, error)) error {
+	// (1) parse sbomFilePath, if relative, it is relative path to project source
+	sbomPath, sbomName, sbomType, sbomSuffix := parseSBomFilePath(loc.GetSource(), sbomFilePath)
+	logs.Logger.Info("sbomPath:" + sbomPath)
+	logs.Logger.Info("sbomName:" + sbomName)
+
+	// (2) clean and create module sbom generate tmp dir under project root path
+	sbomTmpDir := loc.GetSBomFileTmpDir(mtaObj)
+	err := dir.RemoveIfExist(sbomTmpDir)
+	if err != nil {
+		return err
+	}
+	err = dir.CreateDirIfNotExist(sbomTmpDir)
+	if err != nil {
+		return err
+	}
+
+	// (3) generation sbom for modules under sbom tmp dir
+	err = generateSBomFiles(loc, mtaObj, sbomTmpDir, sbomType, sbomSuffix)
+	if err != nil {
+		return err
+	}
+
+	// (4) merge sbom files under sbom tmp dir
+	sbomTmpName, err := mergeSBomFiles(loc, sbomTmpDir, sbomName, sbomSuffix)
+	if err != nil {
+		return err
+	}
+
+	// (5) generate sbom target dir, mv merged sbom file to target dir
+	err = moveSBomToTarget(sbomPath, sbomName, sbomTmpDir, sbomTmpName)
+	if err != nil {
+		return err
+	}
+
+	// (6) clean sbom tmp dir
+	err = dir.RemoveIfExist(sbomTmpDir)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// moveSBomToTarget - move sbom file from sbom tmp dir to target dir
+func moveSBomToTarget(sbomPath string, sbomName string, sbomTmpDir string, sbomTmpName string) error {
+	err := dir.CreateDirIfNotExist(sbomPath)
+	if err != nil {
+		return errors.Wrapf(err, createSBomTargetDirFailedMsg, sbomName)
+	}
+
+	sourcesbomfilepath := filepath.Join(sbomTmpDir, sbomTmpName)
+	targetsbomfilepath := filepath.Join(sbomPath, sbomName)
+
+	logs.Logger.Info("sourcesbomfilepath:" + sourcesbomfilepath)
+	logs.Logger.Info("targetsbomfilepath:" + targetsbomfilepath)
+
 	err = os.Rename(sourcesbomfilepath, targetsbomfilepath)
 	if err != nil {
 		return errors.Wrapf(err, mvSBomToTargetDirFailedMsg, sourcesbomfilepath, targetsbomfilepath)
@@ -107,43 +150,54 @@ func moveSBomToTarget(loc *dir.Loc, sbomPath string, sbomName string, sbomTmpDir
 	return nil
 }
 
-func mergeSBomFilesCommand(loc *dir.Loc, sbomTmpDir string, sbomPath string, sbomName string, sbomSuffix string) error {
+// mergeSBomFiles - merge sbom files of modules under sbom tmp dir
+func mergeSBomFiles(loc *dir.Loc, sbomTmpDir string, sbomName string, sbomSuffix string) (string, error) {
+	curtime := time.Now().Format("20230328150313")
+
+	var sbomTmpName string
+	if strings.HasSuffix(sbomName, sbom_xml_suffix) {
+		sbomTmpName = strings.TrimSuffix(sbomName, xml_suffix) + "_" + curtime + sbom_xml_suffix
+	} else if strings.HasSuffix(sbomName, sbom_json_suffix) {
+		sbomTmpName = strings.TrimSuffix(sbomName, json_suffix) + "_" + curtime + sbom_xml_suffix
+	} else {
+		sbomTmpName = sbomName + "_" + curtime + sbom_xml_suffix
+	}
+
 	// Get sbom file generate command
-	sbomMergeCmds, err := commands.GetSBomsMergeCommand(loc, cyclonedx_cli, sbomTmpDir, sbomPath, sbomName, sbomSuffix)
+	sbomMergeCmds, err := commands.GetSBomsMergeCommand(loc, cyclonedx_cli, sbomTmpDir, sbomTmpName, sbomSuffix)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	// exec sbom merge command
 	err = executeSBomCommand(sbomMergeCmds)
 	if err != nil {
-		return err
+		return "", err
 	}
-	return nil
+	return sbomTmpName, nil
 }
 
-func validateSBomFilePath(sbomFilePath string) error {
+// parseSBomFilePath - parse sbom file path parameter, if it is a relative path, join source path
+func parseSBomFilePath(source string, sbomFilePath string) (string, string, string, string) {
+	var sbomPath, sbomName, sbomType, sbomSuffix string
+
 	if filepath.IsAbs(sbomFilePath) {
-		return fmt.Errorf(invalidateSBomFilePath)
-	}
-	return nil
-}
-
-func parseSBomFilePath(sbomFilePath string) (string, string, string, string) {
-	filepath, filename := filepath.Split(sbomFilePath)
-
-	filetype := xml_type
-	fileSuffix := sbom_xml_suffix
-	if strings.HasSuffix(filename, xml_suffix) {
-		filetype = xml_type
-		fileSuffix = sbom_xml_suffix
-	}
-	if strings.HasSuffix(filename, json_suffix) {
-		filetype = json_type
-		fileSuffix = sbom_json_suffix
+		sbomPath, sbomName = filepath.Split(sbomFilePath)
+	} else {
+		sbomPath, sbomName = filepath.Split(filepath.Join(source, sbomFilePath))
 	}
 
-	return filepath, filename, filetype, fileSuffix
+	sbomType = xml_type
+	sbomSuffix = sbom_xml_suffix
+	if strings.HasSuffix(sbomName, xml_suffix) {
+		sbomType = xml_type
+		sbomSuffix = sbom_xml_suffix
+	} else if strings.HasSuffix(sbomName, json_suffix) {
+		sbomType = json_type
+		sbomSuffix = sbom_json_suffix
+	}
+
+	return sbomPath, sbomName, sbomType, sbomSuffix
 }
 
 func executeSBomCommand(sbomCmds [][]string) error {
@@ -187,12 +241,12 @@ func generateSBomFiles(loc *dir.Loc, mtaObj *mta.MTA, sBomFileTmpDir string, sbo
 
 		// mv module sbom file to sbom temp dir
 		modulePath := loc.GetSourceModuleDir(module.Path)
-		sbomFilefoundPath, err := dir.FindFile(modulePath, sbomFileFullName)
+		sbomFileFoundPath, err := dir.FindFile(modulePath, sbomFileFullName)
 		if err != nil {
 			return err
 		}
 		sbomFileTargetPath := filepath.Join(sBomFileTmpDir, sbomFileFullName)
-		err = os.Rename(sbomFilefoundPath, sbomFileTargetPath)
+		err = os.Rename(sbomFileFoundPath, sbomFileTargetPath)
 		if err != nil {
 			return err
 		}
