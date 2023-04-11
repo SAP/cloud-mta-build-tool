@@ -75,7 +75,7 @@ var _ = Describe("Gen SBom", func() {
 		source := "testdata/mta"
 		sbomFilePath := "gen-sbom-result/merged.bom.xml"
 		Ω(ExecuteProjectBuildeSBomGenerate(source, sbomFilePath, os.Getwd)).Should(Succeed())
-		// Ω(os.RemoveAll(getTestPath("mta", "gen-sbom-result"))).Should(Succeed())
+		Ω(os.RemoveAll(getTestPath("mta", "gen-sbom-result"))).Should(Succeed())
 	})
 	It("Success - gen sbom with abs source and relative sbom-file-path parameter", func() {
 		source := getTestPath("mta")
@@ -93,7 +93,7 @@ var _ = Describe("Gen SBom", func() {
 		source := getTestPath("mta")
 		sbomFilePath := getTestPath("gen-sbom-result", "merged.bom.xml")
 		Ω(ExecuteProjectBuildeSBomGenerate(source, sbomFilePath, os.Getwd)).Should(Succeed())
-		// Ω(os.RemoveAll(getTestPath("gen-sbom-result"))).Should(Succeed())
+		Ω(os.RemoveAll(getTestPath("gen-sbom-result"))).Should(Succeed())
 	})
 	It("Success - gen sbom without sbom-file-path parameter", func() {
 		source := getTestPath("mta")
