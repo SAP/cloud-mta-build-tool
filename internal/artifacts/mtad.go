@@ -13,7 +13,7 @@ import (
 
 	"github.com/SAP/cloud-mta/mta"
 
-	"github.com/SAP/cloud-mta-build-tool/internal/archive"
+	dir "github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta-build-tool/internal/buildops"
 	"github.com/SAP/cloud-mta-build-tool/internal/logs"
 )
@@ -231,7 +231,7 @@ func adjustSchemaVersion(mtaStr *mta.MTA) error {
 	if schemaVersion < 3 {
 		oldSchemaVersion := *mtaStr.SchemaVersion
 		newSchemaVersion := "3.1"
-		logs.Logger.Infof("mta.yaml schema version %s is too lower; in generated MTA archive, schema version of mtad.yaml will be upgraded to %s",
+		logs.Logger.Infof("mta.yaml schema version %s is too low; in generated MTA archive, schema version of mtad.yaml will be increased to %s",
 			oldSchemaVersion, newSchemaVersion)
 
 		*mtaStr.SchemaVersion = newSchemaVersion
