@@ -110,22 +110,3 @@ var _ = Describe("mbt build with sbom gen command", func() {
 		Ω(os.RemoveAll(tmpSrcFolder)).Should(Succeed())
 	})
 })
-
-var _ = Describe("validate path", func() {
-	BeforeEach(func() {
-	})
-	AfterEach(func() {
-	})
-
-	/* It("Success - validate source and sbomFilePath", func() {
-		source := "/c/windows/"
-		sbomFilePath := "./test.txt"
-		Ω(validatePath(source, sbomFilePath)).Should(Succeed())
-	})
-
-	It("Failure - invalidate source and sbomFilePath", func() {
-		source := "  /??  "
-		sbomFilePath := "./test.txt"
-		Ω(validatePath(source, sbomFilePath)).Should(Succeed())
-	}) */
-})

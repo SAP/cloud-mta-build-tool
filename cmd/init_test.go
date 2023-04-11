@@ -4,7 +4,7 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/SAP/cloud-mta-build-tool/internal/archive"
+	dir "github.com/SAP/cloud-mta-build-tool/internal/archive"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
@@ -31,10 +31,6 @@ var _ = Describe("Build", func() {
 	})
 	AfterEach(func() {
 		mbtCmdCLI = ""
-		buildCmdSrc = ""
-		buildCmdTrg = ""
-		buildCmdPlatform = ""
-		buildCmdKeepMakefile = false
 	})
 	It("Success - build with abs source parameter", func() {
 		source := "\"" + getTestPath("mta") + "\""

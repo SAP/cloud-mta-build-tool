@@ -46,7 +46,7 @@ func ExecuteProjectSBomGenerate(source string, sbomFilePath string, wdGetter fun
 	}
 
 	// (3) generate sbom
-	err = executeSBomGenerate(loc, mtaObj, source, sbomFilePath, wdGetter)
+	err = executeSBomGenerate(loc, mtaObj, source, sbomFilePath)
 	if err != nil {
 		return errors.Wrapf(err, genSBomFileFailedMsg)
 	}
@@ -73,7 +73,7 @@ func ExecuteProjectBuildeSBomGenerate(source string, sbomFilePath string, wdGett
 	}
 
 	// (3) generate sbom
-	err = executeSBomGenerate(loc, mtaObj, source, sbomFilePath, wdGetter)
+	err = executeSBomGenerate(loc, mtaObj, source, sbomFilePath)
 	if err != nil {
 		return errors.Wrapf(err, genSBomFileFailedMsg)
 	}
@@ -97,12 +97,9 @@ func validatePath(source string, sbomFilePath string) error {
 	return nil
 }
 
-func executeSBomGenerate(loc *dir.Loc, mtaObj *mta.MTA, source string, sbomFilePath string, wdGetter func() (string, error)) error {
-	// (1) parse sbomFilePath, if relative, it is relative path to project source
-	sbomPath, sbomName, sbomType, sbomSuffix := parseSBomFilePath(loc.GetSource(), sbomFilePath)
-
-	// (2) clean and create module sbom generate tmp dir under project root path
-	sbomTmpDir := loc.GetSBomFileTmpDir(mtaObj)
+// prepareEnv - create sbom tmp dir and sbom target dir
+// Notice: must not remove the sbom target dir, if the sbom-file is generated under project root, remove sbom path will delete app
+func prepareEnv(sbomTmpDir, sbomPath string) error {
 	err := dir.RemoveIfExist(sbomTmpDir)
 	if err != nil {
 		return err
@@ -111,29 +108,70 @@ func executeSBomGenerate(loc *dir.Loc, mtaObj *mta.MTA, source string, sbomFileP
 	if err != nil {
 		return err
 	}
-
-	// (3) generation sbom for modules under sbom tmp dir
-	err = generateSBomFiles(loc, mtaObj, sbomTmpDir, sbomType, sbomSuffix)
+	err = dir.CreateDirIfNotExist(sbomPath)
 	if err != nil {
 		return err
 	}
 
-	// (4) merge sbom files under sbom tmp dir
+	return nil
+}
+
+// cleanEnv - clean sbom tmp dir
+func cleanEnv(sbomTmpDir string) error {
+	err := dir.RemoveIfExist(sbomTmpDir)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func generateSBomFile(loc *dir.Loc, mtaObj *mta.MTA, sbomPath, sbomName, sbomType, sbomSuffix, sbomTmpDir string) error {
+	// (1) generation sbom for modules under sbom tmp dir
+	err := generateSBomFiles(loc, mtaObj, sbomTmpDir, sbomType, sbomSuffix)
+	if err != nil {
+		return err
+	}
+
+	// (2) merge sbom files under sbom tmp dir
 	sbomTmpName, err := mergeSBomFiles(loc, sbomTmpDir, sbomName, sbomSuffix)
 	if err != nil {
 		return err
 	}
 
-	// (5) generate sbom target dir, mv merged sbom file to target dir
+	// (3) generate sbom target dir, mv merged sbom file to target dir
 	err = moveSBomToTarget(sbomPath, sbomName, sbomTmpDir, sbomTmpName)
 	if err != nil {
 		return err
 	}
 
-	// (6) clean sbom tmp dir
-	err = dir.RemoveIfExist(sbomTmpDir)
+	return nil
+}
+
+func executeSBomGenerate(loc *dir.Loc, mtaObj *mta.MTA, source string, sbomFilePath string) error {
+	// (1) parse sbomFilePath, if relative, it is relative path to project source
+	sbomPath, sbomName, sbomType, sbomSuffix := parseSBomFilePath(loc.GetSource(), sbomFilePath)
+
+	// (2) create sbom tmp dir and sbom target path
+	sbomTmpDir := loc.GetSBomFileTmpDir(mtaObj)
+	prepareErr := prepareEnv(sbomTmpDir, sbomPath)
+	if prepareErr != nil {
+		return prepareErr
+	}
+
+	// (2) generate sbom file
+	err := generateSBomFile(loc, mtaObj, sbomPath, sbomName, sbomType, sbomSuffix, sbomTmpDir)
 	if err != nil {
+		cleanErr := cleanEnv(sbomTmpDir)
+		if cleanErr != nil {
+			logs.Logger.Error(cleanErr)
+		}
 		return err
+	}
+
+	// (3) clean sbom tmp dir
+	cleanErr := cleanEnv(sbomTmpDir)
+	if cleanErr != nil {
+		return cleanErr
 	}
 
 	return nil

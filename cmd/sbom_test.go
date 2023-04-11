@@ -5,7 +5,7 @@ import (
 	"os/exec"
 	"path/filepath"
 
-	"github.com/SAP/cloud-mta-build-tool/internal/archive"
+	dir "github.com/SAP/cloud-mta-build-tool/internal/archive"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
@@ -76,6 +76,16 @@ var _ = Describe("mbt cli build and sbom gen", func() {
 
 		Ω(cmd.Run()).Should(HaveOccurred())
 		Ω(os.RemoveAll(getTestPath("tmp"))).Should(Succeed())
+	})
+	It("Failure - build and gen sbom with invalidate sbom-file-path parameter", func() {
+		source := "\"" + getTestPath("mta") + "\""
+		sbom_file_path := "\"" + "" + getTestPath("mta", "?#?sbom-gen-result", "??****merged.bom.xml") + "\""
+
+		cmd := exec.Command("bash", "-c", mbtCmdCLI+" build"+" --source "+source+" --sbom-file-path "+sbom_file_path)
+
+		Ω(cmd.Run()).Should(HaveOccurred())
+		//Ω(os.RemoveAll(getTestPath("mta", dir.MtarFolder))).Should(HaveOccurred())
+		//Ω(os.RemoveAll(getTestPath("mta", "sbom-gen-result"))).Should(HaveOccurred())
 	})
 })
 
