@@ -2,6 +2,7 @@ package commands
 
 import (
 	"fmt"
+	"io/ioutil"
 	"strings"
 
 	"github.com/kballard/go-shellquote"
@@ -27,6 +28,9 @@ type CommandList struct {
 }
 
 // GetBuilder - gets builder type of the module and indicator of custom builder
+// if build-parameter == null or build-parameter.builder == null, return builder=module.type and custom=false
+// else if build-paramete.builder != custom, return builder=build-paramete.builder and custom=true
+// else if build-paramete.builder == custom, return builder=custom and custom=true
 func GetBuilder(module *mta.Module) (string, bool, map[string]string, []string, error) {
 	// builder defined in build params is prioritised
 	if module.BuildParams != nil && module.BuildParams[builderParam] != nil {
@@ -66,6 +70,69 @@ func GetBuilder(module *mta.Module) (string, bool, map[string]string, []string, 
 	}
 	// default builder is defined by type property of the module
 	return module.Type, false, nil, nil, nil
+}
+
+func isNativeBuilderType(builderName string) (bool, error) {
+	builderTypes, err := parseBuilders(BuilderTypeConfig)
+	if err != nil {
+		return false, errors.Wrap(err, parseBuilderCfgFailedMsg)
+	}
+
+	for _, b := range builderTypes.Builders {
+		if builderName == b.Name {
+			return true, err
+		}
+	}
+	return false, err
+}
+
+func getBuilderByModuleType(typeName string) (bool, string, error) {
+	moduleTypes, err := parseModuleTypes(ModuleTypeConfig)
+	if err != nil {
+		return false, "", errors.Wrap(err, parseModuleCfgFailedMsg)
+	}
+
+	for _, t := range moduleTypes.ModuleTypes {
+		if typeName == t.Name {
+			return true, t.Builder, nil
+		}
+	}
+	return false, "", errors.Wrapf(err, notNativeModuleTypeMsg, typeName)
+}
+
+func GetModuleBuilder(module *mta.Module) (string, error) {
+	var builderName string
+	var err error
+
+	// get builder by build-parameter.builder
+	if module.BuildParams != nil && module.BuildParams[builderParam] != nil {
+		builderName = module.BuildParams[builderParam].(string)
+		checkDeprecatedBuilder(builderName)
+
+		// build-parameter.builder == custom
+		if builderName == customBuilder {
+			_, ok := module.BuildParams[commandsParam]
+			if !ok {
+				return builderName, errors.Wrap(err, missingPropMsg)
+			}
+			return builderName, nil
+		}
+
+		// check if builder is native builder (builder_type_cfg.yaml)
+		isnativebuilder, err := isNativeBuilderType(builderName)
+		if !isnativebuilder {
+			return builderName, errors.Wrapf(err, notNativeBuilderMsg, builderName)
+		}
+
+		return builderName, nil
+	}
+
+	// get builder by module type
+	isfind, builderName, err := getBuilderByModuleType(module.Type)
+	if !isfind {
+		return "", err
+	}
+	return builderName, nil
 }
 
 // Get options for builder from mta.yaml
@@ -109,7 +176,7 @@ func ConvertMap(m map[interface{}]interface{}) map[string]interface{} {
 }
 
 // CommandProvider - Get build command's to execute
-//noinspection GoExportedFuncWithUnexportedType
+// noinspection GoExportedFuncWithUnexportedType
 func CommandProvider(module mta.Module) (CommandList, string, error) {
 	// Get config from ./commands_cfg.yaml as generated artifacts from source
 	moduleTypes, err := parseModuleTypes(ModuleTypeConfig)
@@ -211,7 +278,6 @@ func getCustomCommandsByBuilder(customCommands *Builders, builder string, cmds [
 	}
 
 	return nil, "", "", fmt.Errorf(undefinedBuilderMsg, builder)
-
 }
 
 // CmdConverter - path and commands to execute
@@ -250,4 +316,74 @@ func moduleCmd(mta *mta.MTA, moduleName string) (*mta.Module, []string, string, 
 		}
 	}
 	return nil, nil, "", errors.Errorf(undefinedModuleMsg, moduleName)
+}
+
+func GetModuleSBomGenCommands(loc *dir.Loc, module *mta.Module, sbomFileName string, sbomFileType string, sbomFileSuffix string) ([][]string, error) {
+	var cmd string
+	var cmds []string
+	var commandList [][]string
+
+	builder, err := GetModuleBuilder(module)
+	if err != nil {
+		return nil, err
+	}
+
+	switch builder {
+	case "npm", "npm-ci", "grunt", "evo":
+		cmd = "npx cyclonedx-bom -o " + sbomFileName + sbomFileSuffix
+		cmds = append(cmds, cmd)
+	case "golang":
+		cmd = "go run github.com/CycloneDX/cyclonedx-gomod/cmd/cyclonedx-gomod mod -licenses -test -output " + sbomFileName + sbomFileSuffix
+		cmds = append(cmds, cmd)
+	case "maven", "fetcher", "maven_deprecated":
+		cmd = "mvn org.cyclonedx:cyclonedx-maven-plugin:2.7.5:makeAggregateBom " +
+			"-DschemaVersion=1.2 -DincludeBomSerialNumber=true -DincludeCompileScope=true " +
+			"-DincludeRuntimeScope=true -DincludeSystemScope=true -DincludeTestScope=false -DincludeLicenseText=false " +
+			"-DoutputFormat=" + sbomFileType + " -DoutputName=" + sbomFileName + ".bom"
+		cmds = append(cmds, cmd)
+	default:
+	}
+
+	logs.Logger.Info("builder: " + builder)
+	logs.Logger.Info("SBomGenCommand: " + cmd)
+
+	modulePath := loc.GetSourceModuleDir(module.Path)
+	commandList, err = CmdConverter(modulePath, cmds)
+	if err != nil {
+		return nil, err
+	}
+	return commandList, err
+}
+
+func GetSBomsMergeCommand(loc *dir.Loc, cyclonedx_cli string, sbomTmpDir string,
+	sbomName string, sbomSuffix string) ([][]string, error) {
+
+	var cmd string
+	var cmds []string
+	var commandList [][]string
+
+	var inputFiles string
+	files, err := ioutil.ReadDir(sbomTmpDir)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, file := range files {
+		if !file.IsDir() && strings.HasSuffix(file.Name(), sbomSuffix) {
+			inputFiles = inputFiles + file.Name() + " "
+		}
+	}
+
+	if len(inputFiles) == 0 {
+		return nil, errors.Wrap(err, emptySBomFileInputMsg)
+	}
+
+	// ./cyclonedx-win-x64.exe merge --input-files test_1.bom.xml test_2.bom.xml test_3.bom.xml --output-file merged.bom.xml
+	cmd = cyclonedx_cli + " merge --input-files " + inputFiles + " --output-file " + sbomName
+	cmds = append(cmds, cmd)
+	commandList, err = CmdConverter(sbomTmpDir, cmds)
+
+	logs.Logger.Info("cmd: " + cmd)
+
+	return commandList, err
 }

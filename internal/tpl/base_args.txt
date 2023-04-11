@@ -15,3 +15,6 @@ endif
 ifndef mtar
 mtar="*"
 endif
+ifndef source
+source=""
+endif

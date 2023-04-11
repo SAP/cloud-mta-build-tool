@@ -27,11 +27,11 @@ func init() {
 
 	// Add command to the root
 	rootCmd.AddCommand(initCmd, buildCmd, validateCmd, cleanupCmd, provideCmd, generateCmd, moduleCmd, assembleCommand,
-		projectCmd, mergeCmd, executeCommand, copyCmd, mtadGenCmd, soloBuildModuleCmd)
+		projectCmd, mergeCmd, executeCommand, copyCmd, mtadGenCmd, soloBuildModuleCmd, projectSBomGenCommand, moduleSBomGenCommand)
 	// Build module
 	provideCmd.AddCommand(provideModuleCmd)
 	// generate immutable commands
-	generateCmd.AddCommand(metaCmd, mtarCmd)
+	generateCmd.AddCommand(metaCmd, mtarCmd, projectBuildSBomGenCommand)
 	// module commands
 	moduleCmd.AddCommand(buildModuleCmd, packModuleCmd)
 	// project commands
