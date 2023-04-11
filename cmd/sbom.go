@@ -10,9 +10,6 @@ import (
 var projectSBomGenCmdSrc string
 var projectSBomGenCmdSBOMPath string
 
-var projectBuildSBomGenCmdSrc string
-var projectBuildSBomGenCmdSBOMPath string
-
 var moduleSBomGenCmdSrc string
 var moduleSBomGenCmdModules []string
 var moduleSBomGenCmdAllDependencies bool
@@ -26,22 +23,6 @@ var projectSBomGenCommand = &cobra.Command{
 	Args:  cobra.MaximumNArgs(4),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		err := artifacts.ExecuteProjectSBomGenerate(projectSBomGenCmdSrc, projectSBomGenCmdSBOMPath, os.Getwd)
-		logError(err)
-		return err
-	},
-	// Hidden:        true,
-	SilenceUsage:  true,
-	SilenceErrors: true,
-}
-
-// Generate SBOM file with project build
-var projectBuildSBomGenCommand = &cobra.Command{
-	Use:   "sbom",
-	Short: "Generates SBOM for project",
-	Long:  "Generates SBOM for project with build process",
-	Args:  cobra.MaximumNArgs(4),
-	RunE: func(cmd *cobra.Command, args []string) error {
-		err := artifacts.ExecuteProjectBuildeSBomGenerate(projectBuildSBomGenCmdSrc, projectBuildSBomGenCmdSBOMPath, os.Getwd)
 		logError(err)
 		return err
 	},
@@ -74,12 +55,6 @@ func init() {
 	projectSBomGenCommand.Flags().StringVarP(&projectSBomGenCmdSBOMPath, "sbom-file-path", "b", "",
 		`The path of SBOM file, relative or absoluted; if relative path, it is relative to MTA project root; default value is <MTA project path>/<MTA project id>.bom.xml.`)
 
-	// set flags of sbom-gen command
-	projectBuildSBomGenCommand.Flags().StringVarP(&projectBuildSBomGenCmdSrc, "source", "s", "",
-		"The path of MTA project; project root path is set as default")
-	projectBuildSBomGenCommand.Flags().StringVarP(&projectBuildSBomGenCmdSBOMPath, "sbom-file-path", "b", "",
-		`The path of SBOM file, relative or absoluted; if relative path, it is relative to MTA project root; default value is <MTA project path>/<MTA project id>.bom.xml.`)
-
 	// set flags of module-sbom-gen command
 	moduleSBomGenCommand.Flags().StringVarP(&moduleSBomGenCmdSrc, "source", "s", "",
 		"The path to the MTA project; the current path is set as default")
@@ -88,5 +63,5 @@ func init() {
 	moduleSBomGenCommand.Flags().BoolVarP(&moduleSBomGenCmdAllDependencies, "with-all-dependencies", "a", true,
 		"Build modules including all dependencies")
 	moduleSBomGenCommand.Flags().StringVarP(&moduleSBomGenCmdSBOMPath, "sbom-file-path", "b", "",
-		`The path of SBOM file, a relative path to MTA project root, like a/b/c.bom.xml; default value is <MTA project path>/<MTA project id>.bom.xml.`)
+		`The path of SBOM file, relative or absoluted; if relative path, it is relative to MTA project root; default value is <MTA project path>/<MTA project id>.bom.xml.`)
 }

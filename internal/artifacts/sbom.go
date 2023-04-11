@@ -40,12 +40,9 @@ func ExecuteProjectSBomGenerate(source string, sbomFilePath string, wdGetter fun
 		return errors.Wrapf(err, genSBomFileFailedMsg)
 	}
 
-	logs.Logger.Info("loc.GetSource():" + loc.GetSource())
-
 	// (2) if sbom file path is empty, default value is <MTA project path>/<MTA project id>.bom.xml
 	if strings.TrimSpace(sbomFilePath) == "" {
 		sbomFilePath = mtaObj.ID + sbom_xml_suffix
-		logs.Logger.Info("sbomFilePath:" + sbomFilePath)
 	}
 
 	// (3) generate sbom
@@ -75,8 +72,6 @@ func ExecuteProjectBuildeSBomGenerate(source string, sbomFilePath string, wdGett
 		return errors.Wrapf(err, genSBomFileFailedMsg)
 	}
 
-	logs.Logger.Info("loc.GetSource():" + loc.GetSource())
-
 	// (3) generate sbom
 	err = executeSBomGenerate(loc, mtaObj, source, sbomFilePath, wdGetter)
 	if err != nil {
@@ -86,11 +81,25 @@ func ExecuteProjectBuildeSBomGenerate(source string, sbomFilePath string, wdGett
 	return nil
 }
 
+func validatePath(source string, sbomFilePath string) error {
+	_, err := filepath.Abs(source)
+	if err != nil {
+		logs.Logger.Errorf("Invalid source: %s", source)
+		return err
+	}
+
+	_, err = filepath.Abs(sbomFilePath)
+	if err != nil {
+		logs.Logger.Errorf("Invalid sbom-file-path: %s", sbomFilePath)
+		return err
+	}
+
+	return nil
+}
+
 func executeSBomGenerate(loc *dir.Loc, mtaObj *mta.MTA, source string, sbomFilePath string, wdGetter func() (string, error)) error {
 	// (1) parse sbomFilePath, if relative, it is relative path to project source
 	sbomPath, sbomName, sbomType, sbomSuffix := parseSBomFilePath(loc.GetSource(), sbomFilePath)
-	logs.Logger.Info("sbomPath:" + sbomPath)
-	logs.Logger.Info("sbomName:" + sbomName)
 
 	// (2) clean and create module sbom generate tmp dir under project root path
 	sbomTmpDir := loc.GetSBomFileTmpDir(mtaObj)
@@ -139,9 +148,6 @@ func moveSBomToTarget(sbomPath string, sbomName string, sbomTmpDir string, sbomT
 
 	sourcesbomfilepath := filepath.Join(sbomTmpDir, sbomTmpName)
 	targetsbomfilepath := filepath.Join(sbomPath, sbomName)
-
-	logs.Logger.Info("sourcesbomfilepath:" + sourcesbomfilepath)
-	logs.Logger.Info("targetsbomfilepath:" + targetsbomfilepath)
 
 	err = os.Rename(sourcesbomfilepath, targetsbomfilepath)
 	if err != nil {

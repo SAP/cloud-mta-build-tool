@@ -8,7 +8,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("SBom Gen", func() {
+var _ = Describe("mbt sbom-gen command", func() {
 	BeforeEach(func() {
 
 	})
@@ -66,7 +66,7 @@ var _ = Describe("SBom Gen", func() {
 	})
 })
 
-var _ = Describe("Gen SBom", func() {
+var _ = Describe("mbt build with sbom gen command", func() {
 	BeforeEach(func() {
 	})
 	AfterEach(func() {
@@ -109,4 +109,23 @@ var _ = Describe("Gen SBom", func() {
 		Ω(ExecuteProjectBuildeSBomGenerate(source, sbomFilePath, os.Getwd)).Should(HaveOccurred())
 		Ω(os.RemoveAll(tmpSrcFolder)).Should(Succeed())
 	})
+})
+
+var _ = Describe("validate path", func() {
+	BeforeEach(func() {
+	})
+	AfterEach(func() {
+	})
+
+	/* It("Success - validate source and sbomFilePath", func() {
+		source := "/c/windows/"
+		sbomFilePath := "./test.txt"
+		Ω(validatePath(source, sbomFilePath)).Should(Succeed())
+	})
+
+	It("Failure - invalidate source and sbomFilePath", func() {
+		source := "  /??  "
+		sbomFilePath := "./test.txt"
+		Ω(validatePath(source, sbomFilePath)).Should(Succeed())
+	}) */
 })

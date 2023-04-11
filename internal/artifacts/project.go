@@ -34,32 +34,43 @@ func ExecBuild(makefileTmp, source, target string, extensions []string, mode, mt
 		logs.Logger.Info(message)
 	}
 
-	// Generate build script
+	// (1) generate build script
 	err = tpl.ExecuteMake(source, "", extensions, makefileTmp, mode, wdGetter, useDefaultMbt)
 	if err != nil {
 		return err
 	}
 
+	// (2) execute make command
 	cmdParams := createMakeCommand(makefileTmp, source, target, mode, mtar, platform, strict, jobs,
 		outputSync, runtime.NumCPU, sBomFilePath)
-	err = wdExec([][]string{cmdParams}, false)
+	execMakeFileError := wdExec([][]string{cmdParams}, false)
 
-	// Remove temporary Makefile
-	var removeError error = nil
+	// (3) remove temporary Makefile
+	var removeMakeFileError error = nil
 	if !keepMakefile {
-		removeError = os.Remove(filepath.Join(source, filepath.FromSlash(makefileTmp)))
-		if removeError != nil {
-			removeError = errors.Wrapf(removeError, removeFailedMsg, makefileTmp)
+		removeMakeFileError = os.Remove(filepath.Join(source, filepath.FromSlash(makefileTmp)))
+		if removeMakeFileError != nil {
+			removeMakeFileError = errors.Wrapf(removeMakeFileError, removeFailedMsg, makefileTmp)
 		}
 	}
 
-	if err != nil {
-		if removeError != nil {
-			logs.Logger.Error(removeError)
+	if execMakeFileError != nil {
+		if removeMakeFileError != nil {
+			logs.Logger.Error(removeMakeFileError)
 		}
-		return errors.Wrap(err, execFailedMsg)
+		return errors.Wrap(execMakeFileError, execFailedMsg)
 	}
-	return removeError
+
+	if removeMakeFileError != nil {
+		return removeMakeFileError
+	}
+
+	// (4) generate sbom file
+	sBomGenError := ExecuteProjectBuildeSBomGenerate(source, sBomFilePath, wdGetter)
+	if sBomGenError != nil {
+		return errors.Wrap(sBomGenError, execFailedMsg)
+	}
+	return nil
 }
 
 func createMakeCommand(makefileName, source, target, mode, mtar, platform string, strict bool, jobs int,
