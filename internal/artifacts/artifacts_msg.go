@@ -89,8 +89,12 @@ const (
 	mergeNameRequiredMsg         = `could not find the mandatory parameter "target-file-name"`
 	mergeFailedOnFileCreationMsg = `the "%s" file already exists`
 
+	genSBomFileStartMsg          = `start to generate sbom file`
+	genSBomFileFinishedMsg       = `finish generate sbom file %s`
+	genSBomForModuleStartMsg     = `start to generate sbom for module %s`
+	genSBomForModuleFinishMsg    = `finish generate sbom for module %s`
+	genSBomFileMergingMsg        = `merging sbom file %s`
 	genSBomFileFailedMsg         = `generate sbom file failed`
-	invalidateSBomFilePath       = `invalidate sbom file path, it should be a relative path`
 	createSBomTargetDirFailedMsg = `create sbom file target path "%s" failed`
 	mvSBomToTargetDirFailedMsg   = `mv sbom file from "%s" to "%s" failed`
 )

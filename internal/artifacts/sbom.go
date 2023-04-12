@@ -132,6 +132,9 @@ func generateSBomFile(loc *dir.Loc, mtaObj *mta.MTA, sbomPath, sbomName, sbomTyp
 }
 
 func executeSBomGenerate(loc *dir.Loc, mtaObj *mta.MTA, source string, sbomFilePath string) error {
+	// start generate sbom file log
+	logs.Logger.Info(genSBomFileStartMsg)
+
 	// (1) parse sbomFilePath, if relative, it is relative path to project source
 	sbomPath, sbomName, sbomType, sbomSuffix := parseSBomFilePath(loc.GetSource(), sbomFilePath)
 
@@ -157,6 +160,9 @@ func executeSBomGenerate(loc *dir.Loc, mtaObj *mta.MTA, source string, sbomFileP
 	if cleanErr != nil {
 		return cleanErr
 	}
+
+	// finish generate sbom file log
+	logs.Logger.Infof(genSBomFileFinishedMsg, sbomName)
 
 	return nil
 }
@@ -191,11 +197,14 @@ func mergeSBomFiles(loc *dir.Loc, sbomTmpDir string, sbomName string, sbomSuffix
 		sbomTmpName = sbomName + "_" + curtime + sbom_xml_suffix
 	}
 
-	// Get sbom file generate command
+	// get sbom file generate command
 	sbomMergeCmds, err := commands.GetSBomsMergeCommand(loc, cyclonedx_cli, sbomTmpDir, sbomTmpName, sbomSuffix)
 	if err != nil {
 		return "", err
 	}
+
+	// merging sbom file log
+	logs.Logger.Infof(genSBomFileMergingMsg, sbomName)
 
 	// exec sbom merge command
 	err = executeSBomCommand(sbomMergeCmds)
@@ -246,6 +255,9 @@ func generateSBomFiles(loc *dir.Loc, mtaObj *mta.MTA, sBomFileTmpDir string, sbo
 	// (2) loop modules to generate sbom files
 	curtime := time.Now().Format("20230328150313")
 	for _, moduleName := range sortedModuleNames {
+		// start generate module sbom log
+		logs.Logger.Infof(genSBomForModuleStartMsg, moduleName)
+
 		module, err := mtaObj.GetModuleByName(moduleName)
 		if err != nil {
 			return err
@@ -278,6 +290,9 @@ func generateSBomFiles(loc *dir.Loc, mtaObj *mta.MTA, sBomFileTmpDir string, sbo
 		if err != nil {
 			return err
 		}
+
+		// finish generate module sbom log
+		logs.Logger.Infof(genSBomForModuleFinishMsg, moduleName)
 	}
 
 	return nil

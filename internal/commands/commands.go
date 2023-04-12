@@ -380,7 +380,5 @@ func GetSBomsMergeCommand(loc *dir.Loc, cyclonedx_cli string, sbomTmpDir string,
 	cmds = append(cmds, cmd)
 	commandList, err = CmdConverter(sbomTmpDir, cmds)
 
-	logs.Logger.Info("cmd: " + cmd)
-
 	return commandList, err
 }
