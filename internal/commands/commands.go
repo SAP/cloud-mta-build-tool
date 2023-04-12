@@ -2,7 +2,6 @@ package commands
 
 import (
 	"fmt"
-	"io/ioutil"
 	"strings"
 
 	"github.com/kballard/go-shellquote"
@@ -100,7 +99,7 @@ func getBuilderByModuleType(typeName string) (bool, string, error) {
 	return false, "", errors.Wrapf(err, notNativeModuleTypeMsg, typeName)
 }
 
-func GetModuleBuilder(module *mta.Module) (string, error) {
+func getModuleBuilder(module *mta.Module) (string, error) {
 	var builderName string
 	var err error
 
@@ -108,8 +107,6 @@ func GetModuleBuilder(module *mta.Module) (string, error) {
 	if module.BuildParams != nil && module.BuildParams[builderParam] != nil {
 		builderName = module.BuildParams[builderParam].(string)
 		checkDeprecatedBuilder(builderName)
-
-		// build-parameter.builder == custom
 		if builderName == customBuilder {
 			_, ok := module.BuildParams[commandsParam]
 			if !ok {
@@ -318,14 +315,17 @@ func moduleCmd(mta *mta.MTA, moduleName string) (*mta.Module, []string, string, 
 	return nil, nil, "", errors.Errorf(undefinedModuleMsg, moduleName)
 }
 
-func GetModuleSBomGenCommands(loc *dir.Loc, module *mta.Module, sbomFileName string, sbomFileType string, sbomFileSuffix string) ([][]string, error) {
+// GetModuleSBomGenCommands - get sbom generate command for module
+// if unknow sbom gen builder or custom builder, empty [][]string and nil error will be return
+func GetModuleSBomGenCommands(loc *dir.Loc, module *mta.Module,
+	sbomFileName string, sbomFileType string, sbomFileSuffix string) ([][]string, error) {
 	var cmd string
 	var cmds []string
 	var commandList [][]string
 
-	builder, err := GetModuleBuilder(module)
+	builder, err := getModuleBuilder(module)
 	if err != nil {
-		return nil, err
+		return [][]string{}, err
 	}
 
 	switch builder {
@@ -341,44 +341,40 @@ func GetModuleSBomGenCommands(loc *dir.Loc, module *mta.Module, sbomFileName str
 			"-DincludeRuntimeScope=true -DincludeSystemScope=true -DincludeTestScope=false -DincludeLicenseText=false " +
 			"-DoutputFormat=" + sbomFileType + " -DoutputName=" + sbomFileName + ".bom"
 		cmds = append(cmds, cmd)
+	case "custom":
 	default:
 	}
 
 	modulePath := loc.GetSourceModuleDir(module.Path)
 	commandList, err = CmdConverter(modulePath, cmds)
 	if err != nil {
-		return nil, err
+		return [][]string{}, err
 	}
 	return commandList, err
 }
 
-func GetSBomsMergeCommand(loc *dir.Loc, cyclonedx_cli string, sbomTmpDir string,
+// GetSBomsMergeCommand - generate merge sbom file command under sbom tmp dir
+// if empty sbomFileNames, return empty commandList, nil error
+func GetSBomsMergeCommand(loc *dir.Loc, cyclonedx_cli string, sbomTmpDir string, sbomFileNames []string,
 	sbomName string, sbomSuffix string) ([][]string, error) {
-
 	var cmd string
 	var cmds []string
 	var commandList [][]string
 
+	// len(sbomFileName) should not be 0, if 0 then raise an error
+	if len(sbomFileNames) == 0 {
+		return commandList, errors.New(emptySBomFileInputMsg)
+	}
+
 	var inputFiles string
-	files, err := ioutil.ReadDir(sbomTmpDir)
-	if err != nil {
-		return nil, err
-	}
-
-	for _, file := range files {
-		if !file.IsDir() && strings.HasSuffix(file.Name(), sbomSuffix) {
-			inputFiles = inputFiles + file.Name() + " "
-		}
-	}
-
-	if len(inputFiles) == 0 {
-		return nil, errors.Wrap(err, emptySBomFileInputMsg)
+	for _, fileName := range sbomFileNames {
+		inputFiles = inputFiles + " " + fileName + " "
 	}
 
 	// ./cyclonedx-win-x64.exe merge --input-files test_1.bom.xml test_2.bom.xml test_3.bom.xml --output-file merged.bom.xml
 	cmd = cyclonedx_cli + " merge --input-files " + inputFiles + " --output-file " + sbomName
 	cmds = append(cmds, cmd)
-	commandList, err = CmdConverter(sbomTmpDir, cmds)
+	commandList, err := CmdConverter(sbomTmpDir, cmds)
 
 	return commandList, err
 }

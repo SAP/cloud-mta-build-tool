@@ -1,0 +1,38 @@
+ID: mta_sbom_test_app
+_schema-version: '2.1'
+version: 0.0.1
+
+modules:
+- name: node-module
+  type: nodejs
+  path: nodejs
+  provides:
+  - name: node-js_api
+    properties:
+        url: ${default-url}
+ 
+- name: java-module
+  type: java
+  path: java
+  properties:
+    MEMORY_CALCULATOR_V1: true
+
+- name: go-module
+  type: go
+  path: golang
+  parameters:
+    memory: 512M
+    disk-quota: 256M
+  properties:
+    MEMORY_CALCULATOR_V1: true
+  build-parameters:
+    builder: golang
+
+- name: custom-module
+  type: html5
+  path: nodejs
+  build-parameters:
+    builder: custom
+    commands:
+      - sh -c 'echo customer builder'
+

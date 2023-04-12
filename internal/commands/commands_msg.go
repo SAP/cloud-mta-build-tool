@@ -12,5 +12,5 @@ const (
 	BadCommandMsg          = `could not parse command "%s"`
 	notNativeBuilderMsg    = `the "%s" builder is not a natvie builder`
 	notNativeModuleTypeMsg = `the "%s" type is not a native module type`
-	emptySBomFileInputMsg  = `merge sbom empty input`
+	emptySBomFileInputMsg  = `no sbom files in tmp dir to merge`
 )

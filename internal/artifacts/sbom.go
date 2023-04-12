@@ -1,6 +1,7 @@
 package artifacts
 
 import (
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -109,20 +110,33 @@ func cleanEnv(sbomTmpDir string) error {
 	return nil
 }
 
-func generateSBomFile(loc *dir.Loc, mtaObj *mta.MTA, sbomPath, sbomName, sbomType, sbomSuffix, sbomTmpDir string) error {
+// generateSBomFile - generate all modules sbom and merge in to one, then mv it to sbom target path
+func generateSBomFile(loc *dir.Loc, mtaObj *mta.MTA,
+	sbomPath, sbomName, sbomType, sbomSuffix, sbomTmpDir string) error {
 	// (1) generation sbom for modules under sbom tmp dir
 	err := generateSBomFiles(loc, mtaObj, sbomTmpDir, sbomType, sbomSuffix)
 	if err != nil {
 		return err
 	}
 
-	// (2) merge sbom files under sbom tmp dir
-	sbomTmpName, err := mergeSBomFiles(loc, sbomTmpDir, sbomName, sbomSuffix)
+	// (2) list all generated module sbom file in tmp
+	sbomFileNames, err := listSBomFilesInTmpDir(sbomTmpDir, sbomSuffix)
+	if err != nil {
+		return err
+	}
+	// if sbom tmp dir is empty, maybe all modules are unknow builder or custom builders
+	if len(sbomFileNames) == 0 {
+		logs.Logger.Infof(genSBomEmptyMsg, sbomName)
+		return nil
+	}
+
+	// (3) merge sbom files under sbom tmp dir
+	sbomTmpName, err := mergeSBomFiles(loc, sbomTmpDir, sbomFileNames, sbomName, sbomSuffix)
 	if err != nil {
 		return err
 	}
 
-	// (3) generate sbom target dir, mv merged sbom file to target dir
+	// (4) generate sbom target dir, mv merged sbom file to target dir
 	err = moveSBomToTarget(sbomPath, sbomName, sbomTmpDir, sbomTmpName)
 	if err != nil {
 		return err
@@ -184,8 +198,26 @@ func moveSBomToTarget(sbomPath string, sbomName string, sbomTmpDir string, sbomT
 	return nil
 }
 
+// listSBomFilesInTmpDir - list generated sbom files for modules
+// if sbom tmp dir is empty, return empty array
+func listSBomFilesInTmpDir(sbomTmpDir, sbomSuffix string) ([]string, error) {
+	var sbomFileNames []string
+	fileInfos, err := ioutil.ReadDir(sbomTmpDir)
+	if err != nil {
+		return sbomFileNames, err
+	}
+
+	for _, file := range fileInfos {
+		fileName := file.Name()
+		if !file.IsDir() && len(fileName) > 0 && strings.HasSuffix(fileName, sbomSuffix) {
+			sbomFileNames = append(sbomFileNames, fileName)
+		}
+	}
+	return sbomFileNames, nil
+}
+
 // mergeSBomFiles - merge sbom files of modules under sbom tmp dir
-func mergeSBomFiles(loc *dir.Loc, sbomTmpDir string, sbomName string, sbomSuffix string) (string, error) {
+func mergeSBomFiles(loc *dir.Loc, sbomTmpDir string, sbomFileNames []string, sbomName, sbomSuffix string) (string, error) {
 	curtime := time.Now().Format("20230328150313")
 
 	var sbomTmpName string
@@ -198,7 +230,7 @@ func mergeSBomFiles(loc *dir.Loc, sbomTmpDir string, sbomName string, sbomSuffix
 	}
 
 	// get sbom file generate command
-	sbomMergeCmds, err := commands.GetSBomsMergeCommand(loc, cyclonedx_cli, sbomTmpDir, sbomTmpName, sbomSuffix)
+	sbomMergeCmds, err := commands.GetSBomsMergeCommand(loc, cyclonedx_cli, sbomTmpDir, sbomFileNames, sbomTmpName, sbomSuffix)
 	if err != nil {
 		return "", err
 	}
@@ -245,6 +277,8 @@ func executeSBomCommand(sbomCmds [][]string) error {
 	return nil
 }
 
+// generateSBomFiles - loop all mta modules and generate sbom for each of then
+// if module's builder is custom, skip it
 func generateSBomFiles(loc *dir.Loc, mtaObj *mta.MTA, sBomFileTmpDir string, sbomType string, sbomSuffix string) error {
 	// (1) sort module by dependency orders
 	sortedModuleNames, err := buildops.GetModulesNames(mtaObj)
@@ -263,7 +297,6 @@ func generateSBomFiles(loc *dir.Loc, mtaObj *mta.MTA, sBomFileTmpDir string, sbo
 			return err
 		}
 
-		// get sbom file name
 		sbomFileName := moduleName + "_" + curtime
 		sbomFileFullName := sbomFileName + sbomSuffix
 
@@ -271,6 +304,11 @@ func generateSBomFiles(loc *dir.Loc, mtaObj *mta.MTA, sBomFileTmpDir string, sbo
 		sbomGenCmds, err := commands.GetModuleSBomGenCommands(loc, module, sbomFileName, sbomType, sbomSuffix)
 		if err != nil {
 			return err
+		}
+		// if sbomGenCmds is empty, module builder maybe "custom" or unknow builder, skip the module and continue
+		if len(sbomGenCmds) == 0 {
+			logs.Logger.Infof(genSBomSkipModuleMsg, moduleName)
+			continue
 		}
 
 		// exec sbom generate command
