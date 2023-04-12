@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"bytes"
 	"os"
 	"os/exec"
 
@@ -83,6 +84,58 @@ var _ = Describe("Build", func() {
 		cmd := exec.Command("bash", "-c", mbtCmdCLI+" build"+" --source "+source+" --target "+target)
 
 		Ω(cmd.Run()).Should(Succeed())
+		Ω(os.RemoveAll(getTestPath("mta", "mtar_result"))).Should(Succeed())
+	})
+	It("Failure - build with invalid source parameter case 1", func() {
+		// Notice: target parameter is relative to source parameter
+		source := "\"" + "testdata/**??mta" + "\""
+		target := "\"" + "mtar_result" + "\""
+		var stdout bytes.Buffer
+
+		cmd := exec.Command("bash", "-c", mbtCmdCLI+" build"+" --source "+source+" --target "+target)
+		cmd.Stdout = &stdout
+
+		Ω(cmd.Run()).Should(HaveOccurred())
+		Ω(stdout.String()).Should(ContainSubstring("The filename, directory name, or volume label syntax is incorrect"))
+		Ω(os.RemoveAll(getTestPath("mta", "mtar_result"))).Should(Succeed())
+	})
+	It("Failure - build with invalid source parameter case 2", func() {
+		// Notice: target parameter is relative to source parameter
+		source := "\"" + "testdata<></mta" + "\""
+		target := "\"" + "mtar_result" + "\""
+		var stdout bytes.Buffer
+
+		cmd := exec.Command("bash", "-c", mbtCmdCLI+" build"+" --source "+source+" --target "+target)
+		cmd.Stdout = &stdout
+
+		Ω(cmd.Run()).Should(HaveOccurred())
+		Ω(stdout.String()).Should(ContainSubstring("The filename, directory name, or volume label syntax is incorrect"))
+		Ω(os.RemoveAll(getTestPath("mta", "mtar_result"))).Should(Succeed())
+	})
+	It("Failure - build with invalid target parameter case 1", func() {
+		// Notice: target parameter is relative to source parameter
+		source := "\"" + "testdata/mta" + "\""
+		target := "\"" + "mtar_result<>/tmp" + "\""
+		var stdout bytes.Buffer
+
+		cmd := exec.Command("bash", "-c", mbtCmdCLI+" build"+" --source "+source+" --target "+target)
+		cmd.Stdout = &stdout
+
+		Ω(cmd.Run()).Should(HaveOccurred())
+		Ω(stdout.String()).Should(ContainSubstring("The filename, directory name, or volume label syntax is incorrect"))
+		Ω(os.RemoveAll(getTestPath("mta", "mtar_result"))).Should(Succeed())
+	})
+	It("Failure - build with invalid target parameter case 2", func() {
+		// Notice: target parameter is relative to source parameter
+		source := "\"" + "testdata/mta" + "\""
+		target := "\"" + "mtar_result/??*tmp" + "\""
+		var stdout bytes.Buffer
+
+		cmd := exec.Command("bash", "-c", mbtCmdCLI+" build"+" --source "+source+" --target "+target)
+		cmd.Stdout = &stdout
+
+		Ω(cmd.Run()).Should(HaveOccurred())
+		Ω(stdout.String()).Should(ContainSubstring("The filename, directory name, or volume label syntax is incorrect"))
 		Ω(os.RemoveAll(getTestPath("mta", "mtar_result"))).Should(Succeed())
 	})
 	It("Success - build with relative sbom-file-path parameter", func() {

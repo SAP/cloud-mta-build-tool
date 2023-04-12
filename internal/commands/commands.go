@@ -10,7 +10,7 @@ import (
 
 	"github.com/SAP/cloud-mta/mta"
 
-	"github.com/SAP/cloud-mta-build-tool/internal/archive"
+	dir "github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta-build-tool/internal/logs"
 )
 
@@ -343,9 +343,6 @@ func GetModuleSBomGenCommands(loc *dir.Loc, module *mta.Module, sbomFileName str
 		cmds = append(cmds, cmd)
 	default:
 	}
-
-	logs.Logger.Info("builder: " + builder)
-	logs.Logger.Info("SBomGenCommand: " + cmd)
 
 	modulePath := loc.GetSourceModuleDir(module.Path)
 	commandList, err = CmdConverter(modulePath, cmds)

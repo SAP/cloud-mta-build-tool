@@ -23,12 +23,12 @@ var projectSBomGenCommand = &cobra.Command{
 	Args:  cobra.MaximumNArgs(4),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		err := artifacts.ExecuteProjectSBomGenerate(projectSBomGenCmdSrc, projectSBomGenCmdSBOMPath, os.Getwd)
+		// output err info to stdout
 		logError(err)
 		return err
 	},
 	// Hidden:        true,
-	SilenceUsage:  true,
-	SilenceErrors: true,
+	SilenceUsage: true,
 }
 
 // Generate SBOM file for modules

@@ -81,22 +81,6 @@ func ExecuteProjectBuildeSBomGenerate(source string, sbomFilePath string, wdGett
 	return nil
 }
 
-func validatePath(source string, sbomFilePath string) error {
-	_, err := filepath.Abs(source)
-	if err != nil {
-		logs.Logger.Errorf("Invalid source: %s", source)
-		return err
-	}
-
-	_, err = filepath.Abs(sbomFilePath)
-	if err != nil {
-		logs.Logger.Errorf("Invalid sbom-file-path: %s", sbomFilePath)
-		return err
-	}
-
-	return nil
-}
-
 // prepareEnv - create sbom tmp dir and sbom target dir
 // Notice: must not remove the sbom target dir, if the sbom-file is generated under project root, remove sbom path will delete app
 func prepareEnv(sbomTmpDir, sbomPath string) error {
@@ -158,17 +142,17 @@ func executeSBomGenerate(loc *dir.Loc, mtaObj *mta.MTA, source string, sbomFileP
 		return prepareErr
 	}
 
-	// (2) generate sbom file
-	err := generateSBomFile(loc, mtaObj, sbomPath, sbomName, sbomType, sbomSuffix, sbomTmpDir)
-	if err != nil {
+	// (3) generate sbom file
+	genError := generateSBomFile(loc, mtaObj, sbomPath, sbomName, sbomType, sbomSuffix, sbomTmpDir)
+	if genError != nil {
 		cleanErr := cleanEnv(sbomTmpDir)
 		if cleanErr != nil {
 			logs.Logger.Error(cleanErr)
 		}
-		return err
+		return genError
 	}
 
-	// (3) clean sbom tmp dir
+	// (4) clean sbom tmp dir
 	cleanErr := cleanEnv(sbomTmpDir)
 	if cleanErr != nil {
 		return cleanErr

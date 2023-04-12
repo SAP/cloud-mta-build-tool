@@ -90,6 +90,8 @@ var buildCmd = &cobra.Command{
 		useDefaultMbt := os.Getenv("MBT_USE_DEFAULT") == "true"
 		// Note: we can only use the non-default mbt (i.e. the current executable name) from inside the command itself because if this function runs from other places like tests it won't point to the MBT
 		err := artifacts.ExecBuild(makefileTmp, buildCmdSrc, buildCmdTrg, buildCmdExtensions, buildCmdMode, buildCmdMtar, buildCmdPlatform, buildCmdStrict, buildCmdJobs, buildCmdOutputSync, os.Getwd, exec.Execute, useDefaultMbt, buildCmdKeepMakefile, buildCmdSBomFilePath)
+		// output err info to stdout
+		logError(err)
 		return err
 	},
 	SilenceUsage: true,
