@@ -6,16 +6,14 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
-	"strings"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
 
-	"github.com/SAP/cloud-mta-build-tool/internal/archive"
+	dir "github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta-build-tool/internal/commands"
 	"github.com/SAP/cloud-mta-build-tool/internal/exec"
-	"github.com/SAP/cloud-mta-build-tool/internal/tpl"
 	"github.com/SAP/cloud-mta/mta"
 )
 
@@ -237,12 +235,13 @@ builders:
 		})
 	})
 
-	var _ = DescribeTable("createMakeCommand", func(source, target, mode, sBomFilePath string, strict bool, jobs int, cpus int, outputSync bool, additionalExpectedArgs []string) {
-		command := createMakeCommand("Makefile_tmp", source, target, mode, "result.mtar", "cf", strict, jobs, outputSync, func() int {
+	var _ = DescribeTable("createMakeCommand", func(target, mode string, strict bool, jobs int, cpus int, outputSync bool, additionalExpectedArgs []string) {
+		command := createMakeCommand("Makefile_tmp", "./src", target, mode, "result.mtar", "cf", strict, jobs, outputSync, func() int {
 			return cpus
-		}, sBomFilePath)
+		})
+		Ω(len(command)).To(Equal(8+len(additionalExpectedArgs)), "number of command arguments")
 		// The first arguments must be in this order
-		Ω(command[0]).To(Equal(source))
+		Ω(command[0]).To(Equal("./src"))
 		Ω(command[1]).To(Equal("make"))
 		Ω(command[2]).To(Equal("-f"))
 		Ω(command[3]).To(Equal("Makefile_tmp"))
@@ -252,61 +251,25 @@ builders:
 		Ω(command).To(ContainElement(fmt.Sprintf("strict=%v", strict)))
 		Ω(command).To(ContainElement(fmt.Sprintf("mode=%s", mode)))
 
-		count := 0
-		if strings.TrimSpace(source) != "" {
-			Ω(command).To(ContainElement(fmt.Sprintf("source=%s", source)))
-			count += 1
-		}
-		if tpl.IsVerboseMode(mode) {
-			if jobs <= 0 {
-				jobs = cpus
-				if jobs > MaxMakeParallel {
-					jobs = MaxMakeParallel
-				}
-			}
-			Ω(command).To(ContainElement(fmt.Sprintf("-j%d", jobs)))
-			count += 1
-
-			if outputSync {
-				Ω(command).To(ContainElement("-Otarget"))
-				count += 1
-			}
-		}
-		if strings.TrimSpace(target) != "" {
-			Ω(command).To(ContainElement(fmt.Sprintf("t=\"%s\"", target)))
-			count += 1
-		}
-		if strings.TrimSpace(sBomFilePath) != "" {
-			Ω(command).To(ContainElement(fmt.Sprintf("sbom-file-path=%s", sBomFilePath)))
-			count += 1
-		}
-
 		for _, arg := range additionalExpectedArgs {
 			Ω(command).To(ContainElement(arg))
 		}
-
-		Ω(len(command)).To(Equal(8+count), "number of command arguments")
 	},
-		Entry("non-verbose without target", "./src", "", "", "", true, 0, 2, false, nil),
-		Entry("non-verbose with target", "", "./trg", "", "", false, 0, 2, false, []string{`t="./trg"`}),
-		Entry("non-verbose with specified jobs", "", "", "", "", true, 2, 4, false, nil),
-		Entry("non-verbose with synchronized output", "", "", "", "", true, 2, 4, true, nil),
-
-		Entry("verbose without target and without specified jobs, with less than the max number of CPUs", "", "", "verbose", "", false, 0, 2, false, []string{"-j2"}),
-		Entry("verbose with target and without specified jobs, with more than the max number of CPUs", "", "./trg", "verbose", "", true, 0, MaxMakeParallel+10, false, []string{`t="./trg"`, fmt.Sprintf("-j%d", MaxMakeParallel)}),
-		Entry("verbose with specified jobs less than the number of CPUs", "", "", "verbose", "", false, 3, 5, false, []string{"-j3"}),
-		Entry("verbose with specified jobs less than the max number of CPUs", "", "", "verbose", "", false, 3, 20, false, []string{"-j3"}),
-		Entry("verbose with specified jobs more than the number of CPUs", "", "", "v", "", true, 3, 1, false, []string{"-j3"}),
-		Entry("verbose with specified jobs more than the max number of CPUs and less than the number of CPUs", "", "", "verbose", "", false, 20, 25, false, []string{"-j20"}),
-		Entry("verbose with specified jobs more than the max number of CPUs and number of CPUs", "", "", "v", "", false, 20, 15, false, []string{"-j20"}),
-		Entry("verbose with negative specified jobs", "", "", "verbose", "", true, -1, 3, false, []string{"-j3"}),
-		Entry("verbose with negative specified jobs and more than the max number of CPUs", "", "", "verbose", "", true, -1, MaxMakeParallel+5, false, []string{fmt.Sprintf("-j%d", MaxMakeParallel)}),
-		Entry("verbose without specified jobs and with synchronized output", "", "", "verbose", "", true, 0, 3, true, []string{"-j3", "-Otarget"}),
-		Entry("verbose with one job and with synchronized output", "", "", "verbose", "", true, 1, 3, true, []string{"-j1", "-Otarget"}),
-		Entry("verbose with several jobs and with synchronized output", "", "", "verbose", "", true, 2, 3, true, []string{"-j2", "-Otarget"}),
-
-		Entry("non-verbose without target", "./src", "", "", "test.bom.xml", true, 0, 2, false, nil),
-		Entry("non-verbose with source and target and sbom file", "./src", "./trg", "", "test.bom.xml", false, 0, 2, false, []string{`t="./trg"`}),
-		Entry("verbose with several jobs and with synchronized output and sbom file", "", "", "verbose", "test.bom.xml", true, 2, 3, true, []string{"-j2", "-Otarget"}),
+		Entry("non-verbose without target", "", "", true, 0, 2, false, nil),
+		Entry("non-verbose with target", "./trg", "", false, 0, 2, false, []string{`t="./trg"`}),
+		Entry("non-verbose with specified jobs", "", "", true, 2, 4, false, nil),
+		Entry("non-verbose with synchronized output", "", "", true, 2, 4, true, nil),
+		Entry("verbose without target and without specified jobs, with less than the max number of CPUs", "", "verbose", false, 0, 2, false, []string{"-j2"}),
+		Entry("verbose with target and without specified jobs, with more than the max number of CPUs", "./trg", "verbose", true, 0, MaxMakeParallel+10, false, []string{`t="./trg"`, fmt.Sprintf("-j%d", MaxMakeParallel)}),
+		Entry("verbose with specified jobs less than the number of CPUs", "", "verbose", false, 3, 5, false, []string{"-j3"}),
+		Entry("verbose with specified jobs less than the max number of CPUs", "", "verbose", false, 3, 20, false, []string{"-j3"}),
+		Entry("verbose with specified jobs more than the number of CPUs", "", "v", true, 3, 1, false, []string{"-j3"}),
+		Entry("verbose with specified jobs more than the max number of CPUs and less than the number of CPUs", "", "verbose", false, 20, 25, false, []string{"-j20"}),
+		Entry("verbose with specified jobs more than the max number of CPUs and number of CPUs", "", "v", false, 20, 15, false, []string{"-j20"}),
+		Entry("verbose with negative specified jobs", "", "verbose", true, -1, 3, false, []string{"-j3"}),
+		Entry("verbose with negative specified jobs and more than the max number of CPUs", "", "verbose", true, -1, MaxMakeParallel+5, false, []string{fmt.Sprintf("-j%d", MaxMakeParallel)}),
+		Entry("verbose without specified jobs and with synchronized output", "", "verbose", true, 0, 3, true, []string{"-j3", "-Otarget"}),
+		Entry("verbose with one job and with synchronized output", "", "verbose", true, 1, 3, true, []string{"-j1", "-Otarget"}),
+		Entry("verbose with several jobs and with synchronized output", "", "verbose", true, 2, 3, true, []string{"-j2", "-Otarget"}),
 	)
 })

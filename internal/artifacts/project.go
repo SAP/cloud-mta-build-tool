@@ -6,11 +6,10 @@ import (
 	"path/filepath"
 	"runtime"
 	"strconv"
-	"strings"
 
 	"github.com/pkg/errors"
 
-	"github.com/SAP/cloud-mta-build-tool/internal/archive"
+	dir "github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta-build-tool/internal/commands"
 	"github.com/SAP/cloud-mta-build-tool/internal/exec"
 	"github.com/SAP/cloud-mta-build-tool/internal/logs"
@@ -42,7 +41,7 @@ func ExecBuild(makefileTmp, source, target string, extensions []string, mode, mt
 
 	// (2) execute make command
 	cmdParams := createMakeCommand(makefileTmp, source, target, mode, mtar, platform, strict, jobs,
-		outputSync, runtime.NumCPU, sBomFilePath)
+		outputSync, runtime.NumCPU)
 	execMakeFileError := wdExec([][]string{cmdParams}, false)
 
 	// (3) remove temporary Makefile
@@ -74,7 +73,7 @@ func ExecBuild(makefileTmp, source, target string, extensions []string, mode, mt
 }
 
 func createMakeCommand(makefileName, source, target, mode, mtar, platform string, strict bool, jobs int,
-	outputSync bool, numCPUGetter func() int, sBomFilePath string) []string {
+	outputSync bool, numCPUGetter func() int) []string {
 	cmdParams := []string{source, "make", "-f", makefileName, "p=" + platform, "mtar=" + mtar, "strict=" + strconv.FormatBool(strict), "mode=" + mode}
 	if target != "" {
 		cmdParams = append(cmdParams, `t="`+target+`"`)
@@ -92,15 +91,6 @@ func createMakeCommand(makefileName, source, target, mode, mtar, platform string
 			cmdParams = append(cmdParams, "-Otarget")
 		}
 	}
-
-	if strings.TrimSpace(source) != "" {
-		cmdParams = append(cmdParams, "source="+source)
-	}
-
-	if strings.TrimSpace(sBomFilePath) != "" {
-		cmdParams = append(cmdParams, "sbom-file-path="+sBomFilePath)
-	}
-
 	return cmdParams
 }
 

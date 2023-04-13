@@ -9,7 +9,7 @@ import (
 
 	"github.com/SAP/cloud-mta/mta"
 
-	dir "github.com/SAP/cloud-mta-build-tool/internal/archive"
+	"github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta-build-tool/internal/logs"
 )
 
