@@ -56,7 +56,7 @@ func init() {
 	buildCmd.Flags().IntVarP(&buildCmdJobs, "jobs", "j", 0, fmt.Sprintf(`(beta) The number of Make jobs to be executed simultaneously. The default value is the number of available CPUs (maximum %d). Used only in "verbose" mode.`, artifacts.MaxMakeParallel))
 	buildCmd.Flags().BoolVarP(&buildCmdOutputSync, "output-sync", "o", false, `(beta) Groups the output of each Make job and prints it when the job is complete. Used only in "verbose" mode.`)
 	buildCmd.Flags().BoolVarP(&buildCmdKeepMakefile, "keep-makefile", "k", false, `Don't remove the generated Makefile after the build ends.`)
-	buildCmd.Flags().StringVarP(&buildCmdSBomFilePath, "sbom-file-path", "b", "", `The path of SBOM file, a relative path to MTA project root, like a/b/c.bom.xml; if value is null, SBOM file will not be generated.`)
+	buildCmd.Flags().StringVarP(&buildCmdSBomFilePath, "sbom-file-path", "b", "", `The path of SBOM file, relative or absoluted; if relative path, it is relative to MTA project root; if value is empty, SBOM file will not be generated.`)
 	_ = buildCmd.Flags().MarkHidden("keep-makefile")
 	// _ = buildCmd.Flags().MarkHidden("sbom-file-path")
 	buildCmd.Flags().BoolP("help", "h", false, `Displays detailed information about the "build" command`)
