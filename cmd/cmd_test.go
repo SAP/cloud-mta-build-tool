@@ -3,7 +3,6 @@ package commands
 import (
 	"os"
 	"path/filepath"
-	"runtime"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -50,23 +49,6 @@ var _ = Describe("Commands", func() {
 
 func getBuildCmdCli() string {
 	cli := "mbt"
-	switch runtime.GOOS {
-	case "windows":
-		cli = "mbt_windows"
-	case "linux":
-		cli = "mbt_linux"
-	case "darwin":
-		cli = "mbt"
-	}
-
-	if runtime.GOOS == "linux" && runtime.GOARCH == "arm64" {
-		cli = cli + "_arm"
-	} else if runtime.GOOS == "darwin" && runtime.GOARCH == "arm64" {
-		cli = cli + "_darwin_arm"
-	}
-
-	wd, _ := os.Getwd()
-	cli = filepath.ToSlash(filepath.Join(wd, "..", "release", cli))
 	return cli
 }
 

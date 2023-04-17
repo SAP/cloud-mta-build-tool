@@ -6,9 +6,14 @@ ARG MTA_USER_HOME="/home/${MTA_USER}"
 ARG MBT_VERSION=1.2.23
 ARG GO_VERSION=1.19.3
 ARG NODE_VERSION=NODE_VERSION_TEMPLATE
-ARG MAVEN_VERSION=3.8.7
+ARG MAVEN_VERSION=3.9.1
+ARG UI5_VERSION=2.14.19
 ARG MAVEN_BASE_URL=https://downloads.apache.org/maven/maven-3/${MAVEN_VERSION}/binaries
 ARG SAPMACHINE_VERSION=JAVA_VERSION_TEMPLATE
+ARG CYCLONEDX_CLI_VERSION=0.24.2
+ARG CYCLONEDX_BINARY_NAME=cyclonedx
+ARG CYCLONEDX_ARCH=x64
+ARG CYCLONEDX_OS=linux
 
 # Environment variables
 ENV PYTHON /usr/bin/python3
@@ -104,7 +109,7 @@ RUN set -ex \
 
 # Install UI5 CLI
 RUN set -ex \
-    && npm install --prefix /usr/local/ -g @ui5/cli \
+    && npm install --prefix /usr/local/ -g @ui5/cli@${UI5_VERSION} \
     && npm cache clean -g --force \
     # smoke test
     && echo "ui5 install smoke test!" \
@@ -182,8 +187,9 @@ RUN sapmachine_install() { \
     apt-get install -y ca-certificates curl libarchive-tools --no-install-recommends; \
     rm -rf /var/lib/apt/lists/*; \
     curl -fsSLO --compressed -b 'eula_3_1_agreed=tools.hana.ondemand.com/developer-license-3_1.txt' https://tools.hana.ondemand.com/additional/sapjvm-${SAPMACHINE_VERSION}-linux-${ARCH}.zip; \
-    echo "583dedfeee0c119839a610ddc8c6768d0c044429  sapjvm-${SAPMACHINE_VERSION}-linux-${ARCH}.zip" | sha1sum -c -; \
+    echo "0f0d71f95ea016d8e81bed94bf5d53ad8e1d7198  sapjvm-${SAPMACHINE_VERSION}-linux-${ARCH}.zip" | sha1sum -c -; \
     bsdtar -xvf sapjvm-${SAPMACHINE_VERSION}-linux-${ARCH}.zip -C /usr/local --strip-components=1 --no-same-owner; \
+    chmod -r ug+rwx /usr/local \
     rm -f sapjvm-${SAPMACHINE_VERSION}-linux-${ARCH}.zip; \
     apt-get remove --purge --auto-remove -y ca-certificates curl libarchive-tools; \
     ln -s /usr/local ${JAVA_HOME}; \
@@ -247,6 +253,23 @@ RUN set -ex \
   && mkdir ${MTA_USER_HOME}/.npm-global/lib \
   && chown -R ${MTA_USER}:${MTA_USER} ${MTA_USER_HOME}
 ENV NPM_CONFIG_PREFIX ${MTA_USER_HOME}/.npm-global
+
+# Instll cyclone-cli
+RUN set -ex \
+  && apt-get update \
+  && apt-get install -y ca-certificates curl gnupg dirmngr libicu-dev --no-install-recommends \
+  && rm -rf /var/lib/apt/lists/* \
+  && curl -fsSLO --compressed "https://github.com/CycloneDX/cyclonedx-cli/releases/download/v${CYCLONEDX_CLI_VERSION}/${CYCLONEDX_BINARY_NAME}-linux-x64" \
+  && chmod a+rx ${CYCLONEDX_BINARY_NAME}-linux-x64 \
+  && mv ${CYCLONEDX_BINARY_NAME}-linux-x64 /usr/local/bin/${CYCLONEDX_BINARY_NAME} \
+  && apt-get remove --purge --autoremove -y ca-certificates curl gnupg dirmngr \
+  && echo "cyclonedx-cli smoke tests!" \
+  && ${CYCLONEDX_BINARY_NAME} --version
+
+# Instll curl and ca-certificates
+RUN set -ex \
+  && apt-get update \
+  && apt-get install -y curl ca-certificates --no-install-recommends
 
 ENV PATH=$PATH:./node_modules/.bin:${MTA_USER_HOME}/.npm-global/bin
 WORKDIR /project

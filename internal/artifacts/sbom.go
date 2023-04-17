@@ -25,7 +25,7 @@ const (
 	json_suffix      = ".json"
 	sbom_xml_suffix  = ".bom.xml"
 	sbom_json_suffix = ".bom.json"
-	cyclonedx_cli    = "cyclonedx-cli"
+	cyclonedx_cli    = "cyclonedx"
 )
 
 // ExecuteProjectSBomGenerate - Execute MTA project SBOM generation

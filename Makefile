@@ -4,7 +4,7 @@
 # Execute go build
 # Copy files to machine go/bin folder (temp target to avoid manual steps when developing locally)
 
-all:format clean dir gen build-linux build-linux-arm build-darwin build-darwin-arm build-windows copy tests
+all:format clean dir gen build-linux build-linux-arm build-darwin build-darwin-arm build-windows copy install-cyclonedx-cli tests
 .PHONY: build-darwin-arm build-darwin build-linux build-linux-arm build-windows tests
 
 
@@ -15,6 +15,34 @@ GOLANGCI_VERSION = 1.21.0
 # Binary names
 BINARY_NAME=mbt
 BUILD  = $(CURDIR)/release
+
+# cyclonedx-cli version
+CYCLONEDX_CLI_VERSION = 0.24.2
+CYCLONEDX_BINARY_NAME = cyclonedx
+
+ifeq ($(OS),Windows_NT)
+CYCLONEDX_OS=win
+else ifeq ($(shell uname -s), Linux)
+CYCLONEDX_OS=linux
+else ifeq ($(shell uname -s), Darwin)
+CYCLONEDX_OS=osx
+endif
+
+ifeq ($(shell uname -m),x86_64)
+	CYCLONEDX_ARCH=x64
+else ifeq ($(shell uname -m),arm64)
+	CYCLONEDX_ARCH=arm64
+else ifeq ($(shell uname -m),i386)
+	CYCLONEDX_ARCH=x86
+else
+	CYCLONEDX_ARCH=x64
+endif
+
+ifeq ($(OS),Windows_NT)
+	CYCLONEDX_BINARY_SUFFIX = .exe
+else
+	CYCLONEDX_BINARY_SUFFIX =
+endif
 
 format :
 	go fmt ./...
@@ -73,3 +101,9 @@ else
 	cp $(CURDIR)/release/$(BINARY_NAME) $(GOPATH)/bin/
 	cp $(CURDIR)/release/$(BINARY_NAME) $~/usr/local/bin/
 endif
+
+# use for local development - > install cyclonedx-cli to go/bin path
+install-cyclonedx-cli:
+	curl -fsSLO --compressed "https://github.com/CycloneDX/cyclonedx-cli/releases/download/v${CYCLONEDX_CLI_VERSION}/${CYCLONEDX_BINARY_NAME}-${CYCLONEDX_OS}-${CYCLONEDX_ARCH}${CYCLONEDX_BINARY_SUFFIX}"
+	cp ${CYCLONEDX_BINARY_NAME}-${CYCLONEDX_OS}-${CYCLONEDX_ARCH}.exe $(GOPATH)/bin/${CYCLONEDX_BINARY_NAME}${CYCLONEDX_BINARY_SUFFIX}
+
