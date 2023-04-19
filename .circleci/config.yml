@@ -12,7 +12,7 @@ jobs:
 
   build:
     docker:
-      - image: cimg/go:1.17
+      - image: cimg/go:1.19
     environment:
     working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
     steps:
@@ -23,13 +23,21 @@ jobs:
           name: install dependencies
           command: |
             go mod vendor
+      - run:
+          name: install node16 npm and npx
+          command: |
             sudo apt-get update
-            sudo apt-get install nodejs
+            curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash -
+            sudo apt-get install -y nodejs
+            echo "node version:"
             node --version
-            sudo apt-get install npm
+            echo "npm version:"
             npm --version
-            sudo npm install -g npx
+            echo "npx version:"
             npx --version
+      - run:
+          name: install cyclonedx-cli
+          command: |
             CYCLONEDX_CLI_VERSION=0.24.2
             CYCLONEDX_BINARY_NAME=cyclonedx
             CYCLONEDX_ARCH=x64
@@ -37,7 +45,19 @@ jobs:
             curl -fsSLO --compressed "https://github.com/CycloneDX/cyclonedx-cli/releases/download/v${CYCLONEDX_CLI_VERSION}/${CYCLONEDX_BINARY_NAME}-${CYCLONEDX_OS}-${CYCLONEDX_ARCH}"
             chmod ug+rwx ${CYCLONEDX_BINARY_NAME}-${CYCLONEDX_OS}-${CYCLONEDX_ARCH}
             cp ${CYCLONEDX_BINARY_NAME}-${CYCLONEDX_OS}-${CYCLONEDX_ARCH} ${GOPATH}/bin/${CYCLONEDX_BINARY_NAME}
+            echo "cyclonedx-cli --version:"
             ${CYCLONEDX_BINARY_NAME} --version
+      - run:
+          name: install cyclonedx-gomod
+          command: |
+            echo "cyclonedx-gomod version"
+            go install github.com/CycloneDX/cyclonedx-gomod/cmd/cyclonedx-gomod@latest
+            cyclonedx-gomod version
+      - run:
+          name: install cyclonedx-bom
+          command: |
+            echo "cyclonedx-bom -h"
+            npx cyclonedx-bom -h
       - run:
           name: build mbt binary
           command: |
@@ -103,7 +123,7 @@ jobs:
 
   release-to-github:
     docker:
-      - image: cimg/go:1.17
+      - image: cimg/go:1.19
     working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
     steps:
       - add_ssh_keys:
@@ -164,7 +184,7 @@ jobs:
 
   publish-to-dockerhub-java8-node14:
     docker:
-      - image: cimg/go:1.17
+      - image: cimg/go:1.19
     working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
     steps:
       - checkout
@@ -196,7 +216,7 @@ jobs:
 
   publish-to-dockerhub-java8-node16:
     docker:
-      - image: cimg/go:1.17
+      - image: cimg/go:1.19
     working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
     steps:
       - checkout
@@ -228,7 +248,7 @@ jobs:
 
   publish-to-dockerhub-java8-node18:
     docker:
-      - image: cimg/go:1.17
+      - image: cimg/go:1.19
     working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
     steps:
       - checkout
@@ -260,7 +280,7 @@ jobs:
 
   publish-to-dockerhub-java11-node14:
     docker:
-      - image: cimg/go:1.17
+      - image: cimg/go:1.19
     working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
     steps:
       - checkout
@@ -292,7 +312,7 @@ jobs:
   
   publish-to-dockerhub-java11-node16:
     docker:
-      - image: cimg/go:1.17
+      - image: cimg/go:1.19
     working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
     steps:
       - checkout
@@ -324,7 +344,7 @@ jobs:
   
   publish-to-dockerhub-java11-node18:
     docker:
-      - image: cimg/go:1.17
+      - image: cimg/go:1.19
     working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
     steps:
       - checkout
@@ -356,7 +376,7 @@ jobs:
   
   publish-to-dockerhub-java17-node14:
     docker:
-      - image: cimg/go:1.17
+      - image: cimg/go:1.19
     working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
     steps:
       - checkout
@@ -388,7 +408,7 @@ jobs:
   
   publish-to-dockerhub-java17-node16:
     docker:
-      - image: cimg/go:1.17
+      - image: cimg/go:1.19
     working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
     steps:
       - checkout
@@ -420,7 +440,7 @@ jobs:
   
   publish-to-dockerhub-java17-node18:
     docker:
-      - image: cimg/go:1.17
+      - image: cimg/go:1.19
     working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
     steps:
       - checkout
@@ -452,7 +472,7 @@ jobs:
   
   publish-to-dockerhub-java19-node14:
     docker:
-      - image: cimg/go:1.17
+      - image: cimg/go:1.19
     working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
     steps:
       - checkout
@@ -484,7 +504,7 @@ jobs:
   
   publish-to-dockerhub-java19-node16:
     docker:
-      - image: cimg/go:1.17
+      - image: cimg/go:1.19
     working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
     steps:
       - checkout
@@ -516,7 +536,7 @@ jobs:
   
   publish-to-dockerhub-java19-node18:
     docker:
-      - image: cimg/go:1.17
+      - image: cimg/go:1.19
     working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
     steps:
       - checkout
@@ -548,7 +568,7 @@ jobs:
 
   remove-github-release-tag:
     docker:
-      - image: cimg/go:1.17
+      - image: cimg/go:1.19
     working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
     steps:
       - checkout

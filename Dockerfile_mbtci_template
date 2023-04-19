@@ -11,9 +11,10 @@ ARG UI5_VERSION=2.14.19
 ARG MAVEN_BASE_URL=https://downloads.apache.org/maven/maven-3/${MAVEN_VERSION}/binaries
 ARG SAPMACHINE_VERSION=JAVA_VERSION_TEMPLATE
 ARG CYCLONEDX_CLI_VERSION=0.24.2
-ARG CYCLONEDX_BINARY_NAME=cyclonedx
-ARG CYCLONEDX_ARCH=x64
-ARG CYCLONEDX_OS=linux
+ARG CYCLONEDX_CLI_BINARY=cyclonedx
+ARG CYCLONEDX_GOMOD_VERSION=1.4.0
+ARG CYCLONEDX_GOMOD_BINARY=cyclonedx-gomod
+ARG CYCLONEDX_BOM_BINARY=cyclonedx-bom
 
 # Environment variables
 ENV PYTHON /usr/bin/python3
@@ -255,16 +256,46 @@ RUN set -ex \
 ENV NPM_CONFIG_PREFIX ${MTA_USER_HOME}/.npm-global
 
 # Instll cyclone-cli
-RUN set -ex \
+RUN ARCH= && dpkgArch="$(dpkg --print-architecture)" \
+    && case "${dpkgArch##*-}" in \
+      amd64) ARCH='x64';; \
+      arm64) ARCH='arm64';; \
+      *) echo "unsupported architecture"; exit 1 ;; \
+    esac \
+  && set -ex \
   && apt-get update \
   && apt-get install -y ca-certificates curl gnupg dirmngr libicu-dev --no-install-recommends \
   && rm -rf /var/lib/apt/lists/* \
-  && curl -fsSLO --compressed "https://github.com/CycloneDX/cyclonedx-cli/releases/download/v${CYCLONEDX_CLI_VERSION}/${CYCLONEDX_BINARY_NAME}-linux-x64" \
-  && chmod a+rx ${CYCLONEDX_BINARY_NAME}-linux-x64 \
-  && mv ${CYCLONEDX_BINARY_NAME}-linux-x64 /usr/local/bin/${CYCLONEDX_BINARY_NAME} \
+  && curl -fsSLO --compressed "https://github.com/CycloneDX/cyclonedx-cli/releases/download/v${CYCLONEDX_CLI_VERSION}/${CYCLONEDX_CLI_BINARY}-linux-${ARCH}" \
+  && chmod a+rx ${CYCLONEDX_CLI_BINARY}-linux-${ARCH} \
+  && mv ${CYCLONEDX_CLI_BINARY}-linux-${ARCH} /usr/local/bin/${CYCLONEDX_CLI_BINARY} \
   && apt-get remove --purge --autoremove -y ca-certificates curl gnupg dirmngr \
   && echo "cyclonedx-cli smoke tests!" \
-  && ${CYCLONEDX_BINARY_NAME} --version
+  && ${CYCLONEDX_CLI_BINARY} --version
+
+# Instll cyclone-gomod
+RUN ARCH= && dpkgArch="$(dpkg --print-architecture)" \
+    && case "${dpkgArch##*-}" in \
+      amd64) ARCH='amd64';; \
+      arm64) ARCH='arm64';; \
+      *) echo "unsupported architecture"; exit 1 ;; \
+    esac \
+  && set -ex \
+  && apt-get update \
+  && apt-get install -y ca-certificates curl gnupg dirmngr libicu-dev --no-install-recommends \
+  && rm -rf /var/lib/apt/lists/* \
+  && curl -fsSLO --compressed "https://github.com/CycloneDX/cyclonedx-gomod/releases/download/v${CYCLONEDX_GOMOD_VERSION}/${CYCLONEDX_GOMOD_BINARY}_${CYCLONEDX_GOMOD_VERSION}_linux_${ARCH}.tar.gz" \
+  && tar -xzf ${CYCLONEDX_GOMOD_BINARY}_${CYCLONEDX_GOMOD_VERSION}_linux_${ARCH}.tar.gz \
+  && chmod a+rx ${CYCLONEDX_GOMOD_BINARY} \
+  && mv ${CYCLONEDX_GOMOD_BINARY} /usr/local/bin/${CYCLONEDX_GOMOD_BINARY} \
+  && apt-get remove --purge --autoremove -y ca-certificates curl gnupg dirmngr \
+  && echo "cyclonedx-gomod smoke tests!" \
+  && cyclonedx-gomod version
+
+# Instll cyclone-bom
+RUN set -ex \
+  && echo "cyclonedx-bom smoke tests!" \
+  && npx ${CYCLONEDX_BOM_BINARY} -h
 
 # Instll curl and ca-certificates
 RUN set -ex \

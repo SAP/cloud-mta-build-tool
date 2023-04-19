@@ -17,7 +17,9 @@ const (
 	builderParam  = "builder"
 	commandsParam = "commands"
 	customBuilder = "custom"
+	golangBuilder = "golang"
 	optionsSuffix = "-opts"
+	goModuleType  = "go"
 )
 
 // CommandList - list of command to execute
@@ -85,7 +87,7 @@ func isNativeBuilderType(builderName string) (bool, error) {
 	return false, err
 }
 
-func getBuilderByModuleType(typeName string) (bool, string, error) {
+func getSBomBuilderByModuleType(typeName string) (bool, string, error) {
 	moduleTypes, err := parseModuleTypes(ModuleTypeConfig)
 	if err != nil {
 		return false, "", errors.Wrap(err, parseModuleCfgFailedMsg)
@@ -96,10 +98,17 @@ func getBuilderByModuleType(typeName string) (bool, string, error) {
 			return true, t.Builder, nil
 		}
 	}
+
+	// if module.type == go, return the golang builder;
+	// Notice, there is no go type in ModuleTypeConfig(module_type_cfg.yaml)
+	if typeName == goModuleType {
+		return true, golangBuilder, nil
+	}
+
 	return false, "", errors.Wrapf(err, notNativeModuleTypeMsg, typeName)
 }
 
-func getModuleBuilder(module *mta.Module) (string, error) {
+func getModuleSBomBuilder(module *mta.Module) (string, error) {
 	var builderName string
 	var err error
 
@@ -125,7 +134,7 @@ func getModuleBuilder(module *mta.Module) (string, error) {
 	}
 
 	// get builder by module type
-	isfind, builderName, err := getBuilderByModuleType(module.Type)
+	isfind, builderName, err := getSBomBuilderByModuleType(module.Type)
 	if !isfind {
 		return "", err
 	}
@@ -323,7 +332,7 @@ func GetModuleSBomGenCommands(loc *dir.Loc, module *mta.Module,
 	var cmds []string
 	var commandList [][]string
 
-	builder, err := getModuleBuilder(module)
+	builder, err := getModuleSBomBuilder(module)
 	if err != nil {
 		return [][]string{}, err
 	}
@@ -333,7 +342,7 @@ func GetModuleSBomGenCommands(loc *dir.Loc, module *mta.Module,
 		cmd = "npx cyclonedx-bom -o " + sbomFileName + sbomFileSuffix
 		cmds = append(cmds, cmd)
 	case "golang":
-		cmd = "go run github.com/CycloneDX/cyclonedx-gomod/cmd/cyclonedx-gomod mod -licenses -test -output " + sbomFileName + sbomFileSuffix
+		cmd = "cyclonedx-gomod mod -licenses -output " + sbomFileName + sbomFileSuffix
 		cmds = append(cmds, cmd)
 	case "maven", "fetcher", "maven_deprecated":
 		cmd = "mvn org.cyclonedx:cyclonedx-maven-plugin:2.7.5:makeAggregateBom " +
@@ -371,7 +380,7 @@ func GetSBomsMergeCommand(loc *dir.Loc, cyclonedx_cli string, sbomTmpDir string,
 		inputFiles = inputFiles + " " + fileName + " "
 	}
 
-	// ./cyclonedx-win-x64.exe merge --input-files test_1.bom.xml test_2.bom.xml test_3.bom.xml --output-file merged.bom.xml
+	// ./cyclonedx merge --input-files test_1.bom.xml test_2.bom.xml test_3.bom.xml --output-file merged.bom.xml
 	cmd = cyclonedx_cli + " merge --input-files " + inputFiles + " --output-file " + sbomName
 	cmds = append(cmds, cmd)
 	commandList, err := CmdConverter(sbomTmpDir, cmds)
