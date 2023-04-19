@@ -365,7 +365,7 @@ func GetModuleSBomGenCommands(loc *dir.Loc, module *mta.Module,
 // GetSBomsMergeCommand - generate merge sbom file command under sbom tmp dir
 // if empty sbomFileNames, return empty commandList, nil error
 func GetSBomsMergeCommand(loc *dir.Loc, cyclonedx_cli string, sbomTmpDir string, sbomFileNames []string,
-	sbomName string, sbomSuffix string) ([][]string, error) {
+	sbomName, sbomType, sbomSuffix string) ([][]string, error) {
 	var cmd string
 	var cmds []string
 	var commandList [][]string
@@ -381,7 +381,8 @@ func GetSBomsMergeCommand(loc *dir.Loc, cyclonedx_cli string, sbomTmpDir string,
 	}
 
 	// ./cyclonedx merge --input-files test_1.bom.xml test_2.bom.xml test_3.bom.xml --output-file merged.bom.xml
-	cmd = cyclonedx_cli + " merge --input-files " + inputFiles + " --output-file " + sbomName
+	cmd = cyclonedx_cli + " merge --input-files " + inputFiles + " --output-file " + sbomName +
+		" --input-format " + sbomType + " --output-format " + sbomType
 	cmds = append(cmds, cmd)
 	commandList, err := CmdConverter(sbomTmpDir, cmds)
 
