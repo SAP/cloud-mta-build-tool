@@ -89,14 +89,15 @@ const (
 	mergeNameRequiredMsg         = `could not find the mandatory parameter "target-file-name"`
 	mergeFailedOnFileCreationMsg = `the "%s" file already exists`
 
-	genSBomFileStartMsg          = `start to generate sbom file`
-	genSBomFileFinishedMsg       = `finish generate sbom file %s`
-	genSBomForModuleStartMsg     = `start to generate sbom for module %s`
-	genSBomForModuleFinishMsg    = `finish generate sbom for module %s`
-	genSBomSkipModuleMsg         = `skip module %s sbom generation, mbt is not support it by now`
-	genSBomEmptyMsg              = `sbom file %s will not be generated, mbt is not supporte generate sbom for all modules of the application`
-	genSBomFileMergingMsg        = `merging sbom file %s`
-	genSBomFileFailedMsg         = `generate sbom file failed`
-	createSBomTargetDirFailedMsg = `create sbom file target path "%s" failed`
-	mvSBomToTargetDirFailedMsg   = `mv sbom file from "%s" to "%s" failed`
+	genSBomFileStartMsg            = `start to generate sbom file`
+	genSBomFileFinishedMsg         = `finish generate sbom file %s`
+	genSBomForModuleStartMsg       = `start to generate sbom for module %s`
+	genSBomForModuleFinishMsg      = `finish generate sbom for module %s`
+	genSBomSkipModuleMsg           = `skip module %s sbom generation, mbt is not support it by now`
+	genSBomEmptyMsg                = `sbom file %s will not be generated, mbt is not supporte generate sbom for all modules of the application`
+	genSBomFileMergingMsg          = `merging sbom file %s`
+	genSBomFileFailedMsg           = `generate sbom file failed`
+	createSBomTargetDirFailedMsg   = `create sbom file target path "%s" failed`
+	mvSBomToTargetDirFailedMsg     = `mv sbom file from "%s" to "%s" failed`
+	genSBomNotSupportedFileTypeMsg = `sbom file type %s is not supported at present`
 )

@@ -110,7 +110,7 @@ install-cyclonedx:
 	cyclonedx-gomod version
 # install cyclonedx-cli	
 	curl -fsSLO --compressed "https://github.com/CycloneDX/cyclonedx-cli/releases/download/v${CYCLONEDX_CLI_VERSION}/${CYCLONEDX_BINARY_NAME}-${CYCLONEDX_OS}-${CYCLONEDX_ARCH}${CYCLONEDX_BINARY_SUFFIX}"
-	cp ${CYCLONEDX_BINARY_NAME}-${CYCLONEDX_OS}-${CYCLONEDX_ARCH}.exe $(GOPATH)/bin/${CYCLONEDX_BINARY_NAME}${CYCLONEDX_BINARY_SUFFIX}
+	mv ${CYCLONEDX_BINARY_NAME}-${CYCLONEDX_OS}-${CYCLONEDX_ARCH}${CYCLONEDX_BINARY_SUFFIX} $(GOPATH)/bin/${CYCLONEDX_BINARY_NAME}${CYCLONEDX_BINARY_SUFFIX}
 	echo "cyclonedx-cli version:"
 	cyclonedx --version
 # install cyclonedx-bom

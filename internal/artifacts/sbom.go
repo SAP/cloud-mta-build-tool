@@ -131,7 +131,7 @@ func generateSBomFile(loc *dir.Loc, mtaObj *mta.MTA,
 	}
 
 	// (3) merge sbom files under sbom tmp dir
-	sbomTmpName, err := mergeSBomFiles(loc, sbomTmpDir, sbomFileNames, sbomName, sbomSuffix)
+	sbomTmpName, err := mergeSBomFiles(loc, sbomTmpDir, sbomFileNames, sbomName, sbomType, sbomSuffix)
 	if err != nil {
 		return err
 	}
@@ -150,7 +150,11 @@ func executeSBomGenerate(loc *dir.Loc, mtaObj *mta.MTA, source string, sbomFileP
 	logs.Logger.Info(genSBomFileStartMsg)
 
 	// (1) parse sbomFilePath, if relative, it is relative path to project source
+	// json type sbom file is not supported at present, if sbom file type is json, return not support error
 	sbomPath, sbomName, sbomType, sbomSuffix := parseSBomFilePath(loc.GetSource(), sbomFilePath)
+	if sbomType == json_type {
+		return errors.Errorf(genSBomNotSupportedFileTypeMsg, sbomType)
+	}
 
 	// (2) create sbom tmp dir and sbom target path
 	sbomTmpDir := loc.GetSBomFileTmpDir(mtaObj)
@@ -217,20 +221,20 @@ func listSBomFilesInTmpDir(sbomTmpDir, sbomSuffix string) ([]string, error) {
 }
 
 // mergeSBomFiles - merge sbom files of modules under sbom tmp dir
-func mergeSBomFiles(loc *dir.Loc, sbomTmpDir string, sbomFileNames []string, sbomName, sbomSuffix string) (string, error) {
+func mergeSBomFiles(loc *dir.Loc, sbomTmpDir string, sbomFileNames []string, sbomName, sbomType, sbomSuffix string) (string, error) {
 	curtime := time.Now().Format("20230328150313")
 
 	var sbomTmpName string
 	if strings.HasSuffix(sbomName, sbom_xml_suffix) {
 		sbomTmpName = strings.TrimSuffix(sbomName, xml_suffix) + "_" + curtime + sbom_xml_suffix
 	} else if strings.HasSuffix(sbomName, sbom_json_suffix) {
-		sbomTmpName = strings.TrimSuffix(sbomName, json_suffix) + "_" + curtime + sbom_xml_suffix
+		sbomTmpName = strings.TrimSuffix(sbomName, json_suffix) + "_" + curtime + sbom_json_suffix
 	} else {
 		sbomTmpName = sbomName + "_" + curtime + sbom_xml_suffix
 	}
 
 	// get sbom file generate command
-	sbomMergeCmds, err := commands.GetSBomsMergeCommand(loc, cyclonedx_cli, sbomTmpDir, sbomFileNames, sbomTmpName, sbomSuffix)
+	sbomMergeCmds, err := commands.GetSBomsMergeCommand(loc, cyclonedx_cli, sbomTmpDir, sbomFileNames, sbomTmpName, sbomType, sbomSuffix)
 	if err != nil {
 		return "", err
 	}
