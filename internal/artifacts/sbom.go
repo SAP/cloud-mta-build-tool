@@ -21,6 +21,7 @@ import (
 const (
 	xml_type         = "xml"
 	json_type        = "json"
+	unsupport_type   = "unsupport_sbom_type"
 	xml_suffix       = ".xml"
 	json_suffix      = ".json"
 	sbom_xml_suffix  = ".bom.xml"
@@ -152,8 +153,8 @@ func executeSBomGenerate(loc *dir.Loc, mtaObj *mta.MTA, source string, sbomFileP
 	// (1) parse sbomFilePath, if relative, it is relative path to project source
 	// json type sbom file is not supported at present, if sbom file type is json, return not support error
 	sbomPath, sbomName, sbomType, sbomSuffix := parseSBomFilePath(loc.GetSource(), sbomFilePath)
-	if sbomType == json_type {
-		return errors.Errorf(genSBomNotSupportedFileTypeMsg, sbomType)
+	if sbomType == unsupport_type {
+		return errors.Errorf(genSBomNotSupportedFileTypeMsg, sbomSuffix)
 	}
 
 	// (2) create sbom tmp dir and sbom target path
@@ -250,7 +251,9 @@ func mergeSBomFiles(loc *dir.Loc, sbomTmpDir string, sbomFileNames []string, sbo
 	return sbomTmpName, nil
 }
 
-// parseSBomFilePath - parse sbom file path parameter, if it is a relative path, join source path
+// parseSBomFilePath - parse sbom file path parameter
+// if sbom file path is a relative path, join source path
+// only xml file format is supported at present;
 func parseSBomFilePath(source string, sbomFilePath string) (string, string, string, string) {
 	var sbomPath, sbomName, sbomType, sbomSuffix string
 
@@ -260,14 +263,15 @@ func parseSBomFilePath(source string, sbomFilePath string) (string, string, stri
 		sbomPath, sbomName = filepath.Split(filepath.Join(source, sbomFilePath))
 	}
 
-	sbomType = xml_type
-	sbomSuffix = sbom_xml_suffix
-	if strings.HasSuffix(sbomName, xml_suffix) {
+	// if file suffix is .xml, or no file suffix, xml format type will be return
+	// if file suffix is not .xml, unsupported file type will be return
+	fileSuffix := filepath.Ext(sbomName)
+	if fileSuffix == "" || strings.HasSuffix(sbomName, xml_suffix) {
 		sbomType = xml_type
 		sbomSuffix = sbom_xml_suffix
-	} else if strings.HasSuffix(sbomName, json_suffix) {
-		sbomType = json_type
-		sbomSuffix = sbom_json_suffix
+	} else {
+		sbomType = unsupport_type
+		sbomSuffix = fileSuffix
 	}
 
 	return sbomPath, sbomName, sbomType, sbomSuffix

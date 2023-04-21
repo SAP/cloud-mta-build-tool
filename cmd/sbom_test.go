@@ -101,6 +101,42 @@ var _ = Describe("mbt cli build and sbom gen", func() {
 		Ω(cmd.Run()).Should(HaveOccurred())
 		Ω(os.RemoveAll(getTestPath("tmp"))).Should(Succeed())
 	})
+	It("Success - build without suffix sbom-file-name parameter", func() {
+		source := "\"" + getTestPath("mta") + "\""
+		sbom_file_path := "\"" + getTestPath("mta", "sbom-gen-result", "result_without_suffix") + "\""
+
+		cmd := exec.Command("bash", "-c", mbtCmdCLI+" build"+" --source "+source+" --sbom-file-path "+sbom_file_path)
+
+		Ω(cmd.Run()).Should(Succeed())
+		Ω(os.RemoveAll(getTestPath("mta", dir.MtarFolder))).Should(Succeed())
+		Ω(os.RemoveAll(getTestPath("mta", "sbom-gen-result"))).Should(Succeed())
+	})
+	It("Failure - build with json suffix sbom-file-name parameter", func() {
+		source := "\"" + getTestPath("mta") + "\""
+		sbom_file_path := "\"" + getTestPath("mta", "sbom-gen-result", "result.json") + "\""
+		var stdout bytes.Buffer
+
+		cmd := exec.Command("bash", "-c", mbtCmdCLI+" build"+" --source "+source+" --sbom-file-path "+sbom_file_path)
+		cmd.Stdout = &stdout
+
+		Ω(cmd.Run()).Should(HaveOccurred())
+		Ω(stdout.String()).Should(ContainSubstring("sbom file type .json is not supported at present"))
+		Ω(os.RemoveAll(getTestPath("mta", dir.MtarFolder))).Should(Succeed())
+		Ω(os.RemoveAll(getTestPath("mta", "sbom-gen-result"))).Should(Succeed())
+	})
+	It("Failure - build with unknow suffix sbom-file-name parameter", func() {
+		source := "\"" + getTestPath("mta") + "\""
+		sbom_file_path := "\"" + getTestPath("mta", "sbom-gen-result", "result.unknow") + "\""
+		var stdout bytes.Buffer
+
+		cmd := exec.Command("bash", "-c", mbtCmdCLI+" build"+" --source "+source+" --sbom-file-path "+sbom_file_path)
+		cmd.Stdout = &stdout
+
+		Ω(cmd.Run()).Should(HaveOccurred())
+		Ω(stdout.String()).Should(ContainSubstring("sbom file type .unknow is not supported at present"))
+		Ω(os.RemoveAll(getTestPath("mta", dir.MtarFolder))).Should(Succeed())
+		Ω(os.RemoveAll(getTestPath("mta", "sbom-gen-result"))).Should(Succeed())
+	})
 	/* It("Failure - build and gen sbom with invalid sbom-file-path parameter case 1", func() {
 		source := "\"" + getTestPath("mta") + "\""
 		sbom_file_path := "\"" + "sbom-gen-result>>?/merged.bom.xml" + "\""
@@ -233,6 +269,42 @@ var _ = Describe("mbt cli sbom-gen", func() {
 		cmd.Stdout = &stdout
 		Ω(cmd.Run()).Should(HaveOccurred())
 		//Ω(stdout.String()).Should(ContainSubstring("The filename, directory name, or volume label syntax is incorrect"))
+		Ω(os.RemoveAll(getTestPath("mta", "sbom-gen-result"))).Should(Succeed())
+	})
+	It("Success - sbom-gen without suffix sbom-file-name parameter", func() {
+		source := "\"" + getTestPath("mta") + "\""
+		sbom_file_path := "\"" + getTestPath("mta", "sbom-gen-result", "result_without_suffix") + "\""
+
+		cmd := exec.Command("bash", "-c", mbtCmdCLI+" sbom-gen"+" --source "+source+" --sbom-file-path "+sbom_file_path)
+
+		Ω(cmd.Run()).Should(Succeed())
+		Ω(os.RemoveAll(getTestPath("mta", dir.MtarFolder))).Should(Succeed())
+		Ω(os.RemoveAll(getTestPath("mta", "sbom-gen-result"))).Should(Succeed())
+	})
+	It("Failure - sbom-gen with json suffix sbom-file-name parameter", func() {
+		source := "\"" + getTestPath("mta") + "\""
+		sbom_file_path := "\"" + getTestPath("mta", "sbom-gen-result", "result.json") + "\""
+		var stdout bytes.Buffer
+
+		cmd := exec.Command("bash", "-c", mbtCmdCLI+" sbom-gen"+" --source "+source+" --sbom-file-path "+sbom_file_path)
+		cmd.Stdout = &stdout
+
+		Ω(cmd.Run()).Should(HaveOccurred())
+		Ω(stdout.String()).Should(ContainSubstring("sbom file type .json is not supported at present"))
+		Ω(os.RemoveAll(getTestPath("mta", dir.MtarFolder))).Should(Succeed())
+		Ω(os.RemoveAll(getTestPath("mta", "sbom-gen-result"))).Should(Succeed())
+	})
+	It("Failure - sbom-gen with unknow suffix sbom-file-name parameter", func() {
+		source := "\"" + getTestPath("mta") + "\""
+		sbom_file_path := "\"" + getTestPath("mta", "sbom-gen-result", "result.unknow") + "\""
+		var stdout bytes.Buffer
+
+		cmd := exec.Command("bash", "-c", mbtCmdCLI+" sbom-gen"+" --source "+source+" --sbom-file-path "+sbom_file_path)
+		cmd.Stdout = &stdout
+
+		Ω(cmd.Run()).Should(HaveOccurred())
+		Ω(stdout.String()).Should(ContainSubstring("sbom file type .unknow is not supported at present"))
+		Ω(os.RemoveAll(getTestPath("mta", dir.MtarFolder))).Should(Succeed())
 		Ω(os.RemoveAll(getTestPath("mta", "sbom-gen-result"))).Should(Succeed())
 	})
 	/* It("Failure - sbom-gen with invalid sbom-file-path paramerter case 1", func() {
