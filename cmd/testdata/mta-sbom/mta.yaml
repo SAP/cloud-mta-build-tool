@@ -10,12 +10,18 @@ modules:
   - name: node-js_api
     properties:
         url: ${default-url}
+  build-parameters:
+    requires:
+      - name: java-module
  
 - name: java-module
   type: java
   path: java
   properties:
     MEMORY_CALCULATOR_V1: true
+  build-parameters:
+    requires:
+      - name: go-module
 
 - name: go-module
   type: go
@@ -27,6 +33,8 @@ modules:
     MEMORY_CALCULATOR_V1: true
   build-parameters:
     builder: golang
+    requires:
+      - name: custom-module
 
 - name: custom-module
   type: html5
