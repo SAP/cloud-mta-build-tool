@@ -96,6 +96,54 @@ func Archive(sourcePath, targetArchivePath string, ignore []string) (e error) {
 		baseDir += string(os.PathSeparator)
 	}
 
+	ignorePatterns, err := getIgnorePatterns(sourcePath, ignore)
+	if err != nil {
+		return err
+	}
+
+	err = walk(sourcePath, baseDir, "", "", archive, make(map[string]bool), ignorePatterns)
+
+	return err
+}
+
+/* func Archive(sourcePath, targetArchivePath string, ignore []string) (e error) {
+
+	// check that folder to be packed exist
+	info, err := fileInfoProvider.stat(sourcePath)
+	if err != nil {
+		return err
+	}
+
+	// create folder of archive file if not exists
+	err = CreateDirIfNotExist(filepath.Dir(targetArchivePath))
+	if err != nil {
+		return errors.Wrapf(err, archivingFailedOnCreateFolderMsg, filepath.Dir(targetArchivePath))
+	}
+
+	// create archive file
+	zipfile, err := os.Create(targetArchivePath)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		e = CloseFile(zipfile, e)
+	}()
+
+	// create archive writer
+	archive := zip.NewWriter(zipfile)
+	defer func() {
+		e = CloseFile(archive, e)
+	}()
+
+	baseDir, err := getBaseDir(sourcePath, info)
+	if err != nil {
+		return err
+	}
+
+	if !strings.HasSuffix(baseDir, string(os.PathSeparator)) {
+		baseDir += string(os.PathSeparator)
+	}
+
 	ignoreMap, err := getIgnoredEntries(ignore, sourcePath)
 	if err != nil {
 		return err
@@ -103,7 +151,7 @@ func Archive(sourcePath, targetArchivePath string, ignore []string) (e error) {
 
 	err = walk(sourcePath, baseDir, "", "", archive, make(map[string]bool), ignoreMap)
 	return err
-}
+} */
 
 func getBaseDir(path string, info os.FileInfo) (string, error) {
 	var err error
@@ -120,6 +168,19 @@ func getBaseDir(path string, info os.FileInfo) (string, error) {
 		return path, nil
 	}
 	return filepath.Dir(path), nil
+}
+
+func getIgnorePatterns(sourcePath string, ignorePattern []string) ([]string, error) {
+	var ignorePaths []string
+	for _, ign := range ignorePattern {
+		ignore_path := filepath.ToSlash(ign)
+		if strings.HasSuffix(ignore_path, "/") {
+			ignore_path = ignore_path + "**"
+		}
+		ignorePaths = append(ignorePaths, ignore_path)
+		logs.Logger.Infof("ignore path: %s \n", ignore_path)
+	}
+	return ignorePaths, nil
 }
 
 // getIgnoresMap - getIgnores Helper
@@ -166,6 +227,9 @@ func walk(sourcePath string, baseDir, symLinkPathInZip, linkedPath string, archi
 	symlinks map[string]bool,
 	ignore map[string]interface{}) error {
 
+	// (1) invoke micromatch-wrapper, filter files which are not match ignore pattern and save to .tmp file
+	// (2) read .tmp file to get all filtered files, package to zip file
+
 	// pack files of source into archive
 	return filepath.Walk(sourcePath, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -193,6 +257,38 @@ func walk(sourcePath string, baseDir, symLinkPathInZip, linkedPath string, archi
 		return addToArchive(path, pathInZip, info, archive)
 	})
 }
+
+/* func walk(sourcePath string, baseDir, symLinkPathInZip, linkedPath string, archive *zip.Writer,
+	symlinks map[string]bool,
+	ignore map[string]interface{}) error {
+
+	// pack files of source into archive
+	return filepath.Walk(sourcePath, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+
+		if _, ok := ignore[path]; ok {
+			if info.IsDir() {
+				return filepath.SkipDir
+			}
+			return nil
+		}
+
+		if fileInfoProvider.isSymbolicLink(info) {
+			return addSymbolicLinkToArchive(path, baseDir, symLinkPathInZip, linkedPath, archive, symlinks, ignore)
+		}
+
+		// Don't add the base folder to the zip
+		if info.IsDir() && filepath.Clean(path) == filepath.Clean(baseDir) {
+			return nil
+		}
+
+		pathInZip := getPathInZip(path, baseDir, symLinkPathInZip, linkedPath, info)
+
+		return addToArchive(path, pathInZip, info, archive)
+	})
+} */
 
 func getPathInZip(path string, baseDir, symLinkPath, linkedPath string, info os.FileInfo) string {
 	if filepath.Clean(path) == filepath.Clean(baseDir) {
