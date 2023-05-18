@@ -75,7 +75,7 @@ func RemoveIfExist(path string) error {
 // to support the spec requirements
 // Source Path to be zipped
 // Target artifact
-/* func Archive(sourcePath, targetArchivePath string, ignore []string) (e error) {
+func Archive(sourcePath, targetArchivePath string, ignore []string) (e error) {
 	// check that folder to be packed exist
 	info, err := fileInfoProvider.stat(sourcePath)
 	if err != nil {
@@ -128,9 +128,9 @@ func RemoveIfExist(path string) error {
 	}
 
 	return nil
-} */
+}
 
-func Archive(sourcePath, targetArchivePath string, ignore []string) (e error) {
+/* func Archive(sourcePath, targetArchivePath string, ignore []string) (e error) {
 	// check that folder to be packed exist
 	info, err := fileInfoProvider.stat(sourcePath)
 	if err != nil {
@@ -174,7 +174,7 @@ func Archive(sourcePath, targetArchivePath string, ignore []string) (e error) {
 
 	err = walk(sourcePath, baseDir, "", "", archive, make(map[string]bool), ignoreMap)
 	return err
-}
+} */
 
 func getBaseDir(path string, info os.FileInfo) (string, error) {
 	var err error
