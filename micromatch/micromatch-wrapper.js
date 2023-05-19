@@ -38,38 +38,6 @@ const isMatchCommand = program
       process.stdout.write("true");
     }
   });
-  
-/*   function walk(rootPath, parentPath, patterns, exportFilePath) {
-    return new Promise((resolve, reject) => {
-      fs.readdir(parentPath, function(err, files) {
-        if (err) reject(err);
-        let promises = [];
-        files.forEach(function(file) {
-          const filePath = path.join(parentPath, file);
-          promises.push(
-            new Promise((resolve, reject) => {
-              fs.stat(filePath, function(err, stats) {
-                if (err) reject(err);
-                const relFilePath = path.normalize(path.relative(rootPath, filePath)).replace(/\\/g, '/');
-                const files = [];
-                files.push(relFilePath);
-                const matchedFiles = micromatch(files, patterns)
-                if (matchedFiles.length == 0) {
-                  exportFilePath(relFilePath)
-                }
-                if (stats.isDirectory()) {
-                  walk(rootPath, filePath, patterns, exportFilePath).then(resolve).catch(reject);
-                } else {
-                  resolve();
-                }
-              });
-            })
-          );
-        });
-        Promise.all(promises).then(resolve).catch(reject);
-      });
-    });
-  } */
 
   function walk(rootPath, parentPath, patterns, exportFilePath, visitedPaths = new Set()) {
     return new Promise((resolve, reject) => {
@@ -82,14 +50,7 @@ const isMatchCommand = program
             new Promise((resolve, reject) => {
               fs.stat(filePath, function(err, stats) {
                 if (err) reject(err);
-                const relFilePath = path.normalize(path.relative(rootPath, filePath)).replace(/\\/g, '/');
-                const files = [];
-                files.push(relFilePath);
-                const matchedFiles = micromatch(files, patterns);
-                if (matchedFiles.length == 0) {
-                  exportFilePath(relFilePath);
-                }
-                
+                // (1) check symbolic link recursive 
                 fs.lstat(filePath, function(err, linkstats) {
                   if (linkstats.isSymbolicLink()) {
                     const resolvedPath = fs.realpathSync(filePath);
@@ -100,7 +61,15 @@ const isMatchCommand = program
                     visitedPaths.add(resolvedPath);
                   }
                 });
-                
+                // (2) if not match ignore pattern, export to file
+                const relFilePath = path.normalize(path.relative(rootPath, filePath)).replace(/\\/g, '/');
+                const files = [];
+                files.push(relFilePath);
+                const matchedFiles = micromatch(files, patterns);
+                if (matchedFiles.length == 0) {
+                  exportFilePath(relFilePath);
+                }
+                // (3) walk dir 
                 if (stats.isDirectory()) {
                   walk(rootPath, filePath, patterns, exportFilePath, visitedPaths).then(resolve).catch(reject);
                 } else {

@@ -121,26 +121,29 @@ func test_micromatch_getPackagedFiles(source, target string, patterns []string) 
 
 	cmd := exec.Command("./micromatch-wrapper-win.exe", cmdArgs...)
 	out, err := cmd.Output()
+
+	output := string(out)
+	fmt.Println(output)
 	//exitCode := cmd.ProcessState.ExitCode()
 	if err != nil {
 		fmt.Println("Error executing command:", err)
 		return
 	}
 
-	output := string(out)
-	fmt.Println(output)
-
 	fmt.Println()
 }
 
 func main() {
+	var cwd, source, target string
+	var files, patterns []string
+
 	// Hello
 	test_micromatch_bin_help()
 
 	// Test 1
 	fmt.Printf("Test %d\n", 1)
-	files := []string{"node_modules/braces/lib/parse.js"}
-	patterns := []string{"node_modules/braces/**"}
+	files = []string{"node_modules/braces/lib/parse.js"}
+	patterns = []string{"node_modules/braces/**"}
 	test_micromatch_match(files, patterns)
 	test_micromatch_ismatch(files, patterns)
 
@@ -489,14 +492,16 @@ func main() {
 
 	// Test 37
 	fmt.Printf("Test %d\n", 37)
-	source, _ := os.Getwd()
-	target := filepath.Join(source, "tmpfile")
+	cwd, _ = os.Getwd()
+	source = filepath.Join(cwd, "node-js")
+	target = filepath.Join(source, "tmpfile")
 	patterns = []string{}
 	test_micromatch_getPackagedFiles(source, target, patterns)
 
 	// Test 38
 	fmt.Printf("Test %d\n", 38)
-	source, _ = os.Getwd()
+	cwd, _ = os.Getwd()
+	source = filepath.Join(cwd, "node-js")
 	target = filepath.Join(source, "tmpfile")
 	patterns = []string{"node_modules/**", "!node_modules/lodash/**"}
 	test_micromatch_getPackagedFiles(source, target, patterns)
