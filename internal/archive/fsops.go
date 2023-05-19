@@ -249,7 +249,7 @@ func getPackagedFiles(sourcePath string, ignorePatterns []string) (string, error
 	exportFilePath := filepath.Join(sourcePath, exportFileName)
 
 	var cmdArgs []string
-	cmdArgs = append(cmdArgs, "getNotIgnoreFiles")
+	cmdArgs = append(cmdArgs, "getPackagedFiles")
 	cmdArgs = append(cmdArgs, "-s")
 	cmdArgs = append(cmdArgs, sourcePath)
 	cmdArgs = append(cmdArgs, "-t")
@@ -259,9 +259,9 @@ func getPackagedFiles(sourcePath string, ignorePatterns []string) (string, error
 		cmdArgs = append(cmdArgs, ignorePatterns...)
 	}
 	cmd := exec.Command("micromatch-wrapper-win.exe", cmdArgs...)
-	_, err := cmd.Output()
+	output, err := cmd.Output()
 	if err != nil {
-		return exportFilePath, err
+		return exportFilePath, errors.Wrap(err, string(output))
 	}
 	return exportFilePath, nil
 }

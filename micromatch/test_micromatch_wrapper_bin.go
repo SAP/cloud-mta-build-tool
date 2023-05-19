@@ -95,7 +95,7 @@ func test_micromatch_ismatch(files, patterns []string) {
 	fmt.Println()
 }
 
-func test_micromatch_getNotIgnoreFiles(source, target string, patterns []string) {
+func test_micromatch_getPackagedFiles(source, target string, patterns []string) {
 	// Print file and pattern before slash
 	fmt.Printf("Source: %s\n", source)
 	fmt.Printf("Target: %s\n", target)
@@ -109,7 +109,7 @@ func test_micromatch_getNotIgnoreFiles(source, target string, patterns []string)
 	}
 
 	var cmdArgs []string
-	cmdArgs = append(cmdArgs, "getNotIgnoreFiles")
+	cmdArgs = append(cmdArgs, "getPackagedFiles")
 	cmdArgs = append(cmdArgs, "-s")
 	cmdArgs = append(cmdArgs, source)
 	cmdArgs = append(cmdArgs, "-t")
@@ -491,13 +491,13 @@ func main() {
 	fmt.Printf("Test %d\n", 37)
 	source, _ := os.Getwd()
 	target := filepath.Join(source, "tmpfile")
-	patterns = []string{"node_modules/**", "!node_modules/braces/**"}
-	test_micromatch_getNotIgnoreFiles(source, target, patterns)
+	patterns = []string{}
+	test_micromatch_getPackagedFiles(source, target, patterns)
 
 	// Test 38
 	fmt.Printf("Test %d\n", 38)
 	source, _ = os.Getwd()
 	target = filepath.Join(source, "tmpfile")
-	patterns = []string{}
-	test_micromatch_getNotIgnoreFiles(source, target, patterns)
+	patterns = []string{"node_modules/**", "!node_modules/lodash/**"}
+	test_micromatch_getPackagedFiles(source, target, patterns)
 }

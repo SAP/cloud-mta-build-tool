@@ -108,7 +108,7 @@ func test_micromatch_match(files, patterns []string) {
 	fmt.Println()
 }
 
-func test_micromatch_getNotIgnoreFiles(source, target string, patterns []string) {
+func test_micromatch_getPackagedFiles(source, target string, patterns []string) {
 	// Print file and pattern before slash
 	fmt.Printf("Source: %s\n", source)
 	fmt.Printf("Target: %s\n", target)
@@ -123,7 +123,7 @@ func test_micromatch_getNotIgnoreFiles(source, target string, patterns []string)
 
 	var cmdArgs []string
 	cmdArgs = append(cmdArgs, "micromatch-wrapper.js")
-	cmdArgs = append(cmdArgs, "getNotIgnoreFiles")
+	cmdArgs = append(cmdArgs, "getPackagedFiles")
 	cmdArgs = append(cmdArgs, "-s")
 	cmdArgs = append(cmdArgs, source)
 	cmdArgs = append(cmdArgs, "-t")
@@ -134,19 +134,22 @@ func test_micromatch_getNotIgnoreFiles(source, target string, patterns []string)
 	}
 	cmd := exec.Command("node", cmdArgs...)
 	out, err := cmd.Output()
+
+	output := string(out)
+	fmt.Println(output)
 	//exitCode := cmd.ProcessState.ExitCode()
 	if err != nil {
 		fmt.Println("Error executing command:", err)
 		return
 	}
 
-	output := string(out)
-	fmt.Println(output)
-
 	fmt.Println()
 }
 
 func main() {
+
+	var cwd, source, target string
+	var patterns []string
 
 	// // Hello
 	// test_micromatch_help()
@@ -502,15 +505,17 @@ func main() {
 
 	// Test 37
 	fmt.Printf("Test %d\n", 37)
-	source, _ := os.Getwd()
-	target := filepath.Join(source, "tmpfile")
-	patterns := []string{"node_modules/**", "!node_modules/braces/**"}
-	test_micromatch_getNotIgnoreFiles(source, target, patterns)
+	cwd, _ = os.Getwd()
+	source = filepath.Join(cwd, "node-js")
+	target = filepath.Join(source, "tmpfile")
+	patterns = []string{}
+	test_micromatch_getPackagedFiles(source, target, patterns)
 
 	// Test 38
 	fmt.Printf("Test %d\n", 38)
-	source, _ = os.Getwd()
+	cwd, _ = os.Getwd()
+	source = filepath.Join(cwd, "node-js")
 	target = filepath.Join(source, "tmpfile")
-	patterns = []string{}
-	test_micromatch_getNotIgnoreFiles(source, target, patterns)
+	patterns = []string{"node_modules/**", "!node_modules/lodash/**"}
+	test_micromatch_getPackagedFiles(source, target, patterns)
 }

@@ -15,14 +15,12 @@ const matchCommand = program
   .option('-f, --files <files...>', 'Specify file paths')
   .option('-p, --patterns <patterns...>', 'Specify match patterns')
   .action((options) => {
-    const result = micromatch(options.files, options.patterns)
-    // options.files.forEach(file => process.stdout.write(util.format("File: %s\n", file)));
-    // options.patterns.forEach(pattern => process.stdout.write(util.format("Pattern: %s\n", pattern)));
-    if (result.length == 0) {
+    const matchedFiles = micromatch(options.files, options.patterns)
+    if (matchedFiles.length == 0) {
       process.stdout.write("Not Match");
     }
     else {
-      process.stdout.write("Match Files: " + result.toString());
+      process.stdout.write("Match Files: " + matchedFiles.toString());
     }
   });
 
@@ -32,10 +30,8 @@ const isMatchCommand = program
   .option('-f, --file <file>', 'Specify file paths')
   .option('-p, --patterns <patterns...>', 'Specify match patterns')
   .action((options) => {
-    // process.stdout.write(util.format("File: %s\n", options.file));
-    // options.patterns.forEach(pattern => process.stdout.write(util.format("Pattern: %s\n", pattern)));
-    const result = micromatch(options.file, options.patterns)
-    if (result.length == 0) {
+    const matchedFiles = micromatch(options.file, options.patterns)
+    if (matchedFiles.length == 0) {
       process.stdout.write("false");
     }
     else {
@@ -43,37 +39,70 @@ const isMatchCommand = program
     }
   });
   
-  function walk(rootPath, parentPath, patterns, outputFilePath) {
+/*   function walk(rootPath, parentPath, patterns, exportFilePath) {
     return new Promise((resolve, reject) => {
       fs.readdir(parentPath, function(err, files) {
         if (err) reject(err);
         let promises = [];
         files.forEach(function(file) {
-          const filepath = path.join(parentPath, file);
+          const filePath = path.join(parentPath, file);
           promises.push(
             new Promise((resolve, reject) => {
-              fs.stat(filepath, function(err, stats) {
+              fs.stat(filePath, function(err, stats) {
                 if (err) reject(err);
-                const relativeFilePath = path.normalize(path.relative(rootPath, filepath)).replace(/\\/g, '/');
-                // console.log("root path: " + rootPath)
-                // console.log("parent path: " + parentPath)
-                // console.log("file path: " + filepath)
-                // console.log("relative path: " + relativeFilePath)
-                // console.log("patterns:" + patterns)
+                const relFilePath = path.normalize(path.relative(rootPath, filePath)).replace(/\\/g, '/');
                 const files = [];
-                files.push(relativeFilePath);
-                const result = micromatch(files, patterns)
-                // console.log("result:" + result)
-                if (result.length == 0) {
-                  // console.log("file path: " + relativeFilePath + " is not match")
-                  outputFilePath(relativeFilePath)
+                files.push(relFilePath);
+                const matchedFiles = micromatch(files, patterns)
+                if (matchedFiles.length == 0) {
+                  exportFilePath(relFilePath)
                 }
-                else {
-                  // console.log("file path: " + relativeFilePath + " is match")
-                }
-                // console.log("")
                 if (stats.isDirectory()) {
-                  walk(rootPath, filepath, patterns, outputFilePath).then(resolve).catch(reject);
+                  walk(rootPath, filePath, patterns, exportFilePath).then(resolve).catch(reject);
+                } else {
+                  resolve();
+                }
+              });
+            })
+          );
+        });
+        Promise.all(promises).then(resolve).catch(reject);
+      });
+    });
+  } */
+
+  function walk(rootPath, parentPath, patterns, exportFilePath, visitedPaths = new Set()) {
+    return new Promise((resolve, reject) => {
+      fs.readdir(parentPath, function(err, files) {
+        if (err) reject(err);
+        let promises = [];
+        files.forEach(function(file) {
+          const filePath = path.join(parentPath, file);
+          promises.push(
+            new Promise((resolve, reject) => {
+              fs.stat(filePath, function(err, stats) {
+                if (err) reject(err);
+                const relFilePath = path.normalize(path.relative(rootPath, filePath)).replace(/\\/g, '/');
+                const files = [];
+                files.push(relFilePath);
+                const matchedFiles = micromatch(files, patterns);
+                if (matchedFiles.length == 0) {
+                  exportFilePath(relFilePath);
+                }
+                
+                fs.lstat(filePath, function(err, linkstats) {
+                  if (linkstats.isSymbolicLink()) {
+                    const resolvedPath = fs.realpathSync(filePath);
+                    if (visitedPaths.has(resolvedPath)) {
+                      console.log('Recursive symbolic link detected:', filePath);
+                      process.exit(1);
+                    }
+                    visitedPaths.add(resolvedPath);
+                  }
+                });
+                
+                if (stats.isDirectory()) {
+                  walk(rootPath, filePath, patterns, exportFilePath, visitedPaths).then(resolve).catch(reject);
                 } else {
                   resolve();
                 }
@@ -86,25 +115,20 @@ const isMatchCommand = program
     });
   }
   
-  const getNotIgnoredFilesCommand = program
-    .command('getNotIgnoreFiles')
-    .description('Return all files and sub directories which are not matche ignore pattern.')
+  const getPackagedFilesCommand = program
+    .command('getPackagedFiles')
+    .description('Export files and directories which will be packaged into .mtar')
     .option('-s, --source <source>', 'Source path')
     .option('-t, --target <target>', 'Target file path')
     .option('-p, --patterns <patterns...>', 'Ignore Patterns', [])
     .action((options) => {
+      if (!options.source || !options.target) {
+        console.error('source or target paramerter should not be empty!');
+        process.exit(1);
+      }
       const rootPath = options.source;
       const targetFile = options.target;
       const patterns = options.patterns.map(pattern => pattern.replace(/\\/g, '/'));
-  
-      if (!rootPath || !targetFile) {
-        console.error('Usage: node index.js rootPath targetFile');
-        process.exit(1);
-      }
-  
-      // console.log("rootPath: " + rootPath);
-      // console.log("targetFile: " + targetFile);
-      // console.log("patterns: " + patterns)
   
       const writeStream = fs.createWriteStream(targetFile);
   
@@ -117,9 +141,8 @@ const isMatchCommand = program
         console.log('Done!');
       });
   
-      walk(rootPath, rootPath, patterns, function(filepath) {
-        // console.log("current file: " + filepath);
-        writeStream.write(filepath + '\n');
+      walk(rootPath, rootPath, patterns, function(filePath) {
+        writeStream.write(filePath + '\n');
       })
       .then(() => {
         writeStream.end();
@@ -129,8 +152,6 @@ const isMatchCommand = program
         process.exit(1);
       });
     });
-
-
 
 program.parse(process.argv);
 
