@@ -440,33 +440,6 @@ func dereferenceSymlink(path string, predecessors map[string]bool) (string, os.F
 	return linkedPath, linkedInfo, paths, nil
 }
 
-/* func packageSymbolicLinkToArchive(path, baseDir, parentSymLinkPath, parentLinkedPath string,
-	archive *zip.Writer, predecessors map[string]bool) (e error) {
-	if symlinkReferencesPredecessor(path, predecessors) {
-		return errors.Errorf(recursiveSymLinkMsg, path)
-	}
-
-	linkedPath, linkedInfo, paths, err := dereferenceSymlink(path, predecessors)
-
-	logs.Logger.Infof("dereference Symlink, path: '%s', linkedPath: '%s', paths: '[%s]'",
-		path, linkedPath, strings.Join(paths, ","))
-
-	if err != nil {
-		return err
-	}
-
-	pathInZip := getPathInZip(path, baseDir, parentSymLinkPath, parentLinkedPath, linkedInfo)
-
-	if !fileInfoProvider.isDir(linkedInfo) || filepath.Clean(path) != filepath.Clean(baseDir) {
-		err = addToArchive(linkedPath, pathInZip, linkedInfo, archive)
-		if err != nil {
-			return err
-		}
-	}
-	deleteAddedPredecessors(predecessors, paths)
-	return nil
-} */
-
 func addSymbolicLinkToArchive(path string, baseDir, parentSymLinkPath, parentLinkedPath string, archive *zip.Writer,
 	predecessors map[string]bool, ignore map[string]interface{}) (e error) {
 
