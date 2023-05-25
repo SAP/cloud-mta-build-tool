@@ -151,351 +151,351 @@ func main() {
 	var cwd, source, target string
 	var files, patterns []string
 
-	// Hello
-	test_micromatch_help()
+	// // Hello
+	// test_micromatch_help()
 
-	// Test 1
-	fmt.Printf("Test %d\n", 1)
-	files = []string{"node_modules/braces/lib/parse.js"}
-	patterns = []string{"node_modules/braces/**"}
-	test_micromatch_match(files, patterns)
-	test_micromatch_ismatch(files, patterns)
+	// // Test 1
+	// fmt.Printf("Test %d\n", 1)
+	// files = []string{"node_modules/braces/lib/parse.js"}
+	// patterns = []string{"node_modules/braces/**"}
+	// test_micromatch_match(files, patterns)
+	// test_micromatch_ismatch(files, patterns)
 
-	// Test 2
-	fmt.Printf("Test %d\n", 2)
-	files = []string{"node_modules\\braces\\lib\\parse.js"}
-	patterns = []string{"node_modules\\braces\\**"}
-	test_micromatch_match(files, patterns)
-	test_micromatch_ismatch(files, patterns)
+	// // Test 2
+	// fmt.Printf("Test %d\n", 2)
+	// files = []string{"node_modules\\braces\\lib\\parse.js"}
+	// patterns = []string{"node_modules\\braces\\**"}
+	// test_micromatch_match(files, patterns)
+	// test_micromatch_ismatch(files, patterns)
 
-	// Test 3
-	fmt.Printf("Test %d\n", 3)
-	files = []string{"node_modules/commander/lib/help.js"}
-	patterns = []string{"node_modules/!(braces)/**"}
-	test_micromatch_match(files, patterns)
-	test_micromatch_ismatch(files, patterns)
+	// // Test 3
+	// fmt.Printf("Test %d\n", 3)
+	// files = []string{"node_modules/commander/lib/help.js"}
+	// patterns = []string{"node_modules/!(braces)/**"}
+	// test_micromatch_match(files, patterns)
+	// test_micromatch_ismatch(files, patterns)
 
-	// Test 4
-	fmt.Printf("Test %d\n", 4)
-	files = []string{"/node_modules/npm_module/pkg/young.yang03.js"}
-	patterns = []string{"/**/pkg/**"}
-	test_micromatch_match(files, patterns)
-	test_micromatch_ismatch(files, patterns)
+	// // Test 4
+	// fmt.Printf("Test %d\n", 4)
+	// files = []string{"/node_modules/npm_module/pkg/young.yang03.js"}
+	// patterns = []string{"/**/pkg/**"}
+	// test_micromatch_match(files, patterns)
+	// test_micromatch_ismatch(files, patterns)
 
-	// Test 5
-	fmt.Printf("Test %d\n", 5)
-	files = []string{"/node_modules/npm_module/pkg/young.yang03.js"}
-	patterns = []string{"/**/!(pkg)/**"}
-	test_micromatch_match(files, patterns)
+	// // Test 5
+	// fmt.Printf("Test %d\n", 5)
+	// files = []string{"/node_modules/npm_module/pkg/young.yang03.js"}
+	// patterns = []string{"/**/!(pkg)/**"}
+	// test_micromatch_match(files, patterns)
 
-	// Test 6
-	fmt.Printf("Test %d\n", 6)
-	files = []string{"/node_modules/npm_module/pkg/young.yang03.js"}
-	patterns = []string{"/**/!(pkg)/!(pkg)/**"}
-	test_micromatch_match(files, patterns)
-	test_micromatch_ismatch(files, patterns)
+	// // Test 6
+	// fmt.Printf("Test %d\n", 6)
+	// files = []string{"/node_modules/npm_module/pkg/young.yang03.js"}
+	// patterns = []string{"/**/!(pkg)/!(pkg)/**"}
+	// test_micromatch_match(files, patterns)
+	// test_micromatch_ismatch(files, patterns)
 
-	// Test 7
-	fmt.Printf("Test %d\n", 7)
-	files = []string{"/node_modules/npm_module/pkg/young.yang03.js"}
-	patterns = []string{"/**/!(pkg)/!(pkg)/!(pkg)/**"}
-	test_micromatch_match(files, patterns)
-	test_micromatch_ismatch(files, patterns)
+	// // Test 7
+	// fmt.Printf("Test %d\n", 7)
+	// files = []string{"/node_modules/npm_module/pkg/young.yang03.js"}
+	// patterns = []string{"/**/!(pkg)/!(pkg)/!(pkg)/**"}
+	// test_micromatch_match(files, patterns)
+	// test_micromatch_ismatch(files, patterns)
 
-	// Test 8
-	fmt.Printf("Test %d\n", 8)
-	files = []string{"/node_modules/npm_module/notpkg/young.yang03.js"}
-	patterns = []string{"/**/!(pkg)/**"}
-	test_micromatch_match(files, patterns)
-	test_micromatch_ismatch(files, patterns)
+	// // Test 8
+	// fmt.Printf("Test %d\n", 8)
+	// files = []string{"/node_modules/npm_module/notpkg/young.yang03.js"}
+	// patterns = []string{"/**/!(pkg)/**"}
+	// test_micromatch_match(files, patterns)
+	// test_micromatch_ismatch(files, patterns)
 
-	// Test 9
-	fmt.Printf("Test %d\n", 9)
-	files = []string{"licence.js"}
-	patterns = []string{"*.js"}
-	test_micromatch_match(files, patterns)
-	test_micromatch_ismatch(files, patterns)
+	// // Test 9
+	// fmt.Printf("Test %d\n", 9)
+	// files = []string{"licence.js"}
+	// patterns = []string{"*.js"}
+	// test_micromatch_match(files, patterns)
+	// test_micromatch_ismatch(files, patterns)
 
-	// Test 10
-	fmt.Printf("Test %d\n", 10)
-	files = []string{"node_module/licence.js"}
-	patterns = []string{"node_module/*"}
-	test_micromatch_match(files, patterns)
-	test_micromatch_ismatch(files, patterns)
+	// // Test 10
+	// fmt.Printf("Test %d\n", 10)
+	// files = []string{"node_module/licence.js"}
+	// patterns = []string{"node_module/*"}
+	// test_micromatch_match(files, patterns)
+	// test_micromatch_ismatch(files, patterns)
 
-	// Test 11
-	fmt.Printf("Test %d\n", 11)
-	files = []string{"node_module/licence.js"}
-	patterns = []string{"node_module/**"}
-	test_micromatch_match(files, patterns)
-	test_micromatch_ismatch(files, patterns)
+	// // Test 11
+	// fmt.Printf("Test %d\n", 11)
+	// files = []string{"node_module/licence.js"}
+	// patterns = []string{"node_module/**"}
+	// test_micromatch_match(files, patterns)
+	// test_micromatch_ismatch(files, patterns)
 
-	// Test 12
-	fmt.Printf("Test %d\n", 12)
-	files = []string{"node-js\\gulpfile.js"}
-	patterns = []string{"node-js\\*.js"}
-	test_micromatch_match(files, patterns)
-	test_micromatch_ismatch(files, patterns)
+	// // Test 12
+	// fmt.Printf("Test %d\n", 12)
+	// files = []string{"node-js\\gulpfile.js"}
+	// patterns = []string{"node-js\\*.js"}
+	// test_micromatch_match(files, patterns)
+	// test_micromatch_ismatch(files, patterns)
 
-	// Test 13
-	fmt.Printf("Test %d\n", 13)
-	files = []string{"C:\\Workspace\\Test_Project\\go_glob_patter_test\\test_micromatch_match\\node-js\\gulpfile.js"}
-	patterns = []string{"C:\\Workspace\\Test_Project\\go_glob_patter_test\\test_micromatch_match\\node-js\\*.js"}
-	test_micromatch_match(files, patterns)
-	test_micromatch_ismatch(files, patterns)
+	// // Test 13
+	// fmt.Printf("Test %d\n", 13)
+	// files = []string{"C:\\Workspace\\Test_Project\\go_glob_patter_test\\test_micromatch_match\\node-js\\gulpfile.js"}
+	// patterns = []string{"C:\\Workspace\\Test_Project\\go_glob_patter_test\\test_micromatch_match\\node-js\\*.js"}
+	// test_micromatch_match(files, patterns)
+	// test_micromatch_ismatch(files, patterns)
 
-	// Test 14
-	fmt.Printf("Test %d\n", 14)
-	files = []string{"node_module/licence.js"}
-	patterns = []string{"node_module/?icence.js"}
-	test_micromatch_match(files, patterns)
-	test_micromatch_ismatch(files, patterns)
+	// // Test 14
+	// fmt.Printf("Test %d\n", 14)
+	// files = []string{"node_module/licence.js"}
+	// patterns = []string{"node_module/?icence.js"}
+	// test_micromatch_match(files, patterns)
+	// test_micromatch_ismatch(files, patterns)
 
-	// Test 15
-	fmt.Printf("Test %d\n", 15)
-	files = []string{"node_module/braces/lib"}
-	patterns = []string{"node_module/b[r,e]aces/*"}
-	test_micromatch_match(files, patterns)
-	test_micromatch_ismatch(files, patterns)
+	// // Test 15
+	// fmt.Printf("Test %d\n", 15)
+	// files = []string{"node_module/braces/lib"}
+	// patterns = []string{"node_module/b[r,e]aces/*"}
+	// test_micromatch_match(files, patterns)
+	// test_micromatch_ismatch(files, patterns)
 
-	// Test 16
-	fmt.Printf("Test %d\n", 16)
-	files = []string{"node_module/braces/lib"}
-	patterns = []string{"node_module/b[r,e]aces/*"}
-	test_micromatch_match(files, patterns)
-	test_micromatch_ismatch(files, patterns)
+	// // Test 16
+	// fmt.Printf("Test %d\n", 16)
+	// files = []string{"node_module/braces/lib"}
+	// patterns = []string{"node_module/b[r,e]aces/*"}
+	// test_micromatch_match(files, patterns)
+	// test_micromatch_ismatch(files, patterns)
 
-	// Test 17
-	fmt.Printf("Test %d\n", 17)
-	files = []string{"node_modules/@sap/excluded_nodejs_packages"}
-	patterns = []string{"node_modules/@sap/!(included_nodejs_packages)"}
-	test_micromatch_match(files, patterns)
-	test_micromatch_ismatch(files, patterns)
+	// // Test 17
+	// fmt.Printf("Test %d\n", 17)
+	// files = []string{"node_modules/@sap/excluded_nodejs_packages"}
+	// patterns = []string{"node_modules/@sap/!(included_nodejs_packages)"}
+	// test_micromatch_match(files, patterns)
+	// test_micromatch_ismatch(files, patterns)
 
-	// Test 18
-	fmt.Printf("Test %d\n", 18)
-	files = []string{"node_modules/@sap/included_nodejs_packages"}
-	patterns = []string{"node_modules/@sap/!(included_nodejs_packages)"}
-	test_micromatch_match(files, patterns)
-	test_micromatch_ismatch(files, patterns)
+	// // Test 18
+	// fmt.Printf("Test %d\n", 18)
+	// files = []string{"node_modules/@sap/included_nodejs_packages"}
+	// patterns = []string{"node_modules/@sap/!(included_nodejs_packages)"}
+	// test_micromatch_match(files, patterns)
+	// test_micromatch_ismatch(files, patterns)
 
-	// Test 19
-	fmt.Printf("Test %d\n", 19)
-	files = []string{"node_modules/@sap/excluded_nodejs_packages"}
-	patterns = []string{"!node_modules/@sap/included_nodejs_packages"}
-	test_micromatch_match(files, patterns)
-	test_micromatch_ismatch(files, patterns)
+	// // Test 19
+	// fmt.Printf("Test %d\n", 19)
+	// files = []string{"node_modules/@sap/excluded_nodejs_packages"}
+	// patterns = []string{"!node_modules/@sap/included_nodejs_packages"}
+	// test_micromatch_match(files, patterns)
+	// test_micromatch_ismatch(files, patterns)
 
-	// Test 20
-	fmt.Printf("Test %d\n", 20)
-	files = []string{"node_modules/@sap/included_nodejs_packages"}
-	patterns = []string{"!node_modules/@sap/included_nodejs_packages"}
-	test_micromatch_match(files, patterns)
-	test_micromatch_ismatch(files, patterns)
+	// // Test 20
+	// fmt.Printf("Test %d\n", 20)
+	// files = []string{"node_modules/@sap/included_nodejs_packages"}
+	// patterns = []string{"!node_modules/@sap/included_nodejs_packages"}
+	// test_micromatch_match(files, patterns)
+	// test_micromatch_ismatch(files, patterns)
 
-	// Test 21
-	fmt.Printf("Test %d\n", 21)
-	files = []string{"node_modules/@sap/included_nodejs_packages"}
-	patterns = []string{"node_modules/@sap/**", "!node_modules/@sap/included_nodejs_packages", "!node_modules/@sap/excluded_nodejs_packages"}
-	test_micromatch_match(files, patterns)
-	test_micromatch_ismatch(files, patterns)
+	// // Test 21
+	// fmt.Printf("Test %d\n", 21)
+	// files = []string{"node_modules/@sap/included_nodejs_packages"}
+	// patterns = []string{"node_modules/@sap/**", "!node_modules/@sap/included_nodejs_packages", "!node_modules/@sap/excluded_nodejs_packages"}
+	// test_micromatch_match(files, patterns)
+	// test_micromatch_ismatch(files, patterns)
 
-	// Test 22
-	fmt.Printf("Test %d\n", 22)
-	files = []string{"a/b/3.js"}
-	patterns = []string{"a/b/**", "!a/b/3.js"}
-	test_micromatch_match(files, patterns)
-	test_micromatch_ismatch(files, patterns)
+	// // Test 22
+	// fmt.Printf("Test %d\n", 22)
+	// files = []string{"a/b/3.js"}
+	// patterns = []string{"a/b/**", "!a/b/3.js"}
+	// test_micromatch_match(files, patterns)
+	// test_micromatch_ismatch(files, patterns)
 
-	// Test 23
-	fmt.Printf("Test %d\n", 23)
-	files = []string{"a/b/3.js", "a/b/4.js", "a/b/5.js", "a/b/6.js"}
-	patterns = []string{"a/b/**", "!a/b/3.js"}
-	test_micromatch_match(files, patterns)
-	files = []string{"a/b/3.js"}
-	test_micromatch_match(files, patterns)
-	test_micromatch_ismatch(files, patterns)
-	files = []string{"a/b/4.js"}
-	test_micromatch_match(files, patterns)
-	test_micromatch_ismatch(files, patterns)
-	files = []string{"a/b/5.js"}
-	test_micromatch_match(files, patterns)
-	test_micromatch_ismatch(files, patterns)
-	files = []string{"a/b/6.js"}
-	test_micromatch_match(files, patterns)
-	test_micromatch_ismatch(files, patterns)
+	// // Test 23
+	// fmt.Printf("Test %d\n", 23)
+	// files = []string{"a/b/3.js", "a/b/4.js", "a/b/5.js", "a/b/6.js"}
+	// patterns = []string{"a/b/**", "!a/b/3.js"}
+	// test_micromatch_match(files, patterns)
+	// files = []string{"a/b/3.js"}
+	// test_micromatch_match(files, patterns)
+	// test_micromatch_ismatch(files, patterns)
+	// files = []string{"a/b/4.js"}
+	// test_micromatch_match(files, patterns)
+	// test_micromatch_ismatch(files, patterns)
+	// files = []string{"a/b/5.js"}
+	// test_micromatch_match(files, patterns)
+	// test_micromatch_ismatch(files, patterns)
+	// files = []string{"a/b/6.js"}
+	// test_micromatch_match(files, patterns)
+	// test_micromatch_ismatch(files, patterns)
 
-	// Test 24
-	fmt.Printf("Test %d\n", 24)
-	files = []string{"a/b/3.js"}
-	patterns = []string{"a/b/**", "!a/b/3.js", "!a/b/4.js"}
-	test_micromatch_match(files, patterns)
-	test_micromatch_ismatch(files, patterns)
+	// // Test 24
+	// fmt.Printf("Test %d\n", 24)
+	// files = []string{"a/b/3.js"}
+	// patterns = []string{"a/b/**", "!a/b/3.js", "!a/b/4.js"}
+	// test_micromatch_match(files, patterns)
+	// test_micromatch_ismatch(files, patterns)
 
-	// Test 25
-	fmt.Printf("Test %d\n", 25)
-	files = []string{"a/b/3.js", "a/b/4.js", "a/b/5.js", "a/b/6.js"}
-	patterns = []string{"a/b/**", "!a/b/3.js", "!a/b/4.js"}
-	test_micromatch_match(files, patterns)
-	files = []string{"a/b/3.js"}
-	test_micromatch_match(files, patterns)
-	test_micromatch_ismatch(files, patterns)
-	files = []string{"a/b/4.js"}
-	test_micromatch_match(files, patterns)
-	test_micromatch_ismatch(files, patterns)
-	files = []string{"a/b/5.js"}
-	test_micromatch_match(files, patterns)
-	test_micromatch_ismatch(files, patterns)
-	files = []string{"a/b/6.js"}
-	test_micromatch_match(files, patterns)
-	test_micromatch_ismatch(files, patterns)
+	// // Test 25
+	// fmt.Printf("Test %d\n", 25)
+	// files = []string{"a/b/3.js", "a/b/4.js", "a/b/5.js", "a/b/6.js"}
+	// patterns = []string{"a/b/**", "!a/b/3.js", "!a/b/4.js"}
+	// test_micromatch_match(files, patterns)
+	// files = []string{"a/b/3.js"}
+	// test_micromatch_match(files, patterns)
+	// test_micromatch_ismatch(files, patterns)
+	// files = []string{"a/b/4.js"}
+	// test_micromatch_match(files, patterns)
+	// test_micromatch_ismatch(files, patterns)
+	// files = []string{"a/b/5.js"}
+	// test_micromatch_match(files, patterns)
+	// test_micromatch_ismatch(files, patterns)
+	// files = []string{"a/b/6.js"}
+	// test_micromatch_match(files, patterns)
+	// test_micromatch_ismatch(files, patterns)
 
-	// Test 26
-	fmt.Printf("Test %d\n", 26)
-	files = []string{"a/b/3.js", "a/b/4.js", "a/b/5.js", "a/b/6.js"}
-	patterns = []string{"a/b/!(3.js)", "a/b/!(4.js)"}
-	test_micromatch_match(files, patterns)
-	files = []string{"a/b/3.js"}
-	test_micromatch_match(files, patterns)
-	test_micromatch_ismatch(files, patterns)
-	files = []string{"a/b/4.js"}
-	test_micromatch_match(files, patterns)
-	test_micromatch_ismatch(files, patterns)
-	files = []string{"a/b/5.js"}
-	test_micromatch_match(files, patterns)
-	test_micromatch_ismatch(files, patterns)
-	files = []string{"a/b/6.js"}
-	test_micromatch_match(files, patterns)
-	test_micromatch_ismatch(files, patterns)
+	// // Test 26
+	// fmt.Printf("Test %d\n", 26)
+	// files = []string{"a/b/3.js", "a/b/4.js", "a/b/5.js", "a/b/6.js"}
+	// patterns = []string{"a/b/!(3.js)", "a/b/!(4.js)"}
+	// test_micromatch_match(files, patterns)
+	// files = []string{"a/b/3.js"}
+	// test_micromatch_match(files, patterns)
+	// test_micromatch_ismatch(files, patterns)
+	// files = []string{"a/b/4.js"}
+	// test_micromatch_match(files, patterns)
+	// test_micromatch_ismatch(files, patterns)
+	// files = []string{"a/b/5.js"}
+	// test_micromatch_match(files, patterns)
+	// test_micromatch_ismatch(files, patterns)
+	// files = []string{"a/b/6.js"}
+	// test_micromatch_match(files, patterns)
+	// test_micromatch_ismatch(files, patterns)
 
-	// Test 27
-	fmt.Printf("Test %d\n", 27)
-	files = []string{"a/b/3.js", "a/b/4.js", "a/b/5.js", "a/b/6.js"}
-	patterns = []string{"a/b/**", "a/b/!(3.js)", "!a/b/3.js", "!a/b/4.js"}
-	test_micromatch_match(files, patterns)
-	files = []string{"a/b/3.js"}
-	test_micromatch_match(files, patterns)
-	test_micromatch_ismatch(files, patterns)
-	files = []string{"a/b/4.js"}
-	test_micromatch_match(files, patterns)
-	test_micromatch_ismatch(files, patterns)
-	files = []string{"a/b/5.js"}
-	test_micromatch_match(files, patterns)
-	test_micromatch_ismatch(files, patterns)
-	files = []string{"a/b/6.js"}
-	test_micromatch_match(files, patterns)
-	test_micromatch_ismatch(files, patterns)
+	// // Test 27
+	// fmt.Printf("Test %d\n", 27)
+	// files = []string{"a/b/3.js", "a/b/4.js", "a/b/5.js", "a/b/6.js"}
+	// patterns = []string{"a/b/**", "a/b/!(3.js)", "!a/b/3.js", "!a/b/4.js"}
+	// test_micromatch_match(files, patterns)
+	// files = []string{"a/b/3.js"}
+	// test_micromatch_match(files, patterns)
+	// test_micromatch_ismatch(files, patterns)
+	// files = []string{"a/b/4.js"}
+	// test_micromatch_match(files, patterns)
+	// test_micromatch_ismatch(files, patterns)
+	// files = []string{"a/b/5.js"}
+	// test_micromatch_match(files, patterns)
+	// test_micromatch_ismatch(files, patterns)
+	// files = []string{"a/b/6.js"}
+	// test_micromatch_match(files, patterns)
+	// test_micromatch_ismatch(files, patterns)
 
-	// Test 28
-	fmt.Printf("Test %d\n", 28)
-	files = []string{"a/b/3.js"}
-	patterns = []string{"!a/b/3.js", "a/b/**"}
-	test_micromatch_match(files, patterns)
-	test_micromatch_ismatch(files, patterns)
+	// // Test 28
+	// fmt.Printf("Test %d\n", 28)
+	// files = []string{"a/b/3.js"}
+	// patterns = []string{"!a/b/3.js", "a/b/**"}
+	// test_micromatch_match(files, patterns)
+	// test_micromatch_ismatch(files, patterns)
 
-	// Test 29
-	fmt.Printf("Test %d\n", 29)
-	files = []string{"a/b/3.js", "a/b/4.js", "a/b/5.js", "a/b/6.js"}
-	patterns = []string{"!a/b/4.js", "a/b/**", "!a/b/3.js"}
-	test_micromatch_match(files, patterns)
-	files = []string{"a/b/3.js"}
-	test_micromatch_match(files, patterns)
-	test_micromatch_ismatch(files, patterns)
-	files = []string{"a/b/4.js"}
-	test_micromatch_match(files, patterns)
-	test_micromatch_ismatch(files, patterns)
-	files = []string{"a/b/5.js"}
-	test_micromatch_match(files, patterns)
-	test_micromatch_ismatch(files, patterns)
-	files = []string{"a/b/6.js"}
-	test_micromatch_match(files, patterns)
-	test_micromatch_ismatch(files, patterns)
+	// // Test 29
+	// fmt.Printf("Test %d\n", 29)
+	// files = []string{"a/b/3.js", "a/b/4.js", "a/b/5.js", "a/b/6.js"}
+	// patterns = []string{"!a/b/4.js", "a/b/**", "!a/b/3.js"}
+	// test_micromatch_match(files, patterns)
+	// files = []string{"a/b/3.js"}
+	// test_micromatch_match(files, patterns)
+	// test_micromatch_ismatch(files, patterns)
+	// files = []string{"a/b/4.js"}
+	// test_micromatch_match(files, patterns)
+	// test_micromatch_ismatch(files, patterns)
+	// files = []string{"a/b/5.js"}
+	// test_micromatch_match(files, patterns)
+	// test_micromatch_ismatch(files, patterns)
+	// files = []string{"a/b/6.js"}
+	// test_micromatch_match(files, patterns)
+	// test_micromatch_ismatch(files, patterns)
 
-	// Test 30
-	fmt.Printf("Test %d\n", 30)
-	files = []string{"a/b/3.js", "a/b/4.js", "a/b/5.js", "a/b/6.js"}
-	patterns = []string{"!a/b/3.js", "!a/b/4.js", "a/b/**"}
-	test_micromatch_match(files, patterns)
-	files = []string{"a/b/3.js"}
-	test_micromatch_match(files, patterns)
-	test_micromatch_ismatch(files, patterns)
-	files = []string{"a/b/4.js"}
-	test_micromatch_match(files, patterns)
-	test_micromatch_ismatch(files, patterns)
-	files = []string{"a/b/5.js"}
-	test_micromatch_match(files, patterns)
-	test_micromatch_ismatch(files, patterns)
-	files = []string{"a/b/6.js"}
-	test_micromatch_match(files, patterns)
-	test_micromatch_ismatch(files, patterns)
+	// // Test 30
+	// fmt.Printf("Test %d\n", 30)
+	// files = []string{"a/b/3.js", "a/b/4.js", "a/b/5.js", "a/b/6.js"}
+	// patterns = []string{"!a/b/3.js", "!a/b/4.js", "a/b/**"}
+	// test_micromatch_match(files, patterns)
+	// files = []string{"a/b/3.js"}
+	// test_micromatch_match(files, patterns)
+	// test_micromatch_ismatch(files, patterns)
+	// files = []string{"a/b/4.js"}
+	// test_micromatch_match(files, patterns)
+	// test_micromatch_ismatch(files, patterns)
+	// files = []string{"a/b/5.js"}
+	// test_micromatch_match(files, patterns)
+	// test_micromatch_ismatch(files, patterns)
+	// files = []string{"a/b/6.js"}
+	// test_micromatch_match(files, patterns)
+	// test_micromatch_ismatch(files, patterns)
 
-	// Test 31
-	fmt.Printf("Test %d\n", 31)
-	files = []string{"a/b/3.js", "a/b/4.js", "a/b/5.js", "a/b/6.js"}
-	patterns = []string{"a/b/!(4.js)", "a/b/!(3.js)"}
-	test_micromatch_match(files, patterns)
-	files = []string{"a/b/3.js"}
-	test_micromatch_match(files, patterns)
-	test_micromatch_ismatch(files, patterns)
-	files = []string{"a/b/4.js"}
-	test_micromatch_match(files, patterns)
-	test_micromatch_ismatch(files, patterns)
-	files = []string{"a/b/5.js"}
-	test_micromatch_match(files, patterns)
-	test_micromatch_ismatch(files, patterns)
-	files = []string{"a/b/6.js"}
-	test_micromatch_match(files, patterns)
-	test_micromatch_ismatch(files, patterns)
+	// // Test 31
+	// fmt.Printf("Test %d\n", 31)
+	// files = []string{"a/b/3.js", "a/b/4.js", "a/b/5.js", "a/b/6.js"}
+	// patterns = []string{"a/b/!(4.js)", "a/b/!(3.js)"}
+	// test_micromatch_match(files, patterns)
+	// files = []string{"a/b/3.js"}
+	// test_micromatch_match(files, patterns)
+	// test_micromatch_ismatch(files, patterns)
+	// files = []string{"a/b/4.js"}
+	// test_micromatch_match(files, patterns)
+	// test_micromatch_ismatch(files, patterns)
+	// files = []string{"a/b/5.js"}
+	// test_micromatch_match(files, patterns)
+	// test_micromatch_ismatch(files, patterns)
+	// files = []string{"a/b/6.js"}
+	// test_micromatch_match(files, patterns)
+	// test_micromatch_ismatch(files, patterns)
 
-	// Test 32
-	fmt.Printf("Test %d\n", 32)
-	files = []string{"a/b/3.js", "a/b/4.js", "a/b/5.js", "a/b/6.js"}
-	patterns = []string{"a/b/!(3.js)", "a/b/**", "!a/b/3.js", "!a/b/4.js"}
-	test_micromatch_match(files, patterns)
-	files = []string{"a/b/3.js"}
-	test_micromatch_match(files, patterns)
-	test_micromatch_ismatch(files, patterns)
-	files = []string{"a/b/4.js"}
-	test_micromatch_match(files, patterns)
-	test_micromatch_ismatch(files, patterns)
-	files = []string{"a/b/5.js"}
-	test_micromatch_match(files, patterns)
-	test_micromatch_ismatch(files, patterns)
-	files = []string{"a/b/6.js"}
-	test_micromatch_match(files, patterns)
-	test_micromatch_ismatch(files, patterns)
+	// // Test 32
+	// fmt.Printf("Test %d\n", 32)
+	// files = []string{"a/b/3.js", "a/b/4.js", "a/b/5.js", "a/b/6.js"}
+	// patterns = []string{"a/b/!(3.js)", "a/b/**", "!a/b/3.js", "!a/b/4.js"}
+	// test_micromatch_match(files, patterns)
+	// files = []string{"a/b/3.js"}
+	// test_micromatch_match(files, patterns)
+	// test_micromatch_ismatch(files, patterns)
+	// files = []string{"a/b/4.js"}
+	// test_micromatch_match(files, patterns)
+	// test_micromatch_ismatch(files, patterns)
+	// files = []string{"a/b/5.js"}
+	// test_micromatch_match(files, patterns)
+	// test_micromatch_ismatch(files, patterns)
+	// files = []string{"a/b/6.js"}
+	// test_micromatch_match(files, patterns)
+	// test_micromatch_ismatch(files, patterns)
 
-	// Test 33
-	fmt.Printf("Test %d\n", 33)
-	files = []string{"a/b/3.js", "a/b/4.js", "a/b/5.js", "a/b/6.js"}
-	patterns = []string{"a/b/**", "!a/b/3.js", "!a/b/4.js", "a/b/!(3.js)"}
-	test_micromatch_match(files, patterns)
-	files = []string{"a/b/3.js"}
-	test_micromatch_match(files, patterns)
-	test_micromatch_ismatch(files, patterns)
-	files = []string{"a/b/4.js"}
-	test_micromatch_match(files, patterns)
-	test_micromatch_ismatch(files, patterns)
-	files = []string{"a/b/5.js"}
-	test_micromatch_match(files, patterns)
-	test_micromatch_ismatch(files, patterns)
-	files = []string{"a/b/6.js"}
-	test_micromatch_match(files, patterns)
-	test_micromatch_ismatch(files, patterns)
+	// // Test 33
+	// fmt.Printf("Test %d\n", 33)
+	// files = []string{"a/b/3.js", "a/b/4.js", "a/b/5.js", "a/b/6.js"}
+	// patterns = []string{"a/b/**", "!a/b/3.js", "!a/b/4.js", "a/b/!(3.js)"}
+	// test_micromatch_match(files, patterns)
+	// files = []string{"a/b/3.js"}
+	// test_micromatch_match(files, patterns)
+	// test_micromatch_ismatch(files, patterns)
+	// files = []string{"a/b/4.js"}
+	// test_micromatch_match(files, patterns)
+	// test_micromatch_ismatch(files, patterns)
+	// files = []string{"a/b/5.js"}
+	// test_micromatch_match(files, patterns)
+	// test_micromatch_ismatch(files, patterns)
+	// files = []string{"a/b/6.js"}
+	// test_micromatch_match(files, patterns)
+	// test_micromatch_ismatch(files, patterns)
 
-	// Test 34
-	fmt.Printf("Test %d\n", 34)
-	files = []string{"node_modules/@sap/cds", "node_modules/@sap/credential-store-client-node",
-		"node_modules/@sap/external-service-mashup", "node_modules/@sap/low-code-event-handler", "node_modules/@sap/xssec"}
-	patterns = []string{"node_modules/@sap/**", "!node_modules/@sap/credential-store-client-node", "!node_modules/@sap/external-service-mashup"}
-	test_micromatch_match(files, patterns)
+	// // Test 34
+	// fmt.Printf("Test %d\n", 34)
+	// files = []string{"node_modules/@sap/cds", "node_modules/@sap/credential-store-client-node",
+	// 	"node_modules/@sap/external-service-mashup", "node_modules/@sap/low-code-event-handler", "node_modules/@sap/xssec"}
+	// patterns = []string{"node_modules/@sap/**", "!node_modules/@sap/credential-store-client-node", "!node_modules/@sap/external-service-mashup"}
+	// test_micromatch_match(files, patterns)
 
-	// Test 35
-	fmt.Printf("Test %d\n", 35)
-	files = []string{"node_modules/@sap/cds", "node_modules/@sap/credential-store-client-node",
-		"node_modules/@sap/external-service-mashup", "node_modules/@sap/low-code-event-handler", "node_modules/@sap/xssec"}
-	patterns = []string{"node_modules/@sap/!(credential-store-client-node)", "node_modules/@sap/!(external-service-mashup)"}
-	test_micromatch_match(files, patterns)
+	// // Test 35
+	// fmt.Printf("Test %d\n", 35)
+	// files = []string{"node_modules/@sap/cds", "node_modules/@sap/credential-store-client-node",
+	// 	"node_modules/@sap/external-service-mashup", "node_modules/@sap/low-code-event-handler", "node_modules/@sap/xssec"}
+	// patterns = []string{"node_modules/@sap/!(credential-store-client-node)", "node_modules/@sap/!(external-service-mashup)"}
+	// test_micromatch_match(files, patterns)
 
 	// Test 36
 	fmt.Printf("Test %d\n", 36)
@@ -503,19 +503,27 @@ func main() {
 	patterns = []string{"node_modules/**", "!node_modules/braces/**"}
 	test_micromatch_match(files, patterns)
 
-	// Test 37
-	fmt.Printf("Test %d\n", 37)
-	cwd, _ = os.Getwd()
-	source = filepath.Join(cwd, "node-js")
-	target = filepath.Join(source, "tmpfile")
-	patterns = []string{}
-	test_micromatch_getPackagedFiles(source, target, patterns)
+	// // Test 37
+	// fmt.Printf("Test %d\n", 37)
+	// cwd, _ = os.Getwd()
+	// source = filepath.Join(cwd, "node-js")
+	// target = filepath.Join(source, "tmpfile")
+	// patterns = []string{}
+	// test_micromatch_getPackagedFiles(source, target, patterns)
 
 	// Test 38
 	fmt.Printf("Test %d\n", 38)
 	cwd, _ = os.Getwd()
 	source = filepath.Join(cwd, "node-js")
 	target = filepath.Join(source, "tmpfile")
+	patterns = []string{"node_modules/**", "!node_modules/lodash/**"}
+	test_micromatch_getPackagedFiles(source, target, patterns)
+
+	// Test 39
+	fmt.Printf("Test %d\n", 39)
+	cwd, _ = os.Getwd()
+	source = filepath.Join(cwd, "node-js/gulpfile.js")
+	target = filepath.Join(cwd, "node-js/tmpfile")
 	patterns = []string{"node_modules/**", "!node_modules/lodash/**"}
 	test_micromatch_getPackagedFiles(source, target, patterns)
 }

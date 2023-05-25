@@ -118,6 +118,78 @@ var _ = Describe("FSOPS", func() {
 		)
 	})
 
+	var _ = Describe("GeneratePackage", func() {
+		var targetFilePath = getFullPath("testdata", "arch.mbt")
+
+		BeforeEach(func() {
+			fileInfoProvider = &mockFileInfoProvider{}
+		})
+
+		AfterEach(func() {
+			fileInfoProvider = &standardFileInfoProvider{}
+			Ω(os.RemoveAll(targetFilePath)).Should(Succeed())
+		})
+
+		var _ = DescribeTable("Archive", func(source, target string, ignore []string, fails bool, expectedFiles []string) {
+			err := GeneratePackage(source, target, ignore)
+			if fails {
+				Ω(err).Should(HaveOccurred())
+			} else {
+				Ω(err).Should(Succeed())
+				Ω(target).Should(BeAnExistingFile())
+				validateArchiveContents(expectedFiles, target)
+			}
+		},
+			Entry("Sanity",
+				getFullPath("testdata", "mtahtml5"), targetFilePath, nil, false, []string{
+					"mta.sh", "mta.yaml",
+					"ui5app/", "ui5app/Gruntfile.js",
+					"ui5app/webapp/", "ui5app/webapp/Component.js", "ui5app/webapp/abc.jar", "ui5app/webapp/index.html",
+					"ui5app/webapp/controller/", "ui5app/webapp/controller/View1.controller.js",
+					"ui5app/webapp/css/", "ui5app/webapp/css/style.css",
+					"ui5app/webapp/i18n/", "ui5app/webapp/i18n/i18n.properties",
+					"ui5app/webapp/model/", "ui5app/webapp/model/models.js",
+					"ui5app/webapp/view/", "ui5app/webapp/view/View1.view.xml",
+				}),
+			Entry("Target is folder",
+				getFullPath("testdata", "mtahtml5"), getFullPath("testdata"), nil, true, nil),
+			Entry("Source is broken symbolic link",
+				getFullPath("testdata", "testsymlink", "symlink_broken"), targetFilePath, nil, true, nil),
+			Entry("Sanity - ignore folder",
+				getFullPath("testdata", "testproject"), targetFilePath, []string{"ui5app/"}, false, []string{
+					"cf-mtaext.yaml", "mta.sh", "mta.yaml",
+				}),
+			Entry("Sanity - ignore file",
+				getFullPath("testdata", "testproject"), targetFilePath, []string{"ui5app/Gr*.js"}, false, []string{
+					"cf-mtaext.yaml", "mta.sh", "mta.yaml",
+					"ui5app/",
+					"ui5app/webapp/", "ui5app/webapp/Component.js", "ui5app/webapp/index.html",
+					"ui5app/webapp/controller/", "ui5app/webapp/controller/View1.controller.js",
+					"ui5app/webapp/model/", "ui5app/webapp/model/models.js",
+					"ui5app/webapp/view/", "ui5app/webapp/view/View1.view.xml",
+				}),
+			Entry("SourceIsNotFolder",
+				getFullPath("testdata", "level2", "level2_one.txt"), targetFilePath, nil, false, []string{"level2_one.txt"}),
+			Entry("Target is empty string",
+				getFullPath("testdata", "mtahtml5"), "", nil, true, nil),
+			Entry("Source is empty string", "", "", nil, true, nil),
+			// folder module (which is symbolic link itself) is archived
+			// it points to folder moduleNew that consists of symlink pointing to content and package.json
+			// etc... thus we check a complex case consisting of normal files/folders and symbolic links that are also
+			// files and folders
+			Entry("symbolic links",
+				getFullPath("testdata", "testsymlink", "symlink_dir_to_moduleNew"), targetFilePath, nil, false,
+				[]string{"symlink_dir_to_content/", "package.json",
+					"symlink_dir_to_content/test_dir/", "symlink_dir_to_content/test_dir/test1.txt",
+					"symlink_dir_to_content/test.txt",
+					"symlink_dir_to_content/symlink_dir_to_another_content/", "symlink_dir_to_content/symlink_dir_to_another_content/test3.txt",
+					"symlink_dir_to_content/symlink_dir_to_another_content/symlink_to_test4.txt"}),
+			Entry("symbolic links with ignore",
+				getFullPath("testdata", "testsymlink", "symlink_dir_to_moduleNew"), targetFilePath, []string{"symlink_dir_to_content"}, false,
+				[]string{"package.json"}),
+		)
+	})
+
 	var _ = Describe("FindPath", func() {
 		It("returns file path for existing file", func() {
 			path := getFullPath("testdata", "findpath", "folder1", "file1.txt")

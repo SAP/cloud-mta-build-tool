@@ -11,4 +11,4 @@ modules:
         properties:
           url: ${default-url}
     build-parameters:
-      ignore: ["node_modules/**", "!node_modules/lodash/**"]
+      ignore: ["node_modules/", "!node_modules/lodash/**", "link-target-3/", "test-for-link/**", "!test-for-link/linked-target-2/**"]

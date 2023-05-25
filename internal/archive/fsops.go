@@ -21,7 +21,6 @@ type fileInfoProviderI interface {
 	isDir(file os.FileInfo) bool
 	readlink(path string) (string, error)
 	stat(name string) (os.FileInfo, error)
-	lstat(name string) (os.FileInfo, error)
 }
 
 type standardFileInfoProvider struct {
@@ -41,10 +40,6 @@ func (provider *standardFileInfoProvider) readlink(path string) (string, error) 
 
 func (provider *standardFileInfoProvider) stat(name string) (os.FileInfo, error) {
 	return os.Stat(name)
-}
-
-func (provider *standardFileInfoProvider) lstat(name string) (os.FileInfo, error) {
-	return os.Lstat(name)
 }
 
 var fileInfoProvider fileInfoProviderI = &standardFileInfoProvider{}
@@ -70,12 +65,12 @@ func RemoveIfExist(path string) error {
 	return err
 }
 
-// Archive module and mtar artifacts,
+// GeneratePackage module and mtar artifacts,
 // compatible with the JAR specification
 // to support the spec requirements
 // Source Path to be zipped
 // Target artifact
-func Archive(sourcePath, targetArchivePath string, ignore []string) (e error) {
+func GeneratePackage(sourcePath, targetArchivePath string, ignore []string) (e error) {
 	// check that folder to be packed exist
 	info, err := fileInfoProvider.stat(sourcePath)
 	if err != nil {
@@ -122,7 +117,7 @@ func Archive(sourcePath, targetArchivePath string, ignore []string) (e error) {
 		return err
 	}
 
-	err = generatePackage(sourcePath, baseDir, "", "", archive, ignorePatterns)
+	err = generatePackage(sourcePath, baseDir, "", "", info, archive, ignorePatterns)
 	if err != nil {
 		return err
 	}
@@ -130,7 +125,7 @@ func Archive(sourcePath, targetArchivePath string, ignore []string) (e error) {
 	return nil
 }
 
-/* func Archive(sourcePath, targetArchivePath string, ignore []string) (e error) {
+func Archive(sourcePath, targetArchivePath string, ignore []string) (e error) {
 	// check that folder to be packed exist
 	info, err := fileInfoProvider.stat(sourcePath)
 	if err != nil {
@@ -174,7 +169,7 @@ func Archive(sourcePath, targetArchivePath string, ignore []string) (e error) {
 
 	err = walk(sourcePath, baseDir, "", "", archive, make(map[string]bool), ignoreMap)
 	return err
-} */
+}
 
 func getBaseDir(path string, info os.FileInfo) (string, error) {
 	var err error
@@ -193,16 +188,17 @@ func getBaseDir(path string, info os.FileInfo) (string, error) {
 	return filepath.Dir(path), nil
 }
 
-func getIgnorePatterns(sourcePath string, ignorePattern []string) ([]string, error) {
-	var ignorePaths []string
-	for _, ign := range ignorePattern {
-		ignore_path := filepath.ToSlash(ign)
-		if strings.HasSuffix(ignore_path, "/") {
-			ignore_path = ignore_path + "**"
+func getIgnorePatterns(sourcePath string, ignore []string) ([]string, error) {
+	var ignorePatterns []string
+	for _, ign := range ignore {
+		ignPattern := filepath.ToSlash(ign)
+		// if ignPattern end with '/', it is a folder
+		if strings.HasSuffix(ignPattern, "/") {
+			ignPattern = ignPattern + "**"
 		}
-		ignorePaths = append(ignorePaths, ignore_path)
+		ignorePatterns = append(ignorePatterns, ignPattern)
 	}
-	return ignorePaths, nil
+	return ignorePatterns, nil
 }
 
 // getIgnoresMap - getIgnores Helper
@@ -244,10 +240,12 @@ func CloseFile(file io.Closer, err error) error {
 	return err
 }
 
-func getPackagedFiles(sourcePath string, ignorePatterns []string) (string, error) {
+func getPackagedFiles(sourcePath, sourceDir string, ignorePatterns []string) (string, error) {
+	// (1) get export file path
 	exportFileName := TempNotIgnoreFile + "_" + time.Now().Format("20230517155317")
-	exportFilePath := filepath.Join(sourcePath, exportFileName)
+	exportFilePath := filepath.Join(sourceDir, exportFileName)
 
+	// (2) invoke micromatch wrapper
 	var cmdArgs []string
 	cmdArgs = append(cmdArgs, "getPackagedFiles")
 	cmdArgs = append(cmdArgs, "-s")
@@ -267,23 +265,32 @@ func getPackagedFiles(sourcePath string, ignorePatterns []string) (string, error
 }
 
 func generatePackage(sourcePath, baseDir, symLinkPathInZip, linkedPath string,
-	archive *zip.Writer, ignorePatterns []string) error {
-	// (1) get all files need to be packaged which are not matched ignore patterns
-	exportFilePath, err := getPackagedFiles(sourcePath, ignorePatterns)
+	sourcePathInfo os.FileInfo, archive *zip.Writer, ignorePatterns []string) error {
+
+	// (1) get sourcePath's Dir
+	var sourceDir string
+	if sourcePathInfo.IsDir() {
+		sourceDir = sourcePath
+	} else {
+		sourceDir = filepath.Dir(sourcePath)
+	}
+
+	// (2) get all files need to be packaged which are not matched ignore patterns
+	exportFilePath, err := getPackagedFiles(sourcePath, sourceDir, ignorePatterns)
 	if err != nil {
 		return err
 	}
 
-	// (2) read export file to get all filtered files, package to zip file
+	// (3) read export file to get all filtered files, package to zip file
 	exportFileContent, err := ioutil.ReadFile(exportFilePath)
 	if err != nil {
 		return err
 	}
 
-	// (3) package files into zip file
+	// (4) package files into zip file
 	files := strings.Split(string(exportFileContent), "\n")
 	for _, file := range files {
-		filePath := filepath.Join(sourcePath, file)
+		filePath := filepath.Join(sourceDir, file)
 		fileInfo, err := fileInfoProvider.stat(filePath)
 		if err != nil {
 			return err
@@ -299,7 +306,7 @@ func generatePackage(sourcePath, baseDir, symLinkPathInZip, linkedPath string,
 		}
 	}
 
-	// (4) remove export file
+	// (5) remove export file
 	err = RemoveIfExist(exportFilePath)
 	if err != nil {
 		return err

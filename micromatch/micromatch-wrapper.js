@@ -4,6 +4,7 @@ const { program } = require('commander');
 const path = require('path');
 const util = require('util');
 const fs = require('fs');
+const { log } = require('console');
 
 program
   .version('1.0.0')
@@ -39,13 +40,17 @@ const isMatchCommand = program
     }
   });
 
-  function walk(rootPath, parentPath, patterns, exportFilePath, visitedPaths = new Set()) {
+  function exportFilePath(writeStream, filePath) {
+    writeStream.write(filePath + '\n');
+  }
+
+  function walk(rootPath, currentPath, patterns, writeStream, exportFilePath, visitedPaths = new Set()) {
     return new Promise((resolve, reject) => {
-      fs.readdir(parentPath, function(err, files) {
+      fs.readdir(currentPath, function(err, files) {
         if (err) reject(err);
         let promises = [];
         files.forEach(function(file) {
-          const filePath = path.join(parentPath, file);
+          const filePath = path.join(currentPath, file);
           promises.push(
             new Promise((resolve, reject) => {
               fs.stat(filePath, function(err, stats) {
@@ -62,16 +67,16 @@ const isMatchCommand = program
                   }
                 });
                 // (2) if not match ignore pattern, export to file
-                const relFilePath = path.normalize(path.relative(rootPath, filePath)).replace(/\\/g, '/');
+                const relativeFilePath = path.normalize(path.relative(rootPath, filePath)).replace(/\\/g, '/');
                 const files = [];
-                files.push(relFilePath);
+                files.push(relativeFilePath);
                 const matchedFiles = micromatch(files, patterns);
                 if (matchedFiles.length == 0) {
-                  exportFilePath(relFilePath);
+                  exportFilePath(writeStream, relativeFilePath);
                 }
                 // (3) walk dir 
                 if (stats.isDirectory()) {
-                  walk(rootPath, filePath, patterns, exportFilePath, visitedPaths).then(resolve).catch(reject);
+                  walk(rootPath, filePath, patterns, writeStream, exportFilePath, visitedPaths).then(resolve).catch(reject);
                 } else {
                   resolve();
                 }
@@ -84,10 +89,10 @@ const isMatchCommand = program
     });
   }
   
-  const getPackagedFilesCommand = program
+  const exportPackagedContentCommand = program
     .command('getPackagedFiles')
-    .description('Export files and directories which will be packaged into .mtar')
-    .option('-s, --source <source>', 'Source path')
+    .description('Get files and directories which will be packaged, and export file path to target file')
+    .option('-s, --source <source>', 'Source dir')
     .option('-t, --target <target>', 'Target file path')
     .option('-p, --patterns <patterns...>', 'Ignore Patterns', [])
     .action((options) => {
@@ -109,17 +114,28 @@ const isMatchCommand = program
       writeStream.on('finish', function() {
         console.log('Done!');
       });
-  
-      walk(rootPath, rootPath, patterns, function(filePath) {
-        writeStream.write(filePath + '\n');
-      })
-      .then(() => {
+
+      const stats = fs.statSync(rootPath)
+      if (stats.isFile()) {
+        // Notice，when sourcepath is a file, not a dir, and the filename match ignore pattern, what will reture?
+        const relativeFilePath = path.basename(path.normalize(rootPath).replace(/\\/g, '/'))
+        const files = [];
+        files.push(relativeFilePath);
+        const matchedFiles = micromatch(files, patterns);
+        if (matchedFiles.length == 0) {
+          exportFilePath(writeStream, relativeFilePath);
+        }
         writeStream.end();
-      })
-      .catch((err) => {
-        console.error('Error walking through files:', err);
-        process.exit(1);
-      });
+      } else {
+        walk(rootPath, rootPath, patterns, writeStream, exportFilePath)
+        .then(() => {
+          writeStream.end();
+        })
+        .catch((err) => {
+          console.error('Error walking through files:', err);
+          process.exit(1);
+        });
+      }
     });
 
 program.parse(process.argv);
