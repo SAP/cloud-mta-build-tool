@@ -109,3 +109,8 @@ console.log("Test 14")
 console.log(micromatch(['a/b/6.js', 'a/b/.ignorefile'], ['**/.*']))
 console.log("")
 
+// Test 15
+console.log("Test 15")
+console.log(micromatch(['a/b/c.js'], ['*.js']))
+console.log("")
+

@@ -44,6 +44,30 @@ const isMatchCommand = program
     writeStream.write(filePath + '\n');
   }
 
+  function checkFilePathExists(filePath) {
+    return new Promise((resolve, reject) => {
+      fs.access(filePath, fs.constants.F_OK, (err) => {
+        if (err) {
+          resolve(false);
+        } else {
+          resolve(true);
+        }
+      });
+    });
+  }
+
+  function checkFilePathIsDir(filePath) {
+    return new Promise((resolve, reject) => {
+      fs.stat(filePath, (err, stats) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(stats.isDirectory());
+        }
+      });
+    });
+  }
+
   function walk(rootPath, currentPath, patterns, writeStream, exportFilePath, visitedPaths = new Set()) {
     return new Promise((resolve, reject) => {
       fs.readdir(currentPath, function(err, files) {
@@ -88,54 +112,83 @@ const isMatchCommand = program
       });
     });
   }
-  
-  const exportPackagedContentCommand = program
+    
+  const getPackagedFilesCommand = program
     .command('getPackagedFiles')
     .description('Get files and directories which will be packaged, and export file path to target file')
     .option('-s, --source <source>', 'Source dir')
     .option('-t, --target <target>', 'Target file path')
     .option('-p, --patterns <patterns...>', 'Ignore Patterns', [])
     .action((options) => {
+      // (1) check if parameters are null
       if (!options.source || !options.target) {
         console.error('source or target paramerter should not be empty!');
         process.exit(1);
       }
-      const rootPath = options.source;
+
+      const sourcePath = options.source;
       const targetFile = options.target;
+      const targetPath = path.dirname(targetFile)
       const patterns = options.patterns.map(pattern => pattern.replace(/\\/g, '/'));
   
+      // (2) check if source path is exist
+      checkFilePathExists(sourcePath)
+      .then(exists => {
+        if (!exists) {
+          console.error('Source Path ', sourcePath, ' is not exist.')
+          process.exit(1);
+        }
+      })
+      .catch(err => {
+        console.error('Error checking file path:', err);
+        process.exit(1);
+      });
+
+      // (3) check if target path is exist
+      checkFilePathExists(targetPath)
+      .then(exists => {
+        if (!exists) {
+          console.error('Target Path ', targetPath, ' is not exist.')
+          process.exit(1);
+        }
+      })
+      .catch(err => {
+        console.error('Error checking file path:', err);
+        process.exit(1);
+      });
+
+      // (4) check if source path is dir
+      checkFilePathIsDir(sourcePath)
+      .then(isDir => {
+        if (!isDir) {
+          console.log('Source Path ', sourcePath, ' is not a directory.');
+          process.exit(1);
+        }
+      })
+      .catch(err => {
+        console.error('Error checking file path:', err);
+        process.exit(1);
+      });
+      
+      // (5) create file stream
       const writeStream = fs.createWriteStream(targetFile);
-  
       writeStream.on('error', function(err) {
         console.error('Error writing to file:', err);
         process.exit(1);
       });
-  
       writeStream.on('finish', function() {
         console.log('Done!');
       });
 
-      const stats = fs.statSync(rootPath)
-      if (stats.isFile()) {
-        // Notice，when sourcepath is a file, not a dir, and the filename match ignore pattern, what will reture?
-        const relativeFilePath = path.basename(path.normalize(rootPath).replace(/\\/g, '/'))
-        const files = [];
-        files.push(relativeFilePath);
-        const matchedFiles = micromatch(files, patterns);
-        if (matchedFiles.length == 0) {
-          exportFilePath(writeStream, relativeFilePath);
-        }
+      // (6) walk file tree from source path, write packaged filepath to file stream
+      walk(sourcePath, sourcePath, patterns, writeStream, exportFilePath)
+      .then(() => {
         writeStream.end();
-      } else {
-        walk(rootPath, rootPath, patterns, writeStream, exportFilePath)
-        .then(() => {
-          writeStream.end();
-        })
-        .catch((err) => {
-          console.error('Error walking through files:', err);
-          process.exit(1);
-        });
-      }
+      })
+      .catch((err) => {
+        console.error('Error walking through files:', err);
+        process.exit(1);
+      });
     });
 
 program.parse(process.argv);

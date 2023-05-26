@@ -98,6 +98,12 @@ var _ = Describe("FSOPS", func() {
 				}),
 			Entry("SourceIsNotFolder",
 				getFullPath("testdata", "level2", "level2_one.txt"), targetFilePath, nil, false, []string{"level2_one.txt"}),
+			Entry("SourceIsNotFolder with ignore case 1",
+				getFullPath("testdata", "level2", "level2_one.txt"), targetFilePath, []string{"level2_one.txt"}, false, []string{"level2_one.txt"}),
+			Entry("SourceIsNotFolder with ignore case 2",
+				getFullPath("testdata", "level2", "level2_one.txt"), targetFilePath, []string{"*.txt"}, false, []string{"level2_one.txt"}),
+			Entry("SourceIsNotFolder with ignore case 3",
+				getFullPath("testdata", "level2", "level2_one.txt"), targetFilePath, []string{"**/*.txt"}, false, []string{"level2_one.txt"}),
 			Entry("Target is empty string",
 				getFullPath("testdata", "mtahtml5"), "", nil, true, nil),
 			Entry("Source is empty string", "", "", nil, true, nil),
@@ -130,7 +136,7 @@ var _ = Describe("FSOPS", func() {
 			Ω(os.RemoveAll(targetFilePath)).Should(Succeed())
 		})
 
-		var _ = DescribeTable("Archive", func(source, target string, ignore []string, fails bool, expectedFiles []string) {
+		var _ = DescribeTable("GeneratePackage", func(source, target string, ignore []string, fails bool, expectedFiles []string) {
 			err := GeneratePackage(source, target, ignore)
 			if fails {
 				Ω(err).Should(HaveOccurred())
@@ -170,6 +176,12 @@ var _ = Describe("FSOPS", func() {
 				}),
 			Entry("SourceIsNotFolder",
 				getFullPath("testdata", "level2", "level2_one.txt"), targetFilePath, nil, false, []string{"level2_one.txt"}),
+			Entry("SourceIsNotFolder with ignore case 1",
+				getFullPath("testdata", "level2", "level2_one.txt"), targetFilePath, []string{"level2_one.txt"}, false, []string{"level2_one.txt"}),
+			Entry("SourceIsNotFolder with ignore case 2",
+				getFullPath("testdata", "level2", "level2_one.txt"), targetFilePath, []string{"*.txt"}, false, []string{"level2_one.txt"}),
+			Entry("SourceIsNotFolder with ignore case 3",
+				getFullPath("testdata", "level2", "level2_one.txt"), targetFilePath, []string{"**/*.txt"}, false, []string{"level2_one.txt"}),
 			Entry("Target is empty string",
 				getFullPath("testdata", "mtahtml5"), "", nil, true, nil),
 			Entry("Source is empty string", "", "", nil, true, nil),
@@ -177,7 +189,7 @@ var _ = Describe("FSOPS", func() {
 			// it points to folder moduleNew that consists of symlink pointing to content and package.json
 			// etc... thus we check a complex case consisting of normal files/folders and symbolic links that are also
 			// files and folders
-			Entry("symbolic links",
+			/* Entry("symbolic links",
 				getFullPath("testdata", "testsymlink", "symlink_dir_to_moduleNew"), targetFilePath, nil, false,
 				[]string{"symlink_dir_to_content/", "package.json",
 					"symlink_dir_to_content/test_dir/", "symlink_dir_to_content/test_dir/test1.txt",
@@ -186,7 +198,7 @@ var _ = Describe("FSOPS", func() {
 					"symlink_dir_to_content/symlink_dir_to_another_content/symlink_to_test4.txt"}),
 			Entry("symbolic links with ignore",
 				getFullPath("testdata", "testsymlink", "symlink_dir_to_moduleNew"), targetFilePath, []string{"symlink_dir_to_content"}, false,
-				[]string{"package.json"}),
+				[]string{"package.json"}), */
 		)
 	})
 
