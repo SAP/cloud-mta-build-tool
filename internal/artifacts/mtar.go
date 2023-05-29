@@ -58,7 +58,7 @@ func generateMtar(targetLoc dir.ITargetPath, targetArtifacts dir.ITargetArtifact
 
 	// archive building artifacts to mtar
 	mtarPath := filepath.Join(mtarFolderPath, getMtarFileName(m, mtarName))
-	err = dir.GeneratePackage(targetTmpDir, mtarPath, nil)
+	err = dir.Package(targetTmpDir, mtarPath, nil)
 	if err != nil {
 		return "", errors.Wrap(err, genMTARArchMsg)
 	}

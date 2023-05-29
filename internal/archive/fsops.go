@@ -65,12 +65,12 @@ func RemoveIfExist(path string) error {
 	return err
 }
 
-// GeneratePackage module and mtar artifacts,
+// Package module and mtar artifacts,
 // compatible with the JAR specification
 // to support the spec requirements
 // Source Path to be zipped
 // Target artifact
-func GeneratePackage(sourcePath, targetArchivePath string, ignore []string) (e error) {
+func Package(sourcePath, targetArchivePath string, ignore []string) (e error) {
 	// check that folder to be packed exist
 	info, err := fileInfoProvider.stat(sourcePath)
 	if err != nil {
