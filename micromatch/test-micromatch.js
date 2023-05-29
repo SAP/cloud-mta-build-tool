@@ -114,3 +114,7 @@ console.log("Test 15")
 console.log(micromatch(['a/b/c.js'], ['*.js']))
 console.log("")
 
+// Test 16
+console.log("Test 16")
+console.log(micromatch(['a/b/c.js'], ['**/*.js']))
+console.log("")
