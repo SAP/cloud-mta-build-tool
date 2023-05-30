@@ -188,17 +188,38 @@ func getBaseDir(path string, info os.FileInfo) (string, error) {
 	return filepath.Dir(path), nil
 }
 
-func getIgnorePatterns(sourcePath string, ignore []string) ([]string, error) {
-	var ignorePatterns []string
-	for _, ign := range ignore {
-		ignPattern := filepath.ToSlash(ign)
-		// if ignPattern end with '/', it is a folder
-		if strings.HasSuffix(ignPattern, "/") {
-			ignPattern = ignPattern + "**"
-		}
-		ignorePatterns = append(ignorePatterns, ignPattern)
+func isIgnorePathDir(sourcePath, ignore string) bool {
+	info, err := fileInfoProvider.stat(filepath.Join(sourcePath, ignore))
+	if err == nil && fileInfoProvider.isDir(info) {
+		return true
 	}
-	return ignorePatterns, nil
+
+	if strings.HasSuffix(ignore, "/") {
+		return true
+	}
+
+	return false
+}
+
+func getIgnorePatterns(sourcePath string, ignore []string) ([]string, error) {
+	var ignPatterns []string
+	var ignToSlash, ignPattern, ignHidePattern string
+	for _, ign := range ignore {
+		ignToSlash = filepath.ToSlash(ign)
+		// if ignore path is DIR, add "/**" and the end, and ignore all hide files under it
+		if isIgnorePathDir(sourcePath, ignToSlash) {
+			if !strings.HasSuffix(ignToSlash, "/") {
+				ignToSlash = ignToSlash + "/"
+			}
+			ignPattern = ignToSlash + "**"
+			ignHidePattern = ignToSlash + "**/.*"
+			ignPatterns = append(ignPatterns, ignPattern)
+			ignPatterns = append(ignPatterns, ignHidePattern)
+		} else {
+			ignPatterns = append(ignPatterns, ignToSlash)
+		}
+	}
+	return ignPatterns, nil
 }
 
 // getIgnoresMap - getIgnores Helper
@@ -325,56 +346,6 @@ func generatePackage(sourcePath, baseDir, symLinkPathInZip, linkedPath string,
 
 	return nil
 }
-
-/* func generatePackage(sourcePath, baseDir, symLinkPathInZip, linkedPath string,
-	sourcePathInfo os.FileInfo, archive *zip.Writer, ignorePatterns []string) error {
-
-	// (1) get sourcePath's Dir
-	var sourceDir string
-	if sourcePathInfo.IsDir() {
-		sourceDir = sourcePath
-	} else {
-		sourceDir = filepath.Dir(sourcePath)
-	}
-
-	// (2) get all files need to be packaged which are not matched ignore patterns
-	exportFilePath, err := getPackagedFiles(sourcePath, sourceDir, ignorePatterns)
-	if err != nil {
-		return err
-	}
-
-	// (3) read export file to get all filtered files, package to zip file
-	exportFileContent, err := ioutil.ReadFile(exportFilePath)
-	if err != nil {
-		return err
-	}
-
-	// (4) package files into zip file
-	files := strings.Split(string(exportFileContent), "\n")
-	for _, file := range files {
-		filePath := filepath.Join(sourceDir, file)
-		fileInfo, err := fileInfoProvider.stat(filePath)
-		if err != nil {
-			return err
-		}
-		if filepath.Clean(filePath) == filepath.Clean(baseDir) {
-			continue
-		}
-
-		pathInZip := getPathInZip(filePath, baseDir, symLinkPathInZip, linkedPath, fileInfo)
-		err = addToArchive(filePath, pathInZip, fileInfo, archive)
-		if err != nil {
-			return err
-		}
-	}
-
-	// (5) remove export file
-	err = RemoveIfExist(exportFilePath)
-	if err != nil {
-		return err
-	}
-	return nil
-} */
 
 func checkSymbolicLinkTree(sourcePath, baseDir string, predecessors map[string]bool) error {
 	return filepath.Walk(sourcePath, func(path string, info os.FileInfo, err error) error {
