@@ -10,13 +10,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var mbtCmdCLI string
 var source string
-
-func getBuildCmdCli() string {
-	cli := "mbt"
-	return cli
-}
 
 func copyFile(source string, destination string) error {
 	sourceFile, err := os.Open(source)
