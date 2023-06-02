@@ -507,7 +507,7 @@ func main() {
 	fmt.Printf("Test %d\n", 37)
 	cwd, _ = os.Getwd()
 	source = filepath.Join(cwd, "node-js")
-	target = filepath.Join(cwd, "export-result-file")
+	target = filepath.Join(cwd, "node-js/export-result-file")
 	patterns = []string{}
 	test_micromatch_getPackagedFiles(source, target, patterns)
 
@@ -515,23 +515,39 @@ func main() {
 	fmt.Printf("Test %d\n", 38)
 	cwd, _ = os.Getwd()
 	source = filepath.Join(cwd, "node-js")
-	target = filepath.Join(cwd, "export-result-file")
+	target = filepath.Join(cwd, "node-js/export-result-file")
 	patterns = []string{"node_modules/**", "!node_modules/lodash/**"}
 	test_micromatch_getPackagedFiles(source, target, patterns)
 
 	// Test 39
 	fmt.Printf("Test %d\n", 39)
 	cwd, _ = os.Getwd()
-	source = filepath.Join(cwd, "node-js/gulpfile.js")
-	target = filepath.Join(cwd, "export-result-file")
-	patterns = []string{}
+	source = filepath.Join(cwd, "node-js")
+	target = filepath.Join(cwd, "node-js/export-result-file")
+	patterns = []string{"node_modules/**", "!node_modules/prune/**"}
 	test_micromatch_getPackagedFiles(source, target, patterns)
 
 	// Test 40
 	fmt.Printf("Test %d\n", 40)
 	cwd, _ = os.Getwd()
+	source = filepath.Join(cwd, "node-js")
+	target = filepath.Join(cwd, "node-js/export-result-file")
+	patterns = []string{"*.js"}
+	test_micromatch_getPackagedFiles(source, target, patterns)
+
+	// Test 41
+	fmt.Printf("Test %d\n", 41)
+	cwd, _ = os.Getwd()
 	source = filepath.Join(cwd, "node-js/gulpfile.js")
-	target = filepath.Join(cwd, "export-result-file")
+	target = filepath.Join(cwd, "node-js/export-result-file")
+	patterns = []string{}
+	test_micromatch_getPackagedFiles(source, target, patterns)
+
+	// Test 42
+	fmt.Printf("Test %d\n", 42)
+	cwd, _ = os.Getwd()
+	source = filepath.Join(cwd, "node-js/gulpfile.js")
+	target = filepath.Join(cwd, "node-js/export-result-file")
 	patterns = []string{"*.js"}
 	test_micromatch_getPackagedFiles(source, target, patterns)
 }

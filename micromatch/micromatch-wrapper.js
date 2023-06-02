@@ -68,13 +68,19 @@ const isMatchCommand = program
     });
   }
 
-  function walk(rootPath, currentPath, patterns, writeStream, exportFilePath, visitedPaths = new Set()) {
+  function walk(rootPath, currentPath, patterns, writeStream, targetFileName, exportFilePath, visitedPaths = new Set()) {
     return new Promise((resolve, reject) => {
       fs.readdir(currentPath, function(err, files) {
         if (err) reject(err);
         let promises = [];
         files.forEach(function(file) {
           const filePath = path.join(currentPath, file);
+          // if current path is target file, skip it to exclude it from exported result
+          const relativeFilePath = path.normalize(path.relative(rootPath, filePath)).replace(/\\/g, '/');
+          if (relativeFilePath === targetFileName) {
+            console.log('Skip target file:', targetFileName);
+            return;
+          }
           promises.push(
             new Promise((resolve, reject) => {
               fs.stat(filePath, function(err, stats) {
@@ -91,7 +97,6 @@ const isMatchCommand = program
                   }
                 });
                 // (2) if not match ignore pattern, export to file
-                const relativeFilePath = path.normalize(path.relative(rootPath, filePath)).replace(/\\/g, '/');
                 const files = [];
                 files.push(relativeFilePath);
                 const matchedFiles = micromatch(files, patterns);
@@ -100,7 +105,7 @@ const isMatchCommand = program
                 }
                 // (3) walk dir 
                 if (stats.isDirectory()) {
-                  walk(rootPath, filePath, patterns, writeStream, exportFilePath, visitedPaths).then(resolve).catch(reject);
+                  walk(rootPath, filePath, patterns, writeStream, targetFileName, exportFilePath, visitedPaths).then(resolve).catch(reject);
                 } else {
                   resolve();
                 }
@@ -127,8 +132,9 @@ const isMatchCommand = program
       }
 
       const sourcePath = options.source;
-      const targetFile = options.target;
-      const targetPath = path.dirname(targetFile)
+      const targetFilePath = options.target;
+      const targetFileDir = path.dirname(targetFilePath)
+      const targetFileName = path.basename(targetFilePath)
       const patterns = options.patterns.map(pattern => pattern.replace(/\\/g, '/'));
   
       // (2) check if source path is exist
@@ -145,10 +151,10 @@ const isMatchCommand = program
       });
 
       // (3) check if target path is exist
-      checkFilePathExists(targetPath)
+      checkFilePathExists(targetFileDir)
       .then(exists => {
         if (!exists) {
-          console.error('Target Path ', targetPath, ' is not exist.')
+          console.error('Target Path ', targetFileDir, ' is not exist.')
           process.exit(1);
         }
       })
@@ -171,7 +177,7 @@ const isMatchCommand = program
       });
       
       // (5) create file stream
-      const writeStream = fs.createWriteStream(targetFile);
+      const writeStream = fs.createWriteStream(targetFilePath);
       writeStream.on('error', function(err) {
         console.error('Error writing to file:', err);
         process.exit(1);
@@ -181,7 +187,7 @@ const isMatchCommand = program
       });
 
       // (6) walk file tree from source path, write packaged filepath to file stream
-      walk(sourcePath, sourcePath, patterns, writeStream, exportFilePath)
+      walk(sourcePath, sourcePath, patterns, writeStream, targetFileName, exportFilePath)
       .then(() => {
         writeStream.end();
       })

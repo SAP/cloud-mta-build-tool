@@ -277,7 +277,7 @@ func exportPackagedFiles(sourceDir string, ignorePatterns []string) (string, err
 		cmdArgs = append(cmdArgs, "-p")
 		cmdArgs = append(cmdArgs, ignorePatterns...)
 	}
-	cmd := exec.Command("micromatch-wrapper.exe", cmdArgs...)
+	cmd := exec.Command("micromatch-wrapper", cmdArgs...)
 	output, err := cmd.Output()
 	if err != nil {
 		return exportFilePath, errors.Wrap(err, string(output))
