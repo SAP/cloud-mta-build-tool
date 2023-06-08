@@ -7,6 +7,7 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
 
@@ -32,25 +33,23 @@ const (
 	binPath = "mbt"
 )
 
+var mbtName = ""
+var mbtTargetPath = ""
+var micromatchWrapperName = ""
+var micromatchWrapperTargetPath = ""
+
 var _ = Describe("Integration - CloudMtaBuildTool", func() {
 
-	var mbtName = ""
-
 	BeforeSuite(func() {
-		By("Building MBT")
-		if runtime.GOOS == "linux" || runtime.GOOS == "darwin" {
-			mbtName = "mbt"
-		} else {
-			mbtName = "mbt.exe"
-		}
-		// This runs locally for testing purpose only
-		/* #nosec */
-		cmd := exec.Command("go", "build", "-o", filepath.Join(os.Getenv("GOPATH"), "/bin/"+mbtName), ".")
-		cmd.Dir = filepath.FromSlash("../")
-		err := cmd.Run()
-		if err != nil {
-			fmt.Println("binary creation failed: ", err)
-		}
+		By("Building and smoke testing mbt")
+		mbtName = "mbt"
+		buildAndInstallMBT()
+		smokeTestMBT()
+
+		By("Installing and smoke testing micromatch-wrapper")
+		micromatchWrapperName = "micromatch-wrapper"
+		installAndChmodMicromatchWrapper()
+		smokeTestMicromatchWrapper()
 	})
 
 	AfterSuite(func() {
@@ -659,6 +658,106 @@ resources:
 		})
 	})
 })
+
+func buildAndInstallMBT() error {
+	if runtime.GOOS == "linux" || runtime.GOOS == "darwin" {
+		mbtName = mbtName
+	} else {
+		mbtName = mbtName + ".exe"
+	}
+	mbtTargetPath = filepath.Join(os.Getenv("GOPATH"), "/bin/"+mbtName)
+
+	cmd := exec.Command("go", "build", "-o", mbtTargetPath, ".")
+	cmd.Dir = filepath.FromSlash("../")
+	err := cmd.Run()
+	if err != nil {
+		fmt.Println("mbt build and install failed: ", err)
+		return err
+	}
+
+	return nil
+}
+
+func smokeTestMBT() error {
+	var stdout bytes.Buffer
+	cmd := exec.Command(mbtName, "-h")
+	cmd.Stdout = &stdout
+	err := cmd.Run()
+	if err != nil {
+		fmt.Println("exec mbt -h error: ", err)
+		return err
+	}
+	fmt.Println("exec mbt -h success: ", stdout.String())
+	return nil
+}
+
+func installAndChmodMicromatchWrapper() error {
+	var micromatchWrapperSourcePath = ""
+	wd, _ := os.Getwd()
+	if runtime.GOOS == "linux" {
+		micromatchWrapperSourcePath = filepath.Join(wd, filepath.FromSlash("../micromatch/Linux"), micromatchWrapperName)
+	} else if runtime.GOOS == "darwin" {
+		micromatchWrapperSourcePath = filepath.Join(wd, filepath.FromSlash("../micromatch/Darwin/"), micromatchWrapperName)
+	} else {
+		micromatchWrapperName = micromatchWrapperName + ".exe"
+		micromatchWrapperSourcePath = filepath.Join(wd, filepath.FromSlash("../micromatch/Windows"), micromatchWrapperName)
+	}
+	micromatchWrapperTargetPath = filepath.Join(os.Getenv("GOPATH"), "/bin/", micromatchWrapperName)
+
+	// Destination file exists, remove it
+	_, err := os.Stat(micromatchWrapperTargetPath)
+	if err == nil {
+		err = os.Remove(micromatchWrapperTargetPath)
+		if err != nil {
+			return err
+		}
+		fmt.Printf("Remove %s success \n", micromatchWrapperTargetPath)
+	}
+
+	source, err := os.Open(micromatchWrapperSourcePath)
+	if err != nil {
+		fmt.Println("Failed to open source file: ", err)
+		return err
+	}
+
+	target, err := os.Create(micromatchWrapperTargetPath)
+	if err != nil {
+		fmt.Println("Failed to create target file:", err)
+		return err
+	}
+
+	_, err = io.Copy(target, source)
+	if err != nil {
+		fmt.Println("Failed to copy file:", err)
+		return err
+	}
+	fmt.Printf("copy micromatch-wrapper from %s to %s success!\n", micromatchWrapperSourcePath, micromatchWrapperTargetPath)
+
+	source.Close()
+	target.Close()
+
+	err = os.Chmod(micromatchWrapperTargetPath, 0755)
+	if err != nil {
+		fmt.Printf("Failed to set file %s executable permission: %s\n", micromatchWrapperTargetPath, err)
+		return err
+	}
+	fmt.Printf("Success to set file %s executable permission! \n", micromatchWrapperTargetPath)
+
+	return nil
+}
+
+func smokeTestMicromatchWrapper() error {
+	var stdout bytes.Buffer
+	cmd := exec.Command(micromatchWrapperName, "-h")
+	cmd.Stdout = &stdout
+	err := cmd.Run()
+	if err != nil {
+		fmt.Println("exec micromatch-wrapper -h error: ", err)
+		return err
+	}
+	fmt.Println("exec micromatch-wrapper -h success: ", stdout.String())
+	return nil
+}
 
 func getFileContentFromZip(path string, filename string) ([]byte, error) {
 	zipFile, err := zip.OpenReader(path)

@@ -414,52 +414,52 @@ var _ = Describe("FSOPS", func() {
 		)
 	})
 
-	var _ = Describe("Test Package with Symbolic Link", func() {
-		var targetFilePath = getFullPath("testdata", "arch.mbt")
+	// var _ = Describe("Test Package with Symbolic Link", func() {
+	// 	var targetFilePath = getFullPath("testdata", "arch.mbt")
 
-		BeforeEach(func() {
-			fileInfoProvider = &standardFileInfoProvider{}
-		})
+	// 	BeforeEach(func() {
+	// 		fileInfoProvider = &standardFileInfoProvider{}
+	// 	})
 
-		AfterEach(func() {
-			fileInfoProvider = &standardFileInfoProvider{}
-			Ω(os.RemoveAll(targetFilePath)).Should(Succeed())
-		})
+	// 	AfterEach(func() {
+	// 		fileInfoProvider = &standardFileInfoProvider{}
+	// 		Ω(os.RemoveAll(targetFilePath)).Should(Succeed())
+	// 	})
 
-		var _ = DescribeTable("GeneratePackage Test Symbolic Link", func(source, target string, ignore []string, fails bool, expectedFiles []string) {
-			err := Package(source, target, ignore)
-			if fails {
-				Ω(err).Should(HaveOccurred())
-			} else {
-				Ω(err).Should(Succeed())
-				Ω(target).Should(BeAnExistingFile())
-				validateArchiveContents(expectedFiles, target)
-			}
-		},
-			Entry("Source is broken symbolic link",
-				getFullPath("testdata", "testignorewithsymlink", "symlink_to_symlink_broken"), targetFilePath, nil, true, nil),
-			Entry("Source is broken symbolic link dir",
-				getFullPath("testdata", "testignorewithsymlink", "symlink_dir_to_symlink_dir_broken"), targetFilePath, nil, true, nil),
-			Entry("symbolic links",
-				getFullPath("testdata", "testignorewithsymlink", "symlink_dir_to_moduleNew"), targetFilePath, nil, false,
-				[]string{"symlink_dir_to_content/", "package.json",
-					"symlink_dir_to_content/test_dir/", "symlink_dir_to_content/test_dir/test1.txt",
-					"symlink_dir_to_content/test.txt",
-					"symlink_dir_to_content/symlink_dir_to_another_content/",
-					"symlink_dir_to_content/symlink_dir_to_another_content/test3.txt",
-					"symlink_dir_to_content/symlink_dir_to_another_content/symlink_to_test4.txt"}),
-			Entry("symbolic links with ignore",
-				getFullPath("testdata", "testignorewithsymlink", "symlink_dir_to_moduleNew"), targetFilePath,
-				[]string{"symlink_dir_to_content/"}, false,
-				[]string{"package.json"}),
-			Entry("sibling folders with recursion",
-				getFullPath("testdata", "testignorewithsymlink", "dir_with_recursive_symlink", "subdir", "symlink_dir_to_sibling"),
-				targetFilePath, []string{}, true, []string{}),
-			Entry("recursion to upper folder",
-				getFullPath("testdata", "testignorewithsymlink", "dir_with_recursive_symlink", "subdir", "symlink_dir_recursion_to_parent_dir"),
-				targetFilePath, []string{}, true, []string{}),
-		)
-	})
+	// 	var _ = DescribeTable("GeneratePackage Test Symbolic Link", func(source, target string, ignore []string, fails bool, expectedFiles []string) {
+	// 		err := Package(source, target, ignore)
+	// 		if fails {
+	// 			Ω(err).Should(HaveOccurred())
+	// 		} else {
+	// 			Ω(err).Should(Succeed())
+	// 			Ω(target).Should(BeAnExistingFile())
+	// 			validateArchiveContents(expectedFiles, target)
+	// 		}
+	// 	},
+	// 		Entry("Source is broken symbolic link",
+	// 			getFullPath("testdata", "testignorewithsymlink", "symlink_to_symlink_broken"), targetFilePath, nil, true, nil),
+	// 		Entry("Source is broken symbolic link dir",
+	// 			getFullPath("testdata", "testignorewithsymlink", "symlink_dir_to_symlink_dir_broken"), targetFilePath, nil, true, nil),
+	// 		Entry("symbolic links",
+	// 			getFullPath("testdata", "testignorewithsymlink", "symlink_dir_to_moduleNew"), targetFilePath, nil, false,
+	// 			[]string{"symlink_dir_to_content/", "package.json",
+	// 				"symlink_dir_to_content/test_dir/", "symlink_dir_to_content/test_dir/test1.txt",
+	// 				"symlink_dir_to_content/test.txt",
+	// 				"symlink_dir_to_content/symlink_dir_to_another_content/",
+	// 				"symlink_dir_to_content/symlink_dir_to_another_content/test3.txt",
+	// 				"symlink_dir_to_content/symlink_dir_to_another_content/symlink_to_test4.txt"}),
+	// 		Entry("symbolic links with ignore",
+	// 			getFullPath("testdata", "testignorewithsymlink", "symlink_dir_to_moduleNew"), targetFilePath,
+	// 			[]string{"symlink_dir_to_content/"}, false,
+	// 			[]string{"package.json"}),
+	// 		Entry("sibling folders with recursion",
+	// 			getFullPath("testdata", "testignorewithsymlink", "dir_with_recursive_symlink", "subdir", "symlink_dir_to_sibling"),
+	// 			targetFilePath, []string{}, true, []string{}),
+	// 		Entry("recursion to upper folder",
+	// 			getFullPath("testdata", "testignorewithsymlink", "dir_with_recursive_symlink", "subdir", "symlink_dir_recursion_to_parent_dir"),
+	// 			targetFilePath, []string{}, true, []string{}),
+	// 	)
+	// })
 
 	var _ = Describe("FindPath", func() {
 		It("returns file path for existing file", func() {

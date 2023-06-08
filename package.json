@@ -16,7 +16,8 @@
     "test:binwrap-binary": "node ./bin/mbt"
   },
   "bin": {
-    "mbt": "bin/mbt"
+    "mbt": "bin/mbt",
+    "micromatch-wrapper": "bin/micromatch-wrapper"
   },
   "repository": {
     "type": "git",
