@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 
+	dir "github.com/SAP/cloud-mta-build-tool/internal/archive"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
@@ -46,7 +47,7 @@ var _ = Describe("mbt cli build to test build parameter", func() {
 
 	AfterEach(func() {
 		mbtCmdCLI = ""
-		// Ω(os.RemoveAll(getTestPath("mtaignore", dir.MtarFolder))).Should(Succeed())
+		Ω(os.RemoveAll(getTestPath("mtaignore", dir.MtarFolder))).Should(Succeed())
 	})
 	It("Success - build-parameter ignore all node_modules", func() {
 		sourceMta := getTestPath("mtaignore", "mta-ignore-all-node_modules.yaml")
