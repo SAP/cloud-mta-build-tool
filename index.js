@@ -8,7 +8,8 @@ var root = (process.env.XMAKE_IMPORT_COMMON_0 ? `${process.env.XMAKE_IMPORT_COMM
 module.exports = binwrap({
   dirname: __dirname,
   binaries: [
-    'mbt'
+    'mbt',
+    'micromatch-wrapper'
   ],
   urls: {
     'darwin-arm64': root + 'Darwin_arm64.tar.gz',
