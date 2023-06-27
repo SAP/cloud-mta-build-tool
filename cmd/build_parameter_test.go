@@ -74,7 +74,7 @@ var _ = Describe("mbt cli build to test build parameter", func() {
 		var stdout, stderr bytes.Buffer
 		cmd := exec.Command("bash", "-c", mbtCmdCLI+" build"+" --source "+source)
 		cmd.Stdout = &stdout
-		cmd.Stderr = &stderr
+		// cmd.Stderr = &stderr
 
 		Ω(cmd.Run()).Should(Succeed())
 
