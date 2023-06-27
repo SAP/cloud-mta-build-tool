@@ -2,7 +2,6 @@ package commands
 
 import (
 	"bytes"
-	"fmt"
 	"io"
 	"os"
 	"os/exec"
@@ -60,10 +59,6 @@ var _ = Describe("mbt cli build to test build parameter", func() {
 		cmd.Stdout = &stdout
 
 		Ω(cmd.Run()).Should(Succeed())
-
-		// Print output log
-		// fmt.Println("Command output: ", stdout.String())
-
 		Ω(os.Remove(getTestPath("mtaignore", "mta.yaml"))).Should(Succeed())
 	})
 	It("Success - build-parameter ignore node_modules subfolders", func() {
@@ -72,18 +67,10 @@ var _ = Describe("mbt cli build to test build parameter", func() {
 		copyFile(sourceMta, targetMta)
 
 		var stdout bytes.Buffer
-		var stderr bytes.Buffer
 		cmd := exec.Command("bash", "-c", mbtCmdCLI+" build"+" --source "+source)
 		cmd.Stdout = &stdout
-		cmd.Stderr = &stderr
 
-		cmd.Run()
-		// Ω(cmd.Run()).Should(Succeed())
-
-		// Print output log
-		fmt.Println("Command std output: ", stdout.String())
-		fmt.Println("Command std error: ", stderr.String())
-
+		Ω(cmd.Run()).Should(Succeed())
 		Ω(os.Remove(getTestPath("mtaignore", "mta.yaml"))).Should(Succeed())
 	})
 })

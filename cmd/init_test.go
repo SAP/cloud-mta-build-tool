@@ -41,9 +41,6 @@ var _ = Describe("Build", func() {
 		cmd.Stdout = &stdout
 
 		Ω(cmd.Run()).Should(Succeed())
-		// Print output log
-		// fmt.Println("Command output: ", stdout.String())
-
 		Ω(os.RemoveAll(getTestPath("mta", dir.MtarFolder))).Should(Succeed())
 	})
 	It("Success - build with relative source parameter", func() {
@@ -55,9 +52,6 @@ var _ = Describe("Build", func() {
 		cmd.Stdout = &stdout
 
 		Ω(cmd.Run()).Should(Succeed())
-		// Print output log
-		// fmt.Println("Command output: ", stdout.String())
-
 		Ω(os.RemoveAll(getTestPath("mta", dir.MtarFolder))).Should(Succeed())
 	})
 	It("Success - build with abs source and abs target parameter", func() {
@@ -69,9 +63,6 @@ var _ = Describe("Build", func() {
 		cmd.Stdout = &stdout
 
 		Ω(cmd.Run()).Should(Succeed())
-		// Print output log
-		// fmt.Println("Command output: ", stdout.String())
-
 		Ω(os.RemoveAll(getTestPath("mtar_result"))).Should(Succeed())
 	})
 	It("Success - build with abs source and relative target path parameter", func() {
@@ -84,9 +75,6 @@ var _ = Describe("Build", func() {
 		cmd.Stdout = &stdout
 
 		Ω(cmd.Run()).Should(Succeed())
-		// Print output log
-		// fmt.Println("Command output: ", stdout.String())
-
 		Ω(os.RemoveAll(getTestPath("mta", "mtar_result"))).Should(Succeed())
 	})
 	It("Success - build with relative source and abs target path parameter", func() {
@@ -98,9 +86,6 @@ var _ = Describe("Build", func() {
 		cmd.Stdout = &stdout
 
 		Ω(cmd.Run()).Should(Succeed())
-		// Print output log
-		// fmt.Println("Command output: ", stdout.String())
-
 		Ω(os.RemoveAll(getTestPath("mta", "mtar_result"))).Should(Succeed())
 	})
 	It("Success - build with relative source and relative target path parameter", func() {
@@ -113,9 +98,6 @@ var _ = Describe("Build", func() {
 		cmd.Stdout = &stdout
 
 		Ω(cmd.Run()).Should(Succeed())
-		// Print output log
-		// fmt.Println("Command output: ", stdout.String())
-
 		Ω(os.RemoveAll(getTestPath("mta", "mtar_result"))).Should(Succeed())
 	})
 	It("Failure - build with invalid source parameter case 1", func() {
@@ -128,9 +110,6 @@ var _ = Describe("Build", func() {
 		cmd.Stdout = &stdout
 
 		Ω(cmd.Run()).Should(HaveOccurred())
-		// Print output log
-		// fmt.Println("Command output: ", stdout.String())
-
 		// Ω(stdout.String()).Should(ContainSubstring("The filename, directory name, or volume label syntax is incorrect"))
 		Ω(os.RemoveAll(getTestPath("mta", "mtar_result"))).Should(Succeed())
 	})
@@ -144,9 +123,6 @@ var _ = Describe("Build", func() {
 		cmd.Stdout = &stdout
 
 		Ω(cmd.Run()).Should(HaveOccurred())
-		// Print output log
-		// fmt.Println("Command output: ", stdout.String())
-
 		// Ω(stdout.String()).Should(ContainSubstring("The filename, directory name, or volume label syntax is incorrect"))
 		Ω(os.RemoveAll(getTestPath("mta", "mtar_result"))).Should(Succeed())
 	})
@@ -205,9 +181,6 @@ var _ = Describe("Build", func() {
 		cmd.Stdout = &stdout
 
 		Ω(cmd.Run()).Should(HaveOccurred())
-		// Print output log
-		// fmt.Println("Command output: ", stdout.String())
-
 		Ω(os.RemoveAll(getTestPath("tmp"))).Should(Succeed())
 	})
 	It("Failure - build with invalid platform parameter", func() {
@@ -219,7 +192,5 @@ var _ = Describe("Build", func() {
 		cmd.Stdout = &stdout
 
 		Ω(cmd.Run()).Should(HaveOccurred())
-		// Print output log
-		// fmt.Println("Command output: ", stdout.String())
 	})
 })
