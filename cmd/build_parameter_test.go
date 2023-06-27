@@ -79,7 +79,7 @@ var _ = Describe("mbt cli build to test build parameter", func() {
 		Ω(cmd.Run()).Should(Succeed())
 
 		// Print output log
-		fmt.Println("Command std output: ", stdout.String())
+		// fmt.Println("Command std output: ", stdout.String())
 		fmt.Println("Command std error: ", stderr.String())
 
 		Ω(os.Remove(getTestPath("mtaignore", "mta.yaml"))).Should(Succeed())
