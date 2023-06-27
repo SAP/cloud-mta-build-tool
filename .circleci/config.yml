@@ -24,6 +24,18 @@ jobs:
           command: |
             go mod vendor
       - run:
+          name: install node16 npm and npx
+          command: |
+            sudo apt-get update
+            curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash -
+            sudo apt-get install -y nodejs
+            echo "node version:"
+            node --version
+            echo "npm version:"
+            npm --version
+            echo "npx version:"
+            npx --version
+      - run:
           name: install micromatch wrapper
           command: |
             MICROMATCH_WRAPPER_DIR=micromatch
