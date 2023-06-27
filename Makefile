@@ -4,7 +4,7 @@
 # Execute go build
 # Copy files to machine go/bin folder (temp target to avoid manual steps when developing locally)
 
-all:format clean dir gen build-linux build-linux-arm build-darwin build-darwin-arm build-windows install-pkg install-micromatch-wrapper copy tests
+all:format clean dir gen build-linux build-linux-arm build-darwin build-darwin-arm build-windows install-micromatch-wrapper copy tests
 .PHONY: build-darwin-arm build-darwin build-linux build-linux-arm build-windows tests
 
 GOCMD=go
@@ -86,12 +86,6 @@ build-windows:
 	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 $(GOBUILD) -o release/$(BINARY_NAME)_windows -v
 
 # use for local development - > copy the new bin to go/bin path to use new compiled version
-
-# build and install micromatch wrapper
-install-pkg:
-	npm install -g $(PKG_NAME)
-	echo "$(PKG_NAME) version:"
-	$(PKG_NAME) --version
 
 install-micromatch-wrapper:
 	@cd $(MICROMATCH_WRAPPER_DIR) && npm install && cd -
