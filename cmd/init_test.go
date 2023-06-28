@@ -151,27 +151,7 @@ var _ = Describe("Build", func() {
 		Ω(cmd.Run()).Should(HaveOccurred())
 		//Ω(stdout.String()).Should(ContainSubstring("The filename, directory name, or volume label syntax is incorrect"))
 		Ω(os.RemoveAll(getTestPath("mta", "mtar_result"))).Should(Succeed())
-	})
-	It("Success - build with relative sbom-file-path parameter", func() {
-		source := "\"" + getTestPath("mta") + "\""
-		sbom_file_path := "\"" + "sbom-gen-result/merged.bom.xml" + "\""
-
-		cmd := exec.Command("bash", "-c", mbtCmdCLI+" build"+" --source "+source+" --sbom-file-path "+sbom_file_path)
-
-		Ω(cmd.Run()).Should(Succeed())
-		Ω(os.RemoveAll(getTestPath("mta", dir.MtarFolder))).Should(Succeed())
-		Ω(os.RemoveAll(getTestPath("mta", "sbom-gen-result"))).Should(Succeed())
-	})
-	It("Success - build with abs sbom-file-path parameter", func() {
-		source := "\"" + getTestPath("mta") + "\""
-		sbom_file_path := "\"" + getTestPath("mta", "sbom-gen-result", "merged.bom.xml") + "\""
-
-		cmd := exec.Command("bash", "-c", mbtCmdCLI+" build"+" --source "+source+" --sbom-file-path "+sbom_file_path)
-
-		Ω(cmd.Run()).Should(Succeed())
-		Ω(os.RemoveAll(getTestPath("mta", dir.MtarFolder))).Should(Succeed())
-		Ω(os.RemoveAll(getTestPath("mta", "sbom-gen-result"))).Should(Succeed())
-	}) */
+	})*/
 	It("Failure - build without mta.yaml", func() {
 		source := "\"" + getTestPath("tmp") + "\""
 		Ω(os.MkdirAll(getTestPath("tmp"), os.ModePerm)).Should(Succeed())
