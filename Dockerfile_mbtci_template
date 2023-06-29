@@ -253,11 +253,6 @@ RUN set -ex \
   && chown -R ${MTA_USER}:${MTA_USER} ${MTA_USER_HOME}
 ENV NPM_CONFIG_PREFIX ${MTA_USER_HOME}/.npm-global
 
-# Instll curl and ca-certificates
-RUN set -ex \
-  && apt-get update \
-  && apt-get install -y curl ca-certificates --no-install-recommends
-
 ENV PATH=$PATH:./node_modules/.bin:${MTA_USER_HOME}/.npm-global/bin
 WORKDIR /project
 USER ${MTA_USER}
