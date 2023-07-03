@@ -41,3 +41,22 @@ If you want to use the old `mvn -B package` command instead of the `maven` build
 ```
 
 The same approach can be implemented if the `maven` builder is used in the global build step.
+
+## v1.2.25
+The build-parameters ignore attribute will be upgraded to support [Full Glob Pattern](https://en.wikipedia.org/wiki/Glob_(programming)). 
+
+Wildcards, such as `*`,`!`,`?` can be used to match characters. You can package specified content by using negation pattern `!`
+
+For example:
+
+```yaml
+
+- name: module1
+   type: nodejs
+   build-parameters:     
+     build-result: myfolder
+     ignore: ["node_modules/**", "!node_modules/mtainclude"]
+
+# In this example, all files and subfolders of node_modules will not be packaged in to MTA archive except the "mtainclude" subfolder of node_modules
+     
+```
