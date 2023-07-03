@@ -219,8 +219,9 @@ For example:
      build-result: myfolder
      ignore: ["node_modules/**", "!node_modules/mtainclude"]
 
-# In this example, all files and subfolders of node_modules will not be packaged in to MTA archive except the "mtainclude" subfolder of node_modules
-     
+# In this example, all files and subfolders of node_modules will not be packaged in to MTA archive
+# except the "mtainclude" subfolder of node_modules
+
 ```
 
 > **_NOTE:_** These parameters are not considered for the `fetcher` builder.
