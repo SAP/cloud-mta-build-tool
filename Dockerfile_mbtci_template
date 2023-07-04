@@ -6,7 +6,8 @@ ARG MTA_USER_HOME="/home/${MTA_USER}"
 ARG MBT_VERSION=1.2.23
 ARG GO_VERSION=1.19.3
 ARG NODE_VERSION=NODE_VERSION_TEMPLATE
-ARG MAVEN_VERSION=3.8.7
+ARG MAVEN_VERSION=3.9.3
+ARG UI5_VERSION=2.14.19
 ARG MAVEN_BASE_URL=https://downloads.apache.org/maven/maven-3/${MAVEN_VERSION}/binaries
 ARG SAPMACHINE_VERSION=JAVA_VERSION_TEMPLATE
 
@@ -63,7 +64,7 @@ RUN ARCH= && dpkgArch="$(dpkg --print-architecture)" \
       4ED778F539E3634C779C87C6D7062848A1AB005C \
       141F07595B7B3FFE74309A937405533BE57C7D57 \
       74F12602B6F1C4E913FAA37AD3A89613643B6201 \
-      61FC681DFB92A079F1685E77973F295594EC4689 \
+      DD792F5973C6DE52C432CBDAC77ABFA00DDBF2B7 \
       8FCCA13FEF1D0C2E91008E09770F7A9A5AE15600 \
       C4F0DFFF4E8C1A8236409D08E73BC641CC11F4C8 \
       890C08DB8579162FEE0DF9DB8BEAB4DFCF555EF4 \
@@ -104,7 +105,7 @@ RUN set -ex \
 
 # Install UI5 CLI
 RUN set -ex \
-    && npm install --prefix /usr/local/ -g @ui5/cli \
+    && npm install --prefix /usr/local/ -g @ui5/cli@${UI5_VERSION} \
     && npm cache clean -g --force \
     # smoke test
     && echo "ui5 install smoke test!" \
@@ -182,7 +183,7 @@ RUN sapmachine_install() { \
     apt-get install -y ca-certificates curl libarchive-tools --no-install-recommends; \
     rm -rf /var/lib/apt/lists/*; \
     curl -fsSLO --compressed -b 'eula_3_1_agreed=tools.hana.ondemand.com/developer-license-3_1.txt' https://tools.hana.ondemand.com/additional/sapjvm-${SAPMACHINE_VERSION}-linux-${ARCH}.zip; \
-    echo "583dedfeee0c119839a610ddc8c6768d0c044429  sapjvm-${SAPMACHINE_VERSION}-linux-${ARCH}.zip" | sha1sum -c -; \
+    echo "7d63f20b17becb5f658d413c113ea9efdfbba6a0  sapjvm-${SAPMACHINE_VERSION}-linux-${ARCH}.zip" | sha1sum -c -; \
     bsdtar -xvf sapjvm-${SAPMACHINE_VERSION}-linux-${ARCH}.zip -C /usr/local --strip-components=1 --no-same-owner; \
     rm -f sapjvm-${SAPMACHINE_VERSION}-linux-${ARCH}.zip; \
     apt-get remove --purge --auto-remove -y ca-certificates curl libarchive-tools; \
@@ -207,7 +208,7 @@ RUN set -ex \
   && curl -fsSLO --compressed ${MAVEN_BASE_URL}/apache-maven-${MAVEN_VERSION}-bin.tar.gz.asc \
   && export GNUPGHOME="$(mktemp -d)" \
   && for key in \
-    6A814B1F869C2BBEAB7CB7271A2A1C94BDE89688 \
+    29BEA2A645F2D6CED7FB12E02B172E3E156466E8  \
   ; do \
     gpg --batch --keyserver hkps://pgp.surf.nl --recv-keys "$key" || \
     gpg --batch --keyserver hkps://keyserver.ubuntu.com --recv-keys "$key" ; \
@@ -247,6 +248,11 @@ RUN set -ex \
   && mkdir ${MTA_USER_HOME}/.npm-global/lib \
   && chown -R ${MTA_USER}:${MTA_USER} ${MTA_USER_HOME}
 ENV NPM_CONFIG_PREFIX ${MTA_USER_HOME}/.npm-global
+
+# Instll curl and ca-certificates
+RUN set -ex \
+  && apt-get update \
+  && apt-get install -y curl ca-certificates --no-install-recommends
 
 ENV PATH=$PATH:./node_modules/.bin:${MTA_USER_HOME}/.npm-global/bin
 WORKDIR /project
