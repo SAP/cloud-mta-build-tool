@@ -1,7 +1,7 @@
 #### Overview
 [Micromatch](https://github.com/micromatch/micromatch) support various matching features, such as Glob pattern, Advanced globbing.
 
-Micromatch is a nodejs application, and MBT is a go application. In order to enable MBT to use the functionalities provided by micromatch, we create [micromath wrapper](https://github.com/SAP/cloud-mta-build-tool/tree/master/micromatch) to package it.
+Micromatch is a nodejs application, and MBT is a go application. In order to enable MBT to use the functionalities provided by micromatch, from MBT v1.2.25, we create [micromath wrapper](https://github.com/SAP/cloud-mta-build-tool/tree/master/micromatch) to package it.
 
 #### Install
 You can install the Micromatch Wrapper using either of these methods below:
@@ -18,7 +18,7 @@ You can install the Micromatch Wrapper using either of these methods below:
 
      * In Windows, copy the `micromatch-wrapper.exe` binary file to the `C:/Windows/` folder.
 
-**Build and install manually**
+**Build and install from source code**
 
    - [Download](https://github.com/SAP/cloud-mta-build-tool/releases) the latest source code.
 
@@ -46,7 +46,7 @@ pkg ./
 Run the command below, it will install mbt and micromatch-wrapper together
 
 ```
-npm install -g mbt
+npm install -g mbt@greater_than_or_equal_to_v1.2.25
 mbt --version
 micromatch-wrapper --version
 ```
