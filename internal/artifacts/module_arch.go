@@ -2,14 +2,15 @@ package artifacts
 
 import (
 	"fmt"
-	"gopkg.in/yaml.v2"
 	"os"
 	"path/filepath"
 	"strings"
 
+	"gopkg.in/yaml.v2"
+
 	"github.com/pkg/errors"
 
-	"github.com/SAP/cloud-mta-build-tool/internal/archive"
+	dir "github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta-build-tool/internal/buildops"
 	"github.com/SAP/cloud-mta-build-tool/internal/commands"
 	"github.com/SAP/cloud-mta-build-tool/internal/exec"
@@ -457,7 +458,7 @@ func copyModuleArchiveToResultDir(source, target, moduleName string) error {
 
 func archiveModuleToResultDir(buildResult string, requestedResultFileName string, ignore []string, moduleName string) error {
 	// Archive the folder without the ignored files and/or subfolders, which are excluded from the package.
-	err := dir.Archive(buildResult, requestedResultFileName, ignore)
+	err := dir.Package(buildResult, requestedResultFileName, ignore)
 	if err != nil {
 		return errors.Wrapf(err, PackFailedOnArchMsg, moduleName)
 	}
@@ -477,6 +478,7 @@ func getIgnores(moduleLoc dir.IModule, module *mta.Module, moduleResultPath stri
 	targetFolder := moduleLoc.GetTargetTmpRoot()
 	relativeTarget, err := filepath.Rel(moduleResultPath, targetFolder)
 	if err == nil && !(relativeTarget == ".." || strings.HasPrefix(relativeTarget, ".."+string(os.PathSeparator))) {
+		relativeTarget = relativeTarget + "/**"
 		ignoreList = append(ignoreList, relativeTarget)
 	}
 

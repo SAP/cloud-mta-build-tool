@@ -94,10 +94,16 @@ var _ = Describe("FSOPS", func() {
 					"ui5app/webapp/", "ui5app/webapp/Component.js", "ui5app/webapp/index.html",
 					"ui5app/webapp/controller/", "ui5app/webapp/controller/View1.controller.js",
 					"ui5app/webapp/model/", "ui5app/webapp/model/models.js",
-					"ui5app/webapp/view/", "ui5app/webapp/view/View1.view.xml",
+					"ui5app/webapp/view/", "ui5app/webapp/view/View1.view.xml", "ui5app/webapp/view/.invisibleView",
 				}),
 			Entry("SourceIsNotFolder",
 				getFullPath("testdata", "level2", "level2_one.txt"), targetFilePath, nil, false, []string{"level2_one.txt"}),
+			Entry("SourceIsNotFolder with ignore case 1",
+				getFullPath("testdata", "level2", "level2_one.txt"), targetFilePath, []string{"level2_one.txt"}, false, []string{"level2_one.txt"}),
+			Entry("SourceIsNotFolder with ignore case 2",
+				getFullPath("testdata", "level2", "level2_one.txt"), targetFilePath, []string{"*.txt"}, false, []string{"level2_one.txt"}),
+			Entry("SourceIsNotFolder with ignore case 3",
+				getFullPath("testdata", "level2", "level2_one.txt"), targetFilePath, []string{"**/*.txt"}, false, []string{"level2_one.txt"}),
 			Entry("Target is empty string",
 				getFullPath("testdata", "mtahtml5"), "", nil, true, nil),
 			Entry("Source is empty string", "", "", nil, true, nil),
@@ -110,13 +116,350 @@ var _ = Describe("FSOPS", func() {
 				[]string{"symlink_dir_to_content/", "package.json",
 					"symlink_dir_to_content/test_dir/", "symlink_dir_to_content/test_dir/test1.txt",
 					"symlink_dir_to_content/test.txt",
-					"symlink_dir_to_content/symlink_dir_to_another_content/", "symlink_dir_to_content/symlink_dir_to_another_content/test3.txt",
+					"symlink_dir_to_content/symlink_dir_to_another_content/",
+					"symlink_dir_to_content/symlink_dir_to_another_content/test3.txt",
 					"symlink_dir_to_content/symlink_dir_to_another_content/symlink_to_test4.txt"}),
 			Entry("symbolic links with ignore",
 				getFullPath("testdata", "testsymlink", "symlink_dir_to_moduleNew"), targetFilePath, []string{"symlink_dir_to_content"}, false,
 				[]string{"package.json"}),
 		)
 	})
+
+	var _ = Describe("Test Package", func() {
+		var targetFilePath = getFullPath("testdata", "arch.mbt")
+
+		BeforeEach(func() {
+			fileInfoProvider = &mockFileInfoProvider{}
+		})
+
+		AfterEach(func() {
+			fileInfoProvider = &standardFileInfoProvider{}
+			Ω(os.RemoveAll(targetFilePath)).Should(Succeed())
+		})
+
+		var _ = DescribeTable("Test Package", func(source, target string, ignore []string, fails bool, expectedFiles []string) {
+			err := Package(source, target, ignore)
+			if fails {
+				Ω(err).Should(HaveOccurred())
+			} else {
+				Ω(err).Should(Succeed())
+				Ω(target).Should(BeAnExistingFile())
+				validateArchiveContents(expectedFiles, target)
+			}
+		},
+			Entry("package all content",
+				getFullPath("testdata", "mtahtml5"), targetFilePath, nil, false,
+				[]string{
+					"mta.sh", "mta.yaml",
+					"ui5app/", "ui5app/Gruntfile.js",
+					"ui5app/webapp/", "ui5app/webapp/Component.js", "ui5app/webapp/abc.jar",
+					"ui5app/webapp/index.html",
+					"ui5app/webapp/controller/", "ui5app/webapp/controller/View1.controller.js",
+					"ui5app/webapp/css/", "ui5app/webapp/css/style.css",
+					"ui5app/webapp/i18n/", "ui5app/webapp/i18n/i18n.properties",
+					"ui5app/webapp/model/", "ui5app/webapp/model/models.js",
+					"ui5app/webapp/view/", "ui5app/webapp/view/View1.view.xml",
+				}),
+			Entry("Source is empty string", "", "", nil, true, nil),
+			Entry("Target is empty string",
+				getFullPath("testdata", "mtahtml5"), "", nil, true, nil),
+			Entry("Target is folder",
+				getFullPath("testdata", "mtahtml5"), getFullPath("testdata"), nil, true, nil),
+			// Ignore folder
+			Entry("ignore folder case 1",
+				getFullPath("testdata", "testproject"), targetFilePath,
+				[]string{"ui5app/"}, false,
+				[]string{
+					"cf-mtaext.yaml", "mta.sh", "mta.yaml",
+				}),
+			Entry("ignore folder case 2",
+				getFullPath("testdata", "testproject"), targetFilePath,
+				[]string{"ui5app/**"}, false,
+				[]string{
+					"cf-mtaext.yaml", "mta.sh", "mta.yaml",
+					"ui5app/webapp/view/.invisibleView",
+				}),
+			Entry("ignore folder case 3",
+				getFullPath("testdata", "testproject"), targetFilePath,
+				[]string{"ui5app/webapp/controller/**", "ui5app/webapp/model/**"}, false,
+				[]string{
+					"cf-mtaext.yaml", "mta.sh", "mta.yaml",
+					"ui5app/", "ui5app/Gruntfile.js",
+					"ui5app/webapp/", "ui5app/webapp/Component.js", "ui5app/webapp/index.html",
+					"ui5app/webapp/view/", "ui5app/webapp/view/View1.view.xml", "ui5app/webapp/view/.invisibleView",
+				}),
+			Entry("ignore folder case 4",
+				getFullPath("testdata", "testproject"), targetFilePath,
+				[]string{"ui5app/webapp/**", "!ui5app/webapp/controller/", "!ui5app/webapp/model/**"}, false,
+				[]string{
+					"cf-mtaext.yaml", "mta.sh", "mta.yaml",
+					"ui5app/",
+					"ui5app/Gruntfile.js",
+					"ui5app/webapp/controller/",
+					"ui5app/webapp/model/",
+					"ui5app/webapp/controller/View1.controller.js",
+					"ui5app/webapp/view/.invisibleView",
+					"ui5app/webapp/model/models.js",
+				}),
+			Entry("ignore folder case 5",
+				getFullPath("testdata", "testproject"), targetFilePath,
+				[]string{"ui5app/**", "!ui5app/webapp/controller/", "!ui5app/webapp/model/**"}, false,
+				[]string{
+					"cf-mtaext.yaml", "mta.sh", "mta.yaml",
+					"ui5app/webapp/controller/",
+					"ui5app/webapp/model/",
+					"ui5app/webapp/controller/View1.controller.js",
+					"ui5app/webapp/view/.invisibleView",
+					"ui5app/webapp/model/models.js",
+				}),
+			Entry("ignore folder case 6",
+				getFullPath("testdata", "testproject"), targetFilePath,
+				[]string{"ui5app/**", "!ui5app/*.js"}, false,
+				[]string{
+					"cf-mtaext.yaml", "mta.sh", "mta.yaml",
+					"ui5app/Gruntfile.js",
+					"ui5app/webapp/view/.invisibleView",
+				}),
+			Entry("ignore folder case 7",
+				getFullPath("testdata", "testproject"), targetFilePath,
+				[]string{"ui5app/webapp/!(controller)/**"}, false,
+				[]string{
+					"cf-mtaext.yaml", "mta.sh", "mta.yaml",
+					"ui5app/", "ui5app/Gruntfile.js",
+					"ui5app/webapp/",
+					"ui5app/webapp/controller/",
+					"ui5app/webapp/controller/View1.controller.js",
+					"ui5app/webapp/view/.invisibleView",
+				}),
+			Entry("ignore folder case 8",
+				getFullPath("testdata", "testproject"), targetFilePath,
+				[]string{"ui5app/webapp/!(controller)/**", "ui5app/webapp/!(model)/**"}, false,
+				[]string{
+					"cf-mtaext.yaml", "mta.sh", "mta.yaml",
+					"ui5app/", "ui5app/Gruntfile.js",
+					"ui5app/webapp/",
+					"ui5app/webapp/view/.invisibleView",
+				}),
+			Entry("ignore folder case 9",
+				getFullPath("testdata", "testproject"), targetFilePath,
+				[]string{"ui5app/webapp/!(controller)"}, false,
+				[]string{
+					"cf-mtaext.yaml", "mta.sh", "mta.yaml",
+					"ui5app/", "ui5app/Gruntfile.js",
+					"ui5app/webapp/",
+					"ui5app/webapp/model/models.js",
+					"ui5app/webapp/view/View1.view.xml",
+					"ui5app/webapp/controller/",
+					"ui5app/webapp/controller/View1.controller.js",
+					"ui5app/webapp/view/.invisibleView",
+				}),
+			Entry("ignore folder case 10",
+				getFullPath("testdata", "testproject"), targetFilePath,
+				[]string{"ui5app/webapp/!(controller)", "ui5app/webapp/!(view)"}, false,
+				[]string{
+					"cf-mtaext.yaml", "mta.sh", "mta.yaml",
+					"ui5app/", "ui5app/Gruntfile.js",
+					"ui5app/webapp/",
+					"ui5app/webapp/model/models.js",
+					"ui5app/webapp/view/View1.view.xml",
+					"ui5app/webapp/controller/View1.controller.js",
+					"ui5app/webapp/view/.invisibleView",
+				}),
+			Entry("ignore folder case 11",
+				getFullPath("testdata", "testproject"), targetFilePath,
+				[]string{"ui5app/webapp/**", "ui5app/webapp/!(controller)"}, false,
+				[]string{
+					"cf-mtaext.yaml", "mta.sh", "mta.yaml",
+					"ui5app/", "ui5app/Gruntfile.js",
+					"ui5app/webapp/view/.invisibleView",
+				}),
+			Entry("ignore folder case 12",
+				getFullPath("testdata", "testproject"), targetFilePath,
+				[]string{"ui5app/webapp/**", "ui5app/webapp/!(controller)", "ui5app/webapp/!(model)"}, false,
+				[]string{
+					"cf-mtaext.yaml", "mta.sh", "mta.yaml",
+					"ui5app/", "ui5app/Gruntfile.js",
+					"ui5app/webapp/view/.invisibleView",
+				}),
+			Entry("ignore folder case 13",
+				getFullPath("testdata", "testproject"), targetFilePath,
+				[]string{"!ui5app/webapp/controller/**", "ui5app/webapp/**", "!ui5app/webapp/model/**"}, false,
+				[]string{
+					"cf-mtaext.yaml", "mta.sh", "mta.yaml",
+					"ui5app/", "ui5app/Gruntfile.js",
+					"ui5app/webapp/model/",
+					"ui5app/webapp/model/models.js",
+					"ui5app/webapp/view/.invisibleView",
+				}),
+			Entry("ignore folder case 14",
+				getFullPath("testdata", "testproject"), targetFilePath,
+				[]string{"ui5app/webapp/**", "!ui5app/webapp/controller/**", "!ui5app/webapp/!(model)/**"}, false,
+				[]string{
+					"cf-mtaext.yaml", "mta.sh", "mta.yaml",
+					"ui5app/", "ui5app/Gruntfile.js",
+					"ui5app/webapp/Component.js", "ui5app/webapp/index.html",
+					"ui5app/webapp/controller/",
+					"ui5app/webapp/controller/View1.controller.js",
+					"ui5app/webapp/view/",
+					"ui5app/webapp/view/View1.view.xml",
+					"ui5app/webapp/view/.invisibleView",
+				}),
+			Entry("ignore folder case 15",
+				getFullPath("testdata", "testproject"), targetFilePath,
+				[]string{"ui5app/webapp/**", "!ui5app/webapp/!(controller)/**", "!ui5app/webapp/!(model)/**"}, false,
+				[]string{
+					"cf-mtaext.yaml", "mta.sh", "mta.yaml",
+					"ui5app/", "ui5app/Gruntfile.js",
+					"ui5app/webapp/Component.js", "ui5app/webapp/index.html",
+					"ui5app/webapp/controller/",
+					"ui5app/webapp/controller/View1.controller.js",
+					"ui5app/webapp/view/",
+					"ui5app/webapp/view/View1.view.xml",
+					"ui5app/webapp/view/.invisibleView",
+					"ui5app/webapp/model/",
+					"ui5app/webapp/model/models.js",
+				}),
+			// Ignore files
+			Entry("ignore file case 1",
+				getFullPath("testdata", "testproject"), targetFilePath,
+				[]string{"ui5app/Gr*.js"}, false,
+				[]string{
+					"cf-mtaext.yaml", "mta.sh", "mta.yaml",
+					"ui5app/",
+					"ui5app/webapp/", "ui5app/webapp/Component.js", "ui5app/webapp/index.html",
+					"ui5app/webapp/controller/", "ui5app/webapp/controller/View1.controller.js",
+					"ui5app/webapp/model/", "ui5app/webapp/model/models.js",
+					"ui5app/webapp/view/", "ui5app/webapp/view/View1.view.xml", "ui5app/webapp/view/.invisibleView",
+				}),
+			Entry("ignore file case 2",
+				getFullPath("testdata", "testproject"), targetFilePath,
+				[]string{"*.js"}, false,
+				[]string{
+					"cf-mtaext.yaml", "mta.sh", "mta.yaml",
+					"ui5app/", "ui5app/Gruntfile.js",
+					"ui5app/webapp/", "ui5app/webapp/index.html", "ui5app/webapp/Component.js",
+					"ui5app/webapp/controller/", "ui5app/webapp/controller/View1.controller.js",
+					"ui5app/webapp/model/", "ui5app/webapp/model/models.js",
+					"ui5app/webapp/view/", "ui5app/webapp/view/View1.view.xml", "ui5app/webapp/view/.invisibleView",
+				}),
+			Entry("ignore file case 3",
+				getFullPath("testdata", "testproject"), targetFilePath,
+				[]string{"*/*.js"}, false,
+				[]string{
+					"cf-mtaext.yaml", "mta.sh", "mta.yaml",
+					"ui5app/",
+					"ui5app/webapp/", "ui5app/webapp/index.html", "ui5app/webapp/Component.js",
+					"ui5app/webapp/controller/", "ui5app/webapp/controller/View1.controller.js",
+					"ui5app/webapp/model/", "ui5app/webapp/model/models.js",
+					"ui5app/webapp/view/", "ui5app/webapp/view/View1.view.xml", "ui5app/webapp/view/.invisibleView",
+				}),
+			Entry("ignore file case 4",
+				getFullPath("testdata", "testproject"), targetFilePath,
+				[]string{"**/*.js"}, false,
+				[]string{
+					"cf-mtaext.yaml", "mta.sh", "mta.yaml",
+					"ui5app/",
+					"ui5app/webapp/", "ui5app/webapp/index.html",
+					"ui5app/webapp/controller/", "ui5app/webapp/model/",
+					"ui5app/webapp/view/", "ui5app/webapp/view/View1.view.xml", "ui5app/webapp/view/.invisibleView",
+				}),
+			// Source is not a folder
+			Entry("SourceIsNotFolder",
+				getFullPath("testdata", "level2", "level2_one.txt"), targetFilePath, nil, false,
+				[]string{"level2_one.txt"}),
+			Entry("SourceIsNotFolder with ignore case 1",
+				getFullPath("testdata", "level2", "level2_one.txt"), targetFilePath,
+				[]string{"level2_one.txt"}, false, []string{"level2_one.txt"}),
+			Entry("SourceIsNotFolder with ignore case 2",
+				getFullPath("testdata", "level2", "level2_one.txt"), targetFilePath,
+				[]string{"*.txt"}, false, []string{"level2_one.txt"}),
+			Entry("SourceIsNotFolder with ignore case 3",
+				getFullPath("testdata", "level2", "level2_one.txt"), targetFilePath,
+				[]string{"**/*.txt"}, false, []string{"level2_one.txt"}),
+		)
+	})
+
+	var _ = Describe("Check Symbolic Link", func() {
+		BeforeEach(func() {
+			fileInfoProvider = &mockFileInfoProvider{}
+		})
+
+		AfterEach(func() {
+			fileInfoProvider = &standardFileInfoProvider{}
+		})
+
+		var _ = DescribeTable("Check Symbolic Link", func(source string, fails bool) {
+			info, err := fileInfoProvider.stat(source)
+			baseDir, err := getBaseDir(source, info)
+			err = checkSymbolicLinkTree(source, baseDir, make(map[string]bool))
+			if fails {
+				Ω(err).Should(HaveOccurred())
+			} else {
+				Ω(err).Should(Succeed())
+			}
+		},
+			// symbolic link cases
+			Entry("Source is broken symbolic link",
+				getFullPath("testdata", "testsymlink", "symlink_broken"), true),
+			Entry("recursion to itself",
+				getFullPath("testdata", "testsymlink", "symlink_to_itself"), true),
+			Entry("2 steps recursion",
+				getFullPath("testdata", "testsymlink", "symlink_recursion_2step_a"), true),
+			Entry("3 steps recursion",
+				getFullPath("testdata", "testsymlink", "symlink_recursion_3step_a"), true),
+			Entry("sibling folders with recursion",
+				getFullPath("testdata", "testsymlink", "dir_with_recursive_symlink", "subdir", "symlink_dir_to_sibling"), true),
+			Entry("recursion to upper folder",
+				getFullPath("testdata", "testsymlink", "dir_with_recursive_symlink", "subdir", "symlink_dir_recursion_to_parent_dir"), true),
+		)
+	})
+
+	// var _ = Describe("Test Package with Symbolic Link", func() {
+	// 	var targetFilePath = getFullPath("testdata", "arch.mbt")
+
+	// 	BeforeEach(func() {
+	// 		fileInfoProvider = &standardFileInfoProvider{}
+	// 	})
+
+	// 	AfterEach(func() {
+	// 		fileInfoProvider = &standardFileInfoProvider{}
+	// 		Ω(os.RemoveAll(targetFilePath)).Should(Succeed())
+	// 	})
+
+	// 	var _ = DescribeTable("GeneratePackage Test Symbolic Link", func(source, target string, ignore []string, fails bool, expectedFiles []string) {
+	// 		err := Package(source, target, ignore)
+	// 		if fails {
+	// 			Ω(err).Should(HaveOccurred())
+	// 		} else {
+	// 			Ω(err).Should(Succeed())
+	// 			Ω(target).Should(BeAnExistingFile())
+	// 			validateArchiveContents(expectedFiles, target)
+	// 		}
+	// 	},
+	// 		Entry("Source is broken symbolic link",
+	// 			getFullPath("testdata", "testignorewithsymlink", "symlink_to_symlink_broken"), targetFilePath, nil, true, nil),
+	// 		Entry("Source is broken symbolic link dir",
+	// 			getFullPath("testdata", "testignorewithsymlink", "symlink_dir_to_symlink_dir_broken"), targetFilePath, nil, true, nil),
+	// 		Entry("symbolic links",
+	// 			getFullPath("testdata", "testignorewithsymlink", "symlink_dir_to_moduleNew"), targetFilePath, nil, false,
+	// 			[]string{"symlink_dir_to_content/", "package.json",
+	// 				"symlink_dir_to_content/test_dir/", "symlink_dir_to_content/test_dir/test1.txt",
+	// 				"symlink_dir_to_content/test.txt",
+	// 				"symlink_dir_to_content/symlink_dir_to_another_content/",
+	// 				"symlink_dir_to_content/symlink_dir_to_another_content/test3.txt",
+	// 				"symlink_dir_to_content/symlink_dir_to_another_content/symlink_to_test4.txt"}),
+	// 		Entry("symbolic links with ignore",
+	// 			getFullPath("testdata", "testignorewithsymlink", "symlink_dir_to_moduleNew"), targetFilePath,
+	// 			[]string{"symlink_dir_to_content/"}, false,
+	// 			[]string{"package.json"}),
+	// 		Entry("sibling folders with recursion",
+	// 			getFullPath("testdata", "testignorewithsymlink", "dir_with_recursive_symlink", "subdir", "symlink_dir_to_sibling"),
+	// 			targetFilePath, []string{}, true, []string{}),
+	// 		Entry("recursion to upper folder",
+	// 			getFullPath("testdata", "testignorewithsymlink", "dir_with_recursive_symlink", "subdir", "symlink_dir_recursion_to_parent_dir"),
+	// 			targetFilePath, []string{}, true, []string{}),
+	// 	)
+	// })
 
 	var _ = Describe("FindPath", func() {
 		It("returns file path for existing file", func() {

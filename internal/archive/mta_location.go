@@ -21,6 +21,8 @@ const (
 	Mtad = "mtad.yaml"
 	// MtarFolder - default archives folder
 	MtarFolder = "mta_archives"
+	// TempNotIgnoreFile = temporary file for not ignored file
+	TempNotIgnoreFile = ".not_ignore_file_tmp"
 )
 
 // IMtaParser - MTA Parser interface

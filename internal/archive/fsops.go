@@ -5,9 +5,11 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/pkg/errors"
 
@@ -53,13 +55,77 @@ func CreateDirIfNotExist(dir string) error {
 	return err
 }
 
-// Archive module and mtar artifacts,
+// RemoveDirIfExist - remove file/dir
+func RemoveIfExist(path string) error {
+	_, err := os.Stat(path)
+	if os.IsNotExist(err) {
+		return nil
+	}
+	err = os.RemoveAll(path)
+	return err
+}
+
+// Package module and mtar artifacts,
 // compatible with the JAR specification
 // to support the spec requirements
 // Source Path to be zipped
 // Target artifact
-func Archive(sourcePath, targetArchivePath string, ignore []string) (e error) {
+func Package(sourcePath, targetArchivePath string, ignore []string) (e error) {
+	// check that folder to be packed exist
+	info, err := fileInfoProvider.stat(sourcePath)
+	if err != nil {
+		return err
+	}
 
+	// create folder of archive file if not exists
+	err = CreateDirIfNotExist(filepath.Dir(targetArchivePath))
+	if err != nil {
+		return errors.Wrapf(err, archivingFailedOnCreateFolderMsg, filepath.Dir(targetArchivePath))
+	}
+
+	// create archive file
+	zipfile, err := os.Create(targetArchivePath)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		e = CloseFile(zipfile, e)
+	}()
+
+	// create archive writer
+	archive := zip.NewWriter(zipfile)
+	defer func() {
+		e = CloseFile(archive, e)
+	}()
+
+	baseDir, err := getBaseDir(sourcePath, info)
+	if err != nil {
+		return err
+	}
+
+	if !strings.HasSuffix(baseDir, string(os.PathSeparator)) {
+		baseDir += string(os.PathSeparator)
+	}
+
+	err = checkSymbolicLinkTree(sourcePath, baseDir, make(map[string]bool))
+	if err != nil {
+		return err
+	}
+
+	ignorePatterns, err := getIgnorePatterns(sourcePath, ignore)
+	if err != nil {
+		return err
+	}
+
+	err = generatePackage(sourcePath, baseDir, "", "", info, archive, ignorePatterns)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func Archive(sourcePath, targetArchivePath string, ignore []string) (e error) {
 	// check that folder to be packed exist
 	info, err := fileInfoProvider.stat(sourcePath)
 	if err != nil {
@@ -122,9 +188,42 @@ func getBaseDir(path string, info os.FileInfo) (string, error) {
 	return filepath.Dir(path), nil
 }
 
+func isIgnorePathDir(sourcePath, ignore string) bool {
+	info, err := fileInfoProvider.stat(filepath.Join(sourcePath, ignore))
+	if err == nil && fileInfoProvider.isDir(info) {
+		return true
+	}
+
+	if strings.HasSuffix(ignore, "/") {
+		return true
+	}
+
+	return false
+}
+
+func getIgnorePatterns(sourcePath string, ignore []string) ([]string, error) {
+	var ignPatterns []string
+	var ignToSlash, ignPattern, ignHidePattern string
+	for _, ign := range ignore {
+		ignToSlash = filepath.ToSlash(ign)
+		// if ignore path is DIR, add "/**" and the end, and ignore all hide files under it
+		if isIgnorePathDir(sourcePath, ignToSlash) {
+			if !strings.HasSuffix(ignToSlash, "/") {
+				ignToSlash = ignToSlash + "/"
+			}
+			ignPattern = ignToSlash + "**"
+			ignHidePattern = ignToSlash + "**/.*"
+			ignPatterns = append(ignPatterns, ignPattern)
+			ignPatterns = append(ignPatterns, ignHidePattern)
+		} else {
+			ignPatterns = append(ignPatterns, ignToSlash)
+		}
+	}
+	return ignPatterns, nil
+}
+
 // getIgnoresMap - getIgnores Helper
 func getIgnoredEntries(ignore []string, sourcePath string) (map[string]interface{}, error) {
-
 	info, err := fileInfoProvider.stat(sourcePath)
 	if err != nil {
 		return nil, err
@@ -162,10 +261,130 @@ func CloseFile(file io.Closer, err error) error {
 	return err
 }
 
+func exportPackagedFiles(sourceDir string, ignorePatterns []string) (string, error) {
+	// (1) get export file path
+	exportFileName := TempNotIgnoreFile + "_" + time.Now().Format("20230517155317")
+	exportFilePath := filepath.Join(sourceDir, exportFileName)
+
+	// (2) invoke micromatch wrapper
+	var cmdArgs []string
+	cmdArgs = append(cmdArgs, "getPackagedFiles")
+	cmdArgs = append(cmdArgs, "-s")
+	cmdArgs = append(cmdArgs, sourceDir)
+	cmdArgs = append(cmdArgs, "-t")
+	cmdArgs = append(cmdArgs, exportFilePath)
+	if len(ignorePatterns) > 0 {
+		cmdArgs = append(cmdArgs, "-p")
+		cmdArgs = append(cmdArgs, ignorePatterns...)
+	}
+	cmd := exec.Command("micromatch-wrapper", cmdArgs...)
+	output, err := cmd.Output()
+	if err != nil {
+		return exportFilePath, errors.Wrap(err, string(output))
+	}
+	return exportFilePath, nil
+}
+
+func getPackagedFiles(sourceDir string, ignorePatterns []string) ([]string, error) {
+	// (1) get all files need to be packaged which are not matched ignore patterns
+	exportFilePath, err := exportPackagedFiles(sourceDir, ignorePatterns)
+	if err != nil {
+		return nil, err
+	}
+
+	// (2) read export file to get all filtered files, package to zip file
+	exportFileContent, err := ioutil.ReadFile(exportFilePath)
+	if err != nil {
+		return nil, err
+	}
+	files := strings.Split(string(exportFileContent), "\n")
+
+	// (3) remove export file
+	err = RemoveIfExist(exportFilePath)
+	if err != nil {
+		return nil, err
+	}
+
+	return files, nil
+}
+
+func generatePackage(sourcePath, baseDir, symLinkPathInZip, linkedPath string,
+	sourcePathInfo os.FileInfo, archive *zip.Writer, ignorePatterns []string) error {
+	var files []string
+	var sourceDir string
+	var err error
+
+	// (1) get files which need to be packaged
+	if sourcePathInfo.IsDir() { // if sourcePath is Dir, invoke micromatch wrapper to match ignore and get packaged files
+		sourceDir = sourcePath
+		files, err = getPackagedFiles(sourceDir, ignorePatterns)
+		if err != nil {
+			return err
+		}
+	} else { // if sourcePath is File, add it to files arry directly, do not match ignore pattern
+		sourceDir = filepath.Dir(sourcePath)
+		files = append(files, filepath.Base(sourcePath))
+	}
+
+	// (2) package files to zip
+	for _, file := range files {
+		filePath := filepath.Join(sourceDir, file)
+		fileInfo, err := fileInfoProvider.stat(filePath)
+		if err != nil {
+			return err
+		}
+		if filepath.Clean(filePath) == filepath.Clean(baseDir) {
+			continue
+		}
+
+		pathInZip := getPathInZip(filePath, baseDir, symLinkPathInZip, linkedPath, fileInfo)
+		err = addToArchive(filePath, pathInZip, fileInfo, archive)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func checkSymbolicLinkTree(sourcePath, baseDir string, predecessors map[string]bool) error {
+	return filepath.Walk(sourcePath, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+
+		if fileInfoProvider.isSymbolicLink(info) {
+			if symlinkReferencesPredecessor(path, predecessors) {
+				return errors.Errorf(recursiveSymLinkMsg, path)
+			}
+
+			linkedPath, linkedInfo, paths, err := dereferenceSymlink(path, predecessors)
+			if err != nil {
+				return err
+			}
+
+			if fileInfoProvider.isDir(linkedInfo) {
+				files, err := ioutil.ReadDir(linkedPath)
+				if err != nil {
+					return err
+				}
+				for _, file := range files {
+					err = checkSymbolicLinkTree(filepath.Join(linkedPath, file.Name()), baseDir, predecessors)
+					if err != nil {
+						return err
+					}
+				}
+			}
+			deleteAddedPredecessors(predecessors, paths)
+			return nil
+		}
+		return nil
+	})
+}
+
 func walk(sourcePath string, baseDir, symLinkPathInZip, linkedPath string, archive *zip.Writer,
 	symlinks map[string]bool,
 	ignore map[string]interface{}) error {
-
 	// pack files of source into archive
 	return filepath.Walk(sourcePath, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -223,7 +442,6 @@ func symlinkReferencesPredecessor(path string, predecessors map[string]bool) boo
 }
 
 func dereferenceSymlink(path string, predecessors map[string]bool) (string, os.FileInfo, []string, error) {
-
 	var paths []string
 	var linkedInfo os.FileInfo
 	var linkedPath string

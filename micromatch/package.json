@@ -1,0 +1,13 @@
+{
+    "name": "micromatch-wrapper",
+    "version": "0.0.1",
+    "description": "CLI for micromatch",
+    "main": "micromatch-wrapper.js",
+    "bin": {
+        "micromatch-wrapper": "./micromatch-wrapper.js"
+    },
+    "dependencies": {
+        "commander": "^10.0.1",
+        "micromatch": "^4.0.5"
+    }
+}

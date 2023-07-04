@@ -1,5 +1,5 @@
 
-###Overview
+#### Overview
 
 Optionally, you can define the builder behavior by configuring the parameters in the `build-parameters` section in the `mta.yaml` file for each module or globally.
 
@@ -204,6 +204,24 @@ For example:
 # In this example, the following will not be packaged in to MTA archive:
 # all files with the"txt" extension and the "mtaignore" folder within the "myfolder" directory. 
      
+```
+From MBT v1.2.25 version, build-parameters ignore attribute will be upgraded to support [Full Glob Pattern](https://en.wikipedia.org/wiki/Glob_(programming)).
+
+Wildcards, such as `*`,`!`,`?` can be used to match characters. You can package specified content by using negation pattern `!`
+
+For example:
+
+```yaml
+
+- name: module1
+   type: nodejs
+   build-parameters:     
+     build-result: myfolder
+     ignore: ["node_modules/**", "!node_modules/mtainclude"]
+
+# In this example, all files and subfolders of node_modules will not be packaged in to MTA archive
+# except the "mtainclude" subfolder of node_modules
+
 ```
 
 > **_NOTE:_** These parameters are not considered for the `fetcher` builder.

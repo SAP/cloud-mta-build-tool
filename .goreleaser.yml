@@ -33,6 +33,9 @@ archives:
       - README*
       - changelog*
       - CHANGELOG*
+      - src: 'micromatch/{{ .Os }}/*'
+        dst: ./
+        strip_parent: true
 dist: dist
 checksum:
   name_template: 'checksums.txt'

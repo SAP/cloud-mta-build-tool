@@ -5,10 +5,11 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/SAP/cloud-mta-build-tool/internal/archive"
+	"strconv"
+
+	dir "github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta-build-tool/internal/logs"
 	"github.com/SAP/cloud-mta/mta"
-	"strconv"
 )
 
 const (
@@ -57,7 +58,7 @@ func generateMtar(targetLoc dir.ITargetPath, targetArtifacts dir.ITargetArtifact
 
 	// archive building artifacts to mtar
 	mtarPath := filepath.Join(mtarFolderPath, getMtarFileName(m, mtarName))
-	err = dir.Archive(targetTmpDir, mtarPath, nil)
+	err = dir.Package(targetTmpDir, mtarPath, nil)
 	if err != nil {
 		return "", errors.Wrap(err, genMTARArchMsg)
 	}
