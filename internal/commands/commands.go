@@ -109,7 +109,7 @@ func ConvertMap(m map[interface{}]interface{}) map[string]interface{} {
 }
 
 // CommandProvider - Get build command's to execute
-//noinspection GoExportedFuncWithUnexportedType
+// noinspection GoExportedFuncWithUnexportedType
 func CommandProvider(module mta.Module) (CommandList, string, error) {
 	// Get config from ./commands_cfg.yaml as generated artifacts from source
 	moduleTypes, err := parseModuleTypes(ModuleTypeConfig)
