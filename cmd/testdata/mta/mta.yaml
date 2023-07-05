@@ -11,4 +11,4 @@ modules:
         properties:
           url: ${default-url}
     build-parameters:
-      ignore: ["node_modules/**", "!node_modules/sproutid/**"]
+      ignore: ["node_modules/**", "!node_modules/sproutid/**", "!node_modules/prune/**"]

@@ -457,8 +457,15 @@ func copyModuleArchiveToResultDir(source, target, moduleName string) error {
 }
 
 func archiveModuleToResultDir(buildResult string, requestedResultFileName string, ignore []string, moduleName string) error {
+	var err error
 	// Archive the folder without the ignored files and/or subfolders, which are excluded from the package.
-	err := dir.Package(buildResult, requestedResultFileName, ignore)
+	// To avoid regression, only when ignore is not empty, we invoke Package function which using micromatch wrapper internal
+	if len(ignore) > 0 {
+		err = dir.Package(buildResult, requestedResultFileName, ignore)
+	} else {
+		err = dir.Archive(buildResult, requestedResultFileName, ignore)
+	}
+
 	if err != nil {
 		return errors.Wrapf(err, PackFailedOnArchMsg, moduleName)
 	}

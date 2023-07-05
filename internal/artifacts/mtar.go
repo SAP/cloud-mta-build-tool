@@ -58,7 +58,11 @@ func generateMtar(targetLoc dir.ITargetPath, targetArtifacts dir.ITargetArtifact
 
 	// archive building artifacts to mtar
 	mtarPath := filepath.Join(mtarFolderPath, getMtarFileName(m, mtarName))
-	err = dir.Package(targetTmpDir, mtarPath, nil)
+
+	// To avoid regression, only when ignore is not empty, we invoke Package function which using micromatch wrapper internal
+	err = dir.Archive(targetTmpDir, mtarPath, nil)
+	// err = dir.Package(targetTmpDir, mtarPath, nil)
+
 	if err != nil {
 		return "", errors.Wrap(err, genMTARArchMsg)
 	}
