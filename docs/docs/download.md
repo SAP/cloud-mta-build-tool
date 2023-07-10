@@ -32,6 +32,6 @@ Run the command below.
 npm install -g mbt
 ```
 
-From MBT v1.2.25, build-parameters ignore attribute will be upgraded to support [Full Glob Pattern](https://en.wikipedia.org/wiki/Glob_(programming)) which need to install micromatch-wrapper.
+From MBT 1.2.25 version, the `build-parameters ignore` attribute will be upgraded to support [full glob patterns](https://en.wikipedia.org/wiki/Glob_(programming)). You must install the micromatch wrapper to use the glob patterns.
 
 You can install micromatch-wrapp by instruction [Here](https://github.com/SAP/cloud-mta-build-tool/tree/master/docs/docs/micromatch-wrapper.md)

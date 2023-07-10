@@ -205,9 +205,9 @@ For example:
 # all files with the"txt" extension and the "mtaignore" folder within the "myfolder" directory. 
      
 ```
-From MBT v1.2.25 version, build-parameters ignore attribute will be upgraded to support [Full Glob Pattern](https://en.wikipedia.org/wiki/Glob_(programming)).
+From MBT 1.2.25 version, the `build-parameters ignore` attribute will be upgraded to support [full glob pattern](https://en.wikipedia.org/wiki/Glob_(programming)). Wildcards, such as `*`,`!`,`?` can be used to match characters. 
 
-Wildcards, such as `*`,`!`,`?` can be used to match characters. You can package specified content by using negation pattern `!`
+By using negation pattern `!` in the `build-parameters ignore` attribute, because `not ignore` equal to `include`, it means you can select specified content into the package.
 
 For example:
 
@@ -219,8 +219,7 @@ For example:
      build-result: myfolder
      ignore: ["node_modules/**", "!node_modules/mtainclude"]
 
-# In this example, all files and subfolders of node_modules will not be packaged in to MTA archive
-# except the "mtainclude" subfolder of node_modules
+# In this example, all files and subfolders of 'node_modules' will not be packaged into the MTA archive, except for the 'mtainclude' subfolder of 'node_modules'.
 
 ```
 

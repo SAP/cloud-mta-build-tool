@@ -1,10 +1,10 @@
 #### Overview
-[Micromatch](https://github.com/micromatch/micromatch) support various matching features, such as Glob pattern, Advanced globbing.
+[Micromatch](https://github.com/micromatch/micromatch) support various matching features, such as glob patterns and advanced globbing
 
-Micromatch is a nodejs application, and MBT is a go application. In order to enable MBT to use the functionalities provided by micromatch, from MBT v1.2.25, we create [micromath wrapper](https://github.com/SAP/cloud-mta-build-tool/tree/master/micromatch) to package it.
+Micromatch is a Node.js application, while MBT is a Go application. The micromatch wrapper is a package that enables MBT to use the functionalities provided by micromatch. From MBT 1.2.25 version, we create [micromath wrapper](https://github.com/SAP/cloud-mta-build-tool/tree/master/micromatch) to package it.
 
 #### Install
-You can install the Micromatch Wrapper using either of these methods below:
+You can install the micromatch wrapper using one of the methods below:
 
  **Download and install manually**
 
@@ -14,20 +14,20 @@ You can install the Micromatch Wrapper using either of these methods below:
 
    - Add the binary file to your `~/bin` path according to your operating system:  
 
-     * In Darwin / Linux, copy binary file `micromatch-wrapper` to the `~/usr/local/bin/` folder, for example: `cp micromatch-wrapper /usr/local/bin/`
+     * In Darwin / Linux, copy the micromatch-wrapper binary file to the `~/usr/local/bin/` folder. Here is a sample command: `cp micromatch-wrapper /usr/local/bin/`
 
      * In Windows, copy the `micromatch-wrapper.exe` binary file to the `C:/Windows/` folder.
 
-**Build and install from source code**
+**Build and install from the source code**
 
    - [Download](https://github.com/SAP/cloud-mta-build-tool/releases) the latest source code.
 
-   - Install [pkg](https://github.com/vercel/pkg/) on your operating system
+   - Install [pkg](https://github.com/vercel/pkg/) on your operating system:
 ```
 npm install -g pkg
 ```
 
-   - Build micromatch wrapper under `micromatch` subfolder of source code
+   - Build the micromatch wrapper under the `micromatch` subfolder of the source code:
 ```
 cd micromatch
 npm install
@@ -35,15 +35,15 @@ pkg ./
 ```
    - Add the binary file to your `~/bin` path according to your operating system:  
 
-     * In Darwin, copy binary file `micromatch-wrapper` to the `~/usr/local/bin/` folder, for example: `cp micromatch-wrapper-macos /usr/local/bin/micromatch-wrapper`
+     * In Darwin, copy the micromatch-wrapper binary file to the `~/usr/local/bin/` folder. Here is a sample command: `cp micromatch-wrapper-macos /usr/local/bin/micromatch-wrapper`
 
-     * In Linux, copy binary file `micromatch-wrapper` to the `~/usr/local/bin/` folder, for example: `cp micromatch-wrapper-linux /usr/local/bin/micromatch-wrapper`
+     * In Linux, copy the micromatch-wrapper binary file to the `~/usr/local/bin/` folder. Here is a sample command: `cp micromatch-wrapper-linux /usr/local/bin/micromatch-wrapper`
 
-     * In Windows, copy the `micromatch-wrapper.exe` binary file to the `C:/Windows/` folder.
+     * In Windows, copy the micromatch-wrapper binary file to the `C:/Windows/` folder.
 
 **Install using npm**
 
-Run the command below, it will install mbt and micromatch-wrapper together
+Run the command below to install MBT and the micromatch wrapper together:
 
 ```
 npm install -g mbt@greater_than_or_equal_to_v1.2.25
