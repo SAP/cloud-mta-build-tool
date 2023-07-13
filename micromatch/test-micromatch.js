@@ -111,10 +111,45 @@ console.log("")
 
 // Test 15
 console.log("Test 15")
-console.log(micromatch(['a/b/c.js'], ['*.js']))
+console.log(micromatch(['a/b/6.js', 'a/b/.ignorefile'], ['.*']))
 console.log("")
 
 // Test 16
 console.log("Test 16")
-console.log(micromatch(['a/b/c.js'], ['**/*.js']))
+console.log(micromatch(['a/b/6.js', 'a/b/.ignorefile'], ['.??*']))
 console.log("")
+
+// Test 17
+console.log("Test 17")
+console.log(micromatch(['a/b/6.js', '.ignorefile'], ['.*']))
+console.log("")
+
+// Test 18
+console.log("Test 18")
+console.log(micromatch(['a/b/6.js', '.ignorefile'], ['.??*']))
+console.log("")
+
+// Test 19
+console.log("Test 19")
+console.log(micromatch(['.invisible-dir'], ['.??*']))
+console.log("")
+
+// Test 20
+console.log("Test 20")
+console.log(micromatch(['.invisible-dir', '.invisible-dir/visible-file'], ['.??*']))
+console.log("")
+
+// Test 21
+console.log("Test 21")
+console.log(micromatch(['.invisible-dir', '.invisible-dir/.invisible-file'], ['.??*']))
+console.log("")
+
+// // Test 19
+// console.log("Test 19")
+// console.log(micromatch(['a/b/c.js'], ['*.js']))
+// console.log("")
+
+// // Test 20
+// console.log("Test 20")
+// console.log(micromatch(['a/b/c.js'], ['**/*.js']))
+// console.log("")

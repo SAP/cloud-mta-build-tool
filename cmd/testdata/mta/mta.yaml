@@ -10,5 +10,3 @@ modules:
       - name: node-js_api
         properties:
           url: ${default-url}
-    build-parameters:
-      ignore: ["node_modules/**", "!node_modules/sproutid/**", "!node_modules/prune/**"]

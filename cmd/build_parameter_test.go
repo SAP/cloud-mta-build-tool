@@ -73,4 +73,16 @@ var _ = Describe("mbt cli build to test build parameter", func() {
 		Ω(cmd.Run()).Should(Succeed())
 		Ω(os.Remove(getTestPath("mtaignore", "mta.yaml"))).Should(Succeed())
 	})
+	It("Success - build-parameter ignore all invisible dirs and files", func() {
+		sourceMta := getTestPath("mtaignore", "mta-ignore-all-invisible-dir-and-files.yaml")
+		targetMta := getTestPath("mtaignore", "mta.yaml")
+		copyFile(sourceMta, targetMta)
+
+		var stdout bytes.Buffer
+		cmd := exec.Command("bash", "-c", mbtCmdCLI+" build"+" --source "+source)
+		cmd.Stdout = &stdout
+
+		Ω(cmd.Run()).Should(Succeed())
+		Ω(os.Remove(getTestPath("mtaignore", "mta.yaml"))).Should(Succeed())
+	})
 })
