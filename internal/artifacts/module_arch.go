@@ -20,7 +20,7 @@ import (
 
 const (
 	ignore            = "ignore"
-	ignoreGlobPattern = "ignore-glob-pattern"
+	ignoreGlobPattern = "ignore-use-full-glob-pattern"
 )
 
 // ExecuteBuild - executes build of module from Makefile
@@ -461,7 +461,7 @@ func copyModuleArchiveToResultDir(source, target, moduleName string) error {
 func archiveModuleToResultDir(buildResult string, requestedResultFileName string, isIgnoreGlobPattern bool, ignoreList []string, moduleName string) error {
 	var err error
 	// Archive the folder without the ignored files and/or subfolders, which are excluded from the package.
-	// To avoid regression, only when ignore-glob-pattern is ture and ignore list is not empty,
+	// To avoid regression, only when ignore-use-full-glob-pattern is ture and ignore list is not empty,
 	// we use Package function which using micromatch wrapper internal; else, we still use Archive to package module
 	if isIgnoreGlobPattern && (len(ignoreList) > 0) {
 		err = dir.Package(buildResult, requestedResultFileName, ignoreList)
@@ -486,7 +486,7 @@ func getIgnores(moduleLoc dir.IModule, module *mta.Module, moduleResultPath stri
 		if module.BuildParams[ignore] != nil {
 			ignoreList = convert(module.BuildParams[ignore].([]interface{}))
 		}
-		// get is-ignore-glob-pattern
+		// get is-ignore-use-full-glob-pattern
 		if module.BuildParams[ignoreGlobPattern] != nil {
 			result, ok := module.BuildParams[ignoreGlobPattern].(bool)
 			isIgnoreGlobPattern = result && ok
