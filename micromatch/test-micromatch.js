@@ -144,12 +144,12 @@ console.log("Test 21")
 console.log(micromatch(['.invisible-dir', '.invisible-dir/.invisible-file'], ['.??*']))
 console.log("")
 
-// // Test 19
-// console.log("Test 19")
-// console.log(micromatch(['a/b/c.js'], ['*.js']))
-// console.log("")
+// Test 22
+console.log("Test 22")
+console.log(micromatch(['a/b/c.js'], ['*.js']))
+console.log("")
 
-// // Test 20
-// console.log("Test 20")
-// console.log(micromatch(['a/b/c.js'], ['**/*.js']))
-// console.log("")
+// Test 23
+console.log("Test 23")
+console.log(micromatch(['a/b/c.js'], ['**/*.js']))
+console.log("")
