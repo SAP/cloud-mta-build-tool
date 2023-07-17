@@ -43,9 +43,9 @@ If you want to use the old `mvn -B package` command instead of the `maven` build
 The same approach can be implemented if the `maven` builder is used in the global build step.
 
 ## v1.2.25
-The `build-parameters ignore` attribute will be upgraded to support [full glob pattern](https://en.wikipedia.org/wiki/Glob_(programming)). Wildcards, such as `*`,`!`,`?` can be used to match characters. 
+The `build-parameters ignore` attribute will be upgraded to support [full glob patterns](https://en.wikipedia.org/wiki/Glob_(programming)). Wildcards, such as `*`,`!`,`?` can be used to match characters. 
 
-By using negation pattern `!` in the `build-parameters ignore` attribute, because `not ignore` equal to `include`, it means you can select specified content into the package.
+By using the `!` negation pattern in the `build-parameters ignore` attribute, you can select specified content into the package (because `not ignore` equals `include`).
 
 For example:
 

@@ -1,7 +1,7 @@
 #### Overview
-[Micromatch](https://github.com/micromatch/micromatch) support various matching features, such as glob patterns and advanced globbing
+[Micromatch](https://github.com/micromatch/micromatch) support various matching features, such as glob patterns and advanced globbing.
 
-Micromatch is a Node.js application, while MBT is a Go application. The micromatch wrapper is a package that enables MBT to use the functionalities provided by micromatch. From MBT 1.2.25 version, we create [micromath wrapper](https://github.com/SAP/cloud-mta-build-tool/tree/master/micromatch) to package it.
+Micromatch is a Node.js application, while MBT is a Go application. The micromatch wrapper is a package that enables MBT to use the functionalities provided by micromatch. From the MBT 1.2.25 version, we provide [micromath wrapper](https://github.com/SAP/cloud-mta-build-tool/tree/master/micromatch) to package it.
 
 #### Install
 You can install the micromatch wrapper using one of the methods below:
