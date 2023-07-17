@@ -47,6 +47,8 @@ The `build-parameters ignore` attribute will be upgraded to support [full glob p
 
 By using the `!` negation pattern in the `build-parameters ignore` attribute, you can select specified content into the package (because `not ignore` equals `include`).
 
+Notice, to avoid regression, a new bool type attribute `build-parameters ignore-use-full-glob-pattern` (default value is `false`) is added. Only when it is true, `build-parameters ignore` will support [full glob patterns](https://en.wikipedia.org/wiki/Glob_(programming)), otherwise MBT package behavior and result remain unchanged.
+
 For example:
 
 ```yaml
@@ -55,9 +57,11 @@ For example:
    type: nodejs
    build-parameters:     
      build-result: myfolder
+     ignore-use-full-glob-pattern: true
      ignore: ["node_modules/**", "!node_modules/mtainclude"]
 
-# In this example, all files and subfolders of 'node_modules' will not be packaged into the MTA archive, except for the 'mtainclude' subfolder of 'node_modules'.
+# In this example, all files and subfolders of 'node_modules' will not be packaged into the MTA archive, 
+# except for the 'mtainclude' subfolder of 'node_modules'.
 
 ```
 
