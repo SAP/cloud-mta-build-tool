@@ -47,7 +47,7 @@ The `build-parameters ignore` attribute will be upgraded to support [full glob p
 
 By using the `!` negation pattern in the `build-parameters ignore` attribute, you can select specified content into the package (because `not ignore` equals `include`).
 
-Notice, to avoid regression, a new bool type attribute `build-parameters ignore-use-full-glob-pattern` (default value is `false`) is added. Only when it is true, `build-parameters ignore` will support [full glob patterns](https://en.wikipedia.org/wiki/Glob_(programming)), otherwise MBT package behavior and result remain unchanged.
+To avoid regression, a new bool type attribute,   `build-parameters ignore-use-full-glob-pattern` (the default value is false), has been added. Only when it is set to true, `build-parameters ignore` will support [full glob patterns](https://en.wikipedia.org/wiki/Glob_(programming)). Otherwise the MBT package behavior and result remain unchanged.
 
 For example:
 
