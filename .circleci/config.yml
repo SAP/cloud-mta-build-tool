@@ -8,7 +8,7 @@ jobs:
     steps:
       - checkout
       - run: npm install
-      - run: npm run ci
+      - run: npm run test
 
   build:
     docker:
@@ -565,7 +565,7 @@ jobs:
           command: |
             echo "//registry.npmjs.org/:_authToken=$CLOUD_MTA_BOT_NPM_TOKEN" > .npmrc
             npm install
-            npm run ci
+            npm run test
             npm publish
 
 workflows:
