@@ -14,7 +14,7 @@ jobs:
     docker:
       - image: cimg/go:1.19
     environment:
-    working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
+    working_directory: ~/go/src/github.com/yutaoj/cloud-mta-build-tool
     steps:
       - checkout
       - run: go version
@@ -43,7 +43,7 @@ jobs:
   test:
     docker:
       - image: shimit/mbt_multi:0.3.0
-    working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
+    working_directory: ~/go/src/github.com/yutaoj/cloud-mta-build-tool
     steps:
       - checkout
       - run:
@@ -56,7 +56,7 @@ jobs:
   compliance:
     docker:
       - image: cimg/python:3.10.0
-    working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
+    working_directory: ~/go/src/github.com/yutaoj/cloud-mta-build-tool
     steps:
       - checkout
       - run:
@@ -68,7 +68,7 @@ jobs:
   ghpages:
     docker:
       - image: squidfunk/mkdocs-material:4.3.1
-    working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
+    working_directory: ~/go/src/github.com/yutaoj/cloud-mta-build-tool
     steps:
       - checkout
       - run:
@@ -80,7 +80,7 @@ jobs:
   release-to-github:
     docker:
       - image: cimg/go:1.19
-    working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
+    working_directory: ~/go/src/github.com/yutaoj/cloud-mta-build-tool
     steps:
       - add_ssh_keys:
           fingerprints:
@@ -132,10 +132,10 @@ jobs:
             git config user.name "${CLOUD_MTA_BOT_USER}"
             git commit --allow-empty -m "[skip ci] Bump version ${MBT_VERSION}"
             #Push commit directly to master
-            git push -q https://github.com/SAP/cloud-mta-build-tool.git master
+            git push -q https://github.com/yutaoj/cloud-mta-build-tool.git master
             #Tag
             git tag -a v${MBT_VERSION} -m "New release ${MBT_VERSION}"
-            git push https://github.com/SAP/cloud-mta-build-tool.git v${MBT_VERSION}
+            git push https://github.com/yutaoj/cloud-mta-build-tool.git v${MBT_VERSION}
       - run:
           name: release new version
           command: |
@@ -148,7 +148,7 @@ jobs:
   publish-to-dockerhub-java8-node14:
     docker:
       - image: cimg/go:1.19
-    working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
+    working_directory: ~/go/src/github.com/yutaoj/cloud-mta-build-tool
     steps:
       - checkout
       - setup_remote_docker:
@@ -180,7 +180,7 @@ jobs:
   publish-to-dockerhub-java8-node16:
     docker:
       - image: cimg/go:1.19
-    working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
+    working_directory: ~/go/src/github.com/yutaoj/cloud-mta-build-tool
     steps:
       - checkout
       - setup_remote_docker:
@@ -212,7 +212,7 @@ jobs:
   publish-to-dockerhub-java8-node18:
     docker:
       - image: cimg/go:1.19
-    working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
+    working_directory: ~/go/src/github.com/yutaoj/cloud-mta-build-tool
     steps:
       - checkout
       - setup_remote_docker:
@@ -244,7 +244,7 @@ jobs:
   publish-to-dockerhub-java11-node14:
     docker:
       - image: cimg/go:1.19
-    working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
+    working_directory: ~/go/src/github.com/yutaoj/cloud-mta-build-tool
     steps:
       - checkout
       - setup_remote_docker:
@@ -276,7 +276,7 @@ jobs:
   publish-to-dockerhub-java11-node16:
     docker:
       - image: cimg/go:1.19
-    working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
+    working_directory: ~/go/src/github.com/yutaoj/cloud-mta-build-tool
     steps:
       - checkout
       - setup_remote_docker:
@@ -308,7 +308,7 @@ jobs:
   publish-to-dockerhub-java11-node18:
     docker:
       - image: cimg/go:1.19
-    working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
+    working_directory: ~/go/src/github.com/yutaoj/cloud-mta-build-tool
     steps:
       - checkout
       - setup_remote_docker:
@@ -340,7 +340,7 @@ jobs:
   publish-to-dockerhub-java17-node14:
     docker:
       - image: cimg/go:1.19
-    working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
+    working_directory: ~/go/src/github.com/yutaoj/cloud-mta-build-tool
     steps:
       - checkout
       - setup_remote_docker:
@@ -372,7 +372,7 @@ jobs:
   publish-to-dockerhub-java17-node16:
     docker:
       - image: cimg/go:1.19
-    working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
+    working_directory: ~/go/src/github.com/yutaoj/cloud-mta-build-tool
     steps:
       - checkout
       - setup_remote_docker:
@@ -404,7 +404,7 @@ jobs:
   publish-to-dockerhub-java17-node18:
     docker:
       - image: cimg/go:1.19
-    working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
+    working_directory: ~/go/src/github.com/yutaoj/cloud-mta-build-tool
     steps:
       - checkout
       - setup_remote_docker:
@@ -436,7 +436,7 @@ jobs:
   publish-to-dockerhub-java19-node14:
     docker:
       - image: cimg/go:1.19
-    working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
+    working_directory: ~/go/src/github.com/yutaoj/cloud-mta-build-tool
     steps:
       - checkout
       - setup_remote_docker:
@@ -468,7 +468,7 @@ jobs:
   publish-to-dockerhub-java19-node16:
     docker:
       - image: cimg/go:1.19
-    working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
+    working_directory: ~/go/src/github.com/yutaoj/cloud-mta-build-tool
     steps:
       - checkout
       - setup_remote_docker:
@@ -500,7 +500,7 @@ jobs:
   publish-to-dockerhub-java19-node18:
     docker:
       - image: cimg/go:1.19
-    working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
+    working_directory: ~/go/src/github.com/yutaoj/cloud-mta-build-tool
     steps:
       - checkout
       - setup_remote_docker:
@@ -532,7 +532,7 @@ jobs:
   remove-github-release-tag:
     docker:
       - image: cimg/go:1.19
-    working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
+    working_directory: ~/go/src/github.com/yutaoj/cloud-mta-build-tool
     steps:
       - checkout
       - setup_remote_docker:
@@ -541,7 +541,7 @@ jobs:
           # This won't run if previous commands have failed so the tag should be removed **manually**
           name: remove dummy release tag
           command: |
-            git push https://github.com/SAP/cloud-mta-build-tool.git --delete release
+            git push https://github.com/yutaoj/cloud-mta-build-tool.git --delete release
 
   publish-to-npm:
     docker:
