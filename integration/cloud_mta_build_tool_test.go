@@ -23,7 +23,7 @@ import (
 	"github.com/pkg/errors"
 
 	dir "github.com/yutaoj/cloud-mta-build-tool/internal/archive"
-	"github.com/yutaoj/cloud-mta/mta"
+	"github.com/SAP/cloud-mta/mta"
 )
 
 const (
