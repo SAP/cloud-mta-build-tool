@@ -11,9 +11,7 @@ As a build tool, MBT packages all modules’s build process internal, all native
 
 <b>NOTE:</b>  The `maven` builder is configured implicitly for the `java` module type.
 
-If you want to keep the previous behavior, that is, to apply the `mvn clean package` command, you need to change the build parameters of the relevant module in one of the following ways:
-
-<b>Examples:</b> Configure the `custom` builder.
+If you want to keep the previous behavior, that is, to apply the `mvn clean package` command, you need to change the build parameters of the relevant module by configuring the `custom` builder:
 ```yaml
 
 - name: mymodule
