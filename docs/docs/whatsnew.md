@@ -3,7 +3,9 @@
 ## v1.2.25
 
 ### Configuration of `maven` builder has changed. 
-As of version 1.2.25, the `mvn -B clean package` command is used where the `maven` builder is configured for building a module or in a global build step. The `-B` parameter is added to `maven` builder's build command which will start maven in a interactive mode.
+As of version 1.2.25, the `mvn -B clean package` command is used where the `maven` builder is configured for building a module or in a global build step. 
+
+The `-B` parameter is added to `maven` builder's build command which will start maven in a interactive mode.
 
 As a build tool, MBT packages all modules’s build process internal, all native builders, such as golang, maven and nodejs, run build command in batch mode is resonable.
 
