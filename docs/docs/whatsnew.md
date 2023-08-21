@@ -7,7 +7,7 @@ As of version 1.2.25, the `mvn -B clean package` command is used where the `mave
 
 By adding the -B parameter, the "maven clean package" command will start in interactive mode.
 
-As a build tool, MBT builds the MTA (Multi-Target Application), which contains many type of modules. Each module is built by corresponding builder, such as maven, nodejs and go.
+As a build tool, MBT builds the MTA (Multitarget Application), which contains many types of modules. Each module is built by corresponding builder, such as maven, npm and golang.
 
 When the MTA is built, all build processes for different modules are packaged into the MBT. It wraps all the build processes as internal and it should not run in interactive mode. It is reasonable for MBT to execute the build process in batch mode.
 
