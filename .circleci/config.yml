@@ -647,126 +647,126 @@ workflows:
               only: /release/
             branches:
               ignore: /.*/
-      - publish-to-npm:
-          requires:
-            - release-to-github
-          filters:
-            tags:
-              only: /release/
-            branches:
-              ignore: /.*/
-      - publish-to-dockerhub-java8-node14:
-          requires:
-            - publish-to-npm
-          filters:
-            tags:
-              only: /release/
-            branches:
-              ignore: /.*/
-      - publish-to-dockerhub-java8-node16:
-          requires:
-            - publish-to-npm
-          filters:
-            tags:
-              only: /release/
-            branches:
-              ignore: /.*/
-      - publish-to-dockerhub-java8-node18:
-          requires:
-            - publish-to-npm
-          filters:
-            tags:
-              only: /release/
-            branches:
-              ignore: /.*/
-      - publish-to-dockerhub-java11-node14:
-          requires:
-            - publish-to-npm
-          filters:
-            tags:
-              only: /release/
-            branches:
-              ignore: /.*/
-      - publish-to-dockerhub-java11-node16:
-          requires:
-            - publish-to-npm
-          filters:
-            tags:
-              only: /release/
-            branches:
-              ignore: /.*/
-      - publish-to-dockerhub-java11-node18:
-          requires:
-            - publish-to-npm
-          filters:
-            tags:
-              only: /release/
-            branches:
-              ignore: /.*/
-      - publish-to-dockerhub-java17-node14:
-          requires:
-            - publish-to-npm
-          filters:
-            tags:
-              only: /release/
-            branches:
-              ignore: /.*/
-      - publish-to-dockerhub-java17-node16:
-          requires:
-            - publish-to-npm
-          filters:
-            tags:
-              only: /release/
-            branches:
-              ignore: /.*/
-      - publish-to-dockerhub-java17-node18:
-          requires:
-            - publish-to-npm
-          filters:
-            tags:
-              only: /release/
-            branches:
-              ignore: /.*/
-      - publish-to-dockerhub-java19-node14:
-          requires:
-            - publish-to-npm
-          filters:
-            tags:
-              only: /release/
-            branches:
-              ignore: /.*/
-      - publish-to-dockerhub-java19-node16:
-          requires:
-            - publish-to-npm
-          filters:
-            tags:
-              only: /release/
-            branches:
-              ignore: /.*/
-      - publish-to-dockerhub-java19-node18:
-          requires:
-            - publish-to-npm
-          filters:
-            tags:
-              only: /release/
-            branches:
-              ignore: /.*/
-      - remove-github-release-tag:
-          requires:
-            - publish-to-dockerhub-java8-node14
-            - publish-to-dockerhub-java8-node16
-            - publish-to-dockerhub-java8-node18
-            - publish-to-dockerhub-java11-node14
-            - publish-to-dockerhub-java11-node16
-            - publish-to-dockerhub-java11-node18
-            - publish-to-dockerhub-java17-node14
-            - publish-to-dockerhub-java17-node16
-            - publish-to-dockerhub-java17-node18
-            - publish-to-dockerhub-java19-node14
-            - publish-to-dockerhub-java19-node16
-            - publish-to-dockerhub-java19-node18
-          filters:
-            tags:
-              only: /release/
-            branches:
-              ignore: /.*/
+      # - publish-to-npm:
+      #     requires:
+      #       - release-to-github
+      #     filters:
+      #       tags:
+      #         only: /release/
+      #       branches:
+      #         ignore: /.*/
+      # - publish-to-dockerhub-java8-node14:
+      #     requires:
+      #       - publish-to-npm
+      #     filters:
+      #       tags:
+      #         only: /release/
+      #       branches:
+      #         ignore: /.*/
+      # - publish-to-dockerhub-java8-node16:
+      #     requires:
+      #       - publish-to-npm
+      #     filters:
+      #       tags:
+      #         only: /release/
+      #       branches:
+      #         ignore: /.*/
+      # - publish-to-dockerhub-java8-node18:
+      #     requires:
+      #       - publish-to-npm
+      #     filters:
+      #       tags:
+      #         only: /release/
+      #       branches:
+      #         ignore: /.*/
+      # - publish-to-dockerhub-java11-node14:
+      #     requires:
+      #       - publish-to-npm
+      #     filters:
+      #       tags:
+      #         only: /release/
+      #       branches:
+      #         ignore: /.*/
+      # - publish-to-dockerhub-java11-node16:
+      #     requires:
+      #       - publish-to-npm
+      #     filters:
+      #       tags:
+      #         only: /release/
+      #       branches:
+      #         ignore: /.*/
+      # - publish-to-dockerhub-java11-node18:
+      #     requires:
+      #       - publish-to-npm
+      #     filters:
+      #       tags:
+      #         only: /release/
+      #       branches:
+      #         ignore: /.*/
+      # - publish-to-dockerhub-java17-node14:
+      #     requires:
+      #       - publish-to-npm
+      #     filters:
+      #       tags:
+      #         only: /release/
+      #       branches:
+      #         ignore: /.*/
+      # - publish-to-dockerhub-java17-node16:
+      #     requires:
+      #       - publish-to-npm
+      #     filters:
+      #       tags:
+      #         only: /release/
+      #       branches:
+      #         ignore: /.*/
+      # - publish-to-dockerhub-java17-node18:
+      #     requires:
+      #       - publish-to-npm
+      #     filters:
+      #       tags:
+      #         only: /release/
+      #       branches:
+      #         ignore: /.*/
+      # - publish-to-dockerhub-java19-node14:
+      #     requires:
+      #       - publish-to-npm
+      #     filters:
+      #       tags:
+      #         only: /release/
+      #       branches:
+      #         ignore: /.*/
+      # - publish-to-dockerhub-java19-node16:
+      #     requires:
+      #       - publish-to-npm
+      #     filters:
+      #       tags:
+      #         only: /release/
+      #       branches:
+      #         ignore: /.*/
+      # - publish-to-dockerhub-java19-node18:
+      #     requires:
+      #       - publish-to-npm
+      #     filters:
+      #       tags:
+      #         only: /release/
+      #       branches:
+      #         ignore: /.*/
+      # - remove-github-release-tag:
+      #     requires:
+      #       - publish-to-dockerhub-java8-node14
+      #       - publish-to-dockerhub-java8-node16
+      #       - publish-to-dockerhub-java8-node18
+      #       - publish-to-dockerhub-java11-node14
+      #       - publish-to-dockerhub-java11-node16
+      #       - publish-to-dockerhub-java11-node18
+      #       - publish-to-dockerhub-java17-node14
+      #       - publish-to-dockerhub-java17-node16
+      #       - publish-to-dockerhub-java17-node18
+      #       - publish-to-dockerhub-java19-node14
+      #       - publish-to-dockerhub-java19-node16
+      #       - publish-to-dockerhub-java19-node18
+      #     filters:
+      #       tags:
+      #         only: /release/
+      #       branches:
+      #         ignore: /.*/
