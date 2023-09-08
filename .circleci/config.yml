@@ -1,12 +1,94 @@
 # Golang CircleCI 2.0 configuration
 version: 2.1
 jobs:
-  build-node:
+  build-node-lts:
     docker:
       - image: cimg/node:lts
     working_directory: ~/repo
     steps:
       - checkout
+      - run: node -v
+      - run: npm install
+      - run: npm run test
+  build-node20:
+    docker:
+      - image: cimg/node:20.1
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - run: node -v
+      - run: npm install
+      - run: npm run test
+  build-node19:
+    docker:
+      - image: cimg/node:19.1
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - run: node -v
+      - run: npm install
+      - run: npm run test
+  build-node18:
+    docker:
+      - image: cimg/node:18.1
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - run: node -v
+      - run: npm install
+      - run: npm run test
+  build-node17:
+    docker:
+      - image: cimg/node:17.1
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - run: node -v
+      - run: npm install
+      - run: npm run test
+  build-node16:
+    docker:
+      - image: cimg/node:16.1
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - run: node -v
+      - run: npm install
+      - run: npm run test
+  build-node15:
+    docker:
+      - image: cimg/node:15.1
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - run: node -v
+      - run: npm install
+      - run: npm run test
+  build-node14:
+    docker:
+      - image: cimg/node:14.1
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - run: node -v
+      - run: npm install
+      - run: npm run test
+  build-node13:
+    docker:
+      - image: cimg/node:13.1
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - run: node -v
+      - run: npm install
+      - run: npm run test
+  build-node12:
+    docker:
+      - image: cimg/node:12.1
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - run: node -v
       - run: npm install
       - run: npm run test
 
@@ -577,7 +659,43 @@ workflows:
           filters:
             branches:
               ignore: master
-      - build-node:
+      - build-node-lts:
+          filters:
+            branches:
+              ignore: master
+      - build-node20:
+          filters:
+            branches:
+              ignore: master
+      - build-node19:
+          filters:
+            branches:
+              ignore: master
+      - build-node18:
+          filters:
+            branches:
+              ignore: master
+      - build-node17:
+          filters:
+            branches:
+              ignore: master
+      - build-node16:
+          filters:
+            branches:
+              ignore: master
+      - build-node15:
+          filters:
+            branches:
+              ignore: master
+      - build-node14:
+          filters:
+            branches:
+              ignore: master
+      - build-node13:
+          filters:
+            branches:
+              ignore: master
+      - build-node12:
           filters:
             branches:
               ignore: master
@@ -599,7 +717,7 @@ workflows:
           filters:
             branches:
               only: master
-      - build-node:
+      - build-node-lts:
           filters:
             branches:
               only: master
