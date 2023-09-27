@@ -9,7 +9,7 @@ import (
 
 	"github.com/SAP/cloud-mta/mta"
 
-	"github.com/SAP/cloud-mta-build-tool/internal/archive"
+	dir "github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta-build-tool/internal/logs"
 )
 
@@ -339,8 +339,8 @@ func GetModuleSBomGenCommands(loc *dir.Loc, module *mta.Module,
 
 	switch builder {
 	case "npm", "npm-ci", "grunt", "evo":
-		cmd = "npm install"
-		cmds = append(cmds, cmd)
+		// cmd = "npm install"
+		// cmds = append(cmds, cmd)
 		cmd = "npx cyclonedx-bom -o " + sbomFileName + sbomFileSuffix
 		cmds = append(cmds, cmd)
 	case "golang":

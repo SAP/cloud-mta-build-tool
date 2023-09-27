@@ -56,8 +56,12 @@ jobs:
       - run:
           name: install cyclonedx-bom
           command: |
-            echo "cyclonedx-bom -h"
-            npx cyclonedx-bom -h
+            CYCLONEDX_BOM_PACKAGE=@cyclonedx/bom
+            CYCLONEDX_BOM_BINARY=cyclonedx-bom
+            CYCLONEDX_BOM_VERSION=3.10.6
+            npm install -g ${CYCLONEDX_BOM_PACKAGE}@${CYCLONEDX_BOM_VERSION}
+            echo "${CYCLONEDX_BOM_BINARY} -h"
+            npx ${CYCLONEDX_BOM_BINARY} -h
       - run:
           name: build mbt binary
           command: |
