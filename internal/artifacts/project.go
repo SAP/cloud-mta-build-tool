@@ -9,7 +9,7 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/SAP/cloud-mta-build-tool/internal/archive"
+	dir "github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta-build-tool/internal/commands"
 	"github.com/SAP/cloud-mta-build-tool/internal/exec"
 	"github.com/SAP/cloud-mta-build-tool/internal/logs"
@@ -76,6 +76,7 @@ func createMakeCommand(makefileName, source, target, mode, mtar, platform string
 			cmdParams = append(cmdParams, "-Otarget")
 		}
 	}
+	logs.Logger.Infof("make command: %v", cmdParams)
 	return cmdParams
 }
 

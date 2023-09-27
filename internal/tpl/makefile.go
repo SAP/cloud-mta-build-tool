@@ -10,7 +10,7 @@ import (
 	"github.com/kballard/go-shellquote"
 	"github.com/pkg/errors"
 
-	"github.com/SAP/cloud-mta-build-tool/internal/archive"
+	dir "github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta-build-tool/internal/buildops"
 	"github.com/SAP/cloud-mta-build-tool/internal/commands"
 	"github.com/SAP/cloud-mta-build-tool/internal/logs"
@@ -27,6 +27,7 @@ type tplCfg struct {
 }
 
 // ExecuteMake - generate makefile
+// func ExecuteMake(source, target string, extensions []string, name, mode string, wdGetter func() (string, error), useDefaultMbt, strict bool) error {
 func ExecuteMake(source, target string, extensions []string, name, mode string, wdGetter func() (string, error), useDefaultMbt bool) error {
 	logs.Logger.Infof(`generating the "%s" file...`, name)
 	loc, err := dir.Location(source, target, dir.Dev, extensions, wdGetter)
@@ -42,15 +43,23 @@ func ExecuteMake(source, target string, extensions []string, name, mode string, 
 }
 
 // genMakefile - Generate the makefile
+// func genMakefile(mtaParser dir.IMtaParser, loc dir.ITargetPath, srcLoc dir.ISourceModule, desc dir.IDescriptor, extensionFilePaths []string, makeFilename, mode string, useDefaultMbt, strict bool) error {
 func genMakefile(mtaParser dir.IMtaParser, loc dir.ITargetPath, srcLoc dir.ISourceModule, desc dir.IDescriptor, extensionFilePaths []string, makeFilename, mode string, useDefaultMbt bool) error {
+	logs.Logger.Infof("genMakefile 11111")
+
 	tpl, err := getTplCfg(mode, desc.IsDeploymentDescriptor())
+
+	logs.Logger.Infof("genMakefile 222222")
 	if err != nil {
 		return err
 	}
+
+	logs.Logger.Infof("genMakefile 333333")
 	if err == nil {
 		tpl.depDesc = desc.GetDescriptor()
 		err = makeFile(mtaParser, loc, srcLoc, extensionFilePaths, makeFilename, &tpl, useDefaultMbt)
 	}
+	logs.Logger.Infof("genMakefile 66666666666")
 	return err
 }
 
@@ -112,6 +121,7 @@ func (data templateData) GetPathArgument(innerPath string) string {
 }
 
 // makeFile - generate makefile form templates
+// func makeFile(mtaParser dir.IMtaParser, loc dir.ITargetPath, srcLoc dir.ISourceModule, extensionFilePaths []string, makeFilename string, tpl *tplCfg, useDefaultMbt, strict bool) (e error) {
 func makeFile(mtaParser dir.IMtaParser, loc dir.ITargetPath, srcLoc dir.ISourceModule, extensionFilePaths []string, makeFilename string, tpl *tplCfg, useDefaultMbt bool) (e error) {
 
 	// template data
@@ -124,9 +134,14 @@ func makeFile(mtaParser dir.IMtaParser, loc dir.ITargetPath, srcLoc dir.ISourceM
 
 	// ParseFile file
 	m, err := mtaParser.ParseFile()
+
+	logs.Logger.Infof("genMakefile 444444444")
+
 	if err != nil {
 		return errors.Wrapf(err, genFailedMsg, makeFilename)
 	}
+
+	logs.Logger.Infof("genMakefile 55555555555")
 
 	// Check for circular build dependencies between the modules. The error message from make is not clear so we
 	// should give an error here during the generation of the makefile.

@@ -9,4 +9,8 @@ modules:
     provides:
     - name: node-js_api
       properties:
-          url: ${default-url}
+        url: ${default-url}
+      parameters:
+        visibility:
+        - org: KuwaitPetroleumItalia_spa-dev-yy6gs83h
+          space: MOA

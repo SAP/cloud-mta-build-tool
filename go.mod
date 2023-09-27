@@ -18,3 +18,5 @@ require (
 	golang.org/x/sys v0.0.0-20220222200937-f2425489ef4c // indirect
 	gopkg.in/yaml.v2 v2.4.0
 )
+
+replace github.com/SAP/cloud-mta => ../cloud-mta
