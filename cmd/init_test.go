@@ -35,7 +35,10 @@ var _ = Describe("Build", func() {
 	})
 	It("Success - build with abs source parameter", func() {
 		source := "\"" + getTestPath("mta") + "\""
+
+		var stdout bytes.Buffer
 		cmd := exec.Command("bash", "-c", mbtCmdCLI+" build"+" --source "+source)
+		cmd.Stdout = &stdout
 
 		Ω(cmd.Run()).Should(Succeed())
 		Ω(os.RemoveAll(getTestPath("mta", dir.MtarFolder))).Should(Succeed())
@@ -43,7 +46,10 @@ var _ = Describe("Build", func() {
 	It("Success - build with relative source parameter", func() {
 		// Notice: relative source path is relative to os.Getwd()
 		source := "\"" + "testdata/mta" + "\""
+
+		var stdout bytes.Buffer
 		cmd := exec.Command("bash", "-c", mbtCmdCLI+" build"+" --source "+source)
+		cmd.Stdout = &stdout
 
 		Ω(cmd.Run()).Should(Succeed())
 		Ω(os.RemoveAll(getTestPath("mta", dir.MtarFolder))).Should(Succeed())
@@ -52,7 +58,9 @@ var _ = Describe("Build", func() {
 		source := "\"" + getTestPath("mta") + "\""
 		target := "\"" + getTestPath("mtar_result") + "\""
 
+		var stdout bytes.Buffer
 		cmd := exec.Command("bash", "-c", mbtCmdCLI+" build"+" --source "+source+" --target "+target)
+		cmd.Stdout = &stdout
 
 		Ω(cmd.Run()).Should(Succeed())
 		Ω(os.RemoveAll(getTestPath("mtar_result"))).Should(Succeed())
@@ -62,7 +70,9 @@ var _ = Describe("Build", func() {
 		source := "\"" + getTestPath("mta") + "\""
 		target := "\"" + "mtar_result" + "\""
 
+		var stdout bytes.Buffer
 		cmd := exec.Command("bash", "-c", mbtCmdCLI+" build"+" --source "+source+" --target "+target)
+		cmd.Stdout = &stdout
 
 		Ω(cmd.Run()).Should(Succeed())
 		Ω(os.RemoveAll(getTestPath("mta", "mtar_result"))).Should(Succeed())
@@ -71,7 +81,9 @@ var _ = Describe("Build", func() {
 		source := "\"" + "testdata/mta" + "\""
 		target := "\"" + getTestPath("mta", "mtar_result") + "\""
 
+		var stdout bytes.Buffer
 		cmd := exec.Command("bash", "-c", mbtCmdCLI+" build"+" --source "+source+" --target "+target)
+		cmd.Stdout = &stdout
 
 		Ω(cmd.Run()).Should(Succeed())
 		Ω(os.RemoveAll(getTestPath("mta", "mtar_result"))).Should(Succeed())
@@ -81,7 +93,9 @@ var _ = Describe("Build", func() {
 		source := "\"" + "testdata/mta" + "\""
 		target := "\"" + "mtar_result" + "\""
 
+		var stdout bytes.Buffer
 		cmd := exec.Command("bash", "-c", mbtCmdCLI+" build"+" --source "+source+" --target "+target)
+		cmd.Stdout = &stdout
 
 		Ω(cmd.Run()).Should(Succeed())
 		Ω(os.RemoveAll(getTestPath("mta", "mtar_result"))).Should(Succeed())
@@ -90,8 +104,8 @@ var _ = Describe("Build", func() {
 		// Notice: target parameter is relative to source parameter
 		source := "\"" + "testdata/**??mta" + "\""
 		target := "\"" + "mtar_result" + "\""
-		var stdout bytes.Buffer
 
+		var stdout bytes.Buffer
 		cmd := exec.Command("bash", "-c", mbtCmdCLI+" build"+" --source "+source+" --target "+target)
 		cmd.Stdout = &stdout
 
@@ -103,8 +117,8 @@ var _ = Describe("Build", func() {
 		// Notice: target parameter is relative to source parameter
 		source := "\"" + "testdata<></mta" + "\""
 		target := "\"" + "mtar_result" + "\""
-		var stdout bytes.Buffer
 
+		var stdout bytes.Buffer
 		cmd := exec.Command("bash", "-c", mbtCmdCLI+" build"+" --source "+source+" --target "+target)
 		cmd.Stdout = &stdout
 
@@ -161,7 +175,10 @@ var _ = Describe("Build", func() {
 	It("Failure - build without mta.yaml", func() {
 		source := "\"" + getTestPath("tmp") + "\""
 		Ω(os.MkdirAll(getTestPath("tmp"), os.ModePerm)).Should(Succeed())
+
+		var stdout bytes.Buffer
 		cmd := exec.Command("bash", "-c", mbtCmdCLI+" build"+" --source "+source)
+		cmd.Stdout = &stdout
 
 		Ω(cmd.Run()).Should(HaveOccurred())
 		Ω(os.RemoveAll(getTestPath("tmp"))).Should(Succeed())
@@ -170,7 +187,9 @@ var _ = Describe("Build", func() {
 		platform := "\"" + "xxx" + "\""
 		source := "\"" + getTestPath("mta") + "\""
 
+		var stdout bytes.Buffer
 		cmd := exec.Command("bash", "-c", mbtCmdCLI+" build"+" --source "+source+" --platform "+platform)
+		cmd.Stdout = &stdout
 
 		Ω(cmd.Run()).Should(HaveOccurred())
 	})
