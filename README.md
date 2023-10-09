@@ -35,6 +35,15 @@ This demo shows the basic usage of the tool. For more advanced scenarios, follow
   <img src="./docs/demo.gif" width="100%">
 </p>
 
+#### Install
+
+For convenience the `mbt` executable is available via npmjs.com so consumers using a nodejs runtime can simply run:
+- `npm install -g mbt@version`
+- For possible versions see: https://www.npmjs.com/package/mbt?activeTab=versions
+
+It is also possible to download and "install" the `mbt` executable via github releases.
+- See: https://github.com/SAP/cloud-mta-build-tool/releases.
+
 #### The Cloud MTA Build Tool Images
 
 We supply several images for **CI environment** containing the Cloud MTA Build Tool.
