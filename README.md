@@ -142,15 +142,11 @@ E.g. to build the image for Java 11 and Node 14 you should run the following com
 $ sh ./scripts/build_image 11.0.17 14.20.1 1.2.20
 ```
 
-##### The images provide:
+The Cloud MTA Build Tool published docker images on docker hub with a pre-configured set of runtime tools (nodejs/java/maven/...).
 
-- Cloud MTA Build Tool - 1.2.20
-- Nodejs - 14.20.1 or 16.18.1 or 18.12.1
-- SAPMachine - 8 or 11 or 17 or 19
-- Maven - 3.8.6
-- Golang - 1.19.3
+## Node.js v10/ECMAScript modules
 
-The MTA Archive Builder delegates module builds to other native build tools. These images provide Node.js, Java, Maven and Golang so the archive builder can delegate to these build technologies. In case other build tools are needed, <b>inherit</b> from one of these images and add more build tools.
+More and more npm packages use ECMAScript modules instead of commonJS, for ECMAScript modules are the official standard format to package JavaScript code for reuse. From v1.2.25, we use axios instead of binwrap(which has moderate severity vulnerabilities) to download binary files, but axios only supports ECMAScript modules and can't work on Node.js v10. So since v1.2.25, mbt will not support Node.js v10 and lower versions.
 
 ## License
 

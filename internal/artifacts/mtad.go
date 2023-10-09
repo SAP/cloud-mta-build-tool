@@ -229,7 +229,12 @@ func adjustSchemaVersion(mtaStr *mta.MTA) error {
 		return err
 	}
 	if schemaVersion < 3 {
-		*mtaStr.SchemaVersion = "3.1"
+		oldSchemaVersion := *mtaStr.SchemaVersion
+		newSchemaVersion := "3.1"
+		logs.Logger.Infof("mta.yaml schema version %s is too low; in generated MTA archive, schema version of mtad.yaml will be increased to %s",
+			oldSchemaVersion, newSchemaVersion)
+
+		*mtaStr.SchemaVersion = newSchemaVersion
 	}
 	return nil
 }

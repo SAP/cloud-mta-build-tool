@@ -35,7 +35,7 @@ builders:
     info: "build golang application"
     path: "path to config file which override the following default commands"
     commands:
-      - command: go build *.go
+      - command: go build ./...
 
   - name: evo
     info: "installing module dependencies & run evo-build & remove dev dependencies"
@@ -50,7 +50,7 @@ builders:
     info: "build java application"
     path: "path to config file which override the following default commands"
     commands:
-    - command: mvn clean package
+    - command: mvn -B clean package
     build-result: target/*.war
 
   - name: fetcher
