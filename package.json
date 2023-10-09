@@ -1,19 +1,16 @@
 {
   "name": "mbt",
-  "version": "1.2.23",
+  "version": "1.2.25",
   "description": "[![CircleCI](https://circleci.com/gh/SAP/cloud-mta-build-tool.svg?style=svg&circle-token=ecedd1dce3592adcd72ee4c61481972c32dcfad7)](https://circleci.com/gh/SAP/cloud-mta-build-tool) [![Go Report Card](https://goreportcard.com/badge/github.com/SAP/cloud-mta-build-tool)](https://goreportcard.com/report/github.com/SAP/cloud-mta-build-tool) [![Coverage Status](https://coveralls.io/repos/github/SAP/cloud-mta-build-tool/badge.svg?branch=cover)](https://coveralls.io/github/SAP/cloud-mta-build-tool?branch=cover) ![GitHub license](https://img.shields.io/badge/license-Apache_2.0-blue.svg) ![pre-alpha](https://img.shields.io/badge/Release-pre--alpha-orange.svg)",
   "main": "index.js",
   "files": [
     "index.js",
+    "install.js",
     "bin"
   ],
   "scripts": {
-    "install": "binwrap-install",
-    "ci": "npm-run-all build test",
-    "build": "binwrap-prepare",
-    "test": "npm-run-all test:*",
-    "test:binwrap-links": "binwrap-test",
-    "test:binwrap-binary": "node ./bin/mbt"
+    "install": "node install cloud-mta-build-tool",
+    "test": "node ./bin/mbt"
   },
   "bin": {
     "mbt": "bin/mbt"
@@ -29,9 +26,8 @@
   },
   "homepage": "https://github.com/SAP/cloud-mta-build-tool#readme",
   "dependencies": {
-    "binwrap": "0.2.3"
-  },
-  "devDependencies": {
-    "npm-run-all": "4.1.5"
+    "axios": "^1.4.0",
+    "tar": "^6.1.0",
+    "unzip-stream": "^0.3.1"
   }
 }
