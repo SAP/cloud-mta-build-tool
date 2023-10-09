@@ -97,7 +97,7 @@ RUN ARCH= && dpkgArch="$(dpkg --print-architecture)" \
 
 # Install Grunt CLI
 RUN set -ex \
-    && npm install -g grunt-cli \
+    && npm install  --prefix /usr/local/ -g grunt-cli \
     && npm cache clean -g --force \
     # smoke test
     && echo "grunt-cli install smoke test!" \
