@@ -215,7 +215,7 @@ RUN set -ex \
   && curl -fsSLO --compressed ${MAVEN_BASE_URL}/apache-maven-${MAVEN_VERSION}-bin.tar.gz.asc \
   && export GNUPGHOME="$(mktemp -d)" \
   && for key in \
-  29BEA2A645F2D6CED7FB12E02B172E3E156466E8  \
+  29BEA2A645F2D6CED7FB12E02B172E3E156466E8 \
   ; do \
   gpg --batch --keyserver hkps://pgp.surf.nl --recv-keys "$key" || \
   gpg --batch --keyserver hkps://keyserver.ubuntu.com --recv-keys "$key" ; \
