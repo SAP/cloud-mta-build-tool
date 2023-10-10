@@ -293,7 +293,7 @@ RUN ARCH= && dpkgArch="$(dpkg --print-architecture)" \
   && echo "cyclonedx-gomod smoke tests!" \
   && cyclonedx-gomod version
 
-# Instll cyclone-bom
+# Install cyclone-bom
 RUN set -ex \
   && npm install --prefix /usr/local/ -g ${CYCLONEDX_BOM_PACKAGE}@${CYCLONEDX_BOM_VERSION} \
   && echo "cyclonedx-bom smoke tests!" \
