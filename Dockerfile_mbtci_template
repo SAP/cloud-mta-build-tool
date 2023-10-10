@@ -256,7 +256,7 @@ RUN set -ex \
   && chown -R ${MTA_USER}:${MTA_USER} ${MTA_USER_HOME}
 ENV NPM_CONFIG_PREFIX ${MTA_USER_HOME}/.npm-global
 
-# Instll cyclone-cli
+# Install cyclone-cli
 RUN ARCH= && dpkgArch="$(dpkg --print-architecture)" \
   && case "${dpkgArch##*-}" in \
   amd64) ARCH='x64';; \
@@ -274,7 +274,7 @@ RUN ARCH= && dpkgArch="$(dpkg --print-architecture)" \
   && echo "cyclonedx-cli smoke tests!" \
   && ${CYCLONEDX_CLI_BINARY} --version
 
-# Instll cyclone-gomod
+# Install cyclone-gomod
 RUN ARCH= && dpkgArch="$(dpkg --print-architecture)" \
   && case "${dpkgArch##*-}" in \
   amd64) ARCH='amd64';; \
@@ -299,7 +299,7 @@ RUN set -ex \
   && echo "cyclonedx-bom smoke tests!" \
   && npx ${CYCLONEDX_BOM_BINARY} -h
 
-# Instll curl and ca-certificates
+# Install curl and ca-certificates
 RUN set -ex \
   && apt-get update \
   && apt-get install -y curl ca-certificates --no-install-recommends
