@@ -24,9 +24,9 @@ CYCLONEDX_GOMOD_BINARY = cyclonedx-gomod
 CYCLONEDX_GOMOD_VERSION = latest
 
 # cyclonedx-bom
-CYCLONEDX_BOM_PACKAGE = @cyclonedx/bom
+CYCLONEDX_BOM_PACKAGE = cyclonedx-bom
+CYCLONEDX_BOM_VERSION = 0.0.9
 CYCLONEDX_BOM_BINARY = cyclonedx-bom
-CYCLONEDX_BOM_VERSION = 3.10.6
 
 
 ifeq ($(OS),Windows_NT)

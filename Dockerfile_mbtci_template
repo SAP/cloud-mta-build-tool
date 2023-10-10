@@ -14,8 +14,8 @@ ARG CYCLONEDX_CLI_VERSION=0.24.2
 ARG CYCLONEDX_CLI_BINARY=cyclonedx
 ARG CYCLONEDX_GOMOD_VERSION=1.4.0
 ARG CYCLONEDX_GOMOD_BINARY=cyclonedx-gomod
-ARG CYCLONEDX_BOM_PACKAGE = @cyclonedx/bom
-ARG CYCLONEDX_BOM_VERSION = 3.10.6
+ARG CYCLONEDX_BOM_PACKAGE=cyclonedx-bom
+ARG CYCLONEDX_BOM_VERSION=0.0.9
 ARG CYCLONEDX_BOM_BINARY=cyclonedx-bom
 
 # Environment variables
@@ -295,7 +295,7 @@ RUN ARCH= && dpkgArch="$(dpkg --print-architecture)" \
 
 # Instll cyclone-bom
 RUN set -ex \
-  && npm install -g ${CYCLONEDX_BOM_PACKAGE}@${CYCLONEDX_BOM_VERSION} \
+  && npm install --prefix /usr/local/ -g ${CYCLONEDX_BOM_PACKAGE}@${CYCLONEDX_BOM_VERSION} \
   && echo "cyclonedx-bom smoke tests!" \
   && npx ${CYCLONEDX_BOM_BINARY} -h
 
