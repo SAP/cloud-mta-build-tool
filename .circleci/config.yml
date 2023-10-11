@@ -663,6 +663,42 @@ workflows:
           filters:
             branches:
               ignore: master
+      - build-node20:
+          filters:
+            branches:
+              ignore: master
+      - build-node19:
+          filters:
+            branches:
+              ignore: master
+      - build-node18:
+          filters:
+            branches:
+              ignore: master
+      - build-node17:
+          filters:
+            branches:
+              ignore: master
+      - build-node16:
+          filters:
+            branches:
+              ignore: master
+      - build-node15:
+          filters:
+            branches:
+              ignore: master
+      - build-node14:
+          filters:
+            branches:
+              ignore: master
+      - build-node13-14:
+          filters:
+            branches:
+              ignore: master
+      - build-node12-22:
+          filters:
+            branches:
+              ignore: master
       - compliance:
           filters:
             branches:
