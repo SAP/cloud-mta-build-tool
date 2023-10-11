@@ -18,8 +18,8 @@ var moduleSBomGenCmdSBOMPath string
 // Generate SBOM file for project
 var projectSBomGenCommand = &cobra.Command{
 	Use:   "sbom-gen",
-	Short: "Generates SBOM for project according to configurations in the MTA development descriptor (mta.yaml)",
-	Long:  "Generates SBOM for project according to configurations in the MTA development descriptor (mta.yaml)",
+	Short: "(beta) Generates SBOM for project according to configurations in the MTA development descriptor (mta.yaml)",
+	Long:  "(beta) Generates SBOM for project according to configurations in the MTA development descriptor (mta.yaml)",
 	Args:  cobra.MaximumNArgs(4),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		err := artifacts.ExecuteProjectSBomGenerate(projectSBomGenCmdSrc, projectSBomGenCmdSBOMPath, os.Getwd)
