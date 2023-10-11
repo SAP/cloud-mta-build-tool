@@ -185,6 +185,7 @@ Triggers the build process of the specified module according to the implicit or 
 ### How to generate SBOM file from the project source (BETA)
 
 <b>`mbt sbom-gen`</b>
+
 Generate SBOMs for project modules and merge into one, according to configurations in the MTA development descriptor (mta.yaml)
 
 <b>Usage:</b> `mbt sbom-gen <flags>`
