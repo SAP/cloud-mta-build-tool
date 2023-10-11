@@ -7,6 +7,7 @@ For SBOM file generation, some SBOM tools are required to be installed in your e
 curl -fsSLO --compressed https://github.com/CycloneDX/cyclonedx-gomod/releases/download/v1.4.1/cyclonedx-gomod_1.4.0_linux_amd64.tar.gz
 
 tar -xzf cyclonedx-gomod_1.4.0_linux_amd64.tar.gz
+
 chmod a+rx cyclonedx-gomod
 
 mv cyclonedx-gomod /usr/local/bin/cyclonedx-gomod
