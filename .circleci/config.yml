@@ -724,39 +724,39 @@ workflows:
       - build-node20:
           filters:
             branches:
-              ignore: master
+              only: master
       - build-node19:
           filters:
             branches:
-              ignore: master
+              only: master
       - build-node18:
           filters:
             branches:
-              ignore: master
+              only: master
       - build-node17:
           filters:
             branches:
-              ignore: master
+              only: master
       - build-node16:
           filters:
             branches:
-              ignore: master
+              only: master
       - build-node15:
           filters:
             branches:
-              ignore: master
+              only: master
       - build-node14:
           filters:
             branches:
-              ignore: master
+              only: master
       - build-node13-14:
           filters:
             branches:
-              ignore: master
+              only: master
       - build-node12-22:
           filters:
             branches:
-              ignore: master
+              only: master
       - compliance:
           filters:
             branches:
