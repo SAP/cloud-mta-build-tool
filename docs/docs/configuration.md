@@ -60,6 +60,7 @@ modules:
 > **_CAUTION:_** Cyclical dependencies are not allowed. If such dependencies are found, the build fails.
 
 <br>
+
 ##### Using build results for building another module
 
 If you want to use the build results of module B for building module A, modify the `requires` section as follows:
@@ -268,6 +269,7 @@ For example:
 ```
 Also, you can use this parameter to define timeout for the [global `before-all` build](configuration.md#configuring-global-build).
 
+
 #### Configuring the build artifact name
 The module build results are by default packaged into the resulting archive under the name “data”. You can change this name as needed using the `build-artifact-name` build parameter:  &nbsp;
 &nbsp;
@@ -291,7 +293,7 @@ modules:
 
 &nbsp;
 
-#### Configuring a module that does not have source code to build and package
+#### Configuring a module that does not have source code to build and package(BETA)
 
 There are use cases when a module does not have any source code that should be built and therefore there are no build results to be packaged into the MTA archive. The module definition in the MTA descriptor is the only input that is required to deploy the module into the target environment. You can instruct the tool to treat the module as such by setting the build parameter `no-source` to `true` as follows: 
 
@@ -308,4 +310,87 @@ modules:
 ```
 When the `no-source` parameter is `true`, the tool does not validate the `path` property, so it can be omitted as shown in the example above. No action is performed during the module's build step, so all parameters configuring the module build behaviour, e.g. `builder`, `timeout`, `ignore`, etc. are ignored. There is no content associated with this module in the result MTA archive. The rest of the module processing is the same as when the parameter is not provided, e.g. the entry in the generated the deployment descriptor is created based on `supported-platforms` settings. 
 
+&nbsp;
+
+#### Configuring a module that need to generate SBOM content
+Three native builders `npm, maven and golang` are upgraded to support SBOM generation.
+
+For `java or nodejs` type module, their default builder is `maven or npm`: 
+
+&nbsp;
+
+```yaml
+modules:
+  - name: node-module
+  type: nodejs
+  path: nodejs
+  provides:
+  - name: node-js_api
+    properties:
+        url: ${default-url}
+  build-parameters:
+    requires:
+      - name: java-module
+ 
+- name: java-module
+  type: java
+  path: java
+  properties:
+    MEMORY_CALCULATOR_V1: true
+  build-parameters:
+    requires:
+      - name: go-module
+
+mbt build --sbom-file-path sbom-path/test.sbom.xml
+
+or
+
+mbt sbom-gen --sbom-file-path sbom-path/test.sbom.xml
+```
+
+Or set module's `build-parameters.builder` attribute value to `npm, maven or golang` directly:
+
+```yaml
+modules:
+  - name: node-module
+  type: nodejs
+  path: nodejs
+  provides:
+  - name: node-js_api
+    properties:
+        url: ${default-url}
+  build-parameters:
+    builder: npm
+    requires:
+      - name: java-module
+ 
+- name: java-module
+  type: java
+  path: java
+  properties:
+    MEMORY_CALCULATOR_V1: true
+  build-parameters:
+    builder: maven
+    requires:
+      - name: go-module
+
+- name: go-module
+  type: go
+  path: golang
+  parameters:
+    memory: 512M
+    disk-quota: 256M
+  properties:
+    MEMORY_CALCULATOR_V1: true
+  build-parameters:
+    builder: golang
+    requires:
+      - name: custom-module
+
+mbt build --sbom-file-path sbom-path/test.sbom.xml
+
+or
+
+mbt sbom-gen --sbom-file-path sbom-path/test.sbom.xml
+```
 &nbsp;
