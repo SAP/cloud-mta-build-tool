@@ -315,40 +315,7 @@ When the `no-source` parameter is `true`, the tool does not validate the `path` 
 #### Configuring a module that need to generate SBOM content
 Three native builders `npm, maven and golang` are upgraded to support SBOM generation.
 
-For `java or nodejs` type module, their default builder is `maven or npm`: 
-
-&nbsp;
-
-```yaml
-modules:
-  - name: node-module
-  type: nodejs
-  path: nodejs
-  provides:
-  - name: node-js_api
-    properties:
-        url: ${default-url}
-  build-parameters:
-    requires:
-      - name: java-module
- 
-- name: java-module
-  type: java
-  path: java
-  properties:
-    MEMORY_CALCULATOR_V1: true
-  build-parameters:
-    requires:
-      - name: go-module
-
-mbt build --sbom-file-path sbom-path/test.sbom.xml
-
-or
-
-mbt sbom-gen --sbom-file-path sbom-path/test.sbom.xml
-```
-
-Or set module's `build-parameters.builder` attribute value to `npm, maven or golang` directly:
+Set `build-parameters.builder` attribute value to `npm, maven or golang` :
 
 ```yaml
 modules:
@@ -393,4 +360,38 @@ or
 
 mbt sbom-gen --sbom-file-path sbom-path/test.sbom.xml
 ```
+
+Or, for `java or nodejs` type module, because their default builder is `maven or npm`, do not need to set `build-parameters.builder` attribute : 
+
+
+```yaml
+modules:
+  - name: node-module
+  type: nodejs
+  path: nodejs
+  provides:
+  - name: node-js_api
+    properties:
+        url: ${default-url}
+  build-parameters:
+    requires:
+      - name: java-module
+ 
+- name: java-module
+  type: java
+  path: java
+  properties:
+    MEMORY_CALCULATOR_V1: true
+  build-parameters:
+    requires:
+      - name: go-module
+
+mbt build --sbom-file-path sbom-path/test.sbom.xml
+
+or
+
+mbt sbom-gen --sbom-file-path sbom-path/test.sbom.xml
+```
+
+Or 
 &nbsp;
