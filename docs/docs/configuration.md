@@ -390,6 +390,4 @@ or
 
 mbt sbom-gen --sbom-file-path sbom-path/test.sbom.xml
 ```
-
-Or 
 &nbsp;
