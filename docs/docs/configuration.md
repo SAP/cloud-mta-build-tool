@@ -310,8 +310,6 @@ modules:
 ```
 When the `no-source` parameter is `true`, the tool does not validate the `path` property, so it can be omitted as shown in the example above. No action is performed during the module's build step, so all parameters configuring the module build behaviour, e.g. `builder`, `timeout`, `ignore`, etc. are ignored. There is no content associated with this module in the result MTA archive. The rest of the module processing is the same as when the parameter is not provided, e.g. the entry in the generated the deployment descriptor is created based on `supported-platforms` settings. 
 
-&nbsp;
-
 #### Configuring a module that need to generate SBOM content
 Three native builders `npm, maven and golang` are upgraded to support SBOM generation.
 
