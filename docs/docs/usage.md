@@ -61,7 +61,7 @@ Generates a temporary `Makefile` according to the MTA descriptor and runs the `m
 | `--strict`   | Optional  | The default value is `true`. If set to `true`, the duplicated fields and fields that are not defined in the `mta.yaml` schema are reported as errors. If set to `false`, they are reported as warnings.  | `mbt build -p=cf --strict=true`
 | BETA &nbsp;&nbsp;`-m (--mode)`   | Optional  | The possible value is `verbose`. If run with this option, the temporary `Makefile` is generated in a way that allows the parallel execution of `Make` jobs to make the build process faster.   | `mbt build -m=verbose`
 | BETA  &nbsp;&nbsp;`-j (--jobs)`   | Optional  | Used only with the `--mode` parameter. This option configures the number of `Make` jobs that can run simultaneously. If omitted or if the value is less than or equal to zero, the number of jobs is defined by the number of available CPUs (maximum 8).    | `mbt build -m=verbose -j=8`
-| BETA  &nbsp;&nbsp;`-b (--sbom-file-path)`   | Optional  | The path of SBOM file, the last part of path is file name. <br><ul><li>if sbom-file-path is null, SBOM file will not be generated  <li>sbom-file-path can be relative or abs; if relative, it is relative path to project root <li>only xml file format is supported at present, it means if file suffix is .xml, or no file suffix, xml format sbom will be generated</ul> | `mbt build --sbom-file-path sbom-gen/test.sbom.xml`
+| BETA  &nbsp;&nbsp;`-b (--sbom-file-path)`   | Optional  | The path of the SBOM file. The last part of the path is the file name. <br><ul><li>If the sbom-file-path is null, the SBOM file will not be generated.<li>The sbom-file-path can be relative or abs; If the path is relative, it is the relative path to the project root.<li>Only an XML file format is currently supported, so if the file suffix is .xml, or if there's no file suffix, an XML format SBOM will be generated.</ul> | `mbt build --sbom-file-path sbom-gen/test.sbom.xml`
 
 
 &nbsp;
@@ -182,11 +182,10 @@ Triggers the build process of the specified module according to the implicit or 
 
 &nbsp;
 
-### How to generate SBOM file from the project source (BETA)
+### How to generate an SBOM file from the project source (BETA)
 
 <b>`mbt sbom-gen`</b>
-
-Generate SBOMs for project modules and merge into one, according to configurations in the MTA development descriptor (mta.yaml)
+This command generates SBOMs for project modules and merges the SBOMs into one, according to configurations in the MTA development descriptor ('mta.yaml' file).
 
 <b>Usage:</b> `mbt sbom-gen <flags>`
 
@@ -195,4 +194,4 @@ Generate SBOMs for project modules and merge into one, according to configuratio
 | Flag        | Mandatory&nbsp;/<br>Optional        | Description&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                 | Examples&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                                    
 | -----------  | -------       |  ----------                          |  -----------------------------
 | `-s (--source)`   | Optional  | The path to the MTA project; the current path is set as the default.                              | `mbt sbom-gen -s C:/TestProject -b sbom-file-gen/test.sbom.xml`
-| `-b (--sbom-file-path)`   | Optional  | The path of SBOM file, the last part of path is file name. <br><ul><li>sbom-file-path can be null, if sbom-file-path is null, default value is <MTA_project_path>/<MTA_project_id>.bom.xml"<li>sbom-file-path can be relative or abs; if relative, it is relative path to project root<li>sbom-file-path's last part is file name <li>only xml file format is supported at present; it means if file suffix is .xml, or no file suffix, xml format sbom will be generated</ul> | `mbt sbom-gen --sbom-file-path sbom-gen/test.sbom.xml`
+| `-b (--sbom-file-path)`   | Optional  | The path of the SBOM file. The last part of the path is the file name. <br><ul><li>The sbom-file-path can be null. If the sbom-file-path is null, the default value is <MTA_project_path>/<MTA_project_id>.bom.xml.<li>The sbom-file-path can be relative or abs; If the path is relative, it is the relative path to the project root.<li>The sbom-file-path's last part is the file name.<li>Only the XML file format is currently supported; So, if the file suffix is .xml, or if there's no file suffix, an XML format SBOM will be generated.</ul> | `mbt sbom-gen --sbom-file-path sbom-gen/test.sbom.xml`

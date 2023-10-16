@@ -293,7 +293,7 @@ modules:
 
 &nbsp;
 
-#### Configuring a module that does not have source code to build and package(BETA)
+#### Configuring a module that does not have source code to build and package (BETA)
 
 There are use cases when a module does not have any source code that should be built and therefore there are no build results to be packaged into the MTA archive. The module definition in the MTA descriptor is the only input that is required to deploy the module into the target environment. You can instruct the tool to treat the module as such by setting the build parameter `no-source` to `true` as follows: 
 
@@ -310,10 +310,10 @@ modules:
 ```
 When the `no-source` parameter is `true`, the tool does not validate the `path` property, so it can be omitted as shown in the example above. No action is performed during the module's build step, so all parameters configuring the module build behaviour, e.g. `builder`, `timeout`, `ignore`, etc. are ignored. There is no content associated with this module in the result MTA archive. The rest of the module processing is the same as when the parameter is not provided, e.g. the entry in the generated the deployment descriptor is created based on `supported-platforms` settings. 
 
-#### Configuring a module that need to generate SBOM content
-Three native builders `npm, maven and golang` are upgraded to support SBOM generation.
+#### Configuring a module that needs to generate SBOM content
+Three native builders, `npm, maven, and golang`, have been upgraded to support Software Bill of Materials (SBOM) generation.
 
-Set `build-parameters.builder` attribute value to `npm, maven or golang` :
+Set `build-parameters.builder` attribute value to `npm, maven or golang`:
 
 ```yaml
 modules:
@@ -358,8 +358,7 @@ or
 
 mbt sbom-gen --sbom-file-path sbom-path/test.sbom.xml
 ```
-
-Or, for `java or nodejs` type module, because their default builder is `maven or npm`, do not need to set `build-parameters.builder` attribute : 
+For the `java` or `nodejs` module types, since their default builder is `maven` or `npm`, do not need to set the `build-parameters.builder` attribute:
 
 
 ```yaml

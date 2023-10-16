@@ -3,16 +3,15 @@
 ## v1.2.26
 
 ### Support SBOM generation
-
-Software Bill of Materials (SBOM) is a list of components, libraries, and modules info that are required to build a software, and supply chain relationships between them. An SBOM also lists the licenses that govern those components, versions of the components used in the codebase, and their patch status.
+The Software Bill of Materials (SBOM) is a list of components, libraries, and module information that are required to build a software, and the supply chain relationships between them. An SBOM also lists the licenses that govern those components, versions of the components used in the codebase, and their patch status.
 
 With SBOM, teams can quickly identify any associated security or license risks of codebase.
 
-Native builders `npm, maven and golang` and `mbt build, mbt sbom-gen` command are upgraded to support SBOM generation. For `java or nodejs` type module, or module's `build-parameters.builder` attribute value is `npm, maven or golang`, SBOM content will be generated and merged into one file. At present, only xml formate SBOM file is supported.
+The `npm, maven, and golang` native builders and the `mbt build, mbt sbom-gen` command have been upgraded to support SBOM generation. For `java or nodejs` module types, or if the module's `build-parameters.builder` attribute value is `npm, maven, or golang`, SBOM content will be generated and merged into one file. Currently, only the XML format SBOM file is supported.
 
-Module configuration can be referenced in [configuration.md](https://github.com/SAP/cloud-mta-build-tool/blob/master/docs/docs/configuration.md) 
+The module configuration can be referenced in the [configuration.md](https://github.com/SAP/cloud-mta-build-tool/blob/master/docs/docs/configuration.md) file.
 
-SBOM generation command `mbt build` and `mbt sbom-gen` can be referenced in  [usage.md](https://github.com/SAP/cloud-mta-build-tool/blob/master/docs/docs/usage.md)
+The SBOM generation commands `mbt build` and `mbt sbom-gen` can be referenced in the [usage.md](https://github.com/SAP/cloud-mta-build-tool/blob/master/docs/docs/usage.md) file.
 
 ## v1.2.25
 
