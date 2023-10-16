@@ -7,7 +7,7 @@ The Software Bill of Materials (SBOM) is a list of components, libraries, and mo
 
 With SBOM, teams can quickly identify any associated security or license risks of codebase.
 
-The `npm, maven, and golang` native builders and the `mbt build, mbt sbom-gen` command have been upgraded to support SBOM generation. For `java or nodejs` module types, or if the module's `build-parameters.builder` attribute value is `npm, maven, or golang`, SBOM content will be generated and merged into one file. Currently, only the XML format SBOM file is supported.
+The `npm, maven, and golang` native builders and the `mbt build, mbt sbom-gen` commands have been upgraded to support SBOM generation. For `java or nodejs` module types, or if the module's `build-parameters.builder` attribute value is `npm, maven, or golang`, SBOM content will be generated and merged into one file. Currently, only the XML format SBOM file is supported.
 
 The module configuration can be referenced in the [configuration.md](https://github.com/SAP/cloud-mta-build-tool/blob/master/docs/docs/configuration.md) file.
 

@@ -358,8 +358,7 @@ or
 
 mbt sbom-gen --sbom-file-path sbom-path/test.sbom.xml
 ```
-For the `java` or `nodejs` module types, since their default builder is `maven` or `npm`, do not need to set the `build-parameters.builder` attribute:
-
+For the `java` or `nodejs` module types, since their default builder is `maven` or `npm`, you do not need to set the `build-parameters.builder` attribute:
 
 ```yaml
 modules:
