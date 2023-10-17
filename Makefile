@@ -73,7 +73,7 @@ tests:
 	 go test -v -count=1 -timeout 30m ./...
 # check code coverage
 cover:
-	go test -v -coverprofile cover.out ./...
+	go test -v -coverprofile cover.out ./... -count=1 -timeout 30m
 	go tool cover -html=cover.out -o cover.html
 	open cover.html
 
