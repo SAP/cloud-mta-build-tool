@@ -105,7 +105,55 @@ jobs:
           name: install dependencies
           command: |
             go mod vendor
-      - run: sudo chown circleci:circleci $GOPATH/bin
+      - run:
+          name: install node16 npm and npx
+          command: |
+            sudo apt-get update
+            curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash -
+            sudo apt-get install -y nodejs
+            echo "node version:"
+            node --version
+            echo "npm version:"
+            npm --version
+            echo "npx version:"
+            npx --version
+      - run:
+          name: install cyclonedx-cli
+          command: |
+            CYCLONEDX_CLI_VERSION=0.24.2
+            CYCLONEDX_BINARY_NAME=cyclonedx
+            CYCLONEDX_ARCH=x64
+            CYCLONEDX_OS=linux
+            curl -fsSLO --compressed "https://github.com/CycloneDX/cyclonedx-cli/releases/download/v${CYCLONEDX_CLI_VERSION}/${CYCLONEDX_BINARY_NAME}-${CYCLONEDX_OS}-${CYCLONEDX_ARCH}"
+            chmod ug+rwx ${CYCLONEDX_BINARY_NAME}-${CYCLONEDX_OS}-${CYCLONEDX_ARCH}
+            cp ${CYCLONEDX_BINARY_NAME}-${CYCLONEDX_OS}-${CYCLONEDX_ARCH} ${GOPATH}/bin/${CYCLONEDX_BINARY_NAME}
+            echo "cyclonedx-cli --version:"
+            ${CYCLONEDX_BINARY_NAME} --version
+      - run:
+          name: install cyclonedx-gomod
+          command: |
+            echo "cyclonedx-gomod version"
+            go install github.com/CycloneDX/cyclonedx-gomod/cmd/cyclonedx-gomod@latest
+            cyclonedx-gomod version
+      - run:
+          name: install cyclonedx-bom
+          command: |
+            CYCLONEDX_BOM_PACKAGE=cyclonedx-bom
+            CYCLONEDX_BOM_VERSION=0.0.9
+            CYCLONEDX_BOM_BINARY=cyclonedx-bom
+            npm install ${CYCLONEDX_BOM_PACKAGE}@${CYCLONEDX_BOM_VERSION} --no-save
+            echo "${CYCLONEDX_BOM_BINARY} -h"
+            npx ${CYCLONEDX_BOM_BINARY} -h
+      - run:
+          name: build mbt binary
+          command: |
+            BINARY_NAME=mbt
+            BUILD_DIR=release
+            CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o ${BUILD_DIR}/${BINARY_NAME} -v
+            chmod ug+rwx ${BUILD_DIR}/${BINARY_NAME}
+            cp ${BUILD_DIR}/${BINARY_NAME} ${GOPATH}/bin/${BINARY_NAME}
+            ${BINARY_NAME} --version
+      - run: sudo chown circleci:circleci ${GOPATH}/bin
       - run: make tools
       - run: make lint
       - run:
@@ -793,17 +841,17 @@ workflows:
               only: /release/
             branches:
               ignore: /.*/
-      # - release-to-github:
-      #     requires:
-      #       - test
-      #     filters:
-      #       tags:
-      #         only: /release/
-      #       branches:
-      #         ignore: /.*/
-      - publish-to-npm:
+      - release-to-github:
           requires:
             - test
+          filters:
+            tags:
+              only: /release/
+            branches:
+              ignore: /.*/
+      - publish-to-npm:
+          requires:
+            - release-to-github
           filters:
             tags:
               only: /release/
