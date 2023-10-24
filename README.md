@@ -50,7 +50,7 @@ The Cloud MTA Build Tool published docker images on docker hub with a pre-config
 
 ## Node.js v10 and lower minor version of Node.js v11, v12, v13  /ECMAScript modules
 
-More and more npm packages use ECMAScript modules instead of commonJS, for ECMAScript modules are the official standard format to package JavaScript code for reuse. From v1.2.25, we use axios instead of binwrap(which has moderate severity vulnerabilities) to download binary files, but axios only supports ECMAScript modules and can't work on Node.js v10 and lower minor version of Node.js v11, v12, v13. axios can work on latest version of Node.js v11.15, v12.22, v13.14.  So since v1.2.25, mbt will not support Node.js v10 and lower versions, including lower minor version of Node.js v11, v12, v13.
+More and more npm packages use ECMAScript modules instead of commonJS, for ECMAScript modules are the official standard format to package JavaScript code for reuse. From v1.2.25, we use axios instead of binwrap(which has moderate severity vulnerabilities) to download binary files, but axios only supports ECMAScript modules and can't work on Node.js v10 and lower minor version of Node.js v11, v12, v13. The axios can work on latest version of Node.js v11.15, v12.22, v13.14.  So since v1.2.25, mbt will not support Node.js v10 and lower versions, including lower minor version of Node.js v11, v12, v13.
 
 ## License
 
