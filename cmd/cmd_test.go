@@ -47,6 +47,11 @@ var _ = Describe("Commands", func() {
 	})
 })
 
+func getBuildCmdCli() string {
+	cli := "mbt"
+	return cli
+}
+
 func getTestPath(relPath ...string) string {
 	wd, _ := os.Getwd()
 	return filepath.Join(wd, "testdata", filepath.Join(relPath...))

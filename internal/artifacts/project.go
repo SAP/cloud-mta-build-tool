@@ -25,40 +25,55 @@ const (
 )
 
 // ExecBuild - Execute MTA project build
-func ExecBuild(makefileTmp, source, target string, extensions []string, mode, mtar, platform string, strict bool, jobs int, outputSync bool, wdGetter func() (string, error), wdExec func([][]string, bool) error, useDefaultMbt bool, keepMakefile bool) error {
+func ExecBuild(makefileTmp, source, target string, extensions []string, mode, mtar, platform string,
+	strict bool, jobs int, outputSync bool, wdGetter func() (string, error), wdExec func([][]string, bool) error,
+	useDefaultMbt bool, keepMakefile bool, sBomFilePath string) error {
 	message, err := version.GetVersionMessage()
 	if err == nil {
 		logs.Logger.Info(message)
 	}
 
-	// Generate build script
+	// (1) generate build script
 	err = tpl.ExecuteMake(source, "", extensions, makefileTmp, mode, wdGetter, useDefaultMbt)
 	if err != nil {
 		return err
 	}
 
-	cmdParams := createMakeCommand(makefileTmp, source, target, mode, mtar, platform, strict, jobs, outputSync, runtime.NumCPU)
-	err = wdExec([][]string{cmdParams}, false)
+	// (2) execute make command
+	cmdParams := createMakeCommand(makefileTmp, source, target, mode, mtar, platform, strict, jobs,
+		outputSync, runtime.NumCPU)
+	execMakeFileError := wdExec([][]string{cmdParams}, false)
 
-	// Remove temporary Makefile
-	var removeError error = nil
+	// (3) remove temporary Makefile
+	var removeMakeFileError error = nil
 	if !keepMakefile {
-		removeError = os.Remove(filepath.Join(source, filepath.FromSlash(makefileTmp)))
-		if removeError != nil {
-			removeError = errors.Wrapf(removeError, removeFailedMsg, makefileTmp)
+		removeMakeFileError = os.Remove(filepath.Join(source, filepath.FromSlash(makefileTmp)))
+		if removeMakeFileError != nil {
+			removeMakeFileError = errors.Wrapf(removeMakeFileError, removeFailedMsg, makefileTmp)
 		}
 	}
 
-	if err != nil {
-		if removeError != nil {
-			logs.Logger.Error(removeError)
+	if execMakeFileError != nil {
+		if removeMakeFileError != nil {
+			logs.Logger.Error(removeMakeFileError)
 		}
-		return errors.Wrap(err, execFailedMsg)
+		return errors.Wrap(execMakeFileError, execFailedMsg)
 	}
-	return removeError
+
+	if removeMakeFileError != nil {
+		return removeMakeFileError
+	}
+
+	// (4) generate sbom file
+	sBomGenError := ExecuteProjectBuildeSBomGenerate(source, sBomFilePath, wdGetter)
+	if sBomGenError != nil {
+		return errors.Wrap(sBomGenError, execFailedMsg)
+	}
+	return nil
 }
 
-func createMakeCommand(makefileName, source, target, mode, mtar, platform string, strict bool, jobs int, outputSync bool, numCPUGetter func() int) []string {
+func createMakeCommand(makefileName, source, target, mode, mtar, platform string, strict bool, jobs int,
+	outputSync bool, numCPUGetter func() int) []string {
 	cmdParams := []string{source, "make", "-f", makefileName, "p=" + platform, "mtar=" + mtar, "strict=" + strconv.FormatBool(strict), "mode=" + mode}
 	if target != "" {
 		cmdParams = append(cmdParams, `t="`+target+`"`)
