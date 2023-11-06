@@ -3,12 +3,20 @@ FROM debian:bullseye-slim
 # Build time arguments
 ARG MTA_USER="mta"
 ARG MTA_USER_HOME="/home/${MTA_USER}"
-ARG MBT_VERSION=1.2.23
-ARG GO_VERSION=1.19.3
+ARG MBT_VERSION=1.2.26
+ARG GO_VERSION=1.21.0
 ARG NODE_VERSION=NODE_VERSION_TEMPLATE
-ARG MAVEN_VERSION=3.8.7
+ARG MAVEN_VERSION=3.9.4
+ARG UI5_VERSION=2.14.19
 ARG MAVEN_BASE_URL=https://downloads.apache.org/maven/maven-3/${MAVEN_VERSION}/binaries
 ARG SAPMACHINE_VERSION=JAVA_VERSION_TEMPLATE
+ARG CYCLONEDX_CLI_VERSION=0.24.2
+ARG CYCLONEDX_CLI_BINARY=cyclonedx
+ARG CYCLONEDX_GOMOD_VERSION=1.4.0
+ARG CYCLONEDX_GOMOD_BINARY=cyclonedx-gomod
+ARG CYCLONEDX_BOM_PACKAGE=cyclonedx-bom
+ARG CYCLONEDX_BOM_VERSION=0.0.9
+ARG CYCLONEDX_BOM_BINARY=cyclonedx-bom
 
 # Environment variables
 ENV PYTHON /usr/bin/python3
@@ -28,172 +36,172 @@ RUN set -ex \
   # smoke test
   && openssl version \
   && useradd --home-dir ${MTA_USER_HOME} \
-            --create-home \
-            --shell /bin/bash \
-            --user-group \
-            --uid 1000 \
-            --comment 'Cloud MTA Build Tool' \
-            --password "$(echo weUseMta | openssl passwd -1 -stdin)" ${MTA_USER} \
+  --create-home \
+  --shell /bin/bash \
+  --user-group \
+  --uid 1000 \
+  --comment 'Cloud MTA Build Tool' \
+  --password "$(echo weUseMta | openssl passwd -1 -stdin)" ${MTA_USER} \
   # allow anybody to write into the image user home directory
   && chmod a+w ${MTA_USER_HOME} \
   && apt-get remove --purge --autoremove -y openssl
 
 # Download SAP_Global_Root_CA.crt to target 
 ADD http://aia.pki.co.sap.com/aia/SAP%20Global%20Root%20CA.crt \
-    /etc/ssl/certs/SAP_Global_Root_CA.crt
+  /etc/ssl/certs/SAP_Global_Root_CA.crt
 
 # Install Node.js
 RUN ARCH= && dpkgArch="$(dpkg --print-architecture)" \
-    && case "${dpkgArch##*-}" in \
-      amd64) ARCH='x64';; \
-      ppc64el) ARCH='ppc64le';; \
-      s390x) ARCH='s390x';; \
-      arm64) ARCH='arm64';; \
-      armhf) ARCH='armv7l';; \
-      i386) ARCH='x86';; \
-      *) echo "unsupported architecture"; exit 1 ;; \
-    esac \
-    && set -ex \
-    && apt-get update \
-    # libatomic1 for arm
-    && apt-get install -y ca-certificates curl gnupg dirmngr xz-utils libatomic1 --no-install-recommends \
-    && rm -rf /var/lib/apt/lists/* \
-    && export GNUPGHOME="$(mktemp -d)" \
-    && for key in \
-      4ED778F539E3634C779C87C6D7062848A1AB005C \
-      141F07595B7B3FFE74309A937405533BE57C7D57 \
-      74F12602B6F1C4E913FAA37AD3A89613643B6201 \
-      61FC681DFB92A079F1685E77973F295594EC4689 \
-      8FCCA13FEF1D0C2E91008E09770F7A9A5AE15600 \
-      C4F0DFFF4E8C1A8236409D08E73BC641CC11F4C8 \
-      890C08DB8579162FEE0DF9DB8BEAB4DFCF555EF4 \
-      C82FA3AE1CBEDC6BE46B9360C43CEC45C17AB93C \
-      108F52B48DB57BB0CC439B2997B01419BD92F80A \
-    ; do \
-      gpg --batch --keyserver hkps://keys.openpgp.org --recv-keys "$key" || \
-      gpg --batch --keyserver hkps://keyserver.ubuntu.com --recv-keys "$key" ; \
-    done \
-    && curl -fsSLO --compressed "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-${ARCH}.tar.xz" \
-    && curl -fsSLO --compressed "https://nodejs.org/dist/v${NODE_VERSION}/SHASUMS256.txt.asc" \
-    && gpg --batch --decrypt --output SHASUMS256.txt SHASUMS256.txt.asc \
-    && grep " node-v${NODE_VERSION}-linux-${ARCH}.tar.xz\$" SHASUMS256.txt | sha256sum -c - \
-    && tar -xJf "node-v${NODE_VERSION}-linux-${ARCH}.tar.xz" -C /usr/local --strip-components=1 --no-same-owner \
-    && rm -rf "$GNUPGHOME" "node-v${NODE_VERSION}-linux-${ARCH}.tar.xz" SHASUMS256.txt.asc SHASUMS256.txt \
-    && apt-mark auto '.*' > /dev/null \
-    && find /usr/local -type f -executable -exec ldd '{}' ';' \
-      | awk '/=>/ { print $(NF-1) }' \
-      | sort -u \
-      | xargs -r dpkg-query --search \
-      | cut -d: -f1 \
-      | sort -u \
-      | xargs -r apt-mark manual \
-    && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false \
-    && ln -s /usr/local/bin/node /usr/local/bin/nodejs \
-    # smoke tests
-    && echo "node ${NODE_VERSION} install smoke tests!" \
-    && node --version \
-    && npm --version
+  && case "${dpkgArch##*-}" in \
+  amd64) ARCH='x64';; \
+  ppc64el) ARCH='ppc64le';; \
+  s390x) ARCH='s390x';; \
+  arm64) ARCH='arm64';; \
+  armhf) ARCH='armv7l';; \
+  i386) ARCH='x86';; \
+  *) echo "unsupported architecture"; exit 1 ;; \
+  esac \
+  && set -ex \
+  && apt-get update \
+  # libatomic1 for arm
+  && apt-get install -y ca-certificates curl gnupg dirmngr xz-utils libatomic1 --no-install-recommends \
+  && rm -rf /var/lib/apt/lists/* \
+  && export GNUPGHOME="$(mktemp -d)" \
+  && for key in \
+  4ED778F539E3634C779C87C6D7062848A1AB005C \
+  141F07595B7B3FFE74309A937405533BE57C7D57 \
+  74F12602B6F1C4E913FAA37AD3A89613643B6201 \
+  DD792F5973C6DE52C432CBDAC77ABFA00DDBF2B7 \
+  8FCCA13FEF1D0C2E91008E09770F7A9A5AE15600 \
+  C4F0DFFF4E8C1A8236409D08E73BC641CC11F4C8 \
+  890C08DB8579162FEE0DF9DB8BEAB4DFCF555EF4 \
+  C82FA3AE1CBEDC6BE46B9360C43CEC45C17AB93C \
+  108F52B48DB57BB0CC439B2997B01419BD92F80A \
+  ; do \
+  gpg --batch --keyserver hkps://keys.openpgp.org --recv-keys "$key" || \
+  gpg --batch --keyserver hkps://keyserver.ubuntu.com --recv-keys "$key" ; \
+  done \
+  && curl -fsSLO --compressed "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-${ARCH}.tar.xz" \
+  && curl -fsSLO --compressed "https://nodejs.org/dist/v${NODE_VERSION}/SHASUMS256.txt.asc" \
+  && gpg --batch --decrypt --output SHASUMS256.txt SHASUMS256.txt.asc \
+  && grep " node-v${NODE_VERSION}-linux-${ARCH}.tar.xz\$" SHASUMS256.txt | sha256sum -c - \
+  && tar -xJf "node-v${NODE_VERSION}-linux-${ARCH}.tar.xz" -C /usr/local --strip-components=1 --no-same-owner \
+  && rm -rf "$GNUPGHOME" "node-v${NODE_VERSION}-linux-${ARCH}.tar.xz" SHASUMS256.txt.asc SHASUMS256.txt \
+  && apt-mark auto '.*' > /dev/null \
+  && find /usr/local -type f -executable -exec ldd '{}' ';' \
+  | awk '/=>/ { print $(NF-1) }' \
+  | sort -u \
+  | xargs -r dpkg-query --search \
+  | cut -d: -f1 \
+  | sort -u \
+  | xargs -r apt-mark manual \
+  && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false \
+  && ln -s /usr/local/bin/node /usr/local/bin/nodejs \
+  # smoke tests
+  && echo "node ${NODE_VERSION} install smoke tests!" \
+  && node --version \
+  && npm --version
 
 # Install Grunt CLI
 RUN set -ex \
-    && npm install --prefix /usr/local/ -g grunt-cli \
-    && npm cache clean -g --force \
-    # smoke test
-    && echo "grunt-cli install smoke test!" \
-    && grunt --version
+  && npm install --prefix /usr/local/ -g grunt-cli \
+  && npm cache clean -g --force \
+  # smoke test
+  && echo "grunt-cli install smoke test!" \
+  && grunt --version
 
 # Install UI5 CLI
 RUN set -ex \
-    && npm install --prefix /usr/local/ -g @ui5/cli \
-    && npm cache clean -g --force \
-    # smoke test
-    && echo "ui5 install smoke test!" \
-    && ui5 --version
+  && npm install --prefix /usr/local/ -g @ui5/cli@${UI5_VERSION} \
+  && npm cache clean -g --force \
+  # smoke test
+  && echo "ui5 install smoke test!" \
+  && ui5 --version
 
 # Install Golang
 RUN ARCH= && dpkgArch="$(dpkg --print-architecture)" \
-    && case "${dpkgArch##*-}" in \
-      i386) ARCH='386';; \
-      amd64) ARCH='amd64';; \
-      ppc64el) ARCH='ppc64le';; \
-      s390x) ARCH='s390x';; \
-      arm64) ARCH='arm64';; \
-      armhf) ARCH='armv6l';; \
-      *) echo "unsupported architecture"; exit 1 ;; \
-    esac \
-    && set -ex \
-    && apt-get update \
-    && apt-get install -y ca-certificates curl gnupg dirmngr --no-install-recommends \
-    && rm -rf /var/lib/apt/lists/* \
-    && export GNUPGHOME="$(mktemp -d)" \
-    && for key in \
-      EB4C1BFD4F042F6DDDCCEC917721F63BD38B4796 \
-      2F528D36D67B69EDF998D85778BD65473CB3BD13 \
-    ; do \
-      gpg --batch --keyserver hkps://pgp.surf.nl --recv-keys "$key" || \
-      gpg --batch --keyserver hkps://keyserver.ubuntu.com --recv-keys "$key" ; \
-    done \
-    && curl -fsSLO --compressed https://storage.googleapis.com/golang/go${GO_VERSION}.${GOOS}-${ARCH}.tar.gz \
-    && curl -fsSLO --compressed https://storage.googleapis.com/golang/go${GO_VERSION}.${GOOS}-${ARCH}.tar.gz.asc \
-    && gpg --batch --verify go${GO_VERSION}.${GOOS}-${ARCH}.tar.gz.asc go${GO_VERSION}.${GOOS}-${ARCH}.tar.gz \
-    && tar -xvf go${GO_VERSION}.${GOOS}-${ARCH}.tar.gz -C /usr/local \
-    && rm -rf "$GNUPGHOME" go${GO_VERSION}.${GOOS}-${ARCH}.tar.gz go${GO_VERSION}.${GOOS}-${ARCH}.tar.gz.asc \
-    && apt-get remove --purge --autoremove -y ca-certificates curl gnupg dirmngr \
-    # smoke test
-    && echo "go ${GO_VERSION} install smoke test!" \
-    && go version
+  && case "${dpkgArch##*-}" in \
+  i386) ARCH='386';; \
+  amd64) ARCH='amd64';; \
+  ppc64el) ARCH='ppc64le';; \
+  s390x) ARCH='s390x';; \
+  arm64) ARCH='arm64';; \
+  armhf) ARCH='armv6l';; \
+  *) echo "unsupported architecture"; exit 1 ;; \
+  esac \
+  && set -ex \
+  && apt-get update \
+  && apt-get install -y ca-certificates curl gnupg dirmngr --no-install-recommends \
+  && rm -rf /var/lib/apt/lists/* \
+  && export GNUPGHOME="$(mktemp -d)" \
+  && for key in \
+  EB4C1BFD4F042F6DDDCCEC917721F63BD38B4796 \
+  2F528D36D67B69EDF998D85778BD65473CB3BD13 \
+  ; do \
+  gpg --batch --keyserver hkps://pgp.surf.nl --recv-keys "$key" || \
+  gpg --batch --keyserver hkps://keyserver.ubuntu.com --recv-keys "$key" ; \
+  done \
+  && curl -fsSLO --compressed https://storage.googleapis.com/golang/go${GO_VERSION}.${GOOS}-${ARCH}.tar.gz \
+  && curl -fsSLO --compressed https://storage.googleapis.com/golang/go${GO_VERSION}.${GOOS}-${ARCH}.tar.gz.asc \
+  && gpg --batch --verify go${GO_VERSION}.${GOOS}-${ARCH}.tar.gz.asc go${GO_VERSION}.${GOOS}-${ARCH}.tar.gz \
+  && tar -xvf go${GO_VERSION}.${GOOS}-${ARCH}.tar.gz -C /usr/local \
+  && rm -rf "$GNUPGHOME" go${GO_VERSION}.${GOOS}-${ARCH}.tar.gz go${GO_VERSION}.${GOOS}-${ARCH}.tar.gz.asc \
+  && apt-get remove --purge --autoremove -y ca-certificates curl gnupg dirmngr \
+  # smoke test
+  && echo "go ${GO_VERSION} install smoke test!" \
+  && go version
 
 # Install SAPMachine
 RUN sapmachine_install() { \
-    SAPMACHINE_MAJOR_VERSION=$(echo ${SAPMACHINE_VERSION} | cut -d. -f1); \
-    ARCH=; \
-    dpkgArch="$(dpkg --print-architecture)"; \
-    case "${dpkgArch##*-}" in \
-      amd64) ARCH='amd64';; \
-      *) echo "unsupported architecture"; exit 1 ;; \
-    esac; \
-    apt-get update; \
-    apt-get install -y ca-certificates gnupg dirmngr --no-install-recommends; \
-    rm -rf /var/lib/apt/lists/*; \
-    export GNUPGHOME="$(mktemp -d)"; \
-    for key in \
-      CACB9FE09150307D1D22D82962754C3B3ABCFE23 \
-    ; do \
-      gpg --no-default-keyring --keyring gnupg-ring:/etc/apt/trusted.gpg.d/sapmachine.gpg --batch --keyserver hkps://keys.openpgp.org --recv-keys "$key" || \
-      gpg --no-default-keyring --keyring gnupg-ring:/etc/apt/trusted.gpg.d/sapmachine.gpg --batch --keyserver hkps://keyserver.ubuntu.com --recv-keys "$key" ; \
-    done; \
-    chmod 644 /etc/apt/trusted.gpg.d/sapmachine.gpg; \
-    echo "deb http://dist.sapmachine.io/debian/${ARCH}/ ./" | tee /etc/apt/sources.list.d/sapmachine.list; \
-    apt-get update; \
-    apt-get install -y sapmachine-${SAPMACHINE_MAJOR_VERSION}-jdk=${SAPMACHINE_VERSION} --no-install-recommends; \
-    rm -rf "$GNUPGHOME" /var/lib/apt/lists/*; \
-    apt-get remove --purge --autoremove -y ca-certificates gnupg dirmngr; \
-    ln -s /usr/lib/jvm/sapmachine-${SAPMACHINE_MAJOR_VERSION} ${JAVA_HOME}; \
+  SAPMACHINE_MAJOR_VERSION=$(echo ${SAPMACHINE_VERSION} | cut -d. -f1); \
+  ARCH=; \
+  dpkgArch="$(dpkg --print-architecture)"; \
+  case "${dpkgArch##*-}" in \
+  amd64) ARCH='amd64';; \
+  *) echo "unsupported architecture"; exit 1 ;; \
+  esac; \
+  apt-get update; \
+  apt-get install -y ca-certificates gnupg dirmngr --no-install-recommends; \
+  rm -rf /var/lib/apt/lists/*; \
+  export GNUPGHOME="$(mktemp -d)"; \
+  for key in \
+  CACB9FE09150307D1D22D82962754C3B3ABCFE23 \
+  ; do \
+  gpg --no-default-keyring --keyring gnupg-ring:/etc/apt/trusted.gpg.d/sapmachine.gpg --batch --keyserver hkps://keys.openpgp.org --recv-keys "$key" || \
+  gpg --no-default-keyring --keyring gnupg-ring:/etc/apt/trusted.gpg.d/sapmachine.gpg --batch --keyserver hkps://keyserver.ubuntu.com --recv-keys "$key" ; \
+  done; \
+  chmod 644 /etc/apt/trusted.gpg.d/sapmachine.gpg; \
+  echo "deb http://dist.sapmachine.io/debian/${ARCH}/ ./" | tee /etc/apt/sources.list.d/sapmachine.list; \
+  apt-get update; \
+  apt-get install -y sapmachine-${SAPMACHINE_MAJOR_VERSION}-jdk=${SAPMACHINE_VERSION} --no-install-recommends; \
+  rm -rf "$GNUPGHOME" /var/lib/apt/lists/*; \
+  apt-get remove --purge --autoremove -y ca-certificates gnupg dirmngr; \
+  ln -s /usr/lib/jvm/sapmachine-${SAPMACHINE_MAJOR_VERSION} ${JAVA_HOME}; \
   }; \
   sapjvm_install() { \
-    ARCH=; \
-    dpkgArch="$(dpkg --print-architecture)"; \
-    case "${dpkgArch##*-}" in \
-      amd64) ARCH='x64';; \
-      ppc64el) ARCH='ppc64le';; \
-      *) echo "unsupported architecture"; exit 1 ;; \
-    esac; \
-    apt-get update; \
-    apt-get install -y ca-certificates curl libarchive-tools --no-install-recommends; \
-    rm -rf /var/lib/apt/lists/*; \
-    curl -fsSLO --compressed -b 'eula_3_1_agreed=tools.hana.ondemand.com/developer-license-3_1.txt' https://tools.hana.ondemand.com/additional/sapjvm-${SAPMACHINE_VERSION}-linux-${ARCH}.zip; \
-    echo "583dedfeee0c119839a610ddc8c6768d0c044429  sapjvm-${SAPMACHINE_VERSION}-linux-${ARCH}.zip" | sha1sum -c -; \
-    bsdtar -xvf sapjvm-${SAPMACHINE_VERSION}-linux-${ARCH}.zip -C /usr/local --strip-components=1 --no-same-owner; \
-    rm -f sapjvm-${SAPMACHINE_VERSION}-linux-${ARCH}.zip; \
-    apt-get remove --purge --auto-remove -y ca-certificates curl libarchive-tools; \
-    ln -s /usr/local ${JAVA_HOME}; \
+  ARCH=; \
+  dpkgArch="$(dpkg --print-architecture)"; \
+  case "${dpkgArch##*-}" in \
+  amd64) ARCH='x64';; \
+  ppc64el) ARCH='ppc64le';; \
+  *) echo "unsupported architecture"; exit 1 ;; \
+  esac; \
+  apt-get update; \
+  apt-get install -y ca-certificates curl libarchive-tools --no-install-recommends; \
+  rm -rf /var/lib/apt/lists/*; \
+  curl -fsSLO --compressed -b 'eula_3_1_agreed=tools.hana.ondemand.com/developer-license-3_1.txt' https://tools.hana.ondemand.com/additional/sapjvm-${SAPMACHINE_VERSION}-linux-${ARCH}.zip; \
+  echo "7d63f20b17becb5f658d413c113ea9efdfbba6a0  sapjvm-${SAPMACHINE_VERSION}-linux-${ARCH}.zip" | sha1sum -c -; \
+  bsdtar -xvf sapjvm-${SAPMACHINE_VERSION}-linux-${ARCH}.zip -C /usr/local --strip-components=1 --no-same-owner; \
+  rm -f sapjvm-${SAPMACHINE_VERSION}-linux-${ARCH}.zip; \
+  apt-get remove --purge --auto-remove -y ca-certificates curl libarchive-tools; \
+  ln -s /usr/local ${JAVA_HOME}; \
   } \
   && set -ex \
   && if [ $(echo ${SAPMACHINE_VERSION} | cut -d. -f1) -le 8 ]; then \
-      sapjvm_install; \
-    else \
-      sapmachine_install; \
-    fi \
+  sapjvm_install; \
+  else \
+  sapmachine_install; \
+  fi \
   # smoke test
   && echo "SAPMachine ${SAPMACHINE_VERSION} install smoke test!" \
   && java -version
@@ -207,10 +215,10 @@ RUN set -ex \
   && curl -fsSLO --compressed ${MAVEN_BASE_URL}/apache-maven-${MAVEN_VERSION}-bin.tar.gz.asc \
   && export GNUPGHOME="$(mktemp -d)" \
   && for key in \
-    6A814B1F869C2BBEAB7CB7271A2A1C94BDE89688 \
+  29BEA2A645F2D6CED7FB12E02B172E3E156466E8 \
   ; do \
-    gpg --batch --keyserver hkps://pgp.surf.nl --recv-keys "$key" || \
-    gpg --batch --keyserver hkps://keyserver.ubuntu.com --recv-keys "$key" ; \
+  gpg --batch --keyserver hkps://pgp.surf.nl --recv-keys "$key" || \
+  gpg --batch --keyserver hkps://keyserver.ubuntu.com --recv-keys "$key" ; \
   done \
   && gpg --batch --verify apache-maven-${MAVEN_VERSION}-bin.tar.gz.asc apache-maven-${MAVEN_VERSION}-bin.tar.gz \
   && mkdir -p ${MAVEN_HOME} ${MAVEN_HOME}/ref \
@@ -247,6 +255,54 @@ RUN set -ex \
   && mkdir ${MTA_USER_HOME}/.npm-global/lib \
   && chown -R ${MTA_USER}:${MTA_USER} ${MTA_USER_HOME}
 ENV NPM_CONFIG_PREFIX ${MTA_USER_HOME}/.npm-global
+
+# Install cyclone-cli
+RUN ARCH= && dpkgArch="$(dpkg --print-architecture)" \
+  && case "${dpkgArch##*-}" in \
+  amd64) ARCH='x64';; \
+  arm64) ARCH='arm64';; \
+  *) echo "unsupported architecture"; exit 1 ;; \
+  esac \
+  && set -ex \
+  && apt-get update \
+  && apt-get install -y ca-certificates curl gnupg dirmngr libicu-dev --no-install-recommends \
+  && rm -rf /var/lib/apt/lists/* \
+  && curl -fsSLO --compressed "https://github.com/CycloneDX/cyclonedx-cli/releases/download/v${CYCLONEDX_CLI_VERSION}/${CYCLONEDX_CLI_BINARY}-linux-${ARCH}" \
+  && chmod a+rx ${CYCLONEDX_CLI_BINARY}-linux-${ARCH} \
+  && mv ${CYCLONEDX_CLI_BINARY}-linux-${ARCH} /usr/local/bin/${CYCLONEDX_CLI_BINARY} \
+  && apt-get remove --purge --autoremove -y ca-certificates curl gnupg dirmngr \
+  && echo "cyclonedx-cli smoke tests!" \
+  && ${CYCLONEDX_CLI_BINARY} --version
+
+# Install cyclone-gomod
+RUN ARCH= && dpkgArch="$(dpkg --print-architecture)" \
+  && case "${dpkgArch##*-}" in \
+  amd64) ARCH='amd64';; \
+  arm64) ARCH='arm64';; \
+  *) echo "unsupported architecture"; exit 1 ;; \
+  esac \
+  && set -ex \
+  && apt-get update \
+  && apt-get install -y ca-certificates curl gnupg dirmngr libicu-dev --no-install-recommends \
+  && rm -rf /var/lib/apt/lists/* \
+  && curl -fsSLO --compressed "https://github.com/CycloneDX/cyclonedx-gomod/releases/download/v${CYCLONEDX_GOMOD_VERSION}/${CYCLONEDX_GOMOD_BINARY}_${CYCLONEDX_GOMOD_VERSION}_linux_${ARCH}.tar.gz" \
+  && tar -xzf ${CYCLONEDX_GOMOD_BINARY}_${CYCLONEDX_GOMOD_VERSION}_linux_${ARCH}.tar.gz \
+  && chmod a+rx ${CYCLONEDX_GOMOD_BINARY} \
+  && mv ${CYCLONEDX_GOMOD_BINARY} /usr/local/bin/${CYCLONEDX_GOMOD_BINARY} \
+  && apt-get remove --purge --autoremove -y ca-certificates curl gnupg dirmngr \
+  && echo "cyclonedx-gomod smoke tests!" \
+  && cyclonedx-gomod version
+
+# Install cyclone-bom
+RUN set -ex \
+  && npm install --prefix /usr/local/ -g ${CYCLONEDX_BOM_PACKAGE}@${CYCLONEDX_BOM_VERSION} \
+  && echo "cyclonedx-bom smoke tests!" \
+  && npx ${CYCLONEDX_BOM_BINARY} -h
+
+# Install curl and ca-certificates
+RUN set -ex \
+  && apt-get update \
+  && apt-get install -y curl ca-certificates --no-install-recommends
 
 ENV PATH=$PATH:./node_modules/.bin:${MTA_USER_HOME}/.npm-global/bin
 WORKDIR /project
