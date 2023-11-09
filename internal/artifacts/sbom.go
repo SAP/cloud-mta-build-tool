@@ -37,7 +37,7 @@ func ExecuteProjectSBomGenerate(source string, sbomFilePath string, wdGetter fun
 		return errors.Wrapf(err, genSBomFileFailedMsg)
 	}
 
-	mtaObj, err := loc.ParseFile()
+	mtaObj, err := loc.ParseFile(true)
 	if err != nil {
 		return errors.Wrapf(err, genSBomFileFailedMsg)
 	}
@@ -69,7 +69,7 @@ func ExecuteProjectBuildeSBomGenerate(source string, sbomFilePath string, wdGett
 		return errors.Wrapf(err, genSBomFileFailedMsg)
 	}
 
-	mtaObj, err := loc.ParseFile()
+	mtaObj, err := loc.ParseFile(true)
 	if err != nil {
 		return errors.Wrapf(err, genSBomFileFailedMsg)
 	}

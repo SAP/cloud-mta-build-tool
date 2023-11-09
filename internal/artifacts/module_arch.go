@@ -2,14 +2,15 @@ package artifacts
 
 import (
 	"fmt"
-	"gopkg.in/yaml.v2"
 	"os"
 	"path/filepath"
 	"strings"
 
+	"gopkg.in/yaml.v2"
+
 	"github.com/pkg/errors"
 
-	"github.com/SAP/cloud-mta-build-tool/internal/archive"
+	dir "github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta-build-tool/internal/buildops"
 	"github.com/SAP/cloud-mta-build-tool/internal/commands"
 	"github.com/SAP/cloud-mta-build-tool/internal/exec"
@@ -60,7 +61,7 @@ func ExecuteSoloBuild(source, target string, extensions []string, modulesNames [
 		return wrapBuildError(err, modulesNames)
 	}
 
-	mtaObj, err := loc.ParseFile()
+	mtaObj, err := loc.ParseFile(true)
 	if err != nil {
 		return err
 	}
@@ -501,7 +502,7 @@ func CopyMtaContent(source, target string, extensions []string, copyInParallel b
 	if err != nil {
 		return errors.Wrap(err, copyContentFailedOnLocMsg)
 	}
-	mtaObj, err := loc.ParseFile()
+	mtaObj, err := loc.ParseFile(true)
 	if err != nil {
 		return errors.Wrapf(err, copyContentFailedMsg)
 	}

@@ -2,14 +2,15 @@ package artifacts
 
 import (
 	"fmt"
-	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 
+	"gopkg.in/yaml.v2"
+
 	"github.com/pkg/errors"
 
-	"github.com/SAP/cloud-mta-build-tool/internal/archive"
+	dir "github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta-build-tool/internal/logs"
 	"github.com/SAP/cloud-mta-build-tool/internal/platform"
 	"github.com/SAP/cloud-mta/mta"
@@ -45,7 +46,7 @@ func executeGenMetaByLocation(loc *dir.Loc, targetArtifacts dir.ITargetArtifacts
 func generateMeta(loc *dir.Loc, targetArtifacts dir.ITargetArtifacts, deploymentDescriptor bool, platform string, createMetaInf bool, validatePaths bool) error {
 
 	// parse MTA file
-	m, err := loc.ParseFile()
+	m, err := loc.ParseFile(true)
 	if err != nil {
 		return errors.Wrapf(err, genMetaMsg)
 	}
@@ -97,7 +98,7 @@ func ExecuteMerge(source, target string, extensions []string, name string, wdGet
 	if err != nil {
 		return err
 	}
-	m, err := loc.ParseFile()
+	m, err := loc.ParseFile(true)
 	if err != nil {
 		return err
 	}

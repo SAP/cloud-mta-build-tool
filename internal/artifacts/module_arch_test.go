@@ -4,18 +4,19 @@ import (
 	"archive/zip"
 	"errors"
 	"fmt"
-	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strconv"
+
+	"gopkg.in/yaml.v2"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/types"
 
-	"github.com/SAP/cloud-mta-build-tool/internal/archive"
+	dir "github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta-build-tool/internal/buildops"
 	"github.com/SAP/cloud-mta-build-tool/internal/commands"
 	"github.com/SAP/cloud-mta-build-tool/internal/exec"
@@ -1069,7 +1070,7 @@ func getMtaObj(projectName string, mtaFilename string) *mta.MTA {
 	loc, err := dir.Location(getTestPath(projectName), getTestPath("result"), dir.Dev, nil, os.Getwd)
 	Ω(err).Should(Succeed())
 	loc.MtaFilename = mtaFilename
-	mtaObj, err := loc.ParseFile()
+	mtaObj, err := loc.ParseFile(true)
 	Ω(err).Should(Succeed())
 	return mtaObj
 }

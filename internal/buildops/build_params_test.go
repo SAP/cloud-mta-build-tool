@@ -9,7 +9,7 @@ import (
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
 
-	"github.com/SAP/cloud-mta-build-tool/internal/archive"
+	dir "github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta-build-tool/internal/commands"
 	"github.com/SAP/cloud-mta/mta"
 )
@@ -289,7 +289,7 @@ var _ = Describe("Process complex list of requirements", func() {
 			SourcePath: getTestPath("testbuildparams"),
 			TargetPath: getTestPath("result"),
 		}
-		mtaObj, _ := lp.ParseFile()
+		mtaObj, _ := lp.ParseFile(true)
 		for _, m := range mtaObj.Modules {
 			if m.Name == "node" {
 				for _, r := range GetBuildRequires(m) {
@@ -438,7 +438,7 @@ var _ = Describe("GetBuilder", func() {
 		loc, err := dir.Location(filepath.Join(currDir, "testdata"), "", "dev", nil, os.Getwd)
 		Ω(err).Should(Succeed())
 		loc.MtaFilename = "mtaWithFetcher.yaml"
-		m, err := loc.ParseFile()
+		m, err := loc.ParseFile(true)
 		Ω(err).Should(Succeed())
 
 		builder, custom, options, cmds, err := commands.GetBuilder(m.Modules[0])

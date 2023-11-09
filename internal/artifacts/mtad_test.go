@@ -9,7 +9,7 @@ import (
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
 
-	"github.com/SAP/cloud-mta-build-tool/internal/archive"
+	dir "github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta-build-tool/internal/buildops"
 	"github.com/SAP/cloud-mta-build-tool/internal/platform"
 	"github.com/SAP/cloud-mta/mta"
@@ -70,7 +70,7 @@ var _ = Describe("Mtad", func() {
 			Ω(dir.CreateDirIfNotExist(tmpDir)).Should(Succeed())
 			file, err := os.Create(metaPath)
 			Ω(err).Should(Succeed())
-			mtaStr, err := ep.ParseFile()
+			mtaStr, err := ep.ParseFile(true)
 			Ω(err).Should(Succeed())
 			Ω(genMtad(mtaStr, &ep, &ep, ep.IsDeploymentDescriptor(), "cf", true, nil, yaml.Marshal)).Should(HaveOccurred())
 			Ω(file.Close()).Should(Succeed())
@@ -78,14 +78,14 @@ var _ = Describe("Mtad", func() {
 
 		It("Fails on mtad.yaml save because it's target folder does not exist", func() {
 			ep := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getTestPath("result")}
-			mtaStr, err := ep.ParseFile()
+			mtaStr, err := ep.ParseFile(true)
 			Ω(err).Should(Succeed())
 			Ω(genMtad(mtaStr, &ep, &ep, ep.IsDeploymentDescriptor(), "cf", false, nil, yaml.Marshal)).Should(HaveOccurred())
 		})
 
 		It("Fails on mtad marshalling", func() {
 			ep := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getTestPath("result")}
-			mtaStr, err := ep.ParseFile()
+			mtaStr, err := ep.ParseFile(true)
 			Ω(err).Should(Succeed())
 			Ω(genMtad(mtaStr, &ep, &ep, ep.IsDeploymentDescriptor(), "cf", false, nil, func(i interface{}) (out []byte, err error) {
 				return nil, errors.New("err")
@@ -93,7 +93,7 @@ var _ = Describe("Mtad", func() {
 		})
 		It("Fails on mtad schema version change", func() {
 			ep := dir.Loc{SourcePath: getTestPath("mta"), TargetPath: getTestPath("result"), MtaFilename: "mtaBadSchemaVersion.yaml"}
-			mtaStr, err := ep.ParseFile()
+			mtaStr, err := ep.ParseFile(true)
 			Ω(err).Should(Succeed())
 			Ω(genMtad(mtaStr, &ep, &ep, ep.IsDeploymentDescriptor(), "cf", true, nil, yaml.Marshal)).Should(HaveOccurred())
 		})

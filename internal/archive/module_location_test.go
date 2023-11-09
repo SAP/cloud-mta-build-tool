@@ -1,9 +1,10 @@
 package dir
 
 import (
+	"os"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"os"
 )
 
 var _ = Describe("ModuleLocation", func() {
@@ -54,7 +55,7 @@ var _ = Describe("ModuleLocation", func() {
 	It("ParseFile", func() {
 		ep := Loc{SourcePath: getPath("testdata", "testext")}
 		moduleLoc := ModuleLocation(&ep, false)
-		mta, err := moduleLoc.ParseFile()
+		mta, err := moduleLoc.ParseFile(true)
 		Ω(mta).ShouldNot(BeNil())
 		Ω(err).Should(Succeed())
 

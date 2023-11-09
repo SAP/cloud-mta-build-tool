@@ -27,14 +27,13 @@ type tplCfg struct {
 }
 
 // ExecuteMake - generate makefile
-// func ExecuteMake(source, target string, extensions []string, name, mode string, wdGetter func() (string, error), useDefaultMbt, strict bool) error {
-func ExecuteMake(source, target string, extensions []string, name, mode string, wdGetter func() (string, error), useDefaultMbt bool) error {
+func ExecuteMake(source, target string, extensions []string, name, mode string, wdGetter func() (string, error), useDefaultMbt, strict bool) error {
 	logs.Logger.Infof(`generating the "%s" file...`, name)
 	loc, err := dir.Location(source, target, dir.Dev, extensions, wdGetter)
 	if err != nil {
 		return errors.Wrapf(err, genFailedOnInitLocMsg, name)
 	}
-	err = genMakefile(loc, loc, loc, loc, loc.GetExtensionFilePaths(), name, mode, useDefaultMbt)
+	err = genMakefile(loc, loc, loc, loc, loc.GetExtensionFilePaths(), name, mode, useDefaultMbt, strict)
 	if err != nil {
 		return err
 	}
@@ -43,23 +42,16 @@ func ExecuteMake(source, target string, extensions []string, name, mode string, 
 }
 
 // genMakefile - Generate the makefile
-// func genMakefile(mtaParser dir.IMtaParser, loc dir.ITargetPath, srcLoc dir.ISourceModule, desc dir.IDescriptor, extensionFilePaths []string, makeFilename, mode string, useDefaultMbt, strict bool) error {
-func genMakefile(mtaParser dir.IMtaParser, loc dir.ITargetPath, srcLoc dir.ISourceModule, desc dir.IDescriptor, extensionFilePaths []string, makeFilename, mode string, useDefaultMbt bool) error {
-	logs.Logger.Infof("genMakefile 11111")
-
+func genMakefile(mtaParser dir.IMtaParser, loc dir.ITargetPath, srcLoc dir.ISourceModule, desc dir.IDescriptor, extensionFilePaths []string, makeFilename, mode string, useDefaultMbt, strict bool) error {
 	tpl, err := getTplCfg(mode, desc.IsDeploymentDescriptor())
-
-	logs.Logger.Infof("genMakefile 222222")
 	if err != nil {
 		return err
 	}
 
-	logs.Logger.Infof("genMakefile 333333")
 	if err == nil {
 		tpl.depDesc = desc.GetDescriptor()
-		err = makeFile(mtaParser, loc, srcLoc, extensionFilePaths, makeFilename, &tpl, useDefaultMbt)
+		err = makeFile(mtaParser, loc, srcLoc, extensionFilePaths, makeFilename, &tpl, useDefaultMbt, strict)
 	}
-	logs.Logger.Infof("genMakefile 66666666666")
 	return err
 }
 
@@ -121,9 +113,7 @@ func (data templateData) GetPathArgument(innerPath string) string {
 }
 
 // makeFile - generate makefile form templates
-// func makeFile(mtaParser dir.IMtaParser, loc dir.ITargetPath, srcLoc dir.ISourceModule, extensionFilePaths []string, makeFilename string, tpl *tplCfg, useDefaultMbt, strict bool) (e error) {
-func makeFile(mtaParser dir.IMtaParser, loc dir.ITargetPath, srcLoc dir.ISourceModule, extensionFilePaths []string, makeFilename string, tpl *tplCfg, useDefaultMbt bool) (e error) {
-
+func makeFile(mtaParser dir.IMtaParser, loc dir.ITargetPath, srcLoc dir.ISourceModule, extensionFilePaths []string, makeFilename string, tpl *tplCfg, useDefaultMbt, strict bool) (e error) {
 	// template data
 	data := templateData{}
 
@@ -133,15 +123,10 @@ func makeFile(mtaParser dir.IMtaParser, loc dir.ITargetPath, srcLoc dir.ISourceM
 	}
 
 	// ParseFile file
-	m, err := mtaParser.ParseFile()
-
-	logs.Logger.Infof("genMakefile 444444444")
-
+	m, err := mtaParser.ParseFile(strict)
 	if err != nil {
 		return errors.Wrapf(err, genFailedMsg, makeFilename)
 	}
-
-	logs.Logger.Infof("genMakefile 55555555555")
 
 	// Check for circular build dependencies between the modules. The error message from make is not clear so we
 	// should give an error here during the generation of the makefile.

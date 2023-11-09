@@ -10,7 +10,7 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"
 
-	"github.com/SAP/cloud-mta-build-tool/internal/archive"
+	dir "github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta-build-tool/internal/platform"
 	"github.com/SAP/cloud-mta-build-tool/internal/version"
 	"github.com/SAP/cloud-mta/mta"
@@ -131,7 +131,7 @@ cli_version:["x"]
 		})
 
 		readFileContent := func(ep dir.IMtaParser) *mta.MTA {
-			mtaObj, _ := ep.ParseFile()
+			mtaObj, _ := ep.ParseFile(true)
 			return mtaObj
 		}
 

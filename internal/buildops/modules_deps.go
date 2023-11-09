@@ -3,10 +3,10 @@ package buildops
 import (
 	"fmt"
 
-	"github.com/deckarep/golang-set"
+	mapset "github.com/deckarep/golang-set"
 	"github.com/pkg/errors"
 
-	"github.com/SAP/cloud-mta-build-tool/internal/archive"
+	dir "github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta/mta"
 )
 
@@ -22,7 +22,7 @@ func ProvideModules(source, desc string, extensions []string, wdGetter func() (s
 	if err != nil {
 		return errors.Wrap(err, locFailedMsg)
 	}
-	m, err := loc.ParseFile()
+	m, err := loc.ParseFile(true)
 	if err != nil {
 		return err
 	}
@@ -39,7 +39,7 @@ func ProvideModules(source, desc string, extensions []string, wdGetter func() (s
 // function prepares all artifacts required for module
 // copying them from required modules
 func ProcessDependencies(mtaParser dir.IMtaParser, moduleSource dir.ISourceModule, moduleName string) error {
-	m, err := mtaParser.ParseFile()
+	m, err := mtaParser.ParseFile(true)
 	if err != nil {
 		return err
 	}

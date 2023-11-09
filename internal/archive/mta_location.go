@@ -27,7 +27,7 @@ const (
 
 // IMtaParser - MTA Parser interface
 type IMtaParser interface {
-	ParseFile() (*mta.MTA, error)
+	ParseFile(strict bool) (*mta.MTA, error)
 }
 
 // IDescriptor - descriptor interface
@@ -235,8 +235,8 @@ func (ep *Loc) IsDeploymentDescriptor() bool {
 }
 
 // ParseFile returns a reference to the MTA object resulting from the given mta.yaml file merged with the extension descriptors.
-func (ep *Loc) ParseFile() (*mta.MTA, error) {
-	mtaFile, _, err := mta.GetMtaFromFile(ep.GetMtaYamlPath(), ep.GetExtensionFilePaths(), true)
+func (ep *Loc) ParseFile(strict bool) (*mta.MTA, error) {
+	mtaFile, _, err := mta.GetMtaFromFile(ep.GetMtaYamlPath(), ep.GetExtensionFilePaths(), true, strict)
 	return mtaFile, err
 }
 

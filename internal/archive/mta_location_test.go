@@ -182,7 +182,7 @@ var _ = Describe("ParseFile", func() {
 
 	It("Parse the mta.yaml file and returns it when there are no extension files", func() {
 		ep := Loc{SourcePath: filepath.Join(wd, "testdata", "testext")}
-		mta, err := ep.ParseFile()
+		mta, err := ep.ParseFile(true)
 		Ω(mta).ShouldNot(BeNil())
 		Ω(err).Should(Succeed())
 
@@ -198,7 +198,7 @@ var _ = Describe("ParseFile", func() {
 
 	It("Parses the mta.yaml and merges the extension file when there is one extension file", func() {
 		ep := Loc{SourcePath: filepath.Join(wd, "testdata", "testext"), ExtensionFileNames: []string{"cf-mtaext.yaml"}}
-		mta, err := ep.ParseFile()
+		mta, err := ep.ParseFile(true)
 		Ω(mta).ShouldNot(BeNil())
 		Ω(err).Should(Succeed())
 
@@ -218,7 +218,7 @@ var _ = Describe("ParseFile", func() {
 			SourcePath:         filepath.Join(wd, "testdata", "testext"),
 			ExtensionFileNames: []string{"other.mtaext", "cf-mtaext.yaml"},
 		}
-		mta, err := ep.ParseFile()
+		mta, err := ep.ParseFile(true)
 		Ω(mta).ShouldNot(BeNil())
 		Ω(err).Should(Succeed())
 
@@ -244,7 +244,7 @@ var _ = Describe("ParseFile", func() {
 			SourcePath:  filepath.Join(wd, "testdata", "testext"),
 			MtaFilename: "some.yaml",
 		}
-		_, err := ep.ParseFile()
+		_, err := ep.ParseFile(true)
 		Ω(err).Should(HaveOccurred())
 		Ω(err.Error()).Should(ContainSubstring(filepath.Join(ep.SourcePath, ep.MtaFilename)))
 	})
@@ -254,7 +254,7 @@ var _ = Describe("ParseFile", func() {
 			SourcePath:         filepath.Join(wd, "testdata", "testext"),
 			ExtensionFileNames: []string{"bad_version.mtaext", "other.mtaext"},
 		}
-		_, err := ep.ParseFile()
+		_, err := ep.ParseFile(true)
 		Ω(err).Should(HaveOccurred())
 		Ω(err.Error()).Should(ContainSubstring("3.1"))
 	})
@@ -264,7 +264,7 @@ var _ = Describe("ParseFile", func() {
 			SourcePath:         filepath.Join(wd, "testdata", "testext"),
 			ExtensionFileNames: []string{"bad_module.mtaext"},
 		}
-		_, err := ep.ParseFile()
+		_, err := ep.ParseFile(true)
 		Ω(err).Should(HaveOccurred())
 		Ω(err.Error()).Should(ContainSubstring("ui5app3"))
 	})
@@ -274,7 +274,7 @@ var _ = Describe("ParseFile", func() {
 			SourcePath:         filepath.Join(wd, "testdata", "testext"),
 			ExtensionFileNames: []string{"other.mtaext"},
 		}
-		_, err := ep.ParseFile()
+		_, err := ep.ParseFile(true)
 		Ω(err).Should(HaveOccurred())
 		Ω(err.Error()).Should(ContainSubstring("mtahtml5ext"))
 	})

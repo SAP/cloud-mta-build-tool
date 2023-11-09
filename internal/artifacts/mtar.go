@@ -5,10 +5,11 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/SAP/cloud-mta-build-tool/internal/archive"
+	"strconv"
+
+	dir "github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta-build-tool/internal/logs"
 	"github.com/SAP/cloud-mta/mta"
-	"strconv"
 )
 
 const (
@@ -45,7 +46,7 @@ func isTargetProvided(target, provided string) bool {
 func generateMtar(targetLoc dir.ITargetPath, targetArtifacts dir.ITargetArtifacts, parser dir.IMtaParser,
 	targetProvided bool, mtarName string) (string, error) {
 	// get MTA object
-	m, err := parser.ParseFile()
+	m, err := parser.ParseFile(true)
 	if err != nil {
 		return "", errors.Wrap(err, genMTARParsingMsg)
 	}

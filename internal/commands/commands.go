@@ -9,7 +9,7 @@ import (
 
 	"github.com/SAP/cloud-mta/mta"
 
-	"github.com/SAP/cloud-mta-build-tool/internal/archive"
+	dir "github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta-build-tool/internal/logs"
 )
 
@@ -302,7 +302,7 @@ func CmdConverter(mPath string, cmdList []string) ([][]string, error) {
 // GetModuleAndCommands - Get module from mta.yaml and
 // commands (with resolved paths) configured for the module type
 func GetModuleAndCommands(loc dir.IMtaParser, module string) (*mta.Module, []string, string, error) {
-	mtaObj, err := loc.ParseFile()
+	mtaObj, err := loc.ParseFile(true)
 	if err != nil {
 		return nil, nil, "", err
 	}

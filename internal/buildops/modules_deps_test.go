@@ -12,9 +12,10 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"
 
-	"github.com/SAP/cloud-mta-build-tool/internal/archive"
-	"github.com/SAP/cloud-mta/mta"
 	"strings"
+
+	dir "github.com/SAP/cloud-mta-build-tool/internal/archive"
+	"github.com/SAP/cloud-mta/mta"
 )
 
 var _ = Describe("ModulesDeps", func() {
@@ -49,7 +50,7 @@ var _ = Describe("ModulesDeps", func() {
 	It("Resolve dependencies - Valid case", func() {
 		wd, _ := os.Getwd()
 		ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata"), MtaFilename: "mta_multiapps.yaml"}
-		mtaStr, _ := ep.ParseFile()
+		mtaStr, _ := ep.ParseFile(true)
 		actual, _ := getModulesOrder(mtaStr)
 		// last module depends on others
 		Ω(actual[len(actual)-1]).Should(Equal("eb-uideployer"))
@@ -58,7 +59,7 @@ var _ = Describe("ModulesDeps", func() {
 	It("Resolve dependencies - cyclic dependencies", func() {
 		wd, _ := os.Getwd()
 		ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata"), MtaFilename: "mta_multiapps_cyclic_deps.yaml"}
-		mtaStr, _ := ep.ParseFile()
+		mtaStr, _ := ep.ParseFile(true)
 		_, err := getModulesOrder(mtaStr)
 		Ω(err).Should(HaveOccurred())
 		Ω(err.Error()).Should(ContainSubstring("eb-ui-conf-eb"))
