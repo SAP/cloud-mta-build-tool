@@ -1003,7 +1003,6 @@ workflows:
               ignore: /.*/
       - release-to-github:
           requires:
-            # - release-to-github
             - test
           filters:
             tags:
