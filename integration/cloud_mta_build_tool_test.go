@@ -32,25 +32,16 @@ const (
 	binPath = "mbt"
 )
 
+var mbtName = ""
+var mbtTargetPath = ""
+
 var _ = Describe("Integration - CloudMtaBuildTool", func() {
 
-	var mbtName = ""
-
 	BeforeSuite(func() {
-		By("Building MBT")
-		if runtime.GOOS == "linux" || runtime.GOOS == "darwin" {
-			mbtName = "mbt"
-		} else {
-			mbtName = "mbt.exe"
-		}
-		// This runs locally for testing purpose only
-		/* #nosec */
-		cmd := exec.Command("go", "build", "-o", filepath.Join(os.Getenv("GOPATH"), "/bin/"+mbtName), ".")
-		cmd.Dir = filepath.FromSlash("../")
-		err := cmd.Run()
-		if err != nil {
-			fmt.Println("binary creation failed: ", err)
-		}
+		By("Building and smoke testing mbt")
+		mbtName = "mbt"
+		buildAndInstallMBT()
+		smokeTestMBT()
 	})
 
 	AfterSuite(func() {
@@ -659,6 +650,38 @@ resources:
 		})
 	})
 })
+
+func buildAndInstallMBT() error {
+	if runtime.GOOS == "linux" || runtime.GOOS == "darwin" {
+		mbtName = mbtName
+	} else {
+		mbtName = mbtName + ".exe"
+	}
+	mbtTargetPath = filepath.Join(os.Getenv("GOPATH"), "/bin/"+mbtName)
+
+	cmd := exec.Command("go", "build", "-o", mbtTargetPath, ".")
+	cmd.Dir = filepath.FromSlash("../")
+	err := cmd.Run()
+	if err != nil {
+		fmt.Println("mbt build and install failed: ", err)
+		return err
+	}
+
+	return nil
+}
+
+func smokeTestMBT() error {
+	var stdout bytes.Buffer
+	cmd := exec.Command(mbtName, "-h")
+	cmd.Stdout = &stdout
+	err := cmd.Run()
+	if err != nil {
+		fmt.Println("exec mbt -h error: ", err)
+		return err
+	}
+	fmt.Println("exec mbt -h success: ", stdout.String())
+	return nil
+}
 
 func getFileContentFromZip(path string, filename string) ([]byte, error) {
 	zipFile, err := zip.OpenReader(path)
