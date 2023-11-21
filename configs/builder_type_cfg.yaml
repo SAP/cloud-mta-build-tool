@@ -50,7 +50,7 @@ builders:
     info: "build java application"
     path: "path to config file which override the following default commands"
     commands:
-    - command: mvn clean package
+    - command: mvn -B clean package
     build-result: target/*.war
 
   - name: fetcher
