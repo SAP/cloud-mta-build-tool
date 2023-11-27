@@ -9,17 +9,20 @@ import (
 
 	"github.com/SAP/cloud-mta/mta"
 
-	"github.com/SAP/cloud-mta-build-tool/internal/archive"
+	dir "github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta-build-tool/internal/logs"
 )
 
 const (
-	builderParam  = "builder"
-	commandsParam = "commands"
-	customBuilder = "custom"
-	golangBuilder = "golang"
-	optionsSuffix = "-opts"
-	goModuleType  = "go"
+	builderParam                 = "builder"
+	commandsParam                = "commands"
+	customBuilder                = "custom"
+	golangBuilder                = "golang"
+	optionsSuffix                = "-opts"
+	goModuleType                 = "go"
+	cyclonedx_npm                = "@cyclonedx/cyclonedx-npm"
+	cyclonedx_npm_version        = "1.11.0"
+	cyclonedx_npm_schema_version = "1.4"
 )
 
 // CommandList - list of command to execute
@@ -341,16 +344,16 @@ func GetModuleSBomGenCommands(loc *dir.Loc, module *mta.Module,
 	case "npm", "npm-ci", "grunt", "evo":
 		cmd = "npm install"
 		cmds = append(cmds, cmd)
-		cmd = "npm install cyclonedx-bom@0.0.9 --no-save"
+		cmd = "npm install " + cyclonedx_npm + "@" + cyclonedx_npm_version + " --no-save"
 		cmds = append(cmds, cmd)
-		cmd = "npx cyclonedx-bom -o " + sbomFileName + sbomFileSuffix
+		cmd = "npx cyclonedx-npm --output-format " + strings.ToUpper(sbomFileType) + " --spec-version " + cyclonedx_npm_schema_version + " --output-file " + sbomFileName + sbomFileSuffix
 		cmds = append(cmds, cmd)
 	case "golang":
-		cmd = "cyclonedx-gomod mod -licenses -output " + sbomFileName + sbomFileSuffix
+		cmd = "cyclonedx-gomod mod -output-version 1.4 -licenses -output " + sbomFileName + sbomFileSuffix
 		cmds = append(cmds, cmd)
 	case "maven", "fetcher", "maven_deprecated":
 		cmd = "mvn org.cyclonedx:cyclonedx-maven-plugin:2.7.5:makeAggregateBom " +
-			"-DschemaVersion=1.2 -DincludeBomSerialNumber=true -DincludeCompileScope=true " +
+			"-DschemaVersion=1.4 -DincludeBomSerialNumber=true -DincludeCompileScope=true " +
 			"-DincludeRuntimeScope=true -DincludeSystemScope=true -DincludeTestScope=false -DincludeLicenseText=false " +
 			"-DoutputFormat=" + sbomFileType + " -DoutputName=" + sbomFileName + ".bom"
 		cmds = append(cmds, cmd)
@@ -368,7 +371,7 @@ func GetModuleSBomGenCommands(loc *dir.Loc, module *mta.Module,
 
 // GetSBomsMergeCommand - generate merge sbom file command under sbom tmp dir
 // if empty sbomFileNames, return empty commandList, nil error
-func GetSBomsMergeCommand(loc *dir.Loc, cyclonedx_cli string, sbomTmpDir string, sbomFileNames []string,
+func GetSBomsMergeCommand(loc *dir.Loc, cyclonedx_cli string, mtaID string, sbomTmpDir string, sbomFileNames []string,
 	sbomName, sbomType, sbomSuffix string) ([][]string, error) {
 	var cmd string
 	var cmds []string
@@ -386,7 +389,7 @@ func GetSBomsMergeCommand(loc *dir.Loc, cyclonedx_cli string, sbomTmpDir string,
 
 	// ./cyclonedx merge --input-files test_1.bom.xml test_2.bom.xml test_3.bom.xml --output-file merged.bom.xml
 	cmd = cyclonedx_cli + " merge --input-files " + inputFiles + " --output-file " + sbomName +
-		" --input-format " + sbomType + " --output-format " + sbomType
+		" --input-format " + sbomType + " --output-format " + sbomType + " --name " + mtaID
 	cmds = append(cmds, cmd)
 	commandList, err := CmdConverter(sbomTmpDir, cmds)
 

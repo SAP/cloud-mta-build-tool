@@ -1,6 +1,9 @@
 package artifacts
 
 import (
+	"bytes"
+	"encoding/xml"
+	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -134,17 +137,122 @@ func generateSBomFile(loc *dir.Loc, mtaObj *mta.MTA,
 	}
 
 	// (3) merge sbom files under sbom tmp dir
-	sbomTmpName, err := mergeSBomFiles(loc, sbomTmpDir, sbomFileNames, sbomName, sbomType, sbomSuffix)
+	sbomTmpName, err := mergeSBomFiles(loc, mtaObj.ID, sbomTmpDir, sbomFileNames, sbomName, sbomType, sbomSuffix)
 	if err != nil {
 		return err
 	}
 
-	// (4) generate sbom target dir, mv merged sbom file to target dir
+	// (4) instert sbom timestamp attribute into metadata
+	err = insertSBomTimestamp(sbomTmpDir, sbomTmpName)
+	if err != nil {
+		return err
+	}
+
+	// (5) generate sbom target dir, mv merged sbom file to target dir
 	err = moveSBomToTarget(sbomPath, sbomName, sbomTmpDir, sbomTmpName)
 	if err != nil {
 		return err
 	}
 
+	return nil
+}
+
+func removeXmlns(attrs []xml.Attr) []xml.Attr {
+	var result []xml.Attr
+	for _, attr := range attrs {
+		if attr.Name.Local != "xmlns" {
+			result = append(result, attr)
+		}
+	}
+	return result
+}
+
+func insertSBomTimestamp(sbomTmpDir, sbomTmpName string) error {
+	sbomfilepath := filepath.Join(sbomTmpDir, sbomTmpName)
+	file, err := os.Open(sbomfilepath)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	decoder := xml.NewDecoder(file)
+	decoder.Strict = false
+
+	var out bytes.Buffer
+	encoder := xml.NewEncoder(&out)
+	// encoder.Indent("", "")
+
+	inBom := false
+	inMetadata := false
+
+	for {
+		tok, err := decoder.RawToken()
+		// tok, err := decoder.Token()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return err
+		}
+
+		switch typedTok := tok.(type) {
+		case xml.ProcInst:
+			out.Write([]byte("<?" + string(typedTok.Target) + " " + string(typedTok.Inst) + "?>"))
+		case xml.StartElement:
+			typedTok.Attr = removeXmlns(typedTok.Attr)
+
+			if typedTok.Name.Local == "bom" {
+				inBom = true
+			}
+			if typedTok.Name.Local == "metadata" {
+				inMetadata = true
+			}
+
+			err := encoder.EncodeToken(typedTok)
+			if err != nil {
+				return err
+			}
+
+			if inBom && inMetadata {
+				encoder.EncodeToken(xml.StartElement{Name: xml.Name{Local: "timestamp"}})
+				encoder.EncodeToken(xml.CharData(time.Now().UTC().Format("2006-01-02T15:04:05Z")))
+				encoder.EncodeToken(xml.EndElement{Name: xml.Name{Local: "timestamp"}})
+				inBom = false
+				inMetadata = false
+				break
+			}
+		case xml.CharData:
+			err := encoder.EncodeToken(typedTok)
+			if err != nil {
+				return err
+			}
+		case xml.EndElement:
+			if typedTok.Name.Local == "bom" {
+				inBom = false
+			}
+			if typedTok.Name.Local == "metadata" {
+				inMetadata = false
+			}
+
+			err := encoder.EncodeToken(typedTok)
+			if err != nil {
+				return err
+			}
+		default:
+			err := encoder.EncodeToken(typedTok)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	encoder.Flush()
+	content := out.Bytes()
+	content = bytes.Replace(content, []byte("\ufeff"), []byte(""), -1)
+	err = ioutil.WriteFile(sbomfilepath, content, 0644)
+
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -229,7 +337,7 @@ func listSBomFilesInTmpDir(sbomTmpDir, sbomSuffix string) ([]string, error) {
 }
 
 // mergeSBomFiles - merge sbom files of modules under sbom tmp dir
-func mergeSBomFiles(loc *dir.Loc, sbomTmpDir string, sbomFileNames []string, sbomName, sbomType, sbomSuffix string) (string, error) {
+func mergeSBomFiles(loc *dir.Loc, mtaID string, sbomTmpDir string, sbomFileNames []string, sbomName, sbomType, sbomSuffix string) (string, error) {
 	curtime := time.Now().Format("20230328150313")
 
 	var sbomTmpName string
@@ -242,7 +350,7 @@ func mergeSBomFiles(loc *dir.Loc, sbomTmpDir string, sbomFileNames []string, sbo
 	}
 
 	// get sbom file generate command
-	sbomMergeCmds, err := commands.GetSBomsMergeCommand(loc, cyclonedx_cli, sbomTmpDir, sbomFileNames, sbomTmpName, sbomType, sbomSuffix)
+	sbomMergeCmds, err := commands.GetSBomsMergeCommand(loc, cyclonedx_cli, mtaID, sbomTmpDir, sbomFileNames, sbomTmpName, sbomType, sbomSuffix)
 	if err != nil {
 		return "", err
 	}

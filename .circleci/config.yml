@@ -136,14 +136,14 @@ jobs:
             go install github.com/CycloneDX/cyclonedx-gomod/cmd/cyclonedx-gomod@latest
             cyclonedx-gomod version
       - run:
-          name: install cyclonedx-bom
+          name: install cyclonedx-npm
           command: |
-            CYCLONEDX_BOM_PACKAGE=cyclonedx-bom
-            CYCLONEDX_BOM_VERSION=0.0.9
-            CYCLONEDX_BOM_BINARY=cyclonedx-bom
-            npm install ${CYCLONEDX_BOM_PACKAGE}@${CYCLONEDX_BOM_VERSION} --no-save
-            echo "${CYCLONEDX_BOM_BINARY} -h"
-            npx ${CYCLONEDX_BOM_BINARY} -h
+            CYCLONEDX_NPM_PACKAGE=@cyclonedx/cyclonedx-npm
+            CYCLONEDX_NPM_VERSION=1.11.0
+            CYCLONEDX_NPM_BINARY=cyclonedx-npm
+            npm install ${CYCLONEDX_NPM_PACKAGE}@${CYCLONEDX_NPM_VERSION} --no-save
+            echo "${CYCLONEDX_NPM_BINARY} -h"
+            npx ${CYCLONEDX_NPM_BINARY} -h
       - run:
           name: build mbt binary
           command: |
