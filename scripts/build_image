@@ -20,7 +20,7 @@ docker build -t mbtci${JAVA_VERSION}${NODE_VERSION}:${MBT_VERSION} .
 
 # test image
 if [ "$JAVA_MAJOR_VERSION" = "8" ] || [ "$JAVA_MAJOR_VERSION" = "11" ] || \ 
-   [ "$JAVA_MAJOR_VERSION" = "17" ] || [ "$JAVA_MAJOR_VERSION" = "19" ]; then
+   [ "$JAVA_MAJOR_VERSION" = "17" ] || [ "$JAVA_MAJOR_VERSION" = "19" ] || [ "$JAVA_MAJOR_VERSION" = "21" ]; then
 	cp test/goss/goss_template.yaml test/goss/goss.yaml
 	sed_i "s/NODE_VERSION_TEMPLATE/${NODE_VERSION_TEMPLATE}/" test/goss/goss.yaml
 	sed_i "s/JAVA_VERSION_TEMPLATE/${JAVA_VERSION_TEMPLATE}/" test/goss/goss.yaml

@@ -94,9 +94,11 @@ func prepareEnv(sbomTmpDir, sbomPath string) error {
 	if err != nil {
 		return err
 	}
-	err = dir.CreateDirIfNotExist(sbomPath)
-	if err != nil {
-		return err
+	if len(sbomPath) > 0 {
+		err = dir.CreateDirIfNotExist(sbomPath)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -153,6 +155,9 @@ func executeSBomGenerate(loc *dir.Loc, mtaObj *mta.MTA, source string, sbomFileP
 	// (1) parse sbomFilePath, if relative, it is relative path to project source
 	// json type sbom file is not supported at present, if sbom file type is json, return not support error
 	sbomPath, sbomName, sbomType, sbomSuffix := parseSBomFilePath(loc.GetSource(), sbomFilePath)
+	// logs.Logger.Infof("source: %s; sbomFilePath: %s", loc.GetSource(), sbomFilePath)
+	// logs.Logger.Infof("sbomPath: %s; sbomName: %s; sbomType: %s; sbomSuffix: %s", sbomPath, sbomName, sbomType, sbomSuffix)
+
 	if sbomType == unsupport_type {
 		return errors.Errorf(genSBomNotSupportedFileTypeMsg, sbomSuffix)
 	}
@@ -188,15 +193,17 @@ func executeSBomGenerate(loc *dir.Loc, mtaObj *mta.MTA, source string, sbomFileP
 
 // moveSBomToTarget - move sbom file from sbom tmp dir to target dir
 func moveSBomToTarget(sbomPath string, sbomName string, sbomTmpDir string, sbomTmpName string) error {
-	err := dir.CreateDirIfNotExist(sbomPath)
-	if err != nil {
-		return errors.Wrapf(err, createSBomTargetDirFailedMsg, sbomName)
+	if len(sbomPath) > 0 {
+		err := dir.CreateDirIfNotExist(sbomPath)
+		if err != nil {
+			return errors.Wrapf(err, createSBomTargetDirFailedMsg, sbomName)
+		}
 	}
 
 	sourcesbomfilepath := filepath.Join(sbomTmpDir, sbomTmpName)
 	targetsbomfilepath := filepath.Join(sbomPath, sbomName)
 
-	err = os.Rename(sourcesbomfilepath, targetsbomfilepath)
+	err := os.Rename(sourcesbomfilepath, targetsbomfilepath)
 	if err != nil {
 		return errors.Wrapf(err, mvSBomToTargetDirFailedMsg, sourcesbomfilepath, targetsbomfilepath)
 	}
@@ -256,7 +263,6 @@ func mergeSBomFiles(loc *dir.Loc, sbomTmpDir string, sbomFileNames []string, sbo
 // only xml file format is supported at present;
 func parseSBomFilePath(source string, sbomFilePath string) (string, string, string, string) {
 	var sbomPath, sbomName, sbomType, sbomSuffix string
-
 	if filepath.IsAbs(sbomFilePath) {
 		sbomPath, sbomName = filepath.Split(sbomFilePath)
 	} else {
