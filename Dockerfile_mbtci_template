@@ -242,12 +242,13 @@ RUN set -ex \
 # Install essential build tools and Python
 RUN set -ex \
   && apt-get update \
-  && apt-get install -y ca-certificates build-essential git python2.7 python3 --no-install-recommends \
+  && apt-get install -y ca-certificates build-essential git python2.7 python3 python3-pip python3-dev --no-install-recommends \
   && rm -rf /var/lib/apt/lists/* \
   # smoke tests
   && echo "python install smoke tests!" \
   && python2.7 --version \
-  && python3 --version
+  && python3 --version \
+  && pip3 --version
 
 # Allow global npm packages install without sudo
 RUN set -ex \
@@ -270,7 +271,7 @@ RUN ARCH= && dpkgArch="$(dpkg --print-architecture)" \
   && curl -fsSLO --compressed "https://github.com/CycloneDX/cyclonedx-cli/releases/download/v${CYCLONEDX_CLI_VERSION}/${CYCLONEDX_CLI_BINARY}-linux-${ARCH}" \
   && chmod a+rx ${CYCLONEDX_CLI_BINARY}-linux-${ARCH} \
   && mv ${CYCLONEDX_CLI_BINARY}-linux-${ARCH} /usr/local/bin/${CYCLONEDX_CLI_BINARY} \
-  && apt-get remove --purge --autoremove -y ca-certificates curl gnupg dirmngr \
+  && apt-get remove --purge --autoremove -y gnupg dirmngr \
   && echo "cyclonedx-cli smoke tests!" \
   && ${CYCLONEDX_CLI_BINARY} --version
 
@@ -289,7 +290,7 @@ RUN ARCH= && dpkgArch="$(dpkg --print-architecture)" \
   && tar -xzf ${CYCLONEDX_GOMOD_BINARY}_${CYCLONEDX_GOMOD_VERSION}_linux_${ARCH}.tar.gz \
   && chmod a+rx ${CYCLONEDX_GOMOD_BINARY} \
   && mv ${CYCLONEDX_GOMOD_BINARY} /usr/local/bin/${CYCLONEDX_GOMOD_BINARY} \
-  && apt-get remove --purge --autoremove -y ca-certificates curl gnupg dirmngr \
+  && apt-get remove --purge --autoremove -y gnupg dirmngr \
   && echo "cyclonedx-gomod smoke tests!" \
   && cyclonedx-gomod version
 
