@@ -10,7 +10,7 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"
 
-	"github.com/SAP/cloud-mta-build-tool/internal/archive"
+	dir "github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta-build-tool/internal/platform"
 	"github.com/SAP/cloud-mta-build-tool/internal/version"
 	"github.com/SAP/cloud-mta/mta"
@@ -138,7 +138,7 @@ cli_version:["x"]
 		It("Generate Meta", func() {
 			createMtahtml5TmpFolder()
 			ep := dir.Loc{SourcePath: getTestPath("mtahtml5"), TargetPath: getResultPath()}
-			Ω(generateMeta(&ep, &ep, false, "cf", true, true)).Should(Succeed())
+			Ω(generateMeta(&ep, &ep, false, "cf", true, true, true)).Should(Succeed())
 			Ω(readFileContent(&dir.Loc{SourcePath: getFullPathInTmpFolder("mtahtml5", "META-INF"), Descriptor: "dep"})).
 				Should(Equal(readFileContent(&dir.Loc{SourcePath: getTestPath("golden"), Descriptor: "dep"})))
 		})
@@ -146,13 +146,13 @@ cli_version:["x"]
 		It("Generate Meta - fails on missing module path in temporary folder", func() {
 			createMtahtml5WithMissingModuleTmpFolder()
 			ep := dir.Loc{SourcePath: getTestPath("mtahtml5"), TargetPath: getResultPath()}
-			Ω(generateMeta(&ep, &ep, false, "cf", false, true)).Should(HaveOccurred())
+			Ω(generateMeta(&ep, &ep, false, "cf", false, true, true)).Should(HaveOccurred())
 		})
 
 		It("Generate Meta - doesn't fail on missing module path in temporary folder because module configured as no-source", func() {
 			createMtahtml5WithMissingModuleTmpFolder()
 			ep := dir.Loc{SourcePath: getTestPath("mtahtml5"), TargetPath: getResultPath(), MtaFilename: "mtaWithNoSource.yaml"}
-			Ω(generateMeta(&ep, &ep, false, "cf", true, true)).Should(Succeed())
+			Ω(generateMeta(&ep, &ep, false, "cf", true, true, true)).Should(Succeed())
 			Ω(readFileContent(&dir.Loc{SourcePath: getFullPathInTmpFolder("mtahtml5", "META-INF"), Descriptor: "dep"})).
 				Should(Equal(readFileContent(&dir.Loc{SourcePath: getTestPath("goldenNoSource"), Descriptor: "dep"})))
 		})
@@ -160,7 +160,7 @@ cli_version:["x"]
 		It("Generate Meta - mta not exists", func() {
 			ep := dir.Loc{SourcePath: getTestPath("mtahtml5"), TargetPath: getResultPath(),
 				MtaFilename: "mtaNotExists.yaml"}
-			err := generateMeta(&ep, &ep, false, "cf", true, true)
+			err := generateMeta(&ep, &ep, false, "cf", true, true, true)
 			checkError(err, ep.GetMtaYamlPath())
 		})
 
@@ -180,7 +180,7 @@ cli_version:["x"]
 			It("Generate Meta fails on platform parsing", func() {
 				createMtahtml5TmpFolder()
 				ep := dir.Loc{SourcePath: getTestPath("mtahtml5"), TargetPath: getResultPath()}
-				err := generateMeta(&ep, &ep, false, "cf", true, true)
+				err := generateMeta(&ep, &ep, false, "cf", true, true, true)
 				Ω(err).Should(HaveOccurred())
 				Ω(err.Error()).Should(ContainSubstring(fmt.Sprintf(genMTADTypeTypeCnvMsg, "cf")))
 				Ω(err.Error()).Should(ContainSubstring(platform.UnmarshalFailedMsg))
@@ -190,7 +190,7 @@ cli_version:["x"]
 		It("Generate Mtar", func() {
 			createMtahtml5TmpFolder()
 			ep := dir.Loc{SourcePath: getTestPath("mtahtml5"), TargetPath: getResultPath()}
-			err := generateMeta(&ep, &ep, false, "cf", true, true)
+			err := generateMeta(&ep, &ep, false, "cf", true, true, true)
 			Ω(err).Should(Succeed())
 			mtarPath, err := generateMtar(&ep, &ep, &ep, true, "")
 			Ω(err).Should(Succeed())
