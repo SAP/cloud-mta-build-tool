@@ -142,8 +142,8 @@ func generateSBomFile(loc *dir.Loc, mtaObj *mta.MTA,
 		return err
 	}
 
-	// (4) instert sbom timestamp attribute into metadata
-	err = insertSBomAttributes(mtaObj, sbomTmpDir, sbomTmpName)
+	// (4) instert xml attribute or xml node to bom->metadata
+	err = updateSBomMetadataNode(mtaObj, sbomTmpDir, sbomTmpName)
 	if err != nil {
 		return err
 	}
@@ -179,7 +179,7 @@ func addBomrefAttribute(attributes []xml.Attr, purl string) []xml.Attr {
 	return attributes
 }
 
-func insertSBomAttributes(mtaObj *mta.MTA, sbomTmpDir, sbomTmpName string) error {
+func updateSBomMetadataNode(mtaObj *mta.MTA, sbomTmpDir, sbomTmpName string) error {
 	sbomfilepath := filepath.Join(sbomTmpDir, sbomTmpName)
 	file, err := os.Open(sbomfilepath)
 	if err != nil {
@@ -194,7 +194,6 @@ func insertSBomAttributes(mtaObj *mta.MTA, sbomTmpDir, sbomTmpName string) error
 
 	var out bytes.Buffer
 	encoder := xml.NewEncoder(&out)
-	// encoder.Indent("", "")
 
 	isInBom := false
 	isInBomMetadata := false
@@ -215,22 +214,18 @@ func insertSBomAttributes(mtaObj *mta.MTA, sbomTmpDir, sbomTmpName string) error
 		case xml.StartElement:
 			// if xml node contains 'xmlns' attribute, remove the attribute
 			typedTok.Attr = removeXmlns(typedTok.Attr)
-
 			// if current node is <bom>, set isInBom = true
 			if typedTok.Name.Local == "bom" {
 				isInBom = true
 			}
-
 			// if current node is bom->metadata
 			if typedTok.Name.Local == "metadata" && isInBom {
 				isInBomMetadata = true
-				logs.Logger.Infoln("current xml node: bom->metadata")
 				// 1. write bom->metadata xml node
 				err := encoder.EncodeToken(typedTok)
 				if err != nil {
 					return err
 				}
-
 				// 2. add bom->meatadata->timestamp xml node
 				encoder.EncodeToken(xml.StartElement{Name: xml.Name{Local: "timestamp"}})
 				encoder.EncodeToken(xml.CharData(time.Now().UTC().Format("2006-01-02T15:04:05Z")))
@@ -240,16 +235,13 @@ func insertSBomAttributes(mtaObj *mta.MTA, sbomTmpDir, sbomTmpName string) error
 
 			// if current node is bom-metadata->component
 			if typedTok.Name.Local == "component" && isInBom && isInBomMetadata {
-				logs.Logger.Infoln("current xml node: bom->metadata->component")
 				// 1. add bom-ref attribute to bom->metadata->component xml node
 				typedTok.Attr = addBomrefAttribute(typedTok.Attr, purl)
-
 				// 2. write bom->metadata->component xml node
 				err := encoder.EncodeToken(typedTok)
 				if err != nil {
 					return err
 				}
-
 				// 3. add purl xml node to bom->metadata->component xml node
 				encoder.EncodeToken(xml.StartElement{Name: xml.Name{Local: "purl"}})
 				encoder.EncodeToken(xml.CharData(purl))
