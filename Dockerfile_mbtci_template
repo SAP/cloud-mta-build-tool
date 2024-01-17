@@ -14,9 +14,9 @@ ARG CYCLONEDX_CLI_VERSION=0.24.2
 ARG CYCLONEDX_CLI_BINARY=cyclonedx
 ARG CYCLONEDX_GOMOD_VERSION=1.4.0
 ARG CYCLONEDX_GOMOD_BINARY=cyclonedx-gomod
-ARG CYCLONEDX_NPM_PACKAGE = @cyclonedx/cyclonedx-npm
-ARG CYCLONEDX_NPM_VERSION = 1.11.0
-ARG CYCLONEDX_NPM_BINARY = cyclonedx-npm
+ARG CYCLONEDX_NPM_PACKAGE=@cyclonedx/cyclonedx-npm
+ARG CYCLONEDX_NPM_VERSION=1.11.0
+ARG CYCLONEDX_NPM_BINARY=cyclonedx-npm
 
 # Environment variables
 ENV PYTHON /usr/bin/python3
@@ -292,12 +292,6 @@ RUN ARCH= && dpkgArch="$(dpkg --print-architecture)" \
   && apt-get remove --purge --autoremove -y ca-certificates curl gnupg dirmngr \
   && echo "cyclonedx-gomod smoke tests!" \
   && cyclonedx-gomod version
-
-# Install cyclone-npm
-RUN set -ex \
-  && npm install --prefix /usr/local/ -g ${CYCLONEDX_NPM_PACKAGE}@${CYCLONEDX_NPM_VERSION} \
-  && echo "cyclonedx-npm smoke tests!" \
-  && npx ${CYCLONEDX_NPM_BINARY} -h
 
 # Install curl and ca-certificates
 RUN set -ex \

@@ -173,7 +173,7 @@ func addBomrefAttribute(attributes []xml.Attr, purl string) []xml.Attr {
 		Value: purl,
 	}
 
-	// 向 XML 元素添加属性
+	// Add bom-ref attribute to attributes list
 	attributes = append(attributes, purlAttr)
 
 	return attributes
