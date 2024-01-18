@@ -245,12 +245,16 @@ func (ep *Loc) SetStrictParmeter(bStrict bool) bool {
 
 // ParseFile returns a reference to the MTA object resulting from the given mta.yaml file merged with the extension descriptors.
 func (ep *Loc) ParseFile() (*mta.MTA, error) {
-	//mtaFile, _, err := mta.GetMtaFromFile(ep.GetMtaYamlPath(), ep.GetExtensionFilePaths(), true)
-	mtaFile, msg, err := mta.GetMtaFromFileWithStrict(ep.GetMtaYamlPath(), ep.GetExtensionFilePaths(), true, strict)
-	if msg != nil {
-		logs.Logger.Warning(msg)
+	if strict == true {
+		mtaFile, _, err := mta.GetMtaFromFile(ep.GetMtaYamlPath(), ep.GetExtensionFilePaths(), true)
+		return mtaFile, err
+	} else {
+		mtaFile, msg, err := mta.GetMtaFromFileWithStrict(ep.GetMtaYamlPath(), ep.GetExtensionFilePaths(), true, strict)
+		if msg != nil {
+			logs.Logger.Warning(msg)
+		}
+		return mtaFile, err
 	}
-	return mtaFile, err
 }
 
 // GetExtensionFilePaths returns the MTA extension descriptor full paths
