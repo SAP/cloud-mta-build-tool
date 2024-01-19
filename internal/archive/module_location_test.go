@@ -1,9 +1,10 @@
 package dir
 
 import (
+	"os"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"os"
 )
 
 var _ = Describe("ModuleLocation", func() {
@@ -66,6 +67,13 @@ var _ = Describe("ModuleLocation", func() {
 		Ω(err).Should(Succeed())
 		Ω(module2.Parameters).ShouldNot(BeNil())
 		Ω(module2.Parameters["memory"]).Should(Equal("256M"))
+	})
+
+	It("SetStrictParmeter", func() {
+		projectLoc, err := Location(getPath("testdata"), getPath("testdata"), Dev, []string{}, os.Getwd)
+		Ω(err).Should(Succeed())
+		moduleLoc := ModuleLocation(projectLoc, false)
+		Ω(moduleLoc.SetStrictParmeter(true)).Should(Equal(true))
 	})
 
 	It("ModuleLocation", func() {

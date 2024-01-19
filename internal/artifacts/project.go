@@ -34,7 +34,7 @@ func ExecBuild(makefileTmp, source, target string, extensions []string, mode, mt
 	}
 
 	// (1) generate build script
-	err = tpl.ExecuteMake(source, "", extensions, makefileTmp, mode, wdGetter, useDefaultMbt)
+	err = tpl.ExecuteMake(source, "", extensions, makefileTmp, mode, wdGetter, useDefaultMbt, strict)
 	if err != nil {
 		return err
 	}

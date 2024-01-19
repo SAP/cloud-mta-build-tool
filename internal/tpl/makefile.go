@@ -10,7 +10,7 @@ import (
 	"github.com/kballard/go-shellquote"
 	"github.com/pkg/errors"
 
-	"github.com/SAP/cloud-mta-build-tool/internal/archive"
+	dir "github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta-build-tool/internal/buildops"
 	"github.com/SAP/cloud-mta-build-tool/internal/commands"
 	"github.com/SAP/cloud-mta-build-tool/internal/logs"
@@ -27,13 +27,13 @@ type tplCfg struct {
 }
 
 // ExecuteMake - generate makefile
-func ExecuteMake(source, target string, extensions []string, name, mode string, wdGetter func() (string, error), useDefaultMbt bool) error {
+func ExecuteMake(source, target string, extensions []string, name, mode string, wdGetter func() (string, error), useDefaultMbt bool, strict bool) error {
 	logs.Logger.Infof(`generating the "%s" file...`, name)
 	loc, err := dir.Location(source, target, dir.Dev, extensions, wdGetter)
 	if err != nil {
 		return errors.Wrapf(err, genFailedOnInitLocMsg, name)
 	}
-	err = genMakefile(loc, loc, loc, loc, loc.GetExtensionFilePaths(), name, mode, useDefaultMbt)
+	err = genMakefile(loc, loc, loc, loc, loc.GetExtensionFilePaths(), name, mode, useDefaultMbt, strict)
 	if err != nil {
 		return err
 	}
@@ -42,14 +42,14 @@ func ExecuteMake(source, target string, extensions []string, name, mode string, 
 }
 
 // genMakefile - Generate the makefile
-func genMakefile(mtaParser dir.IMtaParser, loc dir.ITargetPath, srcLoc dir.ISourceModule, desc dir.IDescriptor, extensionFilePaths []string, makeFilename, mode string, useDefaultMbt bool) error {
+func genMakefile(mtaParser dir.IMtaParser, loc dir.ITargetPath, srcLoc dir.ISourceModule, desc dir.IDescriptor, extensionFilePaths []string, makeFilename, mode string, useDefaultMbt bool, strict bool) error {
 	tpl, err := getTplCfg(mode, desc.IsDeploymentDescriptor())
 	if err != nil {
 		return err
 	}
 	if err == nil {
 		tpl.depDesc = desc.GetDescriptor()
-		err = makeFile(mtaParser, loc, srcLoc, extensionFilePaths, makeFilename, &tpl, useDefaultMbt)
+		err = makeFile(mtaParser, loc, srcLoc, extensionFilePaths, makeFilename, &tpl, useDefaultMbt, strict)
 	}
 	return err
 }
@@ -112,7 +112,7 @@ func (data templateData) GetPathArgument(innerPath string) string {
 }
 
 // makeFile - generate makefile form templates
-func makeFile(mtaParser dir.IMtaParser, loc dir.ITargetPath, srcLoc dir.ISourceModule, extensionFilePaths []string, makeFilename string, tpl *tplCfg, useDefaultMbt bool) (e error) {
+func makeFile(mtaParser dir.IMtaParser, loc dir.ITargetPath, srcLoc dir.ISourceModule, extensionFilePaths []string, makeFilename string, tpl *tplCfg, useDefaultMbt bool, strict bool) (e error) {
 
 	// template data
 	data := templateData{}
@@ -123,6 +123,7 @@ func makeFile(mtaParser dir.IMtaParser, loc dir.ITargetPath, srcLoc dir.ISourceM
 	}
 
 	// ParseFile file
+	mtaParser.SetStrictParmeter(strict)
 	m, err := mtaParser.ParseFile()
 	if err != nil {
 		return errors.Wrapf(err, genFailedMsg, makeFilename)
