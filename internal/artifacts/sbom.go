@@ -179,6 +179,18 @@ func addBomrefAttribute(attributes []xml.Attr, purl string) []xml.Attr {
 	return attributes
 }
 
+func addXmlnsSchemaAttribute(attributes []xml.Attr, xmlnsSchema string) []xml.Attr {
+	purlAttr := xml.Attr{
+		Name:  xml.Name{Local: "xmlns"},
+		Value: xmlnsSchema,
+	}
+
+	// Add bom-ref attribute to attributes list
+	attributes = append(attributes, purlAttr)
+
+	return attributes
+}
+
 func updateSBomMetadataNode(mtaObj *mta.MTA, sbomTmpDir, sbomTmpName string) error {
 	sbomfilepath := filepath.Join(sbomTmpDir, sbomTmpName)
 	file, err := os.Open(sbomfilepath)
@@ -188,6 +200,7 @@ func updateSBomMetadataNode(mtaObj *mta.MTA, sbomTmpDir, sbomTmpName string) err
 	defer file.Close()
 
 	var purl = "pkg:mta/" + mtaObj.ID + "@" + mtaObj.Version
+	var xmlnsSchema = "http://cyclonedx.org/schema/bom/1.4"
 
 	decoder := xml.NewDecoder(file)
 	decoder.Strict = false
@@ -214,9 +227,12 @@ func updateSBomMetadataNode(mtaObj *mta.MTA, sbomTmpDir, sbomTmpName string) err
 		case xml.StartElement:
 			// if xml node contains 'xmlns' attribute, remove the attribute
 			typedTok.Attr = removeXmlns(typedTok.Attr)
-			// if current node is <bom>, set isInBom = true
+			// if current node is <bom>
 			if typedTok.Name.Local == "bom" {
+				// 1. set isInBom = true
 				isInBom = true
+				// 2. add xmlns schema attribute to bom xml node
+				typedTok.Attr = addXmlnsSchemaAttribute(typedTok.Attr, xmlnsSchema)
 			}
 			// if current node is bom->metadata
 			if typedTok.Name.Local == "metadata" && isInBom {
