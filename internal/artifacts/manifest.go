@@ -12,7 +12,7 @@ import (
 
 	"github.com/SAP/cloud-mta/mta"
 
-	"github.com/SAP/cloud-mta-build-tool/internal/archive"
+	dir "github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta-build-tool/internal/buildops"
 	"github.com/SAP/cloud-mta-build-tool/internal/commands"
 	"github.com/SAP/cloud-mta-build-tool/internal/conttype"
@@ -76,6 +76,9 @@ func mergeDuplicateEntries(entries []entry) []entry {
 	// To keep a consistent sort order for the map entries we must keep another data structure (slice of keys by order of addition here)
 	pathsOrder := make([]string, 0)
 
+	required := make(map[string]entry)
+	requriredEntryOrder := make([]string, 0)
+
 	// Add module entries to modules. Add non-module entries to mergedEntries.
 	for index, entry := range entries {
 		if entry.EntryType == moduleEntry {
@@ -86,10 +89,27 @@ func mergeDuplicateEntries(entries []entry) []entry {
 				modules[entry.EntryPath] = entries[index]
 				pathsOrder = append(pathsOrder, entry.EntryPath)
 			}
+		} else if entry.EntryType == requiredEntry {
+			if existing, ok := required[entry.EntryPath]; ok {
+				existing.EntryName += ", " + entry.EntryName
+				required[entry.EntryPath] = existing
+			} else {
+				required[entry.EntryPath] = entries[index]
+				requriredEntryOrder = append(requriredEntryOrder, entry.EntryPath)
+			}
+
 		} else {
 			mergedEntries = append(mergedEntries, entry)
 		}
 	}
+
+	// Sort required entries by order of insertion
+	requiredTypeEntries := make([]entry, 0)
+	for _, entryType := range requriredEntryOrder {
+		requiredTypeEntries = append(requiredTypeEntries, required[entryType])
+	}
+	// Add the required entries first to the merged entries
+	mergedEntries = append(requiredTypeEntries, mergedEntries...)
 
 	// Sort module entries by order of insertion
 	moduleEntries := make([]entry, 0)
