@@ -10,4 +10,4 @@ modules:
       commands:
         - npm install
         - grunt
-        - npm prune --production
+        - npm prune --omit=dev
