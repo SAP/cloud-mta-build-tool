@@ -10,7 +10,7 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"
 
-	"github.com/SAP/cloud-mta-build-tool/internal/archive"
+	dir "github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta-build-tool/internal/buildops"
 	"github.com/SAP/cloud-mta-build-tool/internal/commands"
 	"github.com/SAP/cloud-mta-build-tool/internal/conttype"
@@ -349,8 +349,8 @@ bad config
 			{EntryName: "e3", EntryPath: "b", EntryType: resourceEntry, ContentType: "t"},
 			{EntryName: "e4", EntryPath: "b", EntryType: resourceEntry, ContentType: "t"},
 		}, []entry{
-			{EntryName: "e1", EntryPath: "a", EntryType: resourceEntry, ContentType: "t"},
 			{EntryName: "e2", EntryPath: "a", EntryType: requiredEntry, ContentType: "t"},
+			{EntryName: "e1", EntryPath: "a", EntryType: resourceEntry, ContentType: "t"},
 			{EntryName: "e3", EntryPath: "b", EntryType: resourceEntry, ContentType: "t"},
 			{EntryName: "e4", EntryPath: "b", EntryType: resourceEntry, ContentType: "t"},
 		},
@@ -368,6 +368,19 @@ bad config
 			{EntryName: "e6", EntryPath: "c", EntryType: moduleEntry, ContentType: "t6"},
 		},
 		),
+		Entry("merges required entries with the same path and keeps the entries order", []entry{
+			{EntryName: "e1", EntryPath: "a", EntryType: requiredEntry, ContentType: "t1"},
+			{EntryName: "e2", EntryPath: "a", EntryType: requiredEntry, ContentType: "t2"},
+			{EntryName: "e3", EntryPath: "a", EntryType: requiredEntry, ContentType: "t3"},
+			{EntryName: "e4", EntryPath: "b", EntryType: requiredEntry, ContentType: "t4"},
+			{EntryName: "e5", EntryPath: "b", EntryType: requiredEntry, ContentType: "t5"},
+			{EntryName: "e6", EntryPath: "c", EntryType: requiredEntry, ContentType: "t6"},
+		}, []entry{
+			{EntryName: "e1, e2, e3", EntryPath: "a", EntryType: requiredEntry, ContentType: "t1"},
+			{EntryName: "e4, e5", EntryPath: "b", EntryType: requiredEntry, ContentType: "t4"},
+			{EntryName: "e6", EntryPath: "c", EntryType: requiredEntry, ContentType: "t6"},
+		},
+		),
 		Entry("merges module entries and keeps non-module entries unchanged at the end", []entry{
 			{EntryName: "e1", EntryPath: "a", EntryType: resourceEntry, ContentType: "t1"},
 			{EntryName: "e2", EntryPath: "a", EntryType: moduleEntry, ContentType: "t2"},
@@ -377,8 +390,24 @@ bad config
 		}, []entry{
 			{EntryName: "e2, e3", EntryPath: "a", EntryType: moduleEntry, ContentType: "t2"},
 			{EntryName: "e4", EntryPath: "b", EntryType: moduleEntry, ContentType: "t4"},
-			{EntryName: "e1", EntryPath: "a", EntryType: resourceEntry, ContentType: "t1"},
 			{EntryName: "e5", EntryPath: "b", EntryType: requiredEntry, ContentType: "t5"},
+			{EntryName: "e1", EntryPath: "a", EntryType: resourceEntry, ContentType: "t1"},
+		},
+		),
+		Entry("merges module&required entries and keeps the other entries unchanged at the end", []entry{
+			{EntryName: "e1", EntryPath: "a", EntryType: resourceEntry, ContentType: "t1"},
+			{EntryName: "e2", EntryPath: "a", EntryType: moduleEntry, ContentType: "t2"},
+			{EntryName: "e3", EntryPath: "a", EntryType: moduleEntry, ContentType: "t3"},
+			{EntryName: "e4", EntryPath: "b", EntryType: moduleEntry, ContentType: "t4"},
+			{EntryName: "e5", EntryPath: "b", EntryType: requiredEntry, ContentType: "t5"},
+			{EntryName: "e6", EntryPath: "b", EntryType: requiredEntry, ContentType: "t6"},
+			{EntryName: "e7", EntryPath: "c", EntryType: requiredEntry, ContentType: "t7"},
+		}, []entry{
+			{EntryName: "e2, e3", EntryPath: "a", EntryType: moduleEntry, ContentType: "t2"},
+			{EntryName: "e4", EntryPath: "b", EntryType: moduleEntry, ContentType: "t4"},
+			{EntryName: "e5, e6", EntryPath: "b", EntryType: requiredEntry, ContentType: "t5"},
+			{EntryName: "e7", EntryPath: "c", EntryType: requiredEntry, ContentType: "t7"},
+			{EntryName: "e1", EntryPath: "a", EntryType: resourceEntry, ContentType: "t1"},
 		},
 		),
 	)
