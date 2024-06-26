@@ -32,6 +32,32 @@ const (
 	cyclonedx_cli    = "cyclonedx"
 )
 
+type Bom struct {
+	XMLName  xml.Name `xml:"bom"`
+	Metadata Metadata `xml:"metadata"`
+}
+
+type Metadata struct {
+	XMLName   xml.Name  `xml:"metadata"`
+	Component Component `xml:"component"`
+}
+
+type Component struct {
+	XMLName xml.Name `xml:"component"`
+	BomRef  string   `xml:"bom-ref,attr"`
+}
+
+type Dependency struct {
+	XMLName    xml.Name `xml:"dependency"`
+	Ref        string   `xml:"ref,attr"`
+	SubDepends []SubDep `xml:"dependency"`
+}
+
+type SubDep struct {
+	XMLName xml.Name `xml:"dependency"`
+	Ref     string   `xml:"ref,attr"`
+}
+
 // ExecuteProjectSBomGenerate - Execute MTA project SBOM generation
 func ExecuteProjectSBomGenerate(source string, sbomFilePath string, wdGetter func() (string, error)) error {
 	// (1) get loc object and mta object
@@ -142,8 +168,18 @@ func generateSBomFile(loc *dir.Loc, mtaObj *mta.MTA,
 		return err
 	}
 
+	// (4) get module bom-ref info
+	moduleBomRefs, err := getModuleBomRefs(sbomTmpDir, sbomFileNames)
+
+	for _, bomRef := range moduleBomRefs {
+		logs.Logger.Infof("moduleBomRef:%s", bomRef)
+	}
+	if err != nil {
+		return err
+	}
+
 	// (4) instert xml attribute or xml node to bom->metadata
-	err = updateSBomMetadataNode(mtaObj, sbomTmpDir, sbomTmpName)
+	err = updateSBomMetadataNode(mtaObj, sbomTmpDir, sbomTmpName, moduleBomRefs)
 	if err != nil {
 		return err
 	}
@@ -155,6 +191,28 @@ func generateSBomFile(loc *dir.Loc, mtaObj *mta.MTA,
 	}
 
 	return nil
+}
+
+func getModuleBomRefs(sbomTmpDir string, sbomFileNames []string) ([]string, error) {
+	var moduleBomRefs []string
+
+	for _, fileName := range sbomFileNames {
+		sbomfilepath := filepath.Join(sbomTmpDir, fileName)
+		xmlFile, err := os.Open(sbomfilepath)
+		if err != nil {
+			return nil, err
+		}
+		defer xmlFile.Close()
+
+		byteValue, _ := ioutil.ReadAll(xmlFile)
+
+		var bom Bom
+		xml.Unmarshal(byteValue, &bom)
+
+		moduleBomRefs = append(moduleBomRefs, bom.Metadata.Component.BomRef)
+	}
+
+	return moduleBomRefs, nil
 }
 
 func removeXmlns(attrs []xml.Attr) []xml.Attr {
@@ -191,7 +249,7 @@ func addXmlnsSchemaAttribute(attributes []xml.Attr, xmlnsSchema string) []xml.At
 	return attributes
 }
 
-func updateSBomMetadataNode(mtaObj *mta.MTA, sbomTmpDir, sbomTmpName string) error {
+func updateSBomMetadataNode(mtaObj *mta.MTA, sbomTmpDir, sbomTmpName string, moduleBomRefs []string) error {
 	sbomfilepath := filepath.Join(sbomTmpDir, sbomTmpName)
 	file, err := os.Open(sbomfilepath)
 	if err != nil {
@@ -262,6 +320,24 @@ func updateSBomMetadataNode(mtaObj *mta.MTA, sbomTmpDir, sbomTmpName string) err
 				encoder.EncodeToken(xml.StartElement{Name: xml.Name{Local: "purl"}})
 				encoder.EncodeToken(xml.CharData(purl))
 				encoder.EncodeToken(xml.EndElement{Name: xml.Name{Local: "purl"}})
+				break
+			}
+
+			if typedTok.Name.Local == "dependencies" && isInBom {
+				// 1. write bom->dependencies xml node
+				err := encoder.EncodeToken(typedTok)
+				if err != nil {
+					return err
+				}
+				// 2. Todo: insert new dependency xml element
+				dependency := Dependency{}
+				dependency.Ref = purl
+				for _, bomRefs := range moduleBomRefs {
+					subDependency := SubDep{}
+					subDependency.Ref = bomRefs
+					dependency.SubDepends = append(dependency.SubDepends, subDependency)
+				}
+				encoder.Encode(dependency)
 				break
 			}
 
