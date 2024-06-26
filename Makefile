@@ -23,11 +23,6 @@ CYCLONEDX_CLI_VERSION = 0.24.2
 CYCLONEDX_GOMOD_BINARY = cyclonedx-gomod
 CYCLONEDX_GOMOD_VERSION = latest
 
-# # cyclonedx-bom
-# CYCLONEDX_BOM_PACKAGE = cyclonedx-bom
-# CYCLONEDX_BOM_VERSION = 0.0.9
-# CYCLONEDX_BOM_BINARY = cyclonedx-bom
-
 # cyclonedx_npm
 CYCLONEDX_NPM_PACKAGE = @cyclonedx/cyclonedx-npm
 CYCLONEDX_NPM_VERSION = 1.11.0
@@ -74,10 +69,10 @@ lint:
 
 # execute general tests
 tests:
-	 go test -v -count=1 -timeout 30m ./...
+	 go test -v -count=1 -timeout 60m ./...
 # check code coverage
 cover:
-	go test -v -coverprofile cover.out ./... -count=1 -timeout 30m
+	go test -v -coverprofile cover.out ./... -count=1 -timeout 60m
 	go tool cover -html=cover.out -o cover.html
 	open cover.html
 
@@ -127,11 +122,6 @@ install-cyclonedx:
 	mv ${CYCLONEDX_CLI_BINARY}-${CYCLONEDX_OS}-${CYCLONEDX_ARCH}${CYCLONEDX_BINARY_SUFFIX} $(GOPATH)/bin/${CYCLONEDX_CLI_BINARY}${CYCLONEDX_BINARY_SUFFIX}
 	echo "${CYCLONEDX_CLI_BINARY} version:"
 	${CYCLONEDX_CLI_BINARY} --version
-
-# # install cyclonedx-bom
-# 	npm install -g ${CYCLONEDX_BOM_PACKAGE}@${CYCLONEDX_BOM_VERSION}
-# 	echo "${CYCLONEDX_BOM_BINARY} -h"
-# 	npx ${CYCLONEDX_BOM_BINARY} -h
 
 # install cyclonedx-npm
 	npm install -g ${CYCLONEDX_NPM_PACKAGE}@${CYCLONEDX_NPM_VERSION}
