@@ -3,7 +3,7 @@ FROM debian:bullseye-slim
 # Build time arguments
 ARG MTA_USER="mta"
 ARG MTA_USER_HOME="/home/${MTA_USER}"
-ARG MBT_VERSION=1.2.28
+ARG MBT_VERSION=1.2.29
 ARG GO_VERSION=1.21.0
 ARG NODE_VERSION=NODE_VERSION_TEMPLATE
 ARG MAVEN_VERSION=3.9.4
@@ -14,9 +14,9 @@ ARG CYCLONEDX_CLI_VERSION=0.24.2
 ARG CYCLONEDX_CLI_BINARY=cyclonedx
 ARG CYCLONEDX_GOMOD_VERSION=1.4.0
 ARG CYCLONEDX_GOMOD_BINARY=cyclonedx-gomod
-ARG CYCLONEDX_BOM_PACKAGE=cyclonedx-bom
-ARG CYCLONEDX_BOM_VERSION=0.0.9
-ARG CYCLONEDX_BOM_BINARY=cyclonedx-bom
+ARG CYCLONEDX_NPM_PACKAGE=@cyclonedx/cyclonedx-npm
+ARG CYCLONEDX_NPM_VERSION=1.11.0
+ARG CYCLONEDX_NPM_BINARY=cyclonedx-npm
 
 # Environment variables
 ENV PYTHON /usr/bin/python3
@@ -292,12 +292,6 @@ RUN ARCH= && dpkgArch="$(dpkg --print-architecture)" \
   && apt-get remove --purge --autoremove -y ca-certificates curl gnupg dirmngr \
   && echo "cyclonedx-gomod smoke tests!" \
   && cyclonedx-gomod version
-
-# Install cyclone-bom
-RUN set -ex \
-  && npm install --prefix /usr/local/ -g ${CYCLONEDX_BOM_PACKAGE}@${CYCLONEDX_BOM_VERSION} \
-  && echo "cyclonedx-bom smoke tests!" \
-  && npx ${CYCLONEDX_BOM_BINARY} -h
 
 # Install curl and ca-certificates
 RUN set -ex \
