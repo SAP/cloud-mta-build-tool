@@ -1,6 +1,9 @@
 package artifacts
 
 import (
+	"bytes"
+	"encoding/xml"
+	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -28,6 +31,32 @@ const (
 	sbom_json_suffix = ".bom.json"
 	cyclonedx_cli    = "cyclonedx"
 )
+
+type Bom struct {
+	XMLName  xml.Name `xml:"bom"`
+	Metadata Metadata `xml:"metadata"`
+}
+
+type Metadata struct {
+	XMLName   xml.Name  `xml:"metadata"`
+	Component Component `xml:"component"`
+}
+
+type Component struct {
+	XMLName xml.Name `xml:"component"`
+	BomRef  string   `xml:"bom-ref,attr"`
+}
+
+type Dependency struct {
+	XMLName    xml.Name `xml:"dependency"`
+	Ref        string   `xml:"ref,attr"`
+	SubDepends []SubDep `xml:"dependency"`
+}
+
+type SubDep struct {
+	XMLName xml.Name `xml:"dependency"`
+	Ref     string   `xml:"ref,attr"`
+}
 
 // ExecuteProjectSBomGenerate - Execute MTA project SBOM generation
 func ExecuteProjectSBomGenerate(source string, sbomFilePath string, wdGetter func() (string, error)) error {
@@ -134,17 +163,221 @@ func generateSBomFile(loc *dir.Loc, mtaObj *mta.MTA,
 	}
 
 	// (3) merge sbom files under sbom tmp dir
-	sbomTmpName, err := mergeSBomFiles(loc, sbomTmpDir, sbomFileNames, sbomName, sbomType, sbomSuffix)
+	sbomTmpName, err := mergeSBomFiles(loc, mtaObj, sbomTmpDir, sbomFileNames, sbomName, sbomType, sbomSuffix)
 	if err != nil {
 		return err
 	}
 
-	// (4) generate sbom target dir, mv merged sbom file to target dir
+	// (4) get module bom-ref info
+	moduleBomRefs, err := getModuleBomRefs(sbomTmpDir, sbomFileNames)
+
+	for _, bomRef := range moduleBomRefs {
+		logs.Logger.Infof("moduleBomRef:%s", bomRef)
+	}
+	if err != nil {
+		return err
+	}
+
+	// (4) instert xml attribute or xml node to bom->metadata
+	err = updateSBomMetadataNode(mtaObj, sbomTmpDir, sbomTmpName, moduleBomRefs)
+	if err != nil {
+		return err
+	}
+
+	// (5) generate sbom target dir, mv merged sbom file to target dir
 	err = moveSBomToTarget(sbomPath, sbomName, sbomTmpDir, sbomTmpName)
 	if err != nil {
 		return err
 	}
 
+	return nil
+}
+
+func getModuleBomRefs(sbomTmpDir string, sbomFileNames []string) ([]string, error) {
+	var moduleBomRefs []string
+
+	for _, fileName := range sbomFileNames {
+		sbomfilepath := filepath.Join(sbomTmpDir, fileName)
+		xmlFile, err := os.Open(sbomfilepath)
+		if err != nil {
+			return nil, err
+		}
+		defer xmlFile.Close()
+
+		byteValue, _ := ioutil.ReadAll(xmlFile)
+
+		var bom Bom
+		xml.Unmarshal(byteValue, &bom)
+
+		moduleBomRefs = append(moduleBomRefs, bom.Metadata.Component.BomRef)
+	}
+
+	return moduleBomRefs, nil
+}
+
+func removeXmlns(attrs []xml.Attr) []xml.Attr {
+	var result []xml.Attr
+	for _, attr := range attrs {
+		if attr.Name.Local != "xmlns" {
+			result = append(result, attr)
+		}
+	}
+	return result
+}
+
+func addBomrefAttribute(attributes []xml.Attr, purl string) []xml.Attr {
+	purlAttr := xml.Attr{
+		Name:  xml.Name{Local: "bom-ref"},
+		Value: purl,
+	}
+
+	// Add bom-ref attribute to attributes list
+	attributes = append(attributes, purlAttr)
+
+	return attributes
+}
+
+func addXmlnsSchemaAttribute(attributes []xml.Attr, xmlnsSchema string) []xml.Attr {
+	purlAttr := xml.Attr{
+		Name:  xml.Name{Local: "xmlns"},
+		Value: xmlnsSchema,
+	}
+
+	// Add bom-ref attribute to attributes list
+	attributes = append(attributes, purlAttr)
+
+	return attributes
+}
+
+func updateSBomMetadataNode(mtaObj *mta.MTA, sbomTmpDir, sbomTmpName string, moduleBomRefs []string) error {
+	sbomfilepath := filepath.Join(sbomTmpDir, sbomTmpName)
+	file, err := os.Open(sbomfilepath)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	var purl = "pkg:mta/" + mtaObj.ID + "@" + mtaObj.Version
+	var xmlnsSchema = "http://cyclonedx.org/schema/bom/1.4"
+
+	decoder := xml.NewDecoder(file)
+	decoder.Strict = false
+
+	var out bytes.Buffer
+	encoder := xml.NewEncoder(&out)
+
+	isInBom := false
+	isInBomMetadata := false
+
+	for {
+		tok, err := decoder.RawToken()
+		// tok, err := decoder.Token()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return err
+		}
+
+		switch typedTok := tok.(type) {
+		case xml.ProcInst:
+			out.Write([]byte("<?" + string(typedTok.Target) + " " + string(typedTok.Inst) + "?>"))
+		case xml.StartElement:
+			// if xml node contains 'xmlns' attribute, remove the attribute
+			typedTok.Attr = removeXmlns(typedTok.Attr)
+			// if current node is <bom>
+			if typedTok.Name.Local == "bom" {
+				// 1. set isInBom = true
+				isInBom = true
+				// 2. add xmlns schema attribute to bom xml node
+				typedTok.Attr = addXmlnsSchemaAttribute(typedTok.Attr, xmlnsSchema)
+			}
+			// if current node is bom->metadata
+			if typedTok.Name.Local == "metadata" && isInBom {
+				isInBomMetadata = true
+				// 1. write bom->metadata xml node
+				err := encoder.EncodeToken(typedTok)
+				if err != nil {
+					return err
+				}
+				// 2. add bom->meatadata->timestamp xml node
+				encoder.EncodeToken(xml.StartElement{Name: xml.Name{Local: "timestamp"}})
+				encoder.EncodeToken(xml.CharData(time.Now().UTC().Format("2006-01-02T15:04:05Z")))
+				encoder.EncodeToken(xml.EndElement{Name: xml.Name{Local: "timestamp"}})
+				break
+			}
+
+			// if current node is bom-metadata->component
+			if typedTok.Name.Local == "component" && isInBom && isInBomMetadata {
+				// 1. add bom-ref attribute to bom->metadata->component xml node
+				typedTok.Attr = addBomrefAttribute(typedTok.Attr, purl)
+				// 2. write bom->metadata->component xml node
+				err := encoder.EncodeToken(typedTok)
+				if err != nil {
+					return err
+				}
+				// 3. add purl xml node to bom->metadata->component xml node
+				encoder.EncodeToken(xml.StartElement{Name: xml.Name{Local: "purl"}})
+				encoder.EncodeToken(xml.CharData(purl))
+				encoder.EncodeToken(xml.EndElement{Name: xml.Name{Local: "purl"}})
+				break
+			}
+
+			if typedTok.Name.Local == "dependencies" && isInBom {
+				// 1. write bom->dependencies xml node
+				err := encoder.EncodeToken(typedTok)
+				if err != nil {
+					return err
+				}
+				// 2. Todo: insert new dependency xml element
+				dependency := Dependency{}
+				dependency.Ref = purl
+				for _, bomRefs := range moduleBomRefs {
+					subDependency := SubDep{}
+					subDependency.Ref = bomRefs
+					dependency.SubDepends = append(dependency.SubDepends, subDependency)
+				}
+				encoder.Encode(dependency)
+				break
+			}
+
+			// common xml node
+			err := encoder.EncodeToken(typedTok)
+			if err != nil {
+				return err
+			}
+		case xml.CharData:
+			err := encoder.EncodeToken(typedTok)
+			if err != nil {
+				return err
+			}
+		case xml.EndElement:
+			if typedTok.Name.Local == "bom" {
+				isInBom = false
+			}
+			if typedTok.Name.Local == "metadata" && isInBom {
+				isInBomMetadata = false
+			}
+
+			err := encoder.EncodeToken(typedTok)
+			if err != nil {
+				return err
+			}
+		default:
+			err := encoder.EncodeToken(typedTok)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	encoder.Flush()
+	content := out.Bytes()
+	content = bytes.Replace(content, []byte("\ufeff"), []byte(""), -1)
+	err = ioutil.WriteFile(sbomfilepath, content, 0644)
+
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -229,7 +462,7 @@ func listSBomFilesInTmpDir(sbomTmpDir, sbomSuffix string) ([]string, error) {
 }
 
 // mergeSBomFiles - merge sbom files of modules under sbom tmp dir
-func mergeSBomFiles(loc *dir.Loc, sbomTmpDir string, sbomFileNames []string, sbomName, sbomType, sbomSuffix string) (string, error) {
+func mergeSBomFiles(loc *dir.Loc, mtaObj *mta.MTA, sbomTmpDir string, sbomFileNames []string, sbomName, sbomType, sbomSuffix string) (string, error) {
 	curtime := time.Now().Format("20230328150313")
 
 	var sbomTmpName string
@@ -242,7 +475,7 @@ func mergeSBomFiles(loc *dir.Loc, sbomTmpDir string, sbomFileNames []string, sbo
 	}
 
 	// get sbom file generate command
-	sbomMergeCmds, err := commands.GetSBomsMergeCommand(loc, cyclonedx_cli, sbomTmpDir, sbomFileNames, sbomTmpName, sbomType, sbomSuffix)
+	sbomMergeCmds, err := commands.GetSBomsMergeCommand(loc, cyclonedx_cli, mtaObj, sbomTmpDir, sbomFileNames, sbomTmpName, sbomType, sbomSuffix)
 	if err != nil {
 		return "", err
 	}
