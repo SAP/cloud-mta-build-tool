@@ -4,7 +4,7 @@
 # Execute go build
 # Copy files to machine go/bin folder (temp target to avoid manual steps when developing locally)
 
-all:format clean dir gen build-linux build-linux-arm build-darwin build-darwin-arm build-windows copy install-cyclonedx tests
+all:format clean dir gen build-linux build-linux-arm build-darwin build-darwin-arm build-windows copy install-cyclonedx
 .PHONY: build-darwin-arm build-darwin build-linux build-linux-arm build-windows tests
 
 GOCMD=go
@@ -23,10 +23,11 @@ CYCLONEDX_CLI_VERSION = 0.24.2
 CYCLONEDX_GOMOD_BINARY = cyclonedx-gomod
 CYCLONEDX_GOMOD_VERSION = latest
 
-# cyclonedx_npm
-CYCLONEDX_NPM_PACKAGE = @cyclonedx/cyclonedx-npm
-CYCLONEDX_NPM_VERSION = 1.11.0
-CYCLONEDX_NPM_BINARY = cyclonedx-npm
+# cyclonedx-bom
+CYCLONEDX_BOM_PACKAGE = cyclonedx-bom
+CYCLONEDX_BOM_VERSION = 0.0.9
+CYCLONEDX_BOM_BINARY = cyclonedx-bom
+
 
 ifeq ($(OS),Windows_NT)
 CYCLONEDX_OS=win
@@ -69,10 +70,10 @@ lint:
 
 # execute general tests
 tests:
-	 go test -v -count=1 -timeout 60m ./...
+	 go test -v -count=1 -timeout 30m ./...
 # check code coverage
 cover:
-	go test -v -coverprofile cover.out ./... -count=1 -timeout 60m
+	go test -v -coverprofile cover.out ./... -count=1 -timeout 30m
 	go tool cover -html=cover.out -o cover.html
 	open cover.html
 
@@ -110,20 +111,18 @@ else
 	cp $(CURDIR)/release/$(BINARY_NAME) $~/usr/local/bin/
 endif
 
-# use for local development - > install cyclonedx-gomod, cyclonedx-cli and cyclonedx-npm
+# use for local development - > install cyclonedx-gomod, cyclonedx-cli and cyclonedx-bom
 install-cyclonedx:
 # install cyclonedx-gomod
 	go install github.com/CycloneDX/cyclonedx-gomod/cmd/${CYCLONEDX_GOMOD_BINARY}@${CYCLONEDX_GOMOD_VERSION}
 	echo "${CYCLONEDX_GOMOD_BINARY} version"
 	${CYCLONEDX_GOMOD_BINARY} version
-
 # install cyclonedx-cli	
 	curl -fsSLO --compressed "https://github.com/CycloneDX/cyclonedx-cli/releases/download/v${CYCLONEDX_CLI_VERSION}/${CYCLONEDX_CLI_BINARY}-${CYCLONEDX_OS}-${CYCLONEDX_ARCH}${CYCLONEDX_BINARY_SUFFIX}"
 	mv ${CYCLONEDX_CLI_BINARY}-${CYCLONEDX_OS}-${CYCLONEDX_ARCH}${CYCLONEDX_BINARY_SUFFIX} $(GOPATH)/bin/${CYCLONEDX_CLI_BINARY}${CYCLONEDX_BINARY_SUFFIX}
 	echo "${CYCLONEDX_CLI_BINARY} version:"
 	${CYCLONEDX_CLI_BINARY} --version
-
-# install cyclonedx-npm
-	npm install -g ${CYCLONEDX_NPM_PACKAGE}@${CYCLONEDX_NPM_VERSION}
-	echo "${CYCLONEDX_NPM_BINARY} -h"
-	npx ${CYCLONEDX_NPM_BINARY} -h
+# install cyclonedx-bom
+	npm install -g ${CYCLONEDX_BOM_PACKAGE}@${CYCLONEDX_BOM_VERSION}
+	echo "${CYCLONEDX_BOM_BINARY} -h"
+	npx ${CYCLONEDX_BOM_BINARY} -h
