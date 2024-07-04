@@ -293,6 +293,13 @@ RUN ARCH= && dpkgArch="$(dpkg --print-architecture)" \
   && echo "cyclonedx-gomod smoke tests!" \
   && cyclonedx-gomod version
 
+# Install cyclonedx-npm
+RUN set -ex \
+  && npm install --prefix /usr/local/ -g ${CYCLONEDX_NPM_PACKAGE}@${CYCLONEDX_NPM_VERSION} \
+  # smoke test
+  && echo "${CYCLONEDX_NPM_BINARY} install smoke test!" \
+  && ${CYCLONEDX_NPM_BINARY} --version
+
 # Install curl and ca-certificates
 RUN set -ex \
   && apt-get update \

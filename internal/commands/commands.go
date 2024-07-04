@@ -344,9 +344,10 @@ func GetModuleSBomGenCommands(loc *dir.Loc, module *mta.Module,
 	case "npm", "npm-ci", "grunt", "evo":
 		cmd = "npm install"
 		cmds = append(cmds, cmd)
-		cmd = "npm install " + cyclonedx_npm + "@" + cyclonedx_npm_version + " --no-save"
-		cmds = append(cmds, cmd)
-		cmd = "npx cyclonedx-npm --output-format " + strings.ToUpper(sbomFileType) + " --spec-version " + cyclonedx_npm_schema_version + " --output-file " + sbomFileName + sbomFileSuffix
+		// cmd = "npm install " + cyclonedx_npm + "@" + cyclonedx_npm_version + " --no-save"
+		// cmds = append(cmds, cmd)
+		// cmd = "npx cyclonedx-npm --output-format " + strings.ToUpper(sbomFileType) + " --spec-version " + cyclonedx_npm_schema_version + " --output-file " + sbomFileName + sbomFileSuffix
+		cmd = "npx " + cyclonedx_npm + "@" + cyclonedx_npm_version + " --output-format " + strings.ToUpper(sbomFileType) + " --spec-version " + cyclonedx_npm_schema_version + " --output-file " + sbomFileName + sbomFileSuffix
 		cmds = append(cmds, cmd)
 	case "golang":
 		cmd = "cyclonedx-gomod mod -output-version 1.4 -licenses -output " + sbomFileName + sbomFileSuffix
