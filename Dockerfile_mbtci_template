@@ -3,7 +3,7 @@ FROM debian:bullseye-slim
 # Build time arguments
 ARG MTA_USER="mta"
 ARG MTA_USER_HOME="/home/${MTA_USER}"
-ARG MBT_VERSION=1.2.29
+ARG MBT_VERSION=1.2.30
 ARG GO_VERSION=1.21.0
 ARG NODE_VERSION=NODE_VERSION_TEMPLATE
 ARG MAVEN_VERSION=3.9.4
@@ -292,6 +292,13 @@ RUN ARCH= && dpkgArch="$(dpkg --print-architecture)" \
   && apt-get remove --purge --autoremove -y ca-certificates curl gnupg dirmngr \
   && echo "cyclonedx-gomod smoke tests!" \
   && cyclonedx-gomod version
+
+# Install cyclonedx-npm
+RUN set -ex \
+  && npm install --prefix /usr/local/ -g ${CYCLONEDX_NPM_PACKAGE}@${CYCLONEDX_NPM_VERSION} \
+  # smoke test
+  && echo "${CYCLONEDX_NPM_BINARY} install smoke test!" \
+  && ${CYCLONEDX_NPM_BINARY} --version
 
 # Install curl and ca-certificates
 RUN set -ex \
