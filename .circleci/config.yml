@@ -141,9 +141,8 @@ jobs:
             CYCLONEDX_NPM_PACKAGE=@cyclonedx/cyclonedx-npm
             CYCLONEDX_NPM_VERSION=1.11.0
             CYCLONEDX_NPM_BINARY=cyclonedx-npm
-            npm install ${CYCLONEDX_NPM_PACKAGE}@${CYCLONEDX_NPM_VERSION} --no-save
-            echo "${CYCLONEDX_NPM_BINARY} -h"
-            npx ${CYCLONEDX_NPM_BINARY} -h
+            echo "npx ${CYCLONEDX_NPM_PACKAGE}@${CYCLONEDX_NPM_VERSION} -h"
+            npx ${CYCLONEDX_NPM_PACKAGE}@${CYCLONEDX_NPM_VERSION} -h
       - run:
           name: build mbt binary
           command: |
