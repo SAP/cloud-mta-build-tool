@@ -182,6 +182,8 @@ var _ = Describe("ParseFile", func() {
 
 	It("Parse the mta.yaml file and returns it when there are no extension files", func() {
 		ep := Loc{SourcePath: filepath.Join(wd, "testdata", "testext")}
+		Ω(ep.SetStrictParmeter(true)).Should(Equal(true))
+
 		mta, err := ep.ParseFile()
 		Ω(mta).ShouldNot(BeNil())
 		Ω(err).Should(Succeed())

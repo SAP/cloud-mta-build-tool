@@ -8,7 +8,7 @@ import (
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
 
-	"github.com/SAP/cloud-mta-build-tool/internal/archive"
+	dir "github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta/mta"
 )
 
@@ -48,7 +48,7 @@ var _ = Describe("Mtar", func() {
 		It("Generate Mtar - Sanity", func() {
 			ep := dir.Loc{SourcePath: getTestPath("mtahtml5"), TargetPath: getResultPath()}
 			createMtahtml5TmpFolder()
-			Ω(generateMeta(&ep, &ep, false, "cf", true, true)).Should(Succeed())
+			Ω(generateMeta(&ep, &ep, false, "cf", true, true, true)).Should(Succeed())
 			mtarPath, err := generateMtar(&ep, &ep, &ep, true, "")
 			Ω(err).Should(Succeed())
 			Ω(mtarPath).Should(BeAnExistingFile())
