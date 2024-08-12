@@ -69,7 +69,7 @@ var initCmd = &cobra.Command{
 	Args:  cobra.NoArgs,
 	Run: func(cmd *cobra.Command, args []string) {
 		// Generate build script
-		err := tpl.ExecuteMake(initCmdSrc, initCmdTrg, initCmdExtensions, makefile, initCmdMode, os.Getwd, true)
+		err := tpl.ExecuteMake(initCmdSrc, initCmdTrg, initCmdExtensions, makefile, initCmdMode, os.Getwd, true, buildCmdStrict)
 		logError(err)
 	},
 }

@@ -2,14 +2,15 @@ package artifacts
 
 import (
 	"fmt"
-	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 
+	"gopkg.in/yaml.v2"
+
 	"github.com/pkg/errors"
 
-	"github.com/SAP/cloud-mta-build-tool/internal/archive"
+	dir "github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta-build-tool/internal/logs"
 	"github.com/SAP/cloud-mta-build-tool/internal/platform"
 	"github.com/SAP/cloud-mta/mta"
@@ -22,10 +23,10 @@ func ExecuteGenMeta(source, target, desc string, extensions []string, platform s
 	if err != nil {
 		return errors.Wrap(err, "failed to generate metadata when initializing the location")
 	}
-	return executeGenMetaByLocation(loc, loc, platform, true, true)
+	return executeGenMetaByLocation(loc, loc, platform, true, true, true)
 }
 
-func executeGenMetaByLocation(loc *dir.Loc, targetArtifacts dir.ITargetArtifacts, platform string, createMetaInf bool, validatePaths bool) error {
+func executeGenMetaByLocation(loc *dir.Loc, targetArtifacts dir.ITargetArtifacts, platform string, createMetaInf bool, validatePaths bool, strict bool) error {
 	// validate platform
 	platform, err := validatePlatform(platform)
 	if err != nil {
@@ -37,14 +38,15 @@ func executeGenMetaByLocation(loc *dir.Loc, targetArtifacts dir.ITargetArtifacts
 		return err
 	}
 
-	err = generateMeta(loc, targetArtifacts, loc.IsDeploymentDescriptor(), platform, createMetaInf, validatePaths)
+	err = generateMeta(loc, targetArtifacts, loc.IsDeploymentDescriptor(), platform, createMetaInf, validatePaths, strict)
 	return err
 }
 
 // generateMeta - generate metadata artifacts
-func generateMeta(loc *dir.Loc, targetArtifacts dir.ITargetArtifacts, deploymentDescriptor bool, platform string, createMetaInf bool, validatePaths bool) error {
+func generateMeta(loc *dir.Loc, targetArtifacts dir.ITargetArtifacts, deploymentDescriptor bool, platform string, createMetaInf bool, validatePaths bool, strict bool) error {
 
 	// parse MTA file
+	loc.SetStrictParmeter(strict)
 	m, err := loc.ParseFile()
 	if err != nil {
 		return errors.Wrapf(err, genMetaMsg)

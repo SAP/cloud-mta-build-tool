@@ -21,7 +21,7 @@ var mtadGenCmd = &cobra.Command{
 	Long:  "Generates a deployment descriptor ('mtad.yaml') file from the 'mta.yaml' file",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		err := artifacts.ExecuteMtadGen(mtadGenCmdSrc, mtadGenCmdTrg, mtadGenCmdExtensions, mtadGenCmdPlatform, os.Getwd)
+		err := artifacts.ExecuteMtadGen(mtadGenCmdSrc, mtadGenCmdTrg, mtadGenCmdExtensions, mtadGenCmdPlatform, os.Getwd, buildCmdStrict)
 		logError(err)
 		return err
 	},
@@ -39,5 +39,7 @@ func init() {
 		"The MTA extension descriptors")
 	mtadGenCmd.Flags().StringVarP(&mtadGenCmdPlatform, "platform", "p", "cf",
 		`The deployment platform; supported platforms: "cf", "xsa", "neo"`)
+	mtadGenCmd.Flags().BoolVarP(&buildCmdStrict, "strict", "", true,
+		`If set to true, duplicated fields and fields not defined in the "mta.yaml" schema are reported as errors; if set to false, they are reported as warnings`)
 	mtadGenCmd.Flags().BoolP("help", "h", false, `Displays detailed information about the 'mtad gen' command`)
 }
