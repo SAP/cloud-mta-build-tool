@@ -19,8 +19,6 @@ BUILD  = $(CURDIR)/release
 # cyclonedx-cli
 CYCLONEDX_CLI_BINARY = cyclonedx
 CYCLONEDX_CLI_VERSION = 0.26.0
-#CYCLONEDX_CLI_VERSION = 0.24.2
-
 
 # cyclonedx-gomod
 CYCLONEDX_GOMOD_BINARY = cyclonedx-gomod
