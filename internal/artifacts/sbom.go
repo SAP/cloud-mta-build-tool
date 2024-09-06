@@ -194,7 +194,7 @@ func generateSBomFile(loc *dir.Loc, mtaObj *mta.MTA,
 }
 
 func getModuleBomRefs(sbomTmpDir string, sbomFileNames []string) ([]string, error) {
-	var moduleBomRefs []string
+	bomRefMap := make(map[string]struct{})
 
 	for _, fileName := range sbomFileNames {
 		sbomfilepath := filepath.Join(sbomTmpDir, fileName)
@@ -204,12 +204,22 @@ func getModuleBomRefs(sbomTmpDir string, sbomFileNames []string) ([]string, erro
 		}
 		defer xmlFile.Close()
 
-		byteValue, _ := ioutil.ReadAll(xmlFile)
+		byteValue, err := ioutil.ReadAll(xmlFile)
+		if err != nil {
+			return nil, err
+		}
 
 		var bom Bom
-		xml.Unmarshal(byteValue, &bom)
+		if err := xml.Unmarshal(byteValue, &bom); err != nil {
+			return nil, err
+		}
 
-		moduleBomRefs = append(moduleBomRefs, bom.Metadata.Component.BomRef)
+		bomRefMap[bom.Metadata.Component.BomRef] = struct{}{}
+	}
+
+	var moduleBomRefs []string
+	for bomRef := range bomRefMap {
+		moduleBomRefs = append(moduleBomRefs, bomRef)
 	}
 
 	return moduleBomRefs, nil
