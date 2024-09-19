@@ -1,9 +1,7 @@
 package artifacts
 
 import (
-	"bytes"
 	"encoding/xml"
-	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -19,6 +17,8 @@ import (
 	"github.com/SAP/cloud-mta-build-tool/internal/version"
 	"github.com/SAP/cloud-mta/mta"
 	"github.com/pkg/errors"
+
+	cdx "github.com/CycloneDX/cyclonedx-go"
 )
 
 const (
@@ -144,7 +144,8 @@ func cleanEnv(sbomTmpDir string) error {
 
 // generateSBomFile - generate all modules sbom and merge in to one, then mv it to sbom target path
 func generateSBomFile(loc *dir.Loc, mtaObj *mta.MTA,
-	sbomPath, sbomName, sbomType, sbomSuffix, sbomTmpDir string) error {
+	sbomPath, sbomName, sbomType, sbomSuffix, sbomTmpDir string,
+) error {
 	// (1) generation sbom for modules under sbom tmp dir
 	err := generateSBomFiles(loc, mtaObj, sbomTmpDir, sbomType, sbomSuffix)
 	if err != nil {
@@ -257,127 +258,20 @@ func updateSBomMetadataNode(mtaObj *mta.MTA, sbomTmpDir, sbomTmpName string, mod
 	}
 	defer file.Close()
 
-	var purl = "pkg:mta/" + mtaObj.ID + "@" + mtaObj.Version
-	var xmlnsSchema = "http://cyclonedx.org/schema/bom/1.4"
-
-	decoder := xml.NewDecoder(file)
-	decoder.Strict = false
-
-	var out bytes.Buffer
-	encoder := xml.NewEncoder(&out)
-
-	isInBom := false
-	isInBomMetadata := false
-
-	for {
-		tok, err := decoder.RawToken()
-		// tok, err := decoder.Token()
-		if err == io.EOF {
-			break
-		}
-		if err != nil {
-			return err
-		}
-
-		switch typedTok := tok.(type) {
-		case xml.ProcInst:
-			out.Write([]byte("<?" + string(typedTok.Target) + " " + string(typedTok.Inst) + "?>"))
-		case xml.StartElement:
-			// if xml node contains 'xmlns' attribute, remove the attribute
-			typedTok.Attr = removeXmlns(typedTok.Attr)
-			// if current node is <bom>
-			if typedTok.Name.Local == "bom" {
-				// 1. set isInBom = true
-				isInBom = true
-				// 2. add xmlns schema attribute to bom xml node
-				typedTok.Attr = addXmlnsSchemaAttribute(typedTok.Attr, xmlnsSchema)
-			}
-			// if current node is bom->metadata
-			if typedTok.Name.Local == "metadata" && isInBom {
-				isInBomMetadata = true
-				// 1. write bom->metadata xml node
-				err := encoder.EncodeToken(typedTok)
-				if err != nil {
-					return err
-				}
-				// 2. add bom->meatadata->timestamp xml node
-				encoder.EncodeToken(xml.StartElement{Name: xml.Name{Local: "timestamp"}})
-				encoder.EncodeToken(xml.CharData(time.Now().UTC().Format("2006-01-02T15:04:05Z")))
-				encoder.EncodeToken(xml.EndElement{Name: xml.Name{Local: "timestamp"}})
-				break
-			}
-
-			// if current node is bom-metadata->component
-			if typedTok.Name.Local == "component" && isInBom && isInBomMetadata {
-				// 1. add bom-ref attribute to bom->metadata->component xml node
-				typedTok.Attr = addBomrefAttribute(typedTok.Attr, purl)
-				// 2. write bom->metadata->component xml node
-				err := encoder.EncodeToken(typedTok)
-				if err != nil {
-					return err
-				}
-				// 3. add purl xml node to bom->metadata->component xml node
-				encoder.EncodeToken(xml.StartElement{Name: xml.Name{Local: "purl"}})
-				encoder.EncodeToken(xml.CharData(purl))
-				encoder.EncodeToken(xml.EndElement{Name: xml.Name{Local: "purl"}})
-				break
-			}
-
-			if typedTok.Name.Local == "dependencies" && isInBom {
-				// 1. write bom->dependencies xml node
-				err := encoder.EncodeToken(typedTok)
-				if err != nil {
-					return err
-				}
-				// 2. Todo: insert new dependency xml element
-				dependency := Dependency{}
-				dependency.Ref = purl
-				for _, bomRefs := range moduleBomRefs {
-					subDependency := SubDep{}
-					subDependency.Ref = bomRefs
-					dependency.SubDepends = append(dependency.SubDepends, subDependency)
-				}
-				encoder.Encode(dependency)
-				break
-			}
-
-			// common xml node
-			err := encoder.EncodeToken(typedTok)
-			if err != nil {
-				return err
-			}
-		case xml.CharData:
-			err := encoder.EncodeToken(typedTok)
-			if err != nil {
-				return err
-			}
-		case xml.EndElement:
-			if typedTok.Name.Local == "bom" {
-				isInBom = false
-			}
-			if typedTok.Name.Local == "metadata" && isInBom {
-				isInBomMetadata = false
-			}
-
-			err := encoder.EncodeToken(typedTok)
-			if err != nil {
-				return err
-			}
-		default:
-			err := encoder.EncodeToken(typedTok)
-			if err != nil {
-				return err
-			}
-		}
-	}
-	encoder.Flush()
-	content := out.Bytes()
-	content = bytes.Replace(content, []byte("\ufeff"), []byte(""), -1)
-	err = ioutil.WriteFile(sbomfilepath, content, 0644)
-
-	if err != nil {
+	// Decode the BOM
+	bom := new(cdx.BOM)
+	decoder := cdx.NewBOMDecoder(file, cdx.BOMFileFormatXML)
+	if err := decoder.Decode(bom); err != nil {
 		return err
 	}
+
+	bom.Metadata.Component.PackageURL = "pkg:mta/" + mtaObj.ID + "@" + mtaObj.Version
+	bom.Metadata.Timestamp = time.Now().UTC().Format("2006-01-02T15:04:05Z")
+
+	if err := cdx.NewBOMEncoder(file, cdx.BOMFileFormatXML).SetPretty(true).EncodeVersion(bom, cdx.SpecVersion1_4); err != nil {
+		return err
+	}
+
 	return nil
 }
 
