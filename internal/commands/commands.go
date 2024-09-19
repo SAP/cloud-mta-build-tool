@@ -389,8 +389,8 @@ func GetSBomsMergeCommand(loc *dir.Loc, cyclonedx_cli string, mtaObj *mta.MTA, s
 	}
 
 	// ./cyclonedx merge --input-files test_1.bom.xml test_2.bom.xml test_3.bom.xml --output-file merged.bom.xml
-	cmd = cyclonedx_cli + " merge --input-files " + inputFiles + " --hierarchical --output-file " + sbomName +
-		" --input-format " + sbomType + " --output-format " + sbomType + " --name " + mtaObj.ID + " --version " + mtaObj.Version
+	cmd = cyclonedx_cli + " merge --input-files " + inputFiles + " --output-file " + sbomName +
+		" --input-format " + sbomType + " --output-format " + sbomType + " --name " + mtaObj.ID + " --version " + mtaObj.Version + " --hierarchical"
 	cmds = append(cmds, cmd)
 	commandList, err := CmdConverter(sbomTmpDir, cmds)
 
