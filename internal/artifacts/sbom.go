@@ -275,9 +275,12 @@ func updateSBomMetadataNode(mtaObj *mta.MTA, sbomTmpDir, sbomTmpName string, mod
 		return err
 	}
 
+	// set packageUrl of SBOM component using mta metadata
 	bom.Metadata.Component.PackageURL = "pkg:mta/" + mtaObj.ID + "@" + mtaObj.Version
+	// set sbom timestamp
 	bom.Metadata.Timestamp = time.Now().UTC().Format("2006-01-02T15:04:05Z")
 
+	// ensure encoding of SBOM in according to CycloneDX spec version 1.4
 	if err := cdx.NewBOMEncoder(file, cdx.BOMFileFormatXML).SetPretty(true).EncodeVersion(bom, cdx.SpecVersion1_4); err != nil {
 		return err
 	}
