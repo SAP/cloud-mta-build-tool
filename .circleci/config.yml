@@ -120,7 +120,7 @@ jobs:
       - run:
           name: install cyclonedx-cli
           command: |
-            CYCLONEDX_CLI_VERSION=0.26.0
+            CYCLONEDX_CLI_VERSION=0.27.1
             CYCLONEDX_BINARY_NAME=cyclonedx
             CYCLONEDX_ARCH=x64
             CYCLONEDX_OS=linux
