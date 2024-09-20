@@ -169,18 +169,8 @@ func generateSBomFile(loc *dir.Loc, mtaObj *mta.MTA,
 		return err
 	}
 
-	// (4) get module bom-ref info
-	moduleBomRefs, err := getModuleBomRefs(sbomTmpDir, sbomFileNames)
-
-	for _, bomRef := range moduleBomRefs {
-		logs.Logger.Infof("moduleBomRef:%s", bomRef)
-	}
-	if err != nil {
-		return err
-	}
-
 	// (4) instert xml attribute or xml node to bom->metadata
-	err = updateSBomMetadataNode(mtaObj, sbomTmpDir, sbomTmpName, moduleBomRefs)
+	err = updateSBomMetadataNode(mtaObj, sbomTmpDir, sbomTmpName)
 	if err != nil {
 		return err
 	}
@@ -260,7 +250,7 @@ func addXmlnsSchemaAttribute(attributes []xml.Attr, xmlnsSchema string) []xml.At
 	return attributes
 }
 
-func updateSBomMetadataNode(mtaObj *mta.MTA, sbomTmpDir, sbomTmpName string, moduleBomRefs []string) error {
+func updateSBomMetadataNode(mtaObj *mta.MTA, sbomTmpDir, sbomTmpName string) error {
 	sbomfilepath := filepath.Join(sbomTmpDir, sbomTmpName)
 	file, err := os.Open(sbomfilepath)
 	if err != nil {
