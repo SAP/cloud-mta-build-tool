@@ -133,7 +133,7 @@ jobs:
           name: install cyclonedx-gomod
           command: |
             echo "cyclonedx-gomod version"
-            go install github.com/CycloneDX/cyclonedx-gomod/cmd/cyclonedx-gomod@latest
+            go install github.com/CycloneDX/cyclonedx-gomod/cmd/cyclonedx-gomod@v1.4.0
             cyclonedx-gomod version
       - run:
           name: install cyclonedx-npm

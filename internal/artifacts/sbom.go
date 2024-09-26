@@ -143,9 +143,9 @@ func cleanEnv(sbomTmpDir string) error {
 }
 
 // generateSBomFile - generate all modules sbom and merge in to one, then mv it to sbom target path
+
 func generateSBomFile(loc *dir.Loc, mtaObj *mta.MTA,
-	sbomPath, sbomName, sbomType, sbomSuffix, sbomTmpDir string,
-) error {
+	sbomPath, sbomName, sbomType, sbomSuffix, sbomTmpDir string) error {
 	// (1) generation sbom for modules under sbom tmp dir
 	err := generateSBomFiles(loc, mtaObj, sbomTmpDir, sbomType, sbomSuffix)
 	if err != nil {
@@ -275,6 +275,8 @@ func updateSBomMetadataNode(mtaObj *mta.MTA, sbomTmpDir, sbomTmpName string) err
 	if err != nil {
 		return err
 	}
+	defer fileForWriting.Close()
+
 	if err := cdx.NewBOMEncoder(fileForWriting, cdx.BOMFileFormatXML).SetPretty(true).EncodeVersion(bom, cdx.SpecVersion1_4); err != nil {
 		return err
 	}

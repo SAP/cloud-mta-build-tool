@@ -22,7 +22,7 @@ CYCLONEDX_CLI_VERSION = 0.27.1
 
 # cyclonedx-gomod
 CYCLONEDX_GOMOD_BINARY = cyclonedx-gomod
-CYCLONEDX_GOMOD_VERSION = latest
+CYCLONEDX_GOMOD_VERSION = v1.4.0
 
 # cyclonedx_npm
 CYCLONEDX_NPM_PACKAGE = @cyclonedx/cyclonedx-npm
