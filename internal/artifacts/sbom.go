@@ -144,7 +144,8 @@ func cleanEnv(sbomTmpDir string) error {
 
 // generateSBomFile - generate all modules sbom and merge in to one, then mv it to sbom target path
 func generateSBomFile(loc *dir.Loc, mtaObj *mta.MTA,
-	sbomPath, sbomName, sbomType, sbomSuffix, sbomTmpDir string) error {
+	sbomPath, sbomName, sbomType, sbomSuffix, sbomTmpDir string,
+) error {
 	// (1) generation sbom for modules under sbom tmp dir
 	err := generateSBomFiles(loc, mtaObj, sbomTmpDir, sbomType, sbomSuffix)
 	if err != nil {
@@ -257,8 +258,8 @@ func updateSBomMetadataNode(mtaObj *mta.MTA, sbomTmpDir, sbomTmpName string, mod
 	}
 	defer file.Close()
 
-	var purl = "pkg:mta/" + mtaObj.ID + "@" + mtaObj.Version
-	var xmlnsSchema = "http://cyclonedx.org/schema/bom/1.4"
+	purl := "pkg:mta/" + mtaObj.ID + "@" + mtaObj.Version
+	xmlnsSchema := "http://cyclonedx.org/schema/bom/1.4"
 
 	decoder := xml.NewDecoder(file)
 	decoder.Strict = false
@@ -373,8 +374,7 @@ func updateSBomMetadataNode(mtaObj *mta.MTA, sbomTmpDir, sbomTmpName string, mod
 	encoder.Flush()
 	content := out.Bytes()
 	content = bytes.Replace(content, []byte("\ufeff"), []byte(""), -1)
-	err = ioutil.WriteFile(sbomfilepath, content, 0644)
-
+	err = ioutil.WriteFile(sbomfilepath, content, 0o644)
 	if err != nil {
 		return err
 	}
@@ -554,6 +554,7 @@ func generateSBomFiles(loc *dir.Loc, mtaObj *mta.MTA, sBomFileTmpDir string, sbo
 		}
 		// if sbomGenCmds is empty, module builder maybe "custom" or unknow builder, skip the module and continue
 		if len(sbomGenCmds) == 0 {
+			// ToDo: consider braking the build in case no command is available
 			logs.Logger.Infof(genSBomSkipModuleMsg, moduleName)
 			continue
 		}

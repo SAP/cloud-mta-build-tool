@@ -330,7 +330,8 @@ func moduleCmd(mta *mta.MTA, moduleName string) (*mta.Module, []string, string, 
 // GetModuleSBomGenCommands - get sbom generate command for module
 // if unknow sbom gen builder or custom builder, empty [][]string and nil error will be return
 func GetModuleSBomGenCommands(loc *dir.Loc, module *mta.Module,
-	sbomFileName string, sbomFileType string, sbomFileSuffix string) ([][]string, error) {
+	sbomFileName string, sbomFileType string, sbomFileSuffix string,
+) ([][]string, error) {
 	var cmd string
 	var cmds []string
 	var commandList [][]string
@@ -358,7 +359,33 @@ func GetModuleSBomGenCommands(loc *dir.Loc, module *mta.Module,
 			"-DincludeRuntimeScope=true -DincludeSystemScope=true -DincludeTestScope=false -DincludeLicenseText=false " +
 			"-DoutputFormat=" + sbomFileType + " -DoutputName=" + sbomFileName + ".bom"
 		cmds = append(cmds, cmd)
+	// allow custom creation of an SBOM for e.g. a custom builder
 	case "custom":
+		// first check if custom SBOM creation commands are provided
+		customSbomGenCmds, ok := module.BuildParams["sbom-create-commands"].([]string)
+		// in case no custom commands are provided use standard way of creating SBOM
+		if !ok || (ok && len(customSbomGenCmds) == 0) {
+			switch module.Type {
+			case "nodejs":
+				cmd = "npm install"
+				cmds = append(cmds, cmd)
+				cmd = "npx " + cyclonedx_npm + "@" + cyclonedx_npm_version + " --output-format " + strings.ToUpper(sbomFileType) + " --spec-version " + cyclonedx_npm_schema_version + " --output-file " + sbomFileName + sbomFileSuffix
+				cmds = append(cmds, cmd)
+			case "java":
+				cmd = "mvn org.cyclonedx:cyclonedx-maven-plugin:2.7.5:makeAggregateBom " +
+					"-DschemaVersion=1.4 -DincludeBomSerialNumber=true -DincludeCompileScope=true " +
+					"-DincludeRuntimeScope=true -DincludeSystemScope=true -DincludeTestScope=false -DincludeLicenseText=false " +
+					"-DoutputFormat=" + sbomFileType + " -DoutputName=" + sbomFileName + ".bom"
+				cmds = append(cmds, cmd)
+			}
+			// in case custom SBOM creation commands are provided use them
+		} else {
+			// replace fileName placeholder ${sbom-file-name} which is to be provided in the custom SBOM creation commands
+			for i := range customSbomGenCmds {
+				customSbomGenCmds[i] = strings.ReplaceAll(customSbomGenCmds[i], "${sbom-file-name}", sbomFileName+sbomFileSuffix)
+			}
+			cmds = append(cmds, customSbomGenCmds...)
+		}
 	default:
 	}
 
@@ -373,7 +400,8 @@ func GetModuleSBomGenCommands(loc *dir.Loc, module *mta.Module,
 // GetSBomsMergeCommand - generate merge sbom file command under sbom tmp dir
 // if empty sbomFileNames, return empty commandList, nil error
 func GetSBomsMergeCommand(loc *dir.Loc, cyclonedx_cli string, mtaObj *mta.MTA, sbomTmpDir string, sbomFileNames []string,
-	sbomName, sbomType, sbomSuffix string) ([][]string, error) {
+	sbomName, sbomType, sbomSuffix string,
+) ([][]string, error) {
 	var cmd string
 	var cmds []string
 	var commandList [][]string
