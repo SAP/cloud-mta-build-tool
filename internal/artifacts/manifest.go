@@ -69,6 +69,16 @@ func setManifestDesc(source dir.IModule, ep dir.ITargetArtifacts, targetPathGett
 	return genManifest(ep.GetManifestPath(), entries)
 }
 
+func wouldEntryExceedCharLimitAfterMerge(existing entry, newEntryName string) bool {
+	lines := strings.Split(existing.EntryName, "\n")
+	lastLine := lines[len(lines)-1]
+	if len(lines) == 1 {
+		lastLine = existing.EntryType + ": " + lastLine
+	}
+	newChars := ", " + newEntryName
+	return len(lastLine)+len(newChars) > 72
+}
+
 func mergeDuplicateEntries(entries []entry) []entry {
 	// Several MTA-Module entries can point to the same path. In that case, their names should in the same entry, comma-separated.
 	mergedEntries := make([]entry, 0)
@@ -83,7 +93,11 @@ func mergeDuplicateEntries(entries []entry) []entry {
 	for index, entry := range entries {
 		if entry.EntryType == moduleEntry {
 			if existing, ok := modules[entry.EntryPath]; ok {
-				existing.EntryName += ", " + entry.EntryName
+				if wouldEntryExceedCharLimitAfterMerge(existing, entry.EntryName) {
+					existing.EntryName += "\n , " + entry.EntryName
+				} else {
+					existing.EntryName += ", " + entry.EntryName
+				}
 				modules[entry.EntryPath] = existing
 			} else {
 				modules[entry.EntryPath] = entries[index]
@@ -91,7 +105,11 @@ func mergeDuplicateEntries(entries []entry) []entry {
 			}
 		} else if entry.EntryType == requiredEntry {
 			if existing, ok := required[entry.EntryPath]; ok {
-				existing.EntryName += ", " + entry.EntryName
+				if wouldEntryExceedCharLimitAfterMerge(existing, entry.EntryName) {
+					existing.EntryName += "\n , " + entry.EntryName
+				} else {
+					existing.EntryName += ", " + entry.EntryName
+				}
 				required[entry.EntryPath] = existing
 			} else {
 				required[entry.EntryPath] = entries[index]
