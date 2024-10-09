@@ -12,7 +12,7 @@ jobs:
       - run: npm run test
   build-node20:
     docker:
-      - image: cimg/node:20.1
+      - image: cimg/node:20.17
     working_directory: ~/repo
     steps:
       - checkout
