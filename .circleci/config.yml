@@ -12,7 +12,7 @@ jobs:
       - run: npm run test
   build-node20:
     docker:
-      - image: cimg/node:20.17
+      - image: cimg/node:20.1
     working_directory: ~/repo
     steps:
       - checkout
@@ -305,7 +305,7 @@ jobs:
             #Push to GitHub Container Registry
             echo "$CLOUD_MTA_BOT_GITHUB_TOKEN" | docker login "ghcr.io" --username $CLOUD_MTA_BOT_USER --password-stdin
             sh $PWD/scripts/publish_image 11.0.17 14.21.1 ${MBT_VERSION} "ghcr.io/sap"
-
+  
   publish-to-dockerhub-java11-node16:
     docker:
       - image: cimg/go:1.19
@@ -337,7 +337,7 @@ jobs:
             #Push to GitHub Container Registry
             echo "$CLOUD_MTA_BOT_GITHUB_TOKEN" | docker login "ghcr.io" --username $CLOUD_MTA_BOT_USER --password-stdin
             sh $PWD/scripts/publish_image 11.0.17 16.18.1 ${MBT_VERSION} "ghcr.io/sap"
-
+  
   publish-to-dockerhub-java11-node18:
     docker:
       - image: cimg/go:1.19
@@ -433,7 +433,7 @@ jobs:
             #Push to GitHub Container Registry
             echo "$CLOUD_MTA_BOT_GITHUB_TOKEN" | docker login "ghcr.io" --username $CLOUD_MTA_BOT_USER --password-stdin
             sh $PWD/scripts/publish_image 17.0.12 14.21.1 ${MBT_VERSION} "ghcr.io/sap"
-
+  
   publish-to-dockerhub-java17-node16:
     docker:
       - image: cimg/go:1.19
@@ -465,7 +465,7 @@ jobs:
             #Push to GitHub Container Registry
             echo "$CLOUD_MTA_BOT_GITHUB_TOKEN" | docker login "ghcr.io" --username $CLOUD_MTA_BOT_USER --password-stdin
             sh $PWD/scripts/publish_image 17.0.12 16.18.1 ${MBT_VERSION} "ghcr.io/sap"
-
+  
   publish-to-dockerhub-java17-node18:
     docker:
       - image: cimg/go:1.19
@@ -497,7 +497,7 @@ jobs:
             #Push to GitHub Container Registry
             echo "$CLOUD_MTA_BOT_GITHUB_TOKEN" | docker login "ghcr.io" --username $CLOUD_MTA_BOT_USER --password-stdin
             sh $PWD/scripts/publish_image 17.0.12 18.20.4 ${MBT_VERSION} "ghcr.io/sap"
-
+  
   publish-to-dockerhub-java17-node20:
     docker:
       - image: cimg/go:1.19
@@ -529,7 +529,7 @@ jobs:
             #Push to GitHub Container Registry
             echo "$CLOUD_MTA_BOT_GITHUB_TOKEN" | docker login "ghcr.io" --username $CLOUD_MTA_BOT_USER --password-stdin
             sh $PWD/scripts/publish_image 17.0.12 20.15.1 ${MBT_VERSION} "ghcr.io/sap"
-
+  
   publish-to-dockerhub-java19-node14:
     docker:
       - image: cimg/go:1.19
@@ -561,7 +561,7 @@ jobs:
             #Push to GitHub Container Registry
             echo "$CLOUD_MTA_BOT_GITHUB_TOKEN" | docker login "ghcr.io" --username $CLOUD_MTA_BOT_USER --password-stdin
             sh $PWD/scripts/publish_image 19.0.1 14.21.1 ${MBT_VERSION} "ghcr.io/sap"
-
+  
   publish-to-dockerhub-java19-node16:
     docker:
       - image: cimg/go:1.19
@@ -593,7 +593,7 @@ jobs:
             #Push to GitHub Container Registry
             echo "$CLOUD_MTA_BOT_GITHUB_TOKEN" | docker login "ghcr.io" --username $CLOUD_MTA_BOT_USER --password-stdin
             sh $PWD/scripts/publish_image 19.0.1 16.18.1 ${MBT_VERSION} "ghcr.io/sap"
-
+  
   publish-to-dockerhub-java19-node18:
     docker:
       - image: cimg/go:1.19
@@ -688,7 +688,7 @@ jobs:
             #Push to GitHub Container Registry
             echo "$CLOUD_MTA_BOT_GITHUB_TOKEN" | docker login "ghcr.io" --username $CLOUD_MTA_BOT_USER --password-stdin
             sh $PWD/scripts/publish_image 21.0.4 18.20.4 ${MBT_VERSION} "ghcr.io/sap"
-
+  
   publish-to-dockerhub-java21-node20:
     docker:
       - image: cimg/go:1.19
@@ -782,7 +782,7 @@ jobs:
             #Push to GitHub Container Registry
             echo "$CLOUD_MTA_BOT_GITHUB_TOKEN" | docker login "ghcr.io" --username $CLOUD_MTA_BOT_USER --password-stdin
             sh $PWD/scripts/publish_image 22.0.2 18.20.4 ${MBT_VERSION} "ghcr.io/sap"
-
+  
   publish-to-dockerhub-java22-node20:
     docker:
       - image: cimg/go:1.19
@@ -877,7 +877,7 @@ jobs:
             git fetch
             git rebase
       - run:
-          # mbt is an unscoped package, do not need to add "--access public" option in npm publish cmd
+          # mbt is an unscoped package, do not need to add "--access public" option in npm publish cmd 
           name: publish to npm
           command: |
             echo "//registry.npmjs.org/:_authToken=$CLOUD_MTA_BOT_NPM_TOKEN" > .npmrc
