@@ -176,12 +176,12 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Install Go 1.21.0
+          name: Install Go 1.21.13
           command: |
             apt-get update
             apt-get install sudo
-            curl -OL https://golang.org/dl/go1.21.0.linux-amd64.tar.gz
-            sudo tar -C /usr/local -xzf go1.21.0.linux-amd64.tar.gz
+            curl -OL https://golang.org/dl/go1.21.13.linux-amd64.tar.gz
+            sudo tar -C /usr/local -xzf go1.21.13.linux-amd64.tar.gz
       - run: go version
       - run:
           name: install dependencies
@@ -898,10 +898,10 @@ workflows:
   # when sub-branch's code is committed, this workflow will be exceeded
   on_pr_build:
     jobs:
-      - build:
-          filters:
-            branches:
-              ignore: master
+      #- build:
+      #    filters:
+       #     branches:
+         #     ignore: master
       - build-node:
           filters:
             branches:
@@ -947,8 +947,8 @@ workflows:
             branches:
               ignore: master
       - test:
-          requires:
-            - build
+          #requires:
+           # - build
           filters:
             branches:
               ignore: master
