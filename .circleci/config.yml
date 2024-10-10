@@ -94,7 +94,7 @@ jobs:
 
   build:
     docker:
-      - image: cimg/go:1.19
+      - image: cimg/go:1.21
     environment:
     working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
     steps:
