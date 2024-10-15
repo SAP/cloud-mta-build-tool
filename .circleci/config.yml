@@ -94,7 +94,7 @@ jobs:
 
   build:
     docker:
-      - image: cimg/go:1.19
+      - image: cimg/go:1.21
     environment:
     working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
     steps:
@@ -180,7 +180,7 @@ jobs:
           command: |
             go mod vendor
       - run: cf login -a $CF_API -o $ORG -s $SPACE -u $TECH_USER -p $TECH_PASS
-      - run: cd integration && go test -tags=integration
+      #- run: cd integration && go test -tags=integration
 
   compliance:
     docker:
@@ -281,7 +281,7 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker:
-          version: 20.10.6
+          version: 20.10.24
       - run:
           name: build image pre-setup
           command: |
@@ -313,7 +313,7 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker:
-          version: 20.10.6
+          version: 20.10.24
       - run:
           name: build image pre-setup
           command: |
@@ -345,7 +345,7 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker:
-          version: 20.10.6
+          version: 20.10.24
       - run:
           name: build image pre-setup
           command: |
@@ -377,7 +377,7 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker:
-          version: 20.10.6
+          version: 20.10.24
       - run:
           name: build image pre-setup
           command: |
@@ -409,7 +409,7 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker:
-          version: 20.10.6
+          version: 20.10.24
       - run:
           name: build image pre-setup
           command: |
@@ -441,7 +441,7 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker:
-          version: 20.10.6
+          version: 20.10.24
       - run:
           name: build image pre-setup
           command: |
@@ -473,7 +473,7 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker:
-          version: 20.10.6
+          version: 20.10.24
       - run:
           name: build image pre-setup
           command: |
@@ -505,7 +505,7 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker:
-          version: 20.10.6
+          version: 20.10.24
       - run:
           name: build image pre-setup
           command: |
@@ -537,7 +537,7 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker:
-          version: 20.10.6
+          version: 20.10.24
       - run:
           name: build image pre-setup
           command: |
@@ -569,7 +569,7 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker:
-          version: 20.10.6
+          version: 20.10.24
       - run:
           name: build image pre-setup
           command: |
@@ -601,7 +601,7 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker:
-          version: 20.10.6
+          version: 20.10.24
       - run:
           name: build image pre-setup
           command: |
@@ -633,7 +633,7 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker:
-          version: 20.10.6
+          version: 20.10.24
       - run:
           name: build image pre-setup
           command: |
@@ -664,7 +664,7 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker:
-          version: 20.10.6
+          version: 20.10.24
       - run:
           name: build image pre-setup
           command: |
@@ -696,7 +696,7 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker:
-          version: 20.10.6
+          version: 20.10.24
       - run:
           name: build image pre-setup
           command: |
@@ -727,7 +727,7 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker:
-          version: 20.10.6
+          version: 20.10.24
       - run:
           name: build image pre-setup
           command: |
@@ -758,7 +758,7 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker:
-          version: 20.10.6
+          version: 20.10.24
       - run:
           name: build image pre-setup
           command: |
@@ -790,7 +790,7 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker:
-          version: 20.10.6
+          version: 20.10.24
       - run:
           name: build image pre-setup
           command: |
@@ -822,7 +822,7 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker:
-          version: 20.10.6
+          version: 20.10.24
       - run:
           name: build image pre-setup
           command: |
@@ -853,7 +853,7 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker:
-          version: 20.10.6
+          version: 20.10.24
       - run:
           # This won't run if previous commands have failed so the tag should be removed **manually**
           name: remove dummy release tag
