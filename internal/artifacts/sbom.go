@@ -458,7 +458,7 @@ func generateSBomFiles(loc *dir.Loc, mtaObj *mta.MTA, sBomFileTmpDir string, sbo
 		}
 		// if sbomGenCmds is empty, module builder maybe "custom" or unknow builder, skip the module and continue
 		if len(sbomGenCmds) == 0 {
-			// ToDo: consider braeking the build in case no command is available
+			// ToDo: consider breaking the build in case no command is available
 			logs.Logger.Infof(genSBomSkipModuleMsg, moduleName)
 			continue
 		}
