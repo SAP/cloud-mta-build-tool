@@ -3,10 +3,10 @@ package buildops
 import (
 	"fmt"
 
-	"github.com/deckarep/golang-set"
+	mapset "github.com/deckarep/golang-set"
 	"github.com/pkg/errors"
 
-	"github.com/SAP/cloud-mta-build-tool/internal/archive"
+	dir "github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta/mta"
 )
 
@@ -17,8 +17,8 @@ type graphNode struct {
 }
 
 // ProvideModules - provides modules in order of their dependencies
-func ProvideModules(source, desc string, extensions []string, wdGetter func() (string, error)) error {
-	loc, err := dir.Location(source, "", desc, extensions, wdGetter)
+func ProvideModules(source, mtaYamlFilename, desc string, extensions []string, wdGetter func() (string, error)) error {
+	loc, err := dir.Location(source, mtaYamlFilename, "", desc, extensions, wdGetter)
 	if err != nil {
 		return errors.Wrap(err, locFailedMsg)
 	}

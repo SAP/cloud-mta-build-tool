@@ -11,7 +11,7 @@ import (
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
 
-	"github.com/SAP/cloud-mta-build-tool/internal/archive"
+	dir "github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta-build-tool/internal/commands"
 	"github.com/SAP/cloud-mta-build-tool/internal/exec"
 	"github.com/SAP/cloud-mta/mta"
@@ -21,25 +21,25 @@ var _ = Describe("Project", func() {
 
 	var _ = Describe("ExecuteProjectBuild", func() {
 		It("Sanity - post phase", func() {
-			err := ExecuteProjectBuild(getTestPath("mtahtml5"), "", "dev", nil, "post", os.Getwd)
+			err := ExecuteProjectBuild(getTestPath("mtahtml5"), "", "", "dev", nil, "post", os.Getwd)
 			Ω(err).Should(Succeed())
 		})
 		It("wrong phase", func() {
-			err := ExecuteProjectBuild(getTestPath("mta"), "", "dev", nil, "wrong phase", os.Getwd)
+			err := ExecuteProjectBuild(getTestPath("mta"), "", "", "dev", nil, "wrong phase", os.Getwd)
 			checkError(err, UnsupportedPhaseMsg, "wrong phase")
 		})
 		It("wrong location", func() {
-			err := ExecuteProjectBuild(getTestPath("mta"), "", "xx", nil, "pre", func() (string, error) {
+			err := ExecuteProjectBuild(getTestPath("mta"), "", "", "xx", nil, "pre", func() (string, error) {
 				return "", fmt.Errorf("error")
 			})
 			checkError(err, dir.InvalidDescMsg, "xx")
 		})
 		It("mta.yaml not found", func() {
-			err := ExecuteProjectBuild(getTestPath("mta1"), "", "dev", nil, "pre", os.Getwd)
+			err := ExecuteProjectBuild(getTestPath("mta1"), "", "", "dev", nil, "pre", os.Getwd)
 			checkError(err, getTestPath("mta1", "mta.yaml"))
 		})
 		It("Sanity - custom builder", func() {
-			err := ExecuteProjectBuild(getTestPath("mta"), "", "dev", nil, "pre", os.Getwd)
+			err := ExecuteProjectBuild(getTestPath("mta"), "", "", "dev", nil, "pre", os.Getwd)
 			Ω(err).Should(HaveOccurred())
 			Ω(err.Error()).Should(ContainSubstring(`"command1"`))
 			Ω(err.Error()).Should(ContainSubstring("failed"))
@@ -55,27 +55,27 @@ var _ = Describe("Project", func() {
 			Ω(os.RemoveAll(filepath.Join(getTestPath("mta_with_zipped_module"), "Makefile_tmp.mta"))).Should(Succeed())
 		})
 		It("Sanity", func() {
-			err := ExecBuild("Makefile_tmp.mta", getTestPath("mta_with_zipped_module"), getResultPath(), nil, "", "", "cf", true, 0, false, os.Getwd, func(strings [][]string, b bool) error {
+			err := ExecBuild("Makefile_tmp.mta", getTestPath("mta_with_zipped_module"), "", getResultPath(), nil, "", "", "cf", true, 0, false, os.Getwd, func(strings [][]string, b bool) error {
 				return nil
 			}, true, false, "")
 			Ω(err).Should(Succeed())
 			Ω(filepath.Join(getTestPath("mta_with_zipped_module"), "Makefile_tmp.mta")).ShouldNot(BeAnExistingFile())
 		})
 		It("Sanity - keep makefile", func() {
-			err := ExecBuild("Makefile_tmp.mta", getTestPath("mta_with_zipped_module"), getResultPath(), nil, "", "", "cf", true, 0, false, os.Getwd, func(strings [][]string, b bool) error {
+			err := ExecBuild("Makefile_tmp.mta", getTestPath("mta_with_zipped_module"), "", getResultPath(), nil, "", "", "cf", true, 0, false, os.Getwd, func(strings [][]string, b bool) error {
 				return nil
 			}, true, true, "")
 			Ω(err).Should(Succeed())
 			Ω(filepath.Join(getTestPath("mta_with_zipped_module"), "Makefile_tmp.mta")).Should(BeAnExistingFile())
 		})
 		It("Wrong - no platform", func() {
-			err := ExecBuild("Makefile_tmp.mta", getTestPath("mta_with_zipped_module"), getResultPath(), nil, "", "", "", true, 0, false, os.Getwd, func(strings [][]string, b bool) error {
+			err := ExecBuild("Makefile_tmp.mta", getTestPath("mta_with_zipped_module"), "", getResultPath(), nil, "", "", "", true, 0, false, os.Getwd, func(strings [][]string, b bool) error {
 				return fmt.Errorf("failure")
 			}, true, false, "")
 			Ω(err).Should(HaveOccurred())
 		})
 		It("Wrong - ExecuteMake fails on wrong location", func() {
-			err := ExecBuild("Makefile_tmp.mta", "", getResultPath(), nil, "", "", "", true, 0, false,
+			err := ExecBuild("Makefile_tmp.mta", "", "", getResultPath(), nil, "", "", "", true, 0, false,
 				func() (string, error) {
 					return "", errors.New("wrong location")
 				}, func(strings [][]string, b bool) error {

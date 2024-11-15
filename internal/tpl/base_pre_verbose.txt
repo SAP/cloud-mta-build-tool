@@ -4,10 +4,10 @@
 all: pre_validate pre_build validate {{- range .File.Modules}}{{- if not ($.IsNoSource .Name)}} {{.Name}}{{end}}{{end}} meta mtar cleanup
 # Validate mta.yaml
 pre_validate:
-{{"\t"}}@$(MBT) validate -r=${strict} -x="paths" {{- ExtensionsArg "-e"}}
+{{"\t"}}@$(MBT) validate -r=${strict} -x="paths" {{- ExtensionsArg "-e"}} {{- MBTYamlFilename "-f"}}
 
 pre_build: pre_validate
-{{"\t"}}@$(MBT) project build -p=pre {{- ExtensionsArg "-e"}}
+{{"\t"}}@$(MBT) project build -p=pre {{- ExtensionsArg "-e"}} {{- MBTYamlFilename "-f"}}
 
 # Set the current project repository path for general mta process
   PROJ_DIR := $(CURDIR)

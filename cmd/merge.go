@@ -9,6 +9,7 @@ import (
 )
 
 var mergeCmdSrc string
+var mergeCmdMtaYamlFilename string
 var mergeCmdTrg string
 var mergeCmdExtensions []string
 var mergeCmdName string
@@ -20,7 +21,7 @@ var mergeCmd = &cobra.Command{
 	Long:  `Merges the "mta.yaml" file with the MTA extension descriptors`,
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		err := artifacts.ExecuteMerge(mergeCmdSrc, mergeCmdTrg, mergeCmdExtensions, mergeCmdName, os.Getwd)
+		err := artifacts.ExecuteMerge(mergeCmdSrc, mergeCmdMtaYamlFilename, mergeCmdTrg, mergeCmdExtensions, mergeCmdName, os.Getwd)
 		return err
 	},
 	Hidden:       true,
@@ -31,6 +32,8 @@ func init() {
 	// set flag of merge command
 	mergeCmd.Flags().StringVarP(&mergeCmdSrc, "source", "s", "",
 		"The path to the MTA project; the current path is set as default")
+	mergeCmd.Flags().StringVarP(&mergeCmdMtaYamlFilename, "filename", "f", "",
+		"The mta yaml filename of the MTA project; the mta.yaml is set as default")
 	mergeCmd.Flags().StringVarP(&mergeCmdTrg, "target", "t",
 		"", "The path to the folder in which the merged file is generated")
 	mergeCmd.Flags().StringSliceVarP(&mergeCmdExtensions, "extensions", "e", nil,
