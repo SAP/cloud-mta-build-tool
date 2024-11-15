@@ -208,7 +208,7 @@ jobs:
 
   release-to-github:
     docker:
-      - image: cimg/go:1.19
+      - image: cimg/go:1.21
     working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
     steps:
       - add_ssh_keys:
@@ -276,7 +276,7 @@ jobs:
 
   publish-to-dockerhub-java11-node14:
     docker:
-      - image: cimg/go:1.19
+      - image: cimg/go:1.21
     working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
     steps:
       - checkout
@@ -308,7 +308,7 @@ jobs:
 
   publish-to-dockerhub-java11-node16:
     docker:
-      - image: cimg/go:1.19
+      - image: cimg/go:1.21
     working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
     steps:
       - checkout
@@ -340,7 +340,7 @@ jobs:
 
   publish-to-dockerhub-java11-node18:
     docker:
-      - image: cimg/go:1.19
+      - image: cimg/go:1.21
     working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
     steps:
       - checkout
@@ -372,7 +372,7 @@ jobs:
 
   publish-to-dockerhub-java11-node20:
     docker:
-      - image: cimg/go:1.19
+      - image: cimg/go:1.21
     working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
     steps:
       - checkout
@@ -404,7 +404,7 @@ jobs:
 
   publish-to-dockerhub-java17-node14:
     docker:
-      - image: cimg/go:1.19
+      - image: cimg/go:1.21
     working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
     steps:
       - checkout
@@ -436,7 +436,7 @@ jobs:
 
   publish-to-dockerhub-java17-node16:
     docker:
-      - image: cimg/go:1.19
+      - image: cimg/go:1.21
     working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
     steps:
       - checkout
@@ -468,7 +468,7 @@ jobs:
 
   publish-to-dockerhub-java17-node18:
     docker:
-      - image: cimg/go:1.19
+      - image: cimg/go:1.21
     working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
     steps:
       - checkout
@@ -500,7 +500,7 @@ jobs:
 
   publish-to-dockerhub-java17-node20:
     docker:
-      - image: cimg/go:1.19
+      - image: cimg/go:1.21
     working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
     steps:
       - checkout
@@ -532,7 +532,7 @@ jobs:
 
   publish-to-dockerhub-java19-node14:
     docker:
-      - image: cimg/go:1.19
+      - image: cimg/go:1.21
     working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
     steps:
       - checkout
@@ -564,7 +564,7 @@ jobs:
 
   publish-to-dockerhub-java19-node16:
     docker:
-      - image: cimg/go:1.19
+      - image: cimg/go:1.21
     working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
     steps:
       - checkout
@@ -596,7 +596,7 @@ jobs:
 
   publish-to-dockerhub-java19-node18:
     docker:
-      - image: cimg/go:1.19
+      - image: cimg/go:1.21
     working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
     steps:
       - checkout
@@ -628,7 +628,7 @@ jobs:
 
   publish-to-dockerhub-java21-node16:
     docker:
-      - image: cimg/go:1.19
+      - image: cimg/go:1.21
     working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
     steps:
       - checkout
@@ -659,7 +659,7 @@ jobs:
             sh $PWD/scripts/publish_image 21.0.4 16.18.1 ${MBT_VERSION} "ghcr.io/sap"
   publish-to-dockerhub-java21-node18:
     docker:
-      - image: cimg/go:1.19
+      - image: cimg/go:1.21
     working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
     steps:
       - checkout
@@ -691,7 +691,7 @@ jobs:
 
   publish-to-dockerhub-java21-node20:
     docker:
-      - image: cimg/go:1.19
+      - image: cimg/go:1.21
     working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
     steps:
       - checkout
@@ -722,7 +722,7 @@ jobs:
             sh $PWD/scripts/publish_image 21.0.4 20.15.1 ${MBT_VERSION} "ghcr.io/sap"
   publish-to-dockerhub-java21-node22:
     docker:
-      - image: cimg/go:1.19
+      - image: cimg/go:1.21
     working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
     steps:
       - checkout
@@ -753,7 +753,7 @@ jobs:
             sh $PWD/scripts/publish_image 21.0.4 22.5.1 ${MBT_VERSION} "ghcr.io/sap"
   publish-to-dockerhub-java22-node18:
     docker:
-      - image: cimg/go:1.19
+      - image: cimg/go:1.21
     working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
     steps:
       - checkout
@@ -785,7 +785,7 @@ jobs:
 
   publish-to-dockerhub-java22-node20:
     docker:
-      - image: cimg/go:1.19
+      - image: cimg/go:1.21
     working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
     steps:
       - checkout
@@ -817,7 +817,7 @@ jobs:
 
   publish-to-dockerhub-java22-node22:
     docker:
-      - image: cimg/go:1.19
+      - image: cimg/go:1.21
     working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
     steps:
       - checkout
@@ -848,7 +848,7 @@ jobs:
             sh $PWD/scripts/publish_image 22.0.2 22.5.1 ${MBT_VERSION} "ghcr.io/sap"
   remove-github-release-tag:
     docker:
-      - image: cimg/go:1.19
+      - image: cimg/go:1.21
     working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
     steps:
       - checkout
