@@ -171,7 +171,7 @@ jobs:
 
   test:
     docker:
-      - image: shimit/mbt_multi:0.3.0
+      - image: cimg/go:1.21-node
     working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
     steps:
       - checkout
@@ -179,8 +179,16 @@ jobs:
           name: install dependencies
           command: |
             go mod vendor
+      - run:
+          name: install cf cli
+          command: |
+            curl -L "https://packages.cloudfoundry.org/stable?release=linux64-binary&&version=8.8.3" | sudo tar -zx -C /usr/local/bin
+      - run:
+          name: install MTA cf plugins
+          command: |
+            cf install-plugin multiapps -f
       - run: cf login -a $CF_API -o $ORG -s $SPACE -u $TECH_USER -p $TECH_PASS
-      #- run: cd integration && go test -tags=integration
+      - run: cd integration && go test -tags=integration
 
   compliance:
     docker:
