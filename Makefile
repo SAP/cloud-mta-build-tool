@@ -26,7 +26,7 @@ CYCLONEDX_GOMOD_VERSION = v1.4.0
 
 # cyclonedx_npm
 CYCLONEDX_NPM_PACKAGE = @cyclonedx/cyclonedx-npm
-CYCLONEDX_NPM_VERSION = 1.11.0
+CYCLONEDX_NPM_VERSION = 1.19.3
 CYCLONEDX_NPM_BINARY = cyclonedx-npm
 
 ifeq ($(OS),Windows_NT)

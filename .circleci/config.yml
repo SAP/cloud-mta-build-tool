@@ -139,7 +139,7 @@ jobs:
           name: install cyclonedx-npm
           command: |
             CYCLONEDX_NPM_PACKAGE=@cyclonedx/cyclonedx-npm
-            CYCLONEDX_NPM_VERSION=1.11.0
+            CYCLONEDX_NPM_VERSION=1.19.3
             CYCLONEDX_NPM_BINARY=cyclonedx-npm
             echo "npx ${CYCLONEDX_NPM_PACKAGE}@${CYCLONEDX_NPM_VERSION} -h"
             npx ${CYCLONEDX_NPM_PACKAGE}@${CYCLONEDX_NPM_VERSION} -h
@@ -418,21 +418,21 @@ jobs:
             git fetch
             git rebase
       - run:
-          name: build Java 17.0.12 & Node 14.21.1 image
+          name: build Java 17.0.13 & Node 14.21.1 image
           command: |
             MBT_VERSION=$(cat ./VERSION)
-            sh $PWD/scripts/build_image 17.0.12 14.21.1 ${MBT_VERSION}
+            sh $PWD/scripts/build_image 17.0.13 14.21.1 ${MBT_VERSION}
       - run:
-          name: publish Java 17.0.12 & Node 14.21.1 image
+          name: publish Java 17.0.13 & Node 14.21.1 image
           command: |
             MBT_VERSION=$(cat ./VERSION)
             echo "Image release: ${MBT_VERSION}"
             #Push to Docker Hub
             echo "$DOCKER_HUB_TOKEN" | docker login --username $DOCKER_HUB_USER --password-stdin
-            sh $PWD/scripts/publish_image 17.0.12 14.21.1 ${MBT_VERSION} "devxci"
+            sh $PWD/scripts/publish_image 17.0.13 14.21.1 ${MBT_VERSION} "devxci"
             #Push to GitHub Container Registry
             echo "$CLOUD_MTA_BOT_GITHUB_TOKEN" | docker login "ghcr.io" --username $CLOUD_MTA_BOT_USER --password-stdin
-            sh $PWD/scripts/publish_image 17.0.12 14.21.1 ${MBT_VERSION} "ghcr.io/sap"
+            sh $PWD/scripts/publish_image 17.0.13 14.21.1 ${MBT_VERSION} "ghcr.io/sap"
 
   publish-to-dockerhub-java17-node16:
     docker:
@@ -450,21 +450,21 @@ jobs:
             git fetch
             git rebase
       - run:
-          name: build Java 17.0.12 & Node 16.18.1 image
+          name: build Java 17.0.13 & Node 16.18.1 image
           command: |
             MBT_VERSION=$(cat ./VERSION)
-            sh $PWD/scripts/build_image 17.0.12 16.18.1 ${MBT_VERSION}
+            sh $PWD/scripts/build_image 17.0.13 16.18.1 ${MBT_VERSION}
       - run:
-          name: publish Java 17.0.12 & Node 16.18.1 image
+          name: publish Java 17.0.13 & Node 16.18.1 image
           command: |
             MBT_VERSION=$(cat ./VERSION)
             echo "Image release: ${MBT_VERSION}"
             #Push to Docker Hub
             echo "$DOCKER_HUB_TOKEN" | docker login --username $DOCKER_HUB_USER --password-stdin
-            sh $PWD/scripts/publish_image 17.0.12 16.18.1 ${MBT_VERSION} "devxci"
+            sh $PWD/scripts/publish_image 17.0.13 16.18.1 ${MBT_VERSION} "devxci"
             #Push to GitHub Container Registry
             echo "$CLOUD_MTA_BOT_GITHUB_TOKEN" | docker login "ghcr.io" --username $CLOUD_MTA_BOT_USER --password-stdin
-            sh $PWD/scripts/publish_image 17.0.12 16.18.1 ${MBT_VERSION} "ghcr.io/sap"
+            sh $PWD/scripts/publish_image 17.0.13 16.18.1 ${MBT_VERSION} "ghcr.io/sap"
 
   publish-to-dockerhub-java17-node18:
     docker:
@@ -482,21 +482,21 @@ jobs:
             git fetch
             git rebase
       - run:
-          name: build Java 17.0.12 & Node 18.20.4 image
+          name: build Java 17.0.13 & Node 18.20.4 image
           command: |
             MBT_VERSION=$(cat ./VERSION)
-            sh $PWD/scripts/build_image 17.0.12 18.20.4 ${MBT_VERSION}
+            sh $PWD/scripts/build_image 17.0.13 18.20.4 ${MBT_VERSION}
       - run:
-          name: publish Java 17.0.12 & Node 18.20.4 image
+          name: publish Java 17.0.13 & Node 18.20.4 image
           command: |
             MBT_VERSION=$(cat ./VERSION)
             echo "Image release: ${MBT_VERSION}"
             #Push to Docker Hub
             echo "$DOCKER_HUB_TOKEN" | docker login --username $DOCKER_HUB_USER --password-stdin
-            sh $PWD/scripts/publish_image 17.0.12 18.20.4 ${MBT_VERSION} "devxci"
+            sh $PWD/scripts/publish_image 17.0.13 18.20.4 ${MBT_VERSION} "devxci"
             #Push to GitHub Container Registry
             echo "$CLOUD_MTA_BOT_GITHUB_TOKEN" | docker login "ghcr.io" --username $CLOUD_MTA_BOT_USER --password-stdin
-            sh $PWD/scripts/publish_image 17.0.12 18.20.4 ${MBT_VERSION} "ghcr.io/sap"
+            sh $PWD/scripts/publish_image 17.0.13 18.20.4 ${MBT_VERSION} "ghcr.io/sap"
 
   publish-to-dockerhub-java17-node20:
     docker:
@@ -514,21 +514,53 @@ jobs:
             git fetch
             git rebase
       - run:
-          name: build Java 17.0.12 & Node 20.15.1 image
+          name: build Java 17.0.13 & Node 20.15.1 image
           command: |
             MBT_VERSION=$(cat ./VERSION)
-            sh $PWD/scripts/build_image 17.0.12 20.15.1 ${MBT_VERSION}
+            sh $PWD/scripts/build_image 17.0.13 20.15.1 ${MBT_VERSION}
       - run:
-          name: publish Java 17.0.12 & Node 20.15.1 image
+          name: publish Java 17.0.13 & Node 20.15.1 image
           command: |
             MBT_VERSION=$(cat ./VERSION)
             echo "Image release: ${MBT_VERSION}"
             #Push to Docker Hub
             echo "$DOCKER_HUB_TOKEN" | docker login --username $DOCKER_HUB_USER --password-stdin
-            sh $PWD/scripts/publish_image 17.0.12 20.15.1 ${MBT_VERSION} "devxci"
+            sh $PWD/scripts/publish_image 17.0.13 20.15.1 ${MBT_VERSION} "devxci"
             #Push to GitHub Container Registry
             echo "$CLOUD_MTA_BOT_GITHUB_TOKEN" | docker login "ghcr.io" --username $CLOUD_MTA_BOT_USER --password-stdin
-            sh $PWD/scripts/publish_image 17.0.12 20.15.1 ${MBT_VERSION} "ghcr.io/sap"
+            sh $PWD/scripts/publish_image 17.0.13 20.15.1 ${MBT_VERSION} "ghcr.io/sap"
+
+  publish-to-dockerhub-java17-node22:
+    docker:
+      - image: cimg/go:1.21
+    working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 20.10.24
+      - run:
+          name: build image pre-setup
+          command: |
+            #Make sure HEAD points to master
+            git checkout master
+            git fetch
+            git rebase
+      - run:
+          name: build Java 17.0.13 & Node 22.5.1 image
+          command: |
+            MBT_VERSION=$(cat ./VERSION)
+            sh $PWD/scripts/build_image 17.0.13 22.5.1 ${MBT_VERSION}
+      - run:
+          name: publish Java 17.0.13 & Node 22.5.1 image
+          command: |
+            MBT_VERSION=$(cat ./VERSION)
+            echo "Image release: ${MBT_VERSION}"
+            #Push to Docker Hub
+            echo "$DOCKER_HUB_TOKEN" | docker login --username $DOCKER_HUB_USER --password-stdin
+            sh $PWD/scripts/publish_image 17.0.13 22.5.1 ${MBT_VERSION} "devxci"
+            #Push to GitHub Container Registry
+            echo "$CLOUD_MTA_BOT_GITHUB_TOKEN" | docker login "ghcr.io" --username $CLOUD_MTA_BOT_USER --password-stdin
+            sh $PWD/scripts/publish_image 17.0.13 22.5.1 ${MBT_VERSION} "ghcr.io/sap"
 
   publish-to-dockerhub-java19-node14:
     docker:
@@ -751,7 +783,7 @@ jobs:
             #Push to GitHub Container Registry
             echo "$CLOUD_MTA_BOT_GITHUB_TOKEN" | docker login "ghcr.io" --username $CLOUD_MTA_BOT_USER --password-stdin
             sh $PWD/scripts/publish_image 21.0.4 22.5.1 ${MBT_VERSION} "ghcr.io/sap"
-  publish-to-dockerhub-java22-node18:
+  publish-to-dockerhub-java23-node18:
     docker:
       - image: cimg/go:1.21
     working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
@@ -767,23 +799,23 @@ jobs:
             git fetch
             git rebase
       - run:
-          name: build Java 22.0.2 & Node 18.20.4 image
+          name: build Java 23.0.1 & Node 18.20.4 image
           command: |
             MBT_VERSION=$(cat ./VERSION)
-            sh $PWD/scripts/build_image 22.0.2 18.20.4 ${MBT_VERSION}
+            sh $PWD/scripts/build_image 23.0.1 18.20.4 ${MBT_VERSION}
       - run:
-          name: publish Java 22.0.2 & Node 18.20.4 image
+          name: publish Java 23.0.1 & Node 18.20.4 image
           command: |
             MBT_VERSION=$(cat ./VERSION)
             echo "Image release: ${MBT_VERSION}"
             #Push to Docker Hub
             echo "$DOCKER_HUB_TOKEN" | docker login --username $DOCKER_HUB_USER --password-stdin
-            sh $PWD/scripts/publish_image 22.0.2 18.20.4 ${MBT_VERSION} "devxci"
+            sh $PWD/scripts/publish_image 23.0.1 18.20.4 ${MBT_VERSION} "devxci"
             #Push to GitHub Container Registry
             echo "$CLOUD_MTA_BOT_GITHUB_TOKEN" | docker login "ghcr.io" --username $CLOUD_MTA_BOT_USER --password-stdin
-            sh $PWD/scripts/publish_image 22.0.2 18.20.4 ${MBT_VERSION} "ghcr.io/sap"
+            sh $PWD/scripts/publish_image 23.0.1 18.20.4 ${MBT_VERSION} "ghcr.io/sap"
 
-  publish-to-dockerhub-java22-node20:
+  publish-to-dockerhub-java23-node20:
     docker:
       - image: cimg/go:1.21
     working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
@@ -799,23 +831,23 @@ jobs:
             git fetch
             git rebase
       - run:
-          name: build Java 22.0.2 & Node 20.15.1 image
+          name: build Java 23.0.1 & Node 20.15.1 image
           command: |
             MBT_VERSION=$(cat ./VERSION)
-            sh $PWD/scripts/build_image 22.0.2 20.15.1 ${MBT_VERSION}
+            sh $PWD/scripts/build_image 23.0.1 20.15.1 ${MBT_VERSION}
       - run:
-          name: publish Java 22.0.2 & Node 20.15.1 image
+          name: publish Java 23.0.1 & Node 20.15.1 image
           command: |
             MBT_VERSION=$(cat ./VERSION)
             echo "Image release: ${MBT_VERSION}"
             #Push to Docker Hub
             echo "$DOCKER_HUB_TOKEN" | docker login --username $DOCKER_HUB_USER --password-stdin
-            sh $PWD/scripts/publish_image 22.0.2 20.15.1 ${MBT_VERSION} "devxci"
+            sh $PWD/scripts/publish_image 23.0.1 20.15.1 ${MBT_VERSION} "devxci"
             #Push to GitHub Container Registry
             echo "$CLOUD_MTA_BOT_GITHUB_TOKEN" | docker login "ghcr.io" --username $CLOUD_MTA_BOT_USER --password-stdin
-            sh $PWD/scripts/publish_image 22.0.2 20.15.1 ${MBT_VERSION} "ghcr.io/sap"
+            sh $PWD/scripts/publish_image 23.0.1 20.15.1 ${MBT_VERSION} "ghcr.io/sap"
 
-  publish-to-dockerhub-java22-node22:
+  publish-to-dockerhub-java23-node22:
     docker:
       - image: cimg/go:1.21
     working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
@@ -831,21 +863,21 @@ jobs:
             git fetch
             git rebase
       - run:
-          name: build Java 22.0.2 & Node 22.5.1 image
+          name: build Java 23.0.1 & Node 22.5.1 image
           command: |
             MBT_VERSION=$(cat ./VERSION)
-            sh $PWD/scripts/build_image 22.0.2 22.5.1 ${MBT_VERSION}
+            sh $PWD/scripts/build_image 23.0.1 22.5.1 ${MBT_VERSION}
       - run:
-          name: publish Java 22.0.2 & Node 22.5.1 image
+          name: publish Java 23.0.1 & Node 22.5.1 image
           command: |
             MBT_VERSION=$(cat ./VERSION)
             echo "Image release: ${MBT_VERSION}"
             #Push to Docker Hub
             echo "$DOCKER_HUB_TOKEN" | docker login --username $DOCKER_HUB_USER --password-stdin
-            sh $PWD/scripts/publish_image 22.0.2 22.5.1 ${MBT_VERSION} "devxci"
+            sh $PWD/scripts/publish_image 23.0.1 22.5.1 ${MBT_VERSION} "devxci"
             #Push to GitHub Container Registry
             echo "$CLOUD_MTA_BOT_GITHUB_TOKEN" | docker login "ghcr.io" --username $CLOUD_MTA_BOT_USER --password-stdin
-            sh $PWD/scripts/publish_image 22.0.2 22.5.1 ${MBT_VERSION} "ghcr.io/sap"
+            sh $PWD/scripts/publish_image 23.0.1 22.5.1 ${MBT_VERSION} "ghcr.io/sap"
   remove-github-release-tag:
     docker:
       - image: cimg/go:1.21
@@ -1117,6 +1149,14 @@ workflows:
               only: /release/
             branches:
               ignore: /.*/
+      - publish-to-dockerhub-java17-node22:
+          requires:
+            - publish-to-npm
+          filters:
+            tags:
+              only: /release/
+            branches:
+              ignore: /.*/
       - publish-to-dockerhub-java19-node14:
           requires:
             - publish-to-npm
@@ -1173,7 +1213,7 @@ workflows:
               only: /release/
             branches:
               ignore: /.*/
-      - publish-to-dockerhub-java22-node18:
+      - publish-to-dockerhub-java23-node18:
           requires:
             - publish-to-npm
           filters:
@@ -1181,7 +1221,7 @@ workflows:
               only: /release/
             branches:
               ignore: /.*/
-      - publish-to-dockerhub-java22-node20:
+      - publish-to-dockerhub-java23-node20:
           requires:
             - publish-to-npm
           filters:
@@ -1189,7 +1229,7 @@ workflows:
               only: /release/
             branches:
               ignore: /.*/
-      - publish-to-dockerhub-java22-node22:
+      - publish-to-dockerhub-java23-node22:
           requires:
             - publish-to-npm
           filters:
@@ -1207,6 +1247,7 @@ workflows:
             - publish-to-dockerhub-java17-node16
             - publish-to-dockerhub-java17-node18
             - publish-to-dockerhub-java17-node20
+            - publish-to-dockerhub-java17-node22
             - publish-to-dockerhub-java19-node14
             - publish-to-dockerhub-java19-node16
             - publish-to-dockerhub-java19-node18
@@ -1214,9 +1255,9 @@ workflows:
             - publish-to-dockerhub-java21-node18
             - publish-to-dockerhub-java21-node20
             - publish-to-dockerhub-java21-node22
-            - publish-to-dockerhub-java22-node18
-            - publish-to-dockerhub-java22-node20
-            - publish-to-dockerhub-java22-node22
+            - publish-to-dockerhub-java23-node18
+            - publish-to-dockerhub-java23-node20
+            - publish-to-dockerhub-java23-node22
           filters:
             tags:
               only: /release/
