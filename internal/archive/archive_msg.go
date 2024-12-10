@@ -16,6 +16,8 @@ const (
 	// InitLocFailedOnWorkDirMsg - message raised on getting working directory when initializing location
 	InitLocFailedOnWorkDirMsg = `could not get working directory`
 
+	InvalidMtaYamlFilenameMsg = `the "%s" is not a valid mta yaml file name;`
+
 	// InvalidDescMsg - invalid descriptor
 	InvalidDescMsg = `the "%s" descriptor is invalid; expected one of the following values: Dev, Dep`
 

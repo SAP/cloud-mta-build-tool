@@ -9,6 +9,7 @@ import (
 )
 
 var projectBuildCmdSrc string
+var projectBuildCmdMtaYamlFilename string
 var projectBuildCmdTrg string
 var projectBuildCmdDesc string
 var projectBuildCmdExtensions []string
@@ -17,6 +18,8 @@ var projectBuildCmdPhase string
 func init() {
 	projectBuildCmd.Flags().StringVarP(&projectBuildCmdSrc,
 		"source", "s", "", "The path to the MTA project; the current path is set as default")
+	projectBuildCmd.Flags().StringVarP(&projectBuildCmdMtaYamlFilename,
+		"filename", "f", "", "The mta yaml filename of MTA project; the mta.yaml is set as default")
 	projectBuildCmd.Flags().StringVarP(&projectBuildCmdTrg,
 		"target", "t", "", "The path to the folder in which the temporary artifacts of the project build are created; the current path is set as default")
 	projectBuildCmd.Flags().StringVarP(&projectBuildCmdDesc,
@@ -33,7 +36,7 @@ var projectBuildCmd = &cobra.Command{
 	Short: "Run the MTA project pre and post build commands",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		err := artifacts.ExecuteProjectBuild(projectBuildCmdSrc, projectBuildCmdTrg, projectBuildCmdDesc, projectBuildCmdExtensions, projectBuildCmdPhase, os.Getwd)
+		err := artifacts.ExecuteProjectBuild(projectBuildCmdSrc, projectBuildCmdMtaYamlFilename, projectBuildCmdTrg, projectBuildCmdDesc, projectBuildCmdExtensions, projectBuildCmdPhase, os.Getwd)
 		logError(err)
 		return err
 	},

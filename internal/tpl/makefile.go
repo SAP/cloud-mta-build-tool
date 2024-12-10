@@ -10,7 +10,7 @@ import (
 	"github.com/kballard/go-shellquote"
 	"github.com/pkg/errors"
 
-	"github.com/SAP/cloud-mta-build-tool/internal/archive"
+	dir "github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta-build-tool/internal/buildops"
 	"github.com/SAP/cloud-mta-build-tool/internal/commands"
 	"github.com/SAP/cloud-mta-build-tool/internal/logs"
@@ -27,13 +27,13 @@ type tplCfg struct {
 }
 
 // ExecuteMake - generate makefile
-func ExecuteMake(source, target string, extensions []string, name, mode string, wdGetter func() (string, error), useDefaultMbt bool) error {
+func ExecuteMake(source, mtaYamlFilename, target string, extensions []string, name, mode string, wdGetter func() (string, error), useDefaultMbt bool) error {
 	logs.Logger.Infof(`generating the "%s" file...`, name)
-	loc, err := dir.Location(source, target, dir.Dev, extensions, wdGetter)
+	loc, err := dir.Location(source, mtaYamlFilename, target, dir.Dev, extensions, wdGetter)
 	if err != nil {
 		return errors.Wrapf(err, genFailedOnInitLocMsg, name)
 	}
-	err = genMakefile(loc, loc, loc, loc, loc.GetExtensionFilePaths(), name, mode, useDefaultMbt)
+	err = genMakefile(loc, loc, loc, loc, loc.GetExtensionFilePaths(), name, mode, useDefaultMbt, mtaYamlFilename)
 	if err != nil {
 		return err
 	}
@@ -42,14 +42,14 @@ func ExecuteMake(source, target string, extensions []string, name, mode string, 
 }
 
 // genMakefile - Generate the makefile
-func genMakefile(mtaParser dir.IMtaParser, loc dir.ITargetPath, srcLoc dir.ISourceModule, desc dir.IDescriptor, extensionFilePaths []string, makeFilename, mode string, useDefaultMbt bool) error {
+func genMakefile(mtaParser dir.IMtaParser, loc dir.ITargetPath, srcLoc dir.ISourceModule, desc dir.IDescriptor, extensionFilePaths []string, makeFilename, mode string, useDefaultMbt bool, mtaYamlFilename string) error {
 	tpl, err := getTplCfg(mode, desc.IsDeploymentDescriptor())
 	if err != nil {
 		return err
 	}
 	if err == nil {
 		tpl.depDesc = desc.GetDescriptor()
-		err = makeFile(mtaParser, loc, srcLoc, extensionFilePaths, makeFilename, &tpl, useDefaultMbt)
+		err = makeFile(mtaParser, loc, srcLoc, extensionFilePaths, makeFilename, &tpl, useDefaultMbt, mtaYamlFilename)
 	}
 	return err
 }
@@ -112,7 +112,7 @@ func (data templateData) GetPathArgument(innerPath string) string {
 }
 
 // makeFile - generate makefile form templates
-func makeFile(mtaParser dir.IMtaParser, loc dir.ITargetPath, srcLoc dir.ISourceModule, extensionFilePaths []string, makeFilename string, tpl *tplCfg, useDefaultMbt bool) (e error) {
+func makeFile(mtaParser dir.IMtaParser, loc dir.ITargetPath, srcLoc dir.ISourceModule, extensionFilePaths []string, makeFilename string, tpl *tplCfg, useDefaultMbt bool, mtaYamlFilename string) (e error) {
 
 	// template data
 	data := templateData{}
@@ -144,7 +144,7 @@ func makeFile(mtaParser dir.IMtaParser, loc dir.ITargetPath, srcLoc dir.ISourceM
 	path := filepath.Join(target, tpl.relPath)
 
 	// Create maps of the template method's
-	t, err := mapTpl(tpl.tplContent, tpl.preContent, tpl.postContent, useDefaultMbt, extensionFilePaths, path)
+	t, err := mapTpl(tpl.tplContent, tpl.preContent, tpl.postContent, useDefaultMbt, extensionFilePaths, path, mtaYamlFilename)
 	if err != nil {
 		return errors.Wrapf(err, genFailedOnTmplMapMsg, makeFilename)
 	}
@@ -197,7 +197,7 @@ func getExtensionsArg(extensions []string, makefileDirPath string, argName strin
 	return fmt.Sprintf(` %s="%s"`, argName, strings.Join(relExtPaths, ","))
 }
 
-func mapTpl(templateContent []byte, BasePreContent []byte, BasePostContent []byte, useDefaultMbt bool, extensions []string, makefileDirPath string) (*template.Template, error) {
+func mapTpl(templateContent []byte, BasePreContent []byte, BasePostContent []byte, useDefaultMbt bool, extensions []string, makefileDirPath string, mtaYamlFilenName string) (*template.Template, error) {
 	funcMap := template.FuncMap{
 		"CommandProvider": func(modules mta.Module) (commands.CommandList, error) {
 			cmds, _, err := commands.CommandProvider(modules)
@@ -206,6 +206,13 @@ func mapTpl(templateContent []byte, BasePreContent []byte, BasePostContent []byt
 		"Version": version.GetVersion,
 		"MbtPath": func() string {
 			return getMbtPath(useDefaultMbt)
+		},
+		"MBTYamlFilename": func(argName string) string {
+			if mtaYamlFilenName == "" || mtaYamlFilenName == "mta.yaml" {
+				return ""
+			} else {
+				return fmt.Sprintf(` %s="%s"`, argName, mtaYamlFilenName)
+			}
 		},
 		"ExtensionsArg": func(argName string) string {
 			return getExtensionsArg(extensions, makefileDirPath, argName)

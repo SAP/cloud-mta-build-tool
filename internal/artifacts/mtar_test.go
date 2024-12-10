@@ -8,7 +8,7 @@ import (
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
 
-	"github.com/SAP/cloud-mta-build-tool/internal/archive"
+	dir "github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta/mta"
 )
 
@@ -22,26 +22,26 @@ var _ = Describe("Mtar", func() {
 		var _ = Describe("ExecuteGenMtar", func() {
 			It("Sanity, target provided", func() {
 				createMtahtml5TmpFolder()
-				Ω(ExecuteGenMeta(getTestPath("mtahtml5"), getResultPath(), "dev", nil, "cf", os.Getwd)).Should(Succeed())
-				Ω(ExecuteGenMtar(getTestPath("mtahtml5"), getResultPath(), "true", "dev", nil, "", os.Getwd)).Should(Succeed())
+				Ω(ExecuteGenMeta(getTestPath("mtahtml5"), "", getResultPath(), "dev", nil, "cf", os.Getwd)).Should(Succeed())
+				Ω(ExecuteGenMtar(getTestPath("mtahtml5"), "", getResultPath(), "true", "dev", nil, "", os.Getwd)).Should(Succeed())
 				Ω(getTestPath("result", "mtahtml5_0.0.1.mtar")).Should(BeAnExistingFile())
 			})
 
 			It("Sanity, target not provided", func() {
 				createMtahtml5TmpFolder()
-				Ω(ExecuteGenMeta(getTestPath("mtahtml5"), getResultPath(), "dev", nil, "cf", os.Getwd)).Should(Succeed())
-				Ω(ExecuteGenMtar(getTestPath("mtahtml5"), getResultPath(), "false", "dev", nil, "", os.Getwd)).Should(Succeed())
+				Ω(ExecuteGenMeta(getTestPath("mtahtml5"), "", getResultPath(), "dev", nil, "cf", os.Getwd)).Should(Succeed())
+				Ω(ExecuteGenMtar(getTestPath("mtahtml5"), "", getResultPath(), "false", "dev", nil, "", os.Getwd)).Should(Succeed())
 				Ω(getTestPath("result", "mta_archives", "mtahtml5_0.0.1.mtar")).Should(BeAnExistingFile())
 			})
 
 			It("Fails on location initialization", func() {
-				Ω(ExecuteGenMtar("", getResultPath(), "true", "dev", nil, "", func() (string, error) {
+				Ω(ExecuteGenMtar("", "", getResultPath(), "true", "dev", nil, "", func() (string, error) {
 					return "", errors.New("err")
 				})).Should(HaveOccurred())
 			})
 
 			It("Fails - wrong source", func() {
-				Ω(ExecuteGenMtar(getTestPath("mtahtml6"), getResultPath(), "true", "dev", nil, "", os.Getwd)).Should(HaveOccurred())
+				Ω(ExecuteGenMtar(getTestPath("mtahtml6"), "", getResultPath(), "true", "dev", nil, "", os.Getwd)).Should(HaveOccurred())
 			})
 		})
 
