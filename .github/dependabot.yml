@@ -1,12 +1,11 @@
 version: 2
 updates:
 - package-ecosystem: gomod
-  directory: "/"
+  directory: '/'
   schedule:
-    interval: weekly
-    day: sunday
-    time: "10:00"
-    timezone: Etc/UCT
+    interval: 'weekly'
+  labels:
+  - 'dependencies'
   ignore:
   - dependency-name: github.com/onsi/ginkgo
     versions:
@@ -15,3 +14,10 @@ updates:
     versions:
     - 1.8.0
     - 1.8.1
+- package-ecosystem: 'npm'
+  directory: '/'
+  schedule:
+    interval: 'weekly'
+  labels:
+  - 'dependencies'
+  versioning-strategy: increase
