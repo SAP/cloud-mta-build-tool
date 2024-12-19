@@ -5,6 +5,8 @@ package:
     installed: false
   git:
     installed: true
+  build-essential:
+    installed: true
   python2.7:
     installed: true
   python3:
@@ -39,13 +41,13 @@ command:
     exit-status: 0
     stdout:
       - vNODE_VERSION_TEMPLATE
-  # verify installed UI5
+  # verify installed UI5 version
   ui5 --version:
     exit-status: 0
-  # verify installed grunt
+  # verify installed grunt version
   grunt --version:
     exit-status: 0
-  # verify installed go
+  # verify installed go version
   go version:
     exit-status:0 
   # verify NPM @sap-scope registry NOT configured

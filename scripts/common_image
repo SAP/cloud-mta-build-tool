@@ -18,7 +18,7 @@ then
 	exit -1
 fi
 
-# set jvm and node version and print
+# set java and node version and print
 export JAVA_VERSION="-java${JAVA_MAJOR_VERSION}"
 export NODE_VERSION="-node${NODE_MAJOR_VERSION}"
 echo "Java version: ${JAVA_VERSION}, Node version: ${NODE_VERSION}"
