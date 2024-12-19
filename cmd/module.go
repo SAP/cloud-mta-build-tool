@@ -10,6 +10,7 @@ import (
 
 // flags of pack command
 var packCmdSrc string
+var packCmdMtaYamlFilename string
 var packCmdTrg string
 var packCmdExtensions []string
 var packCmdModule string
@@ -17,6 +18,7 @@ var packCmdPlatform string
 
 // flags of Makefile build command
 var buildModuleCmdSrc string
+var buildModuleCmdMtaYamlFilename string
 var buildModuleCmdTrg string
 var buildModuleCmdExtensions []string
 var buildModuleCmdModule string
@@ -24,6 +26,7 @@ var buildModuleCmdPlatform string
 
 // flags of stand alone build command
 var soloBuildModuleCmdSrc string
+var soloBuildModuleCmdMtaYamlFilename string
 var soloBuildModuleCmdTrg string
 var soloBuildModuleCmdExtensions []string
 var soloBuildModuleCmdModules []string
@@ -36,6 +39,8 @@ func init() {
 	// sets the flags of of the command pack module
 	packModuleCmd.Flags().StringVarP(&packCmdSrc, "source", "s", "",
 		"The path to the MTA project; the current path is is set as default")
+	packModuleCmd.Flags().StringVarP(&packCmdMtaYamlFilename, "filename", "f", "",
+		"The mta yaml filename of MTA project; the mta.yaml is is set as default")
 	packModuleCmd.Flags().StringVarP(&packCmdTrg, "target", "t", "",
 		"The path to the folder in which the temporary artifacts of the module pack are created; the current path is is set as default")
 	packModuleCmd.Flags().StringSliceVarP(&packCmdExtensions, "extensions", "e", nil,
@@ -48,6 +53,8 @@ func init() {
 	// sets the flags of the Makefile command build module
 	buildModuleCmd.Flags().StringVarP(&buildModuleCmdSrc, "source", "s", "",
 		"The path to the MTA project; the current path is set as default")
+	buildModuleCmd.Flags().StringVarP(&buildModuleCmdMtaYamlFilename, "filename", "f", "",
+		"The mta yaml filename of MTA project; the mta.yaml is is set as default")
 	buildModuleCmd.Flags().StringVarP(&buildModuleCmdTrg, "target", "t", "",
 		"The path to the folder in which the module build results are created; the <source folder>/.<project name>_mta_build_tmp/<module name> path is set as default")
 	buildModuleCmd.Flags().StringSliceVarP(&buildModuleCmdExtensions, "extensions", "e", nil,
@@ -60,6 +67,8 @@ func init() {
 	// sets the flags of the solo Makefile command build module
 	soloBuildModuleCmd.Flags().StringVarP(&soloBuildModuleCmdSrc, "source", "s", "",
 		"The path to the MTA project; the current path is set as default")
+	soloBuildModuleCmd.Flags().StringVarP(&soloBuildModuleCmdMtaYamlFilename, "filename", "f", "",
+		"The mta yaml filename of the MTA project; the mta.ymal is set as default")
 	soloBuildModuleCmd.Flags().StringVarP(&soloBuildModuleCmdTrg, "target", "t", "",
 		"The path to the folder in which the module build results are created; the <current folder>/.<project name>_mta_build_tmp/<module name> path is set as default")
 	soloBuildModuleCmd.Flags().StringSliceVarP(&soloBuildModuleCmdExtensions, "extensions", "e", nil,
@@ -81,7 +90,7 @@ var soloBuildModuleCmd = &cobra.Command{
 	Long:  "Builds specified modules according to configurations in the MTA development descriptor (mta.yaml)",
 	Args:  cobra.MaximumNArgs(4),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		err := artifacts.ExecuteSoloBuild(soloBuildModuleCmdSrc, soloBuildModuleCmdTrg, soloBuildModuleCmdExtensions,
+		err := artifacts.ExecuteSoloBuild(soloBuildModuleCmdSrc, soloBuildModuleCmdMtaYamlFilename, soloBuildModuleCmdTrg, soloBuildModuleCmdExtensions,
 			soloBuildModuleCmdModules, soloBuildModuleCmdAllDependencies, soloBuildModuleCmdMtadGen, soloBuildModuleCmdPlatform,
 			os.Getwd)
 		logError(err)
@@ -98,7 +107,7 @@ var buildModuleCmd = &cobra.Command{
 	Long:  "Builds module according to configurations in the MTA development descriptor (mta.yaml) and archives its artifacts",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		err := artifacts.ExecuteBuild(buildModuleCmdSrc, buildModuleCmdTrg, buildModuleCmdExtensions, buildModuleCmdModule, buildModuleCmdPlatform, os.Getwd)
+		err := artifacts.ExecuteBuild(buildModuleCmdSrc, buildModuleCmdMtaYamlFilename, buildModuleCmdTrg, buildModuleCmdExtensions, buildModuleCmdModule, buildModuleCmdPlatform, os.Getwd)
 		logError(err)
 		return err
 	},
@@ -117,7 +126,7 @@ var packModuleCmd = &cobra.Command{
 	Long:  "Packs the module artifacts after the build process",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		err := artifacts.ExecutePack(packCmdSrc, packCmdTrg, packCmdExtensions, packCmdModule, packCmdPlatform, os.Getwd)
+		err := artifacts.ExecutePack(packCmdSrc, packCmdMtaYamlFilename, packCmdTrg, packCmdExtensions, packCmdModule, packCmdPlatform, os.Getwd)
 		logError(err)
 		return err
 	},

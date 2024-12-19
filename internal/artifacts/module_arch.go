@@ -2,14 +2,15 @@ package artifacts
 
 import (
 	"fmt"
-	"gopkg.in/yaml.v2"
 	"os"
 	"path/filepath"
 	"strings"
 
+	"gopkg.in/yaml.v2"
+
 	"github.com/pkg/errors"
 
-	"github.com/SAP/cloud-mta-build-tool/internal/archive"
+	dir "github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta-build-tool/internal/buildops"
 	"github.com/SAP/cloud-mta-build-tool/internal/commands"
 	"github.com/SAP/cloud-mta-build-tool/internal/exec"
@@ -22,13 +23,13 @@ const (
 )
 
 // ExecuteBuild - executes build of module from Makefile
-func ExecuteBuild(source, target string, extensions []string, moduleName, platform string, wdGetter func() (string, error)) error {
+func ExecuteBuild(source, mtaYamlFilename, target string, extensions []string, moduleName, platform string, wdGetter func() (string, error)) error {
 	if moduleName == "" {
 		return errors.New(buildFailedOnEmptyModuleMsg)
 	}
 
 	logs.Logger.Infof(buildMsg, moduleName)
-	loc, err := dir.Location(source, target, dir.Dev, extensions, wdGetter)
+	loc, err := dir.Location(source, mtaYamlFilename, target, dir.Dev, extensions, wdGetter)
 	if err != nil {
 		return errors.Wrapf(err, buildFailedMsg, moduleName)
 	}
@@ -42,7 +43,7 @@ func ExecuteBuild(source, target string, extensions []string, moduleName, platfo
 }
 
 // ExecuteSoloBuild - executes build of module from stand alone command
-func ExecuteSoloBuild(source, target string, extensions []string, modulesNames []string, allDependencies bool,
+func ExecuteSoloBuild(source, mtaYamlFilename, target string, extensions []string, modulesNames []string, allDependencies bool,
 	generateMtadFlag bool, platform string,
 	wdGetter func() (string, error)) error {
 
@@ -55,7 +56,7 @@ func ExecuteSoloBuild(source, target string, extensions []string, modulesNames [
 		return wrapBuildError(err, modulesNames)
 	}
 
-	loc, err := dir.Location(sourceDir, "", dir.Dev, extensions, wdGetter)
+	loc, err := dir.Location(sourceDir, mtaYamlFilename, "", dir.Dev, extensions, wdGetter)
 	if err != nil {
 		return wrapBuildError(err, modulesNames)
 	}
@@ -68,7 +69,7 @@ func ExecuteSoloBuild(source, target string, extensions []string, modulesNames [
 	// Fail-fast check on modules whose build results are resolved (not glob patterns),
 	// so we can give the error before building the modules.
 	// After the build we perform another check on the actual build result paths (including glob patterns)
-	err = checkResolvedBuildResultsConflicts(mtaObj, sourceDir, target, extensions, modulesNames, wdGetter)
+	err = checkResolvedBuildResultsConflicts(mtaObj, sourceDir, mtaYamlFilename, target, extensions, modulesNames, wdGetter)
 	if err != nil {
 		return wrapBuildError(err, modulesNames)
 	}
@@ -105,7 +106,7 @@ func ExecuteSoloBuild(source, target string, extensions []string, modulesNames [
 		logs.Logger.Infof(multiBuildMsg, `"`+strings.Join(sortedModules, `", "`)+`"`)
 	}
 
-	packedModulePaths, err := buildModules(sourceDir, target, extensions, sortedModules, selectedModulesMap, wdGetter)
+	packedModulePaths, err := buildModules(sourceDir, mtaYamlFilename, target, extensions, sortedModules, selectedModulesMap, wdGetter)
 	if err != nil {
 		return wrapBuildError(err, modulesNames)
 	}
@@ -124,7 +125,7 @@ func ExecuteSoloBuild(source, target string, extensions []string, modulesNames [
 	return nil
 }
 
-func checkResolvedBuildResultsConflicts(mtaObj *mta.MTA, source, target string, extensions []string, modulesNames []string, wdGetter func() (string, error)) error {
+func checkResolvedBuildResultsConflicts(mtaObj *mta.MTA, source, mtaYamlFilename, target string, extensions []string, modulesNames []string, wdGetter func() (string, error)) error {
 
 	resultPathModuleNameMap := make(map[string]string)
 
@@ -134,7 +135,7 @@ func checkResolvedBuildResultsConflicts(mtaObj *mta.MTA, source, target string, 
 		if err != nil {
 			return err
 		}
-		moduleLoc, err := getModuleLocation(source, target, module.Name, extensions, wdGetter)
+		moduleLoc, err := getModuleLocation(source, mtaYamlFilename, target, module.Name, extensions, wdGetter)
 		if err != nil {
 			return err
 		}
@@ -218,12 +219,12 @@ func collectSelectedModulesAndDependencies(mtaObj *mta.MTA, modulesWithDependenc
 	return nil
 }
 
-func buildModules(source, target string, extensions []string, modulesToBuild []string,
+func buildModules(source, mtaYamlFilename, target string, extensions []string, modulesToBuild []string,
 	modulesToPack map[string]bool, wdGetter func() (string, error)) (packedModulePaths map[string]string, err error) {
 
 	buildResults := make(map[string]string)
 	for _, module := range modulesToBuild {
-		err := buildSelectedModule(source, target, extensions, module, modulesToPack[module], buildResults, wdGetter)
+		err := buildSelectedModule(source, mtaYamlFilename, target, extensions, module, modulesToPack[module], buildResults, wdGetter)
 
 		if err != nil {
 			return nil, err
@@ -237,12 +238,12 @@ func buildModules(source, target string, extensions []string, modulesToBuild []s
 	return packedModulePaths, nil
 }
 
-func buildSelectedModule(source, target string, extensions []string, module string,
+func buildSelectedModule(source, mtaYamlFilename, target string, extensions []string, module string,
 	toPack bool, buildResults map[string]string, wdGetter func() (string, error)) error {
 
 	logs.Logger.Infof(buildMsg, module)
 
-	moduleLoc, err := getModuleLocation(source, target, module, extensions, wdGetter)
+	moduleLoc, err := getModuleLocation(source, mtaYamlFilename, target, module, extensions, wdGetter)
 	if err != nil {
 		return err
 	}
@@ -267,13 +268,13 @@ func sortModules(allModulesSorted []string, selectedModulesMap map[string]bool) 
 	return result
 }
 
-func getModuleLocation(source, target, moduleName string, extensions []string, wdGetter func() (string, error)) (*dir.ModuleLoc, error) {
+func getModuleLocation(source, mtaYamlFilename, target, moduleName string, extensions []string, wdGetter func() (string, error)) (*dir.ModuleLoc, error) {
 	targetDir, err := getSoloModuleBuildAbsTarget(source, target, moduleName, wdGetter)
 	if err != nil {
 		return nil, err
 	}
 
-	loc, err := dir.Location(source, targetDir, dir.Dev, extensions, wdGetter)
+	loc, err := dir.Location(source, mtaYamlFilename, targetDir, dir.Dev, extensions, wdGetter)
 	if err != nil {
 		return nil, err
 	}
@@ -305,10 +306,10 @@ func getSoloModuleBuildAbsTarget(absSource, target, moduleName string, wdGetter 
 }
 
 // ExecutePack - executes packing of module
-func ExecutePack(source, target string, extensions []string, moduleName, platform string, wdGetter func() (string, error)) error {
+func ExecutePack(source, mtaYamlFilename, target string, extensions []string, moduleName, platform string, wdGetter func() (string, error)) error {
 	logs.Logger.Infof(packMsg, moduleName)
 
-	loc, err := dir.Location(source, target, dir.Dev, extensions, wdGetter)
+	loc, err := dir.Location(source, mtaYamlFilename, target, dir.Dev, extensions, wdGetter)
 	if err != nil {
 		return errors.Wrapf(err, packFailedOnLocMsg, moduleName)
 	}
@@ -494,10 +495,10 @@ func convert(data []interface{}) []string {
 
 // CopyMtaContent copies the content of all modules and resources which are presented in the deployment descriptor,
 // in the source directory, to the target directory
-func CopyMtaContent(source, target string, extensions []string, copyInParallel bool, wdGetter func() (string, error)) error {
+func CopyMtaContent(source, mtaYamlFilename, target string, extensions []string, copyInParallel bool, wdGetter func() (string, error)) error {
 
 	logs.Logger.Info(copyStartMsg)
-	loc, err := dir.Location(source, target, dir.Dep, extensions, wdGetter)
+	loc, err := dir.Location(source, mtaYamlFilename, target, dir.Dep, extensions, wdGetter)
 	if err != nil {
 		return errors.Wrap(err, copyContentFailedOnLocMsg)
 	}

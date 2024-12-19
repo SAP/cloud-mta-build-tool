@@ -10,6 +10,7 @@ import (
 
 // mtad gen - command flags
 var mtadGenCmdSrc string
+var mtadGenCmdMtaYamlFilename string
 var mtadGenCmdTrg string
 var mtadGenCmdExtensions []string
 var mtadGenCmdPlatform string
@@ -21,7 +22,7 @@ var mtadGenCmd = &cobra.Command{
 	Long:  "Generates a deployment descriptor ('mtad.yaml') file from the 'mta.yaml' file",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		err := artifacts.ExecuteMtadGen(mtadGenCmdSrc, mtadGenCmdTrg, mtadGenCmdExtensions, mtadGenCmdPlatform, os.Getwd)
+		err := artifacts.ExecuteMtadGen(mtadGenCmdSrc, mtadGenCmdMtaYamlFilename, mtadGenCmdTrg, mtadGenCmdExtensions, mtadGenCmdPlatform, os.Getwd)
 		logError(err)
 		return err
 	},
@@ -33,6 +34,8 @@ func init() {
 	// set flags of mtad gen command
 	mtadGenCmd.Flags().StringVarP(&mtadGenCmdSrc, "source", "s", "",
 		"The path to the MTA project; the current path is set as default")
+	mtadGenCmd.Flags().StringVarP(&mtadGenCmdMtaYamlFilename, "filename", "f", "",
+		"The mta yaml filename of MTA project; the mta.yaml is is set as default")
 	mtadGenCmd.Flags().StringVarP(&mtadGenCmdTrg, "target", "t",
 		"", "The path to the folder in which the 'mtad.yaml' file is generated; the current path is set as default")
 	mtadGenCmd.Flags().StringSliceVarP(&mtadGenCmdExtensions, "extensions", "e", nil,

@@ -10,7 +10,7 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"
 
-	"github.com/SAP/cloud-mta-build-tool/internal/archive"
+	dir "github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta-build-tool/internal/platform"
 	"github.com/SAP/cloud-mta-build-tool/internal/version"
 	"github.com/SAP/cloud-mta/mta"
@@ -26,7 +26,7 @@ var _ = Describe("Meta", func() {
 
 		It("Sanity", func() {
 			createMtahtml5TmpFolder()
-			Ω(ExecuteGenMeta(getTestPath("mtahtml5"), getResultPath(), "dev", nil, "CF", os.Getwd)).Should(Succeed())
+			Ω(ExecuteGenMeta(getTestPath("mtahtml5"), "", getResultPath(), "dev", nil, "CF", os.Getwd)).Should(Succeed())
 			Ω(getFullPathInTmpFolder("mtahtml5", "META-INF", "MANIFEST.MF")).Should(BeAnExistingFile())
 			Ω(getFullPathInTmpFolder("mtahtml5", "META-INF", "mtad.yaml")).Should(BeAnExistingFile())
 		})
@@ -34,12 +34,12 @@ var _ = Describe("Meta", func() {
 		It("Fails on META-INF folder creation", func() {
 			createDirInTmpFolder("mtahtml5")
 			createFileInTmpFolder("mtahtml5", "META-INF")
-			err := ExecuteGenMeta(getTestPath("mtahtml5"), getResultPath(), "dev", nil, "CF", os.Getwd)
+			err := ExecuteGenMeta(getTestPath("mtahtml5"), "", getResultPath(), "dev", nil, "CF", os.Getwd)
 			checkError(err, dir.FolderCreationFailedMsg, getFullPathInTmpFolder("mtahtml5", "META-INF"))
 		})
 
 		It("Wrong location - fails on Working directory get", func() {
-			err := ExecuteGenMeta("", "", "dev", nil, "cf", func() (string, error) {
+			err := ExecuteGenMeta("", "", "", "dev", nil, "cf", func() (string, error) {
 				return "", errors.New("error of working dir get")
 			})
 			checkError(err, "error of working dir get")
@@ -47,11 +47,11 @@ var _ = Describe("Meta", func() {
 		It("Wrong platform", func() {
 			createDirInTmpFolder("mtahtml5", "ui5app2")
 			createDirInTmpFolder("mtahtml5", "testapp")
-			err := ExecuteGenMeta(getTestPath("mtahtml5"), getResultPath(), "dev", nil, "xx", os.Getwd)
+			err := ExecuteGenMeta(getTestPath("mtahtml5"), "", getResultPath(), "dev", nil, "xx", os.Getwd)
 			checkError(err, invalidPlatformMsg, "xx")
 		})
 		It("generateMeta fails on wrong source path - parse mta fails", func() {
-			err := ExecuteGenMeta(getTestPath("mtahtml6"), getResultPath(), "dev", nil, "cf", os.Getwd)
+			err := ExecuteGenMeta(getTestPath("mtahtml6"), "", getResultPath(), "dev", nil, "cf", os.Getwd)
 			checkError(err, getTestPath("mtahtml6", "mta.yaml"))
 		})
 	})
@@ -202,41 +202,41 @@ cli_version:["x"]
 		resultFilePath := getTestPath("result", resultFileName)
 
 		It("Succeeds with single mtaext file", func() {
-			err := ExecuteMerge(getTestPath("mta_with_ext"), getResultPath(), []string{"cf-mtaext.mtaext"}, resultFileName, os.Getwd)
+			err := ExecuteMerge(getTestPath("mta_with_ext"), "", getResultPath(), []string{"cf-mtaext.mtaext"}, resultFileName, os.Getwd)
 			Ω(err).Should(Succeed())
 			Ω(resultFilePath).Should(BeAnExistingFile())
 			compareMTAContent(getTestPath("mta_with_ext", "golden1.yaml"), resultFilePath)
 		})
 		It("Succeeds with two mtaext files", func() {
-			err := ExecuteMerge(getTestPath("mta_with_ext"), getResultPath(), []string{"other.mtaext", "cf-mtaext.mtaext"}, resultFileName, os.Getwd)
+			err := ExecuteMerge(getTestPath("mta_with_ext"), "", getResultPath(), []string{"other.mtaext", "cf-mtaext.mtaext"}, resultFileName, os.Getwd)
 			Ω(err).Should(Succeed())
 			Ω(resultFilePath).Should(BeAnExistingFile())
 			compareMTAContent(getTestPath("mta_with_ext", "golden2.yaml"), resultFilePath)
 		})
 		It("Fails when the result file name is not sent", func() {
-			err := ExecuteMerge(getTestPath("mta_with_ext"), getResultPath(), []string{"cf-mtaext.mtaext"}, "", os.Getwd)
+			err := ExecuteMerge(getTestPath("mta_with_ext"), "", getResultPath(), []string{"cf-mtaext.mtaext"}, "", os.Getwd)
 			checkError(err, mergeNameRequiredMsg)
 		})
 		It("Fails when the result file already exists", func() {
 			Ω(dir.CreateDirIfNotExist(getResultPath())).Should(Succeed())
 			createFileInGivenPath(resultFilePath)
 
-			err := ExecuteMerge(getTestPath("mta_with_ext"), getResultPath(), []string{"cf-mtaext.mtaext"}, resultFileName, os.Getwd)
+			err := ExecuteMerge(getTestPath("mta_with_ext"), "", getResultPath(), []string{"cf-mtaext.mtaext"}, resultFileName, os.Getwd)
 			checkError(err, mergeFailedOnFileCreationMsg, resultFilePath)
 		})
 		It("Fails when the result directory is a file", func() {
 			Ω(dir.CreateDirIfNotExist(filepath.Dir(getResultPath()))).Should(Succeed())
 			createFileInGivenPath(getResultPath())
 
-			err := ExecuteMerge(getTestPath("mta_with_ext"), getResultPath(), []string{"cf-mtaext.mtaext"}, resultFileName, os.Getwd)
+			err := ExecuteMerge(getTestPath("mta_with_ext"), "", getResultPath(), []string{"cf-mtaext.mtaext"}, resultFileName, os.Getwd)
 			checkError(err, dir.FolderCreationFailedMsg, getResultPath())
 		})
 		It("Fails when the mtaext file doesn't exist", func() {
-			err := ExecuteMerge(getTestPath("mta_with_ext"), getResultPath(), []string{"invalid.yaml"}, resultFileName, os.Getwd)
+			err := ExecuteMerge(getTestPath("mta_with_ext"), "", getResultPath(), []string{"invalid.yaml"}, resultFileName, os.Getwd)
 			checkError(err, getTestPath("mta_with_ext", "invalid.yaml"))
 		})
 		It("Fails when wdGetter fails", func() {
-			err := ExecuteMerge("", getResultPath(), []string{"cf-mtaext.yaml"}, resultFileName, func() (string, error) {
+			err := ExecuteMerge("", "", getResultPath(), []string{"cf-mtaext.yaml"}, resultFileName, func() (string, error) {
 				return "", errors.New("an error occurred")
 			})
 			checkError(err, "an error occurred")

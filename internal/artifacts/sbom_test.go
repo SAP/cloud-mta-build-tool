@@ -135,37 +135,37 @@ var _ = Describe("mbt build with sbom gen command", func() {
 	It("Success - build with relatvie source and relative sbom-file-path parameter", func() {
 		source := "testdata/mta"
 		sbomFilePath := "gen-sbom-result/merged.bom.xml"
-		Ω(ExecuteProjectBuildeSBomGenerate(source, sbomFilePath, os.Getwd)).Should(Succeed())
+		Ω(ExecuteProjectBuildeSBomGenerate(source, "", sbomFilePath, os.Getwd)).Should(Succeed())
 		Ω(os.RemoveAll(getTestPath("mta", "gen-sbom-result"))).Should(Succeed())
 	})
 	It("Success - build with abs source and relative sbom-file-path parameter", func() {
 		source := getTestPath("mta")
 		sbomFilePath := "gen-sbom-result/merged.bom.xml"
-		Ω(ExecuteProjectBuildeSBomGenerate(source, sbomFilePath, os.Getwd)).Should(Succeed())
+		Ω(ExecuteProjectBuildeSBomGenerate(source, "", sbomFilePath, os.Getwd)).Should(Succeed())
 		Ω(os.RemoveAll(getTestPath("mta", "gen-sbom-result"))).Should(Succeed())
 	})
 	It("Success - build with relatvie source and abs sbom-file-path parameter", func() {
 		source := "testdata/mta"
 		sbomFilePath := getTestPath("gen-sbom-result", "merged.bom.xml")
-		Ω(ExecuteProjectBuildeSBomGenerate(source, sbomFilePath, os.Getwd)).Should(Succeed())
+		Ω(ExecuteProjectBuildeSBomGenerate(source, "", sbomFilePath, os.Getwd)).Should(Succeed())
 		Ω(os.RemoveAll(getTestPath("gen-sbom-result"))).Should(Succeed())
 	})
 	It("Success - build with abs source and abs sbom-file-path parameter", func() {
 		source := getTestPath("mta")
 		sbomFilePath := getTestPath("gen-sbom-result", "merged.bom.xml")
-		Ω(ExecuteProjectBuildeSBomGenerate(source, sbomFilePath, os.Getwd)).Should(Succeed())
+		Ω(ExecuteProjectBuildeSBomGenerate(source, "", sbomFilePath, os.Getwd)).Should(Succeed())
 		Ω(os.RemoveAll(getTestPath("gen-sbom-result"))).Should(Succeed())
 	})
 	It("Success - build without sbom-file-path parameter", func() {
 		source := getTestPath("mta")
 		sbomFilePath := ""
-		Ω(ExecuteProjectBuildeSBomGenerate(source, sbomFilePath, os.Getwd)).Should(Succeed())
+		Ω(ExecuteProjectBuildeSBomGenerate(source, "", sbomFilePath, os.Getwd)).Should(Succeed())
 	})
 	It("Failure - build with invalid source paramerter case 1", func() {
 		source := "testdata??/mta"
 		sbomFilePath := filepath.Join(getTestPath("gen-sbom-result"), "merged.bom.xml")
 
-		err := ExecuteProjectBuildeSBomGenerate(source, sbomFilePath, os.Getwd)
+		err := ExecuteProjectBuildeSBomGenerate(source, "", sbomFilePath, os.Getwd)
 		Ω(err).Should(HaveOccurred())
 		//Ω(err.Error()).Should(ContainSubstring("The filename, directory name, or volume label syntax is incorrect"))
 		Ω(os.RemoveAll(getTestPath("gen-sbom-result"))).Should(Succeed())
@@ -174,7 +174,7 @@ var _ = Describe("mbt build with sbom gen command", func() {
 		source := "testdata/*??>mta"
 		sbomFilePath := filepath.Join(getTestPath("gen-sbom-result"), "merged.bom.xml")
 
-		err := ExecuteProjectBuildeSBomGenerate(source, sbomFilePath, os.Getwd)
+		err := ExecuteProjectBuildeSBomGenerate(source, "", sbomFilePath, os.Getwd)
 		Ω(err).Should(HaveOccurred())
 		//Ω(err.Error()).Should(ContainSubstring("The filename, directory name, or volume label syntax is incorrect"))
 		Ω(os.RemoveAll(getTestPath("gen-sbom-result"))).Should(Succeed())
@@ -182,14 +182,14 @@ var _ = Describe("mbt build with sbom gen command", func() {
 	It("Success - build without suffix sbom-file-name parameter", func() {
 		source := getTestPath("mta")
 		sbomFilePath := getTestPath("gen-sbom-result", "result_without_suffix")
-		Ω(ExecuteProjectBuildeSBomGenerate(source, sbomFilePath, os.Getwd)).Should(Succeed())
+		Ω(ExecuteProjectBuildeSBomGenerate(source, "", sbomFilePath, os.Getwd)).Should(Succeed())
 		Ω(os.RemoveAll(getTestPath("gen-sbom-result"))).Should(Succeed())
 	})
 	It("Failure - build with json suffix sbom-file-name parameter", func() {
 		source := getTestPath("mta")
 		sbomFilePath := getTestPath("gen-sbom-result", "result.json")
 
-		err := ExecuteProjectBuildeSBomGenerate(source, sbomFilePath, os.Getwd)
+		err := ExecuteProjectBuildeSBomGenerate(source, "", sbomFilePath, os.Getwd)
 		Ω(err).Should(HaveOccurred())
 		Ω(err.Error()).Should(ContainSubstring("sbom file type .json is not supported at present"))
 		Ω(os.RemoveAll(getTestPath("gen-sbom-result"))).Should(Succeed())
@@ -198,7 +198,7 @@ var _ = Describe("mbt build with sbom gen command", func() {
 		source := getTestPath("mta")
 		sbomFilePath := getTestPath("gen-sbom-result", "result.unknow")
 
-		err := ExecuteProjectBuildeSBomGenerate(source, sbomFilePath, os.Getwd)
+		err := ExecuteProjectBuildeSBomGenerate(source, "", sbomFilePath, os.Getwd)
 		Ω(err).Should(HaveOccurred())
 		Ω(err.Error()).Should(ContainSubstring("sbom file type .unknow is not supported at present"))
 		Ω(os.RemoveAll(getTestPath("gen-sbom-result"))).Should(Succeed())
@@ -227,7 +227,7 @@ var _ = Describe("mbt build with sbom gen command", func() {
 
 		source := tmpSrcFolder
 		sbomFilePath := getTestPath("gen-sbom-result", "merged.bom.xml")
-		Ω(ExecuteProjectBuildeSBomGenerate(source, sbomFilePath, os.Getwd)).Should(HaveOccurred())
+		Ω(ExecuteProjectBuildeSBomGenerate(source, "", sbomFilePath, os.Getwd)).Should(HaveOccurred())
 		Ω(os.RemoveAll(tmpSrcFolder)).Should(Succeed())
 	})
 })

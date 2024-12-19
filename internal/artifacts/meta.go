@@ -2,23 +2,24 @@ package artifacts
 
 import (
 	"fmt"
-	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 
+	"gopkg.in/yaml.v2"
+
 	"github.com/pkg/errors"
 
-	"github.com/SAP/cloud-mta-build-tool/internal/archive"
+	dir "github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta-build-tool/internal/logs"
 	"github.com/SAP/cloud-mta-build-tool/internal/platform"
 	"github.com/SAP/cloud-mta/mta"
 )
 
 // ExecuteGenMeta - generates metadata
-func ExecuteGenMeta(source, target, desc string, extensions []string, platform string, wdGetter func() (string, error)) error {
+func ExecuteGenMeta(source, mtaYamlFilename, target, desc string, extensions []string, platform string, wdGetter func() (string, error)) error {
 	logs.Logger.Info("generating the metadata...")
-	loc, err := dir.Location(source, target, desc, extensions, wdGetter)
+	loc, err := dir.Location(source, mtaYamlFilename, target, desc, extensions, wdGetter)
 	if err != nil {
 		return errors.Wrap(err, "failed to generate metadata when initializing the location")
 	}
@@ -87,13 +88,13 @@ func ConvertTypes(mtaStr mta.MTA, platformName string) error {
 }
 
 // ExecuteMerge merges mta.yaml and MTA extension descriptors and writes the result to a file with the given name
-func ExecuteMerge(source, target string, extensions []string, name string, wdGetter func() (string, error)) error {
+func ExecuteMerge(source, mtaYamlFilename, target string, extensions []string, name string, wdGetter func() (string, error)) error {
 	logs.Logger.Info(mergeInfoMsg)
 
 	if name == "" {
 		return fmt.Errorf(mergeNameRequiredMsg)
 	}
-	loc, err := dir.Location(source, target, dir.Dev, extensions, wdGetter)
+	loc, err := dir.Location(source, mtaYamlFilename, target, dir.Dev, extensions, wdGetter)
 	if err != nil {
 		return err
 	}

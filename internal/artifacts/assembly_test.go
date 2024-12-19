@@ -22,13 +22,13 @@ var _ = Describe("Assembly", func() {
 		Ω(os.RemoveAll(getTestPath("result"))).Should(Succeed())
 	})
 	It("Sanity", func() {
-		err := Assembly(getTestPath("assembly-sample"),
+		err := Assembly(getTestPath("assembly-sample"), "",
 			getTestPath("result"), nil, "cf", "", "?", os.Getwd)
 		Ω(err).Should(Succeed())
 		Ω(getTestPath("result", "com.sap.xs2.samples.javahelloworld_0.1.0.mtar")).Should(BeAnExistingFile())
 	})
 	It("path variations", func() {
-		err := Assembly(getTestPath("assembly"),
+		err := Assembly(getTestPath("assembly"), "",
 			getTestPath("result"), nil, "cf", "", "?", os.Getwd)
 		Ω(err).Should(Succeed())
 		mtarFile := getTestPath("result", "proj_0.1.0.mtar")
@@ -41,7 +41,7 @@ var _ = Describe("Assembly", func() {
 
 	var _ = DescribeTable("Fails on location initialization", func(maxCalls int) {
 		calls := 0
-		err := Assembly("",
+		err := Assembly("", "",
 			getTestPath("result"), nil, "cf", "", "true", func() (string, error) {
 				calls++
 				if calls >= maxCalls {

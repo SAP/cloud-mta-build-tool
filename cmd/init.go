@@ -18,6 +18,7 @@ const (
 
 // flags of init command
 var initCmdSrc string
+var initCmdMtaYamlFilename string
 var initCmdTrg string
 var initCmdExtensions []string
 var initCmdMode string
@@ -25,6 +26,7 @@ var initCmdMode string
 // flags of build command
 var mbtCmdCLI string
 var buildCmdSrc string
+var buildCmdMtaYamlFilename string
 var buildCmdTrg string
 var buildCmdExtensions []string
 var buildCmdMtar = "*"
@@ -39,6 +41,7 @@ var buildCmdSBomFilePath string
 func init() {
 	// set flags for init command
 	initCmd.Flags().StringVarP(&initCmdSrc, "source", "s", "", "The path to the MTA project; the current path is set as default")
+	initCmd.Flags().StringVarP(&initCmdMtaYamlFilename, "filename", "f", "", "The mta yaml filename of the MTA project; the mta.yaml is set as default")
 	initCmd.Flags().StringVarP(&initCmdTrg, "target", "t", "", "The path to the folder in which the Makefile is generated; the current path is set as default")
 	initCmd.Flags().StringSliceVarP(&initCmdExtensions, "extensions", "e", nil, "The MTA extension descriptors")
 	initCmd.Flags().StringVarP(&initCmdMode, "mode", "m", "", `The mode of the Makefile generation; supported values: "default" and "verbose"`)
@@ -47,6 +50,7 @@ func init() {
 
 	// set flags of build command
 	buildCmd.Flags().StringVarP(&buildCmdSrc, "source", "s", "", "The path to the MTA project; the current path is set as default")
+	buildCmd.Flags().StringVarP(&buildCmdMtaYamlFilename, "filename", "f", "", "The mta yaml filename of the MTA project; the mta.yaml is set as default")
 	buildCmd.Flags().StringVarP(&buildCmdTrg, "target", "t", "", `The path to the folder in which the MTAR file is created; the path to the "mta_archives" subfolder of the current folder is set as default`)
 	buildCmd.Flags().StringSliceVarP(&buildCmdExtensions, "extensions", "e", nil, "The MTA extension descriptors")
 	buildCmd.Flags().StringVarP(&buildCmdMtar, "mtar", "", "", "The file name of the generated archive file")
@@ -69,7 +73,7 @@ var initCmd = &cobra.Command{
 	Args:  cobra.NoArgs,
 	Run: func(cmd *cobra.Command, args []string) {
 		// Generate build script
-		err := tpl.ExecuteMake(initCmdSrc, initCmdTrg, initCmdExtensions, makefile, initCmdMode, os.Getwd, true)
+		err := tpl.ExecuteMake(initCmdSrc, initCmdMtaYamlFilename, initCmdTrg, initCmdExtensions, makefile, initCmdMode, os.Getwd, true)
 		logError(err)
 	},
 }
@@ -89,7 +93,7 @@ var buildCmd = &cobra.Command{
 		// However, in some environments we might want to always use the default mbt from the path. This can be set by using environment variable MBT_USE_DEFAULT.
 		useDefaultMbt := os.Getenv("MBT_USE_DEFAULT") == "true"
 		// Note: we can only use the non-default mbt (i.e. the current executable name) from inside the command itself because if this function runs from other places like tests it won't point to the MBT
-		err := artifacts.ExecBuild(makefileTmp, buildCmdSrc, buildCmdTrg, buildCmdExtensions, buildCmdMode, buildCmdMtar, buildCmdPlatform, buildCmdStrict, buildCmdJobs, buildCmdOutputSync, os.Getwd, exec.Execute, useDefaultMbt, buildCmdKeepMakefile, buildCmdSBomFilePath)
+		err := artifacts.ExecBuild(makefileTmp, buildCmdSrc, buildCmdMtaYamlFilename, buildCmdTrg, buildCmdExtensions, buildCmdMode, buildCmdMtar, buildCmdPlatform, buildCmdStrict, buildCmdJobs, buildCmdOutputSync, os.Getwd, exec.Execute, useDefaultMbt, buildCmdKeepMakefile, buildCmdSBomFilePath)
 		// output err info to stdout
 		logError(err)
 		return err

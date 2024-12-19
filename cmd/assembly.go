@@ -13,6 +13,7 @@ const (
 )
 
 var assembleCmdSrc string
+var assembleCmdMtaYamlFilename string
 var assembleCmdTrg string
 var assembleCmdExtensions []string
 var assembleCmdMtarName string
@@ -25,7 +26,7 @@ var assembleCommand = &cobra.Command{
 	Long:  "Generates an MTA archive according to the MTA deployment descriptor (mtad.yaml)",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		err := artifacts.Assembly(assembleCmdSrc, assembleCmdTrg, assembleCmdExtensions, defaultPlatform, assembleCmdMtarName, assembleCmdParallel, os.Getwd)
+		err := artifacts.Assembly(assembleCmdSrc, assembleCmdMtaYamlFilename, assembleCmdTrg, assembleCmdExtensions, defaultPlatform, assembleCmdMtarName, assembleCmdParallel, os.Getwd)
 		logError(err)
 		return err
 	},
@@ -36,6 +37,8 @@ var assembleCommand = &cobra.Command{
 func init() {
 	assembleCommand.Flags().StringVarP(&assembleCmdSrc,
 		"source", "s", "", "The path to the MTA project; the current path is set as default")
+	assembleCommand.Flags().StringVarP(&assembleCmdMtaYamlFilename,
+		"filename", "f", "", "The mta yaml filename of the MTA project; the mta.yaml is set as default")
 	assembleCommand.Flags().StringVarP(&assembleCmdTrg,
 		"target", "t", "", `The path to the folder in which the MTAR file is created; the path to the "mta_archives" subfolder of the current folder is set as default`)
 	assembleCommand.Flags().StringSliceVarP(&assembleCmdExtensions, "extensions", "e", nil,

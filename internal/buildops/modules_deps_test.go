@@ -12,9 +12,10 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"
 
-	"github.com/SAP/cloud-mta-build-tool/internal/archive"
-	"github.com/SAP/cloud-mta/mta"
 	"strings"
+
+	dir "github.com/SAP/cloud-mta-build-tool/internal/archive"
+	"github.com/SAP/cloud-mta/mta"
 )
 
 var _ = Describe("ModulesDeps", func() {
@@ -119,22 +120,22 @@ var _ = Describe("Provide", func() {
 	It("Valid path to yaml", func() {
 
 		out, err := executeAndProvideOutput(func() error {
-			return ProvideModules(filepath.Join("testdata", "mtahtml5"), "dev", nil, os.Getwd)
+			return ProvideModules(filepath.Join("testdata", "mtahtml5"), "", "dev", nil, os.Getwd)
 		})
 		Ω(err).Should(Succeed())
 		Ω(out).Should(ContainSubstring("[ui5app ui5app2]"))
 	})
 
 	It("Invalid path to yaml", func() {
-		Ω(ProvideModules(filepath.Join("testdata", "mtahtml6"), "dev", nil, os.Getwd)).Should(HaveOccurred())
+		Ω(ProvideModules(filepath.Join("testdata", "mtahtml6"), "", "dev", nil, os.Getwd)).Should(HaveOccurred())
 	})
 
 	It("Invalid modules dependencies", func() {
-		Ω(ProvideModules(filepath.Join("testdata", "testWithWrongBuildParams"), "dev", nil, os.Getwd)).Should(HaveOccurred())
+		Ω(ProvideModules(filepath.Join("testdata", "testWithWrongBuildParams"), "", "dev", nil, os.Getwd)).Should(HaveOccurred())
 	})
 
 	It("Invalid working folder getter", func() {
-		Ω(ProvideModules("", "dev", nil, func() (string, error) {
+		Ω(ProvideModules("", "", "dev", nil, func() (string, error) {
 			return "", errors.New("err")
 		})).Should(HaveOccurred())
 	})
