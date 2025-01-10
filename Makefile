@@ -4,7 +4,8 @@
 # Execute go build
 # Copy files to machine go/bin folder (temp target to avoid manual steps when developing locally)
 
-all:format clean dir gen build-linux build-linux-arm build-darwin build-darwin-arm build-windows copy install-cyclonedx tests
+all:format clean dir gen build-linux build-linux-arm build-darwin build-darwin-arm build-windows copy install-cyclonedx
+# all:format clean dir gen build-linux build-linux-arm build-darwin build-darwin-arm build-windows copy install-cyclonedx tests
 .PHONY: build-darwin-arm build-darwin build-linux build-linux-arm build-windows tests
 
 GOCMD=go
@@ -17,15 +18,15 @@ BUILD  = $(CURDIR)/release
 
 # cyclonedx-cli
 CYCLONEDX_CLI_BINARY = cyclonedx
-CYCLONEDX_CLI_VERSION = 0.24.2
+CYCLONEDX_CLI_VERSION = 0.27.1
 
 # cyclonedx-gomod
 CYCLONEDX_GOMOD_BINARY = cyclonedx-gomod
-CYCLONEDX_GOMOD_VERSION = latest
+CYCLONEDX_GOMOD_VERSION = v1.4.0
 
 # cyclonedx_npm
 CYCLONEDX_NPM_PACKAGE = @cyclonedx/cyclonedx-npm
-CYCLONEDX_NPM_VERSION = 1.11.0
+CYCLONEDX_NPM_VERSION = 1.19.3
 CYCLONEDX_NPM_BINARY = cyclonedx-npm
 
 ifeq ($(OS),Windows_NT)
