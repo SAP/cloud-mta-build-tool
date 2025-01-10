@@ -21,7 +21,7 @@ const (
 	optionsSuffix                = "-opts"
 	goModuleType                 = "go"
 	cyclonedx_npm                = "@cyclonedx/cyclonedx-npm"
-	cyclonedx_npm_version        = "1.11.0"
+	cyclonedx_npm_version        = "1.19.3"
 	cyclonedx_npm_schema_version = "1.4"
 )
 
@@ -353,7 +353,7 @@ func GetModuleSBomGenCommands(loc *dir.Loc, module *mta.Module,
 		cmd = "cyclonedx-gomod mod -output-version 1.4 -licenses -output " + sbomFileName + sbomFileSuffix
 		cmds = append(cmds, cmd)
 	case "maven", "fetcher", "maven_deprecated":
-		cmd = "mvn org.cyclonedx:cyclonedx-maven-plugin:2.7.5:makeAggregateBom " +
+		cmd = "mvn org.cyclonedx:cyclonedx-maven-plugin:2.9.0:makeAggregateBom " +
 			"-DschemaVersion=1.4 -DincludeBomSerialNumber=true -DincludeCompileScope=true " +
 			"-DincludeRuntimeScope=true -DincludeSystemScope=true -DincludeTestScope=false -DincludeLicenseText=false " +
 			"-DoutputFormat=" + sbomFileType + " -DoutputName=" + sbomFileName + ".bom"
@@ -390,7 +390,7 @@ func GetSBomsMergeCommand(loc *dir.Loc, cyclonedx_cli string, mtaObj *mta.MTA, s
 
 	// ./cyclonedx merge --input-files test_1.bom.xml test_2.bom.xml test_3.bom.xml --output-file merged.bom.xml
 	cmd = cyclonedx_cli + " merge --input-files " + inputFiles + " --output-file " + sbomName +
-		" --input-format " + sbomType + " --output-format " + sbomType + " --name " + mtaObj.ID + " --version " + mtaObj.Version
+		" --input-format " + sbomType + " --output-format " + sbomType + " --hierarchical" + " --name " + mtaObj.ID + " --version " + mtaObj.Version
 	cmds = append(cmds, cmd)
 	commandList, err := CmdConverter(sbomTmpDir, cmds)
 

@@ -410,6 +410,27 @@ bad config
 			{EntryName: "e1", EntryPath: "a", EntryType: resourceEntry, ContentType: "t1"},
 		},
 		),
+		Entry("merges module entries with the same path and does not exceed 72 character limit", []entry{
+			{EntryName: "entry1", EntryPath: "a", EntryType: moduleEntry, ContentType: "t"},
+			{EntryName: "entry2", EntryPath: "a", EntryType: moduleEntry, ContentType: "t"},
+			{EntryName: "entry3", EntryPath: "a", EntryType: moduleEntry, ContentType: "t"},
+			{EntryName: "entry4", EntryPath: "a", EntryType: moduleEntry, ContentType: "t"},
+			{EntryName: "entry5", EntryPath: "a", EntryType: moduleEntry, ContentType: "t"},
+			{EntryName: "entry6", EntryPath: "a", EntryType: moduleEntry, ContentType: "t"},
+			{EntryName: "entry7", EntryPath: "a", EntryType: moduleEntry, ContentType: "t"},
+			{EntryName: "entry8", EntryPath: "a", EntryType: moduleEntry, ContentType: "t"},
+			{EntryName: "entry9", EntryPath: "a", EntryType: moduleEntry, ContentType: "t"},
+			{EntryName: "entry10", EntryPath: "a", EntryType: moduleEntry, ContentType: "t"},
+			{EntryName: "entry11", EntryPath: "a", EntryType: moduleEntry, ContentType: "t"},
+			{EntryName: "entry12", EntryPath: "a", EntryType: moduleEntry, ContentType: "t"},
+			{EntryName: "entry13", EntryPath: "a", EntryType: moduleEntry, ContentType: "t"},
+			{EntryName: "entry14", EntryPath: "a", EntryType: moduleEntry, ContentType: "t"},
+			{EntryName: "entry15", EntryPath: "a", EntryType: moduleEntry, ContentType: "t"},
+			{EntryName: "entry16", EntryPath: "a", EntryType: moduleEntry, ContentType: "t"},
+		}, []entry{
+			{EntryName: "entry1, entry2, entry3, entry4, entry5, entry6, entry7\n , entry8, entry9, entry10, entry11, entry12, entry13, entry14, entry15\n , entry16", EntryPath: "a", EntryType: moduleEntry, ContentType: "t"},
+		},
+		),
 	)
 
 	var _ = Describe("getContentType", func() {
