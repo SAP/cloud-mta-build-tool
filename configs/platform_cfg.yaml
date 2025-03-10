@@ -18,7 +18,7 @@ platform:
     platform-type: "javascript.nodejs"
 
   - native-type: nodejs
-    platform-type: "javascript.nodejs"
+    platform-type: "nodejs"
 
   - native-type: java
     platform-type: "java.tomee"
