@@ -5,7 +5,7 @@ go 1.13
 require (
 	github.com/CycloneDX/cyclonedx-go v0.9.1
 	github.com/SAP/cloud-mta v1.0.6
-	github.com/deckarep/golang-set v1.7.1
+	github.com/deckarep/golang-set v1.8.0
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51
 	github.com/onsi/ginkgo v1.16.2
 	github.com/onsi/gomega v1.13.0
