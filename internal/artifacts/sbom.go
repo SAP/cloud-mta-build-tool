@@ -61,7 +61,7 @@ type SubDep struct {
 // ExecuteProjectSBomGenerate - Execute MTA project SBOM generation
 func ExecuteProjectSBomGenerate(source string, sbomFilePath string, wdGetter func() (string, error)) error {
 	// (1) get loc object and mta object
-	loc, err := dir.Location(source, "", dir.Dev, []string{}, wdGetter)
+	loc, err := dir.Location(source, "", "", dir.Dev, []string{}, wdGetter)
 	if err != nil {
 		return errors.Wrapf(err, genSBomFileFailedMsg)
 	}
@@ -86,14 +86,14 @@ func ExecuteProjectSBomGenerate(source string, sbomFilePath string, wdGetter fun
 }
 
 // ExecuteProjectBuildeSBomGenerate - Execute MTA project SBOM generation with Build process
-func ExecuteProjectBuildeSBomGenerate(source string, sbomFilePath string, wdGetter func() (string, error)) error {
+func ExecuteProjectBuildeSBomGenerate(source string, mtaYamlFilename, sbomFilePath string, wdGetter func() (string, error)) error {
 	// (1) if sbomFilePath is empty, do not need to generate sbom, return directly
 	if strings.TrimSpace(sbomFilePath) == "" {
 		return nil
 	}
 
 	// (2) get loc object and mta object
-	loc, err := dir.Location(source, "", dir.Dev, []string{}, wdGetter)
+	loc, err := dir.Location(source, mtaYamlFilename, "", dir.Dev, []string{}, wdGetter)
 	if err != nil {
 		return errors.Wrapf(err, genSBomFileFailedMsg)
 	}

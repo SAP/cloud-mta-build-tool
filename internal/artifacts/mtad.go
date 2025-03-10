@@ -13,7 +13,7 @@ import (
 
 	"github.com/SAP/cloud-mta/mta"
 
-	"github.com/SAP/cloud-mta-build-tool/internal/archive"
+	dir "github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta-build-tool/internal/buildops"
 	"github.com/SAP/cloud-mta-build-tool/internal/logs"
 )
@@ -39,9 +39,9 @@ func (loc *mtadLoc) GetMtarDir(targetProvided bool) string {
 }
 
 // ExecuteMtadGen - generates MTAD from MTA
-func ExecuteMtadGen(source, target string, extensions []string, platform string, wdGetter func() (string, error)) error {
+func ExecuteMtadGen(source, mtaYamlFilename, target string, extensions []string, platform string, wdGetter func() (string, error)) error {
 	logs.Logger.Info("generating the MTAD file...")
-	loc, err := dir.Location(source, target, dir.Dev, extensions, wdGetter)
+	loc, err := dir.Location(source, mtaYamlFilename, target, dir.Dev, extensions, wdGetter)
 	if err != nil {
 		return errors.Wrap(err, "generation of the MTAD file failed when initializing the location")
 	}

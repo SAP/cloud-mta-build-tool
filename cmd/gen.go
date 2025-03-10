@@ -10,6 +10,7 @@ import (
 
 // meta command flags
 var metaCmdSrc string
+var metaCmdMtaYamlFilename string
 var metaCmdTrg string
 var metaCmdDesc string
 var metaCmdExtensions []string
@@ -17,6 +18,7 @@ var metaCmdPlatform string
 
 // mtar command flags
 var mtarCmdSrc string
+var mtarCmdMtaYamlFilename string
 var mtarCmdTrg string
 var mtarCmdDesc string
 var mtarCmdTrgProvided string
@@ -29,6 +31,8 @@ func init() {
 	// set flags of meta command
 	metaCmd.Flags().StringVarP(&metaCmdSrc, "source", "s", "",
 		"The path to the MTA project; the current path is set as default")
+	metaCmd.Flags().StringVarP(&metaCmdMtaYamlFilename, "filename", "f", "",
+		"The mta yaml filename of the MTA project; the mta.yaml is set as default")
 	metaCmd.Flags().StringVarP(&metaCmdTrg, "target", "t", "",
 		"The path to the folder in which a temporary folder with generated metadata is created; the current path is set as default")
 	metaCmd.Flags().StringVarP(&metaCmdDesc, "desc", "d", "",
@@ -42,6 +46,8 @@ func init() {
 	// set flags of mtar command
 	mtarCmd.Flags().StringVarP(&mtarCmdSrc, "source", "s", "",
 		"The path to the MTA project; the current path is set as default")
+	mtarCmd.Flags().StringVarP(&mtarCmdMtaYamlFilename, "filename", "f", "",
+		"The mta yaml filename of the MTA project; the mta.yaml is set as default")
 	mtarCmd.Flags().StringVarP(&mtarCmdTrg, "target", "t", "",
 		`The path to the folder in which the MTAR file is created; the path to the "mta_archives" subfolder of the current folder is set as default`)
 	mtarCmd.Flags().StringVarP(&mtarCmdDesc, "desc", "d", "",
@@ -64,7 +70,7 @@ var metaCmd = &cobra.Command{
 	Long:  "Generates META-INF folder with manifest and MTAD files",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		err := artifacts.ExecuteGenMeta(metaCmdSrc, metaCmdTrg, metaCmdDesc, metaCmdExtensions, metaCmdPlatform, os.Getwd)
+		err := artifacts.ExecuteGenMeta(metaCmdSrc, metaCmdMtaYamlFilename, metaCmdTrg, metaCmdDesc, metaCmdExtensions, metaCmdPlatform, os.Getwd)
 		logError(err)
 		return err
 	},
@@ -80,7 +86,7 @@ var mtarCmd = &cobra.Command{
 	Long:  "Generates MTA archive from the folder with all artifacts",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		err := artifacts.ExecuteGenMtar(mtarCmdSrc, mtarCmdTrg, mtarCmdTrgProvided, mtarCmdDesc, mtarCmdExtensions, mtarCmdMtarName, os.Getwd)
+		err := artifacts.ExecuteGenMtar(mtarCmdSrc, mtarCmdMtaYamlFilename, mtarCmdTrg, mtarCmdTrgProvided, mtarCmdDesc, mtarCmdExtensions, mtarCmdMtarName, os.Getwd)
 		logError(err)
 		return err
 	},

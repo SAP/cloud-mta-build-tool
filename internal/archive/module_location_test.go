@@ -1,42 +1,43 @@
 package dir
 
 import (
+	"os"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"os"
 )
 
 var _ = Describe("ModuleLocation", func() {
 	It("GetTarget", func() {
-		projectLoc, err := Location(getPath("testdata"), getPath("test"), Dev, []string{}, os.Getwd)
+		projectLoc, err := Location(getPath("testdata"), "", getPath("test"), Dev, []string{}, os.Getwd)
 		Ω(err).Should(Succeed())
 		loc := ModuleLocation(projectLoc, false)
 		Ω(loc.GetTarget()).Should(Equal(getPath("test")))
 	})
 
 	It("GetTargetTmpRoot, target path calculated", func() {
-		projectLoc, err := Location(getPath("testdata"), getPath("testdata", ".test_mta_build_tmp", "module"), Dev, []string{}, os.Getwd)
+		projectLoc, err := Location(getPath("testdata"), "", getPath("testdata", ".test_mta_build_tmp", "module"), Dev, []string{}, os.Getwd)
 		Ω(err).Should(Succeed())
 		moduleLoc := ModuleLocation(projectLoc, false)
 		Ω(moduleLoc.GetTargetTmpRoot()).Should(Equal(getPath("testdata", ".test_mta_build_tmp")))
 	})
 
 	It("GetTargetTmpRoot, target path defined", func() {
-		projectLoc, err := Location(getPath("testdata"), getPath("testdata"), Dev, []string{}, os.Getwd)
+		projectLoc, err := Location(getPath("testdata"), "", getPath("testdata"), Dev, []string{}, os.Getwd)
 		Ω(err).Should(Succeed())
 		moduleLoc := ModuleLocation(projectLoc, true)
 		Ω(moduleLoc.GetTargetTmpRoot()).Should(Equal(getPath("testdata")))
 	})
 
 	It("GetSourceModuleDir", func() {
-		projectLoc, err := Location(getPath("testdata"), getPath("testdata"), Dev, []string{}, os.Getwd)
+		projectLoc, err := Location(getPath("testdata"), "", getPath("testdata"), Dev, []string{}, os.Getwd)
 		Ω(err).Should(Succeed())
 		moduleLoc := ModuleLocation(projectLoc, false)
 		Ω(moduleLoc.GetSourceModuleDir("path1")).Should(Equal((getPath("testdata", "path1"))))
 	})
 
 	It("GetSourceModuleArtifactRelPath", func() {
-		projectLoc, err := Location(getPath("testdata"), getPath("testdata"), Dev, []string{}, os.Getwd)
+		projectLoc, err := Location(getPath("testdata"), "", getPath("testdata"), Dev, []string{}, os.Getwd)
 		Ω(err).Should(Succeed())
 		moduleLoc := ModuleLocation(projectLoc, false)
 		relPath, err := moduleLoc.GetSourceModuleArtifactRelPath("path1", getPath("testdata", "path1", "data.zip"))
@@ -45,7 +46,7 @@ var _ = Describe("ModuleLocation", func() {
 	})
 
 	It("GetTargetModuleDir", func() {
-		projectLoc, err := Location(getPath("testdata"), getPath("testdata"), Dev, []string{}, os.Getwd)
+		projectLoc, err := Location(getPath("testdata"), "", getPath("testdata"), Dev, []string{}, os.Getwd)
 		Ω(err).Should(Succeed())
 		moduleLoc := ModuleLocation(projectLoc, false)
 		Ω(moduleLoc.GetTargetModuleDir("module1")).Should(Equal(getPath("testdata")))
@@ -70,7 +71,7 @@ var _ = Describe("ModuleLocation", func() {
 
 	It("ModuleLocation", func() {
 		target := getPath("testdata", "result")
-		projectLoc, err := Location(getPath("testdata"), target, Dev, []string{}, os.Getwd)
+		projectLoc, err := Location(getPath("testdata"), "", target, Dev, []string{}, os.Getwd)
 		Ω(err).Should(Succeed())
 		Ω(ModuleLocation(projectLoc, false)).ShouldNot(BeNil())
 	})
