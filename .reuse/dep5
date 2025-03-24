@@ -1,8 +1,0 @@
-Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
-Upstream-Name: cloud-mta-build-tool
-Upstream-Contact: young-yang03 <young.yang03@sap.com>
-Source: https://github.com/SAP/cloud-mta-build-tool
-
-Files: *
-Copyright: 2019-2021 SAP SE or an SAP affiliate company and cloud-mta-build-tool contributors
-License: Apache-2.0

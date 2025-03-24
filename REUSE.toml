@@ -1,0 +1,10 @@
+version = 1
+SPDX-PackageName = "cloud-mta-build-tool"
+SPDX-PackageSupplier = "young-yang03 <young.yang03@sap.com>"
+SPDX-PackageDownloadLocation = "https://github.com/SAP/cloud-mta-build-tool"
+
+[[annotations]]
+path = "**"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2019-2021 SAP SE or an SAP affiliate company and cloud-mta-build-tool contributors"
+SPDX-License-Identifier = "Apache-2.0"
