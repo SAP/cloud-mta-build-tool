@@ -21,7 +21,7 @@ const (
 	optionsSuffix                = "-opts"
 	goModuleType                 = "go"
 	cyclonedx_npm                = "@cyclonedx/cyclonedx-npm"
-	cyclonedx_npm_version        = "1.11.0"
+	cyclonedx_npm_version        = "1.19.3"
 	cyclonedx_npm_schema_version = "1.4"
 )
 
@@ -354,7 +354,7 @@ func GetModuleSBomGenCommands(loc *dir.Loc, module *mta.Module,
 		cmd = "cyclonedx-gomod mod -output-version 1.4 -licenses -output " + sbomFileName + sbomFileSuffix
 		cmds = append(cmds, cmd)
 	case "maven", "fetcher", "maven_deprecated":
-		cmd = "mvn org.cyclonedx:cyclonedx-maven-plugin:2.7.5:makeAggregateBom " +
+		cmd = "mvn org.cyclonedx:cyclonedx-maven-plugin:2.9.0:makeAggregateBom " +
 			"-DschemaVersion=1.4 -DincludeBomSerialNumber=true -DincludeCompileScope=true " +
 			"-DincludeRuntimeScope=true -DincludeSystemScope=true -DincludeTestScope=false -DincludeLicenseText=false " +
 			"-DoutputFormat=" + sbomFileType + " -DoutputName=" + sbomFileName + ".bom"
