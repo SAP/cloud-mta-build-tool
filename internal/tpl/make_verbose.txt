@@ -9,6 +9,6 @@ modules = {{- range .File.Modules}}{{- if not ($.IsNoSource .Name)}} {{.Name}}{{
 {{- range $.GetModuleDeps .Name}}{{"\n\t"}}@$(MBT) cp -s={{$.GetPathArgument .SourcePath}} -t={{$.GetPathArgument .TargetPath}} {{- range .Patterns}} -p={{$.ConvertToShellArgument .}}{{end}}{{end}}
 {{"\t"}}@$(MBT) execute -d="$(PROJ_DIR)/{{.Path}}" {{- if .BuildParams.timeout}} -t={{$.ConvertToShellArgument .BuildParams.timeout}}{{end}} {{- with $cmds := CommandProvider .}}{{range $i, $cmd:=$cmds.Command}} -c={{$.ConvertToShellArgument .}}{{end}}{{end}}
 # Pack module build artifacts
-{{"\t"}}@$(MBT) module pack -m={{.Name}} -p=${p} -t=${t} {{- ExtensionsArg "-e"}}
+{{"\t"}}@$(MBT) module pack -m={{.Name}} -p=${p} -t=${t} {{- ExtensionsArg "-e"}} {{- MBTYamlFilename "-f"}}
 {{"\t"}}@echo 'INFO finished building the "{{.Name}}" module'
 {{end}}{{end}}
