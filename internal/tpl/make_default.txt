@@ -1,7 +1,7 @@
 # Execute module build
 define build_rule
 $(1): validate
-	@$(MBT) module build -m=$(1) -p=${p} -t=${t} {{- ExtensionsArg "-e"}}
+	@$(MBT) module build -m=$(1) -p=${p} -t=${t} {{- ExtensionsArg "-e"}} {{- MBTYamlFilename "-f"}}
 endef
 
 $(foreach mod,$(modules),$(eval $(call build_rule,$(mod))))

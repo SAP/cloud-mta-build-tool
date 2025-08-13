@@ -7,13 +7,13 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/SAP/cloud-mta-build-tool/internal/archive"
+	dir "github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta-build-tool/internal/logs"
-	"github.com/SAP/cloud-mta/validations"
+	validate "github.com/SAP/cloud-mta/validations"
 )
 
 // ExecuteValidation - executes validation of MTA
-func ExecuteValidation(source, desc string, extensions []string, mode, strict, exclude string, getWorkingDir func() (string, error)) error {
+func ExecuteValidation(source, mtaYamlFilename, desc string, extensions []string, mode, strict, exclude string, getWorkingDir func() (string, error)) error {
 	logs.Logger.Info(validationMsg)
 
 	strictValue, err := strconv.ParseBool(strict)
@@ -21,7 +21,7 @@ func ExecuteValidation(source, desc string, extensions []string, mode, strict, e
 		return fmt.Errorf(wrongStrictnessMsg, strict)
 	}
 
-	loc, err := dir.Location(source, "", desc, extensions, getWorkingDir)
+	loc, err := dir.Location(source, mtaYamlFilename, "", desc, extensions, getWorkingDir)
 	if err != nil {
 		return errors.Wrap(err, validationFailedOnLocMsg)
 	}

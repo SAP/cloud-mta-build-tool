@@ -12,10 +12,12 @@ import (
 )
 
 var cleanupCmdSrc string
+var cleanupCmdMtaYamlFilename string
 var cleanupCmdTrg string
 var cleanupCmdDesc string
 
 var validateCmdSrc string
+var validateCmdMtaYamlFilename string
 var validateCmdDesc string
 var validateCmdExtensions []string
 var validateCmdMode string
@@ -45,6 +47,8 @@ func init() {
 	// set flags of cleanup command
 	cleanupCmd.Flags().StringVarP(&cleanupCmdSrc, "source", "s", "",
 		"The path to the MTA project; the current path is set as default")
+	cleanupCmd.Flags().StringVarP(&cleanupCmdMtaYamlFilename, "filename", "f", "",
+		"The mta yaml filename of the MTA project; the mta.yaml is set as default")
 	cleanupCmd.Flags().StringVarP(&cleanupCmdTrg, "target", "t", "",
 		"The path to the folder in which the temporary artifacts were created; the current path is set as default")
 	cleanupCmd.Flags().StringVarP(&cleanupCmdDesc, "desc", "d", "",
@@ -54,6 +58,8 @@ func init() {
 	// set flags of validation command
 	validateCmd.Flags().StringVarP(&validateCmdSrc, "source", "s", "",
 		"The path to the MTA project; the current path is set as default")
+	validateCmd.Flags().StringVarP(&validateCmdMtaYamlFilename, "filename", "f", "",
+		"The mta yaml filename of the MTA project; the mta.yaml is set as default")
 	validateCmd.Flags().StringVarP(&validateCmdMode, "mode", "m", "",
 		`The validation mode; supported values: "schema", "semantic" (default)`)
 	validateCmd.Flags().StringVarP(&validateCmdDesc, "desc", "d", "",
@@ -114,7 +120,7 @@ var cleanupCmd = &cobra.Command{
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		// Remove temp folder
-		err := artifacts.ExecuteCleanup(cleanupCmdSrc, cleanupCmdTrg, cleanupCmdDesc, os.Getwd)
+		err := artifacts.ExecuteCleanup(cleanupCmdSrc, cleanupCmdMtaYamlFilename, cleanupCmdTrg, cleanupCmdDesc, os.Getwd)
 		logError(err)
 		return err
 	},
@@ -130,7 +136,7 @@ var validateCmd = &cobra.Command{
 	Long:  "MBT validation",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		err := artifacts.ExecuteValidation(validateCmdSrc, validateCmdDesc, validateCmdExtensions, validateCmdMode, validateCmdStrict, validateCmdExclude, os.Getwd)
+		err := artifacts.ExecuteValidation(validateCmdSrc, validateCmdMtaYamlFilename, validateCmdDesc, validateCmdExtensions, validateCmdMode, validateCmdStrict, validateCmdExclude, os.Getwd)
 		logError(err)
 		return err
 	},
