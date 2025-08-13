@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 
 	"github.com/pkg/errors"
 
@@ -250,7 +251,7 @@ func (ep *Loc) GetExtensionFilePaths() []string {
 }
 
 // Location - provides Location parameters of MTA
-func Location(source, target, descriptor string, extensions []string, wdGetter func() (string, error)) (*Loc, error) {
+func Location(source, mtaYamlFilename, target, descriptor string, extensions []string, wdGetter func() (string, error)) (*Loc, error) {
 	err := ValidateDeploymentDescriptor(descriptor)
 	if err != nil {
 		return nil, err
@@ -258,7 +259,14 @@ func Location(source, target, descriptor string, extensions []string, wdGetter f
 
 	var mtaFilename string
 	if descriptor == Dev || descriptor == "" {
-		mtaFilename = "mta.yaml"
+		if mtaYamlFilename != "" {
+			if !isValidMtaYamlFilename(mtaYamlFilename) {
+				return nil, fmt.Errorf(InvalidMtaYamlFilenameMsg, mtaYamlFilename)
+			}
+			mtaFilename = mtaYamlFilename
+		} else {
+			mtaFilename = "mta.yaml"
+		}
 		descriptor = Dev
 	} else {
 		mtaFilename = "mtad.yaml"
@@ -282,4 +290,9 @@ func Location(source, target, descriptor string, extensions []string, wdGetter f
 		Descriptor:         descriptor,
 		ExtensionFileNames: extensions,
 	}, nil
+}
+
+func isValidMtaYamlFilename(fileName string) bool {
+	reg := regexp.MustCompile(`^[a-zA-Z0-9_\-. ]+\.yaml$`)
+	return reg.MatchString(fileName)
 }

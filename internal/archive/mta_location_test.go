@@ -139,13 +139,13 @@ var _ = Describe("Path", func() {
 	})
 
 	It("GetTargetTmpRoot, target path calculated", func() {
-		projectLoc, err := Location(getPath("test"), "", Dev, []string{}, os.Getwd)
+		projectLoc, err := Location(getPath("test"), "", "", Dev, []string{}, os.Getwd)
 		Ω(err).Should(Succeed())
 		Ω(projectLoc.GetTargetTmpRoot()).Should(Equal(getPath("test", ".test_mta_build_tmp")))
 	})
 
 	It("GetTargetTmpRoot, target path defined", func() {
-		projectLoc, err := Location(getPath("test"), getPath("test1"), Dev, []string{}, os.Getwd)
+		projectLoc, err := Location(getPath("test"), "", getPath("test1"), Dev, []string{}, os.Getwd)
 		Ω(err).Should(Succeed())
 		Ω(projectLoc.GetTargetTmpRoot()).Should(Equal(getPath("test1", ".test_mta_build_tmp")))
 	})
@@ -282,17 +282,17 @@ var _ = Describe("ParseFile", func() {
 
 var _ = Describe("Location", func() {
 	It("Dev Descritor", func() {
-		ep, err := Location("", "", "", nil, os.Getwd)
+		ep, err := Location("", "", "", "", nil, os.Getwd)
 		Ω(err).Should(Succeed())
 		Ω(ep.GetMtaYamlFilename()).Should(Equal("mta.yaml"))
 	})
 	It("Dep Descriptor", func() {
-		ep, err := Location("", "", Dep, nil, os.Getwd)
+		ep, err := Location("", "", "", Dep, nil, os.Getwd)
 		Ω(err).Should(Succeed())
 		Ω(ep.GetMtaYamlFilename()).Should(Equal("mtad.yaml"))
 	})
 	It("Dev Descriptor - Explicit", func() {
-		ep, err := Location("", "", Dep, nil, os.Getwd)
+		ep, err := Location("", "", "", Dep, nil, os.Getwd)
 		Ω(err).Should(Succeed())
 		Ω(ep.GetDescriptor()).Should(Equal(Dep))
 	})
@@ -301,12 +301,12 @@ var _ = Describe("Location", func() {
 		Ω(ep.GetDescriptor()).Should(Equal(Dev))
 	})
 	It("Fails on descriptor validation", func() {
-		_, err := Location("", "", "xx", nil, os.Getwd)
+		_, err := Location("", "", "", "xx", nil, os.Getwd)
 		Ω(err).Should(HaveOccurred())
 		Ω(err.Error()).Should(ContainSubstring(fmt.Sprintf(InvalidDescMsg, "xx")))
 	})
 	It("Fails when it can't get the current working directory", func() {
-		_, err := Location("", "", Dev, nil, func() (string, error) {
+		_, err := Location("", "", "", Dev, nil, func() (string, error) {
 			return "", errors.New("err")
 		})
 		Ω(err).Should(HaveOccurred())
