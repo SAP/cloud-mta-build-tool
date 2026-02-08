@@ -166,7 +166,7 @@ jobs:
             go install github.com/modocache/gover
             go get golang.org/x/crypto/ssh/terminal
             go mod vendor
-      - run: go test -v ./... -coverprofile=mta.coverprofile -count=1 -timeout 30m
+      - run: go test -mod=vendor -v ./... -coverprofile=mta.coverprofile -count=1 -timeout 30m
       - run: gover
       - run: goveralls -v -service=circle-ci -coverprofile=gover.coverprofile -repotoken $COVERALLS_TOKEN
 
