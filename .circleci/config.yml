@@ -156,7 +156,7 @@ jobs:
       - run: make tools
       - run: make lint
       - run:
-          name: install coverage tools
+          name: cov install coverge deps
           command: |
             go install golang.org/x/tools/cmd/cover@latest
             go install github.com/mattn/goveralls@v0.0.12
