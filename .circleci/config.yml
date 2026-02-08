@@ -155,20 +155,15 @@ jobs:
       - run: sudo chown circleci:circleci ${GOPATH}/bin
       - run: make tools
       - run: make lint
-      # Coveralls steps commented out due to vendoring issues
-      # - run:
-      #     name: cov install coverge deps
-      #     command: |
-      #       go get golang.org/x/tools/cmd/cover
-      #       go get golang.org/x/net/html/charset
-      #       go get github.com/mattn/goveralls
-      #       go get github.com/modocache/gover
-      #       go install github.com/mattn/goveralls
-      #       go install github.com/modocache/gover
-      #       go get golang.org/x/crypto/ssh/terminal
+      - run:
+          name: install coverage tools
+          command: |
+            go install golang.org/x/tools/cmd/cover@latest
+            go install github.com/mattn/goveralls@v0.0.12
+            go install github.com/modocache/gover@v0.0.0-20171022184752-b58185e213c5
       - run: go test -v ./... -coverprofile=mta.coverprofile -count=1 -timeout 30m
-      # - run: gover
-      # - run: goveralls -v -service=circle-ci -coverprofile=gover.coverprofile -repotoken $COVERALLS_TOKEN
+      - run: gover
+      - run: goveralls -v -service=circle-ci -coverprofile=gover.coverprofile -repotoken $COVERALLS_TOKEN
 
   test:
     docker:
