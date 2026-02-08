@@ -157,7 +157,6 @@ jobs:
       - run: make lint
       - run:
           name: cov install coverge deps
-          name: cov install coverge deps
           command: |
             GOFLAGS="-mod=mod" go get golang.org/x/tools/cmd/cover
             GOFLAGS="-mod=mod" go get golang.org/x/net/html/charset
