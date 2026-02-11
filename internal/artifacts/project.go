@@ -9,7 +9,7 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/SAP/cloud-mta-build-tool/internal/archive"
+	dir "github.com/SAP/cloud-mta-build-tool/internal/archive"
 	"github.com/SAP/cloud-mta-build-tool/internal/commands"
 	"github.com/SAP/cloud-mta-build-tool/internal/exec"
 	"github.com/SAP/cloud-mta-build-tool/internal/logs"
@@ -25,7 +25,7 @@ const (
 )
 
 // ExecBuild - Execute MTA project build
-func ExecBuild(makefileTmp, source, target string, extensions []string, mode, mtar, platform string,
+func ExecBuild(makefileTmp, source, mtaYamlFilename, target string, extensions []string, mode, mtar, platform string,
 	strict bool, jobs int, outputSync bool, wdGetter func() (string, error), wdExec func([][]string, bool) error,
 	useDefaultMbt bool, keepMakefile bool, sBomFilePath string) error {
 	message, err := version.GetVersionMessage()
@@ -34,7 +34,7 @@ func ExecBuild(makefileTmp, source, target string, extensions []string, mode, mt
 	}
 
 	// (1) generate build script
-	err = tpl.ExecuteMake(source, "", extensions, makefileTmp, mode, wdGetter, useDefaultMbt)
+	err = tpl.ExecuteMake(source, mtaYamlFilename, "", extensions, makefileTmp, mode, wdGetter, useDefaultMbt)
 	if err != nil {
 		return err
 	}
@@ -65,7 +65,7 @@ func ExecBuild(makefileTmp, source, target string, extensions []string, mode, mt
 	}
 
 	// (4) generate sbom file
-	sBomGenError := ExecuteProjectBuildeSBomGenerate(source, sBomFilePath, wdGetter)
+	sBomGenError := ExecuteProjectBuildeSBomGenerate(source, mtaYamlFilename, sBomFilePath, wdGetter)
 	if sBomGenError != nil {
 		return errors.Wrap(sBomGenError, execFailedMsg)
 	}
@@ -95,11 +95,11 @@ func createMakeCommand(makefileName, source, target, mode, mtar, platform string
 }
 
 // ExecuteProjectBuild - execute pre or post phase of project build
-func ExecuteProjectBuild(source, target, descriptor string, extensions []string, phase string, getWd func() (string, error)) error {
+func ExecuteProjectBuild(source, mtaYamlFilename, target, descriptor string, extensions []string, phase string, getWd func() (string, error)) error {
 	if phase != "pre" && phase != "post" {
 		return fmt.Errorf(UnsupportedPhaseMsg, phase)
 	}
-	loc, err := dir.Location(source, target, descriptor, extensions, getWd)
+	loc, err := dir.Location(source, mtaYamlFilename, target, descriptor, extensions, getWd)
 	if err != nil {
 		return err
 	}
