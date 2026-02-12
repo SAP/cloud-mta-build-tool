@@ -218,6 +218,11 @@ jobs:
       - add_ssh_keys:
           fingerprints:
             - "c3:2b:e9:bb:d5:05:32:ab:df:ce:2b:c3:e5:f7:95:42"
+      - run:
+      name: Enable SSH debugging
+      command: |
+        mkdir -p ~/.ssh
+        echo "LogLevel DEBUG3" >> ~/.ssh/config
       - checkout
       - run:
           name: install dependencies
