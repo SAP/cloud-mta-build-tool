@@ -24,6 +24,6 @@ modules:
       builder: custom
       commands:
         - npm install
-        - npm prune --production
+        - npm prune --omit=dev
       timeout: 15m
       supported-platforms: []

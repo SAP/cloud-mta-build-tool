@@ -143,7 +143,7 @@ makefile_version: 0.0.0
 			Entry("module with no commands and with timeout",
 				"no_commands_with_timeout.yaml", "no_commands_with_timeout", `$(MBT) execute -d="$(PROJ_DIR)/no_commands_with_timeout" -t=3m`),
 			Entry("module with multiple commands",
-				"multiple_commands.yaml", "multiple_commands", `$(MBT) execute -d="$(PROJ_DIR)/multiple_commands" -c='npm install' -c=grunt -c='npm prune --production'`),
+				"multiple_commands.yaml", "multiple_commands", `$(MBT) execute -d="$(PROJ_DIR)/multiple_commands" -c='npm install' -c=grunt -c='npm prune --omit=dev'`),
 			Entry("module with command and timeout",
 				"command_with_timeout.yaml", "command_with_timeout", `$(MBT) execute -d="$(PROJ_DIR)/command_with_timeout" -t=2s -c='sleep 1'`),
 			Entry("module with commands with special characters",
