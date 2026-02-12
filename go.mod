@@ -14,6 +14,6 @@ require (
 	github.com/spf13/cobra v1.1.3
 	github.com/spf13/viper v1.7.1
 	github.com/x-cray/logrus-prefixed-formatter v0.5.2
-	golang.org/x/sys v0.0.0-20220222200937-f2425489ef4c // indirect
+	golang.org/x/sys v0.1.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0
 )
