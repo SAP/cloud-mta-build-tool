@@ -236,7 +236,7 @@ RUN sapmachine_install() { \
       echo "WARNING: Could not import key $key with valid user ID from any keyserver"; \
     fi; \
   done; \
-  gpg --export CACB9FE09150307D1D22D82962754C3B3ABCFE23 > /etc/apt/trusted.gpg.d/sapmachine.gpg;
+  gpg --export CACB9FE09150307D1D22D82962754C3B3ABCFE23 > /etc/apt/trusted.gpg.d/sapmachine.gpg; \
   chmod 644 /etc/apt/trusted.gpg.d/sapmachine.gpg; \
   echo "deb http://dist.sapmachine.io/debian/${ARCH}/ ./" | tee /etc/apt/sources.list.d/sapmachine.list; \
   apt-get update; \
