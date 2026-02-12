@@ -144,8 +144,8 @@ RUN ARCH= && dpkgArch="$(dpkg --print-architecture)" \
   gpg --batch --keyserver hkps://pgp.surf.nl --recv-keys "$key" || \
   gpg --batch --keyserver hkps://keyserver.ubuntu.com --recv-keys "$key" ; \
   done \
-  && curl -fsSLO --compressed https://storage.googleapis.com/golang/go${GO_VERSION}.${GOOS}-${ARCH}.tar.gz \
-  && curl -fsSLO --compressed https://storage.googleapis.com/golang/go${GO_VERSION}.${GOOS}-${ARCH}.tar.gz.asc \
+  && curl -fsSLO --compressed https://go.dev/dl/go${GO_VERSION}.${GOOS}-${ARCH}.tar.gz \
+  && curl -fsSLO --compressed https://go.dev/dl/go${GO_VERSION}.${GOOS}-${ARCH}.tar.gz.asc \
   && gpg --batch --verify go${GO_VERSION}.${GOOS}-${ARCH}.tar.gz.asc go${GO_VERSION}.${GOOS}-${ARCH}.tar.gz \
   && tar -xvf go${GO_VERSION}.${GOOS}-${ARCH}.tar.gz -C /usr/local \
   && rm -rf "$GNUPGHOME" go${GO_VERSION}.${GOOS}-${ARCH}.tar.gz go${GO_VERSION}.${GOOS}-${ARCH}.tar.gz.asc \
