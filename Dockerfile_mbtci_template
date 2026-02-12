@@ -162,8 +162,29 @@ RUN ARCH= && dpkgArch="$(dpkg --print-architecture)" \
   EB4C1BFD4F042F6DDDCCEC917721F63BD38B4796 \
   2F528D36D67B69EDF998D85778BD65473CB3BD13 \
   ; do \
-  gpg --batch --keyserver hkps://pgp.surf.nl --recv-keys "$key" || \
-  gpg --batch --keyserver hkps://keyserver.ubuntu.com --recv-keys "$key" ; \
+    KEY_IMPORTED=false; \
+    for keyserver in hkps://keys.openpgp.org hkps://keyserver.ubuntu.com; do \
+      echo "Trying to import key $key from $keyserver..."; \
+      TEMP_GNUPGHOME="$(mktemp -d)"; \
+      if gpg --homedir "$TEMP_GNUPGHOME" --batch --keyserver "$keyserver" --recv-keys "$key" 2>&1 | tee /tmp/gpg-import.log; then \
+        # Check if the key was actually imported with a user ID
+        if gpg --homedir "$TEMP_GNUPGHOME" --list-keys "$key" 2>/dev/null | grep -q "uid"; then \
+          echo "Successfully imported key $key from $keyserver"; \
+          gpg --homedir "$TEMP_GNUPGHOME" --export "$key" | gpg --import 2>&1; \
+          rm -rf "$TEMP_GNUPGHOME"; \
+          KEY_IMPORTED=true; \
+          break; \
+        else \
+          echo "Key $key downloaded from $keyserver but has no user ID, trying next server..."; \
+        fi; \
+      else \
+        echo "Failed to download key $key from $keyserver"; \
+      fi; \
+      rm -rf "$TEMP_GNUPGHOME"; \
+    done; \
+    if [ "$KEY_IMPORTED" = "false" ]; then \
+      echo "WARNING: Could not import key $key with valid user ID from any keyserver"; \
+    fi; \
   done \
   && curl -fsSLO --compressed https://go.dev/dl/go${GO_VERSION}.${GOOS}-${ARCH}.tar.gz \
   && curl -fsSLO --compressed https://go.dev/dl/go${GO_VERSION}.${GOOS}-${ARCH}.tar.gz.asc \
@@ -191,8 +212,29 @@ RUN sapmachine_install() { \
   for key in \
   CACB9FE09150307D1D22D82962754C3B3ABCFE23 \
   ; do \
-  gpg --no-default-keyring --keyring gnupg-ring:/etc/apt/trusted.gpg.d/sapmachine.gpg --batch --keyserver hkps://keys.openpgp.org --recv-keys "$key" || \
-  gpg --no-default-keyring --keyring gnupg-ring:/etc/apt/trusted.gpg.d/sapmachine.gpg --batch --keyserver hkps://keyserver.ubuntu.com --recv-keys "$key" ; \
+    KEY_IMPORTED=false; \
+    for keyserver in hkps://keys.openpgp.org hkps://keyserver.ubuntu.com; do \
+      echo "Trying to import key $key from $keyserver..."; \
+      TEMP_GNUPGHOME="$(mktemp -d)"; \
+      if gpg --homedir "$TEMP_GNUPGHOME" --batch --keyserver "$keyserver" --recv-keys "$key" 2>&1 | tee /tmp/gpg-import.log; then \
+        # Check if the key was actually imported with a user ID
+        if gpg --homedir "$TEMP_GNUPGHOME" --list-keys "$key" 2>/dev/null | grep -q "uid"; then \
+          echo "Successfully imported key $key from $keyserver"; \
+          gpg --homedir "$TEMP_GNUPGHOME" --export "$key" | gpg --import 2>&1; \
+          rm -rf "$TEMP_GNUPGHOME"; \
+          KEY_IMPORTED=true; \
+          break; \
+        else \
+          echo "Key $key downloaded from $keyserver but has no user ID, trying next server..."; \
+        fi; \
+      else \
+        echo "Failed to download key $key from $keyserver"; \
+      fi; \
+      rm -rf "$TEMP_GNUPGHOME"; \
+    done; \
+    if [ "$KEY_IMPORTED" = "false" ]; then \
+      echo "WARNING: Could not import key $key with valid user ID from any keyserver"; \
+    fi; \
   done; \
   chmod 644 /etc/apt/trusted.gpg.d/sapmachine.gpg; \
   echo "deb http://dist.sapmachine.io/debian/${ARCH}/ ./" | tee /etc/apt/sources.list.d/sapmachine.list; \
@@ -241,8 +283,29 @@ RUN set -ex \
   && for key in \
   29BEA2A645F2D6CED7FB12E02B172E3E156466E8 \
   ; do \
-  gpg --batch --keyserver hkps://pgp.surf.nl --recv-keys "$key" || \
-  gpg --batch --keyserver hkps://keyserver.ubuntu.com --recv-keys "$key" ; \
+      KEY_IMPORTED=false; \
+    for keyserver in hkps://keys.openpgp.org hkps://keyserver.ubuntu.com; do \
+      echo "Trying to import key $key from $keyserver..."; \
+      TEMP_GNUPGHOME="$(mktemp -d)"; \
+      if gpg --homedir "$TEMP_GNUPGHOME" --batch --keyserver "$keyserver" --recv-keys "$key" 2>&1 | tee /tmp/gpg-import.log; then \
+        # Check if the key was actually imported with a user ID
+        if gpg --homedir "$TEMP_GNUPGHOME" --list-keys "$key" 2>/dev/null | grep -q "uid"; then \
+          echo "Successfully imported key $key from $keyserver"; \
+          gpg --homedir "$TEMP_GNUPGHOME" --export "$key" | gpg --import 2>&1; \
+          rm -rf "$TEMP_GNUPGHOME"; \
+          KEY_IMPORTED=true; \
+          break; \
+        else \
+          echo "Key $key downloaded from $keyserver but has no user ID, trying next server..."; \
+        fi; \
+      else \
+        echo "Failed to download key $key from $keyserver"; \
+      fi; \
+      rm -rf "$TEMP_GNUPGHOME"; \
+    done; \
+    if [ "$KEY_IMPORTED" = "false" ]; then \
+      echo "WARNING: Could not import key $key with valid user ID from any keyserver"; \
+    fi; \
   done \
   && gpg --batch --verify apache-maven-${MAVEN_VERSION}-bin.tar.gz.asc apache-maven-${MAVEN_VERSION}-bin.tar.gz \
   && mkdir -p ${MAVEN_HOME} ${MAVEN_HOME}/ref \
