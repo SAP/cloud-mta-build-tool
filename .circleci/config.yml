@@ -55,42 +55,6 @@ jobs:
       - run: node -v
       - run: npm install
       - run: npm run test
-  build-node15:
-    docker:
-      - image: cimg/node:15.1
-    working_directory: ~/repo
-    steps:
-      - checkout
-      - run: node -v
-      - run: npm install
-      - run: npm run test
-  build-node14:
-    docker:
-      - image: cimg/node:14.1
-    working_directory: ~/repo
-    steps:
-      - checkout
-      - run: node -v
-      - run: npm install
-      - run: npm run test
-  build-node13-14:
-    docker:
-      - image: cimg/node:13.14
-    working_directory: ~/repo
-    steps:
-      - checkout
-      - run: node -v
-      - run: npm install --unsafe-perm
-      - run: npm run test
-  build-node12-22:
-    docker:
-      - image: cimg/node:12.22
-    working_directory: ~/repo
-    steps:
-      - checkout
-      - run: node -v
-      - run: npm install --unsafe-perm
-      - run: npm run test
 
   build:
     docker:
@@ -1048,22 +1012,6 @@ workflows:
           filters:
             branches:
               ignore: master
-      - build-node15:
-          filters:
-            branches:
-              ignore: master
-      - build-node14:
-          filters:
-            branches:
-              ignore: master
-      - build-node13-14:
-          filters:
-            branches:
-              ignore: master
-      - build-node12-22:
-          filters:
-            branches:
-              ignore: master
       - compliance:
           filters:
             branches:
@@ -1103,22 +1051,6 @@ workflows:
             branches:
               only: master
       - build-node16:
-          filters:
-            branches:
-              only: master
-      - build-node15:
-          filters:
-            branches:
-              only: master
-      - build-node14:
-          filters:
-            branches:
-              only: master
-      - build-node13-14:
-          filters:
-            branches:
-              only: master
-      - build-node12-22:
           filters:
             branches:
               only: master
