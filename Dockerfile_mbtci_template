@@ -281,10 +281,9 @@ RUN set -ex \
   && curl -fsSLO --compressed ${MAVEN_BASE_URL}/apache-maven-${MAVEN_VERSION}-bin.tar.gz \
   && curl -fsSLO --compressed ${MAVEN_BASE_URL}/apache-maven-${MAVEN_VERSION}-bin.tar.gz.asc \
   && export GNUPGHOME="$(mktemp -d)" \
-  && for key in \
-  29BEA2A645F2D6CED7FB12E02B172E3E156466E8 \
-  ; do \
-      KEY_IMPORTED=false; \
+  && curl -fsSL https://downloads.apache.org/maven/KEYS -o /tmp/maven-keys.txt \
+  && for key in $(gpg --show-keys --with-colons /tmp/maven-keys.txt 2>/dev/null | awk -F: '/^pub/ {print $5}'); do \
+    KEY_IMPORTED=false; \
     for keyserver in hkps://keys.openpgp.org hkps://keyserver.ubuntu.com; do \
       echo "Trying to import key $key from $keyserver..."; \
       TEMP_GNUPGHOME="$(mktemp -d)"; \
@@ -305,9 +304,11 @@ RUN set -ex \
       rm -rf "$TEMP_GNUPGHOME"; \
     done; \
     if [ "$KEY_IMPORTED" = "false" ]; then \
-      echo "WARNING: Could not import key $key with valid user ID from any keyserver"; \
+      echo "WARNING: Could not import key $key with valid user ID from any keyserver, trying direct import from KEYS file..."; \
+      gpg --import /tmp/maven-keys.txt 2>&1 || true; \
     fi; \
   done \
+  && rm -f /tmp/maven-keys.txt \
   && gpg --batch --verify apache-maven-${MAVEN_VERSION}-bin.tar.gz.asc apache-maven-${MAVEN_VERSION}-bin.tar.gz \
   && mkdir -p ${MAVEN_HOME} ${MAVEN_HOME}/ref \
   && tar -xzf apache-maven-${MAVEN_VERSION}-bin.tar.gz -C ${MAVEN_HOME} --strip-components=1 \
