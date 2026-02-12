@@ -81,20 +81,29 @@ RUN ARCH= && dpkgArch="$(dpkg --print-architecture)" \
   108F52B48DB57BB0CC439B2997B01419BD92F80A \
   A363A499291CBBC940DD62E41F10027AF002F8B0 \
   ; do \
-  KEY_IMPORTED=false; \
-  for keyserver in hkps://keys.openpgp.org hkps://keyserver.ubuntu.com hkp://keyserver.ubuntu.com:80 hkps://pgp.mit.edu; do \
-    TEMP_GNUPGHOME="$(mktemp -d)"; \
-    if gpg --homedir "$TEMP_GNUPGHOME" --batch --keyserver "$keyserver" --recv-keys "$key" 2>/dev/null; then \
-      gpg --homedir "$TEMP_GNUPGHOME" --export "$key" | gpg --import; \
+    KEY_IMPORTED=false; \
+    for keyserver in hkps://keys.openpgp.org hkps://keyserver.ubuntu.com; do \
+      echo "Trying to import key $key from $keyserver..."; \
+      TEMP_GNUPGHOME="$(mktemp -d)"; \
+      if gpg --homedir "$TEMP_GNUPGHOME" --batch --keyserver "$keyserver" --recv-keys "$key" 2>&1 | tee /tmp/gpg-import.log; then \
+        # Check if the key was actually imported with a user ID
+        if gpg --homedir "$TEMP_GNUPGHOME" --list-keys "$key" 2>/dev/null | grep -q "uid"; then \
+          echo "Successfully imported key $key from $keyserver"; \
+          gpg --homedir "$TEMP_GNUPGHOME" --export "$key" | gpg --import 2>&1; \
+          rm -rf "$TEMP_GNUPGHOME"; \
+          KEY_IMPORTED=true; \
+          break; \
+        else \
+          echo "Key $key downloaded from $keyserver but has no user ID, trying next server..."; \
+        fi; \
+      else \
+        echo "Failed to download key $key from $keyserver"; \
+      fi; \
       rm -rf "$TEMP_GNUPGHOME"; \
-      KEY_IMPORTED=true; \
-      break; \
+    done; \
+    if [ "$KEY_IMPORTED" = "false" ]; then \
+      echo "WARNING: Could not import key $key with valid user ID from any keyserver"; \
     fi; \
-    rm -rf "$TEMP_GNUPGHOME"; \
-  done; \
-  if [ "$KEY_IMPORTED" = "false" ]; then \
-    echo "WARNING: Could not import key $key from any keyserver"; \
-  fi; \
   done \
   && curl -fsSLO --compressed "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-${ARCH}.tar.xz" \
   && curl -fsSLO --compressed "https://nodejs.org/dist/v${NODE_VERSION}/SHASUMS256.txt.asc" \
