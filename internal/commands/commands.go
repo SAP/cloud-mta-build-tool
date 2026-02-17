@@ -370,7 +370,7 @@ func GetModuleSBomGenCommands(loc *dir.Loc, module *mta.Module,
 				cmd = "npx " + cyclonedx_npm + "@" + cyclonedx_npm_version + " --output-format " + strings.ToUpper(sbomFileType) + " --spec-version " + cyclonedx_npm_schema_version + " --output-file " + sbomFileName + sbomFileSuffix
 				cmds = append(cmds, cmd)
 			case "java":
-				cmd = "mvn org.cyclonedx:cyclonedx-maven-plugin:2.7.5:makeAggregateBom " +
+				cmd = "mvn org.cyclonedx:cyclonedx-maven-plugin:2.9.0:makeAggregateBom " +
 					"-DschemaVersion=1.4 -DincludeBomSerialNumber=true -DincludeCompileScope=true " +
 					"-DincludeRuntimeScope=true -DincludeSystemScope=true -DincludeTestScope=false -DincludeLicenseText=false " +
 					"-DoutputFormat=" + sbomFileType + " -DoutputName=" + sbomFileName + ".bom"
