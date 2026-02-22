@@ -37,7 +37,7 @@ This demo shows the basic usage of the tool. For more advanced scenarios, follow
 
 #### Install
 
-For convenience the `mbt` executable is available via npmjs.com so consumers using a nodejs runtime can simply run:
+For convenience, the `mbt` executable is available via npmjs.com so consumers using a nodejs runtime can simply run:
 - `npm install -g mbt@version`
 - For possible versions see: https://www.npmjs.com/package/mbt?activeTab=versions
 
