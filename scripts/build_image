@@ -18,7 +18,7 @@ sed_i "s/JAVA_VERSION_TEMPLATE/${JAVA_VERSION_TEMPLATE}/" Dockerfile
 echo "Build mbtci${JAVA_VERSION}${NODE_VERSION}:${MBT_VERSION}"
 docker build -t mbtci${JAVA_VERSION}${NODE_VERSION}:${MBT_VERSION} .
 
-# test image
+# test images
 if [ "$JAVA_MAJOR_VERSION" = "8" ] || [ "$JAVA_MAJOR_VERSION" = "11" ] || \ 
    [ "$JAVA_MAJOR_VERSION" = "17" ] || [ "$JAVA_MAJOR_VERSION" = "19" ] || \
    [ "$JAVA_MAJOR_VERSION" = "21" ] || [ "$JAVA_MAJOR_VERSION" = "23" ]; then
