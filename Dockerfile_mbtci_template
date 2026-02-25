@@ -3,10 +3,10 @@ FROM debian:bullseye-slim
 # Build time arguments
 ARG MTA_USER="mta"
 ARG MTA_USER_HOME="/home/${MTA_USER}"
-ARG MBT_VERSION=1.2.34
+ARG MBT_VERSION=1.2.43
 ARG GO_VERSION=1.21.0
 ARG NODE_VERSION=NODE_VERSION_TEMPLATE
-ARG MAVEN_VERSION=3.9.4
+ARG MAVEN_VERSION=3.9.12
 ARG UI5_VERSION=2.14.19
 ARG MAVEN_BASE_URL=https://downloads.apache.org/maven/maven-3/${MAVEN_VERSION}/binaries
 ARG SAPMACHINE_VERSION=JAVA_VERSION_TEMPLATE
@@ -81,8 +81,29 @@ RUN ARCH= && dpkgArch="$(dpkg --print-architecture)" \
   108F52B48DB57BB0CC439B2997B01419BD92F80A \
   A363A499291CBBC940DD62E41F10027AF002F8B0 \
   ; do \
-  gpg --batch --keyserver hkps://keys.openpgp.org --recv-keys "$key" || \
-  gpg --batch --keyserver hkps://keyserver.ubuntu.com --recv-keys "$key" ; \
+    KEY_IMPORTED=false; \
+    for keyserver in hkps://keys.openpgp.org hkps://keyserver.ubuntu.com; do \
+      echo "Trying to import key $key from $keyserver..."; \
+      TEMP_GNUPGHOME="$(mktemp -d)"; \
+      if gpg --homedir "$TEMP_GNUPGHOME" --batch --keyserver "$keyserver" --recv-keys "$key" 2>&1 | tee /tmp/gpg-import.log; then \
+        # Check if the key was actually imported with a user ID
+        if gpg --homedir "$TEMP_GNUPGHOME" --list-keys "$key" 2>/dev/null | grep -q "uid"; then \
+          echo "Successfully imported key $key from $keyserver"; \
+          gpg --homedir "$TEMP_GNUPGHOME" --export "$key" | gpg --import 2>&1; \
+          rm -rf "$TEMP_GNUPGHOME"; \
+          KEY_IMPORTED=true; \
+          break; \
+        else \
+          echo "Key $key downloaded from $keyserver but has no user ID, trying next server..."; \
+        fi; \
+      else \
+        echo "Failed to download key $key from $keyserver"; \
+      fi; \
+      rm -rf "$TEMP_GNUPGHOME"; \
+    done; \
+    if [ "$KEY_IMPORTED" = "false" ]; then \
+      echo "WARNING: Could not import key $key with valid user ID from any keyserver"; \
+    fi; \
   done \
   && curl -fsSLO --compressed "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-${ARCH}.tar.xz" \
   && curl -fsSLO --compressed "https://nodejs.org/dist/v${NODE_VERSION}/SHASUMS256.txt.asc" \
@@ -141,11 +162,32 @@ RUN ARCH= && dpkgArch="$(dpkg --print-architecture)" \
   EB4C1BFD4F042F6DDDCCEC917721F63BD38B4796 \
   2F528D36D67B69EDF998D85778BD65473CB3BD13 \
   ; do \
-  gpg --batch --keyserver hkps://pgp.surf.nl --recv-keys "$key" || \
-  gpg --batch --keyserver hkps://keyserver.ubuntu.com --recv-keys "$key" ; \
+    KEY_IMPORTED=false; \
+    for keyserver in hkps://keys.openpgp.org hkps://keyserver.ubuntu.com; do \
+      echo "Trying to import key $key from $keyserver..."; \
+      TEMP_GNUPGHOME="$(mktemp -d)"; \
+      if gpg --homedir "$TEMP_GNUPGHOME" --batch --keyserver "$keyserver" --recv-keys "$key" 2>&1 | tee /tmp/gpg-import.log; then \
+        # Check if the key was actually imported with a user ID
+        if gpg --homedir "$TEMP_GNUPGHOME" --list-keys "$key" 2>/dev/null | grep -q "uid"; then \
+          echo "Successfully imported key $key from $keyserver"; \
+          gpg --homedir "$TEMP_GNUPGHOME" --export "$key" | gpg --import 2>&1; \
+          rm -rf "$TEMP_GNUPGHOME"; \
+          KEY_IMPORTED=true; \
+          break; \
+        else \
+          echo "Key $key downloaded from $keyserver but has no user ID, trying next server..."; \
+        fi; \
+      else \
+        echo "Failed to download key $key from $keyserver"; \
+      fi; \
+      rm -rf "$TEMP_GNUPGHOME"; \
+    done; \
+    if [ "$KEY_IMPORTED" = "false" ]; then \
+      echo "WARNING: Could not import key $key with valid user ID from any keyserver"; \
+    fi; \
   done \
-  && curl -fsSLO --compressed https://storage.googleapis.com/golang/go${GO_VERSION}.${GOOS}-${ARCH}.tar.gz \
-  && curl -fsSLO --compressed https://storage.googleapis.com/golang/go${GO_VERSION}.${GOOS}-${ARCH}.tar.gz.asc \
+  && curl -fsSLO --compressed https://go.dev/dl/go${GO_VERSION}.${GOOS}-${ARCH}.tar.gz \
+  && curl -fsSLO --compressed https://go.dev/dl/go${GO_VERSION}.${GOOS}-${ARCH}.tar.gz.asc \
   && gpg --batch --verify go${GO_VERSION}.${GOOS}-${ARCH}.tar.gz.asc go${GO_VERSION}.${GOOS}-${ARCH}.tar.gz \
   && tar -xvf go${GO_VERSION}.${GOOS}-${ARCH}.tar.gz -C /usr/local \
   && rm -rf "$GNUPGHOME" go${GO_VERSION}.${GOOS}-${ARCH}.tar.gz go${GO_VERSION}.${GOOS}-${ARCH}.tar.gz.asc \
@@ -170,9 +212,31 @@ RUN sapmachine_install() { \
   for key in \
   CACB9FE09150307D1D22D82962754C3B3ABCFE23 \
   ; do \
-  gpg --no-default-keyring --keyring gnupg-ring:/etc/apt/trusted.gpg.d/sapmachine.gpg --batch --keyserver hkps://keys.openpgp.org --recv-keys "$key" || \
-  gpg --no-default-keyring --keyring gnupg-ring:/etc/apt/trusted.gpg.d/sapmachine.gpg --batch --keyserver hkps://keyserver.ubuntu.com --recv-keys "$key" ; \
+    KEY_IMPORTED=false; \
+    for keyserver in hkps://keys.openpgp.org hkps://keyserver.ubuntu.com; do \
+      echo "Trying to import key $key from $keyserver..."; \
+      TEMP_GNUPGHOME="$(mktemp -d)"; \
+      if gpg --homedir "$TEMP_GNUPGHOME" --batch --keyserver "$keyserver" --recv-keys "$key" 2>&1 | tee /tmp/gpg-import.log; then \
+        # Check if the key was actually imported with a user ID
+        if gpg --homedir "$TEMP_GNUPGHOME" --list-keys "$key" 2>/dev/null | grep -q "uid"; then \
+          echo "Successfully imported key $key from $keyserver"; \
+          gpg --homedir "$TEMP_GNUPGHOME" --export "$key" | gpg --import 2>&1; \
+          rm -rf "$TEMP_GNUPGHOME"; \
+          KEY_IMPORTED=true; \
+          break; \
+        else \
+          echo "Key $key downloaded from $keyserver but has no user ID, trying next server..."; \
+        fi; \
+      else \
+        echo "Failed to download key $key from $keyserver"; \
+      fi; \
+      rm -rf "$TEMP_GNUPGHOME"; \
+    done; \
+    if [ "$KEY_IMPORTED" = "false" ]; then \
+      echo "WARNING: Could not import key $key with valid user ID from any keyserver"; \
+    fi; \
   done; \
+  gpg --export CACB9FE09150307D1D22D82962754C3B3ABCFE23 > /etc/apt/trusted.gpg.d/sapmachine.gpg; \
   chmod 644 /etc/apt/trusted.gpg.d/sapmachine.gpg; \
   echo "deb http://dist.sapmachine.io/debian/${ARCH}/ ./" | tee /etc/apt/sources.list.d/sapmachine.list; \
   apt-get update; \
@@ -217,12 +281,34 @@ RUN set -ex \
   && curl -fsSLO --compressed ${MAVEN_BASE_URL}/apache-maven-${MAVEN_VERSION}-bin.tar.gz \
   && curl -fsSLO --compressed ${MAVEN_BASE_URL}/apache-maven-${MAVEN_VERSION}-bin.tar.gz.asc \
   && export GNUPGHOME="$(mktemp -d)" \
-  && for key in \
-  29BEA2A645F2D6CED7FB12E02B172E3E156466E8 \
-  ; do \
-  gpg --batch --keyserver hkps://pgp.surf.nl --recv-keys "$key" || \
-  gpg --batch --keyserver hkps://keyserver.ubuntu.com --recv-keys "$key" ; \
+  && curl -fsSL https://downloads.apache.org/maven/KEYS -o /tmp/maven-keys.txt \
+  && for key in $(gpg --show-keys --with-colons /tmp/maven-keys.txt 2>/dev/null | awk -F: '/^pub/ {print $5}'); do \
+    KEY_IMPORTED=false; \
+    for keyserver in hkps://keys.openpgp.org hkps://keyserver.ubuntu.com; do \
+      echo "Trying to import key $key from $keyserver..."; \
+      TEMP_GNUPGHOME="$(mktemp -d)"; \
+      if gpg --homedir "$TEMP_GNUPGHOME" --batch --keyserver "$keyserver" --recv-keys "$key" 2>&1 | tee /tmp/gpg-import.log; then \
+        # Check if the key was actually imported with a user ID
+        if gpg --homedir "$TEMP_GNUPGHOME" --list-keys "$key" 2>/dev/null | grep -q "uid"; then \
+          echo "Successfully imported key $key from $keyserver"; \
+          gpg --homedir "$TEMP_GNUPGHOME" --export "$key" | gpg --import 2>&1; \
+          rm -rf "$TEMP_GNUPGHOME"; \
+          KEY_IMPORTED=true; \
+          break; \
+        else \
+          echo "Key $key downloaded from $keyserver but has no user ID, trying next server..."; \
+        fi; \
+      else \
+        echo "Failed to download key $key from $keyserver"; \
+      fi; \
+      rm -rf "$TEMP_GNUPGHOME"; \
+    done; \
+    if [ "$KEY_IMPORTED" = "false" ]; then \
+      echo "WARNING: Could not import key $key with valid user ID from any keyserver, trying direct import from KEYS file..."; \
+      gpg --import /tmp/maven-keys.txt 2>&1 || true; \
+    fi; \
   done \
+  && rm -f /tmp/maven-keys.txt \
   && gpg --batch --verify apache-maven-${MAVEN_VERSION}-bin.tar.gz.asc apache-maven-${MAVEN_VERSION}-bin.tar.gz \
   && mkdir -p ${MAVEN_HOME} ${MAVEN_HOME}/ref \
   && tar -xzf apache-maven-${MAVEN_VERSION}-bin.tar.gz -C ${MAVEN_HOME} --strip-components=1 \
