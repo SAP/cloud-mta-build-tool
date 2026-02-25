@@ -330,7 +330,8 @@ func moduleCmd(mta *mta.MTA, moduleName string) (*mta.Module, []string, string, 
 // GetModuleSBomGenCommands - get sbom generate command for module
 // if unknow sbom gen builder or custom builder, empty [][]string and nil error will be return
 func GetModuleSBomGenCommands(loc *dir.Loc, module *mta.Module,
-	sbomFileName string, sbomFileType string, sbomFileSuffix string) ([][]string, error) {
+	sbomFileName string, sbomFileType string, sbomFileSuffix string,
+) ([][]string, error) {
 	var cmd string
 	var cmds []string
 	var commandList [][]string
@@ -358,6 +359,7 @@ func GetModuleSBomGenCommands(loc *dir.Loc, module *mta.Module,
 			"-DincludeRuntimeScope=true -DincludeSystemScope=true -DincludeTestScope=false -DincludeLicenseText=false " +
 			"-DoutputFormat=" + sbomFileType + " -DoutputName=" + sbomFileName + ".bom"
 		cmds = append(cmds, cmd)
+	// allow custom creation of an SBOM for e.g. a custom builder
 	case "custom":
 		// first check if custom SBOM creation commands are provided
 		customSbomGenCmds, ok := module.BuildParams["sbom-create-commands"].([]string)
@@ -398,7 +400,8 @@ func GetModuleSBomGenCommands(loc *dir.Loc, module *mta.Module,
 // GetSBomsMergeCommand - generate merge sbom file command under sbom tmp dir
 // if empty sbomFileNames, return empty commandList, nil error
 func GetSBomsMergeCommand(loc *dir.Loc, cyclonedx_cli string, mtaObj *mta.MTA, sbomTmpDir string, sbomFileNames []string,
-	sbomName, sbomType, sbomSuffix string) ([][]string, error) {
+	sbomName, sbomType, sbomSuffix string,
+) ([][]string, error) {
 	var cmd string
 	var cmds []string
 	var commandList [][]string
