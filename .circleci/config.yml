@@ -182,6 +182,11 @@ jobs:
       - add_ssh_keys:
           fingerprints:
             - "c3:2b:e9:bb:d5:05:32:ab:df:ce:2b:c3:e5:f7:95:42"
+      - run:
+          name: Enable SSH debugging
+          command: |
+            mkdir -p ~/.ssh
+            echo "LogLevel DEBUG3" >> ~/.ssh/config
       - checkout
       - run:
           name: install dependencies
@@ -228,8 +233,9 @@ jobs:
             git config user.email "${CLOUD_MTA_BOT_EMAIL}"
             git config user.name "${CLOUD_MTA_BOT_USER}"
             git commit --allow-empty -m "[skip ci] Bump version ${MBT_VERSION}"
+            git config -l
             #Push commit directly to master
-            git push -q https://github.com/SAP/cloud-mta-build-tool.git master
+            git push -v https://github.com/SAP/cloud-mta-build-tool.git master
             #Tag
             git tag -a v${MBT_VERSION} -m "New release ${MBT_VERSION}"
             git push https://github.com/SAP/cloud-mta-build-tool.git v${MBT_VERSION}
