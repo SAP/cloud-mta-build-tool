@@ -63,19 +63,7 @@ And so on.
 
 ##### How to pull the images
 
-You should choose the relevant image type from following list to replace the `<TYPE>` template in the command/FROM according your MTA project technologies:
-* java8-node14
-* java8-node16
-* java8-node18
-* java11-node14
-* java11-node16
-* java11-node18
-* java17-node14
-* java17-node16
-* java17-node18
-* java19-node14
-* java19-node16
-* java19-node18
+You should choose the relevant image type from the list in the [How to use the images](#how-to-use-the-images) section to replace the `<TYPE>` template in the command/FROM according to your MTA project technologies.
 
 From the command line:
 ```shell
