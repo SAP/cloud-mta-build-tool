@@ -105,7 +105,7 @@ FROM ghcr.io/sap/mbtci-java11-node14:latest
 
 ##### How to use the images
 
-You should choose the relevant image type from following list to replace the `<TYPE>` template in the command according your MTA project technologies:
+You should choose the relevant image type from the following list to replace the `<TYPE>` template in the command according to your MTA project technologies:
 * java8-node14
 * java8-node16
 * java8-node18
