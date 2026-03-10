@@ -49,7 +49,7 @@ command:
     exit-status: 0
   # verify installed go version
   go version:
-    exit-status:0 
+    exit-status: 0
   # verify NPM @sap-scope registry NOT configured
   npm config get @sap:registry:
     exit-status: 0
