@@ -47,7 +47,7 @@ It is also possible to download and "install" the `mbt` executable via github re
 #### The Cloud MTA Build Tool Images
 
 We supply several images for **CI environment** containing the Cloud MTA Build Tool.
-The images are hosted at [Github container registry](https://github.com/orgs/SAP/packages?tab=packages&q=mbtci-)
+The images are hosted at [GitHub container registry](https://github.com/orgs/SAP/packages?tab=packages&q=mbtci-)
 and also at [Docker Hub registry](https://hub.docker.com/search?q=mbtci-&type=image).
 
 The images are built from a template docker file which depends on most common technologies (Java and Node) as follows:
