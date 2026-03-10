@@ -121,7 +121,7 @@ You should choose the relevant image type from following list to replace the `<T
 
 On a Linux/Darwin machine you can run:
 ```shell
-$ docker run -it --rm -v "$(pwd)/[proj-releative-path]:/project" devxci/mbtci-<TYPE>:latest mbt build -p=cf -t [target-folder-name]
+$ docker run -it --rm -v "$(pwd)/[proj-relative-path]:/project" devxci/mbtci-<TYPE>:latest mbt build -p=cf -t [target-folder-name]
 ```
 This will build an mtar file for SAP Cloud Platform (Cloud Foundry). The folder containing the project needs to be mounted into the image at /project.
 
