@@ -53,7 +53,7 @@ and also at [Docker Hub registry](https://hub.docker.com/search?q=mbtci-&type=im
 The images are built from a template docker file which depends on most common technologies (Java and Node) as follows:
 * [mbtci-java8-node14](https://hub.docker.com/r/devxci/mbtci-java8-node14) is built from [Dockerfile_mbtci_template](https://github.com/SAP/cloud-mta-build-tool/blob/master/Dockerfile_mbtci_template) using Node 14.
 * [mbtci-java8-node16](https://hub.docker.com/r/devxci/mbtci-java8-node16) is built from [Dockerfile_mbtci_template](https://github.com/SAP/cloud-mta-build-tool/blob/master/Dockerfile_mbtci_template) using Node 16.
-* [mbtci-java8-node18](https://hub.docqker.com/r/devxci/mbtci-java8-node18) is built from [Dockerfile_mbtci_template](https://github.com/SAP/cloud-mta-build-tool/blob/master/Dockerfile_mbtci_template) using Node 18.
+* [mbtci-java8-node18](https://hub.docker.com/r/devxci/mbtci-java8-node18) is built from [Dockerfile_mbtci_template](https://github.com/SAP/cloud-mta-build-tool/blob/master/Dockerfile_mbtci_template) using Node 18.
 
 * [mbtci-java11-node14](https://hub.docker.com/r/devxci/mbtci-java11-node14) is built from [Dockerfile_mbtci_template](https://github.com/SAP/cloud-mta-build-tool/blob/master/Dockerfile_mbtci_template) using Node 14.
 * [mbtci-java11-node16](https://hub.docker.com/r/devxci/mbtci-java11-node16) is built from [Dockerfile_mbtci_template](https://github.com/SAP/cloud-mta-build-tool/blob/master/Dockerfile_mbtci_template) using Node 16.
