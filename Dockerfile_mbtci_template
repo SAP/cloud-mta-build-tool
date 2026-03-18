@@ -1,4 +1,4 @@
-FROM debian:bullseye-slim
+FROM debian:bookworm-slim
 
 # Build time arguments
 ARG MTA_USER="mta"
@@ -333,11 +333,10 @@ RUN set -ex \
 # Install essential build tools and Python
 RUN set -ex \
   && apt-get update \
-  && apt-get install -y ca-certificates build-essential git python2.7 python3 --no-install-recommends \
+  && apt-get install -y ca-certificates build-essential git python3 --no-install-recommends \
   && rm -rf /var/lib/apt/lists/* \
-  # smoke tests
-  && echo "python install smoke tests!" \
-  && python2.7 --version \
+  # smoke test
+  && echo "python install smoke test!" \
   && python3 --version
 
 # Allow global npm packages install without sudo
