@@ -504,9 +504,18 @@ modules:
 			dir, _ := os.Getwd()
 			path := dir + filepath.FromSlash("/testdata/mta_demo/mta_archives")
 			bin := filepath.FromSlash("cf")
+
+			// Diagnostic: check for active operations before deploying
+			fmt.Println("=== Pre-deploy diagnostics ===")
+			executeWithOutput(bin, "mta-ops", path)
+			executeWithOutput(bin, "mtas", path)
+			executeWithOutput(bin, "apps", path)
+			fmt.Println("=== Starting deploy ===")
+			
 			// Execute deployment process with output to make the deployment success/failure more clear
 			err := executeWithOutput(bin, "deploy "+demoArchiveName+" -f", path)
 			if err != nil {
+				fmt.Println("=== Post-failure diagnostics ===")
 				executeWithOutput(bin, "logs node --recent", path)
 				executeWithOutput(bin, "logs node-js --recent", path)
 			}
