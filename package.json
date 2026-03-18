@@ -1,6 +1,6 @@
 {
   "name": "mbt",
-  "version": "1.2.34",
+  "version": "1.2.43",
   "description": "[![CircleCI](https://circleci.com/gh/SAP/cloud-mta-build-tool.svg?style=svg&circle-token=ecedd1dce3592adcd72ee4c61481972c32dcfad7)](https://circleci.com/gh/SAP/cloud-mta-build-tool) [![Go Report Card](https://goreportcard.com/badge/github.com/SAP/cloud-mta-build-tool)](https://goreportcard.com/report/github.com/SAP/cloud-mta-build-tool) [![Coverage Status](https://coveralls.io/repos/github/SAP/cloud-mta-build-tool/badge.svg?branch=cover)](https://coveralls.io/github/SAP/cloud-mta-build-tool?branch=cover) ![GitHub license](https://img.shields.io/badge/license-Apache_2.0-blue.svg) ![pre-alpha](https://img.shields.io/badge/Release-pre--alpha-orange.svg)",
   "main": "index.js",
   "files": [
@@ -26,8 +26,8 @@
   },
   "homepage": "https://github.com/SAP/cloud-mta-build-tool#readme",
   "dependencies": {
-    "axios": "^1.4.0",
-    "tar": "^6.1.0",
-    "unzip-stream": "^0.3.1"
+    "axios": "^1.13.5",
+    "tar": "^7.5.7",
+    "unzip-stream": "^0.3.4"
   }
 }

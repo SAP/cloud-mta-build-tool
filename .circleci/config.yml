@@ -1,9 +1,28 @@
+#
 # Golang CircleCI 2.0 configuration
 version: 2.1
 jobs:
   build-node:
     docker:
       - image: cimg/node:lts
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - run: node -v
+      - run: npm install
+      - run: npm run test
+  build-node24:
+    docker:
+      - image: cimg/node:24.7
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - run: node -v
+      - run: npm install
+      - run: npm run test
+  build-node22:
+    docker:
+      - image: cimg/node:22.15.1
     working_directory: ~/repo
     steps:
       - checkout
@@ -54,42 +73,6 @@ jobs:
       - checkout
       - run: node -v
       - run: npm install
-      - run: npm run test
-  build-node15:
-    docker:
-      - image: cimg/node:15.1
-    working_directory: ~/repo
-    steps:
-      - checkout
-      - run: node -v
-      - run: npm install
-      - run: npm run test
-  build-node14:
-    docker:
-      - image: cimg/node:14.1
-    working_directory: ~/repo
-    steps:
-      - checkout
-      - run: node -v
-      - run: npm install
-      - run: npm run test
-  build-node13-14:
-    docker:
-      - image: cimg/node:13.14
-    working_directory: ~/repo
-    steps:
-      - checkout
-      - run: node -v
-      - run: npm install --unsafe-perm
-      - run: npm run test
-  build-node12-22:
-    docker:
-      - image: cimg/node:12.22
-    working_directory: ~/repo
-    steps:
-      - checkout
-      - run: node -v
-      - run: npm install --unsafe-perm
       - run: npm run test
 
   build:
@@ -218,6 +201,11 @@ jobs:
       - add_ssh_keys:
           fingerprints:
             - "c3:2b:e9:bb:d5:05:32:ab:df:ce:2b:c3:e5:f7:95:42"
+      - run:
+          name: Enable SSH debugging
+          command: |
+            mkdir -p ~/.ssh
+            echo "LogLevel DEBUG3" >> ~/.ssh/config
       - checkout
       - run:
           name: install dependencies
@@ -264,8 +252,9 @@ jobs:
             git config user.email "${CLOUD_MTA_BOT_EMAIL}"
             git config user.name "${CLOUD_MTA_BOT_USER}"
             git commit --allow-empty -m "[skip ci] Bump version ${MBT_VERSION}"
+            git config -l
             #Push commit directly to master
-            git push -q https://github.com/SAP/cloud-mta-build-tool.git master
+            git push -v https://github.com/SAP/cloud-mta-build-tool.git master
             #Tag
             git tag -a v${MBT_VERSION} -m "New release ${MBT_VERSION}"
             git push https://github.com/SAP/cloud-mta-build-tool.git v${MBT_VERSION}
@@ -1028,6 +1017,14 @@ workflows:
           filters:
             branches:
               ignore: master
+      - build-node24:
+          filters:
+            branches:
+              ignore: master
+      - build-node22:
+          filters:
+            branches:
+              ignore: master
       - build-node20:
           filters:
             branches:
@@ -1045,22 +1042,6 @@ workflows:
             branches:
               ignore: master
       - build-node16:
-          filters:
-            branches:
-              ignore: master
-      - build-node15:
-          filters:
-            branches:
-              ignore: master
-      - build-node14:
-          filters:
-            branches:
-              ignore: master
-      - build-node13-14:
-          filters:
-            branches:
-              ignore: master
-      - build-node12-22:
           filters:
             branches:
               ignore: master
@@ -1086,6 +1067,14 @@ workflows:
           filters:
             branches:
               only: master
+      - build-node24:
+          filters:
+            branches:
+              only: master
+      - build-node22:
+          filters:
+            branches:
+              only: master
       - build-node20:
           filters:
             branches:
@@ -1103,22 +1092,6 @@ workflows:
             branches:
               only: master
       - build-node16:
-          filters:
-            branches:
-              only: master
-      - build-node15:
-          filters:
-            branches:
-              only: master
-      - build-node14:
-          filters:
-            branches:
-              only: master
-      - build-node13-14:
-          filters:
-            branches:
-              only: master
-      - build-node12-22:
           filters:
             branches:
               only: master
