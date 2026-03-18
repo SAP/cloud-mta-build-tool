@@ -811,12 +811,12 @@ func resourceCleanup(appName string) {
 	Ω(cmdOut).ShouldNot(BeEmpty())
 }
 
-// Execute command every second for 40 times
+// Execute command every second for 2 minutes
 func executeEverySecond(bin string, args string, path string) (string, errorOut string, err error) {
 	n := 0
 	cmdOut, errOut, err := execute(bin, args, path)
-	for range time.Tick(time.Second) {
-		if n == 40 || strings.Compare(cmdOut, "'200'") == 0 {
+	for range time.Tick(2 * time.Second) {
+		if n == 60 || strings.Compare(cmdOut, "'200'") == 0 {
 			break
 		}
 		cmdOut, errOut, err = execute(bin, args, path)
