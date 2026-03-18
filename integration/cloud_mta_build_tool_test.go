@@ -496,6 +496,13 @@ modules:
 	})
 
 	var _ = Describe("Deploy basic mta archive", func() {
+		BeforeEach(func() {
+			dir, _ := os.Getwd()
+			path := dir + filepath.FromSlash("/testdata/mta_demo/mta_archives")
+			bin := filepath.FromSlash("cf")
+			// Undeploy any previous MTA deployment; ignore errors if nothing is deployed
+			execute(bin, "undeploy mta_demo --delete-services --delete-service-keys -f", path)
+		})
 		AfterEach(func() {
 			resourceCleanup("node")
 			resourceCleanup("node-js")
