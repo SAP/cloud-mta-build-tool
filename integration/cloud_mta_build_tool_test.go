@@ -506,6 +506,12 @@ modules:
 			bin := filepath.FromSlash("cf")
 			// Execute deployment process with output to make the deployment success/failure more clear
 			err := executeWithOutput(bin, "deploy "+demoArchiveName+" -f", path)
+			if err != nil {
+				// Capture the deploy operation logs
+				executeWithOutput(bin, "dmol -i last", path)
+				// Capture the app logs
+				executeWithOutput(bin, "logs node --recent", path)
+			}
 			Ω(err).Should(Succeed())
 			// Check if the deploy succeeded by using curl command response.
 			// Receiving the output status code 200 represents successful deployment
