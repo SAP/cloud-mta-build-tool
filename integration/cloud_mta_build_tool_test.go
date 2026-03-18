@@ -496,6 +496,13 @@ modules:
 	})
 
 	var _ = Describe("Deploy basic mta archive", func() {
+		BeforeEach(func() {
+			dir, _ := os.Getwd()
+			path := dir + filepath.FromSlash("/testdata/mta_demo/mta_archives")
+			bin := filepath.FromSlash("cf")
+			// Undeploy any previous MTA deployment; ignore errors if nothing is deployed
+			execute(bin, "undeploy mta_demo --delete-services --delete-service-keys -f", path)
+		})
 		AfterEach(func() {
 			resourceCleanup("node")
 			resourceCleanup("node-js")
@@ -504,8 +511,21 @@ modules:
 			dir, _ := os.Getwd()
 			path := dir + filepath.FromSlash("/testdata/mta_demo/mta_archives")
 			bin := filepath.FromSlash("cf")
+
+			// Diagnostic: check for active operations before deploying
+			fmt.Println("=== Pre-deploy diagnostics ===")
+			executeWithOutput(bin, "mta-ops", path)
+			executeWithOutput(bin, "mtas", path)
+			executeWithOutput(bin, "apps", path)
+			fmt.Println("=== Starting deploy ===")
+			
 			// Execute deployment process with output to make the deployment success/failure more clear
 			err := executeWithOutput(bin, "deploy "+demoArchiveName+" -f", path)
+			if err != nil {
+				fmt.Println("=== Post-failure diagnostics ===")
+				executeWithOutput(bin, "logs node --recent", path)
+				executeWithOutput(bin, "logs node-js --recent", path)
+			}
 			Ω(err).Should(Succeed())
 			// Check if the deploy succeeded by using curl command response.
 			// Receiving the output status code 200 represents successful deployment
@@ -811,12 +831,12 @@ func resourceCleanup(appName string) {
 	Ω(cmdOut).ShouldNot(BeEmpty())
 }
 
-// Execute command every second for 40 times
+// Execute command every second for 2 minutes
 func executeEverySecond(bin string, args string, path string) (string, errorOut string, err error) {
 	n := 0
 	cmdOut, errOut, err := execute(bin, args, path)
-	for range time.Tick(time.Second) {
-		if n == 40 || strings.Compare(cmdOut, "'200'") == 0 {
+	for range time.Tick(2 * time.Second) {
+		if n == 60 || strings.Compare(cmdOut, "'200'") == 0 {
 			break
 		}
 		cmdOut, errOut, err = execute(bin, args, path)

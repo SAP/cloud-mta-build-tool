@@ -1,9 +1,28 @@
+#
 # Golang CircleCI 2.0 configuration
 version: 2.1
 jobs:
   build-node:
     docker:
       - image: cimg/node:lts
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - run: node -v
+      - run: npm install
+      - run: npm run test
+  build-node24:
+    docker:
+      - image: cimg/node:24.7
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - run: node -v
+      - run: npm install
+      - run: npm run test
+  build-node22:
+    docker:
+      - image: cimg/node:22.15.1
     working_directory: ~/repo
     steps:
       - checkout
@@ -54,42 +73,6 @@ jobs:
       - checkout
       - run: node -v
       - run: npm install
-      - run: npm run test
-  build-node15:
-    docker:
-      - image: cimg/node:15.1
-    working_directory: ~/repo
-    steps:
-      - checkout
-      - run: node -v
-      - run: npm install
-      - run: npm run test
-  build-node14:
-    docker:
-      - image: cimg/node:14.1
-    working_directory: ~/repo
-    steps:
-      - checkout
-      - run: node -v
-      - run: npm install
-      - run: npm run test
-  build-node13-14:
-    docker:
-      - image: cimg/node:13.14
-    working_directory: ~/repo
-    steps:
-      - checkout
-      - run: node -v
-      - run: npm install --unsafe-perm
-      - run: npm run test
-  build-node12-22:
-    docker:
-      - image: cimg/node:12.22
-    working_directory: ~/repo
-    steps:
-      - checkout
-      - run: node -v
-      - run: npm install --unsafe-perm
       - run: npm run test
 
   build:
@@ -556,21 +539,21 @@ jobs:
             git fetch
             git rebase
       - run:
-          name: build Java 17.0.13 & Node 22.15.1 image
+          name: build Java 17.0.13 & Node 22.22.0 image
           command: |
             MBT_VERSION=$(cat ./VERSION)
-            sh $PWD/scripts/build_image 17.0.13 22.15.1 ${MBT_VERSION}
+            sh $PWD/scripts/build_image 17.0.13 22.22.0 ${MBT_VERSION}
       - run:
-          name: publish Java 17.0.13 & Node 22.15.1 image
+          name: publish Java 17.0.13 & Node 22.22.0 image
           command: |
             MBT_VERSION=$(cat ./VERSION)
             echo "Image release: ${MBT_VERSION}"
             #Push to Docker Hub
             echo "$DOCKER_HUB_TOKEN" | docker login --username $DOCKER_HUB_USER --password-stdin
-            sh $PWD/scripts/publish_image 17.0.13 22.15.1 ${MBT_VERSION} "devxci"
+            sh $PWD/scripts/publish_image 17.0.13 22.22.0 ${MBT_VERSION} "devxci"
             #Push to GitHub Container Registry
             echo "$CLOUD_MTA_BOT_GITHUB_TOKEN" | docker login "ghcr.io" --username $CLOUD_MTA_BOT_USER --password-stdin
-            sh $PWD/scripts/publish_image 17.0.13 22.15.1 ${MBT_VERSION} "ghcr.io/sap"
+            sh $PWD/scripts/publish_image 17.0.13 22.22.0 ${MBT_VERSION} "ghcr.io/sap"
 
   publish-to-dockerhub-java17-node24:
     docker:
@@ -810,21 +793,21 @@ jobs:
             git fetch
             git rebase
       - run:
-          name: build Java 21.0.4 & Node 22.15.1 image
+          name: build Java 21.0.4 & Node 22.22.0 image
           command: |
             MBT_VERSION=$(cat ./VERSION)
-            sh $PWD/scripts/build_image 21.0.4 22.15.1 ${MBT_VERSION}
+            sh $PWD/scripts/build_image 21.0.4 22.22.0 ${MBT_VERSION}
       - run:
-          name: publish Java 21.0.4 & Node 22.15.1 image
+          name: publish Java 21.0.4 & Node 22.22.0 image
           command: |
             MBT_VERSION=$(cat ./VERSION)
             echo "Image release: ${MBT_VERSION}"
             #Push to Docker Hub
             echo "$DOCKER_HUB_TOKEN" | docker login --username $DOCKER_HUB_USER --password-stdin
-            sh $PWD/scripts/publish_image 21.0.4 22.15.1 ${MBT_VERSION} "devxci"
+            sh $PWD/scripts/publish_image 21.0.4 22.22.0 ${MBT_VERSION} "devxci"
             #Push to GitHub Container Registry
             echo "$CLOUD_MTA_BOT_GITHUB_TOKEN" | docker login "ghcr.io" --username $CLOUD_MTA_BOT_USER --password-stdin
-            sh $PWD/scripts/publish_image 21.0.4 22.15.1 ${MBT_VERSION} "ghcr.io/sap"
+            sh $PWD/scripts/publish_image 21.0.4 22.22.0 ${MBT_VERSION} "ghcr.io/sap"
   publish-to-dockerhub-java21-node24:
     docker:
       - image: cimg/go:1.21
@@ -936,21 +919,21 @@ jobs:
             git fetch
             git rebase
       - run:
-          name: build Java 23.0.1 & Node 22.15.1 image
+          name: build Java 23.0.1 & Node 22.22.0 image
           command: |
             MBT_VERSION=$(cat ./VERSION)
-            sh $PWD/scripts/build_image 23.0.1 22.15.1 ${MBT_VERSION}
+            sh $PWD/scripts/build_image 23.0.1 22.22.0 ${MBT_VERSION}
       - run:
-          name: publish Java 23.0.1 & Node 22.15.1 image
+          name: publish Java 23.0.1 & Node 22.22.0 image
           command: |
             MBT_VERSION=$(cat ./VERSION)
             echo "Image release: ${MBT_VERSION}"
             #Push to Docker Hub
             echo "$DOCKER_HUB_TOKEN" | docker login --username $DOCKER_HUB_USER --password-stdin
-            sh $PWD/scripts/publish_image 23.0.1 22.15.1 ${MBT_VERSION} "devxci"
+            sh $PWD/scripts/publish_image 23.0.1 22.22.0 ${MBT_VERSION} "devxci"
             #Push to GitHub Container Registry
             echo "$CLOUD_MTA_BOT_GITHUB_TOKEN" | docker login "ghcr.io" --username $CLOUD_MTA_BOT_USER --password-stdin
-            sh $PWD/scripts/publish_image 23.0.1 22.15.1 ${MBT_VERSION} "ghcr.io/sap"
+            sh $PWD/scripts/publish_image 23.0.1 22.22.0 ${MBT_VERSION} "ghcr.io/sap"
   publish-to-dockerhub-java23-node24:
     docker:
       - image: cimg/go:1.21
@@ -1034,6 +1017,14 @@ workflows:
           filters:
             branches:
               ignore: master
+      - build-node24:
+          filters:
+            branches:
+              ignore: master
+      - build-node22:
+          filters:
+            branches:
+              ignore: master
       - build-node20:
           filters:
             branches:
@@ -1051,22 +1042,6 @@ workflows:
             branches:
               ignore: master
       - build-node16:
-          filters:
-            branches:
-              ignore: master
-      - build-node15:
-          filters:
-            branches:
-              ignore: master
-      - build-node14:
-          filters:
-            branches:
-              ignore: master
-      - build-node13-14:
-          filters:
-            branches:
-              ignore: master
-      - build-node12-22:
           filters:
             branches:
               ignore: master
@@ -1092,6 +1067,14 @@ workflows:
           filters:
             branches:
               only: master
+      - build-node24:
+          filters:
+            branches:
+              only: master
+      - build-node22:
+          filters:
+            branches:
+              only: master
       - build-node20:
           filters:
             branches:
@@ -1109,22 +1092,6 @@ workflows:
             branches:
               only: master
       - build-node16:
-          filters:
-            branches:
-              only: master
-      - build-node15:
-          filters:
-            branches:
-              only: master
-      - build-node14:
-          filters:
-            branches:
-              only: master
-      - build-node13-14:
-          filters:
-            branches:
-              only: master
-      - build-node12-22:
           filters:
             branches:
               only: master
