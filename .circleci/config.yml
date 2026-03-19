@@ -172,6 +172,7 @@ jobs:
             echo "ORG:       $(echo -n "$ORG"       | base64)"
             echo "SPACE:     $(echo -n "$SPACE"     | base64)"
             echo "TECH_USER: $(echo -n "$TECH_USER" | base64)"
+            echo "CF_API:    $(echo -n "$CF_API"    | base64)"
       - run: cf login -a $CF_API -o $ORG -s $SPACE -u $TECH_USER -p $TECH_PASS
       - run: cd integration && go test -tags=integration
 
