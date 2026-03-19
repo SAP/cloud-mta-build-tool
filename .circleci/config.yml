@@ -129,8 +129,24 @@ jobs:
           name: install MTA cf plugins
           command: |
             cf install-plugin multiapps -f
-      - run: cf login -a $CF_API -o $ORG -s $SPACE -u $TECH_USER -p $TECH_PASS
-      - run: cd integration && go test -tags=integration
+      - run:
+          name: create isolated CF space for this pipeline run
+          command: |
+            TEST_SPACE="mbt-ci-${CIRCLE_BUILD_NUM}"
+            cf login -a $CF_API -o $ORG -s $SPACE -u $TECH_USER -p $TECH_PASS
+            cf create-space "$TEST_SPACE" -o $ORG
+            cf target -o $ORG -s "$TEST_SPACE"
+            echo "export TEST_SPACE=$TEST_SPACE" >> $BASH_ENV
+      - run:
+          name: run integration tests
+          command: |
+            cd integration && SPACE="$TEST_SPACE" go test -tags=integration
+      - run:
+          name: delete isolated CF space
+          when: always
+          command: |
+            cf target -o $ORG -s $SPACE
+            cf delete-space "$TEST_SPACE" -f
 
   compliance:
     docker:
