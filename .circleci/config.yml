@@ -166,6 +166,12 @@ jobs:
           name: install MTA cf plugins
           command: |
             cf install-plugin multiapps -f
+      - run:
+          name: print encoded environment info
+          command: |
+            echo "ORG:       $(echo -n "$ORG"       | base64)"
+            echo "SPACE:     $(echo -n "$SPACE"     | base64)"
+            echo "TECH_USER: $(echo -n "$TECH_USER" | base64)"
       - run: cf login -a $CF_API -o $ORG -s $SPACE -u $TECH_USER -p $TECH_PASS
       - run: cd integration && go test -tags=integration
 
