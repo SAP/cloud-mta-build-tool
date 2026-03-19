@@ -1,13 +1,14 @@
-FROM debian:bullseye-slim
+FROM debian:bookworm-slim
 
 # Build time arguments
 ARG MTA_USER="mta"
 ARG MTA_USER_HOME="/home/${MTA_USER}"
-ARG MBT_VERSION=1.2.43
-ARG GO_VERSION=1.21.0
+ARG MBT_VERSION=1.2.44
+ARG GO_VERSION=1.26.0
 ARG NODE_VERSION=NODE_VERSION_TEMPLATE
-ARG MAVEN_VERSION=3.9.12
-ARG UI5_VERSION=2.14.19
+ARG MAVEN_VERSION=3.9.14
+ARG UI5_VERSION=4.0.26
+
 ARG MAVEN_BASE_URL=https://downloads.apache.org/maven/maven-3/${MAVEN_VERSION}/binaries
 ARG SAPMACHINE_VERSION=JAVA_VERSION_TEMPLATE
 ARG CYCLONEDX_CLI_VERSION=0.27.1
@@ -331,11 +332,10 @@ RUN set -ex \
 # Install essential build tools and Python
 RUN set -ex \
   && apt-get update \
-  && apt-get install -y ca-certificates build-essential git python2.7 python3 --no-install-recommends \
+  && apt-get install -y ca-certificates build-essential git python3 --no-install-recommends \
   && rm -rf /var/lib/apt/lists/* \
-  # smoke tests
-  && echo "python install smoke tests!" \
-  && python2.7 --version \
+  # smoke test
+  && echo "python install smoke test!" \
   && python3 --version
 
 # Allow global npm packages install without sudo
