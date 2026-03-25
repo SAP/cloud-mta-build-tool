@@ -363,21 +363,7 @@ func GetModuleSBomGenCommands(loc *dir.Loc, module *mta.Module,
 		// Try direct conversion to []string first
 		customSbomGenCmds, ok := module.BuildParams["sbom-create-commands"].([]string)
 
-		// Fallback: convert from []interface{} to []string (YAML unmarshaling produces []interface{})
-		if !ok {
-			if cmdsI, okI := module.BuildParams["sbom-create-commands"].([]interface{}); okI {
-				ok = true
-				customSbomGenCmds = []string{} // Initialize slice
-				for _, cmdI := range cmdsI {
-					cmd, okCmd := cmdI.(string)
-					if !okCmd {
-						ok = false
-						break
-					}
-					customSbomGenCmds = append(customSbomGenCmds, cmd)
-				}
-			}
-		}
+		if !ok { if cmdsI, _ := module.BuildParams["sbom-create-commands"].([]interface{}); cmdsI != nil { for _, cmdI := range cmdsI { if cmd, _ := cmdI.(string); cmd != "" { customSbomGenCmds = append(customSbomGenCmds, cmd) } } } }
 		// in case no custom commands are provided use standard way of creating SBOM
 		if !ok || (ok && len(customSbomGenCmds) == 0) {
 			switch module.Type {
