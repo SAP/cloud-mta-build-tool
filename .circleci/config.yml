@@ -113,7 +113,7 @@ jobs:
 
   test:
     docker:
-      - image: cimg/go:1.21-node
+      - image: cimg/go:1.24-node
     working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
     steps:
       - checkout
@@ -124,7 +124,7 @@ jobs:
       - run:
           name: install cf cli
           command: |
-            curl -L "https://packages.cloudfoundry.org/stable?release=linux64-binary&&version=8.8.3" | sudo tar -zx -C /usr/local/bin
+            curl -L "https://packages.cloudfoundry.org/stable?release=linux64-binary&version=8.8.3" | sudo tar -zx -C /usr/local/bin
       - run:
           name: install MTA cf plugins
           command: |
@@ -145,6 +145,10 @@ jobs:
           name: delete isolated CF space
           when: always
           command: |
+            if [ -z "$TEST_SPACE" ]; then
+              echo "TEST_SPACE is unset — space creation likely failed, nothing to delete"
+              exit 0
+            fi
             cf target -o $ORG -s $SPACE
             cf delete-space "$TEST_SPACE" -f
 
@@ -607,14 +611,23 @@ jobs:
       - run:
           name: install cf cli
           command: |
-            curl -L "https://packages.cloudfoundry.org/stable?release=linux64-binary&&version=8.8.3" | sudo tar -zx -C /usr/local/bin
+            curl -L "https://packages.cloudfoundry.org/stable?release=linux64-binary&version=8.8.3" | sudo tar -zx -C /usr/local/bin
       - run:
           name: delete orphaned mbt-ci-* CF spaces
           command: |
             cf login -a $CF_API -o $ORG -s $SPACE -u $TECH_USER -p $TECH_PASS
+            # Only delete spaces that are at least 2 hours old to avoid
+            # racing with currently running integration-test pipelines.
+            CUTOFF=$(date -u -d '2 hours ago' '+%Y-%m-%dT%H:%M:%S' 2>/dev/null \
+                      || date -u -v-2H '+%Y-%m-%dT%H:%M:%S')
             cf spaces | grep '^mbt-ci-' | while read -r space; do
-              echo "Deleting orphaned space: $space"
-              cf delete-space "$space" -f
+              created=$(cf space "$space" | awk '/created:/{print $2"T"$3}')
+              if [[ "$created" < "$CUTOFF" ]]; then
+                echo "Deleting orphaned space (created $created): $space"
+                cf delete-space "$space" -f
+              else
+                echo "Skipping recent space (created $created): $space"
+              fi
             done
 
 workflows:
