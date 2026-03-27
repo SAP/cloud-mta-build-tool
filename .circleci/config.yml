@@ -817,3 +817,30 @@ workflows:
               only: /release/
             branches:
               ignore: /.*/
+
+  cleanup-ci-cf-spaces:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - run:
+          name: install cf cli
+          command: |
+            curl -L "https://packages.cloudfoundry.org/stable?release=linux64-binary&&version=8.8.3" | sudo tar -zx -C /usr/local/bin
+      - run:
+          name: delete orphaned mbt-ci-* CF spaces
+          command: |
+            cf login -a $CF_API -o $ORG -s $SPACE -u $TECH_USER -p $TECH_PASS
+            cf spaces | grep '^mbt-ci-' | while read -r space; do
+              echo "Deleting orphaned space: $space"
+              cf delete-space "$space" -f
+            done
+
+  nightly-cleanup:
+    triggers:
+      - schedule:
+          cron: "0 2 * * *"
+          filters:
+            branches:
+              only: master
+    jobs:
+      - cleanup-ci-cf-spaces
