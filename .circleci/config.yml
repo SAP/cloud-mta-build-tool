@@ -250,14 +250,31 @@ jobs:
             goreleaser release
             #curl -sfL https://goreleaser.com/static/run | bash
 
+  build-image:
+    parameters:
+      java_version:
+        type: string
+      node_version:
+        type: string
+    docker:
+      - image: cimg/go:1.21
+    working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: build Java << parameters.java_version >> & Node << parameters.node_version >> image
+          command: |
+            MBT_VERSION=$(cat ./VERSION)
+            sh $PWD/scripts/build_image << parameters.java_version >> << parameters.node_version >> ${MBT_VERSION}
+
   publish-to-dockerhub-java11-node20:
     docker:
       - image: cimg/go:1.21
     working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
     steps:
       - checkout
-      - setup_remote_docker:
-          version: 20.10.24
+      - setup_remote_docker
       - run:
           name: build image pre-setup
           command: |
@@ -288,8 +305,7 @@ jobs:
     working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
     steps:
       - checkout
-      - setup_remote_docker:
-          version: 20.10.24
+      - setup_remote_docker
       - run:
           name: build image pre-setup
           command: |
@@ -320,8 +336,7 @@ jobs:
     working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
     steps:
       - checkout
-      - setup_remote_docker:
-          version: 20.10.24
+      - setup_remote_docker
       - run:
           name: build image pre-setup
           command: |
@@ -352,8 +367,7 @@ jobs:
     working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
     steps:
       - checkout
-      - setup_remote_docker:
-          version: 20.10.24
+      - setup_remote_docker
       - run:
           name: build image pre-setup
           command: |
@@ -384,8 +398,7 @@ jobs:
     working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
     steps:
       - checkout
-      - setup_remote_docker:
-          version: 20.10.24
+      - setup_remote_docker
       - run:
           name: build image pre-setup
           command: |
@@ -415,8 +428,7 @@ jobs:
     working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
     steps:
       - checkout
-      - setup_remote_docker:
-          version: 20.10.24
+      - setup_remote_docker
       - run:
           name: build image pre-setup
           command: |
@@ -446,8 +458,7 @@ jobs:
     working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
     steps:
       - checkout
-      - setup_remote_docker:
-          version: 20.10.24
+      - setup_remote_docker
       - run:
           name: build image pre-setup
           command: |
@@ -477,8 +488,7 @@ jobs:
     working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
     steps:
       - checkout
-      - setup_remote_docker:
-          version: 20.10.24
+      - setup_remote_docker
       - run:
           name: build image pre-setup
           command: |
@@ -509,8 +519,7 @@ jobs:
     working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
     steps:
       - checkout
-      - setup_remote_docker:
-          version: 20.10.24
+      - setup_remote_docker
       - run:
           name: build image pre-setup
           command: |
@@ -540,8 +549,7 @@ jobs:
     working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
     steps:
       - checkout
-      - setup_remote_docker:
-          version: 20.10.24
+      - setup_remote_docker
       - run:
           name: build image pre-setup
           command: |
@@ -571,8 +579,7 @@ jobs:
     working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
     steps:
       - checkout
-      - setup_remote_docker:
-          version: 20.10.24
+      - setup_remote_docker
       - run:
           # This won't run if previous commands have failed so the tag should be removed **manually**
           name: remove dummy release tag
@@ -656,6 +663,96 @@ workflows:
             branches:
               ignore: master
       - compliance:
+          filters:
+            branches:
+              ignore: master
+      - build-image:
+          name: build-image-java11-node20
+          java_version: "11.0.17"
+          node_version: "20.18.1"
+          requires:
+            - build
+          filters:
+            branches:
+              ignore: master
+      - build-image:
+          name: build-image-java17-node20
+          java_version: "17.0.13"
+          node_version: "20.18.1"
+          requires:
+            - build
+          filters:
+            branches:
+              ignore: master
+      - build-image:
+          name: build-image-java17-node22
+          java_version: "17.0.13"
+          node_version: "22.22.0"
+          requires:
+            - build
+          filters:
+            branches:
+              ignore: master
+      - build-image:
+          name: build-image-java17-node24
+          java_version: "17.0.13"
+          node_version: "24.14.0"
+          requires:
+            - build
+          filters:
+            branches:
+              ignore: master
+      - build-image:
+          name: build-image-java21-node20
+          java_version: "21.0.4"
+          node_version: "20.18.1"
+          requires:
+            - build
+          filters:
+            branches:
+              ignore: master
+      - build-image:
+          name: build-image-java21-node22
+          java_version: "21.0.4"
+          node_version: "22.22.0"
+          requires:
+            - build
+          filters:
+            branches:
+              ignore: master
+      - build-image:
+          name: build-image-java21-node24
+          java_version: "21.0.4"
+          node_version: "24.14.0"
+          requires:
+            - build
+          filters:
+            branches:
+              ignore: master
+      - build-image:
+          name: build-image-java23-node20
+          java_version: "23.0.1"
+          node_version: "20.18.1"
+          requires:
+            - build
+          filters:
+            branches:
+              ignore: master
+      - build-image:
+          name: build-image-java23-node22
+          java_version: "23.0.1"
+          node_version: "22.22.0"
+          requires:
+            - build
+          filters:
+            branches:
+              ignore: master
+      - build-image:
+          name: build-image-java23-node24
+          java_version: "23.0.1"
+          node_version: "24.14.0"
+          requires:
+            - build
           filters:
             branches:
               ignore: master
