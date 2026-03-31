@@ -553,6 +553,97 @@ jobs:
             #Push to GitHub Container Registry
             echo "$CLOUD_MTA_BOT_GITHUB_TOKEN" | docker login "ghcr.io" --username $CLOUD_MTA_BOT_USER --password-stdin
             sh $PWD/scripts/publish_image 23.0.1 24.14.0 ${MBT_VERSION} "ghcr.io/sap"
+
+  publish-to-dockerhub-java25-node20:
+    docker:
+      - image: cimg/go:1.21
+    working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: build image pre-setup
+          command: |
+            #Make sure HEAD points to master
+            git checkout master
+            git fetch
+            git rebase
+      - run:
+          name: build Java 25.0.2 & Node 20.18.1 image
+          command: |
+            MBT_VERSION=$(cat ./VERSION)
+            sh $PWD/scripts/build_image 25.0.2 20.18.1 ${MBT_VERSION}
+      - run:
+          name: publish Java 25.0.2 & Node 20.18.1 image
+          command: |
+            MBT_VERSION=$(cat ./VERSION)
+            echo "Image release: ${MBT_VERSION}"
+            #Push to Docker Hub
+            echo "$DOCKER_HUB_TOKEN" | docker login --username $DOCKER_HUB_USER --password-stdin
+            sh $PWD/scripts/publish_image 25.0.2 20.18.1 ${MBT_VERSION} "devxci"
+            #Push to GitHub Container Registry
+            echo "$CLOUD_MTA_BOT_GITHUB_TOKEN" | docker login "ghcr.io" --username $CLOUD_MTA_BOT_USER --password-stdin
+            sh $PWD/scripts/publish_image 25.0.2 20.18.1 ${MBT_VERSION} "ghcr.io/sap"
+  publish-to-dockerhub-java25-node22:
+    docker:
+      - image: cimg/go:1.21
+    working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: build image pre-setup
+          command: |
+            #Make sure HEAD points to master
+            git checkout master
+            git fetch
+            git rebase
+      - run:
+          name: build Java 25.0.2 & Node 22.22.0 image
+          command: |
+            MBT_VERSION=$(cat ./VERSION)
+            sh $PWD/scripts/build_image 25.0.2 22.22.0 ${MBT_VERSION}
+      - run:
+          name: publish Java 25.0.2 & Node 22.22.0 image
+          command: |
+            MBT_VERSION=$(cat ./VERSION)
+            echo "Image release: ${MBT_VERSION}"
+            #Push to Docker Hub
+            echo "$DOCKER_HUB_TOKEN" | docker login --username $DOCKER_HUB_USER --password-stdin
+            sh $PWD/scripts/publish_image 25.0.2 22.22.0 ${MBT_VERSION} "devxci"
+            #Push to GitHub Container Registry
+            echo "$CLOUD_MTA_BOT_GITHUB_TOKEN" | docker login "ghcr.io" --username $CLOUD_MTA_BOT_USER --password-stdin
+            sh $PWD/scripts/publish_image 25.0.2 22.22.0 ${MBT_VERSION} "ghcr.io/sap"
+  publish-to-dockerhub-java25-node24:
+    docker:
+      - image: cimg/go:1.21
+    working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: build image pre-setup
+          command: |
+            #Make sure HEAD points to master
+            git checkout master
+            git fetch
+            git rebase
+      - run:
+          name: build Java 25.0.2 & Node 24.14.0 image
+          command: |
+            MBT_VERSION=$(cat ./VERSION)
+            sh $PWD/scripts/build_image 25.0.2 24.14.0 ${MBT_VERSION}
+      - run:
+          name: publish Java 25.0.2 & Node 24.14.0 image
+          command: |
+            MBT_VERSION=$(cat ./VERSION)
+            echo "Image release: ${MBT_VERSION}"
+            #Push to Docker Hub
+            echo "$DOCKER_HUB_TOKEN" | docker login --username $DOCKER_HUB_USER --password-stdin
+            sh $PWD/scripts/publish_image 25.0.2 24.14.0 ${MBT_VERSION} "devxci"
+            #Push to GitHub Container Registry
+            echo "$CLOUD_MTA_BOT_GITHUB_TOKEN" | docker login "ghcr.io" --username $CLOUD_MTA_BOT_USER --password-stdin
+            sh $PWD/scripts/publish_image 25.0.2 24.14.0 ${MBT_VERSION} "ghcr.io/sap"
   remove-github-release-tag:
     docker:
       - image: cimg/go:1.21
@@ -704,6 +795,33 @@ workflows:
       - build-image:
           name: build-image-java23-node24
           java_version: "23.0.1"
+          node_version: "24.14.0"
+          requires:
+            - build
+          filters:
+            branches:
+              ignore: master
+      - build-image:
+          name: build-image-java25-node20
+          java_version: "25.0.2"
+          node_version: "20.18.1"
+          requires:
+            - build
+          filters:
+            branches:
+              ignore: master
+      - build-image:
+          name: build-image-java25-node22
+          java_version: "25.0.2"
+          node_version: "22.22.0"
+          requires:
+            - build
+          filters:
+            branches:
+              ignore: master
+      - build-image:
+          name: build-image-java25-node24
+          java_version: "25.0.2"
           node_version: "24.14.0"
           requires:
             - build
@@ -881,6 +999,30 @@ workflows:
               only: /release/
             branches:
               ignore: /.*/
+      - publish-to-dockerhub-java25-node20:
+          requires:
+            - publish-to-npm
+          filters:
+            tags:
+              only: /release/
+            branches:
+              ignore: /.*/
+      - publish-to-dockerhub-java25-node22:
+          requires:
+            - publish-to-npm
+          filters:
+            tags:
+              only: /release/
+            branches:
+              ignore: /.*/
+      - publish-to-dockerhub-java25-node24:
+          requires:
+            - publish-to-npm
+          filters:
+            tags:
+              only: /release/
+            branches:
+              ignore: /.*/
       - remove-github-release-tag:
           requires:
             - publish-to-dockerhub-java11-node20
@@ -893,6 +1035,9 @@ workflows:
             - publish-to-dockerhub-java23-node20
             - publish-to-dockerhub-java23-node22
             - publish-to-dockerhub-java23-node24
+            - publish-to-dockerhub-java25-node20
+            - publish-to-dockerhub-java25-node22
+            - publish-to-dockerhub-java25-node24
           filters:
             tags:
               only: /release/
