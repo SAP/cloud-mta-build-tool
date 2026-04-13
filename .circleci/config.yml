@@ -113,7 +113,7 @@ jobs:
 
   test:
     docker:
-      - image: cimg/go:1.21-node
+      - image: cimg/go:1.24-node
     working_directory: ~/go/src/github.com/SAP/cloud-mta-build-tool
     steps:
       - checkout
@@ -129,8 +129,28 @@ jobs:
           name: install MTA cf plugins
           command: |
             cf install-plugin multiapps -f
-      - run: cf login -a $CF_API -o $ORG -s $SPACE -u $TECH_USER -p $TECH_PASS
-      - run: cd integration && go test -tags=integration
+      - run:
+          name: create isolated CF space for this pipeline run
+          command: |
+            TEST_SPACE="mbt-ci-${CIRCLE_BUILD_NUM}"
+            cf login -a $CF_API -o $ORG -s $SPACE -u $TECH_USER -p $TECH_PASS
+            cf create-space "$TEST_SPACE" -o $ORG
+            cf target -o $ORG -s "$TEST_SPACE"
+            echo "export TEST_SPACE=$TEST_SPACE" >> $BASH_ENV
+      - run:
+          name: run integration tests
+          command: |
+            cd integration && SPACE="$TEST_SPACE" go test -tags=integration
+      - run:
+          name: delete isolated CF space
+          when: always
+          command: |
+            if [ -z "$TEST_SPACE" ]; then
+              echo "TEST_SPACE is unset — space creation likely failed, nothing to delete"
+              exit 0
+            fi
+            cf target -o $ORG -s $SPACE
+            cf delete-space "$TEST_SPACE" -f
 
   compliance:
     docker:
@@ -591,6 +611,32 @@ jobs:
             npm run test
             npm publish
 
+  cleanup-ci-cf-spaces:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - run:
+          name: install cf cli
+          command: |
+            curl -L "https://packages.cloudfoundry.org/stable?release=linux64-binary&version=8.8.3" | sudo tar -zx -C /usr/local/bin
+      - run:
+          name: delete orphaned mbt-ci-* CF spaces
+          command: |
+            cf login -a $CF_API -o $ORG -s $SPACE -u $TECH_USER -p $TECH_PASS
+            # Only delete spaces that are at least 2 hours old to avoid
+            # racing with currently running integration-test pipelines.
+            CUTOFF=$(date -u -d '2 hours ago' '+%Y-%m-%dT%H:%M:%S' 2>/dev/null \
+                      || date -u -v-2H '+%Y-%m-%dT%H:%M:%S')
+            cf spaces | grep '^mbt-ci-' | while read -r space; do
+              created=$(cf space "$space" | awk '/created:/{print $2"T"$3}')
+              if [[ "$created" < "$CUTOFF" ]]; then
+                echo "Deleting orphaned space (created $created): $space"
+                cf delete-space "$space" -f
+              else
+                echo "Skipping recent space (created $created): $space"
+              fi
+            done
+
 workflows:
   version: 2
   # when sub-branch's code is committed, this workflow will be exceeded
@@ -898,3 +944,13 @@ workflows:
               only: /release/
             branches:
               ignore: /.*/
+
+  nightly-cleanup:
+    triggers:
+      - schedule:
+          cron: "0 2 * * *"
+          filters:
+            branches:
+              only: master
+    jobs:
+      - cleanup-ci-cf-spaces

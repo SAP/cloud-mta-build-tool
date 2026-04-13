@@ -527,9 +527,23 @@ modules:
 				executeWithOutput(bin, "logs node-js --recent", path)
 			}
 			Ω(err).Should(Succeed())
+			// Determine the actual app route from CF — route contains the space name so it cannot be hardcoded
+			cfAppOut, _, _ := execute(filepath.FromSlash("cf"), "app node", dir+filepath.FromSlash("/testdata/mta_demo"))
+			nodeRoute := ""
+			for _, line := range strings.Split(cfAppOut, "\n") {
+				trimmed := strings.TrimSpace(line)
+				if strings.HasPrefix(trimmed, "routes:") {
+					parts := strings.SplitN(trimmed, ":", 2)
+					if len(parts) == 2 {
+						nodeRoute = strings.TrimSpace(parts[1])
+					}
+					break
+				}
+			}
+			Ω(nodeRoute).ShouldNot(BeEmpty(), "Could not determine node app route from CF")
 			// Check if the deploy succeeded by using curl command response.
 			// Receiving the output status code 200 represents successful deployment
-			args := "-s -o /dev/null -w '%{http_code}' " + os.Getenv("NODE_APP_ROUTE")
+			args := "-s -o /dev/null -w '%{http_code}' https://" + nodeRoute
 			path = dir + filepath.FromSlash("/testdata/mta_demo")
 			bin = filepath.FromSlash("curl")
 			cmdOut, errOut, err := executeEverySecond(bin, args, path)
