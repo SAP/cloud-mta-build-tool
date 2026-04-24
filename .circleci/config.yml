@@ -998,6 +998,33 @@ workflows:
           filters:
             branches:
               only: master
+      - build-image:
+          name: build-image-java25-node20
+          java_version: "25.0.2"
+          node_version: "20.18.1"
+          requires:
+            - build
+          filters:
+            branches:
+              only: master
+      - build-image:
+          name: build-image-java25-node22
+          java_version: "25.0.2"
+          node_version: "22.22.0"
+          requires:
+            - build
+          filters:
+            branches:
+              only: master
+      - build-image:
+          name: build-image-java25-node24
+          java_version: "25.0.2"
+          node_version: "24.14.0"
+          requires:
+            - build
+          filters:
+            branches:
+              only: master
       - test:
           requires:
             - build
