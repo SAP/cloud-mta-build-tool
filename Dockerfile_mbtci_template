@@ -323,7 +323,7 @@ RUN set -ex \
   && ln -s ${MAVEN_HOME}/bin/mvn /usr/bin/mvn \
   && apt-get remove --purge --autoremove -y ca-certificates curl gnupg dirmngr \
   # smoke test
-  && echo "mvn install smoke test!" \
+  && echo "mvn ${MAVEN_VERSION} install smoke test!" \
   && mvn --version
 
 # Install MBT
