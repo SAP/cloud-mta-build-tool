@@ -6,10 +6,9 @@ ARG MTA_USER_HOME="/home/${MTA_USER}"
 ARG MBT_VERSION=1.2.46
 ARG GO_VERSION=1.26.0
 ARG NODE_VERSION=NODE_VERSION_TEMPLATE
-ARG MAVEN_VERSION=3.9.14
+ARG MAVEN_MAJOR_MINOR=3.9
 ARG UI5_VERSION=4.0.26
 
-ARG MAVEN_BASE_URL=https://downloads.apache.org/maven/maven-3/${MAVEN_VERSION}/binaries
 ARG SAPMACHINE_VERSION=JAVA_VERSION_TEMPLATE
 ARG CYCLONEDX_CLI_VERSION=0.27.1
 ARG CYCLONEDX_CLI_BINARY=cyclonedx
@@ -279,6 +278,12 @@ RUN set -ex \
   && apt-get update \
   && apt-get install -y ca-certificates curl gnupg dirmngr --no-install-recommends \
   && rm -rf /var/lib/apt/lists/* \
+  && MAVEN_VERSION=$(curl -fsSL https://downloads.apache.org/maven/maven-3/ \
+       | grep -oP '(?<=href=")'"${MAVEN_MAJOR_MINOR}"'\.[0-9]+' \
+       | sort -V | tail -1) \
+  && if [ -z "$MAVEN_VERSION" ]; then echo "ERROR: could not resolve Maven ${MAVEN_MAJOR_MINOR}.x version"; exit 1; fi \
+  && echo "Resolved Maven version: ${MAVEN_VERSION}" \
+  && MAVEN_BASE_URL="https://downloads.apache.org/maven/maven-3/${MAVEN_VERSION}/binaries" \
   && curl -fsSLO --compressed ${MAVEN_BASE_URL}/apache-maven-${MAVEN_VERSION}-bin.tar.gz \
   && curl -fsSLO --compressed ${MAVEN_BASE_URL}/apache-maven-${MAVEN_VERSION}-bin.tar.gz.asc \
   && export GNUPGHOME="$(mktemp -d)" \

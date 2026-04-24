@@ -1,4 +1,5 @@
 #!/usr/bin/env sh
+set -e
 
 # set readable variables
 export JAVA_VERSION_TEMPLATE="$1"
