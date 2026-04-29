@@ -80,9 +80,9 @@ After renaming, make sure that the places where the name is used refer to the co
 </li>
 <li>
 
-The `hdb` builder is not supported by the Cloud MTA Build tool.  You no longer require builder settings for the `hdb` module because the required `npm install --production` command is run by default for this module type.
+The `hdb` builder is not supported by the Cloud MTA Build tool.  You no longer require builder settings for the `hdb` module because the required `npm install --omit=dev` command is run by default for this module type.
 
-If you used this builder for other module types, you can repace it with the `npm` builder or use the `custom` builder that runs the `"npm install --production"`command. 
+If you used this builder for other module types, you can replace it with the `npm` builder or use the `custom` builder that runs the `"npm install --omit=dev"`command.
 &nbsp;
 </li>
 &nbsp;

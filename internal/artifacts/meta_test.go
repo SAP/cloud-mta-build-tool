@@ -104,7 +104,7 @@ modules:
 			BeforeEach(func() {
 				config = make([]byte, len(version.VersionConfig))
 				copy(config, version.VersionConfig)
-				// Simplified commands configuration (performance purposes). removed "npm prune --production"
+				// Simplified commands configuration (performance purposes). removed "npm prune --omit=dev"
 				version.VersionConfig = []byte(`
 cli_version:["x"]
 `)
