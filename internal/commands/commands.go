@@ -360,7 +360,18 @@ func GetModuleSBomGenCommands(loc *dir.Loc, module *mta.Module,
 		cmds = append(cmds, cmd)
 	case "custom":
 		// first check if custom SBOM creation commands are provided
+		// Try direct conversion to []string first
 		customSbomGenCmds, ok := module.BuildParams["sbom-create-commands"].([]string)
+
+		if !ok {
+			if cmds, ok := module.BuildParams["sbom-create-commands"].([]interface{}); ok {
+				for _, cmd := range cmds {
+					if s, ok := cmd.(string); ok {
+						customSbomGenCmds = append(customSbomGenCmds, s)
+					}
+				}
+			}
+		}
 		// in case no custom commands are provided use standard way of creating SBOM
 		if !ok || (ok && len(customSbomGenCmds) == 0) {
 			switch module.Type {
