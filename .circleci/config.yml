@@ -376,21 +376,21 @@ jobs:
             git fetch
             git rebase
       - run:
-          name: build Java 17.0.13 & Node 24.14.0 image
+          name: build Java 17.0.13 & Node 24.17.0 image
           command: |
             MBT_VERSION=$(cat ./VERSION)
-            sh $PWD/scripts/build_image 17.0.13 24.14.0 ${MBT_VERSION}
+            sh $PWD/scripts/build_image 17.0.13 24.17.0 ${MBT_VERSION}
       - run:
-          name: publish Java 17.0.13 & Node 24.14.0 image
+          name: publish Java 17.0.13 & Node 24.17.0 image
           command: |
             MBT_VERSION=$(cat ./VERSION)
             echo "Image release: ${MBT_VERSION}"
             #Push to Docker Hub
             echo "$DOCKER_HUB_TOKEN" | docker login --username $DOCKER_HUB_USER --password-stdin
-            sh $PWD/scripts/publish_image 17.0.13 24.14.0 ${MBT_VERSION} "devxci"
+            sh $PWD/scripts/publish_image 17.0.13 24.17.0 ${MBT_VERSION} "devxci"
             #Push to GitHub Container Registry
             echo "$CLOUD_MTA_BOT_GITHUB_TOKEN" | docker login "ghcr.io" --username $CLOUD_MTA_BOT_USER --password-stdin
-            sh $PWD/scripts/publish_image 17.0.13 24.14.0 ${MBT_VERSION} "ghcr.io/sap"
+            sh $PWD/scripts/publish_image 17.0.13 24.17.0 ${MBT_VERSION} "ghcr.io/sap"
 
   publish-to-dockerhub-java21-node20:
     docker:
@@ -467,21 +467,21 @@ jobs:
             git fetch
             git rebase
       - run:
-          name: build Java 21.0.4 & Node 24.14.0 image
+          name: build Java 21.0.4 & Node 24.17.0 image
           command: |
             MBT_VERSION=$(cat ./VERSION)
-            sh $PWD/scripts/build_image 21.0.4 24.14.0 ${MBT_VERSION}
+            sh $PWD/scripts/build_image 21.0.4 24.17.0 ${MBT_VERSION}
       - run:
-          name: publish Java 21.0.4 & Node 24.14.0 image
+          name: publish Java 21.0.4 & Node 24.17.0 image
           command: |
             MBT_VERSION=$(cat ./VERSION)
             echo "Image release: ${MBT_VERSION}"
             #Push to Docker Hub
             echo "$DOCKER_HUB_TOKEN" | docker login --username $DOCKER_HUB_USER --password-stdin
-            sh $PWD/scripts/publish_image 21.0.4 24.14.0 ${MBT_VERSION} "devxci"
+            sh $PWD/scripts/publish_image 21.0.4 24.17.0 ${MBT_VERSION} "devxci"
             #Push to GitHub Container Registry
             echo "$CLOUD_MTA_BOT_GITHUB_TOKEN" | docker login "ghcr.io" --username $CLOUD_MTA_BOT_USER --password-stdin
-            sh $PWD/scripts/publish_image 21.0.4 24.14.0 ${MBT_VERSION} "ghcr.io/sap"
+            sh $PWD/scripts/publish_image 21.0.4 24.17.0 ${MBT_VERSION} "ghcr.io/sap"
   publish-to-dockerhub-java23-node20:
     docker:
       - image: cimg/go:1.21
@@ -558,21 +558,21 @@ jobs:
             git fetch
             git rebase
       - run:
-          name: build Java 23.0.1 & Node 24.14.0 image
+          name: build Java 23.0.1 & Node 24.17.0 image
           command: |
             MBT_VERSION=$(cat ./VERSION)
-            sh $PWD/scripts/build_image 23.0.1 24.14.0 ${MBT_VERSION}
+            sh $PWD/scripts/build_image 23.0.1 24.17.0 ${MBT_VERSION}
       - run:
-          name: publish Java 23.0.1 & Node 24.14.0 image
+          name: publish Java 23.0.1 & Node 24.17.0 image
           command: |
             MBT_VERSION=$(cat ./VERSION)
             echo "Image release: ${MBT_VERSION}"
             #Push to Docker Hub
             echo "$DOCKER_HUB_TOKEN" | docker login --username $DOCKER_HUB_USER --password-stdin
-            sh $PWD/scripts/publish_image 23.0.1 24.14.0 ${MBT_VERSION} "devxci"
+            sh $PWD/scripts/publish_image 23.0.1 24.17.0 ${MBT_VERSION} "devxci"
             #Push to GitHub Container Registry
             echo "$CLOUD_MTA_BOT_GITHUB_TOKEN" | docker login "ghcr.io" --username $CLOUD_MTA_BOT_USER --password-stdin
-            sh $PWD/scripts/publish_image 23.0.1 24.14.0 ${MBT_VERSION} "ghcr.io/sap"
+            sh $PWD/scripts/publish_image 23.0.1 24.17.0 ${MBT_VERSION} "ghcr.io/sap"
 
   publish-to-dockerhub-java25-node20:
     docker:
@@ -649,21 +649,21 @@ jobs:
             git fetch
             git rebase
       - run:
-          name: build Java 25.0.2 & Node 24.14.0 image
+          name: build Java 25.0.2 & Node 24.17.0 image
           command: |
             MBT_VERSION=$(cat ./VERSION)
-            sh $PWD/scripts/build_image 25.0.2 24.14.0 ${MBT_VERSION}
+            sh $PWD/scripts/build_image 25.0.2 24.17.0 ${MBT_VERSION}
       - run:
-          name: publish Java 25.0.2 & Node 24.14.0 image
+          name: publish Java 25.0.2 & Node 24.17.0 image
           command: |
             MBT_VERSION=$(cat ./VERSION)
             echo "Image release: ${MBT_VERSION}"
             #Push to Docker Hub
             echo "$DOCKER_HUB_TOKEN" | docker login --username $DOCKER_HUB_USER --password-stdin
-            sh $PWD/scripts/publish_image 25.0.2 24.14.0 ${MBT_VERSION} "devxci"
+            sh $PWD/scripts/publish_image 25.0.2 24.17.0 ${MBT_VERSION} "devxci"
             #Push to GitHub Container Registry
             echo "$CLOUD_MTA_BOT_GITHUB_TOKEN" | docker login "ghcr.io" --username $CLOUD_MTA_BOT_USER --password-stdin
-            sh $PWD/scripts/publish_image 25.0.2 24.14.0 ${MBT_VERSION} "ghcr.io/sap"
+            sh $PWD/scripts/publish_image 25.0.2 24.17.0 ${MBT_VERSION} "ghcr.io/sap"
   remove-github-release-tag:
     docker:
       - image: cimg/go:1.21
@@ -787,7 +787,7 @@ workflows:
       - build-image:
           name: build-image-java17-node24
           java_version: "17.0.13"
-          node_version: "24.14.0"
+          node_version: "24.17.0"
           requires:
             - build
           filters:
@@ -814,7 +814,7 @@ workflows:
       - build-image:
           name: build-image-java21-node24
           java_version: "21.0.4"
-          node_version: "24.14.0"
+          node_version: "24.17.0"
           requires:
             - build
           filters:
@@ -841,7 +841,7 @@ workflows:
       - build-image:
           name: build-image-java23-node24
           java_version: "23.0.1"
-          node_version: "24.14.0"
+          node_version: "24.17.0"
           requires:
             - build
           filters:
@@ -868,7 +868,7 @@ workflows:
       - build-image:
           name: build-image-java25-node24
           java_version: "25.0.2"
-          node_version: "24.14.0"
+          node_version: "24.17.0"
           requires:
             - build
           filters:
@@ -938,7 +938,7 @@ workflows:
       - build-image:
           name: build-image-java17-node24
           java_version: "17.0.13"
-          node_version: "24.14.0"
+          node_version: "24.17.0"
           requires:
             - build
           filters:
@@ -965,7 +965,7 @@ workflows:
       - build-image:
           name: build-image-java21-node24
           java_version: "21.0.4"
-          node_version: "24.14.0"
+          node_version: "24.17.0"
           requires:
             - build
           filters:
@@ -992,7 +992,7 @@ workflows:
       - build-image:
           name: build-image-java23-node24
           java_version: "23.0.1"
-          node_version: "24.14.0"
+          node_version: "24.17.0"
           requires:
             - build
           filters:
@@ -1019,7 +1019,7 @@ workflows:
       - build-image:
           name: build-image-java25-node24
           java_version: "25.0.2"
-          node_version: "24.14.0"
+          node_version: "24.17.0"
           requires:
             - build
           filters:
