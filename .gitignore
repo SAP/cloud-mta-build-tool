@@ -19,7 +19,6 @@ config.json
 
 *.out
 .editorconfig
-.github
 .history
 build
 fmt
