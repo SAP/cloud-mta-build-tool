@@ -1,6 +1,6 @@
 module github.com/SAP/cloud-mta-build-tool
 
-go 1.13
+go 1.21
 
 require (
 	github.com/CycloneDX/cyclonedx-go v0.9.1
