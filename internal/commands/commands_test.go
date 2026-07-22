@@ -493,7 +493,7 @@ var _ = Describe("GetModuleSBomGenCommands", func() {
 			Name: "test-module",
 			Type: "nodejs",
 			BuildParams: map[string]interface{}{
-				builderParam: customBuilder,
+				builderParam:           customBuilder,
 				"sbom-create-commands": []interface{}{},
 			},
 		}
