@@ -424,3 +424,107 @@ modules:
 		})
 	})
 })
+
+var _ = Describe("GetModuleSBomGenCommands", func() {
+	It("should parse sbom-create-commands as []string", func() {
+		module := &mta.Module{
+			Name: "test-module",
+			Type: "nodejs",
+			BuildParams: map[string]interface{}{
+				builderParam: customBuilder,
+				"sbom-create-commands": []string{
+					"npx @cyclonedx/cyclonedx-npm --output-format XML --spec-version 1.4 --output-file bom.xml",
+				},
+			},
+		}
+		
+		loc := dir.Loc{SourcePath: getTestPath("result"), TargetPath: getTestPath("result")}
+		commands, err := GetModuleSBomGenCommands(&loc, module, "bom", "xml", ".xml")
+		
+		Ω(err).Should(Succeed())
+		Ω(commands).Should(HaveLen(1))
+		Ω(commands[0]).Should(HaveLen(1))
+		Ω(commands[0][0]).Should(Equal("npx @cyclonedx/cyclonedx-npm --output-format XML --spec-version 1.4 --output-file bom.xml"))
+	})
+	
+	It("should parse sbom-create-commands as []interface{} (YAML unmarshaling)", func() {
+		module := &mta.Module{
+			Name: "test-module",
+			Type: "nodejs",
+			BuildParams: map[string]interface{}{
+				builderParam: customBuilder,
+				"sbom-create-commands": []interface{}{
+					"npx @cyclonedx/cyclonedx-npm --output-format XML --spec-version 1.4 --output-file bom.xml",
+				},
+			},
+		}
+		
+		loc := dir.Loc{SourcePath: getTestPath("result"), TargetPath: getTestPath("result")}
+		commands, err := GetModuleSBomGenCommands(&loc, module, "bom", "xml", ".xml")
+		
+		Ω(err).Should(Succeed())
+		Ω(commands).Should(HaveLen(1))
+		Ω(commands[0]).Should(HaveLen(1))
+		Ω(commands[0][0]).Should(Equal("npx @cyclonedx/cyclonedx-npm --output-format XML --spec-version 1.4 --output-file bom.xml"))
+	})
+	
+	It("should replace ${sbom-file-name} placeholder in custom commands", func() {
+		module := &mta.Module{
+			Name: "test-module",
+			Type: "nodejs",
+			BuildParams: map[string]interface{}{
+				builderParam: customBuilder,
+				"sbom-create-commands": []interface{}{
+					"npx @cyclonedx/cyclonedx-npm --output-file ${sbom-file-name}",
+				},
+			},
+		}
+		
+		loc := dir.Loc{SourcePath: getTestPath("result"), TargetPath: getTestPath("result")}
+		commands, err := GetModuleSBomGenCommands(&loc, module, "my-bom", "xml", ".xml")
+		
+		Ω(err).Should(Succeed())
+		Ω(commands).Should(HaveLen(1))
+		Ω(commands[0]).Should(HaveLen(1))
+		Ω(commands[0][0]).Should(Equal("npx @cyclonedx/cyclonedx-npm --output-file my-bom.xml"))
+	})
+	
+	It("should fall back to default SBOM generation when sbom-create-commands is empty", func() {
+		module := &mta.Module{
+			Name: "test-module",
+			Type: "nodejs",
+			BuildParams: map[string]interface{}{
+				builderParam: customBuilder,
+				"sbom-create-commands": []interface{}{},
+			},
+		}
+		
+		loc := dir.Loc{SourcePath: getTestPath("result"), TargetPath: getTestPath("result")}
+		commands, err := GetModuleSBomGenCommands(&loc, module, "bom", "xml", ".xml")
+		
+		Ω(err).Should(Succeed())
+		// Should use default nodejs SBOM generation (npm install + npx cyclonedx)
+		Ω(commands).Should(HaveLen(2))
+	})
+	
+	It("should fail when sbom-create-commands contains non-string elements", func() {
+		module := &mta.Module{
+			Name: "test-module",
+			Type: "nodejs",
+			BuildParams: map[string]interface{}{
+				builderParam: customBuilder,
+				"sbom-create-commands": []interface{}{
+					"valid command",
+					123, // invalid non-string element
+				},
+			},
+		}
+		
+		loc := dir.Loc{SourcePath: getTestPath("result"), TargetPath: getTestPath("result")}
+		commands, err := GetModuleSBomGenCommands(&loc, module, "bom", "xml", ".xml")
+		
+		Ω(err).Should(Succeed())
+		// Should fall back to default because conversion failed
+		Ω(commands).Should(HaveLen(2))
+	})
+})
