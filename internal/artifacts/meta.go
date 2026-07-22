@@ -116,6 +116,6 @@ func ExecuteMerge(source, mtaYamlFilename, target string, extensions []string, n
 		return err
 	}
 	// Write the mta file to the selected folder
-	err = os.WriteFile(mtaPath, merged, 0644)
+	err = os.WriteFile(mtaPath, merged, 0644) //nolint:gosec // G306: 0644 is intentional; mtad.yaml is a build artifact read by deployment tools
 	return err
 }
