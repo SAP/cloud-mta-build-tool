@@ -1,3 +1,4 @@
+//nolint:gosec // G204: exec.Command args are test-controlled constants, not user input
 package commands
 
 import (
@@ -10,6 +11,8 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
+
+const testdataMta = "testdata/mta"
 
 var _ = Describe("mbt cli build and sbom gen", func() {
 	BeforeEach(func() {
@@ -24,12 +27,12 @@ var _ = Describe("mbt cli build and sbom gen", func() {
 		buildCmdKeepMakefile = false
 	})
 	It("Success - build and gen sbom with relatvie source and relative sbom-file-path parameter", func() {
-		source := "\"" + "testdata/mta" + "\""
-		sbom_file_path := "\"" + "sbom-gen-result/merged.bom.xml" + "\""
+		source := "\"" + testdataMta + "\""
+		sbomFilePath := "\"" + "sbom-gen-result/merged.bom.xml" + "\""
 
 		var stdout bytes.Buffer
-		// cmd := exec.Command("bash", "-c", " mbt build"+" --source "+source+" --sbom-file-path "+sbom_file_path)
-		cmd := exec.Command("bash", "-c", mbtCmdCLI+" build"+" --source "+source+" --sbom-file-path "+sbom_file_path)
+		// cmd := exec.Command("bash", "-c", " mbt build"+" --source "+source+" --sbom-file-path "+sbomFilePath)
+		cmd := exec.Command("bash", "-c", mbtCmdCLI+" build"+" --source "+source+" --sbom-file-path "+sbomFilePath)
 		cmd.Stdout = &stdout
 
 		Ω(cmd.Run()).Should(Succeed())
@@ -39,18 +42,18 @@ var _ = Describe("mbt cli build and sbom gen", func() {
 	})
 	It("Success - build and gen sbom with abs source and relative sbom-file-path parameter", func() {
 		source := "\"" + getTestPath("mta") + "\""
-		sbom_file_path := "\"" + "sbom-gen-result/merged.bom.xml" + "\""
+		sbomFilePath := "\"" + "sbom-gen-result/merged.bom.xml" + "\""
 
-		cmd := exec.Command("bash", "-c", mbtCmdCLI+" build"+" --source "+source+" --sbom-file-path "+sbom_file_path)
+		cmd := exec.Command("bash", "-c", mbtCmdCLI+" build"+" --source "+source+" --sbom-file-path "+sbomFilePath)
 
 		Ω(cmd.Run()).Should(Succeed())
 		Ω(os.RemoveAll(getTestPath("mta", dir.MtarFolder))).Should(Succeed())
 		Ω(os.RemoveAll(getTestPath("mta", "sbom-gen-result"))).Should(Succeed())
 	})
 	It("Success - build and gen sbom with relatvie source and abs sbom-file-path parameter", func() {
-		source := "\"" + "testdata/mta" + "\""
-		sbom_file_path := "\"" + getTestPath("mta", "sbom-gen-result", "merged.bom.xml") + "\""
-		cmd := exec.Command("bash", "-c", mbtCmdCLI+" build"+" --source "+source+" --sbom-file-path "+sbom_file_path)
+		source := "\"" + testdataMta + "\""
+		sbomFilePath := "\"" + getTestPath("mta", "sbom-gen-result", "merged.bom.xml") + "\""
+		cmd := exec.Command("bash", "-c", mbtCmdCLI+" build"+" --source "+source+" --sbom-file-path "+sbomFilePath)
 
 		Ω(cmd.Run()).Should(Succeed())
 		Ω(os.RemoveAll(getTestPath("mta", dir.MtarFolder))).Should(Succeed())
@@ -58,9 +61,9 @@ var _ = Describe("mbt cli build and sbom gen", func() {
 	})
 	It("Success - build and gen sbom with abs source and abs sbom-file-path parameter", func() {
 		source := "\"" + getTestPath("mta") + "\""
-		sbom_file_path := "\"" + getTestPath("mta", "sbom-gen-result", "merged.bom.xml") + "\""
+		sbomFilePath := "\"" + getTestPath("mta", "sbom-gen-result", "merged.bom.xml") + "\""
 
-		cmd := exec.Command("bash", "-c", mbtCmdCLI+" build"+" --source "+source+" --sbom-file-path "+sbom_file_path)
+		cmd := exec.Command("bash", "-c", mbtCmdCLI+" build"+" --source "+source+" --sbom-file-path "+sbomFilePath)
 
 		Ω(cmd.Run()).Should(Succeed())
 		Ω(os.RemoveAll(getTestPath("mta", dir.MtarFolder))).Should(Succeed())
@@ -68,17 +71,17 @@ var _ = Describe("mbt cli build and sbom gen", func() {
 	})
 	It("Success - build and gen sbom with abs source and relative sbom-file-path paramerter with sbom file under project root", func() {
 		source := "\"" + getTestPath("mta") + "\""
-		sbom_file_path := "\"" + "merged.bom.xml" + "\""
-		cmd := exec.Command("bash", "-c", mbtCmdCLI+" build"+" --source "+source+" --sbom-file-path "+sbom_file_path)
+		sbomFilePath := "\"" + "merged.bom.xml" + "\""
+		cmd := exec.Command("bash", "-c", mbtCmdCLI+" build"+" --source "+source+" --sbom-file-path "+sbomFilePath)
 
 		Ω(cmd.Run()).Should(Succeed())
 		Ω(os.RemoveAll(getTestPath("mta", dir.MtarFolder))).Should(Succeed())
 		Ω(os.RemoveAll(getTestPath("mta", "merged.bom.xml"))).Should(Succeed())
 	})
 	It("Success - build and gen sbom with relative source and relative sbom-file-path paramerter with sbom file under project root", func() {
-		source := "\"" + "testdata/mta" + "\""
-		sbom_file_path := "\"" + "merged.bom.xml" + "\""
-		cmd := exec.Command("bash", "-c", mbtCmdCLI+" build"+" --source "+source+" --sbom-file-path "+sbom_file_path)
+		source := "\"" + testdataMta + "\""
+		sbomFilePath := "\"" + "merged.bom.xml" + "\""
+		cmd := exec.Command("bash", "-c", mbtCmdCLI+" build"+" --source "+source+" --sbom-file-path "+sbomFilePath)
 
 		Ω(cmd.Run()).Should(Succeed())
 		Ω(os.RemoveAll(getTestPath("mta", dir.MtarFolder))).Should(Succeed())
@@ -93,19 +96,19 @@ var _ = Describe("mbt cli build and sbom gen", func() {
 	})
 	It("Failure - build and gen sbom without mta.yaml", func() {
 		source := "\"" + getTestPath("tmp") + "\""
-		sbom_file_path := "\"" + "sbom-gen-result/merged.bom.xml" + "\""
+		sbomFilePath := "\"" + "sbom-gen-result/merged.bom.xml" + "\""
 		Ω(os.MkdirAll(getTestPath("tmp"), os.ModePerm)).Should(Succeed())
 
-		cmd := exec.Command("bash", "-c", mbtCmdCLI+" build"+" --source "+source+" --sbom-file-path "+sbom_file_path)
+		cmd := exec.Command("bash", "-c", mbtCmdCLI+" build"+" --source "+source+" --sbom-file-path "+sbomFilePath)
 
 		Ω(cmd.Run()).Should(HaveOccurred())
 		Ω(os.RemoveAll(getTestPath("tmp"))).Should(Succeed())
 	})
 	It("Success - build without suffix sbom-file-name parameter", func() {
 		source := "\"" + getTestPath("mta") + "\""
-		sbom_file_path := "\"" + getTestPath("mta", "sbom-gen-result", "result_without_suffix") + "\""
+		sbomFilePath := "\"" + getTestPath("mta", "sbom-gen-result", "result_without_suffix") + "\""
 
-		cmd := exec.Command("bash", "-c", mbtCmdCLI+" build"+" --source "+source+" --sbom-file-path "+sbom_file_path)
+		cmd := exec.Command("bash", "-c", mbtCmdCLI+" build"+" --source "+source+" --sbom-file-path "+sbomFilePath)
 
 		Ω(cmd.Run()).Should(Succeed())
 		Ω(os.RemoveAll(getTestPath("mta", dir.MtarFolder))).Should(Succeed())
@@ -113,10 +116,10 @@ var _ = Describe("mbt cli build and sbom gen", func() {
 	})
 	It("Failure - build with json suffix sbom-file-name parameter", func() {
 		source := "\"" + getTestPath("mta") + "\""
-		sbom_file_path := "\"" + getTestPath("mta", "sbom-gen-result", "result.json") + "\""
+		sbomFilePath := "\"" + getTestPath("mta", "sbom-gen-result", "result.json") + "\""
 		var stdout bytes.Buffer
 
-		cmd := exec.Command("bash", "-c", mbtCmdCLI+" build"+" --source "+source+" --sbom-file-path "+sbom_file_path)
+		cmd := exec.Command("bash", "-c", mbtCmdCLI+" build"+" --source "+source+" --sbom-file-path "+sbomFilePath)
 		cmd.Stdout = &stdout
 
 		Ω(cmd.Run()).Should(HaveOccurred())
@@ -126,10 +129,10 @@ var _ = Describe("mbt cli build and sbom gen", func() {
 	})
 	It("Failure - build with unknow suffix sbom-file-name parameter", func() {
 		source := "\"" + getTestPath("mta") + "\""
-		sbom_file_path := "\"" + getTestPath("mta", "sbom-gen-result", "result.unknow") + "\""
+		sbomFilePath := "\"" + getTestPath("mta", "sbom-gen-result", "result.unknow") + "\""
 		var stdout bytes.Buffer
 
-		cmd := exec.Command("bash", "-c", mbtCmdCLI+" build"+" --source "+source+" --sbom-file-path "+sbom_file_path)
+		cmd := exec.Command("bash", "-c", mbtCmdCLI+" build"+" --source "+source+" --sbom-file-path "+sbomFilePath)
 		cmd.Stdout = &stdout
 
 		Ω(cmd.Run()).Should(HaveOccurred())
@@ -139,10 +142,10 @@ var _ = Describe("mbt cli build and sbom gen", func() {
 	})
 	/* It("Failure - build and gen sbom with invalid sbom-file-path parameter case 1", func() {
 		source := "\"" + getTestPath("mta") + "\""
-		sbom_file_path := "\"" + "sbom-gen-result>>?/merged.bom.xml" + "\""
+		sbomFilePath := "\"" + "sbom-gen-result>>?/merged.bom.xml" + "\""
 		var stdout bytes.Buffer
 
-		cmd := exec.Command("bash", "-c", mbtCmdCLI+" build"+" --source "+source+" --sbom-file-path "+sbom_file_path)
+		cmd := exec.Command("bash", "-c", mbtCmdCLI+" build"+" --source "+source+" --sbom-file-path "+sbomFilePath)
 		cmd.Stdout = &stdout
 
 		Ω(cmd.Run()).Should(HaveOccurred())
@@ -152,9 +155,9 @@ var _ = Describe("mbt cli build and sbom gen", func() {
 	})
 	It("Failure - build and gen sbom with invalid sbom-file-path parameter case 2", func() {
 		source := "\"" + getTestPath("mta") + "\""
-		sbom_file_path := "\"" + "sbom-gen-result/**??merged.bom.xml" + "\""
+		sbomFilePath := "\"" + "sbom-gen-result/**??merged.bom.xml" + "\""
 
-		cmd := exec.Command("bash", "-c", mbtCmdCLI+" build"+" --source "+source+" --sbom-file-path "+sbom_file_path)
+		cmd := exec.Command("bash", "-c", mbtCmdCLI+" build"+" --source "+source+" --sbom-file-path "+sbomFilePath)
 
 		// Notice: the merge sbom file name is invalid, the error will raised from cyclondx-cli merge command
 		Ω(cmd.Run()).Should(HaveOccurred())
@@ -184,7 +187,7 @@ var _ = Describe("mbt cli sbom-gen", func() {
 		Ω(os.RemoveAll(getTestPath("mta", "mta.bom.xml"))).Should(Succeed())
 	})
 	It("Success - sbom-gen with relative source and without sbom-file-path paramerter", func() {
-		source := "\"" + "testdata/mta" + "\""
+		source := "\"" + testdataMta + "\""
 		cmd := exec.Command("bash", "-c", mbtCmdCLI+" sbom-gen"+" --source "+source)
 
 		Ω(cmd.Run()).Should(Succeed())
@@ -192,69 +195,69 @@ var _ = Describe("mbt cli sbom-gen", func() {
 	})
 	It("Success - sbom-gen with abs source and relative sbom-file-path paramerter", func() {
 		source := "\"" + getTestPath("mta") + "\""
-		sbom_file_path := "\"" + "sbom-gen-result/merged.bom.xml" + "\""
-		cmd := exec.Command("bash", "-c", mbtCmdCLI+" sbom-gen"+" --source "+source+" --sbom-file-path "+sbom_file_path)
+		sbomFilePath := "\"" + "sbom-gen-result/merged.bom.xml" + "\""
+		cmd := exec.Command("bash", "-c", mbtCmdCLI+" sbom-gen"+" --source "+source+" --sbom-file-path "+sbomFilePath)
 
 		Ω(cmd.Run()).Should(Succeed())
 		Ω(os.RemoveAll(getTestPath("mta", "sbom-gen-result"))).Should(Succeed())
 	})
 	It("Success - sbom-gen with abs source and relative sbom-file-path paramerter with sbom file under project root", func() {
 		source := "\"" + getTestPath("mta") + "\""
-		sbom_file_path := "\"" + "merged.bom.xml" + "\""
-		cmd := exec.Command("bash", "-c", mbtCmdCLI+" sbom-gen"+" --source "+source+" --sbom-file-path "+sbom_file_path)
+		sbomFilePath := "\"" + "merged.bom.xml" + "\""
+		cmd := exec.Command("bash", "-c", mbtCmdCLI+" sbom-gen"+" --source "+source+" --sbom-file-path "+sbomFilePath)
 
 		Ω(cmd.Run()).Should(Succeed())
 		Ω(os.RemoveAll(getTestPath("mta", "merged.bom.xml"))).Should(Succeed())
 	})
 	It("Success - sbom-gen with abs source and abs sbom-file-path paramerter", func() {
 		source := "\"" + getTestPath("mta") + "\""
-		sbom_file_path := "\"" + getTestPath("mta", "sbom-gen-result", "merged.bom.xml") + "\""
-		cmd := exec.Command("bash", "-c", mbtCmdCLI+" sbom-gen"+" --source "+source+" --sbom-file-path "+sbom_file_path)
+		sbomFilePath := "\"" + getTestPath("mta", "sbom-gen-result", "merged.bom.xml") + "\""
+		cmd := exec.Command("bash", "-c", mbtCmdCLI+" sbom-gen"+" --source "+source+" --sbom-file-path "+sbomFilePath)
 
 		Ω(cmd.Run()).Should(Succeed())
 		Ω(os.RemoveAll(getTestPath("mta", "sbom-gen-result"))).Should(Succeed())
 	})
 	It("Success - sbom-gen with relative source and relative sbom-file-path paramerter", func() {
-		source := "\"" + "testdata/mta" + "\""
-		sbom_file_path := "\"" + "sbom-gen-result/merged.bom.xml" + "\""
-		cmd := exec.Command("bash", "-c", mbtCmdCLI+" sbom-gen"+" --source "+source+" --sbom-file-path "+sbom_file_path)
+		source := "\"" + testdataMta + "\""
+		sbomFilePath := "\"" + "sbom-gen-result/merged.bom.xml" + "\""
+		cmd := exec.Command("bash", "-c", mbtCmdCLI+" sbom-gen"+" --source "+source+" --sbom-file-path "+sbomFilePath)
 
 		Ω(cmd.Run()).Should(Succeed())
 		Ω(os.RemoveAll(getTestPath("mta", "sbom-gen-result"))).Should(Succeed())
 	})
 	It("Success - sbom-gen with relative source and relative sbom-file-path paramerter with sbom file under project root", func() {
-		source := "\"" + "testdata/mta" + "\""
-		sbom_file_path := "\"" + "merged.bom.xml" + "\""
-		cmd := exec.Command("bash", "-c", mbtCmdCLI+" sbom-gen"+" --source "+source+" --sbom-file-path "+sbom_file_path)
+		source := "\"" + testdataMta + "\""
+		sbomFilePath := "\"" + "merged.bom.xml" + "\""
+		cmd := exec.Command("bash", "-c", mbtCmdCLI+" sbom-gen"+" --source "+source+" --sbom-file-path "+sbomFilePath)
 
 		Ω(cmd.Run()).Should(Succeed())
 		Ω(os.RemoveAll(getTestPath("mta", "merged.bom.xml"))).Should(Succeed())
 	})
 
 	It("Success - sbom-gen with relative source and abs sbom-file-path paramerter", func() {
-		source := "\"" + "testdata/mta" + "\""
-		sbom_file_path := "\"" + getTestPath("mta", "sbom-gen-result", "merged.bom.xml") + "\""
-		cmd := exec.Command("bash", "-c", mbtCmdCLI+" sbom-gen"+" --source "+source+" --sbom-file-path "+sbom_file_path)
+		source := "\"" + testdataMta + "\""
+		sbomFilePath := "\"" + getTestPath("mta", "sbom-gen-result", "merged.bom.xml") + "\""
+		cmd := exec.Command("bash", "-c", mbtCmdCLI+" sbom-gen"+" --source "+source+" --sbom-file-path "+sbomFilePath)
 
 		Ω(cmd.Run()).Should(Succeed())
 		Ω(os.RemoveAll(getTestPath("mta", "sbom-gen-result"))).Should(Succeed())
 	})
 	It("Failure - sbom-gen without mta.yaml", func() {
 		source := "\"" + getTestPath("tmp") + "\""
-		sbom_file_path := "\"" + "sbom-gen-result/merged.bom.xml" + "\""
+		sbomFilePath := "\"" + "sbom-gen-result/merged.bom.xml" + "\""
 		Ω(os.MkdirAll(getTestPath("tmp"), os.ModePerm)).Should(Succeed())
 
-		cmd := exec.Command("bash", "-c", mbtCmdCLI+" sbom-gen"+" --source "+source+" --sbom-file-path "+sbom_file_path)
+		cmd := exec.Command("bash", "-c", mbtCmdCLI+" sbom-gen"+" --source "+source+" --sbom-file-path "+sbomFilePath)
 
 		Ω(cmd.Run()).Should(HaveOccurred())
 		Ω(os.RemoveAll(getTestPath("tmp"))).Should(Succeed())
 	})
 	It("Failure - sbom-gen with invalid source paramerter case 1", func() {
 		source := "\"" + "testdata??>/mta" + "\""
-		sbom_file_path := "\"" + getTestPath("mta", "sbom-gen-result", "merged.bom.xml") + "\""
+		sbomFilePath := "\"" + getTestPath("mta", "sbom-gen-result", "merged.bom.xml") + "\""
 		var stdout bytes.Buffer
 
-		cmd := exec.Command("bash", "-c", mbtCmdCLI+" sbom-gen"+" --source "+source+" --sbom-file-path "+sbom_file_path)
+		cmd := exec.Command("bash", "-c", mbtCmdCLI+" sbom-gen"+" --source "+source+" --sbom-file-path "+sbomFilePath)
 		cmd.Stdout = &stdout
 		Ω(cmd.Run()).Should(HaveOccurred())
 		//Ω(stdout.String()).Should(ContainSubstring("The filename, directory name, or volume label syntax is incorrect"))
@@ -262,10 +265,10 @@ var _ = Describe("mbt cli sbom-gen", func() {
 	})
 	It("Failure - sbom-gen with invalid source paramerter case 2", func() {
 		source := "\"" + "testdata/***mta" + "\""
-		sbom_file_path := "\"" + getTestPath("mta", "sbom-gen-result", "merged.bom.xml") + "\""
+		sbomFilePath := "\"" + getTestPath("mta", "sbom-gen-result", "merged.bom.xml") + "\""
 		var stdout bytes.Buffer
 
-		cmd := exec.Command("bash", "-c", mbtCmdCLI+" sbom-gen"+" --source "+source+" --sbom-file-path "+sbom_file_path)
+		cmd := exec.Command("bash", "-c", mbtCmdCLI+" sbom-gen"+" --source "+source+" --sbom-file-path "+sbomFilePath)
 		cmd.Stdout = &stdout
 		Ω(cmd.Run()).Should(HaveOccurred())
 		//Ω(stdout.String()).Should(ContainSubstring("The filename, directory name, or volume label syntax is incorrect"))
@@ -273,9 +276,9 @@ var _ = Describe("mbt cli sbom-gen", func() {
 	})
 	It("Success - sbom-gen without suffix sbom-file-name parameter", func() {
 		source := "\"" + getTestPath("mta") + "\""
-		sbom_file_path := "\"" + getTestPath("mta", "sbom-gen-result", "result_without_suffix") + "\""
+		sbomFilePath := "\"" + getTestPath("mta", "sbom-gen-result", "result_without_suffix") + "\""
 
-		cmd := exec.Command("bash", "-c", mbtCmdCLI+" sbom-gen"+" --source "+source+" --sbom-file-path "+sbom_file_path)
+		cmd := exec.Command("bash", "-c", mbtCmdCLI+" sbom-gen"+" --source "+source+" --sbom-file-path "+sbomFilePath)
 
 		Ω(cmd.Run()).Should(Succeed())
 		Ω(os.RemoveAll(getTestPath("mta", dir.MtarFolder))).Should(Succeed())
@@ -283,10 +286,10 @@ var _ = Describe("mbt cli sbom-gen", func() {
 	})
 	It("Failure - sbom-gen with json suffix sbom-file-name parameter", func() {
 		source := "\"" + getTestPath("mta") + "\""
-		sbom_file_path := "\"" + getTestPath("mta", "sbom-gen-result", "result.json") + "\""
+		sbomFilePath := "\"" + getTestPath("mta", "sbom-gen-result", "result.json") + "\""
 		var stdout bytes.Buffer
 
-		cmd := exec.Command("bash", "-c", mbtCmdCLI+" sbom-gen"+" --source "+source+" --sbom-file-path "+sbom_file_path)
+		cmd := exec.Command("bash", "-c", mbtCmdCLI+" sbom-gen"+" --source "+source+" --sbom-file-path "+sbomFilePath)
 		cmd.Stdout = &stdout
 
 		Ω(cmd.Run()).Should(HaveOccurred())
@@ -296,10 +299,10 @@ var _ = Describe("mbt cli sbom-gen", func() {
 	})
 	It("Failure - sbom-gen with unknow suffix sbom-file-name parameter", func() {
 		source := "\"" + getTestPath("mta") + "\""
-		sbom_file_path := "\"" + getTestPath("mta", "sbom-gen-result", "result.unknow") + "\""
+		sbomFilePath := "\"" + getTestPath("mta", "sbom-gen-result", "result.unknow") + "\""
 		var stdout bytes.Buffer
 
-		cmd := exec.Command("bash", "-c", mbtCmdCLI+" sbom-gen"+" --source "+source+" --sbom-file-path "+sbom_file_path)
+		cmd := exec.Command("bash", "-c", mbtCmdCLI+" sbom-gen"+" --source "+source+" --sbom-file-path "+sbomFilePath)
 		cmd.Stdout = &stdout
 
 		Ω(cmd.Run()).Should(HaveOccurred())
@@ -308,21 +311,21 @@ var _ = Describe("mbt cli sbom-gen", func() {
 		Ω(os.RemoveAll(getTestPath("mta", "sbom-gen-result"))).Should(Succeed())
 	})
 	/* It("Failure - sbom-gen with invalid sbom-file-path paramerter case 1", func() {
-		source := "\"" + "testdata/mta" + "\""
-		sbom_file_path := "\"" + "sbom-gen-result??/merged.bom.xml" + "\""
+		source := "\"" + testdataMta + "\""
+		sbomFilePath := "\"" + "sbom-gen-result??/merged.bom.xml" + "\""
 		var stdout bytes.Buffer
 
-		cmd := exec.Command("bash", "-c", mbtCmdCLI+" sbom-gen"+" --source "+source+" --sbom-file-path "+sbom_file_path)
+		cmd := exec.Command("bash", "-c", mbtCmdCLI+" sbom-gen"+" --source "+source+" --sbom-file-path "+sbomFilePath)
 		cmd.Stdout = &stdout
 		Ω(cmd.Run()).Should(HaveOccurred())
 		//Ω(stdout.String()).Should(ContainSubstring("The filename, directory name, or volume label syntax is incorrect"))
 		Ω(os.RemoveAll(getTestPath("mta", "sbom-gen-result"))).Should(Succeed())
 	})
 	It("Failure - sbom-gen with invalid sbom-file-path paramerter case 2", func() {
-		source := "\"" + "testdata/mta" + "\""
-		sbom_file_path := "\"" + "sbom-gen-result/>>>merged.bom.xml" + "\""
+		source := "\"" + testdataMta + "\""
+		sbomFilePath := "\"" + "sbom-gen-result/>>>merged.bom.xml" + "\""
 
-		cmd := exec.Command("bash", "-c", mbtCmdCLI+" sbom-gen"+" --source "+source+" --sbom-file-path "+sbom_file_path)
+		cmd := exec.Command("bash", "-c", mbtCmdCLI+" sbom-gen"+" --source "+source+" --sbom-file-path "+sbomFilePath)
 		// Notice: the merge sbom file name is invalid, the error will raised from cyclondx-cli merge command
 		Ω(cmd.Run()).Should(HaveOccurred())
 		Ω(os.RemoveAll(getTestPath("mta", "sbom-gen-result"))).Should(Succeed())
@@ -344,7 +347,7 @@ var _ = Describe("project sbom gen command", func() {
 		Ω(os.RemoveAll(filepath.Join(projectSBomGenCmdSrc, "mta.bom.xml"))).Should(Succeed())
 	})
 	It("Success - sbom-gen with relative source and without sbom-file-path paramerter", func() {
-		projectSBomGenCmdSrc = "testdata/mta"
+		projectSBomGenCmdSrc = testdataMta
 		projectSBomGenCmdSBOMPath = ""
 		Ω(projectSBomGenCommand.RunE(nil, []string{})).Should(Succeed())
 		Ω(os.RemoveAll(filepath.Join(getTestPath("mta"), "mta.bom.xml"))).Should(Succeed())
@@ -362,13 +365,13 @@ var _ = Describe("project sbom gen command", func() {
 		Ω(os.RemoveAll(getTestPath("sbom-gen-result"))).Should(Succeed())
 	})
 	It("Success - sbom-gen with relative source and relative sbom-file-path paramerter", func() {
-		projectSBomGenCmdSrc = "testdata/mta"
+		projectSBomGenCmdSrc = testdataMta
 		projectSBomGenCmdSBOMPath = "sbom-gen-result/merged.bom.xml"
 		Ω(projectSBomGenCommand.RunE(nil, []string{})).Should(Succeed())
 		Ω(os.RemoveAll(getTestPath("mta", "sbom-gen-result"))).Should(Succeed())
 	})
 	It("Success - sbom-gen with relative source and abs sbom-file-path paramerter", func() {
-		projectSBomGenCmdSrc = "testdata/mta"
+		projectSBomGenCmdSrc = testdataMta
 		projectSBomGenCmdSBOMPath = filepath.Join(getTestPath("sbom-gen-result"), "merged.bom.xml")
 		Ω(projectSBomGenCommand.RunE(nil, []string{})).Should(Succeed())
 		Ω(os.RemoveAll(getTestPath("sbom-gen-result"))).Should(Succeed())
@@ -403,7 +406,7 @@ var _ = Describe("project sbom gen command", func() {
 		Ω(os.RemoveAll(getTestPath("sbom-gen-result"))).Should(Succeed())
 	})
 	/* It("Failure - sbom-gen with invalid sbom-file-path paramerter case 1", func() {
-		projectSBomGenCmdSrc = "testdata/mta"
+		projectSBomGenCmdSrc = testdataMta
 		projectSBomGenCmdSBOMPath = "sbom-gen-result>>/merged.bom.xml"
 
 		err := projectSBomGenCommand.RunE(nil, []string{})
@@ -412,7 +415,7 @@ var _ = Describe("project sbom gen command", func() {
 		Ω(os.RemoveAll(getTestPath("sbom-gen-result"))).Should(Succeed())
 	})
 	It("Failure - sbom-gen with invalid sbom-file-path paramerter case 2", func() {
-		projectSBomGenCmdSrc = "testdata/mta"
+		projectSBomGenCmdSrc = testdataMta
 		projectSBomGenCmdSBOMPath = "sbom-gen-result/???merged.bom.xml"
 		err := projectSBomGenCommand.RunE(nil, []string{})
 		// Notice: the merge sbom file name is invalid, the error will raised from cyclondx-cli merge command

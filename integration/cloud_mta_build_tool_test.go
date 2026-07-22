@@ -7,7 +7,7 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 
 	"os"
@@ -470,7 +470,7 @@ modules:
 			Ω(err).Should(Succeed(), errOut)
 			mtadPath := filepath.Join(path, "mtad.yaml")
 			Ω(mtadPath).Should(BeAnExistingFile())
-			content, _ := ioutil.ReadFile(mtadPath)
+			content, _ := os.ReadFile(mtadPath)
 			mtadObj, _ := mta.Unmarshal(content)
 			Ω(len(mtadObj.Modules)).Should(Equal(2))
 			Ω(mtadObj.Modules[0].Type).Should(Equal("javascript.nodejs"))
@@ -487,7 +487,7 @@ modules:
 			Ω(err).Should(Succeed(), errOut)
 			mtadPath := filepath.Join(path, "mtad.yaml")
 			Ω(mtadPath).Should(BeAnExistingFile())
-			content, _ := ioutil.ReadFile(mtadPath)
+			content, _ := os.ReadFile(mtadPath)
 			mtadObj, _ := mta.Unmarshal(content)
 			Ω(len(mtadObj.Modules)).Should(Equal(1))
 			Ω(mtadObj.Modules[0].Name).Should(Equal("node"))
@@ -568,7 +568,7 @@ modules:
 			Ω(err).Should(Succeed(), errOut)
 			mtadPath := filepath.Join(path, "result.yaml")
 			Ω(mtadPath).Should(BeAnExistingFile())
-			content, _ := ioutil.ReadFile(mtadPath)
+			content, _ := os.ReadFile(mtadPath)
 			mtaObj, _ := mta.Unmarshal(content)
 			expected, e := mta.Unmarshal([]byte(`
 ID: mta_demo
@@ -730,7 +730,7 @@ func getFileContentFromZip(path string, filename string) ([]byte, error) {
 				return nil, err
 			}
 			defer fc.Close() // If we got here there won't be another loop iteration
-			return ioutil.ReadAll(fc)
+			return io.ReadAll(fc)
 		}
 	}
 	return nil, fmt.Errorf(`file "%s" not found`, filename)

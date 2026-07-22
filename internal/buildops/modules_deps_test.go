@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 
@@ -80,7 +79,7 @@ var _ = Describe("ModulesDeps", func() {
 })
 
 func readFile(file string) []byte {
-	content, err := ioutil.ReadFile(file)
+	content, err := os.ReadFile(file)
 	Ω(err).Should(Succeed())
 	s := string(content)
 	s = strings.Replace(s, "\r\n", "\r", -1)

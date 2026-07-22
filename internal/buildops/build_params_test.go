@@ -293,6 +293,7 @@ var _ = Describe("Process complex list of requirements", func() {
 		for _, m := range mtaObj.Modules {
 			if m.Name == "node" {
 				for _, r := range GetBuildRequires(m) {
+					r := r
 					Ω(ProcessRequirements(&lp, mtaObj, &r, "node")).Should(Succeed())
 				}
 			}

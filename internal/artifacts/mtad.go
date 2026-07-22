@@ -2,7 +2,6 @@ package artifacts
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -118,7 +117,7 @@ func genMtad(mtaStr *mta.MTA, ep dir.ITargetArtifacts, targetPathGetter dir.ITar
 	}
 	mtadPath := ep.GetMtadPath()
 	// Write back the MTAD to the META-INF folder
-	err = ioutil.WriteFile(mtadPath, mtad, os.ModePerm)
+	err = os.WriteFile(mtadPath, mtad, 0644)
 	if err != nil {
 		return errors.Wrap(err, genMTADWriteMsg)
 	}

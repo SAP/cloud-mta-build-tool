@@ -93,6 +93,7 @@ func (data templateData) GetModuleDeps(moduleName string) ([]templateDepData, er
 	requires := buildops.GetBuildRequires(module)
 	templateDeps := make([]templateDepData, len(requires))
 	for index, req := range requires {
+		req := req
 		sourcePath, targetPath, artifacts, e := buildops.GetRequiresArtifacts(data.Loc, &data.File, &req, moduleName, false)
 		if e != nil {
 			return nil, e

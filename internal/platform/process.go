@@ -24,6 +24,7 @@ func ConvertTypes(iCfg mta.MTA, eCfg Platforms, targetPlatform string) {
 		moduleAcc := -1
 		modulePlatformType := v.Type
 		for _, em := range tpl.Modules {
+			em := em
 			if ok, acc := satisfiesModuleConfig(v, &em); ok && acc > moduleAcc {
 				modulePlatformType = em.PlatformType
 				moduleAcc = acc

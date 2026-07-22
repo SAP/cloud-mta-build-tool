@@ -41,3 +41,6 @@ docs/site
 .npmrc
 unpacked_bin
 test/goos/goos.yaml
+
+**/node-js/package-lock.json
+**/.mtahtml5_mta_build_tmp/

@@ -3,7 +3,6 @@ package artifacts
 import (
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 
@@ -227,7 +226,7 @@ builders:
 		})
 		Context("pre & post builder commands", func() {
 			It("parses pre and post commands", func() {
-				mtaFile, _ := ioutil.ReadFile("./testdata/mta/mta.yaml")
+				mtaFile, _ := os.ReadFile("./testdata/mta/mta.yaml")
 				var err error
 				_, err = mta.Unmarshal(mtaFile)
 				Ω(err).Should(Succeed())

@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"text/template"
@@ -35,7 +34,7 @@ func main() {
 
 func genConf(source string, target, packageName, varName string) (e error) {
 	// Read the config file
-	inData, err := ioutil.ReadFile(source)
+	inData, err := os.ReadFile(source)
 	if err != nil {
 		return errors.Wrapf(err, readFailedMsg, source)
 	}
