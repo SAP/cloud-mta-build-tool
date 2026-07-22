@@ -32,16 +32,17 @@ render() {
 }
 
 # --- per-platform packages ---
-declare -A PLATFORMS=(
-  ["linux-x64"]="linux amd64 x64 "
-  ["linux-arm64"]="linux arm64 arm64 "
-  ["darwin-x64"]="darwin amd64 x64 "
-  ["darwin-arm64"]="darwin arm64 arm64 "
-  ["win32-x64"]="windows amd64 x64 .exe"
+# Fields: pkg_suffix  goos  goarch  npm_arch  bin_ext
+PLATFORMS=(
+  "linux-x64   linux   amd64  x64   "
+  "linux-arm64 linux   arm64  arm64 "
+  "darwin-x64  darwin  amd64  x64   "
+  "darwin-arm64 darwin arm64  arm64 "
+  "win32-x64   windows amd64  x64   .exe"
 )
 
-for pkg_suffix in "${!PLATFORMS[@]}"; do
-  read -r goos goarch npm_arch bin_ext <<< "${PLATFORMS[$pkg_suffix]}"
+for entry in "${PLATFORMS[@]}"; do
+  read -r pkg_suffix goos goarch npm_arch bin_ext <<< "${entry}"
 
   pkg_name="@sap/mbt-${pkg_suffix}"
   pkg_dir="${OUT_DIR}/${pkg_name}"
@@ -55,11 +56,12 @@ for pkg_suffix in "${!PLATFORMS[@]}"; do
     "${npm_arch}" \
     "${bin_ext}"
 
-  # locate binary in dist/ (goreleaser names: mbt_Linux_amd64/mbt, etc.)
-  goos_cap="$(tr '[:lower:]' '[:upper:]' <<< "${goos:0:1}")${goos:1}"
-  bin_src="${DIST_DIR}/mbt_${goos_cap}_${goarch}/mbt${bin_ext}"
-  if [[ ! -f "${bin_src}" ]]; then
-    echo "ERROR: binary not found: ${bin_src}" >&2
+  # locate binary in dist/ — goreleaser v2 names dirs like
+  # cloud-mta-build-tool_linux_amd64_v1/ and cloud-mta-build-tool_darwin_arm64_v8.0/
+  bin_src="$(find "${DIST_DIR}" -type f -name "mbt${bin_ext}" \
+    -path "*_${goos}_${goarch}_*" | head -1)"
+  if [[ -z "${bin_src}" ]]; then
+    echo "ERROR: binary not found for ${goos}/${goarch} in ${DIST_DIR}" >&2
     exit 1
   fi
   cp "${bin_src}" "${pkg_dir}/mbt${bin_ext}"
