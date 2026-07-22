@@ -117,7 +117,7 @@ func genMtad(mtaStr *mta.MTA, ep dir.ITargetArtifacts, targetPathGetter dir.ITar
 	}
 	mtadPath := ep.GetMtadPath()
 	// Write back the MTAD to the META-INF folder
-	err = os.WriteFile(mtadPath, mtad, 0644)
+	err = os.WriteFile(mtadPath, mtad, 0644) //nolint:gosec // G306: 0644 is intentional; mtad.yaml is a build artifact read by deployment tools
 	if err != nil {
 		return errors.Wrap(err, genMTADWriteMsg)
 	}
