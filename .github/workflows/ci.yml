@@ -21,7 +21,7 @@ jobs:
       - run: go build -o /usr/local/bin/mbt .
       - name: Install cyclonedx-cli
         run: |
-          curl -sL https://github.com/CycloneDX/cyclonedx-cli/releases/latest/download/cyclonedx-linux-x64 -o /usr/local/bin/cyclonedx
+          curl -sL https://github.com/CycloneDX/cyclonedx-cli/releases/download/v0.32.0/cyclonedx-linux-x64 -o /usr/local/bin/cyclonedx
           chmod +x /usr/local/bin/cyclonedx
       - run: go test -v -count=1 -timeout 60m ./...
 
