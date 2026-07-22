@@ -2,7 +2,6 @@ package tpl
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -33,7 +32,7 @@ func removeSpecialSymbols(b []byte) string {
 }
 
 func getMakeFileContent(filePath string) string {
-	expected, _ := ioutil.ReadFile(filePath)
+	expected, _ := os.ReadFile(filePath)
 	return removeSpecialSymbols(expected)
 }
 
@@ -181,7 +180,7 @@ makefile_version: 0.0.0
 
 	DescribeTable("Makefile Generation Failed", func(testPath string, testTemplateFilename string) {
 		wd, _ := os.Getwd()
-		testTemplate, _ := ioutil.ReadFile(filepath.Join(wd, "testdata", testTemplateFilename))
+		testTemplate, _ := os.ReadFile(filepath.Join(wd, "testdata", testTemplateFilename))
 		ep := dir.Loc{SourcePath: filepath.Join(wd, "testdata"), TargetPath: filepath.Join(wd, "testdata")}
 		Ω(makeFile(&ep, &ep, &ep, nil, makeFileName, &tplCfg{relPath: testPath, tplContent: testTemplate, preContent: basePreVerbose, postContent: basePost, depDesc: "dev"}, true, "")).Should(HaveOccurred())
 	},

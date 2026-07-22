@@ -1,11 +1,12 @@
 package commands
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 
 	"github.com/kballard/go-shellquote"
-	"github.com/pkg/errors"
+	pkgerrors "github.com/pkg/errors"
 
 	"github.com/SAP/cloud-mta/mta"
 
@@ -14,15 +15,15 @@ import (
 )
 
 const (
-	builderParam                 = "builder"
-	commandsParam                = "commands"
-	customBuilder                = "custom"
-	golangBuilder                = "golang"
-	optionsSuffix                = "-opts"
-	goModuleType                 = "go"
-	cyclonedx_npm                = "@cyclonedx/cyclonedx-npm"
-	cyclonedx_npm_version        = "1.19.3"
-	cyclonedx_npm_schema_version = "1.4"
+	builderParam              = "builder"
+	commandsParam             = "commands"
+	customBuilder             = "custom"
+	golangBuilder             = "golang"
+	optionsSuffix             = "-opts"
+	goModuleType              = "go"
+	cyclonedxNpm              = "@cyclonedx/cyclonedx-npm"
+	cyclonedxNpmVersion       = "1.19.3"
+	cyclonedxNpmSchemaVersion = "1.4"
 )
 
 // CommandList - list of command to execute
@@ -66,7 +67,7 @@ func GetBuilder(module *mta.Module) (string, bool, map[string]string, []string, 
 				}
 			}
 			if !ok {
-				return builderName, true, options, cmds, fmt.Errorf(wrongPropMsg)
+				return builderName, true, options, cmds, errors.New(wrongPropMsg)
 			}
 		}
 
@@ -79,7 +80,7 @@ func GetBuilder(module *mta.Module) (string, bool, map[string]string, []string, 
 func isNativeBuilderType(builderName string) (bool, error) {
 	builderTypes, err := parseBuilders(BuilderTypeConfig)
 	if err != nil {
-		return false, errors.Wrap(err, parseBuilderCfgFailedMsg)
+		return false, pkgerrors.Wrap(err, parseBuilderCfgFailedMsg)
 	}
 
 	for _, b := range builderTypes.Builders {
@@ -93,7 +94,7 @@ func isNativeBuilderType(builderName string) (bool, error) {
 func getSBomBuilderByModuleType(typeName string) (bool, string, error) {
 	moduleTypes, err := parseModuleTypes(ModuleTypeConfig)
 	if err != nil {
-		return false, "", errors.Wrap(err, parseModuleCfgFailedMsg)
+		return false, "", pkgerrors.Wrap(err, parseModuleCfgFailedMsg)
 	}
 
 	for _, t := range moduleTypes.ModuleTypes {
@@ -108,7 +109,7 @@ func getSBomBuilderByModuleType(typeName string) (bool, string, error) {
 		return true, golangBuilder, nil
 	}
 
-	return false, "", errors.Wrapf(err, notNativeModuleTypeMsg, typeName)
+	return false, "", pkgerrors.Wrapf(err, notNativeModuleTypeMsg, typeName)
 }
 
 func getModuleSBomBuilder(module *mta.Module) (string, error) {
@@ -122,7 +123,7 @@ func getModuleSBomBuilder(module *mta.Module) (string, error) {
 		if builderName == customBuilder {
 			_, ok := module.BuildParams[commandsParam]
 			if !ok {
-				return builderName, errors.Wrap(err, missingPropMsg)
+				return builderName, pkgerrors.Wrap(err, missingPropMsg)
 			}
 			return builderName, nil
 		}
@@ -130,7 +131,7 @@ func getModuleSBomBuilder(module *mta.Module) (string, error) {
 		// check if builder is native builder (builder_type_cfg.yaml)
 		isnativebuilder, err := isNativeBuilderType(builderName)
 		if !isnativebuilder {
-			return builderName, errors.Wrapf(err, notNativeBuilderMsg, builderName)
+			return builderName, pkgerrors.Wrapf(err, notNativeBuilderMsg, builderName)
 		}
 
 		return builderName, nil
@@ -190,11 +191,11 @@ func CommandProvider(module mta.Module) (CommandList, string, error) {
 	// Get config from ./commands_cfg.yaml as generated artifacts from source
 	moduleTypes, err := parseModuleTypes(ModuleTypeConfig)
 	if err != nil {
-		return CommandList{}, "", errors.Wrap(err, parseModuleCfgFailedMsg)
+		return CommandList{}, "", pkgerrors.Wrap(err, parseModuleCfgFailedMsg)
 	}
 	builderTypes, err := parseBuilders(BuilderTypeConfig)
 	if err != nil {
-		return CommandList{}, "", errors.Wrap(err, parseBuilderCfgFailedMsg)
+		return CommandList{}, "", pkgerrors.Wrap(err, parseBuilderCfgFailedMsg)
 	}
 	return mesh(&module, &moduleTypes, &builderTypes)
 }
@@ -221,7 +222,7 @@ func mesh(module *mta.Module, moduleTypes *ModuleTypes, builderTypes *Builders) 
 				if m.Builder != "" {
 					// custom builder defined
 					// check that no commands defined for module type
-					if m.Commands != nil && len(m.Commands) > 0 {
+					if len(m.Commands) > 0 {
 						return cmds, "", fmt.Errorf(wrongModuleTypeDefMsg, m.Name)
 					}
 					// continue with custom builders search
@@ -295,7 +296,7 @@ func CmdConverter(mPath string, cmdList []string) ([][]string, error) {
 	for i := 0; i < len(cmdList); i++ {
 		split, err := shellquote.Split(cmdList[i])
 		if err != nil {
-			return nil, errors.Wrapf(err, BadCommandMsg, cmdList[i])
+			return nil, pkgerrors.Wrapf(err, BadCommandMsg, cmdList[i])
 		}
 		cmd = append(cmd, append([]string{mPath}, split...))
 	}
@@ -324,7 +325,7 @@ func moduleCmd(mta *mta.MTA, moduleName string) (*mta.Module, []string, string, 
 			return m, commandProvider.Command, buildResults, nil
 		}
 	}
-	return nil, nil, "", errors.Errorf(undefinedModuleMsg, moduleName)
+	return nil, nil, "", pkgerrors.Errorf(undefinedModuleMsg, moduleName)
 }
 
 // GetModuleSBomGenCommands - get sbom generate command for module
@@ -344,10 +345,10 @@ func GetModuleSBomGenCommands(loc *dir.Loc, module *mta.Module,
 	case "npm", "npm-ci", "grunt", "evo":
 		cmd = "npm install"
 		cmds = append(cmds, cmd)
-		// cmd = "npm install " + cyclonedx_npm + "@" + cyclonedx_npm_version + " --no-save"
+		// cmd = "npm install " + cyclonedxNpm + "@" + cyclonedxNpmVersion + " --no-save"
 		// cmds = append(cmds, cmd)
-		// cmd = "npx cyclonedx-npm --output-format " + strings.ToUpper(sbomFileType) + " --spec-version " + cyclonedx_npm_schema_version + " --output-file " + sbomFileName + sbomFileSuffix
-		cmd = "npx " + cyclonedx_npm + "@" + cyclonedx_npm_version + " --output-format " + strings.ToUpper(sbomFileType) + " --spec-version " + cyclonedx_npm_schema_version + " --output-file " + sbomFileName + sbomFileSuffix
+		// cmd = "npx cyclonedx-npm --output-format " + strings.ToUpper(sbomFileType) + " --spec-version " + cyclonedxNpmSchemaVersion + " --output-file " + sbomFileName + sbomFileSuffix
+		cmd = "npx " + cyclonedxNpm + "@" + cyclonedxNpmVersion + " --output-format " + strings.ToUpper(sbomFileType) + " --spec-version " + cyclonedxNpmSchemaVersion + " --output-file " + sbomFileName + sbomFileSuffix
 		cmds = append(cmds, cmd)
 	case "golang":
 		cmd = "cyclonedx-gomod mod -output-version 1.4 -licenses -output " + sbomFileName + sbomFileSuffix
@@ -367,7 +368,7 @@ func GetModuleSBomGenCommands(loc *dir.Loc, module *mta.Module,
 			case "nodejs":
 				cmd = "npm install"
 				cmds = append(cmds, cmd)
-				cmd = "npx " + cyclonedx_npm + "@" + cyclonedx_npm_version + " --output-format " + strings.ToUpper(sbomFileType) + " --spec-version " + cyclonedx_npm_schema_version + " --output-file " + sbomFileName + sbomFileSuffix
+				cmd = "npx " + cyclonedxNpm + "@" + cyclonedxNpmVersion + " --output-format " + strings.ToUpper(sbomFileType) + " --spec-version " + cyclonedxNpmSchemaVersion + " --output-file " + sbomFileName + sbomFileSuffix
 				cmds = append(cmds, cmd)
 			case "java":
 				cmd = "mvn org.cyclonedx:cyclonedx-maven-plugin:2.9.0:makeAggregateBom " +
@@ -397,7 +398,7 @@ func GetModuleSBomGenCommands(loc *dir.Loc, module *mta.Module,
 
 // GetSBomsMergeCommand - generate merge sbom file command under sbom tmp dir
 // if empty sbomFileNames, return empty commandList, nil error
-func GetSBomsMergeCommand(loc *dir.Loc, cyclonedx_cli string, mtaObj *mta.MTA, sbomTmpDir string, sbomFileNames []string,
+func GetSBomsMergeCommand(loc *dir.Loc, cyclonedxCli string, mtaObj *mta.MTA, sbomTmpDir string, sbomFileNames []string,
 	sbomName, sbomType, sbomSuffix string) ([][]string, error) {
 	var cmd string
 	var cmds []string
@@ -405,7 +406,7 @@ func GetSBomsMergeCommand(loc *dir.Loc, cyclonedx_cli string, mtaObj *mta.MTA, s
 
 	// len(sbomFileName) should not be 0, if 0 then raise an error
 	if len(sbomFileNames) == 0 {
-		return commandList, errors.New(emptySBomFileInputMsg)
+		return commandList, pkgerrors.New(emptySBomFileInputMsg)
 	}
 
 	var inputFiles string
@@ -414,7 +415,7 @@ func GetSBomsMergeCommand(loc *dir.Loc, cyclonedx_cli string, mtaObj *mta.MTA, s
 	}
 
 	// ./cyclonedx merge --input-files test_1.bom.xml test_2.bom.xml test_3.bom.xml --output-file merged.bom.xml
-	cmd = cyclonedx_cli + " merge --input-files " + inputFiles + " --output-file " + sbomName +
+	cmd = cyclonedxCli + " merge --input-files " + inputFiles + " --output-file " + sbomName +
 		" --input-format " + sbomType + " --output-format " + sbomType + " --hierarchical" + " --name " + mtaObj.ID + " --version " + mtaObj.Version
 	cmds = append(cmds, cmd)
 	commandList, err := CmdConverter(sbomTmpDir, cmds)

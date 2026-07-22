@@ -2,7 +2,6 @@ package artifacts
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -43,7 +42,7 @@ func removeSpecialSymbols(b []byte) string {
 }
 
 func getFileContent(filePath string) string {
-	expected, _ := ioutil.ReadFile(filePath)
+	expected, _ := os.ReadFile(filePath)
 	return removeSpecialSymbols(expected)
 }
 

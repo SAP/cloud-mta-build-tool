@@ -2,7 +2,6 @@ package artifacts
 
 import (
 	"encoding/xml"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -22,14 +21,14 @@ import (
 )
 
 const (
-	xml_type         = "xml"
-	json_type        = "json"
-	unsupport_type   = "unsupport_sbom_type"
-	xml_suffix       = ".xml"
-	json_suffix      = ".json"
-	sbom_xml_suffix  = ".bom.xml"
-	sbom_json_suffix = ".bom.json"
-	cyclonedx_cli    = "cyclonedx"
+	xmlType        = "xml"
+	jsonType       = "json"
+	unsupportType  = "unsupport_sbom_type"
+	xmlSuffix      = ".xml"
+	jsonSuffix     = ".json"
+	sbomXMLSuffix  = ".bom.xml"
+	sbomJSONSuffix = ".bom.json"
+	cyclonedxCli   = "cyclonedx"
 )
 
 type Bom struct {
@@ -73,7 +72,7 @@ func ExecuteProjectSBomGenerate(source string, sbomFilePath string, wdGetter fun
 
 	// (2) if sbom file path is empty, default value is <MTA project path>/<MTA project id>.bom.xml
 	if strings.TrimSpace(sbomFilePath) == "" {
-		sbomFilePath = mtaObj.ID + sbom_xml_suffix
+		sbomFilePath = mtaObj.ID + sbomXMLSuffix
 	}
 
 	// (3) generate sbom
@@ -184,72 +183,6 @@ func generateSBomFile(loc *dir.Loc, mtaObj *mta.MTA,
 	return nil
 }
 
-func getModuleBomRefs(sbomTmpDir string, sbomFileNames []string) ([]string, error) {
-	bomRefMap := make(map[string]struct{})
-
-	for _, fileName := range sbomFileNames {
-		sbomfilepath := filepath.Join(sbomTmpDir, fileName)
-		xmlFile, err := os.Open(sbomfilepath)
-		if err != nil {
-			return nil, err
-		}
-		defer xmlFile.Close()
-
-		byteValue, err := ioutil.ReadAll(xmlFile)
-		if err != nil {
-			return nil, err
-		}
-
-		var bom Bom
-		if err := xml.Unmarshal(byteValue, &bom); err != nil {
-			return nil, err
-		}
-
-		bomRefMap[bom.Metadata.Component.BomRef] = struct{}{}
-	}
-
-	var moduleBomRefs []string
-	for bomRef := range bomRefMap {
-		moduleBomRefs = append(moduleBomRefs, bomRef)
-	}
-
-	return moduleBomRefs, nil
-}
-
-func removeXmlns(attrs []xml.Attr) []xml.Attr {
-	var result []xml.Attr
-	for _, attr := range attrs {
-		if attr.Name.Local != "xmlns" {
-			result = append(result, attr)
-		}
-	}
-	return result
-}
-
-func addBomrefAttribute(attributes []xml.Attr, purl string) []xml.Attr {
-	purlAttr := xml.Attr{
-		Name:  xml.Name{Local: "bom-ref"},
-		Value: purl,
-	}
-
-	// Add bom-ref attribute to attributes list
-	attributes = append(attributes, purlAttr)
-
-	return attributes
-}
-
-func addXmlnsSchemaAttribute(attributes []xml.Attr, xmlnsSchema string) []xml.Attr {
-	purlAttr := xml.Attr{
-		Name:  xml.Name{Local: "xmlns"},
-		Value: xmlnsSchema,
-	}
-
-	// Add bom-ref attribute to attributes list
-	attributes = append(attributes, purlAttr)
-
-	return attributes
-}
-
 func updateSBomMetadataNode(mtaObj *mta.MTA, sbomTmpDir, sbomTmpName string) error {
 	sbomfilepath := filepath.Join(sbomTmpDir, sbomTmpName)
 	file, err := os.Open(sbomfilepath)
@@ -294,7 +227,7 @@ func executeSBomGenerate(loc *dir.Loc, mtaObj *mta.MTA, source string, sbomFileP
 	// logs.Logger.Infof("source: %s; sbomFilePath: %s", loc.GetSource(), sbomFilePath)
 	// logs.Logger.Infof("sbomPath: %s; sbomName: %s; sbomType: %s; sbomSuffix: %s", sbomPath, sbomName, sbomType, sbomSuffix)
 
-	if sbomType == unsupport_type {
+	if sbomType == unsupportType {
 		return errors.Errorf(genSBomNotSupportedFileTypeMsg, sbomSuffix)
 	}
 
@@ -350,7 +283,7 @@ func moveSBomToTarget(sbomPath string, sbomName string, sbomTmpDir string, sbomT
 // if sbom tmp dir is empty, return empty array
 func listSBomFilesInTmpDir(sbomTmpDir, sbomSuffix string) ([]string, error) {
 	var sbomFileNames []string
-	fileInfos, err := ioutil.ReadDir(sbomTmpDir)
+	fileInfos, err := os.ReadDir(sbomTmpDir)
 	if err != nil {
 		return sbomFileNames, err
 	}
@@ -369,16 +302,16 @@ func mergeSBomFiles(loc *dir.Loc, mtaObj *mta.MTA, sbomTmpDir string, sbomFileNa
 	curtime := time.Now().Format("20230328150313")
 
 	var sbomTmpName string
-	if strings.HasSuffix(sbomName, sbom_xml_suffix) {
-		sbomTmpName = strings.TrimSuffix(sbomName, xml_suffix) + "_" + curtime + sbom_xml_suffix
-	} else if strings.HasSuffix(sbomName, sbom_json_suffix) {
-		sbomTmpName = strings.TrimSuffix(sbomName, json_suffix) + "_" + curtime + sbom_json_suffix
+	if strings.HasSuffix(sbomName, sbomXMLSuffix) {
+		sbomTmpName = strings.TrimSuffix(sbomName, xmlSuffix) + "_" + curtime + sbomXMLSuffix
+	} else if strings.HasSuffix(sbomName, sbomJSONSuffix) {
+		sbomTmpName = strings.TrimSuffix(sbomName, jsonSuffix) + "_" + curtime + sbomJSONSuffix
 	} else {
-		sbomTmpName = sbomName + "_" + curtime + sbom_xml_suffix
+		sbomTmpName = sbomName + "_" + curtime + sbomXMLSuffix
 	}
 
 	// get sbom file generate command
-	sbomMergeCmds, err := commands.GetSBomsMergeCommand(loc, cyclonedx_cli, mtaObj, sbomTmpDir, sbomFileNames, sbomTmpName, sbomType, sbomSuffix)
+	sbomMergeCmds, err := commands.GetSBomsMergeCommand(loc, cyclonedxCli, mtaObj, sbomTmpDir, sbomFileNames, sbomTmpName, sbomType, sbomSuffix)
 	if err != nil {
 		return "", err
 	}
@@ -408,11 +341,11 @@ func parseSBomFilePath(source string, sbomFilePath string) (string, string, stri
 	// if file suffix is .xml, or no file suffix, xml format type will be return
 	// if file suffix is not .xml, unsupported file type will be return
 	fileSuffix := filepath.Ext(sbomName)
-	if fileSuffix == "" || strings.HasSuffix(sbomName, xml_suffix) {
-		sbomType = xml_type
-		sbomSuffix = sbom_xml_suffix
+	if fileSuffix == "" || strings.HasSuffix(sbomName, xmlSuffix) {
+		sbomType = xmlType
+		sbomSuffix = sbomXMLSuffix
 	} else {
-		sbomType = unsupport_type
+		sbomType = unsupportType
 		sbomSuffix = fileSuffix
 	}
 

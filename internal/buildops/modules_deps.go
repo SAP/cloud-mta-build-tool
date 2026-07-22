@@ -50,6 +50,7 @@ func ProcessDependencies(mtaParser dir.IMtaParser, moduleSource dir.ISourceModul
 	requires := GetBuildRequires(module)
 	if len(requires) > 0 {
 		for _, req := range requires {
+			req := req
 			e := ProcessRequirements(moduleSource, m, &req, module.Name)
 			if e != nil {
 				return e

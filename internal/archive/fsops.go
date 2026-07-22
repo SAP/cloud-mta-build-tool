@@ -4,7 +4,6 @@ import (
 	"archive/zip"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"sort"
@@ -296,7 +295,7 @@ func addSymbolicLinkToArchive(path string, baseDir, parentSymLinkPath, parentLin
 	}
 
 	if fileInfoProvider.isDir(linkedInfo) {
-		files, err := ioutil.ReadDir(linkedPath)
+		files, err := os.ReadDir(linkedPath)
 		if err != nil {
 			return err
 		}
@@ -381,9 +380,17 @@ func CopyDir(src string, dst string, withParents bool, copyDirEntries func(entri
 		return err
 	}
 
-	entries, err := ioutil.ReadDir(src)
+	dirEntries, err := os.ReadDir(src)
 	if err != nil {
 		return err
+	}
+	entries := make([]os.FileInfo, 0, len(dirEntries))
+	for _, de := range dirEntries {
+		fi, err := de.Info()
+		if err != nil {
+			return err
+		}
+		entries = append(entries, fi)
 	}
 	return copyDirEntries(entries, src, dst)
 }

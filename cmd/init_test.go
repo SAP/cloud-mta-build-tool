@@ -1,3 +1,4 @@
+//nolint:gosec // G204: exec.Command args are test-controlled constants, not user input
 package commands
 
 import (
@@ -154,9 +155,9 @@ var _ = Describe("Build", func() {
 	}) */
 	It("Success - build with relative sbom-file-path parameter", func() {
 		source := "\"" + getTestPath("mta") + "\""
-		sbom_file_path := "\"" + "sbom-gen-result/merged.bom.xml" + "\""
+		sbomFilePath := "\"" + "sbom-gen-result/merged.bom.xml" + "\""
 
-		cmd := exec.Command("bash", "-c", mbtCmdCLI+" build"+" --source "+source+" --sbom-file-path "+sbom_file_path)
+		cmd := exec.Command("bash", "-c", mbtCmdCLI+" build"+" --source "+source+" --sbom-file-path "+sbomFilePath)
 
 		Ω(cmd.Run()).Should(Succeed())
 		Ω(os.RemoveAll(getTestPath("mta", dir.MtarFolder))).Should(Succeed())
@@ -164,9 +165,9 @@ var _ = Describe("Build", func() {
 	})
 	It("Success - build with abs sbom-file-path parameter", func() {
 		source := "\"" + getTestPath("mta") + "\""
-		sbom_file_path := "\"" + getTestPath("mta", "sbom-gen-result", "merged.bom.xml") + "\""
+		sbomFilePath := "\"" + getTestPath("mta", "sbom-gen-result", "merged.bom.xml") + "\""
 
-		cmd := exec.Command("bash", "-c", mbtCmdCLI+" build"+" --source "+source+" --sbom-file-path "+sbom_file_path)
+		cmd := exec.Command("bash", "-c", mbtCmdCLI+" build"+" --source "+source+" --sbom-file-path "+sbomFilePath)
 
 		Ω(cmd.Run()).Should(Succeed())
 		Ω(os.RemoveAll(getTestPath("mta", dir.MtarFolder))).Should(Succeed())

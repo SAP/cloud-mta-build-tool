@@ -8,6 +8,11 @@ import (
 	. "github.com/onsi/gomega"
 )
 
+const (
+	testdataMta          = "testdata/mta"
+	genSBomMergedBomPath = "gen-sbom-result/merged.bom.xml"
+)
+
 var _ = Describe("mbt sbom-gen command", func() {
 	BeforeEach(func() {
 
@@ -23,14 +28,14 @@ var _ = Describe("mbt sbom-gen command", func() {
 		Ω(os.RemoveAll(filepath.Join(getTestPath("mta"), "mta.bom.xml"))).Should(Succeed())
 	})
 	It("Success - sbom-gen with relative source and without sbom-file-path paramerter", func() {
-		source := "testdata/mta"
+		source := testdataMta
 		sbomFilePath := ""
 		Ω(ExecuteProjectSBomGenerate(source, sbomFilePath, os.Getwd)).Should(Succeed())
 		Ω(os.RemoveAll(filepath.Join(getTestPath("mta"), "mta.bom.xml"))).Should(Succeed())
 	})
 	It("Success - sbom-gen with abs source and relative sbom-file-path paramerter", func() {
 		source := getTestPath("mta")
-		sbomFilePath := "gen-sbom-result/merged.bom.xml"
+		sbomFilePath := genSBomMergedBomPath
 		Ω(ExecuteProjectSBomGenerate(source, sbomFilePath, os.Getwd)).Should(Succeed())
 		Ω(os.RemoveAll(filepath.Join(getTestPath("mta", "gen-sbom-result")))).Should(Succeed())
 
@@ -42,13 +47,13 @@ var _ = Describe("mbt sbom-gen command", func() {
 		Ω(os.RemoveAll(filepath.Join(getTestPath("gen-sbom-result")))).Should(Succeed())
 	})
 	It("Success - sbom-gen with relative source and relative sbom-file-path paramerter", func() {
-		source := "testdata/mta"
-		sbomFilePath := "gen-sbom-result/merged.bom.xml"
+		source := testdataMta
+		sbomFilePath := genSBomMergedBomPath
 		Ω(ExecuteProjectSBomGenerate(source, sbomFilePath, os.Getwd)).Should(Succeed())
 		Ω(os.RemoveAll(getTestPath("mta", "gen-sbom-result"))).Should(Succeed())
 	})
 	It("Success - sbom-gen with relative source and abs sbom-file-path paramerter", func() {
-		source := "testdata/mta"
+		source := testdataMta
 		sbomFilePath := filepath.Join(getTestPath("gen-sbom-result"), "merged.bom.xml")
 		Ω(ExecuteProjectSBomGenerate(source, sbomFilePath, os.Getwd)).Should(Succeed())
 		Ω(os.RemoveAll(getTestPath("gen-sbom-result"))).Should(Succeed())
@@ -73,13 +78,13 @@ var _ = Describe("mbt sbom-gen command", func() {
 		Ω(os.RemoveAll(getTestPath("gen-sbom-result"))).Should(Succeed())
 	})
 	It("Success - sbom-gen without suffix sbom-file-name paramerter", func() {
-		source := "testdata/mta"
+		source := testdataMta
 		sbomFilePath := filepath.Join(getTestPath("gen-sbom-result"), "result_without_suffix")
 		Ω(ExecuteProjectSBomGenerate(source, sbomFilePath, os.Getwd)).Should(Succeed())
 		Ω(os.RemoveAll(getTestPath("gen-sbom-result"))).Should(Succeed())
 	})
 	It("Failure - sbom-gen with json suffix sbom-file-name parameter", func() {
-		source := "testdata/mta"
+		source := testdataMta
 		sbomFilePath := filepath.Join(getTestPath("gen-sbom-result"), "result.json")
 
 		err := ExecuteProjectSBomGenerate(source, sbomFilePath, os.Getwd)
@@ -88,7 +93,7 @@ var _ = Describe("mbt sbom-gen command", func() {
 		Ω(os.RemoveAll(getTestPath("gen-sbom-result"))).Should(Succeed())
 	})
 	It("Failure - sbom-gen with unknow suffix sbom-file-name parameter", func() {
-		source := "testdata/mta"
+		source := testdataMta
 		sbomFilePath := filepath.Join(getTestPath("gen-sbom-result"), "result.unknow")
 
 		err := ExecuteProjectSBomGenerate(source, sbomFilePath, os.Getwd)
@@ -97,7 +102,7 @@ var _ = Describe("mbt sbom-gen command", func() {
 		Ω(os.RemoveAll(getTestPath("gen-sbom-result"))).Should(Succeed())
 	})
 	/* It("Failure - sbom-gen with invalid sbom-file-path paramerter case 1", func() {
-		source := "testdata/mta"
+		source := testdataMta
 		sbomFilePath := "gen-sbom-result>>?</merged.bom.xml"
 
 		err := ExecuteProjectSBomGenerate(source, sbomFilePath, os.Getwd)
@@ -106,7 +111,7 @@ var _ = Describe("mbt sbom-gen command", func() {
 		Ω(os.RemoveAll(getTestPath("gen-sbom-result"))).Should(Succeed())
 	})
 	It("Failure - sbom-gen with invalid sbom-file-path paramerter case 2", func() {
-		source := "testdata/mta"
+		source := testdataMta
 		sbomFilePath := "gen-sbom-result/<<*merged.bom.xml"
 
 		// Notice: the merge sbom file name is invalid, the error will raised from cyclondx-cli merge command
@@ -133,19 +138,19 @@ var _ = Describe("mbt build with sbom gen command", func() {
 	AfterEach(func() {
 	})
 	It("Success - build with relatvie source and relative sbom-file-path parameter", func() {
-		source := "testdata/mta"
-		sbomFilePath := "gen-sbom-result/merged.bom.xml"
+		source := testdataMta
+		sbomFilePath := genSBomMergedBomPath
 		Ω(ExecuteProjectBuildeSBomGenerate(source, "", sbomFilePath, os.Getwd)).Should(Succeed())
 		Ω(os.RemoveAll(getTestPath("mta", "gen-sbom-result"))).Should(Succeed())
 	})
 	It("Success - build with abs source and relative sbom-file-path parameter", func() {
 		source := getTestPath("mta")
-		sbomFilePath := "gen-sbom-result/merged.bom.xml"
+		sbomFilePath := genSBomMergedBomPath
 		Ω(ExecuteProjectBuildeSBomGenerate(source, "", sbomFilePath, os.Getwd)).Should(Succeed())
 		Ω(os.RemoveAll(getTestPath("mta", "gen-sbom-result"))).Should(Succeed())
 	})
 	It("Success - build with relatvie source and abs sbom-file-path parameter", func() {
-		source := "testdata/mta"
+		source := testdataMta
 		sbomFilePath := getTestPath("gen-sbom-result", "merged.bom.xml")
 		Ω(ExecuteProjectBuildeSBomGenerate(source, "", sbomFilePath, os.Getwd)).Should(Succeed())
 		Ω(os.RemoveAll(getTestPath("gen-sbom-result"))).Should(Succeed())
@@ -204,7 +209,7 @@ var _ = Describe("mbt build with sbom gen command", func() {
 		Ω(os.RemoveAll(getTestPath("gen-sbom-result"))).Should(Succeed())
 	})
 	/* It("Failure - build with invalid sbom-file-path paramerter case 1", func() {
-		source := "testdata/mta"
+		source := testdataMta
 		sbomFilePath := "gen-sbom-result>>?</merged.bom.xml"
 
 		err := ExecuteProjectBuildeSBomGenerate(source, sbomFilePath, os.Getwd)
@@ -213,7 +218,7 @@ var _ = Describe("mbt build with sbom gen command", func() {
 		Ω(os.RemoveAll(getTestPath("gen-sbom-result"))).Should(Succeed())
 	})
 	It("Failure - build with invalid sbom-file-path paramerter case 2", func() {
-		source := "testdata/mta"
+		source := testdataMta
 		sbomFilePath := "gen-sbom-result/<<*merged.bom.xml"
 
 		// Notice: the merge sbom file name is invalid, the error will raised from cyclondx-cli merge command

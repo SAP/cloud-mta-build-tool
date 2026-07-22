@@ -228,6 +228,7 @@ platform:
 			acc := -1
 			prevDesc := "initial value"
 			for _, c := range configs {
+				c := c
 				c.config.NativeType = "a"
 				ok, moduleAcc := satisfiesModuleConfig(&m, &c.config)
 				Ω(ok).Should(BeTrue(), "module did not satisfy config with "+c.desc)

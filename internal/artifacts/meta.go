@@ -1,8 +1,8 @@
 package artifacts
 
 import (
+	stderrors "errors"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 
@@ -92,7 +92,7 @@ func ExecuteMerge(source, mtaYamlFilename, target string, extensions []string, n
 	logs.Logger.Info(mergeInfoMsg)
 
 	if name == "" {
-		return fmt.Errorf(mergeNameRequiredMsg)
+		return stderrors.New(mergeNameRequiredMsg)
 	}
 	loc, err := dir.Location(source, mtaYamlFilename, target, dir.Dev, extensions, wdGetter)
 	if err != nil {
@@ -116,6 +116,6 @@ func ExecuteMerge(source, mtaYamlFilename, target string, extensions []string, n
 		return err
 	}
 	// Write the mta file to the selected folder
-	err = ioutil.WriteFile(mtaPath, merged, os.ModePerm)
+	err = os.WriteFile(mtaPath, merged, 0644)
 	return err
 }

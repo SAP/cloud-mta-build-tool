@@ -5,7 +5,6 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -361,12 +360,13 @@ var _ = Describe("FSOPS", func() {
 			sourcePath := getFullPath("testdata", "level2", "level3")
 			targetPath := getFullPath("testdata", "result")
 			Ω(CreateDirIfNotExist(targetPath)).Should(Succeed())
-			files, _ := ioutil.ReadDir(sourcePath)
+			dirEntries, _ := os.ReadDir(sourcePath)
 			// Files wrapped to overwrite their methods
 			var filesWrapped []os.FileInfo
 			Ω(CopyEntries(filesWrapped, sourcePath, targetPath)).Should(Succeed())
-			for _, file := range files {
-				filesWrapped = append(filesWrapped, testFile{file: file})
+			for _, de := range dirEntries {
+				fi, _ := de.Info()
+				filesWrapped = append(filesWrapped, testFile{file: fi})
 			}
 			Ω(CopyEntries(filesWrapped, sourcePath, targetPath)).Should(Succeed())
 			Ω(countFilesInDir(sourcePath) - 1).Should(Equal(countFilesInDir(targetPath)))
@@ -375,12 +375,13 @@ var _ = Describe("FSOPS", func() {
 			sourcePath := getFullPath("testdata", "level2", "level3")
 			targetPath := getFullPath("testdata", "result")
 			Ω(CreateDirIfNotExist(targetPath)).Should(Succeed())
-			files, _ := ioutil.ReadDir(sourcePath)
+			dirEntries, _ := os.ReadDir(sourcePath)
 			// Files wrapped to overwrite their methods
 			var filesWrapped []os.FileInfo
 			Ω(CopyEntriesInParallel(filesWrapped, sourcePath, targetPath)).Should(Succeed())
-			for _, file := range files {
-				filesWrapped = append(filesWrapped, testFile{file: file})
+			for _, de := range dirEntries {
+				fi, _ := de.Info()
+				filesWrapped = append(filesWrapped, testFile{file: fi})
 			}
 			Ω(CopyEntriesInParallel(filesWrapped, sourcePath, targetPath)).Should(Succeed())
 			Ω(countFilesInDir(sourcePath) - 1).Should(Equal(countFilesInDir(targetPath)))
@@ -537,7 +538,7 @@ var _ = Describe("FSOPS", func() {
 })
 
 func countFilesInDir(name string) int {
-	files, _ := ioutil.ReadDir(name)
+	files, _ := os.ReadDir(name)
 	return len(files)
 }
 

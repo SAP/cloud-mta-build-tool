@@ -2,7 +2,6 @@ package commands
 
 import (
 	"github.com/SAP/cloud-mta/mta"
-	"io/ioutil"
 	"os"
 
 	. "github.com/onsi/ginkgo"
@@ -26,7 +25,7 @@ var _ = Describe("Merge commands call", func() {
 
 		mtadPath := filepath.Join(mergeCmdTrg, "result.yaml")
 		Ω(mtadPath).Should(BeAnExistingFile())
-		content, e := ioutil.ReadFile(mtadPath)
+		content, e := os.ReadFile(mtadPath)
 		Ω(e).Should(Succeed())
 		mtaObj, e := mta.Unmarshal(content)
 		Ω(e).Should(Succeed())

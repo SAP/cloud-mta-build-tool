@@ -1,7 +1,6 @@
 package main
 
 import (
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -25,8 +24,8 @@ var _ = Describe("Embed", func() {
 	It("sanity", func() {
 		os.Args = []string{"app", "-source=./testdata/cfg.yaml", "-target=./testdata/result/cfg.txt", "-package=testpackage", "-name=Config"}
 		main()
-		actualContent, _ := ioutil.ReadFile("./testdata/result/cfg.txt")
-		expectedContent, _ := ioutil.ReadFile("./testdata/goldenCfg.txt")
+		actualContent, _ := os.ReadFile("./testdata/result/cfg.txt")
+		expectedContent, _ := os.ReadFile("./testdata/goldenCfg.txt")
 		Ω(removeSpecialSymbols(actualContent)).Should(Equal(removeSpecialSymbols(expectedContent)))
 	})
 

@@ -2,7 +2,6 @@ package artifacts
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 
@@ -297,11 +296,11 @@ func createMtahtml5WithMissingModuleTmpFolder() {
 }
 
 func compareMTAContent(expectedFileName string, actualFileName string) {
-	actual, err := ioutil.ReadFile(expectedFileName)
+	actual, err := os.ReadFile(expectedFileName)
 	Ω(err).Should(Succeed())
 	actualMta, err := mta.Unmarshal(actual)
 	Ω(err).Should(Succeed())
-	expected, err := ioutil.ReadFile(actualFileName)
+	expected, err := os.ReadFile(actualFileName)
 	Ω(err).Should(Succeed())
 	expectedMta, err := mta.Unmarshal(expected)
 	Ω(err).Should(Succeed())

@@ -1,6 +1,7 @@
 package exec
 
 import (
+	stderrors "errors"
 	"fmt"
 	"io"
 	"os"
@@ -141,7 +142,7 @@ func executeCommand(cmd *exec.Cmd, terminateCh <-chan struct{}, runIndicator boo
 		// Kill the process. We don't care if an error occurs here, we did our best and it doesn't affect the user.
 		_ = cmd.Process.Kill()
 		// Return an error so that we don't continue to the next process
-		return fmt.Errorf(execKilledMsg)
+		return stderrors.New(execKilledMsg)
 	}
 
 	return nil
