@@ -1,0 +1,31 @@
+{
+  "name": "@sap/mbt",
+  "version": "{{.Version}}",
+  "description": "Cloud MTA Build Tool",
+  "files": [
+    "bin"
+  ],
+  "scripts": {
+    "test": "node ./bin/mbt"
+  },
+  "bin": {
+    "mbt": "bin/mbt"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SAP/cloud-mta-build-tool.git"
+  },
+  "author": "SAP SE",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/SAP/cloud-mta-build-tool/issues"
+  },
+  "homepage": "https://github.com/SAP/cloud-mta-build-tool#readme",
+  "optionalDependencies": {
+    "@sap/mbt-linux-x64": "{{.Version}}",
+    "@sap/mbt-linux-arm64": "{{.Version}}",
+    "@sap/mbt-darwin-x64": "{{.Version}}",
+    "@sap/mbt-darwin-arm64": "{{.Version}}",
+    "@sap/mbt-win32-x64": "{{.Version}}"
+  }
+}
