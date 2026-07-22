@@ -37,6 +37,8 @@ internal/tpl/MakeFileTest.mta
 Dockerfile
 
 integration/testdata/mta_demo/mta_archives/
+cmd/testdata/mta/mta_archives/
+cmd/testdata/mta/sbom-gen-result/
 docs/site
 .npmrc
 unpacked_bin
