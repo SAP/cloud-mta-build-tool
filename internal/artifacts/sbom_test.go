@@ -4,6 +4,7 @@ import (
 	"os"
 	"path/filepath"
 
+	cdx "github.com/CycloneDX/cyclonedx-go"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
@@ -234,5 +235,128 @@ var _ = Describe("mbt build with sbom gen command", func() {
 		sbomFilePath := getTestPath("gen-sbom-result", "merged.bom.xml")
 		Ω(ExecuteProjectBuildeSBomGenerate(source, "", sbomFilePath, os.Getwd)).Should(HaveOccurred())
 		Ω(os.RemoveAll(tmpSrcFolder)).Should(Succeed())
+	})
+})
+
+var _ = Describe("deduplicateBOM", func() {
+	ptr := func(s []string) *[]string { return &s }
+	ptrComp := func(c []cdx.Component) *[]cdx.Component { return &c }
+	ptrDep := func(d []cdx.Dependency) *[]cdx.Dependency { return &d }
+
+	It("does nothing when BOM has no components or dependencies", func() {
+		bom := &cdx.BOM{}
+		deduplicateBOM(bom)
+		Ω(bom.Components).Should(BeNil())
+		Ω(bom.Dependencies).Should(BeNil())
+	})
+
+	It("keeps unique components unchanged", func() {
+		bom := &cdx.BOM{
+			Components: ptrComp([]cdx.Component{
+				{BOMRef: "pkg:npm/a@1.0.0"},
+				{BOMRef: "pkg:npm/b@2.0.0"},
+			}),
+		}
+		deduplicateBOM(bom)
+		Ω(*bom.Components).Should(HaveLen(2))
+	})
+
+	It("removes duplicate components with identical BOMRef", func() {
+		bom := &cdx.BOM{
+			Components: ptrComp([]cdx.Component{
+				{BOMRef: "pkg:npm/lodash@4.17.21"},
+				{BOMRef: "pkg:npm/lodash@4.17.21"},
+				{BOMRef: "pkg:npm/express@4.18.0"},
+			}),
+		}
+		deduplicateBOM(bom)
+		Ω(*bom.Components).Should(HaveLen(2))
+		Ω((*bom.Components)[0].BOMRef).Should(Equal("pkg:npm/lodash@4.17.21"))
+		Ω((*bom.Components)[1].BOMRef).Should(Equal("pkg:npm/express@4.18.0"))
+	})
+
+	It("removes duplicate components using PackageURL as fallback when BOMRef is empty", func() {
+		bom := &cdx.BOM{
+			Components: ptrComp([]cdx.Component{
+				{PackageURL: "pkg:npm/lodash@4.17.21"},
+				{PackageURL: "pkg:npm/lodash@4.17.21"},
+			}),
+		}
+		deduplicateBOM(bom)
+		Ω(*bom.Components).Should(HaveLen(1))
+	})
+
+	It("keeps unique dependencies unchanged", func() {
+		bom := &cdx.BOM{
+			Dependencies: ptrDep([]cdx.Dependency{
+				{Ref: "pkg:npm/a@1.0.0", Dependencies: ptr([]string{"pkg:npm/b@1.0.0"})},
+				{Ref: "pkg:npm/b@1.0.0", Dependencies: ptr([]string{})},
+			}),
+		}
+		deduplicateBOM(bom)
+		Ω(*bom.Dependencies).Should(HaveLen(2))
+	})
+
+	It("removes duplicate dependency entries", func() {
+		bom := &cdx.BOM{
+			Dependencies: ptrDep([]cdx.Dependency{
+				{Ref: "pkg:npm/lodash@4.17.21", Dependencies: ptr([]string{})},
+				{Ref: "pkg:npm/express@4.18.0", Dependencies: ptr([]string{})},
+				{Ref: "pkg:npm/lodash@4.17.21", Dependencies: ptr([]string{})},
+			}),
+		}
+		deduplicateBOM(bom)
+		Ω(*bom.Dependencies).Should(HaveLen(2))
+		Ω((*bom.Dependencies)[0].Ref).Should(Equal("pkg:npm/lodash@4.17.21"))
+		Ω((*bom.Dependencies)[1].Ref).Should(Equal("pkg:npm/express@4.18.0"))
+	})
+
+	It("removes duplicate entries within a dependsOn list", func() {
+		bom := &cdx.BOM{
+			Dependencies: ptrDep([]cdx.Dependency{
+				{
+					Ref: "pkg:npm/a@1.0.0",
+					Dependencies: ptr([]string{
+						"pkg:npm/lodash@4.17.21",
+						"pkg:npm/lodash@4.17.21",
+						"pkg:npm/express@4.18.0",
+					}),
+				},
+			}),
+		}
+		deduplicateBOM(bom)
+		deps := *bom.Dependencies
+		Ω(deps).Should(HaveLen(1))
+		Ω(*deps[0].Dependencies).Should(HaveLen(2))
+		Ω(*deps[0].Dependencies).Should(ContainElements("pkg:npm/lodash@4.17.21", "pkg:npm/express@4.18.0"))
+	})
+
+	It("handles nil dependsOn list within a dependency", func() {
+		bom := &cdx.BOM{
+			Dependencies: ptrDep([]cdx.Dependency{
+				{Ref: "pkg:npm/a@1.0.0", Dependencies: nil},
+			}),
+		}
+		Ω(func() { deduplicateBOM(bom) }).ShouldNot(Panic())
+		Ω((*bom.Dependencies)[0].Dependencies).Should(BeNil())
+	})
+
+	It("deduplicates both components and dependencies simultaneously", func() {
+		bom := &cdx.BOM{
+			Components: ptrComp([]cdx.Component{
+				{BOMRef: "pkg:npm/shared@1.0.0"},
+				{BOMRef: "pkg:npm/shared@1.0.0"},
+				{BOMRef: "pkg:npm/unique@2.0.0"},
+			}),
+			Dependencies: ptrDep([]cdx.Dependency{
+				{Ref: "pkg:npm/shared@1.0.0", Dependencies: ptr([]string{"pkg:npm/dep@1.0.0", "pkg:npm/dep@1.0.0"})},
+				{Ref: "pkg:npm/shared@1.0.0", Dependencies: ptr([]string{"pkg:npm/dep@1.0.0"})},
+				{Ref: "pkg:npm/unique@2.0.0", Dependencies: ptr([]string{})},
+			}),
+		}
+		deduplicateBOM(bom)
+		Ω(*bom.Components).Should(HaveLen(2))
+		Ω(*bom.Dependencies).Should(HaveLen(2))
+		Ω(*(*bom.Dependencies)[0].Dependencies).Should(HaveLen(1))
 	})
 })

@@ -203,6 +203,9 @@ func updateSBomMetadataNode(mtaObj *mta.MTA, sbomTmpDir, sbomTmpName string) err
 	// set sbom timestamp
 	bom.Metadata.Timestamp = time.Now().UTC().Format("2006-01-02T15:04:05Z")
 
+	// deduplicate components and dependencies to comply with CycloneDX uniqueItems schema requirement
+	deduplicateBOM(bom)
+
 	// write sbom to file system and ensure encoding of SBOM according to CycloneDX spec version 1.4
 	fileForWriting, err := os.OpenFile(sbomfilepath, os.O_RDWR, 0o644)
 	if err != nil {
@@ -350,6 +353,50 @@ func parseSBomFilePath(source string, sbomFilePath string) (string, string, stri
 	}
 
 	return sbomPath, sbomName, sbomType, sbomSuffix
+}
+
+// deduplicateBOM removes duplicate entries from components, dependencies, and dependsOn lists.
+// The cyclonedx merge tool does not deduplicate shared transitive dependencies across module SBOMs,
+// which would violate the CycloneDX schema's uniqueItems constraints.
+func deduplicateBOM(bom *cdx.BOM) {
+	if bom.Components != nil {
+		seen := make(map[string]struct{})
+		unique := make([]cdx.Component, 0, len(*bom.Components))
+		for _, c := range *bom.Components {
+			key := c.BOMRef
+			if key == "" {
+				key = c.PackageURL
+			}
+			if _, exists := seen[key]; !exists {
+				seen[key] = struct{}{}
+				unique = append(unique, c)
+			}
+		}
+		bom.Components = &unique
+	}
+
+	if bom.Dependencies != nil {
+		seenDeps := make(map[string]struct{})
+		unique := make([]cdx.Dependency, 0, len(*bom.Dependencies))
+		for _, dep := range *bom.Dependencies {
+			if _, exists := seenDeps[dep.Ref]; !exists {
+				seenDeps[dep.Ref] = struct{}{}
+				if dep.Dependencies != nil {
+					seenSubDeps := make(map[string]struct{})
+					uniqueSub := make([]string, 0, len(*dep.Dependencies))
+					for _, subRef := range *dep.Dependencies {
+						if _, exists := seenSubDeps[subRef]; !exists {
+							seenSubDeps[subRef] = struct{}{}
+							uniqueSub = append(uniqueSub, subRef)
+						}
+					}
+					dep.Dependencies = &uniqueSub
+				}
+				unique = append(unique, dep)
+			}
+		}
+		bom.Dependencies = &unique
+	}
 }
 
 func executeSBomCommand(sbomCmds [][]string) error {
