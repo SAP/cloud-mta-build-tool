@@ -374,7 +374,7 @@ func GetModuleSBomGenCommands(loc *dir.Loc, module *mta.Module,
 			}
 		}
 		// in case no custom commands are provided use standard way of creating SBOM
-		if !ok || (ok && len(customSbomGenCmds) == 0) {
+		if len(customSbomGenCmds) == 0 {
 			switch module.Type {
 			case "nodejs":
 				cmd = "npm install"
