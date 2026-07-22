@@ -165,7 +165,7 @@ You can define your own build commands by configuring a `custom` builder as foll
       commands:
         - npm install
         - grunt
-        - npm prune --production
+        - npm prune --omit=dev
 
      
 ```

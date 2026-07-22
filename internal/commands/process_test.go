@@ -16,7 +16,7 @@ builders:
     commands:
     - command: npm install
     - command: grunt
-    - command: npm prune --production
+    - command: npm prune --omit=dev
   - name: java
     info: "build java application"
     commands:
@@ -39,7 +39,7 @@ builders:
 				Commands: []Command{
 					{Command: "npm install"},
 					{Command: "grunt"},
-					{Command: "npm prune --production"},
+					{Command: "npm prune --omit=dev"},
 				},
 			},
 			{
