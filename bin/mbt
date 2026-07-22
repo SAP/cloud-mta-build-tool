@@ -1,33 +1,25 @@
 #!/usr/bin/env node
 var path = require("path");
 var spawn = require("child_process").spawn;
-var fs = require("fs");
 
-var os = process.env.BINWRAP_PLATFORM || process.platform;
-var arch = process.env.BINWRAP_ARCH || process.arch;
+var os = process.platform;
+var arch = process.arch;
+var binExt = os === "win32" ? ".exe" : "";
 
-var requested = os + "-" + arch;
-var current = process.platform + "-" + process.arch;
-if (requested !== current ) {
-  console.error("WARNING: Using binaries for the requested platform (" + requested + ") instead of for the actual platform (" + current + ").")
+var pkgName = "@sap/mbt-" + os + "-" + arch;
+var binPath;
+try {
+  binPath = path.join(
+    path.dirname(require.resolve(pkgName + "/package.json")),
+    "mbt" + binExt
+  );
+} catch (e) {
+  console.error(
+    "Could not find the mbt binary for your platform (" + os + "/" + arch + ").\n" +
+    "Expected package: " + pkgName + "\n" +
+    "Try reinstalling @sap/mbt."
+  );
+  process.exit(1);
 }
 
-var binExt = "";
-if (os == "win32") {
-  binExt = ".exe";
-}
-
-var unpackedBinPath = path.join(__dirname, "..", "unpacked_bin");
-var binPath = path.join(unpackedBinPath, "mbt" + binExt);
-
-function execBin() {
-  spawn(
-    binPath,
-    process.argv.slice(2),
-    {stdio: 'inherit'}
-  ).on('exit', process.exit);
-}
-
-if (fs.existsSync(binPath)) {
-  execBin();
-}
+spawn(binPath, process.argv.slice(2), { stdio: "inherit" }).on("exit", process.exit);

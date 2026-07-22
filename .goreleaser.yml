@@ -1,3 +1,4 @@
+version: 2
 project_name: cloud-mta-build-tool
 before:
 builds:
@@ -19,10 +20,7 @@ builds:
       - goos: windows
         goarch: arm64
 archives:
-  - replacements:
-      darwin: Darwin
-      linux: Linux
-      windows: Windows
+  - name_template: "{{ .ProjectName }}_{{ .Os | title }}_{{ .Arch }}"
     format: tar.gz
     files:
       - licence*
