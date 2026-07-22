@@ -1,5 +1,12 @@
 version: 2
 updates:
+- package-ecosystem: github-actions
+  directory: "/"
+  schedule:
+    interval: weekly
+    day: sunday
+    time: "10:00"
+    timezone: Etc/UCT
 - package-ecosystem: gomod
   directory: "/"
   schedule:
