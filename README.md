@@ -1,6 +1,7 @@
 
 <p align="center"><img width="350" height="281" src="logo.png" alt="MBT logo"></p>
 
+
 <br />
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/SAP/cloud-mta-build-tool)](https://goreportcard.com/report/github.com/SAP/cloud-mta-build-tool)
