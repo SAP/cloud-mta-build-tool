@@ -36,12 +36,12 @@ var _ = Describe("Execute", func() {
 			Ω(Execute(args, false)).Should(Succeed())
 		},
 			Entry("EchoTesting", [][]string{{"", "sh", "-c", `echo -n {"Name": "Bob", "Age": 32}`}}),
-			Entry("Dummy Go Testing", [][]string{{"", "go", "test", "exec_dummy_test.go"}}))
+			Entry("Dummy Go Testing", [][]string{{"", "sh", "-c", "exit 0"}}))
 
 		var _ = DescribeTable("Invalid input", func(args [][]string) {
 			Ω(Execute(args, false)).Should(HaveOccurred())
 		},
-			Entry("Valid command fails on input", [][]string{{"", "go", "test", "exec_unknown_test.go"}}),
+			Entry("Valid command fails on input", [][]string{{"", "sh", "-c", "exit 1"}}),
 			Entry("Invalid command", [][]string{{"", "dateXXX"}}),
 		)
 	})
