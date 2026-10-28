@@ -1,3 +1,4 @@
+version: 2
 project_name: cloud-mta-build-tool
 before:
 builds:
@@ -19,11 +20,9 @@ builds:
       - goos: windows
         goarch: arm64
 archives:
-  - replacements:
-      darwin: Darwin
-      linux: Linux
-      windows: Windows
-    format: tar.gz
+  - name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os | title }}_{{ .Arch }}"
+    formats:
+      - tar.gz
     files:
       - licence*
       - LICENCE*
@@ -37,7 +36,7 @@ dist: dist
 checksum:
   name_template: 'checksums.txt'
 snapshot:
-  name_template: "{{ .Tag }}-next"
+  version_template: "{{ .Tag }}-next"
 changelog:
   sort: asc
   filters:
