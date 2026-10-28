@@ -343,7 +343,13 @@ func GetModuleSBomGenCommands(loc *dir.Loc, module *mta.Module,
 
 	switch builder {
 	case "npm", "npm-ci", "grunt", "evo":
-		cmd = "npm install"
+		// the npm-ci builder installs strictly from the lock file, so the SBOM must be
+		// generated from the same dependency set instead of a fresh "npm install" resolution
+		if builder == "npm-ci" {
+			cmd = "npm clean-install"
+		} else {
+			cmd = "npm install"
+		}
 		cmds = append(cmds, cmd)
 		// cmd = "npm install " + cyclonedxNpm + "@" + cyclonedxNpmVersion + " --no-save"
 		// cmds = append(cmds, cmd)
