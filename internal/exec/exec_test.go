@@ -41,7 +41,7 @@ var _ = Describe("Execute", func() {
 		var _ = DescribeTable("Invalid input", func(args [][]string) {
 			Ω(Execute(args, false)).Should(HaveOccurred())
 		},
-			Entry("Valid command fails on input", [][]string{{"", "sh", "-c", "exit 1"}}),							  
+			Entry("Valid command fails on input", [][]string{{"", "sh", "-c", "exit 1"}}),
 			Entry("Invalid command", [][]string{{"", "dateXXX"}}),
 		)
 	})
