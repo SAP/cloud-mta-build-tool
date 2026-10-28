@@ -5,7 +5,7 @@ builders:
   type:
   - command: npm install
   - command: grunt
-  - command: npm prune --production
+  - command: npm prune --omit=dev
 - name: java
   info: "build java application"
   path: "path to config file which override the following default commands"
@@ -15,7 +15,7 @@ builders:
   info: "build nodejs application"
   path: "path to config file which override the following default commands"
   type:
-  - command: npm install --production
+  - command: npm install --omit=dev
 - name: golang
   info: "build golang application"
   path: "path to config file which override the following default commands"
