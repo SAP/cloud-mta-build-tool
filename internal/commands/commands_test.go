@@ -502,8 +502,8 @@ var _ = Describe("GetModuleSBomGenCommands", func() {
 		commands, err := GetModuleSBomGenCommands(&loc, module, "bom", "xml", ".xml")
 
 		Ω(err).Should(Succeed())
-		// Should use default nodejs SBOM generation (npm install + npx cyclonedx)
-		Ω(commands).Should(HaveLen(2))
+		// Should use default nodejs SBOM generation (npm install + npm install cyclonedx + npx cyclonedx-npm)
+		Ω(commands).Should(HaveLen(3))
 	})
 
 	It("should skip non-string elements in sbom-create-commands and use remaining valid commands", func() {
