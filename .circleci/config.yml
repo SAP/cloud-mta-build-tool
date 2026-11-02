@@ -66,7 +66,7 @@ jobs:
       - run:
           name: install cyclonedx-cli
           command: |
-            CYCLONEDX_CLI_VERSION=0.27.1
+            CYCLONEDX_CLI_VERSION=0.32.0
             CYCLONEDX_BINARY_NAME=cyclonedx
             CYCLONEDX_ARCH=x64
             CYCLONEDX_OS=linux
@@ -85,10 +85,12 @@ jobs:
           name: install cyclonedx-npm
           command: |
             CYCLONEDX_NPM_PACKAGE=@cyclonedx/cyclonedx-npm
-            CYCLONEDX_NPM_VERSION=1.19.3
+            CYCLONEDX_NPM_VERSION=6.0.1
             CYCLONEDX_NPM_BINARY=cyclonedx-npm
-            echo "npx ${CYCLONEDX_NPM_PACKAGE}@${CYCLONEDX_NPM_VERSION} -h"
-            npx ${CYCLONEDX_NPM_PACKAGE}@${CYCLONEDX_NPM_VERSION} -h
+            echo "npm install ${CYCLONEDX_NPM_PACKAGE}@${CYCLONEDX_NPM_VERSION} --no-save"
+            npm install ${CYCLONEDX_NPM_PACKAGE}@${CYCLONEDX_NPM_VERSION} --no-save
+            echo "npx ${CYCLONEDX_NPM_BINARY} --version"
+            npx ${CYCLONEDX_NPM_BINARY} --version
       - run:
           name: build mbt binary
           command: |
