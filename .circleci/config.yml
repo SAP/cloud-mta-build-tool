@@ -85,7 +85,7 @@ jobs:
           name: install cyclonedx-npm
           command: |
             CYCLONEDX_NPM_PACKAGE=@cyclonedx/cyclonedx-npm
-            CYCLONEDX_NPM_VERSION=1.19.3
+            CYCLONEDX_NPM_VERSION=3.0.0
             CYCLONEDX_NPM_BINARY=cyclonedx-npm
             echo "npx ${CYCLONEDX_NPM_PACKAGE}@${CYCLONEDX_NPM_VERSION} -h"
             npx ${CYCLONEDX_NPM_PACKAGE}@${CYCLONEDX_NPM_VERSION} -h
