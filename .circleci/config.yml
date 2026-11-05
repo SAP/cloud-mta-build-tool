@@ -247,6 +247,8 @@ jobs:
             #Make sure HEAD points to master
             git checkout master
             export GITHUB_TOKEN=${CLOUD_MTA_BOT_GITHUB_TOKEN}
+            which goreleaser
+            goreleaser --version
             goreleaser release
             #curl -sfL https://goreleaser.com/static/run | bash
 
