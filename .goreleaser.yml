@@ -1,6 +1,5 @@
 version: 2
 project_name: cloud-mta-build-tool
-before:
 builds:
   - goos:
       - linux
@@ -36,7 +35,7 @@ dist: dist
 checksum:
   name_template: 'checksums.txt'
 snapshot:
-  version_template: "{{ .Tag }}-next"
+  name_template: "{{ .Tag }}-next"
 changelog:
   sort: asc
   filters:
