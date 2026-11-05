@@ -20,8 +20,7 @@ builds:
         goarch: arm64
 archives:
   - name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os | title }}_{{ .Arch }}"
-    formats:
-      - tar.gz
+    format: tar.gz
     files:
       - licence*
       - LICENCE*
