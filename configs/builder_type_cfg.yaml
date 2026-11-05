@@ -16,13 +16,13 @@ builders:
     info: "installing module dependencies & remove dev dependencies"
     path: "path to config file which override the following default commands"
     commands:
-      - command: npm install --production
+      - command: npm install --omit=dev
 
   - name: npm-ci
     info: "clean install production dependencies"
     path: "path to config file which override the following default commands"
     commands:
-      - command: npm clean-install --production
+      - command: npm clean-install --omit=dev
 
   - name: grunt
     info: "execute grunt"
@@ -44,7 +44,7 @@ builders:
       - command: npm install
       - command: npm run init
       - command: npm run build
-      - command: npm prune --production
+      - command: npm prune --omit=dev
 
   - name: maven
     info: "build java application"

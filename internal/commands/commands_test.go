@@ -25,7 +25,7 @@ module-types:
     commands:
     - command: npm install 
     - command: grunt 
-    - command: npm prune --production
+    - command: npm prune --omit=dev
   - name: java
     info: "build java application"
     commands:
@@ -46,7 +46,7 @@ module-types:
 		}
 		var expected = CommandList{
 			Info:    "build UI application",
-			Command: []string{"npm install", "grunt", "npm prune --production"},
+			Command: []string{"npm install", "grunt", "npm prune --omit=dev"},
 		}
 		commands := ModuleTypes{}
 		customCommands := Builders{}
@@ -97,7 +97,7 @@ module-types:
     commands:
     - command: npm install
     - command: grunt
-    - command: npm prune --production
+    - command: npm prune --omit=dev
 `)
 		var modules = mta.Module{
 			Name: "uiapp",
@@ -132,7 +132,7 @@ module-types:
 	It("CommandProvider", func() {
 		expected := CommandList{
 			Info:    "installing module dependencies & remove dev dependencies",
-			Command: []string{"npm install --production"},
+			Command: []string{"npm install --omit=dev"},
 		}
 		Ω(CommandProvider(mta.Module{Type: "html5"})).Should(Equal(expected))
 	})
@@ -143,7 +143,7 @@ module-types:
 		BeforeEach(func() {
 			config = make([]byte, len(ModuleTypeConfig))
 			copy(config, ModuleTypeConfig)
-			// Simplified commands configuration (performance purposes). removed "npm prune --production"
+			// Simplified commands configuration (performance purposes). removed "npm prune --omit=dev"
 			ModuleTypeConfig = []byte(`
 module-types:
 - name: html5
@@ -175,7 +175,7 @@ module-types:
 		BeforeEach(func() {
 			moduleTypesConfig = make([]byte, len(ModuleTypeConfig))
 			copy(moduleTypesConfig, ModuleTypeConfig)
-			// Simplified commands configuration (performance purposes). removed "npm prune --production"
+			// Simplified commands configuration (performance purposes). removed "npm prune --omit=dev"
 			ModuleTypeConfig = []byte(`
 module-types:
 - name: html5
@@ -211,11 +211,11 @@ builders:
 	var _ = Describe("Command converter", func() {
 
 		It("Sanity", func() {
-			cmdInput := []string{"npm install {{config}}", "grunt", "npm prune --production"}
+			cmdInput := []string{"npm install {{config}}", "grunt", "npm prune --omit=dev"}
 			cmdExpected := [][]string{
 				{"path", "npm", "install", "{{config}}"},
 				{"path", "grunt"},
-				{"path", "npm", "prune", "--production"}}
+				{"path", "npm", "prune", "--omit=dev"}}
 			result, e := CmdConverter("path", cmdInput)
 			Ω(e).Should(Succeed())
 			Ω(result).Should(Equal(cmdExpected))
@@ -269,7 +269,7 @@ modules:
 			module, commands, _, err := moduleCmd(m, "htmlapp")
 			Ω(err).Should(Succeed())
 			Ω(module.Path).Should(Equal("app"))
-			Ω(commands).Should(Equal([]string{"npm install --production"}))
+			Ω(commands).Should(Equal([]string{"npm install --omit=dev"}))
 		})
 
 		It("Builder specified in build params", func() {
@@ -292,7 +292,7 @@ modules:
 			module, commands, _, err := moduleCmd(m, "htmlapp")
 			Ω(err).Should(BeNil())
 			Ω(module.Path).Should(Equal("app"))
-			Ω(commands).Should(Equal([]string{"npm install --production"}))
+			Ω(commands).Should(Equal([]string{"npm install --omit=dev"}))
 		})
 
 		It("Fetcher builder specified in build params", func() {
@@ -337,7 +337,7 @@ modules:
 				Ω(err).Should(Succeed())
 				Ω(module.Name).Should(Equal("node-js"))
 				Ω(len(cmd)).Should(Equal(1))
-				Ω(cmd[0]).Should(Equal("npm install --production"))
+				Ω(cmd[0]).Should(Equal("npm install --omit=dev"))
 
 			})
 			It("Invalid case - wrong module name", func() {
