@@ -197,7 +197,7 @@ jobs:
       - run:
           name: install goreleaser
           command: |
-            go install github.com/goreleaser/goreleaser@v2.4.8
+            go install github.com/goreleaser/goreleaser/v2@v2.4.8
             echo "goreleaser --version:"
             goreleaser --version
       - run:
