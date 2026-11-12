@@ -30,7 +30,7 @@ var _ = Describe("ModuleArch", func() {
 	BeforeEach(func() {
 		config = make([]byte, len(commands.ModuleTypeConfig))
 		copy(config, commands.ModuleTypeConfig)
-		// Simplified commands configuration (performance purposes). removed "npm prune --production"
+		// Simplified commands configuration (performance purposes). removed "npm prune --omit=dev"
 		commands.ModuleTypeConfig = []byte(`
 builders:
 - name: html5
