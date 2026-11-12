@@ -224,6 +224,7 @@ jobs:
             echo "New release: ${MBT_VERSION}"
             #Update new version in files
             sed -i "/\"version\":/s/${CURR_MBT_VERSION}/${MBT_VERSION}/" ./package.json
+            sed -i "/\"name\": \"mbt\"/{n; s/\"version\": \"${CURR_MBT_VERSION}\"/\"version\": \"${MBT_VERSION}\"/;}" ./package-lock.json
             sed -i "/cli_version:/s/${CURR_MBT_VERSION}/${MBT_VERSION}/" ./configs/version.yaml
             sed -i "s/${CURR_MBT_VERSION}/${MBT_VERSION}/" ./VERSION
             sed -i "/ARG MBT_VERSION=/ s/${CURR_MBT_VERSION}/${MBT_VERSION}/" ./Dockerfile_mbtci_template
