@@ -87,7 +87,7 @@ jobs:
             CYCLONEDX_NPM_PACKAGE=@cyclonedx/cyclonedx-npm
             CYCLONEDX_NPM_VERSION=3.1.0
             CYCLONEDX_NPM_BINARY=cyclonedx-npm
-            npm install -g ${CYCLONEDX_NPM_PACKAGE}@${CYCLONEDX_NPM_VERSION}
+            sudo npm install -g ${CYCLONEDX_NPM_PACKAGE}@${CYCLONEDX_NPM_VERSION}
             echo "${CYCLONEDX_NPM_BINARY} --version"
             ${CYCLONEDX_NPM_BINARY} --version
       - run:
