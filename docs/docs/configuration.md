@@ -255,7 +255,7 @@ If the `supported-platforms` build parameter is not used, the module is packaged
 You can use these values or any combination of these values for the `supported-platforms` build parameter: <ul><li>`CF` for the SAP Cloud Platform Cloud Foundry environment  <li>`NEO` for the SAP Cloud Platform Neo environment <li>`XSA` for the SAP HANA XS advanced model 
 
 #### Configuring timeout sessions
-When you build a specific module, there is a default 5-minute timeout allowance. After this time, the build will fail. You can configure the time allowed for timeout when performing a build by adding the `timeout` property to the module build parameters. The timeout property uses the `<number of hours>h<number of minutes>m<number of seconds>s` format.
+When you build a specific module, there is a default 10-minute timeout allowance. After this time, the build will fail. You can configure the time allowed for timeout when performing a build by adding the `timeout` property to the module build parameters. The timeout property uses the `<number of hours>h<number of minutes>m<number of seconds>s` format.
 <br>
 
 For example:
