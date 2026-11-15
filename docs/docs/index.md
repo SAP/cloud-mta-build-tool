@@ -16,7 +16,7 @@ If you previously used the [Multitarget Application Archive Builder](https://hel
 ### <b> Multitarget Application</b>
 
 Before using this package, you should be familiar with the multitarget application concept and terminology.
-For background and detailed information, see the [Multi-Target Application Model](https://www.sap.com/documents/2016/06/e2f618e4-757c-0010-82c7-eda71af511fa.html) guide.   
+For background and detailed information, see the [Multi-Target Application Model](https://www.sap.com/documents/2021/09/66d96898-fa7d-0010-bca6-c68f7e60039b.html) guide.   
 
 ### <b>Creating an MTA Archive According to the MTA Development Descriptor (`mta.yaml` file)</b>
 
