@@ -527,4 +527,44 @@ var _ = Describe("GetModuleSBomGenCommands", func() {
 		Ω(commands).Should(HaveLen(1))
 		Ω(commands[0][1]).Should(Equal("valid"))
 	})
+
+	It("should use a clean install for the npm-ci builder", func() {
+		module := &mta.Module{
+			Name: "test-module",
+			Type: "nodejs",
+			BuildParams: map[string]interface{}{
+				builderParam: "npm-ci",
+			},
+		}
+
+		loc := dir.Loc{}
+		commands, err := GetModuleSBomGenCommands(&loc, module, "bom", "xml", ".xml")
+
+		Ω(err).Should(Succeed())
+		Ω(commands).Should(HaveLen(2))
+		Ω(commands[0][1]).Should(Equal("npm"))
+		Ω(commands[0][2]).Should(Equal("clean-install"))
+		Ω(commands[1][1]).Should(Equal("npx"))
+		Ω(commands[1][len(commands[1])-1]).Should(Equal("bom.xml"))
+	})
+
+	It("should keep using npm install for the npm builder", func() {
+		module := &mta.Module{
+			Name: "test-module",
+			Type: "nodejs",
+			BuildParams: map[string]interface{}{
+				builderParam: "npm",
+			},
+		}
+
+		loc := dir.Loc{}
+		commands, err := GetModuleSBomGenCommands(&loc, module, "bom", "xml", ".xml")
+
+		Ω(err).Should(Succeed())
+		Ω(commands).Should(HaveLen(2))
+		Ω(commands[0][1]).Should(Equal("npm"))
+		Ω(commands[0][2]).Should(Equal("install"))
+		Ω(commands[1][1]).Should(Equal("npx"))
+		Ω(commands[1][len(commands[1])-1]).Should(Equal("bom.xml"))
+	})
 })
