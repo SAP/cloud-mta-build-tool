@@ -21,8 +21,6 @@ const (
 	golangBuilder             = "golang"
 	optionsSuffix             = "-opts"
 	goModuleType              = "go"
-	cyclonedxNpm              = "@cyclonedx/cyclonedx-npm"
-	cyclonedxNpmVersion       = "3.1.0"
 	cyclonedxNpmSchemaVersion = "1.4"
 )
 
@@ -345,10 +343,8 @@ func GetModuleSBomGenCommands(loc *dir.Loc, module *mta.Module,
 	case "npm", "npm-ci", "grunt", "evo":
 		cmd = "npm install"
 		cmds = append(cmds, cmd)
-		// cmd = "npm install " + cyclonedxNpm + "@" + cyclonedxNpmVersion + " --no-save"
-		// cmds = append(cmds, cmd)
 		// cmd = "npx cyclonedx-npm --output-format " + strings.ToUpper(sbomFileType) + " --spec-version " + cyclonedxNpmSchemaVersion + " --output-file " + sbomFileName + sbomFileSuffix
-		cmd = "npx " + cyclonedxNpm + "@" + cyclonedxNpmVersion + " --output-format " + strings.ToUpper(sbomFileType) + " --spec-version " + cyclonedxNpmSchemaVersion + " --output-file " + sbomFileName + sbomFileSuffix
+		cmd = "cyclonedx-npm --output-format " + strings.ToUpper(sbomFileType) + " --spec-version " + cyclonedxNpmSchemaVersion + " --output-file " + sbomFileName + sbomFileSuffix
 		cmds = append(cmds, cmd)
 	case "golang":
 		cmd = "cyclonedx-gomod mod -output-version 1.4 -licenses -output " + sbomFileName + sbomFileSuffix
@@ -379,7 +375,7 @@ func GetModuleSBomGenCommands(loc *dir.Loc, module *mta.Module,
 			case "nodejs":
 				cmd = "npm install"
 				cmds = append(cmds, cmd)
-				cmd = "npx " + cyclonedxNpm + "@" + cyclonedxNpmVersion + " --output-format " + strings.ToUpper(sbomFileType) + " --spec-version " + cyclonedxNpmSchemaVersion + " --output-file " + sbomFileName + sbomFileSuffix
+				cmd = "cyclonedx-npm --output-format " + strings.ToUpper(sbomFileType) + " --spec-version " + cyclonedxNpmSchemaVersion + " --output-file " + sbomFileName + sbomFileSuffix
 				cmds = append(cmds, cmd)
 			case "java":
 				cmd = "mvn org.cyclonedx:cyclonedx-maven-plugin:2.9.0:makeAggregateBom " +
