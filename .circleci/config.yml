@@ -232,7 +232,7 @@ jobs:
             #Generate version file
             go generate -run "go run ./internal/buildtools/embed.go ./internal/buildtools/buildtools_msg.go -source=./configs/version.yaml -target=./internal/version/version_cfg.go -name=VersionConfig -package=version"
             #Add all updated files to commit
-            git add ./package.json ./configs/version.yaml ./VERSION ./internal/version/version_cfg.go ./Dockerfile_mbtci_template ./test/goss/goss_template.yaml ./README.md 
+            git add ./package.json ./package-lock.json ./configs/version.yaml ./VERSION ./internal/version/version_cfg.go ./Dockerfile_mbtci_template ./test/goss/goss_template.yaml ./README.md
             git config user.email "${CLOUD_MTA_BOT_EMAIL}"
             git config user.name "${CLOUD_MTA_BOT_USER}"
             git commit --allow-empty -m "[skip ci] Bump version ${MBT_VERSION}"
