@@ -94,7 +94,7 @@ var _ = Describe("Project", func() {
 			cmds, err := getProjectBuilderCommands(projectBuild)
 			Ω(err).Should(Succeed())
 			Ω(len(cmds.Command)).Should(Equal(1))
-			Ω(cmds.Command[0]).Should(Equal("npm install --production"))
+			Ω(cmds.Command[0]).Should(Equal("npm install --omit=dev"))
 		})
 		It("Custom builder with no commands", func() {
 			projectBuild := mta.ProjectBuilder{
